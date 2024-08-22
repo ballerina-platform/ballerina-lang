@@ -250,7 +250,7 @@ public class BIRBinaryWriter {
 
         ByteBuf birbuf = Unpooled.buffer();
         ByteBuf scopebuf = Unpooled.buffer();
-        BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, scopebuf, cp, this);
+        BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, scopebuf, cp);
 
         // Arg count
         birbuf.writeInt(birFunction.argsCount);

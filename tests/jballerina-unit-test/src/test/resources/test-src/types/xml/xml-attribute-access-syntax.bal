@@ -194,6 +194,166 @@ function testErrorsOnXMLIndexedOptionalAttributeAccess() {
     assertError((x3/**/<f>/*)[0]?.id, errorMessage, expTextDetailMessage);
 }
 
+type XC xml:Comment;
+type XPI xml:ProcessingInstruction;
+type XT xml:Text;
+type XE xml:Element;
+
+function testXmlAttributeAccessOnXmlUnionTypes() {
+    xml<xml:Element|xml:Text> x1 = xml `<a attr="aa">a</a>`;
+    string|error result = x1.attr;
+    assertNonErrorValue(result, "aa");
+    string|error? resultOptional = x1?.attr;
+    assertNonErrorValue(resultOptional, "aa");
+
+    xml<xml:Element|xml:Comment> x2 = xml `<b attr="ba">b</b>`;
+    assertNonErrorValue(x2.attr, "ba");
+    assertNonErrorValue(x2?.attr, "ba");
+
+    xml<xml:Element|xml:ProcessingInstruction> x3 = xml `<c attr="ca">c</c>`;
+    assertNonErrorValue(x3.attr, "ca");
+    assertNonErrorValue(x3?.attr, "ca");
+
+    xml<xml:Element|xml:Text|xml:ProcessingInstruction> x4 = xml `<d attr="da">d</d>`;
+    assertNonErrorValue(x4.attr, "da");
+    assertNonErrorValue(x4?.attr, "da");
+
+    xml<xml:Element|xml:Comment|xml:ProcessingInstruction> x5 = xml `<e attr="ea">e</e>`;
+    result = x5.attr;
+    assertNonErrorValue(result, "ea");
+    resultOptional = x5?.attr;
+    assertNonErrorValue(resultOptional, "ea");
+
+    xml<xml:Element|xml:Comment|xml:Text> x6 = xml `<f attr="fa">f</f>`;
+    assertNonErrorValue(x6.attr, "fa");
+    assertNonErrorValue(x6?.attr, "fa");
+
+    xml<xml:Element|xml:ProcessingInstruction|xml:Comment|xml:Text> x7 = xml `<g attr="ga">g</g>`;
+    result = x7.attr;
+    assertNonErrorValue(result, "ga");
+    resultOptional = x7?.attr;
+    assertNonErrorValue(resultOptional, "ga");
+
+    xml:Element|xml:ProcessingInstruction x8 = xml `<h attr="ha">h</h>`;
+    assertNonErrorValue(x8.attr, "ha");
+    assertNonErrorValue(x8?.attr, "ha");
+
+    xml:Element|xml:Text x9 = xml `<j attr="ja">j</j>`;
+    result = x9.attr;
+    assertNonErrorValue(result, "ja");
+    resultOptional = x9?.attr;
+    assertNonErrorValue(resultOptional, "ja");
+
+    xml:Element|xml:Comment x10 = xml `<k attr="ka">k</k>`;
+    assertNonErrorValue(x10.attr, "ka");
+    assertNonErrorValue(x10?.attr, "ka");
+
+    XC|XE x11 = xml `<l attr="la">l</l>`;
+    result = x11.attr;
+    assertNonErrorValue(result, "la");
+    resultOptional = x11?.attr;
+    assertNonErrorValue(resultOptional, "la");
+}
+
+function testErrorsOnXmlAttributeAccessOnNonXmlElementValue() {
+    string errorMessage = "{ballerina/lang.xml}XMLOperationError";
+
+    xml:Comment x1 = xml `<!--comment-->`;
+    string|error result = x1.attr;
+    assertError(result, errorMessage, "invalid xml attribute access on xml comment");
+    string|error? resultOptional = x1?.attr;
+    assertError(resultOptional, errorMessage, "invalid xml attribute access on xml comment");
+
+    xml:Text x2 = xml `text`;
+    assertError(x2.attr, errorMessage, "invalid xml attribute access on xml text");
+    assertError(x2?.attr, errorMessage, "invalid xml attribute access on xml text");
+
+    xml:ProcessingInstruction x3 = xml `<?data?>`;
+    assertError(x3.attr, errorMessage, "invalid xml attribute access on xml pi");
+    assertError(x3?.attr, errorMessage, "invalid xml attribute access on xml pi");
+
+    xml<xml:Comment|xml:Text> x4 = xml `<!--comment-->text`;
+    result = x4.attr;
+    assertError(result, errorMessage, "invalid xml attribute access on xml sequence");
+    resultOptional = x4?.attr;
+    assertError(resultOptional, errorMessage, "invalid xml attribute access on xml sequence");
+
+    xml<xml:Comment|xml:ProcessingInstruction> x5 = xml `<?data?><!--comment-->`;
+    assertError(x5.attr, errorMessage, "invalid xml attribute access on xml sequence");
+    assertError(x5?.attr, errorMessage, "invalid xml attribute access on xml sequence");
+
+    xml<xml:Text|xml:ProcessingInstruction> x6 = xml `<?data?>text`;
+    assertError(x6.attr, errorMessage, "invalid xml attribute access on xml sequence");
+    assertError(x6?.attr, errorMessage, "invalid xml attribute access on xml sequence");
+
+    xml<xml:Text|xml:ProcessingInstruction|xml:Comment> x7 = xml `<!--comment--><?data?>text`;
+    result = x7.attr;
+    assertError(result, errorMessage, "invalid xml attribute access on xml sequence");
+    resultOptional = x7?.attr;
+    assertError(resultOptional, errorMessage, "invalid xml attribute access on xml sequence");
+
+    xml<xml:Element|xml:Text> x8 = xml `text`;
+    assertError(x8.attr, errorMessage, "invalid xml attribute access on xml text");
+    assertError(x8?.attr, errorMessage, "invalid xml attribute access on xml text");
+
+    xml<xml:Element|xml:Comment> x9 = xml `<!--comment-->`;
+    assertError(x9.attr, errorMessage, "invalid xml attribute access on xml comment");
+    assertError(x9?.attr, errorMessage, "invalid xml attribute access on xml comment");
+
+    xml<xml:Element|xml:ProcessingInstruction> x10 = xml `<?target?>`;
+    assertError(x10.attr, errorMessage, "invalid xml attribute access on xml pi");
+    assertError(x10?.attr, errorMessage, "invalid xml attribute access on xml pi");
+
+    xml<xml:Element|xml:Text> x11 = xml `<a attr="attr">a</a>text`;
+    assertError(x11.attr, errorMessage, "invalid xml attribute access on xml sequence");
+    assertError(x11?.attr, errorMessage, "invalid xml attribute access on xml sequence");
+
+    xml<xml:Element|xml:Comment> x12 = xml `<a attr="attr">a</a><!--comment-->`;
+    assertError(x12.attr, errorMessage, "invalid xml attribute access on xml sequence");
+    assertError(x12?.attr, errorMessage, "invalid xml attribute access on xml sequence");
+
+    xml<xml:Element|xml:ProcessingInstruction> x13 = xml `<a attr="attr">a</a><?target?>`;
+    assertError(x13.attr, errorMessage, "invalid xml attribute access on xml sequence");
+    assertError(x13?.attr, errorMessage, "invalid xml attribute access on xml sequence");
+
+    xml<xml:Element|xml:ProcessingInstruction|xml:Comment|xml:Text> x14 =
+            xml `<a attr="attr">a</a><?target?><!--comment-->text`;
+    assertError(x14.attr, errorMessage, "invalid xml attribute access on xml sequence");
+    assertError(x14?.attr, errorMessage, "invalid xml attribute access on xml sequence");
+
+    XC x15 = xml `<!--comment-->`;
+    assertError(x15.attr, errorMessage, "invalid xml attribute access on xml comment");
+    assertError(x15?.attr, errorMessage, "invalid xml attribute access on xml comment");
+
+    XPI x16 = xml `<?data?>`;
+    result = x16.attr;
+    assertError(result, errorMessage, "invalid xml attribute access on xml pi");
+    resultOptional = x16?.attr;
+    assertError(resultOptional, errorMessage, "invalid xml attribute access on xml pi");
+
+    XT x17 = xml `text`;
+    assertError(x17.attr, errorMessage, "invalid xml attribute access on xml text");
+    assertError(x17?.attr, errorMessage, "invalid xml attribute access on xml text");
+
+    xml:Comment|xml:Text x18 = xml `<!--comment-->`;
+    assertError(x18.attr, errorMessage, "invalid xml attribute access on xml comment");
+    assertError(x18?.attr, errorMessage, "invalid xml attribute access on xml comment");
+
+    xml:Text|xml:ProcessingInstruction x19 = xml `text`;
+    result = x19.attr;
+    assertError(result, errorMessage, "invalid xml attribute access on xml text");
+    resultOptional = x19.attr;
+    assertError(resultOptional, errorMessage, "invalid xml attribute access on xml text");
+
+    xml:ProcessingInstruction|xml:Comment x20 = xml `<?data?>`;
+    assertError(x20.attr, errorMessage, "invalid xml attribute access on xml pi");
+    assertError(x20?.attr, errorMessage, "invalid xml attribute access on xml pi");
+
+    xml:ProcessingInstruction|xml:Element x21 = xml `<?target?>`;
+    assertError(x21.attr, errorMessage, "invalid xml attribute access on xml pi");
+    assertError(x21?.attr, errorMessage, "invalid xml attribute access on xml pi");
+}
+
 function assertNonErrorValue(anydata|error actual, anydata expected) {
     if actual is error {
         panic error("expected [" + expected.toString() + "] " + ", but got error with message " + actual.message());

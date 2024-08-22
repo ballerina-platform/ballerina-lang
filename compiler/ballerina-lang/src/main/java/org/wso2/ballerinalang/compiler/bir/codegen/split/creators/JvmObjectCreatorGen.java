@@ -22,6 +22,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
@@ -34,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -96,7 +96,7 @@ public class JvmObjectCreatorGen {
     }
 
     public void generateObjectsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                     String moduleInitClass, Map<String, byte[]> jarEntries,
+                                     String moduleInitClass, JarEntries jarEntries,
                                      List<BIRTypeDefinition> objectTypeDefList,
                                      SymbolTable symbolTable, AsyncDataCollector asyncDataCollector) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
@@ -213,8 +213,7 @@ public class JvmObjectCreatorGen {
             mv.visitLdcInsn("$init$");
             mv.visitVarInsn(ALOAD, argsIndex);
 
-            String methodDesc = BOBJECT_CALL;
-            mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "call", methodDesc, true);
+            mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "call", BOBJECT_CALL, true);
 
             int tempResultIndex = indexMap.addIfNotExists("tempResult", symbolTable.anyType);
             mv.visitVarInsn(ASTORE, tempResultIndex);

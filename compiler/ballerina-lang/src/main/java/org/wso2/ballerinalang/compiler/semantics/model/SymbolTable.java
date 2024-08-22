@@ -318,6 +318,10 @@ public class SymbolTable {
 
         defineCyclicUnionBasedInternalTypes();
 
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
+                                                                Names.fromString("$anonType$TRUE"),
+                                                                rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
+                                                                this.builtinPos, VIRTUAL);
         BTypeSymbol trueFiniteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
                 Names.fromString("$anonType$TRUE"), rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
                 this.builtinPos, VIRTUAL);
@@ -459,7 +463,7 @@ public class SymbolTable {
     }
 
     public void initializeType(BType type, String name, SymbolOrigin origin) {
-        initializeType(type, names.fromString(name), origin);
+        initializeType(type, Names.fromString(name), origin);
     }
 
     private void initializeType(BType type, Name name, SymbolOrigin origin) {
@@ -1142,14 +1146,14 @@ public class SymbolTable {
                                      BType retType) {
 
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
-        defineOperator(names.fromString(kind.value()), paramTypes, retType);
+        defineOperator(Names.fromString(kind.value()), paramTypes, retType);
     }
 
     private void defineUnaryOperator(OperatorKind kind,
                                      BType type,
                                      BType retType) {
         List<BType> paramTypes = Lists.of(type);
-        defineOperator(names.fromString(kind.value()), paramTypes, retType);
+        defineOperator(Names.fromString(kind.value()), paramTypes, retType);
     }
 
     private void defineOperator(Name name,

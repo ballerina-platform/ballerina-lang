@@ -24,8 +24,10 @@ package io.ballerina.runtime.api.types;
  */
 public interface RemoteMethodType extends MethodType {
 
+    @Override
     ObjectType getParentObjectType();
 
+    @Override
     FunctionType getType();
 
 }

@@ -18,9 +18,9 @@
 
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeArrayInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeMapInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeMapInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -513,14 +513,10 @@ public class BIROptimizer {
                 return false;
             }
             int typeTag = variableDcl.type.tag;
-            switch (typeTag) {
-                case TypeTags.BYTE:
-                case TypeTags.BOOLEAN:
-                case TypeTags.FLOAT:
-                    return true;
-                default:
-                    return TypeTags.isIntegerTypeTag(typeTag);
-            }
+            return switch (typeTag) {
+                case TypeTags.BYTE, TypeTags.BOOLEAN, TypeTags.FLOAT -> true;
+                default -> TypeTags.isIntegerTypeTag(typeTag);
+            };
         }
 
         @Override

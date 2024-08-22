@@ -49,18 +49,9 @@ dependencies {
     testLibs "com.github.chewiebug:gcviewer:${project.chewiebugGcviewerVersion}"
 }
 
-task copyToLib(type: Copy) {
+tasks.register('copyToLib', Copy) {
     into "${buildDir}/libs"
     from configurations.testLibs
-}
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath
-        ]
-        classpath = files()
-    }
 }
 
 jar {

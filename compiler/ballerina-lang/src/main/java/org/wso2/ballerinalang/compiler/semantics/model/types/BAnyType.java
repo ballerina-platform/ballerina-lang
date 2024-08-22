@@ -37,10 +37,22 @@ import static io.ballerina.types.PredefinedType.IMPLEMENTED_VAL_READONLY;
  */
 public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
 
+    private boolean nullable = true;
     private boolean isNilLifted = false;
 
     public BAnyType(BTypeSymbol tsymbol) {
         this(tsymbol, IMPLEMENTED_ANY_TYPE);
+    }
+
+    public BAnyType(int tag, BTypeSymbol tsymbol, boolean nullable) {
+        super(tag, tsymbol, IMPLEMENTED_ANY_TYPE);
+        this.nullable = nullable;
+    }
+
+    public BAnyType(int tag, BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
+        super(tag, tsymbol, flags, IMPLEMENTED_ANY_TYPE);
+        this.name = name;
+        this.nullable = nullable;
     }
 
     private BAnyType(BTypeSymbol tsymbol, SemType semType) {
@@ -66,6 +78,11 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
+    }
+
+    @Override
+    public boolean isNullable() {
+        return nullable;
     }
 
     @Override

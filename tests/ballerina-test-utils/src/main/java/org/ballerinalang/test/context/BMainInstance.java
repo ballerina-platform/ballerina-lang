@@ -119,7 +119,7 @@ public class BMainInstance implements BMain {
     @Override
     public void runMain(String balFile, String[] flags,
                         String[] args, LogLeecher[] leechers) throws BallerinaTestException {
-        runMain(balFile, flags, args, null, new String[]{}, leechers);
+        runMain(balFile, flags, args, new HashMap<>(), new String[]{}, leechers);
     }
 
     @Override
@@ -146,7 +146,6 @@ public class BMainInstance implements BMain {
         if (envProperties == null) {
             envProperties = new HashMap<>();
         }
-        addJavaAgents(envProperties);
 
         runMain("build", new String[]{balFile}, envProperties, null, leechers, balServer.getServerHome());
         runJar(balFile, ArrayUtils.addAll(flags, args), envProperties, clientArgs, leechers, balServer.getServerHome());
@@ -200,8 +199,6 @@ public class BMainInstance implements BMain {
         if (envProperties == null) {
             envProperties = new HashMap<>();
         }
-        addJavaAgents(envProperties);
-
         runMain("build", new String[]{packagePath}, envProperties, null, leechers, sourceRoot);
         runJar(Paths.get(sourceRoot, packagePath).toString(), packagePath, ArrayUtils.addAll(flags, args),
                 envProperties, clientArgs, leechers, sourceRoot);
@@ -259,6 +256,7 @@ public class BMainInstance implements BMain {
                     env.put(entry.getKey(), entry.getValue());
                 }
             }
+            addJavaAgents(processBuilder.environment());
 
             Process process = processBuilder.start();
 
@@ -571,6 +569,7 @@ public class BMainInstance implements BMain {
         try {
             List<String> runCmdSet = new ArrayList<>();
             runCmdSet.add("java");
+            addJavaAgents(envProperties);
             if (envProperties.containsKey(JAVA_OPTS)) {
                 runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
             }
@@ -582,9 +581,7 @@ public class BMainInstance implements BMain {
 
             ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(new File(commandDir));
             Map<String, String> env = processBuilder.environment();
-            for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                env.put(entry.getKey(), entry.getValue());
-            }
+            env.putAll(envProperties);
             Process process = processBuilder.start();
 
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
@@ -707,5 +704,16 @@ public class BMainInstance implements BMain {
         }
         writer.flush();
         writer.close();
+    }
+
+    public void compilePackageAndPushToLocal(String packagPath, String balaFileName) throws BallerinaTestException {
+        LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
+                                                "'local' repository.");
+        this.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher}, packagPath);
+        buildLeecher.waitForText(5000);
+        this.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
+                packagPath);
+        pushLeecher.waitForText(5000);
     }
 }

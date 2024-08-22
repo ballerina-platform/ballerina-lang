@@ -113,11 +113,12 @@ public class BindgenCommand implements BLauncherCmd {
     @CommandLine.Parameters
     private List<String> classNames;
 
-    private static final String BINDGEN_CMD = "bal bindgen [(-cp|--classpath) <classpath>...]\n" +
-            "                  [(-mvn|--maven) <groupId>:<artifactId>:<version>]\n" +
-            "                  [(-o|--output) <output-path>]\n" +
-            "                  [--public]\n" +
-            "                  (<class-name>...)";
+    private static final String BINDGEN_CMD = """
+            bal bindgen [(-cp|--classpath) <classpath>...]
+                              [(-mvn|--maven) <groupId>:<artifactId>:<version>]
+                              [(-o|--output) <output-path>]
+                              [--public]
+                              (<class-name>...)""";
 
     @Override
     public void execute() {

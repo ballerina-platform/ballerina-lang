@@ -223,6 +223,7 @@ public class IsPureTypeUniqueVisitor extends UniqueTypeVisitor<Boolean> {
         return visit(type.effectiveType);
     }
 
+    @Override
     public Boolean visit(BTypeReferenceType type) {
         return visit(type.referredType);
     }

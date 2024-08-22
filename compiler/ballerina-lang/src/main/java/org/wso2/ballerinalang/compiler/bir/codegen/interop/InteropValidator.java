@@ -22,6 +22,11 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.PlatformLibraryScope;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.wso2.ballerinalang.compiler.bir.codegen.exceptions.JInteropException;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JFieldBIRFunction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethod;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodBIRFunction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JavaField;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -220,9 +225,7 @@ public class InteropValidator {
     BIRNode.BIRFunction createJInteropFunction(InteropValidationRequest jInteropValidationReq,
                                                BIRNode.BIRFunction birFunc, ClassLoader classLoader) {
 
-        if (jInteropValidationReq instanceof InteropValidationRequest.MethodValidationRequest) {
-            InteropValidationRequest.MethodValidationRequest methodValidationRequest =
-                    ((InteropValidationRequest.MethodValidationRequest) jInteropValidationReq);
+        if (jInteropValidationReq instanceof InteropValidationRequest.MethodValidationRequest methodValidationRequest) {
             methodValidationRequest.restParamExist = birFunc.restParam != null;
             JMethod jMethod = validateAndGetJMethod(methodValidationRequest, classLoader);
             return new JMethodBIRFunction(birFunc, jMethod);

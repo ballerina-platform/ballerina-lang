@@ -184,7 +184,7 @@ public class Names {
 
     public static Name fromString(String value) {
         // value cannot be null
-        if (value.equals("")) {
+        if (value.isEmpty()) {
             return EMPTY;
         } else if (value.equals("_")) {
             return IGNORE;

@@ -706,6 +706,16 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Override
+    public Object pop(long index) {
+        return shift(index);
+    }
+
+    @Override
+    public Object remove(long index) {
+        return shift(index);
+    }
+
+    @Override
     public Object shift(long index) {
         handleImmutableArrayValue();
         Object val = get(index);
@@ -925,6 +935,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param endIndex index of first member not to include in the slice
      * @return array slice within specified range
      */
+    @Override
     public ArrayValueImpl slice(long startIndex, long endIndex) {
         ArrayValueImpl slicedArray;
         int slicedSize = (int) (endIndex - startIndex);

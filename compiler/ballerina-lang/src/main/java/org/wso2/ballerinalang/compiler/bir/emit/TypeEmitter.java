@@ -66,96 +66,52 @@ class TypeEmitter {
 
     static String emitType(BType bType, int tabs) {
 
-        switch (bType.tag) {
-            case TypeTags.INT:
-                return "int";
-            case TypeTags.SIGNED32_INT:
-                return "int:Signed32";
-            case TypeTags.SIGNED16_INT:
-                return "int:Signed16";
-            case TypeTags.SIGNED8_INT:
-                return "int:Signed8";
-            case TypeTags.UNSIGNED32_INT:
-                return "int:Unsigned32";
-            case TypeTags.UNSIGNED16_INT:
-                return "int:Unsigned16";
-            case TypeTags.UNSIGNED8_INT:
-                return "int:Unsigned8";
-            case TypeTags.BOOLEAN:
-                return "boolean";
-            case TypeTags.ANY:
-                return "any";
-            case TypeTags.NIL:
-                return "()";
-            case TypeTags.NEVER:
-                return "never";
-            case TypeTags.BYTE:
-                return "byte";
-            case TypeTags.FLOAT:
-                return "float";
-            case TypeTags.STRING:
-                return "string";
-            case TypeTags.ANYDATA:
-                return "anydata";
-            case TypeTags.READONLY:
-                return "readonly";
-            case TypeTags.NONE:
-                return "none";
-            case TypeTags.JSON:
-                return "json";
-            case TypeTags.XML:
-                return "xml";
-            case TypeTags.XML_TEXT:
-                return "xml:Text";
-            case TypeTags.XML_ELEMENT:
-                return "xml:Element";
-            case TypeTags.XML_COMMENT:
-                return "xml:Comment";
-            case TypeTags.XML_PI:
-                return "xml:ProcessingInstruction";
-            case TypeTags.DECIMAL:
-                return "decimal";
-            case TypeTags.CHAR_STRING:
-                return "string:Char";
-            case TypeTags.REGEXP:
-                return "regexp:RegExp";
-            case TypeTags.UNION:
-                return emitBUnionType((BUnionType) bType, tabs);
-            case TypeTags.INTERSECTION:
-                return emitBIntersectionType((BIntersectionType) bType, tabs);
-            case TypeTags.TUPLE:
-                return emitBTupleType((BTupleType) bType, tabs);
-            case TypeTags.INVOKABLE:
-                return emitBInvokableType((BInvokableType) bType, tabs);
-            case TypeTags.ARRAY:
-                return emitBArrayType((BArrayType) bType, tabs);
-            case TypeTags.RECORD:
-                return emitBRecordType((BRecordType) bType, tabs);
-            case TypeTags.OBJECT:
-                return emitBObjectType((BObjectType) bType, tabs);
-            case TypeTags.MAP:
-                return emitBMapType((BMapType) bType, tabs);
-            case TypeTags.TABLE:
-                return emitTableType((BTableType) bType, tabs);
-            case TypeTags.ERROR:
-                return emitBErrorType((BErrorType) bType, tabs);
-            case TypeTags.FUTURE:
-                return emitBFutureType((BFutureType) bType, tabs);
-            case TypeTags.TYPEDESC:
-                return emitBTypeDesc((BTypedescType) bType, tabs);
-            case TypeTags.FINITE:
-                return emitBFiniteType((BFiniteType) bType, tabs);
-            case TypeTags.HANDLE:
-                return emitBTypeHandle((BHandleType) bType, tabs);
-            case TypeTags.STREAM:
-                return emitBStreamType((BStreamType) bType, tabs);
-            case TypeTags.TYPEREFDESC:
-                return emitTypeRefDesc((BTypeReferenceType) bType, tabs);
-            case TypeTags.PARAMETERIZED_TYPE:
-                return emitParameterizedType((BParameterizedType) bType, tabs);
-            default:
-                throw new IllegalStateException("Invalid type");
-        }
+        return switch (bType.tag) {
+            case TypeTags.INT -> "int";
+            case TypeTags.SIGNED32_INT -> "int:Signed32";
+            case TypeTags.SIGNED16_INT -> "int:Signed16";
+            case TypeTags.SIGNED8_INT -> "int:Signed8";
+            case TypeTags.UNSIGNED32_INT -> "int:Unsigned32";
+            case TypeTags.UNSIGNED16_INT -> "int:Unsigned16";
+            case TypeTags.UNSIGNED8_INT -> "int:Unsigned8";
+            case TypeTags.BOOLEAN -> "boolean";
+            case TypeTags.ANY -> "any";
+            case TypeTags.NIL -> "()";
+            case TypeTags.NEVER -> "never";
+            case TypeTags.BYTE -> "byte";
+            case TypeTags.FLOAT -> "float";
+            case TypeTags.STRING -> "string";
+            case TypeTags.ANYDATA -> "anydata";
+            case TypeTags.READONLY -> "readonly";
+            case TypeTags.NONE -> "none";
+            case TypeTags.JSON -> "json";
+            case TypeTags.XML -> "xml";
+            case TypeTags.XML_TEXT -> "xml:Text";
+            case TypeTags.XML_ELEMENT -> "xml:Element";
+            case TypeTags.XML_COMMENT -> "xml:Comment";
+            case TypeTags.XML_PI -> "xml:ProcessingInstruction";
+            case TypeTags.DECIMAL -> "decimal";
+            case TypeTags.CHAR_STRING -> "string:Char";
+            case TypeTags.REGEXP -> "regexp:RegExp";
+            case TypeTags.UNION -> emitBUnionType((BUnionType) bType, tabs);
+            case TypeTags.INTERSECTION -> emitBIntersectionType((BIntersectionType) bType, tabs);
+            case TypeTags.TUPLE -> emitBTupleType((BTupleType) bType, tabs);
+            case TypeTags.INVOKABLE -> emitBInvokableType((BInvokableType) bType, tabs);
+            case TypeTags.ARRAY -> emitBArrayType((BArrayType) bType, tabs);
+            case TypeTags.RECORD -> emitBRecordType((BRecordType) bType, tabs);
+            case TypeTags.OBJECT -> emitBObjectType((BObjectType) bType, tabs);
+            case TypeTags.MAP -> emitBMapType((BMapType) bType, tabs);
+            case TypeTags.TABLE -> emitTableType((BTableType) bType, tabs);
+            case TypeTags.ERROR -> emitBErrorType((BErrorType) bType, tabs);
+            case TypeTags.FUTURE -> emitBFutureType((BFutureType) bType, tabs);
+            case TypeTags.TYPEDESC -> emitBTypeDesc((BTypedescType) bType, tabs);
+            case TypeTags.FINITE -> emitBFiniteType((BFiniteType) bType, tabs);
+            case TypeTags.HANDLE -> emitBTypeHandle((BHandleType) bType, tabs);
+            case TypeTags.STREAM -> emitBStreamType((BStreamType) bType, tabs);
+            case TypeTags.TYPEREFDESC -> emitTypeRefDesc((BTypeReferenceType) bType, tabs);
+            case TypeTags.PARAMETERIZED_TYPE -> emitParameterizedType((BParameterizedType) bType, tabs);
+            default -> throw new IllegalStateException("Invalid type");
+        };
     }
 
     private static String emitParameterizedType(BParameterizedType type, int tabs) {
@@ -176,7 +132,7 @@ class TypeEmitter {
         String stringRep;
         if (!bType.fieldNameList.isEmpty()) {
             for (String fieldName : bType.fieldNameList) {
-                if (!keyStringBuilder.toString().equals("")) {
+                if (!keyStringBuilder.toString().isEmpty()) {
                     keyStringBuilder.append(", ");
                 }
                 keyStringBuilder.append(fieldName);
@@ -299,7 +255,7 @@ class TypeEmitter {
                 recordStr.append(emitTabs(tabs + 1));
                 String flags = emitFlags(bField.type.getFlags());
                 recordStr.append(flags);
-                if (!flags.equals("")) {
+                if (!flags.isEmpty()) {
                     recordStr.append(emitSpaces(1));
                 }
                 recordStr.append(emitTypeRef(bField.type, tabs + 1));
@@ -326,7 +282,7 @@ class TypeEmitter {
                 str.append(emitTabs(tabs + 1));
                 String flags = emitFlags(bField.type.getFlags());
                 str.append(flags);
-                if (!flags.equals("")) {
+                if (!flags.isEmpty()) {
                     str.append(emitSpaces(1));
                 }
                 str.append(emitTypeRef(bField.type, tabs + 1));

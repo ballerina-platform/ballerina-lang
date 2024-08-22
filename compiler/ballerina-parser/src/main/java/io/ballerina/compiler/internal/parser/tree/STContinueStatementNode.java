@@ -56,6 +56,7 @@ public class STContinueStatementNode extends STStatementNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STContinueStatementNode(
                 this.continueToken,
@@ -78,6 +79,7 @@ public class STContinueStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ContinueStatementNode(this, position, parent);
     }

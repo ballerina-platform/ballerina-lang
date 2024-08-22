@@ -248,6 +248,7 @@ public class JMethod extends BFunction {
         return hasException;
     }
 
+    @Override
     public String getReturnType() {
         return returnType;
     }
@@ -260,10 +261,12 @@ public class JMethod extends BFunction {
         return unescapedMethodName;
     }
 
+    @Override
     public List<JParameter> getParameters() {
         return parameters;
     }
 
+    @Override
     public boolean isStatic() {
         return isStatic;
     }

@@ -56,6 +56,7 @@ public class STRestDescriptorNode extends STNode {
                 ellipsisToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRestDescriptorNode(
                 this.typeDescriptor,
@@ -78,6 +79,7 @@ public class STRestDescriptorNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RestDescriptorNode(this, position, parent);
     }

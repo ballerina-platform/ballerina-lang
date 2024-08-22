@@ -44,6 +44,7 @@ public class TomlLexer extends AbstractLexer {
      *
      * @return Next lexical token.
      */
+    @Override
     public STToken nextToken() {
         STToken token;
         switch (this.mode) {

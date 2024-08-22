@@ -915,6 +915,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangGroupingKey groupingKey) {
     }
 

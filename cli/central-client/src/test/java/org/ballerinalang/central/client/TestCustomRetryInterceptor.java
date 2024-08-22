@@ -80,17 +80,17 @@ public class TestCustomRetryInterceptor {
         Response response = centralHttpClient.newCall(request).execute();
         String consoleOutput = readOutput();
         if (isWindows) {
-            consoleOutput = consoleOutput.replaceAll("127.0.0.1", "localhost");
+            consoleOutput = consoleOutput.replaceAll(mockWebServer.url(BASE_PATH).host(), "localhost");
         }
         Assert.assertEquals(response.code(), HttpURLConnection.HTTP_INTERNAL_ERROR);
-        Assert.assertTrue(consoleOutput.contains(expectedOutputPrefix + 1));
-        Assert.assertTrue(consoleOutput.contains(expectedOutputPrefix + 2));
-        Assert.assertTrue(consoleOutput.contains(expectedOutputPrefix + 3));
-        Assert.assertFalse(consoleOutput.contains(expectedOutputPrefix + 4));
+        Assert.assertTrue(consoleOutput.contains(expectedOutputPrefix + 1), consoleOutput);
+        Assert.assertTrue(consoleOutput.contains(expectedOutputPrefix + 2), consoleOutput);
+        Assert.assertTrue(consoleOutput.contains(expectedOutputPrefix + 3), consoleOutput);
+        Assert.assertFalse(consoleOutput.contains(expectedOutputPrefix + 4), consoleOutput);
         mockWebServer.close();
     }
 
-    @Test(description = "Return successful response before retry maximum is reached.")
+    @Test(description = "Return successful response before retry maximum is reached.", dependsOnMethods = "testRetries")
     public void testRetries2() throws IOException {
         String expectedOutputPrefix =  "* Retrying request to http://localhost:57803/ " +
                 "due to 502 response code. Retry attempt: ";
@@ -106,12 +106,12 @@ public class TestCustomRetryInterceptor {
         Response response = centralHttpClient.newCall(request).execute();
         String consoleOutput = readOutput();
         if (isWindows) {
-            consoleOutput = consoleOutput.replaceAll("127.0.0.1", "localhost");
+            consoleOutput = consoleOutput.replaceAll(mockWebServer.url(BASE_PATH).host(), "localhost");
         }
         Assert.assertEquals(response.code(), HttpURLConnection.HTTP_OK);
-        Assert.assertTrue(consoleOutput.contains(expectedOutputPrefix + 1));
-        Assert.assertTrue(consoleOutput.contains(expectedOutputPrefix + 2));
-        Assert.assertFalse(consoleOutput.contains(expectedOutputPrefix + 3));
+        Assert.assertTrue(consoleOutput.contains(expectedOutputPrefix + 1), consoleOutput);
+        Assert.assertTrue(consoleOutput.contains(expectedOutputPrefix + 2), consoleOutput);
+        Assert.assertFalse(consoleOutput.contains(expectedOutputPrefix + 3), consoleOutput);
         mockWebServer.close();
     }
 }

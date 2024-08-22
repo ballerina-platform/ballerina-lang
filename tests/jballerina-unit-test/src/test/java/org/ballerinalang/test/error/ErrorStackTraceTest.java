@@ -57,10 +57,11 @@ public class ErrorStackTraceTest {
 
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
-        Assert.assertEquals(message, "error: error!!!\n" +
-                "\tat stacktrace_test_with_interop:errorStacktraceTest(stacktrace_test_with_interop.bal:23)\n" +
-                "\t   stacktrace_test_with_interop:" +
-                "testErrorStacktraceWithInterop(stacktrace_test_with_interop.bal:20)");
+        Assert.assertEquals(message, """
+                error: error!!!
+                \tat stacktrace_test_with_interop:errorStacktraceTest(stacktrace_test_with_interop.bal:23)
+                \t   stacktrace_test_with_interop:\
+                testErrorStacktraceWithInterop(stacktrace_test_with_interop.bal:20)""");
     }
 
     @AfterClass

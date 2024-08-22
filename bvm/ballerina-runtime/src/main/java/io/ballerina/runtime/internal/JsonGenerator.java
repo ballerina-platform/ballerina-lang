@@ -274,6 +274,7 @@ public class JsonGenerator implements Closeable {
         this.writer.flush();
     }
 
+    @Override
     public void close() throws IOException {
         this.writer.close();
     }

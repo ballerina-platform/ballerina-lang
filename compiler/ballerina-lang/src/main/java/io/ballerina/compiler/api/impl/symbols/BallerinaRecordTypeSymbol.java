@@ -113,9 +113,7 @@ public class BallerinaRecordTypeSymbol extends AbstractStructuredTypeSymbol impl
             joiner.add(ballerinaFieldSignature);
         }
 
-        restTypeDescriptor().ifPresent(typeDescriptor -> {
-            joiner.add(typeDescriptor.signature() + "...;");
-        });
+        restTypeDescriptor().ifPresent(typeDescriptor -> joiner.add(typeDescriptor.signature() + "...;"));
 
         return "record " + joiner.toString();
     }

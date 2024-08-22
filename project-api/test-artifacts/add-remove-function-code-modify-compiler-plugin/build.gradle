@@ -28,12 +28,3 @@ dependencies {
 }
 
 ext.moduleName = 'compiler.plugin.test.addremove.func.codemodify'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}

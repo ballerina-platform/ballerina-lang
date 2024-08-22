@@ -18,12 +18,22 @@ package org.ballerinalang.test.annotations;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.AnnotatableType;
+import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.RemoteMethodType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
+import io.ballerina.runtime.api.types.ServiceType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
+import org.ballerinalang.nativeimpl.jvm.servicetests.ServiceValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -216,9 +226,62 @@ public class AnnotationRuntimeTest {
         BRunUtil.invoke(result, "testServiceRemoteMethodAnnotations");
     }
 
+    @Test
+    public void testConstTypeAnnotAccess() {
+        BRunUtil.invoke(resultOne, "testConstTypeAnnotAccess");
+    }
+
+    @Test
+    public void testObjectTypeAnnotations() {
+        BRunUtil.invoke(resultOne, "testObjectTypeAnnotations");
+    }
+
+    @Test
+    public void testServiceObjectTypeAnnotations() {
+        BRunUtil.invoke(resultOne, "testServiceObjectTypeAnnotations");
+    }
+
     @AfterClass
     public void tearDown() {
         resultOne = null;
         resultAccessNegative = null;
+    }
+
+    public static Object getMethodAnnotations(BTypedesc bTypedesc, BString method, BString annotName) {
+        Type describingType = TypeUtils.getImpliedType(bTypedesc.getDescribingType());
+        int tag = describingType.getTag();
+        assert tag == TypeTags.OBJECT_TYPE_TAG || tag == TypeTags.SERVICE_TAG;
+
+        ObjectType objectType = (ObjectType) describingType;
+        String methodName = method.getValue();
+        for (MethodType methodType : objectType.getMethods()) {
+            if (methodType.getName().equals(methodName)) {
+                return methodType.getAnnotation(annotName);
+            }
+        }
+        return null;
+    }
+
+    public static Object getRemoteMethodAnnotations(BTypedesc bTypedesc, BString method, BString annotName) {
+        String methodName = method.getValue();
+        for (RemoteMethodType methodType :
+                ((ServiceType) TypeUtils.getImpliedType(bTypedesc.getDescribingType())).getRemoteMethods()) {
+            if (methodType.getName().equals(methodName)) {
+                return methodType.getAnnotation(annotName);
+            }
+        }
+        return null;
+    }
+
+    public static Object getResourceMethodAnnotations(BTypedesc bTypedesc, BString method, ArrayValue path,
+                                                      BString annotName) {
+        String methodName = ServiceValue.generateMethodName(method, path);
+        for (ResourceMethodType methodType :
+                ((ServiceType) TypeUtils.getImpliedType(bTypedesc.getDescribingType())).getResourceMethods()) {
+            if (methodType.getName().equals(methodName)) {
+                return methodType.getAnnotation(annotName);
+            }
+        }
+        return null;
     }
 }

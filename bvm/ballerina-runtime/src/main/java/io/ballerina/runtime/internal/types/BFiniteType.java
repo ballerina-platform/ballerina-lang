@@ -141,10 +141,12 @@ public class BFiniteType extends BType implements FiniteType {
         return true;
     }
 
+    @Override
     public Set<Object> getValueSpace() {
         return valueSpace;
     }
 
+    @Override
     public int getTypeFlags() {
         return typeFlags;
     }

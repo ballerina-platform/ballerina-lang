@@ -32,7 +32,7 @@ jobs:
         id: lang-version
         run: |
           VERSION=$((grep -w "version" | cut -d= -f2) < gradle.properties)
-          echo "::set-output name=version::$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build ballerina-lang
         run: |

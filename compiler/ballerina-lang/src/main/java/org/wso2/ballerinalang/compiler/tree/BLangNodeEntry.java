@@ -36,7 +36,9 @@ public abstract class BLangNodeEntry extends BLangNode implements NodeEntry {
     public void accept(BLangNodeVisitor visitor) {
     }
 
+    @Override
     public abstract <T> void accept(BLangNodeAnalyzer<T> analyzer, T props);
 
+    @Override
     public abstract <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props);
 }

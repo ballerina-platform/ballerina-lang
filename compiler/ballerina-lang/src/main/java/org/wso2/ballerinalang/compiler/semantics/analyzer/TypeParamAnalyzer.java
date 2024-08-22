@@ -1104,7 +1104,7 @@ public class TypeParamAnalyzer {
             actObjectSymbol.attachedFuncs.add(duplicateAttachFunc(expFunc, matchType, invokableSymbol));
             String funcName = Symbols.getAttachedFuncSymbolName(actObjectSymbol.type.tsymbol.name.value,
                     expFunc.funcName.value);
-            actObjectSymbol.scope.define(names.fromString(funcName), invokableSymbol);
+            actObjectSymbol.scope.define(Names.fromString(funcName), invokableSymbol);
         }
 
         if (!hasDifferentType) {

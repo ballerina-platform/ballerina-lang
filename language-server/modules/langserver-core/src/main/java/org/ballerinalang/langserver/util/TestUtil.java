@@ -457,9 +457,7 @@ public class TestUtil {
     public static String getPackageComponentsResponse(Endpoint serviceEndpoint, Iterator<String> filePaths) {
         PackageComponentsRequest packageComponentsRequest = new PackageComponentsRequest();
         List<TextDocumentIdentifier> documentIdentifiers = new ArrayList<>();
-        filePaths.forEachRemaining(filePath -> {
-            documentIdentifiers.add(getTextDocumentIdentifier(filePath));
-        });
+        filePaths.forEachRemaining(filePath -> documentIdentifiers.add(getTextDocumentIdentifier(filePath)));
         packageComponentsRequest.setDocumentIdentifiers(documentIdentifiers.toArray(new TextDocumentIdentifier[0]));
         return getResponseString(serviceEndpoint.request(PACKAGE_COMPONENTS, packageComponentsRequest));
     }

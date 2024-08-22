@@ -179,15 +179,11 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
     @Override
     public void visit(ModulePartNode modulePartNode) {
         if (!modulePartNode.imports().isEmpty()) {
-            modulePartNode.imports().forEach(importDeclarationNode -> {
-                importDeclarationNode.accept(this);
-            });
+            modulePartNode.imports().forEach(importDeclarationNode -> importDeclarationNode.accept(this));
         }
 
         if (!modulePartNode.members().isEmpty()) {
-            modulePartNode.members().forEach(moduleMemberDeclarationNode -> {
-                moduleMemberDeclarationNode.accept(this);
-            });
+            modulePartNode.members().forEach(moduleMemberDeclarationNode -> moduleMemberDeclarationNode.accept(this));
         }
     }
 

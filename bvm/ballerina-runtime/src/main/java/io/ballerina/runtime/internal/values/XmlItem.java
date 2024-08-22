@@ -171,10 +171,12 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         return name.toString();
     }
 
+    @Override
     public QName getQName() {
         return this.name;
     }
 
+    @Override
     public void setQName(QName name) {
         this.name = name;
     }
@@ -537,6 +539,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
                 ErrorCodes.XML_SEQUENCE_INDEX_OUT_OF_RANGE, 1, index);
     }
 
+    @Override
     public int size() {
         return 1;
     }
@@ -654,6 +657,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         }
     }
 
+    @Override
     public BXmlSequence getChildrenSeq() {
         return children;
     }

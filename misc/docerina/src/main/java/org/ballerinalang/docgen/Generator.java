@@ -50,6 +50,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
@@ -64,6 +65,7 @@ import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.generator.model.Annotation;
@@ -116,12 +118,10 @@ public class Generator {
      * @param module  module constructs model to fill.
      * @param syntaxTree syntax tree of the document.
      * @param semanticModel semantic model
-     * @return whether the module has any public constructs.
      */
-    public static boolean setModuleFromSyntaxTree(Module module, SyntaxTree syntaxTree,
+    public static void setModuleFromSyntaxTree(Module module, SyntaxTree syntaxTree,
                                                   SemanticModel semanticModel) {
 
-        boolean hasPublicConstructs = false;
         if (syntaxTree.containsModulePart()) {
             ModulePartNode modulePartNode = syntaxTree.rootNode();
             for (Node node : modulePartNode.members()) {
@@ -130,13 +130,13 @@ public class Generator {
                     if (typeDefinition.visibilityQualifier().isPresent() && typeDefinition.visibilityQualifier().get()
                             .kind().equals(SyntaxKind.PUBLIC_KEYWORD) ||
                             isTypePramOrBuiltinSubtype(typeDefinition.metadata())) {
-                        hasPublicConstructs = addTypeDefinition(typeDefinition, module, semanticModel);
+                        addTypeDefinition((TypeDescriptorNode) typeDefinition.typeDescriptor(), typeDefinition.
+                                typeName().text(), typeDefinition.metadata(), module, semanticModel, false);
                     }
                 } else if (node.kind() == SyntaxKind.CLASS_DEFINITION) {
                     ClassDefinitionNode classDefinition = (ClassDefinitionNode) node;
                     if (classDefinition.visibilityQualifier().isPresent() && classDefinition.visibilityQualifier().get()
                             .kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                        hasPublicConstructs = true;
                         BClass cls = getClassModel((ClassDefinitionNode) node, semanticModel, module);
                         if (cls instanceof Client) {
                             module.clients.add((Client) cls);
@@ -148,198 +148,217 @@ public class Generator {
                     }
                 } else if (node.kind() == SyntaxKind.FUNCTION_DEFINITION &&
                         containsToken(((FunctionDefinitionNode) node).qualifierList(), SyntaxKind.PUBLIC_KEYWORD)) {
-                    hasPublicConstructs = true;
                     module.functions.add(getFunctionModel((FunctionDefinitionNode) node, semanticModel, module));
                 } else if (node.kind() == SyntaxKind.CONST_DECLARATION && ((ConstantDeclarationNode) node)
                         .visibilityQualifier().isPresent() && ((ConstantDeclarationNode) node).visibilityQualifier()
                         .get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                    hasPublicConstructs = true;
                     module.constants.add(getConstantTypeModel((ConstantDeclarationNode) node, semanticModel, module));
                 } else if (node.kind() == SyntaxKind.ANNOTATION_DECLARATION && ((AnnotationDeclarationNode) node)
                         .visibilityQualifier().isPresent() && ((AnnotationDeclarationNode) node)
                         .visibilityQualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                    hasPublicConstructs = true;
                     module.annotations.add(getAnnotationModel((AnnotationDeclarationNode) node, semanticModel, module));
                 } else if (node.kind() == SyntaxKind.ENUM_DECLARATION &&
                         ((EnumDeclarationNode) node).qualifier().isPresent() &&
                         ((EnumDeclarationNode) node).qualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     module.enums.add(getEnumModel((EnumDeclarationNode) node));
-                } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL &&
-                        ((ModuleVariableDeclarationNode) node).visibilityQualifier().isPresent() &&
-                        ((ModuleVariableDeclarationNode) node).visibilityQualifier().get().kind()
-                                .equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                    DefaultableVariable defaultableVariable = getModuleVariable((ModuleVariableDeclarationNode) node,
+                } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
+                    ModuleVariableDeclarationNode variableDeclarationNode = (ModuleVariableDeclarationNode) node;
+                    DefaultableVariable defaultableVariable = getModuleVariable(variableDeclarationNode,
                             semanticModel, module);
-                    if (containsToken(((ModuleVariableDeclarationNode) node).qualifiers(),
+                    if (containsToken(variableDeclarationNode.qualifiers(),
                             SyntaxKind.CONFIGURABLE_KEYWORD)) {
                         module.configurables.add(defaultableVariable);
-                    } else {
+                    } else if (variableDeclarationNode.visibilityQualifier().isPresent() &&
+                            variableDeclarationNode.visibilityQualifier().get().kind()
+                                    .equals(SyntaxKind.PUBLIC_KEYWORD)) {
                         module.variables.add(defaultableVariable);
                     }
                 }
             }
         }
-        return hasPublicConstructs;
     }
 
-    public static boolean addTypeDefinition(TypeDefinitionNode typeDefinition, Module module, SemanticModel
-            semanticModel) {
+    public static void addTypeDefinition(TypeDescriptorNode typeDescriptorNode, String typeName,
+                                            Optional<MetadataNode> metaDataNode, Module module,
+                                            SemanticModel semanticModel, boolean isNullable) {
+        SyntaxKind syntaxKind = typeDescriptorNode.kind();
 
-        String typeName = typeDefinition.typeName().text();
-        Optional<MetadataNode> metaDataNode = typeDefinition.metadata();
-        SyntaxKind syntaxKind = typeDefinition.typeDescriptor().kind();
-
-        if (syntaxKind.equals(SyntaxKind.RECORD_TYPE_DESC)) {
-            module.records.add(getRecordTypeModel((RecordTypeDescriptorNode) typeDefinition.typeDescriptor(),
-                    typeName, metaDataNode, semanticModel, module));
-        } else if (syntaxKind.equals(SyntaxKind.OBJECT_TYPE_DESC)) {
-            ObjectTypeDescriptorNode objectTypeDescriptorNode =
-                    (ObjectTypeDescriptorNode) typeDefinition.typeDescriptor();
-            BObjectType bObj = getObjectTypeModel(objectTypeDescriptorNode,
-                    typeName, metaDataNode, semanticModel, module);
-            if (containsToken(objectTypeDescriptorNode.objectTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD)) {
-                module.serviceTypes.add(bObj);
-            } else {
-                module.objectTypes.add(bObj);
-            }
-        } else if (syntaxKind.equals(SyntaxKind.UNION_TYPE_DESC)) {
-            Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, module);
-            if (unionType.memberTypes.stream().allMatch(type ->
-                    (type.category != null && type.category.equals("errors")) ||
-                            (type.category != null && type.category.equals("builtin")) &&
-                                    type.name.equals("error"))) {
-                module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode),
-                        getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode),
-                        Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, module)));
-            } else {
-                module.unionTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(),
+        switch (syntaxKind) {
+            case RECORD_TYPE_DESC:
+                module.records.add(getRecordTypeModel((RecordTypeDescriptorNode) typeDescriptorNode,
                         typeName, metaDataNode, semanticModel, module));
-            }
-        } else if (syntaxKind.equals(SyntaxKind.SIMPLE_NAME_REFERENCE) ||
-                syntaxKind.equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
-            Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, module);
-            if (refType.category.equals("errors")) {
+                break;
+            case OBJECT_TYPE_DESC:
+                ObjectTypeDescriptorNode objectTypeDescriptorNode =
+                        (ObjectTypeDescriptorNode) typeDescriptorNode;
+                BObjectType bObj = getObjectTypeModel(objectTypeDescriptorNode,
+                        typeName, metaDataNode, semanticModel, module);
+                if (containsToken(objectTypeDescriptorNode.objectTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD)) {
+                    module.serviceTypes.add(bObj);
+                } else {
+                    module.objectTypes.add(bObj);
+                }
+                break;
+            case UNION_TYPE_DESC:
+                Type unionType = Type.fromNode(typeDescriptorNode, semanticModel, module);
+                if (unionType.memberTypes.stream().allMatch(type ->
+                        (type.category != null && type.category.equals("errors")) ||
+                                (type.category != null && type.category.equals("builtin")) &&
+                                        type.name.equals("error"))) {
+                    module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode),
+                            getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode),
+                            Type.fromNode(typeDescriptorNode, semanticModel, module)));
+                } else {
+                    module.unionTypes.add(getUnionTypeModel(typeDescriptorNode,
+                            typeName, metaDataNode, semanticModel, module));
+                }
+                break;
+            case SIMPLE_NAME_REFERENCE, QUALIFIED_NAME_REFERENCE:
+                Type refType = Type.fromNode(typeDescriptorNode, semanticModel, module);
+                if (refType.category.equals("errors")) {
+                    module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode),
+                            getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), refType));
+                } else {
+                    BType bType = getUnionTypeModel(typeDescriptorNode, typeName,
+                            metaDataNode, semanticModel, module);
+                    bType.isNullable = isNullable;
+                    module.simpleNameReferenceTypes.add(bType);
+                }
+                break;
+            case DISTINCT_TYPE_DESC:
+                TypeDescriptorNode distinctTypeDescriptorNode =
+                        ((DistinctTypeDescriptorNode) typeDescriptorNode).typeDescriptor();
+                SyntaxKind distinctTypeSyntaxKind = distinctTypeDescriptorNode.kind();
+
+                switch (distinctTypeSyntaxKind) {
+                    case ERROR_TYPE_DESC:
+                        Type detailType = null;
+                        ParameterizedTypeDescriptorNode parameterizedTypeDescNode = (ParameterizedTypeDescriptorNode)
+                                distinctTypeDescriptorNode;
+                        if (parameterizedTypeDescNode.typeParamNode().isPresent()) {
+                            detailType = Type.fromNode(parameterizedTypeDescNode.typeParamNode().get().typeNode(),
+                                    semanticModel, module);
+                            detailType.isNullable = isNullable;
+                        }
+                        Error err = new Error(typeName, getDocFromMetadata(metaDataNode),
+                                getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode),
+                                detailType);
+                        err.isDistinct = true;
+                        module.errors.add(err);
+                        break;
+                    case OBJECT_TYPE_DESC:
+                        ObjectTypeDescriptorNode distinctObjectTypeDescNode = (ObjectTypeDescriptorNode)
+                                distinctTypeDescriptorNode;
+                        BObjectType bDistinctObj = getObjectTypeModel((ObjectTypeDescriptorNode)
+                                        distinctTypeDescriptorNode, typeName,
+                                metaDataNode, semanticModel, module);
+                        bDistinctObj.isDistinct = true;
+                        if (containsToken(distinctObjectTypeDescNode.objectTypeQualifiers(),
+                                SyntaxKind.SERVICE_KEYWORD)) {
+                            module.serviceTypes.add(bDistinctObj);
+                        } else {
+                            module.objectTypes.add(bDistinctObj);
+                        }
+                        break;
+                    case PARENTHESISED_TYPE_DESC:
+                        ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode =
+                                (ParenthesisedTypeDescriptorNode) distinctTypeDescriptorNode;
+                        Type parenthesisType = Type.fromNode(parenthesisedTypeDescriptorNode, semanticModel, module);
+                        parenthesisType.isNullable = isNullable;
+                        Error parenthesisErr = new Error(typeName, getDocFromMetadata(metaDataNode),
+                                getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode),
+                                parenthesisType);
+                        parenthesisErr.isDistinct = true;
+                        module.errors.add(parenthesisErr);
+                        break;
+                    case SIMPLE_NAME_REFERENCE:
+                        Type distinctRefType = Type.fromNode(distinctTypeDescriptorNode, semanticModel, module);
+                        distinctRefType.isNullable = isNullable;
+                        if (distinctRefType.category.equals("errors")) {
+                            Error simpleNameRefErr = new Error(typeName, getDocFromMetadata(metaDataNode),
+                                    getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode),
+                                    distinctRefType);
+                            simpleNameRefErr.isDistinct = true;
+                            module.errors.add(simpleNameRefErr);
+                        } else {
+                            List<Type> memberTypes = new ArrayList<>();
+                            memberTypes.add(distinctRefType);
+                            BType bType = new BType(typeName, getDocFromMetadata(metaDataNode),
+                                    getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode),
+                                    memberTypes);
+                            bType.isNullable = isNullable;
+                            bType.isAnonymousUnionType = true;
+                            module.types.add(bType);
+                        }
+                        break;
+                    default:
+                        // No action needed
+                        break;
+                }
+                break;
+            case ERROR_TYPE_DESC:
+                ParameterizedTypeDescriptorNode parameterizedTypeDescNode =
+                        (ParameterizedTypeDescriptorNode) typeDescriptorNode;
+                Type type = null;
+                if (parameterizedTypeDescNode.typeParamNode().isPresent()) {
+                    type = Type.fromNode(parameterizedTypeDescNode.typeParamNode().get().typeNode(),
+                            semanticModel, module);
+                    type.isNullable = isNullable;
+                }
                 module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode),
-                        getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), refType));
-            } else {
-                module.simpleNameReferenceTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName,
-                        metaDataNode, semanticModel, module));
-            }
-        } else if (syntaxKind.equals(SyntaxKind.DISTINCT_TYPE_DESC) &&
-                ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
-                        == SyntaxKind.ERROR_TYPE_DESC) {
-            Type detailType = null;
-            ParameterizedTypeDescriptorNode parameterizedTypeDescNode = (ParameterizedTypeDescriptorNode)
-                    ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor();
-            if (parameterizedTypeDescNode.typeParamNode().isPresent()) {
-                detailType = Type.fromNode(parameterizedTypeDescNode.typeParamNode().get().typeNode(), semanticModel,
-                        module);
-            }
-            Error err = new Error(typeName, getDocFromMetadata(metaDataNode),
-                    getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), detailType);
-            err.isDistinct = true;
-            module.errors.add(err);
-        } else if (syntaxKind.equals(SyntaxKind.DISTINCT_TYPE_DESC) &&
-                ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
-                        == SyntaxKind.OBJECT_TYPE_DESC) {
-            ObjectTypeDescriptorNode objectTypeDescriptorNode = (ObjectTypeDescriptorNode)
-                    ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor();
-            BObjectType bObj = getObjectTypeModel((ObjectTypeDescriptorNode)
-                            ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor(), typeName,
-                    metaDataNode, semanticModel, module);
-            bObj.isDistinct = true;
-            if (containsToken(objectTypeDescriptorNode.objectTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD)) {
-                module.serviceTypes.add(bObj);
-            } else {
-                module.objectTypes.add(bObj);
-            }
-        } else if (syntaxKind.equals(SyntaxKind.DISTINCT_TYPE_DESC) &&
-                ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
-                        == SyntaxKind.PARENTHESISED_TYPE_DESC) {
-            ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode = (ParenthesisedTypeDescriptorNode)
-                    ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor();
-            Type detailType = Type.fromNode(parenthesisedTypeDescriptorNode, semanticModel, module);
-            Error err = new Error(typeName, getDocFromMetadata(metaDataNode),
-                    getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), detailType);
-            err.isDistinct = true;
-            module.errors.add(err);
-        } else if (syntaxKind.equals(SyntaxKind.DISTINCT_TYPE_DESC) &&
-                ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
-                        == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            Type refType = Type.fromNode(((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor()))
-                    .typeDescriptor(), semanticModel, module);
-            if (refType.category.equals("errors")) {
-                Error err = new Error(typeName, getDocFromMetadata(metaDataNode),
-                        getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), refType);
-                err.isDistinct = true;
-                module.errors.add(err);
-            } else {
-                List<Type> memberTypes = new ArrayList<>();
-                memberTypes.add(refType);
-                BType bType = new BType(typeName, getDocFromMetadata(metaDataNode),
-                        getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), memberTypes);
-                bType.isAnonymousUnionType = true;
-                module.types.add(bType);
-            }
-        } else if (syntaxKind.equals(SyntaxKind.ERROR_TYPE_DESC)) {
-            ParameterizedTypeDescriptorNode parameterizedTypeDescNode =
-                    (ParameterizedTypeDescriptorNode) typeDefinition.typeDescriptor();
-            Type type = null;
-            if (parameterizedTypeDescNode.typeParamNode().isPresent()) {
-                type = Type.fromNode(parameterizedTypeDescNode.typeParamNode().get().typeNode(),
+                        getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), type));
+                break;
+            case INTERSECTION_TYPE_DESC:
+                addIntersectionTypeModel((IntersectionTypeDescriptorNode) typeDescriptorNode, typeName,
+                        metaDataNode, semanticModel, module);
+                break;
+            case TABLE_TYPE_DESC:
+                TableType tableType = getTableTypeModel((TableTypeDescriptorNode) typeDescriptorNode,
+                        typeName, metaDataNode, semanticModel, module);
+                tableType.rowParameterType.isNullable = isNullable;
+                module.tableTypes.add(tableType);
+                break;
+            case MAP_TYPE_DESC:
+                MapType mapType = getMapTypeModel((MapTypeDescriptorNode) typeDescriptorNode, typeName, metaDataNode,
                         semanticModel, module);
-            }
-            module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode),
-                    getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), type));
-        } else if (syntaxKind.equals(SyntaxKind.TUPLE_TYPE_DESC)) {
-            module.tupleTypes.add(getTupleTypeModel((TupleTypeDescriptorNode) typeDefinition.typeDescriptor(),
-                    typeName, metaDataNode, semanticModel, module));
-        } else if (syntaxKind.equals(SyntaxKind.TABLE_TYPE_DESC)) {
-            module.tableTypes.add(getTableTypeModel((TableTypeDescriptorNode) typeDefinition.typeDescriptor(),
-                    typeName, metaDataNode, semanticModel, module));
-        } else if (syntaxKind.equals(SyntaxKind.MAP_TYPE_DESC)) {
-            module.mapTypes.add(getMapTypeModel((MapTypeDescriptorNode) typeDefinition.typeDescriptor(),
-                    typeName, metaDataNode, semanticModel, module));
-        } else if (syntaxKind.equals(SyntaxKind.INTERSECTION_TYPE_DESC)) {
-            addIntersectionTypeModel((IntersectionTypeDescriptorNode) typeDefinition.typeDescriptor(), typeName,
-                    metaDataNode, semanticModel, module);
-        } else if (syntaxKind.equals(SyntaxKind.TYPEDESC_TYPE_DESC)) {
-            module.typeDescriptorTypes.add(getTypeDescModel((ParameterizedTypeDescriptorNode) typeDefinition.
-                            typeDescriptor(), typeName, metaDataNode, semanticModel, module));
-        } else if (syntaxKind.equals(SyntaxKind.INT_TYPE_DESC)) {
-            module.integerTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
-                    semanticModel, module));
-        } else if (syntaxKind.equals(SyntaxKind.DECIMAL_TYPE_DESC)) {
-            module.decimalTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
-                    semanticModel, module));
-        } else if (syntaxKind.equals(SyntaxKind.XML_TYPE_DESC)) {
-            module.xmlTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
-                    semanticModel, module));
-        } else if (syntaxKind.equals(SyntaxKind.FUNCTION_TYPE_DESC)) {
-            module.functionTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
-                    semanticModel, module));
-        } else if (syntaxKind.equals(SyntaxKind.ANYDATA_TYPE_DESC)) {
-            module.anyDataTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
-                    semanticModel, module));
-        } else if (syntaxKind.equals(SyntaxKind.STRING_TYPE_DESC)) {
-            module.stringTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
-                    semanticModel, module));
-        } else if (syntaxKind.equals(SyntaxKind.ANY_TYPE_DESC)) {
-            module.anyTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
-                    semanticModel, module));
-        } else if (syntaxKind.equals(SyntaxKind.ARRAY_TYPE_DESC)) {
-            module.arrayTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
-                    semanticModel, module));
-        } else if (syntaxKind.equals(SyntaxKind.STREAM_TYPE_DESC)) {
-            module.streamTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
-                    semanticModel, module));
-        } else {
-            return false;
+                mapType.mapParameterType.isNullable = isNullable;
+                module.mapTypes.add(mapType);
+                break;
+            case TUPLE_TYPE_DESC:
+                BType tupleType = getTupleTypeModel((TupleTypeDescriptorNode) typeDescriptorNode, typeName,
+                        metaDataNode, semanticModel, module);
+                tupleType.isNullable = isNullable;
+                module.tupleTypes.add(tupleType);
+                break;
+            case TYPEDESC_TYPE_DESC:
+                BType typeDescType = getTypeDescModel((ParameterizedTypeDescriptorNode) typeDescriptorNode, typeName,
+                        metaDataNode, semanticModel, module);
+                typeDescType.isNullable = isNullable;
+                module.typeDescriptorTypes.add(typeDescType);
+                break;
+            case OPTIONAL_TYPE_DESC:
+                addTypeDefinition((TypeDescriptorNode) ((OptionalTypeDescriptorNode) typeDescriptorNode).
+                        typeDescriptor(), typeName, metaDataNode, module, semanticModel, true);
+                break;
+            default:
+                BType bType = getUnionTypeModel(typeDescriptorNode, typeName, metaDataNode, semanticModel, module);
+                bType.isNullable = isNullable;
+                switch (syntaxKind) {
+                    case INT_TYPE_DESC -> module.integerTypes.add(bType);
+                    case DECIMAL_TYPE_DESC -> module.decimalTypes.add(bType);
+                    case XML_TYPE_DESC -> module.xmlTypes.add(bType);
+                    case FUNCTION_TYPE_DESC -> module.functionTypes.add(bType);
+                    case ANYDATA_TYPE_DESC -> module.anyDataTypes.add(bType);
+                    case STRING_TYPE_DESC -> module.stringTypes.add(bType);
+                    case ANY_TYPE_DESC -> module.anyTypes.add(bType);
+                    case ARRAY_TYPE_DESC -> module.arrayTypes.add(bType);
+                    case STREAM_TYPE_DESC -> module.streamTypes.add(bType);
+                    case BOOLEAN_TYPE_DESC -> module.booleanTypes.add(bType);
+                    default -> {
+                        // No action needed
+                    }
+                }
         }
-        return true;
-        // TODO: handle value type nodes
-        // TODO: handle built in ref type
-        // TODO: handle constrained types
     }
 
     public static boolean containsToken(NodeList<Token> nodeList, SyntaxKind kind) {
@@ -369,7 +388,7 @@ public class Generator {
                 EnumMemberNode enumMemberNode = (EnumMemberNode) node;
                 String memberName = enumMemberNode.identifier().text();
                 String doc = getDocFromMetadata(enumMemberNode.metadata());
-                if (doc.equals("")) {
+                if (doc.isEmpty()) {
                     doc = getParameterDocFromMetadataList(memberName, enumDeclaration.metadata());
                 }
                 List<String> descSections = getDescSectionsDocFromMetaDataList(enumDeclaration.metadata());
@@ -621,7 +640,7 @@ public class Generator {
                     String methodName = "";
                     String accessor = "";
                     String resourcePath = "";
-                    if (methodNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+                    if (methodNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DECLARATION) {
                         accessor = methodNode.methodName().text();
                         resourcePath = methodNode.relativeResourcePath().stream().
                                 collect(StringBuilder::new, (firstString,
@@ -782,7 +801,7 @@ public class Generator {
                 RecordFieldWithDefaultValueNode recordField = (RecordFieldWithDefaultValueNode) node;
                 String name = recordField.fieldName().text();
                 String doc = getDocFromMetadata(recordField.metadata());
-                if (doc.equals("")) {
+                if (doc.isEmpty()) {
                     doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                 }
                 String defaultValue = recordField.expression().toString();
@@ -798,11 +817,11 @@ public class Generator {
                 RecordFieldNode recordField = (RecordFieldNode) node;
                 String name = recordField.fieldName().text();
                 String doc = getDocFromMetadata(recordField.metadata());
-                if (doc.equals("")) {
+                if (doc.isEmpty()) {
                     doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                 }
                 Type type = Type.fromNode(recordField.typeName(), semanticModel, module);
-                type.isNullable = recordField.questionMarkToken().isPresent();
+                type.isOptional = recordField.questionMarkToken().isPresent();
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc,
                         isDeprecated(recordField.metadata()), type, "",
                         extractAnnotationAttachmentsFromMetadataNode(semanticModel, recordField.metadata()));
@@ -825,7 +844,7 @@ public class Generator {
                         .equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     String name = objectField.fieldName().text();
                     String doc = getDocFromMetadata(objectField.metadata());
-                    if (doc.equals("")) {
+                    if (doc.isEmpty()) {
                         doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                     }
                     String defaultValue;

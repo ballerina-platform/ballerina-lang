@@ -131,7 +131,8 @@ public class BasicWorkerTest {
     public Object[] workerMessagePassingFunctions() {
         return new Object[]{
                 "testWorkerMessagePassingRepeatedly",
-                "testPanicWithMessagePassing"
+                "testPanicWithMessagePassing",
+                "testEarlyReturnWithMessagePassing"
         };
     }
 

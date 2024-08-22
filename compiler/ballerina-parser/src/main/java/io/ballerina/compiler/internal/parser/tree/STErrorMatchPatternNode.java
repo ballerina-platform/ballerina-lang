@@ -74,6 +74,7 @@ public class STErrorMatchPatternNode extends STNode {
                 closeParenthesisToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STErrorMatchPatternNode(
                 this.errorKeyword,
@@ -108,6 +109,7 @@ public class STErrorMatchPatternNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ErrorMatchPatternNode(this, position, parent);
     }

@@ -56,6 +56,7 @@ public class STRestBindingPatternNode extends STBindingPatternNode {
                 variableName);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRestBindingPatternNode(
                 this.ellipsisToken,
@@ -78,6 +79,7 @@ public class STRestBindingPatternNode extends STBindingPatternNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RestBindingPatternNode(this, position, parent);
     }

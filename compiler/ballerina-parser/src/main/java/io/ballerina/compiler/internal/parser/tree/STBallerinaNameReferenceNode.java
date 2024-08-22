@@ -68,6 +68,7 @@ public class STBallerinaNameReferenceNode extends STDocumentationNode {
                 endBacktick);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STBallerinaNameReferenceNode(
                 this.referenceType,
@@ -98,6 +99,7 @@ public class STBallerinaNameReferenceNode extends STDocumentationNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BallerinaNameReferenceNode(this, position, parent);
     }

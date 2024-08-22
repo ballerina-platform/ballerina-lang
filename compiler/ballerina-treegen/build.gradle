@@ -20,7 +20,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 description = 'Ballerina - Syntax Tree Generator'
 
-task treegen(type: JavaExec) {
+tasks.register('treegen', JavaExec) {
     mainClass = "io.ballerinalang.compiler.internal.treegen.TreeGen"
     classpath = sourceSets.main.runtimeClasspath
 }
@@ -39,9 +39,14 @@ ext.moduleName = 'io.ballerina.treegen'
 compileJava {
     inputs.property("moduleName", moduleName)
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
         classpath = files()
     }
 }

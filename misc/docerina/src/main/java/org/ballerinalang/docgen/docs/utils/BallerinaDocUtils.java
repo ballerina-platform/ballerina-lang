@@ -25,6 +25,8 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -56,6 +58,38 @@ public class BallerinaDocUtils {
                         }
                     });
         }
+    }
+
+    /**
+     * Calculates the hash of the file, which is represented as an array of bytes, using the specified algorithm.
+     *
+     * @param contentInBytes content to hash, provided as an array of bytes
+     * @param algorithm hashing algorithm to use
+     * @return hash value of the content
+     * @throws IllegalArgumentException if the specified algorithm is unavailable.
+     */
+    public static byte[] getHash(byte[] contentInBytes, String algorithm) {
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance(algorithm);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException(e);
+        }
+        return digest.digest(contentInBytes);
+    }
+
+    /**
+     * Converts an array of bytes to hexadecimal string.
+     *
+     * @param bytes byte array to convert
+     * @return hexadecimal representation of the byte array
+     */
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
     }
 
     public static boolean isDebugEnabled() {

@@ -67,7 +67,6 @@ public class StrandDumpTest extends BaseTest {
         String sourceRoot = testFileLocation + "/";
         String packageName = "testPackageWithModules";
         Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
         bMainInstance.runMain("build", new String[]{packageName}, envProperties, null, null, sourceRoot);
 
         String jarPath = Paths.get(Paths.get(sourceRoot, packageName).toString(), "target", "bin",
@@ -102,7 +101,6 @@ public class StrandDumpTest extends BaseTest {
         String commandDir = balServer.getServerHome();
         String balFile = testFileLocation + "/singleBalFiles/balProgram1.bal";
         Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
         bMainInstance.runMain("build", new String[]{balFile}, envProperties, null, null, commandDir);
 
         String balFileName = Paths.get(balFile).getFileName().toString();
@@ -120,10 +118,9 @@ public class StrandDumpTest extends BaseTest {
         }
 
         List<String> runCmdSet = new ArrayList<>();
+        bMainInstance.addJavaAgents(envProperties);
         runCmdSet.add("java");
-        if (envProperties.containsKey(JAVA_OPTS)) {
-            runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
-        }
+        runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
         String tempBalHome = new File("src" + File.separator + "test" + File.separator +
                 "resources" + File.separator + "ballerina.home").getAbsolutePath();
         runCmdSet.add("-Dballerina.home=" + tempBalHome);

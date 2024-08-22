@@ -86,10 +86,12 @@ public class BStreamType extends BType implements StreamType {
         this(TypeConstants.STREAM_TNAME, constraint, null);
     }
 
+    @Override
     public Type getConstrainedType() {
         return constraint;
     }
 
+    @Override
     public Type getCompletionType() {
         return completionType;
     }

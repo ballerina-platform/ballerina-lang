@@ -56,6 +56,7 @@ public class STDoubleGTTokenNode extends STNode {
                 endGTToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STDoubleGTTokenNode(
                 this.openGTToken,
@@ -78,6 +79,7 @@ public class STDoubleGTTokenNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new DoubleGTTokenNode(this, position, parent);
     }

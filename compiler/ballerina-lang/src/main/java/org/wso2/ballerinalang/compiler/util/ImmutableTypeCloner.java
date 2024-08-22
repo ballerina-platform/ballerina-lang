@@ -224,7 +224,7 @@ public class ImmutableTypeCloner {
                 // TODO: 4/28/20 Check tsymbol
                 BXMLSubType immutableXmlSubType =
                         new BXMLSubType(origXmlSubType.tag,
-                                        names.fromString(origXmlSubType.name.getValue().concat(AND_READONLY_SUFFIX)),
+                                        Names.fromString(origXmlSubType.name.getValue().concat(AND_READONLY_SUFFIX)),
                                         origXmlSubType.getFlags() | Flags.READONLY, xmlRoSemType);
 
                 BIntersectionType immutableXmlSubTypeIntersectionType =
@@ -688,7 +688,7 @@ public class ImmutableTypeCloner {
 
         List<BAttachedFunction> immutableFuncs = new ArrayList<>();
         for (BAttachedFunction origFunc : originalObjectAttachedFuncs) {
-            Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(immutableObjectSymbol.name.value,
+            Name funcName = Names.fromString(Symbols.getAttachedFuncSymbolName(immutableObjectSymbol.name.value,
                                                                                origFunc.funcName.value));
             BInvokableSymbol immutableFuncSymbol =
                     ASTBuilderUtil.duplicateFunctionDeclarationSymbol(origFunc.symbol, immutableObjectSymbol,
@@ -895,7 +895,7 @@ public class ImmutableTypeCloner {
             return Names.EMPTY;
         }
 
-        return names.fromString("(".concat(origName).concat(AND_READONLY_SUFFIX).concat(")"));
+        return Names.fromString("(".concat(origName).concat(AND_READONLY_SUFFIX).concat(")"));
     }
 
     private static BIntersectionType createImmutableIntersectionType(SymbolEnv env, BType nonReadOnlyType,

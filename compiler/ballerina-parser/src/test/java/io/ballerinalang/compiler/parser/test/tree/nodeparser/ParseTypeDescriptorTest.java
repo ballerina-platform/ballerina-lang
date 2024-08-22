@@ -53,10 +53,12 @@ public class ParseTypeDescriptorTest {
 
     @Test
     public void testRecordTypeDescriptor() {
-        String recordTypeDesc = "record {|\n" +
-                "    string name;\n" +
-                "    boolean married;\n" +
-                "|}\n";
+        String recordTypeDesc = """
+                record {|
+                    string name;
+                    boolean married;
+                |}
+                """;
 
         TypeDescriptorNode typeDescriptorNode = NodeParser.parseTypeDescriptor(recordTypeDesc);
         Assert.assertEquals(typeDescriptorNode.kind(), SyntaxKind.RECORD_TYPE_DESC);

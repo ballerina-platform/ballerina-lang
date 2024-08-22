@@ -346,12 +346,9 @@ public final class SemTypeHelper {
 
     /**
      * Counts number of bits set in bitset.
-     * <p>
      * <i>Note: this is similar to <code>lib:bitCount()</code> in nBallerina</i>
-     * </p><p>
      * This is the Brian Kernighan algorithm.
-     * This won't work if bits is < 0.
-     * <p/>
+     * This won't work if bits is less than 0.
      *
      * @param bitset bitset for bits to be counted
      * @return the count

@@ -24,10 +24,13 @@ dependencies {
     implementation project(':toml-parser')
     implementation project(':semtypes')
     implementation project(':central-client')
-    implementation project(':maven-resolver')
+    implementation(project(':maven-resolver'))
     implementation project(':identifier-util')
     implementation 'com.moandjiezana.toml:toml4j'
-    implementation "org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}"
+    implementation("org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}") {
+        exclude group: 'commons-codec', module: 'commons-codec'
+        exclude group: 'org.apache.commons', module: 'commons-lang3'
+    }
     implementation 'io.netty:netty-buffer'
     implementation 'org.ow2.asm:asm'
     implementation 'commons-io:commons-io'
@@ -86,9 +89,14 @@ ext.moduleName = 'ballerina.lang'
 compileJava {
     inputs.property("moduleName", moduleName)
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
         classpath = files()
     }
 }

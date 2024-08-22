@@ -56,6 +56,7 @@ public class STReUnicodeGeneralCategoryNode extends STReUnicodePropertyNode {
                 reUnicodeGeneralCategoryName);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReUnicodeGeneralCategoryNode(
                 this.categoryStart,
@@ -78,6 +79,7 @@ public class STReUnicodeGeneralCategoryNode extends STReUnicodePropertyNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReUnicodeGeneralCategoryNode(this, position, parent);
     }

@@ -89,7 +89,7 @@ public class ProfileCommandTest extends BaseCommandTest {
 
         ProfileCommand profileCommand = new ProfileCommand(projectPath, printStream, false);
         profileCommand.execute();
-        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+        String buildLog = readOutput(true).replaceAll("\r", "").replaceAll("\\\\", "/").strip();
         Assert.assertEquals(buildLog, getOutput("run-project-with-profile.txt"));
         Path htmlPath = projectPath.resolve("target").resolve("profiler").resolve("ProfilerReport.html");
         Assert.assertTrue(htmlPath.toFile().exists());
@@ -113,7 +113,7 @@ public class ProfileCommandTest extends BaseCommandTest {
 
         ProfileCommand profileCommand = new ProfileCommand(projectPath, printStream, false);
         profileCommand.execute();
-        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+        String buildLog = readOutput(true).replaceAll("\r", "").replaceAll("\\\\", "/").strip();
         Assert.assertEquals(buildLog, getOutput("profile-project-with-build-tool.txt"));
         Path htmlPath = projectPath.resolve("target").resolve("profiler").resolve("ProfilerReport.html");
         Assert.assertTrue(htmlPath.toFile().exists());
@@ -172,7 +172,8 @@ public class ProfileCommandTest extends BaseCommandTest {
             profileCommand.execute();
         }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("profile-empty-project-with-build-tools.txt"));
+        Assert.assertEquals(buildLog.replaceAll("\r", "").replace("\\", "/"),
+                getOutput("profile-empty-project-with-build-tools.txt"));
     }
 
     @AfterSuite

@@ -52,12 +52,12 @@ CopySpec copyJarSpec = copySpec {
     into("lib")
 }
 
-task createZip(type: Zip) {
+tasks.register('createZip', Zip) {
     dependsOn createBalHome
     with copyJarSpec
 }
 
-task buildAndCopy(type: Copy) {
+tasks.register('buildAndCopy', Copy) {
     dependsOn build
     from 'build/libs/ballerinalang-data-mapper-' + project.version + '.jar'
     into  project(':jballerina-tools').projectDir.absolutePath +
@@ -74,5 +74,19 @@ jacocoTestReport {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: '**/utils/**')
         }))
+    }
+}
+
+compileJava {
+    doFirst {
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
+        classpath = files()
     }
 }

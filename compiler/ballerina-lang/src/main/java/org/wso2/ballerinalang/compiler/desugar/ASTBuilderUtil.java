@@ -633,7 +633,7 @@ public class ASTBuilderUtil {
         assignableExpr.lhsExpr = lhsExpr;
         assignableExpr.targetType = targetType;
         assignableExpr.setBType(type);
-        assignableExpr.opSymbol = new BOperatorSymbol(names.fromString(assignableExpr.opKind.value()),
+        assignableExpr.opSymbol = new BOperatorSymbol(Names.fromString(assignableExpr.opKind.value()),
                                                       null, targetType, null, opSymPos, VIRTUAL);
         return assignableExpr;
     }

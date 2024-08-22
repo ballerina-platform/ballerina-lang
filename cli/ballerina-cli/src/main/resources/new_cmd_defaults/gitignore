@@ -1,4 +1,4 @@
-# Ballerina generates this directory during the compilation of a package. 
+# Ballerina generates this directory during the compilation of a package.
 # It contains compiler-generated artifacts and the final executable if this is an application package.
 target/
 

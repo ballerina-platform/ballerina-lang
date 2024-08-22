@@ -50,6 +50,7 @@ public class PrepareRenameContextImpl extends ReferencesContextImpl implements P
             super(LSContextOperation.TXT_PREPARE_RENAME, serverContext);
         }
 
+        @Override
         public PrepareRenameContext build() {
             return new PrepareRenameContextImpl(this.operation,
                     this.fileUri,
