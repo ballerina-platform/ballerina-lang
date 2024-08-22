@@ -58,16 +58,15 @@ public class ServiceClassTest {
         validateError(result, index++, "incompatible types: expected 'object { resource function get " +
                 "foo/[int]() returns (); }', found 'isolated object { resource function get foo/[string]() returns " +
                         "(); }'", 70, 11);
-        // TODO: 16/8/24 ballerina-platform/ballerina-lang#43293
-//        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
-//                "[int]() returns (); }', found 'isolated object { resource function get [string]() returns (); }'",
-//                78, 11);
-//        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
-//                "foo/[int]() returns (); }', found 'isolated object { resource function get foo/[string]() " +
-//                        "returns (); }'", 85, 11);
-//        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
-//                "[int]() returns (); }', found 'isolated object { resource function get [byte]() returns (); }'",
-//                93, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "[int]() returns (); }', found 'isolated object { resource function get [string]() returns (); }'",
+                78, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "foo/[int]() returns (); }', found 'isolated object { resource function get foo/[string]() " +
+                        "returns (); }'", 85, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "[int]() returns (); }', found 'isolated object { resource function get [byte]() returns (); }'",
+                93, 11);
         validateError(result, index++, "incompatible types: expected 'object { resource function get " +
                 "[int]() returns (); }', found 'isolated object { resource function get [string]() returns (); " +
                 "resource function post [int]() returns (); }'", 100, 11);
@@ -86,10 +85,9 @@ public class ServiceClassTest {
         validateError(result, index++, "incompatible types: expected 'object { resource function get " +
                 "foo/[int]() returns (); }', found 'isolated object { resource function get foo2/[int]() returns " +
                 "(); }'", 139, 11);
-        // TODO: 16/8/24 ballerina-platform/ballerina-lang#43293
-//        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
-//                "foo/[int]() returns (); }', found 'isolated object { resource function get foo/[string]() returns " +
-//                "(); }'", 146, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "foo/[int]() returns (); }', found 'isolated object { resource function get foo/[string]() returns " +
+                "(); }'", 146, 11);
         validateError(result, index++, "incompatible types: expected 'object { resource function get " +
                 ".(int) returns (); }', found 'isolated object { resource function get .() returns (); }'",
                 153, 11);
@@ -123,18 +121,17 @@ public class ServiceClassTest {
         validateError(result, index++, "incompatible types: expected 'object { resource function get " +
                 "foo/[int]() returns (); }', found 'isolated object { resource function get foo/[string]() returns " +
                 "(); }'", 223, 11);
-        // TODO: 16/8/24 ballerina-platform/ballerina-lang#43293
-//        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
-//                "[int]() returns (); }', found 'isolated object { resource function get [string]() returns (); }'",
-//                230, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "[int]() returns (); }', found 'isolated object { resource function get [string]() returns (); }'",
+                230, 11);
         validateError(result, index++, "incompatible types: expected 'object { resource function get " +
                 "[int]() returns (); }', found 'isolated object { resource function get [int]() returns (); }'",
                 237, 11);
-        // TODO: 16/8/24 ballerina-platform/ballerina-lang#43293
-//        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
-//                        "foo/[string...]() returns (); }', found 'isolated object { " +
-//                        "resource function get foo/[int...]() returns (); }'",
-//                244, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                        "foo/[string...]() returns (); }', found 'isolated object { " +
+                        "resource function get foo/[int...]() returns (); }'",
+                244, 11);
+
         Assert.assertEquals(index, result.getErrorCount());
     }
 
