@@ -36,7 +36,9 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @since 0.94
@@ -232,50 +234,58 @@ public class BInvokableType extends BType implements InvokableType {
     }
 
     private SemType resolveReturnType() {
-        if (restType == null) {
+        if (retType == null) {
             return PredefinedType.NIL;
         }
         SemType innerType = from(retType);
         ListDefinition ld = new ListDefinition();
-        return ld.tupleTypeWrapped(env,
-                isDependentlyTyped(retType) ? SemTypes.booleanConst(true) : PredefinedType.BOOLEAN, innerType);
+        return ld.tupleTypeWrapped(env, isDependentlyTyped(retType,
+                new HashSet<>()) ? SemTypes.booleanConst(true) : PredefinedType.BOOLEAN, innerType);
     }
 
-    private static boolean isDependentlyTyped(BType returnType) {
+    private static boolean isDependentlyTyped(BType returnType, Set<BType> visited) {
+        if (visited.contains(returnType)) {
+            return false;
+        }
+
+        visited.add(returnType);
+
         // it doesn't seem we actually have a flag to check this, may be the correct way to do this is to have a
         //  method in BType for this, but given this is a temporary thing, this should be enough.
         if (returnType instanceof BParameterizedType) {
             return true;
         }
         if (returnType instanceof BUnionType unionType) {
-            return unionType.getMemberTypes().stream().anyMatch(BInvokableType::isDependentlyTyped);
+            return unionType.getMemberTypes().stream().anyMatch(returnType1 ->
+                    isDependentlyTyped(returnType1, visited));
         }
         if (returnType instanceof BMapType mapType) {
-            return isDependentlyTyped(mapType.constraint);
+            return isDependentlyTyped(mapType.constraint, visited);
         }
         if (returnType instanceof BRecordType recordType) {
-            return recordType.fields.values().stream().anyMatch(field -> isDependentlyTyped(field.type)) ||
-                    isDependentlyTyped(recordType.restFieldType);
+            return recordType.fields.values().stream().anyMatch(field -> isDependentlyTyped(field.type, visited)) ||
+                    isDependentlyTyped(recordType.restFieldType, visited);
         }
         if (returnType instanceof BArrayType arrayType) {
-            return isDependentlyTyped(arrayType.eType);
+            return isDependentlyTyped(arrayType.eType, visited);
         }
         if (returnType instanceof BTupleType tupleType) {
-            return tupleType.getTupleTypes().stream().anyMatch(BInvokableType::isDependentlyTyped);
+            return tupleType.getTupleTypes().stream().anyMatch(returnType1 -> isDependentlyTyped(returnType1, visited));
         }
         if (returnType instanceof BInvokableType invokableType) {
-            return invokableType.paramTypes.stream().anyMatch(BInvokableType::isDependentlyTyped) ||
-                    isDependentlyTyped(invokableType.retType) ||
-                    isDependentlyTyped(invokableType.restType);
+            return invokableType.paramTypes.stream().anyMatch(returnType1 ->
+                    isDependentlyTyped(returnType1, visited)) ||
+                    isDependentlyTyped(invokableType.retType, visited) ||
+                    isDependentlyTyped(invokableType.restType, visited);
         }
         if (returnType instanceof BFutureType futureType) {
-            return isDependentlyTyped(futureType.constraint);
+            return isDependentlyTyped(futureType.constraint, visited);
         }
         if (returnType instanceof BTableType tableType) {
-            return isDependentlyTyped(tableType.constraint);
+            return isDependentlyTyped(tableType.constraint, visited);
         }
         if (returnType instanceof BStreamType streamType) {
-            return isDependentlyTyped(streamType.constraint);
+            return isDependentlyTyped(streamType.constraint, visited);
         }
         return false;
     }

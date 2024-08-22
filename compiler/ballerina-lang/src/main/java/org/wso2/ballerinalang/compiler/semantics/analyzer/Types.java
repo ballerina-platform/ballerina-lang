@@ -323,6 +323,10 @@ public class Types {
     }
 
     public boolean isLaxFieldAccessAllowed(BType type) {
+        if (type.tag == TypeTags.SEMANTIC_ERROR) {
+            return false;
+        }
+
         type = Types.getImpliedType(type);
         Set<BType> visited = new HashSet<>();
         return isLaxType(type, visited) == 1 || isAssignable(type, symTable.xmlType);
