@@ -477,9 +477,6 @@ public class TypeChecker {
     }
 
     private static boolean isXMLValueRefEqual(XmlValue lhsValue, XmlValue rhsValue) {
-        if (lhsValue.getNodeType() == XmlNodeType.SEQUENCE && rhsValue.getNodeType() == XmlNodeType.SEQUENCE) {
-            return isXMLSequenceRefEqual((XmlSequence) lhsValue, (XmlSequence) rhsValue);
-        }
         if (lhsValue.getNodeType() == XmlNodeType.SEQUENCE && lhsValue.isSingleton()) {
             return ((XmlSequence) lhsValue).getChildrenList().get(0) == rhsValue;
         }
@@ -488,6 +485,9 @@ public class TypeChecker {
         }
         if (lhsValue.getNodeType() != rhsValue.getNodeType()) {
             return false;
+        }
+        if (lhsValue.getNodeType() == XmlNodeType.SEQUENCE && rhsValue.getNodeType() == XmlNodeType.SEQUENCE) {
+            return isXMLSequenceRefEqual((XmlSequence) lhsValue, (XmlSequence) rhsValue);
         }
         if (lhsValue.getNodeType() == XmlNodeType.TEXT && rhsValue.getNodeType() == XmlNodeType.TEXT) {
             return isEqual(lhsValue, rhsValue);
