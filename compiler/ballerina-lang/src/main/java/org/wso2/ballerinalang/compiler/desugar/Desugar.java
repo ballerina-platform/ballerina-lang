@@ -307,6 +307,7 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import javax.xml.XMLConstants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -324,8 +325,6 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import javax.xml.XMLConstants;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -838,6 +837,8 @@ public class Desugar extends BLangNodeVisitor {
             rewrite(testablePkg, this.symTable.pkgEnvMap.get(testablePkg.symbol));
         }
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
+        clearGlobalVariables();
+
         result = pkgNode;
     }
 
@@ -855,9 +856,9 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void createTypedescVariableDef(BLangType typeNode) {
-        Name name = new Name(TYPEDESC + typedescCount++);
-        Location pos = typeNode.pos;
         BType type = typeNode.getBType();
+        Name name = generateTypedescVariableName(type);
+        Location pos = typeNode.pos;
         BType typedescType = new BTypedescType(type, symTable.typeDesc.tsymbol);
         BSymbol owner = this.env.scope.owner;
         BVarSymbol varSymbol  = new BVarSymbol(0, name, owner.pkgID, typedescType, owner, pos, VIRTUAL);
@@ -866,6 +867,11 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef simpleVariableDef = createSimpleVariableDef(pos, name.value, typedescType, typedescExpr,
                                                                            varSymbol);
         typedescList.add(simpleVariableDef);
+    }
+
+    private Name generateTypedescVariableName(BType targetType) {
+        return targetType.tsymbol.name.value.isEmpty()? new Name(TYPEDESC + typedescCount++) :
+                new Name(TYPEDESC + targetType.tsymbol.name.value);
     }
 
     private BLangSimpleVariableDef createSimpleVariableDef(Location pos, String name, BType type, BLangExpression expr,
@@ -9317,6 +9323,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private <E extends BLangStatement> List<E> rewriteStmt(List<E> nodeList, SymbolEnv env) {
+        List<BLangSimpleVariableDef> prevTypedescList = this.typedescList;
         for (int i = 0; i < nodeList.size(); i++) {
             typedescList = new ArrayList<>();
             nodeList.set(i, rewrite(nodeList.get(i), env));
@@ -9327,6 +9334,7 @@ public class Desugar extends BLangNodeVisitor {
                 i++;
             }
         }
+        this.typedescList = prevTypedescList;
         return nodeList;
     }
 
@@ -10654,5 +10662,9 @@ public class Desugar extends BLangNodeVisitor {
             env.enclPkg.imports.add(importDcl);
             env.enclPkg.symbol.imports.add(importDcl.symbol);
         }
+    }
+
+    private void clearGlobalVariables() {
+        this.typedescList = null;
     }
 }
