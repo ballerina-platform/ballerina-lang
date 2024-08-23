@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -201,6 +202,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -266,7 +268,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         pkgNode.constants.forEach(constant -> rewrite(constant, pkgEnv));
         pkgNode.annotations.forEach(annotation -> rewrite(annotation, pkgEnv));
         pkgNode.initFunction = rewrite(pkgNode.initFunction, pkgEnv);
-        pkgNode.classDefinitions = rewrite(pkgNode.classDefinitions, pkgEnv);
+        rewrite(pkgNode.classDefinitions, pkgEnv);
         rewrite(pkgNode.globalVars, pkgEnv);
         addClosuresToGlobalVariableList(pkgEnv);
         for (int i = 0; i < pkgNode.functions.size(); i++) {
@@ -1810,11 +1812,15 @@ public class ClosureGenerator extends BLangNodeVisitor {
         for (int i = 0; i < size; i++) {
             E node = rewrite(nodeList.remove(0), env);
             Iterator<BLangSimpleVariableDef> iterator = annotationClosureReferences.iterator();
+            List<E> closureList = new ArrayList<>();
             while (iterator.hasNext()) {
                 E simpleVariable = rewrite((E) annotationClosureReferences.poll().var, env);
-                nodeList.add(simpleVariable);
-                env.enclPkg.topLevelNodes.add((BLangSimpleVariable) simpleVariable);
+                closureList.add(simpleVariable);
             }
+            // Add closures before the dependent node in the top-level node list
+            int indexAtTopLevel = env.enclPkg.topLevelNodes.indexOf(node);
+            env.enclPkg.topLevelNodes.addAll(indexAtTopLevel, (Collection<? extends TopLevelNode>) closureList);
+            nodeList.addAll(closureList);
             nodeList.add(node);
         }
         this.annotationClosureReferences = previousQueue;
