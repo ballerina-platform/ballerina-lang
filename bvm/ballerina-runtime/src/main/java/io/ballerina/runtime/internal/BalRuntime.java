@@ -68,27 +68,19 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CL
 public class BalRuntime extends Runtime {
 
     private final Scheduler scheduler;
-    private final Module module;
+    final Module module;
     private boolean moduleInitialized = false;
     private boolean moduleStarted = false;
     private boolean moduleStopped = false;
     private Thread schedulerThread = null;
-    private final ClassLoader classLoader;
 
     public BalRuntime(Scheduler scheduler, Module module) {
         this.scheduler = scheduler;
         this.module = module;
-        this.classLoader = ClassLoader.getSystemClassLoader();
     }
 
     public BalRuntime(Module module) {
         this(new Scheduler(true), module);
-    }
-
-    public BalRuntime(Module module, ClassLoader classLoader) {
-        this.scheduler = new Scheduler(true);
-        this.module = module;
-        this.classLoader = classLoader;
     }
 
     @Override
@@ -379,19 +371,19 @@ public class BalRuntime extends Runtime {
         method.invoke(null, new HashMap<>(), new String[]{}, configDetails.paths, configDetails.configContent);
     }
 
-    private void invokeModuleStop() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+    void invokeModuleStop() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
         Class<?> configClass = loadClass(MODULE_INIT_CLASS_NAME);
         Method method = configClass.getDeclaredMethod("$currentModuleStop", RuntimeRegistry.class);
         method.invoke(null, scheduler.getRuntimeRegistry());
     }
 
-    private Class<?> loadClass(String className) throws ClassNotFoundException {
+    Class<?> loadClass(String className) throws ClassNotFoundException {
         String name = getFullQualifiedClassName(this.module, className);
-        return Class.forName(name, true, this.classLoader);
+        return Class.forName(name);
     }
 
-    private static String getFullQualifiedClassName(Module module, String className) {
+    static String getFullQualifiedClassName(Module module, String className) {
         String orgName = module.getOrg();
         String packageName = module.getName();
         if (!DOT.equals(packageName)) {

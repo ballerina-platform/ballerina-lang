@@ -41,6 +41,7 @@ import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.BalRuntime;
+import io.ballerina.runtime.internal.ClassloaderRuntime;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
@@ -404,7 +405,8 @@ public class DebuggerRuntime {
             String packageName = mainClassNameParts[1];
             String packageVersion = mainClassNameParts[2];
             String packageNameSpace = String.join(".", packageOrg, packageName, packageVersion);
-            BalRuntime runtime = new BalRuntime(new Module(packageOrg, packageName, packageVersion), classLoader);
+            Module module = new Module(packageOrg, packageName, packageVersion);
+            BalRuntime runtime = new ClassloaderRuntime(module, classLoader);
             runtime.init();
             runtime.start();
             final CompletableFuture<Object> future = new CompletableFuture<>();
@@ -423,7 +425,10 @@ public class DebuggerRuntime {
                 }
             }, functionArgs.toArray());
             try {
-                return future.get();
+                Object result = future.get();
+                latch.await();
+                runtime.stop();
+                return result;
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException("Error while waiting for function result", e);
             }

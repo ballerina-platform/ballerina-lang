@@ -100,6 +100,10 @@ public abstract class ValueCreator {
         return runtimeValueCreators.containsKey(key);
     }
 
+    public static void removeValueCreator(String key) {
+        runtimeValueCreators.remove(key);
+    }
+
     public abstract MapValue<BString, Object> createRecordValue(String recordTypeName) throws BError;
 
     public abstract BObject createObjectValue(String objectTypeName, Scheduler scheduler, Strand parent,

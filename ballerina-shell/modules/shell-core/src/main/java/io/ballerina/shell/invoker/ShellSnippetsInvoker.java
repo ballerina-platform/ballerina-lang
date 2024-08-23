@@ -38,6 +38,7 @@ import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.BalRuntime;
+import io.ballerina.runtime.internal.ClassloaderRuntime;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.shell.DiagnosticReporter;
@@ -372,7 +373,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
 
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
         ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
-        BalRuntime runtime = new BalRuntime(module, classLoader);
+        BalRuntime runtime = new ClassloaderRuntime(module, classLoader);
         runtime.init();
         runtime.start();
         // Then call run method
@@ -380,6 +381,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         if (failErrorMessage != null) {
             errorStream.println("fail: " + failErrorMessage);
         }
+        runtime.stop();
     }
 
     /* Invocation methods */
@@ -409,7 +411,9 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             }
         }, new Object[1]);
         try {
-            return future.get();
+            Object result = future.get();
+            latch.await();
+            return result;
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException("Error while waiting for function result", e);
         }
