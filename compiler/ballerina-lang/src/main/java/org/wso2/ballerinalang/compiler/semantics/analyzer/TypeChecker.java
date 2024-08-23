@@ -8874,10 +8874,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (type == symTable.semanticError) {
                 return type;
             }
-            // Note: out of range member access returns empty xml value unlike lists
-            // hence, this needs to be set to xml type
-            indexBasedAccessExpr.originalType = varRefType;
-            actualType = varRefType;
+
+            BType xmlMemberAccessType = getXmlMemberAccessType(varRefType);
+            indexBasedAccessExpr.originalType = xmlMemberAccessType;
+            actualType = xmlMemberAccessType;
         } else if (varRefType.tag == TypeTags.TABLE) {
             if (indexBasedAccessExpr.isLValue) {
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_TABLE_USING_MEMBER_ACCESS,
@@ -8927,6 +8927,34 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         return actualType;
+    }
+
+    private BType getXmlMemberAccessType(BType varRefType) {
+        BType xmlMemberAccessType;
+
+        if (varRefType.tag == TypeTags.UNION) {
+            LinkedHashSet<BType> memberTypes = ((BUnionType) varRefType).getMemberTypes();
+            LinkedHashSet<BType> effectiveMemberTypes = new LinkedHashSet<>(memberTypes.size());
+            for (BType memberType : memberTypes) {
+                memberType = Types.getImpliedType(memberType);
+                if (memberType == symTable.xmlNeverType) {
+                    effectiveMemberTypes.add(symTable.xmlNeverType);
+                    continue;
+                }
+                effectiveMemberTypes.add(getXMLConstituents(memberType));
+            }
+            xmlMemberAccessType = effectiveMemberTypes.size() == 1 ? effectiveMemberTypes.iterator().next() :
+                    BUnionType.create(null, effectiveMemberTypes);
+        } else {
+            xmlMemberAccessType = getXMLConstituents(varRefType);
+        }
+
+        if (types.isAssignable(xmlMemberAccessType, symTable.neverType)) {
+            return symTable.xmlNeverType;
+        } else if (types.isAssignable(symTable.xmlNeverType, xmlMemberAccessType)) {
+            return xmlMemberAccessType;
+        }
+        return BUnionType.create(null, xmlMemberAccessType, symTable.xmlNeverType);
     }
 
     private Long getConstIndex(BLangExpression indexExpr) {
