@@ -19,7 +19,9 @@ package io.ballerina.runtime.internal.scheduling;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 
 import java.io.PrintStream;
@@ -37,7 +39,7 @@ import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
 public class RuntimeRegistry {
 
     public final Scheduler scheduler;
-    private final Deque<BObject> listenerQueue = new ArrayDeque<>();
+    public final Deque<BObject> listenerQueue = new ArrayDeque<>();
     private final Deque<BFunctionPointer> stopHandlerQueue = new ArrayDeque<>();
     private final ReentrantLock listenerLock = new ReentrantLock();
     private final ReentrantLock stopHandlerLock = new ReentrantLock();
@@ -87,22 +89,18 @@ public class RuntimeRegistry {
     private void invokeListenerGracefulStop(Strand strand, ObjectValue listener) {
         try {
             Object result = listener.call(strand, "gracefulStop");
-//            if (result instanceof BError) {
-//                RuntimeUtils.handleRuntimeErrorReturns(result);
-//            }
-        } catch (BError error) {
-//            outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
+//            RuntimeUtils.handleRuntimeErrorReturns(result);
+        } catch (Throwable error) {
+//            RuntimeUtils.handleRuntimeErrorReturns(error);
         }
     }
 
     private void invokeStopHandlerFunction(BFunctionPointer bFunctionPointer) {
         try {
             Object result = bFunctionPointer.call();
-//            if (result instanceof BError) {
-//                RuntimeUtils.handleRuntimeErrorReturns(result);
-//            }
-        } catch (BError error) {
-//            outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
+//            RuntimeUtils.handleRuntimeErrorReturns(result);
+        } catch (Throwable error) {
+//            RuntimeUtils.handleRuntimeErrorReturns(error);
         }
     }
 }

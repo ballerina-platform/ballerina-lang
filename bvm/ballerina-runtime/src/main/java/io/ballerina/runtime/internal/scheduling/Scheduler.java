@@ -33,6 +33,7 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.BalRuntime;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.values.FPValue;
@@ -42,6 +43,8 @@ import io.ballerina.runtime.internal.values.ValueCreator;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
@@ -58,21 +61,28 @@ public class Scheduler {
 
     public final BalRuntime runtime;
 
-    private boolean listenerDeclarationFound;
+    public static Strand daemonStrand;
 
     private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
 
-//    private final Strand daemonStrand;
+    private CompletableFuture<Void> stopFuture = new CompletableFuture();
 
     public Scheduler(BalRuntime runtime) {
         this.runtimeRegistry = new RuntimeRegistry(this);
         this.runtime = runtime;
-//        this.daemaonStrand = createStrand(null, true, new HashMap<>(), "init", )
     }
 
     public Scheduler(Module rootModule) {
         this.runtimeRegistry = new RuntimeRegistry(this);
         this.runtime = new BalRuntime(rootModule);
+    }
+
+    public static Strand getStrand() {
+        Strand strand = strandHolder.get().strand;
+        if (strand != null) {
+            return strand;
+        }
+        return daemonStrand;
     }
 
     public Object call(Module module, String functionName, Strand parentStrand, Object... args) {
@@ -108,8 +118,8 @@ public class Scheduler {
                 strandHolder.get().strand = future.strand;
                 Object result = valueCreator.call(future.strand, functionName, argsWithDefaultValues);
                 future.completableFuture.complete(result);
-            } catch (Exception e) {
-                future.completableFuture.completeExceptionally(e);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
             }
         }).setName(strandName);
         return future;
@@ -133,8 +143,8 @@ public class Scheduler {
                 strandHolder.get().strand = future.strand;
                 Object result = ((ObjectValue) object).call(future.strand, methodName, argsWithDefaultValues);
                 future.completableFuture.complete(result);
-            } catch (Exception e) {
-                future.completableFuture.completeExceptionally(e);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
             }
         }).setName(strandName);
         return future;
@@ -153,8 +163,8 @@ public class Scheduler {
                 strandHolder.get().strand = future.strand;
                 Object result = fp.function.apply(argsWithDefaultValues);
                 future.completableFuture.complete(result);
-            } catch (Exception e) {
-                future.completableFuture.completeExceptionally(e);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
             }
         }).setName(strandName);
         return future;
@@ -169,34 +179,19 @@ public class Scheduler {
         FutureValue future = createFuture(parentStrand, true, null, returnType, strandName, metadata,
                 workerChannelMap);
         args[0] = future.strand;
+        strandName = getStrandName(strandName, String.valueOf(future.strand.getId()));
         Thread.startVirtualThread(() -> {
             try {
                 strandHolder.get().strand = future.strand;
                 Object result = fp.function.apply(args);
                 future.completableFuture.complete(result);
-            } catch (Exception e) {
-                future.completableFuture.completeExceptionally(e);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
             }
         }).setName(strandName);
         return future;
     }
 
-
-    public FutureValue startIsolatedWorker(Function<Object[], Object> function, Strand parentStrand, Type returnType,
-                                           String strandName, StrandMetadata metadata, Object[] args) {
-        FutureValue future = createFuture(parentStrand, true, null, returnType, strandName, metadata, null);
-        Object[] argsWithStrand = getArgsWithStrand(future.strand, args);
-        Thread.startVirtualThread(() -> {
-            try {
-                strandHolder.get().strand = future.strand;
-                Object result = function.apply(argsWithStrand);
-                future.completableFuture.complete(result);
-            } catch (Exception e) {
-                future.completableFuture.completeExceptionally(e);
-            }
-        }).setName(strandName);
-        return future;
-    }
 
     public FutureValue startNonIsolatedWorker(String functionName, Module module, String strandName,
                                               StrandMetadata metadata, Map<String, Object> properties, Object... args) {
@@ -210,14 +205,14 @@ public class Scheduler {
         Object[] argsWithDefaultValues = getArgsWithDefaultValues(functionType, parentStrand, args);
         Thread.startVirtualThread(() -> {
             try {
-                globalNonIsolatedLock.lock();
+                future.strand.resume();
                 strandHolder.get().strand = future.strand;
                 Object result = valueCreator.call(future.strand, functionName, argsWithDefaultValues);
                 future.completableFuture.complete(result);
-            } catch (Exception e) {
-                future.completableFuture.completeExceptionally(e);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
             } finally {
-                globalNonIsolatedLock.unlock();
+               future.strand.done();
             }
         }).setName(strandName);
         return future;
@@ -237,14 +232,14 @@ public class Scheduler {
         Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, parentStrand, args);
         Thread.startVirtualThread(() -> {
             try {
-                globalNonIsolatedLock.lock();
+                future.strand.resume();
                 strandHolder.get().strand = future.strand;
                 Object result = ((ObjectValue) object).call(future.strand, methodName, argsWithDefaultValues);
                 future.completableFuture.complete(result);
-            } catch (Exception e) {
-                future.completableFuture.completeExceptionally(e);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
             } finally {
-                globalNonIsolatedLock.unlock();
+               future.strand.done();
             }
         }).setName(strandName);
         return future;
@@ -260,14 +255,14 @@ public class Scheduler {
         Object[] argsWithDefaultValues = getArgsWithDefaultValues(functionType, parentStrand, args);
         Thread.startVirtualThread(() -> {
             try {
-                globalNonIsolatedLock.lock();
+                future.strand.resume();
                 strandHolder.get().strand = future.strand;
                 Object result = fp.function.apply(argsWithDefaultValues);
                 future.completableFuture.complete(result);
-            } catch (Exception e) {
-                future.completableFuture.completeExceptionally(e);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
             } finally {
-                globalNonIsolatedLock.unlock();
+               future.strand.done();
             }
         }).setName(strandName);
         return future;
@@ -283,23 +278,42 @@ public class Scheduler {
         FutureValue future = createFuture(parentStrand, false, null, returnType, strandName, metadata,
                 workerChannelMap);
         args[0] = future.strand;
+        strandName = getStrandName(strandName, String.valueOf(future.strand.getId()));
         Thread.startVirtualThread(() -> {
             try {
-                globalNonIsolatedLock.lock();
+                future.strand.resume();
                 strandHolder.get().strand = future.strand;
                 Object result = fp.function.apply(args);
                 future.completableFuture.complete(result);
-            } catch (Exception e) {
-                future.completableFuture.completeExceptionally(e);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
             } finally {
-                globalNonIsolatedLock.unlock();
+               future.strand.done();
             }
         }).setName(strandName);
         return future;
     }
 
-    public static Strand getStrand() {
-        return strandHolder.get().strand;
+    /*
+  Only use for tests
+ */
+    public FutureValue startNonIsolatedWorker(Function<Object[], Object> function, Strand parentStrand, Type returnType,
+                                              String strandName, StrandMetadata metadata, Object[] args) {
+        FutureValue future = createFuture(parentStrand, false, null, returnType, strandName, metadata, null);
+        Object[] argsWithStrand = getArgsWithStrand(future.strand, args);
+        Thread.startVirtualThread(() -> {
+            try {
+                future.strand.resume();
+                strandHolder.get().strand = future.strand;
+                Object result = function.apply(argsWithStrand);
+                future.completableFuture.complete(result);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
+            } finally {
+                future.strand.done();
+            }
+        }).setName(strandName);
+        return future;
     }
 
     private Object[] getArgsWithDefaultValues(ObjectType objectType, MethodType methodType, Strand strand,
@@ -396,12 +410,15 @@ public class Scheduler {
     public void poison() {
     }
 
-    public void setListenerDeclarationFound(boolean listenerDeclarationFound) {
-        this.listenerDeclarationFound = listenerDeclarationFound;
-    }
-
-    public boolean isListenerDeclarationFound() {
-        return listenerDeclarationFound;
+    public void waitOnListeners(boolean listenerDeclarationFound) {
+        if (!listenerDeclarationFound && runtimeRegistry.listenerQueue.isEmpty()) {
+            return;
+        }
+        try {
+            stopFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw ErrorCreator.createError(e);
+        }
     }
 
     public RuntimeRegistry getRuntimeRegistry() {
@@ -409,6 +426,6 @@ public class Scheduler {
     }
 
     public void gracefulExit() {
-
+        this.stopFuture.complete(null);
     }
 }

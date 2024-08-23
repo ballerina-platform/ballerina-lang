@@ -17,12 +17,11 @@
  */
 package io.ballerina.runtime.internal.scheduling;
 
-import io.ballerina.runtime.internal.ErrorUtils;
+import io.ballerina.runtime.api.values.BError;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * This class stores {@link WorkerChannel} reference to unique channel key.
@@ -33,36 +32,85 @@ import java.util.concurrent.locks.ReentrantLock;
 public class WorkerChannelMap {
 
     private final Map<String, WorkerChannel> channelMap = new HashMap<>();
-    private final Lock channelMapLock = new ReentrantLock();
+    private final ReentrantReadWriteLock channelMapLock = new ReentrantReadWriteLock();
 
-    public WorkerChannel get(String channelKey) {
+    public void addChannelKeys(String[] channelKeys) {
         try {
-            channelMapLock.lock();
-            WorkerChannel workerChannel = channelMap.get(channelKey);
-            if (workerChannel == null) {
-                workerChannel = new WorkerChannel(channelKey);
-                channelMap.put(channelKey, workerChannel);
+            channelMapLock.writeLock().lock();
+            for (String channelKey : channelKeys) {
+                WorkerChannel workerChannel = channelMap.get(channelKey);
+                if (workerChannel == null) {
+                    workerChannel = new WorkerChannel(channelKey);
+                    channelMap.put(channelKey, workerChannel);
+                }
             }
-            return workerChannel;
         } finally {
-            channelMapLock.unlock();
+            channelMapLock.writeLock().unlock();
         }
     }
 
-    public void remove(String workerName, String channelKey) {
+    public WorkerChannel get(String channelKey) {
         try {
-            channelMapLock.lock();
+            channelMapLock.readLock().lock();
+            return channelMap.get(channelKey);
+        } finally {
+            channelMapLock.readLock().unlock();
+        }
+    }
+
+    public void panicSendWorkerChannels(String channelKey, BError error) {
+        // System.out.println("panic send" +  channelKey + Scheduler.getStrand().getName());
+        try {
+            channelMapLock.writeLock().lock();
             WorkerChannel workerChannel = channelMap.get(channelKey);
-            if (!workerChannel.resultFuture.isDone()) {
-                workerChannel.panic(ErrorUtils.createNoMessageError(workerName));
-            }
-            if (workerChannel.doneCount.get() == 0) {
+            workerChannel.panicOnSend(error);
+            if (workerChannel.done()) {
                 channelMap.remove(channelKey);
-            } else {
-                workerChannel.doneCount.decrementAndGet();
             }
         } finally {
-            channelMapLock.unlock();
+            channelMapLock.writeLock().unlock();
+        }
+    }
+
+    public void panicReceiveWorkerChannels(String channelKey, BError error) {
+        // System.out.println("panic receive" +  channelKey + Scheduler.getStrand().getName());
+        try {
+            channelMapLock.writeLock().lock();
+            WorkerChannel workerChannel = channelMap.get(channelKey);
+            workerChannel.panicOnReceive(error);
+            if (workerChannel.done()) {
+                channelMap.remove(channelKey);
+            }
+        } finally {
+            channelMapLock.writeLock().unlock();
+        }
+    }
+
+    public void completeSendWorkerChannels(String channelKey, Object returnValue) {
+        // System.out.println("Remove send" +  channelKey + Scheduler.getStrand().getName());
+        try {
+            channelMapLock.writeLock().lock();
+            WorkerChannel workerChannel = channelMap.get(channelKey);
+            workerChannel.errorOnSend(channelKey, returnValue);
+            if (workerChannel.done()) {
+                channelMap.remove(channelKey);
+            }
+        } finally {
+            channelMapLock.writeLock().unlock();
+        }
+    }
+
+    public void completeReceiveWorkerChannels(String channelKey, Object returnValue) {
+        // System.out.println("Remove receive" +  channelKey + Scheduler.getStrand().getName());
+        try {
+            channelMapLock.writeLock().lock();
+            WorkerChannel workerChannel = channelMap.get(channelKey);
+            workerChannel.errorOnReceive(channelKey, returnValue);
+            if (workerChannel.done()) {
+                channelMap.remove(channelKey);
+            }
+        } finally {
+            channelMapLock.writeLock().unlock();
         }
     }
 }

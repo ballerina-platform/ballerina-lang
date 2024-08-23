@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 import java.util.HashMap;
@@ -49,6 +50,8 @@ public class Strand {
     public TransactionLocalContext currentTrxContext;
     public Stack<TransactionLocalContext> trxContexts;
     public WorkerChannelMap workerChannelMap;
+    public boolean cancel;
+    public int acquiredLockCount;
 
     public Strand() {
         this.id = -1;
@@ -96,17 +99,23 @@ public class Strand {
     }
 
     public void resume() {
-        if (!isIsolated && state == StrandState.YIELDED) {
+        checkStrandCancelled();
+        if (!isIsolated && !scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
             scheduler.globalNonIsolatedLock.lock();
-            this.state =  StrandState.RUNNABLE;
         }
     }
 
     public void yield() {
-        if (!isIsolated && state == StrandState.RUNNABLE) {
+        checkStrandCancelled();
+        if (!isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
             scheduler.globalNonIsolatedLock.unlock();
         }
-        this.state =  StrandState.YIELDED;
+    }
+
+    public void done() {
+        if (!isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
+            scheduler.globalNonIsolatedLock.unlock();
+        }
     }
 
     private TransactionLocalContext createTrxContextBranch(TransactionLocalContext currentTrxContext,
@@ -165,5 +174,11 @@ public class Strand {
 
     public StrandMetadata getMetadata() {
         return metadata;
+    }
+
+    public void checkStrandCancelled() {
+        if (cancel) {
+            throw ErrorUtils.createCancelledFutureError();
+        }
     }
 }

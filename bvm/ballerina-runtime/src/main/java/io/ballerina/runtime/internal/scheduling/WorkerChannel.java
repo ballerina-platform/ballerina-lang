@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.values.BError;
 
+import io.ballerina.runtime.internal.ErrorUtils;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,23 +31,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class WorkerChannel {
 
-    public final String name;
-    public AtomicInteger doneCount;
-    final CompletableFuture<Object> resultFuture;
-    final CompletableFuture<Void> readFuture;
+    private final String name;
+    private final AtomicInteger doneCount;
+    private final CompletableFuture<Object> resultFuture;
+    private final CompletableFuture<Object> receiveFuture;
     private Object result;
 
     public WorkerChannel(String name) {
         this.name = name;
         this.resultFuture = new CompletableFuture<>();
-        this.readFuture = new CompletableFuture<>();
+        this.receiveFuture = new CompletableFuture<>();
         this.doneCount = new AtomicInteger(2);
     }
 
     public Object read() {
-        result = AsyncUtils.getFutureResult(readFuture);
-        readFuture.complete(null);
-        return result;
+        try {
+            result = AsyncUtils.getFutureResult(resultFuture);
+            return result;
+        } finally {
+            receiveFuture.complete(null);
+        }
     }
 
     public Object getResult() {
@@ -57,7 +61,67 @@ public class WorkerChannel {
         resultFuture.complete(result);
     }
 
-    public void panic(BError error) {
+    public void panicOnSend(BError error) {
+        if (resultFuture.isDone()) {
+            return;
+        }
         resultFuture.completeExceptionally(error);
+    }
+
+    public void panicOnReceive(BError error) {
+        if (receiveFuture.isDone()) {
+            return;
+        }
+        receiveFuture.completeExceptionally(error);
+    }
+
+    public void errorOnSend(String channelKey, Object returnValue) {
+        if (resultFuture.isDone()) {
+            return;
+        }
+        BError bError;
+        if (returnValue instanceof BError error) {
+            bError = error;
+        } else {
+            bError = ErrorUtils.createNoMessageError(channelKey);
+        }
+        resultFuture.complete(bError);
+    }
+
+    public void errorOnReceive(String channelKey, Object returnValue) {
+        if (receiveFuture.isDone()) {
+            return;
+        }
+        BError bError;
+        if (returnValue instanceof BError error) {
+            bError = error;
+        } else {
+            bError = ErrorUtils.createNoMessageError(channelKey);
+        }
+        receiveFuture.complete(bError);
+    }
+
+    public boolean isWritten() {
+        return resultFuture.isDone();
+    }
+
+    public boolean isReceived() {
+        return receiveFuture.isDone();
+    }
+
+    public boolean done() {
+        return doneCount.incrementAndGet() == 0;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public CompletableFuture<Object> getResultFuture() {
+        return resultFuture;
+    }
+
+    public CompletableFuture<Object> getReceiveFuture() {
+        return receiveFuture;
     }
 }
