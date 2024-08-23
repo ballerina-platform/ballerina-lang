@@ -16,8 +16,11 @@
  *   under the License.
  */
 
-package io.ballerina.runtime.internal;
+package io.ballerina.runtime.internal.lock;
 
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
+import io.ballerina.runtime.internal.scheduling.Strand;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
@@ -33,7 +36,7 @@ public class BLockStore {
     /**
      * The map of locks inferred.
      */
-    private final Map<String, ReentrantLock> globalLockMap;
+    private final Map<String, BLock> globalLockMap;
 
     private final ReentrantReadWriteLock storeLock;
 
@@ -42,11 +45,36 @@ public class BLockStore {
         this.storeLock = new ReentrantReadWriteLock();
     }
 
-    @SuppressWarnings("unused")
-   /*
-   This is code generated method used to set and get Ballerina lock
+    /*
+        This is code generated method to get Ballerina lock and lock.
     */
-    public ReentrantLock getLockFromMap(String lockName) {
+    @SuppressWarnings("unused")
+    public void lock(Strand strand, String lockName) {
+        getLockFromMap(lockName).lock();
+        strand.acquiredLockCount++;
+    }
+
+    /*
+        This is code generated method to get Ballerina lock and unlock.
+    */
+    @SuppressWarnings("unused")
+    public void unlock(Strand strand, String lockName) {
+        getLockFromMap(lockName).unlock();
+        strand.acquiredLockCount--;
+    }
+
+
+    /*
+        This is code generated method check and panic before async call if strand is in lock
+    */
+    @SuppressWarnings("unused")
+    public void panicIfInLock(Strand strand) {
+        if (strand.acquiredLockCount > 0) {
+            throw ErrorCreator.createError(ErrorReasons.ASYNC_CALL_INSIDE_LOCK);
+        }
+    }
+
+    private ReentrantLock getLockFromMap(String lockName) {
         ReentrantLock lock;
         try {
             storeLock.readLock().lock();
@@ -64,7 +92,7 @@ public class BLockStore {
     private ReentrantLock addLockToMap(String lockName) {
         try {
             storeLock.writeLock().lock();
-            ReentrantLock lock = new ReentrantLock();
+            BLock lock = new BLock();
             globalLockMap.put(lockName, lock);
             return lock;
         } finally {
