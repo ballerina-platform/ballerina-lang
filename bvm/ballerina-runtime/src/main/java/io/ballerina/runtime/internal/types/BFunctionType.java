@@ -266,7 +266,6 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     }
 
-    @Override
     public FunctionQualifiers getQualifiers() {
         return FunctionQualifiers.create(SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED),
                 SymbolFlags.isFlagOn(flags, SymbolFlags.TRANSACTIONAL));
