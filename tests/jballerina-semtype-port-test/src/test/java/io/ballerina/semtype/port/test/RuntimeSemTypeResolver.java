@@ -46,6 +46,7 @@ import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -68,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -278,8 +280,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         }
         FunctionDefinition fd = new FunctionDefinition();
         attachedDefinitions.put(functionType, fd);
-        SemType[] params = functionType.getParameters().stream()
-                .map(paramVar -> resolveTypeDesc(cx, mod, defn, depth + 1, paramVar.typeNode)).toArray(SemType[]::new);
+        SemType[] params = getParameters(cx, mod, defn, depth, functionType);
         SemType rest;
         if (functionType.getRestParameters() == null) {
             rest = Builder.neverType();
@@ -294,6 +295,21 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
                 functionType.flagSet.contains(Flag.TRANSACTIONAL));
         return fd.define(env, paramListDefinition.defineListTypeWrapped(env, params, params.length, rest,
                 CellAtomicType.CellMutability.CELL_MUT_NONE), returnType, qualifiers);
+    }
+
+    private SemType[] getParameters(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
+                                    int depth, BLangFunction functionType) {
+        List<SemType> params = new ArrayList<>();
+        if (functionType instanceof BLangResourceFunction resourceFunctionType) {
+            params.add(Builder.stringConst(resourceFunctionType.methodName.value));
+            for (var each : resourceFunctionType.resourcePathSegments) {
+                params.add(resolveTypeDesc(cx, mod, defn, depth + 1, each.typeNode));
+            }
+        }
+        functionType.getParameters().stream()
+                .map(paramVar -> resolveTypeDesc(cx, mod, defn, depth + 1, paramVar.typeNode))
+                .forEach(params::add);
+        return params.toArray(SemType[]::new);
     }
 
     private SemType getDistinctObjectType(Env env, SemType innerType) {
