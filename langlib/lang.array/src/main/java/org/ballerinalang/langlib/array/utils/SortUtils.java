@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A utility class containing methods needed for the sort operation on tuples and arrays
+ * A utility class containing methods needed for the sort operation on tuples and arrays.
  *
  * @since 2201.10.0
  */
@@ -97,7 +97,7 @@ public class SortUtils {
     }
 
     /**
-     * Check if the values space of the provided finite type belongs to the value space of the given type
+     * Check if the values space of the provided finite type belongs to the value space of the given type.
      * @param finiteType finite type to be checked.
      * @param type type to be checked against.
      * @return true if the finite type belongs to the same value space, false otherwise.
