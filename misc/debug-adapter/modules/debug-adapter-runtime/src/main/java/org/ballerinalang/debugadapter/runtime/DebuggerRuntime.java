@@ -392,9 +392,7 @@ public class DebuggerRuntime {
                                                     Object... userArgs) {
         try {
             // Need to pass the strand (or null) as the first argument for the generated function.
-            List<Object> functionArgs = new ArrayList<>();
-            functionArgs.add(null);
-            functionArgs.addAll(Arrays.asList(userArgs));
+            List<Object> functionArgs = new ArrayList<>(Arrays.asList(userArgs));
 
             URL pathUrl = Paths.get(executablePath).toUri().toURL();
             URLClassLoader classLoader = AccessController.doPrivileged((PrivilegedAction<URLClassLoader>) () ->
