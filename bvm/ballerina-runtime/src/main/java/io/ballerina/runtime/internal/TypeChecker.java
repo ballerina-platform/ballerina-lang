@@ -495,7 +495,7 @@ public class TypeChecker {
         if (lhsValue.getNodeType() == XmlNodeType.TEXT && rhsValue.getNodeType() == XmlNodeType.TEXT) {
             return isEqual(lhsValue, rhsValue);
         }
-        return lhsValue == rhsValue;
+        return false;
     }
 
     private static boolean isXMLSequenceRefEqual(XmlSequence lhsValue, XmlSequence rhsValue) {
