@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -69,6 +70,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
@@ -2430,19 +2432,66 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
+    public String getTypedescFieldName(String name) {
+        return "$typedesc$" + name;
+    }
+
     private BIRVariableDcl getTypedescVariable(BType type) {
-        for (Map.Entry<BSymbol, BIRVariableDcl> entry : env.symbolVarMap.entrySet()) {
-            if (isTypeDescSymbol(entry.getKey(), type)) {
-                return env.symbolVarMap.get(entry.getKey());
-            }
+        BIRVariableDcl variableDcl = findInPackageScope(type);
+        if (variableDcl != null) {
+            return variableDcl;
         }
 
-        for (Map.Entry<BSymbol, BIRGlobalVariableDcl> entry : this.globalVarMap.entrySet()) {
+        variableDcl = findInLocalSymbolVarMap(type, env.symbolVarMap);
+        if (variableDcl != null) {
+            return variableDcl;
+        }
+
+        return findInGlobalSymbolVarMap(type, this.globalVarMap);
+    }
+
+    private BIRVariableDcl findInPackageScope(BType type) {
+        BTypeSymbol typeSymbol = type.tsymbol;
+        if (typeSymbol != null && isDifferentPackage(type)) {
+            BPackageSymbol packageSymbol = (BPackageSymbol) typeSymbol.owner;
+            Scope.ScopeEntry scopeEntry =
+                    packageSymbol.scope.lookup(new Name(getTypedescFieldName(typeSymbol.name.value)));
+            BSymbol symbol = scopeEntry.symbol;
+            if (symbol != null) {
+                BLangPackageVarRef packageVarRef = createPackageVarRef(symbol);
+                visit(packageVarRef);
+                return this.env.targetOperand.variableDcl;
+            }
+        }
+        return null;
+    }
+
+    private boolean isDifferentPackage(BType type) {
+        return type.tsymbol.owner.tag == SymTag.PACKAGE && !type.tsymbol.pkgID.equals(env.enclPkg.packageID);
+    }
+
+    private BLangPackageVarRef createPackageVarRef(BSymbol symbol) {
+        BLangPackageVarRef packageVarRef = new BLangPackageVarRef((BVarSymbol) symbol);
+        packageVarRef.pos = symbol.pos;
+        packageVarRef.setBType(symbol.getType());
+        return packageVarRef;
+    }
+
+    private BIRVariableDcl findInLocalSymbolVarMap(BType type, Map<BSymbol, BIRVariableDcl> varMap) {
+        for (Map.Entry<BSymbol, BIRVariableDcl> entry : varMap.entrySet()) {
             if (isTypeDescSymbol(entry.getKey(), Types.getImpliedType(type))) {
-                return this.globalVarMap.get(entry.getKey());
+                return varMap.get(entry.getKey());
             }
         }
+        return null;
+    }
 
+    private BIRVariableDcl findInGlobalSymbolVarMap(BType type, Map<BSymbol, BIRGlobalVariableDcl> varMap) {
+        for (Map.Entry<BSymbol, BIRGlobalVariableDcl> entry : varMap.entrySet()) {
+            if (isTypeDescSymbol(entry.getKey(), Types.getImpliedType(type))) {
+                return varMap.get(entry.getKey());
+            }
+        }
         return null;
     }
 

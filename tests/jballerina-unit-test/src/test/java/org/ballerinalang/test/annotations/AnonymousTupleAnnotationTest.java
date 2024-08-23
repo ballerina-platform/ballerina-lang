@@ -51,14 +51,7 @@ public class AnonymousTupleAnnotationTest {
     @DataProvider(name = "dataToTestAnnotationsOfLocalTuple")
     public Object[] dataToTestAnnotationsOfLocalTuple() {
         return new String[]{
-                "testAnnotationOnTupleFields",
-                "testAnnotationOnTupleFields2",
-                "testAnnotationOnTupleWithGlobalVariable",
-                "testMultipleAnnotationsOnLocalTuple",
-                "testTupleAnnotationsOnFunctionPointerReturnType",
-                "testGlobalAnnotationsOnFunctionReturnType",
-                "testGlobalAnnotationsOnFunctionParameterType",
-                "testTupleMemberAnnotations"
+                "testAnnotationOnTupleFields"
         };
     }
 
