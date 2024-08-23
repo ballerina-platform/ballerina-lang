@@ -23,7 +23,6 @@ import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
@@ -35,7 +34,6 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.ErrorValue;
-import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.MapValue;
@@ -201,9 +199,9 @@ public class BRunUtil {
             Scheduler scheduler = new Scheduler(new Module(packageManifest.org().toString(),
                     packageManifest.name().toString(),
                     packageManifest.version().toString()));
-            final FutureValue future = scheduler.startIsolatedWorker(func, null, PredefinedTypes.TYPE_ANY, functionName,
-                    null, args);
-            return future.getResult();
+            final FutureValue future = scheduler.startNonIsolatedWorker(func, null, PredefinedTypes.TYPE_ANY,
+                    functionName, null, args);
+            return future.get();
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
         } catch (BError e) {
@@ -389,17 +387,16 @@ public class BRunUtil {
         String funcName = JvmCodeGenUtil.cleanupFunctionName(name.value);
         try {
             Function<Object[], Object> func = getFunction(initClazz, funcName);
-            final FutureValue future = scheduler.startIsolatedWorker(func, null, PredefinedTypes.TYPE_ANY, funcName,
-                    null,new Object[1]);
-           final Object result = future.getResult();
-            if (result instanceof Throwable throwable) {
-                if (throwable instanceof ErrorValue errorValue) {
-                    throw new BLangTestException("error: " + errorValue.getPrintableError());
-                }
-                throw new BLangTestException("error: " + Arrays.toString(throwable.getStackTrace()));
-            }
+            final FutureValue future = scheduler.startNonIsolatedWorker(func, null, PredefinedTypes.TYPE_ANY, funcName,
+                    null, new Object[1]);
+           future.get();
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
+        } catch (Throwable t) {
+            if (t instanceof ErrorValue errorValue) {
+                throw new BLangTestException("error: " + errorValue.getPrintableError());
+            }
+            throw new BLangTestException("error: " + Arrays.toString(t.getStackTrace()));
         }
     }
 
