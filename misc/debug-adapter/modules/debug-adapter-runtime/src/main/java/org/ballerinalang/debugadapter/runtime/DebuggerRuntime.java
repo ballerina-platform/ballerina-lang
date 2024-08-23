@@ -437,4 +437,7 @@ public class DebuggerRuntime {
         }
     }
 
+    private DebuggerRuntime() {
+    }
+
 }

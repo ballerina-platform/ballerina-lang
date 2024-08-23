@@ -292,14 +292,6 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         argList.add(getAsJString(context, mainClassName));
         argList.add(getAsJString(context, EVALUATION_FUNCTION_NAME));
 
-        System.out.println("- main class name: " + argList.get(1) + System.lineSeparator());
-        System.out.println("- executable Path : " + argList.get(0) + System.lineSeparator());
-        try (FileWriter writer = new FileWriter("className_asm.log", true)) {
-            writer.write("- main class name: " + argList.get(1) + System.lineSeparator());
-            writer.write("- executable Path : " + argList.get(0) + System.lineSeparator());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         // adds all the captured variable values as rest arguments.
         argList.addAll(externalVariableValues);
         classLoadAndInvokeMethod.setArgValues(argList);

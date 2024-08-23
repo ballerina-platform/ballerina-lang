@@ -406,7 +406,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
 
             @Override
             public void notifyFailure(BError error) {
-                future.completeExceptionally(ErrorCreator.createError(io.ballerina.runtime.api.utils.StringUtils.fromString(error.getMessage())));
+                future.completeExceptionally(ErrorCreator.createError(
+                        io.ballerina.runtime.api.utils.StringUtils.fromString(error.getMessage())));
                 latch.countDown();
             }
         }, new Object[1]);
