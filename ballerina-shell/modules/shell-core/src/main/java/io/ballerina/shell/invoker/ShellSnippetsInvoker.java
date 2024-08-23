@@ -39,7 +39,6 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.ClassloaderRuntime;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.InvokerException;
@@ -53,8 +52,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
@@ -63,7 +60,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
 
 /**
  * Invoker that invokes a command to evaluate a list of snippets.
@@ -89,20 +85,11 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     private static final String MODULE_NOT_FOUND_CODE = "BCE2003";
 
     /**
-     * Scheduler used to run the init and main methods
-     * of the generated classes.
-     */
-    private final Scheduler scheduler;
-    /**
      * File object that is used to create projects and write.
      * Depending on USE_TEMP_FILE flag, this may be either a file in cwd
      * or a temp file.
      */
     private File bufferFile;
-
-    protected ShellSnippetsInvoker() {
-        this.scheduler = new Scheduler(false);
-    }
 
     /**
      * Initializes the invoker. This can be used to load required files
@@ -360,9 +347,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * The process is run and the stdout is collected and printed.
      *
      * @param jBallerinaBackend Backed to use.
-     * @throws InvokerException If execution failed.
      */
-    protected void executeProject(JBallerinaBackend jBallerinaBackend, io.ballerina.runtime.api.Module module) throws InvokerException {
+    protected void executeProject(JBallerinaBackend jBallerinaBackend, io.ballerina.runtime.api.Module module) {
         if (bufferFile == null) {
             throw new UnsupportedOperationException("Buffer file must be set before execution");
         }
@@ -418,60 +404,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException("Error while waiting for function result", e);
         }
-    }
-
-    /**
-     * Invokes a method that is in the given class.
-     * This is directly invoked without scheduling.
-     * The method must be a static method accepting the given parameters.
-     *
-     * @param classLoader Class loader to find the class.
-     * @param className   Class name with the method.
-     * @param methodName  Method name to invoke.
-     * @param argTypes    Types of arguments.
-     * @param args        Arguments to provide.
-     * @return The result of the invocation.
-     * @throws InvokerException If invocation failed.
-     */
-    protected Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
-                                          Class<?>[] argTypes, Object[] args) throws InvokerException {
-        try {
-            // Get class and method references
-            addDebugDiagnostic(String.format("Running %s.%s directly", className, methodName));
-            Class<?> clazz = classLoader.loadClass(className);
-            Method method = clazz.getDeclaredMethod(methodName, argTypes);
-            return method.invoke(null, args);
-        } catch (ClassNotFoundException e) {
-            addErrorDiagnostic(className + " class not found: " + e.getMessage());
-            throw new InvokerException(e);
-        } catch (NoSuchMethodException e) {
-            addErrorDiagnostic(methodName + " method not found: " + e.getMessage());
-            throw new InvokerException(e);
-        } catch (IllegalAccessException e) {
-            addErrorDiagnostic(methodName + " illegal access: " + e.getMessage());
-            throw new InvokerException(e);
-        } catch (InvocationTargetException e) {
-            addErrorDiagnostic(methodName + " exception at target: " + e.getTargetException());
-            throw new InvokerException(e);
-        }
-    }
-
-    /**
-     * Creates a callback to the method to directly call it with given params.
-     *
-     * @param method Method to create invocation.
-     * @return Created callback.
-     */
-    private Function<Object[], Object> createInvokerCallback(Method method) {
-        return (params) -> {
-            try {
-                return method.invoke(null, params);
-            } catch (InvocationTargetException e) {
-                return e.getTargetException();
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Error while invoking function.", e);
-            }
-        };
     }
 
     /* Util methods */
