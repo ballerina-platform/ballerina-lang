@@ -300,7 +300,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
         defn = od;
         ObjectQualifiers qualifiers = getObjectQualifiers();
         List<Member> members = new ArrayList<>();
-        Set<String> seen = new HashSet<>(fields.size() + methodTypes.length);
+        Set<String> seen = new HashSet<>();
         for (Entry<String, Field> entry : fields.entrySet()) {
             String name = entry.getKey();
             if (skipField(seen, name)) {
@@ -424,6 +424,9 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     }
 
     protected Collection<MethodData> allMethods() {
+        if (methodTypes == null) {
+            return List.of();
+        }
         return Arrays.stream(methodTypes)
                 .map(method -> MethodData.fromMethod(mutableSemTypeDependencyManager, this, method)).toList();
     }
@@ -493,7 +496,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             SemType paramType = paramListDefinition.defineListTypeWrapped(env, paramTypes.toArray(SemType[]::new),
                     paramTypes.size(), rest, CellAtomicType.CellMutability.CELL_MUT_NONE);
             FunctionDefinition fd = new FunctionDefinition();
-            SemType semType = fd.define(env, paramType, returnType, innerFn.getQualifiers());
+            SemType semType = fd.define(env, paramType, returnType, ((BFunctionType) innerFn).getQualifiers());
             return new MethodData(methodName, method.getFlags(), semType);
         }
     }
