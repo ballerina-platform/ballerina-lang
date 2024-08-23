@@ -72,6 +72,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_R
 import static org.ballerinalang.central.client.CentralClientConstants.SHA256;
 import static org.ballerinalang.central.client.CentralClientConstants.SHA256_ALGORITHM;
 import static org.ballerinalang.central.client.CentralClientConstants.STAGING_REPO;
+import static org.ballerinalang.central.client.CentralClientConstants.TEST_MODE_ACTIVE;
 import static org.ballerinalang.central.client.CentralClientConstants.UPDATE_INTERVAL_MILLIS;
 
 /**
@@ -85,6 +86,7 @@ public class Utils {
             System.getenv(BALLERINA_STAGE_CENTRAL));
     public static final boolean SET_BALLERINA_DEV_CENTRAL = Boolean.parseBoolean(
             System.getenv(BALLERINA_DEV_CENTRAL));
+    public static final boolean SET_TEST_MODE_ACTIVE = Boolean.parseBoolean(System.getenv(TEST_MODE_ACTIVE));
 
     private Utils() {
     }

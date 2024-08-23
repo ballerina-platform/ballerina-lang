@@ -44,8 +44,7 @@ public class RunCommandTest extends BaseCommandTest {
     private Path testResources;
     private Path testDistCacheDirectory;
     private ProjectEnvironmentBuilder projectEnvironmentBuilder;
-    static Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-            "log_creator_combined_plugin/compiler-plugin.txt");
+    static Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
 
     @BeforeSuite
     public void setupSuite() throws IOException {
@@ -297,8 +296,7 @@ public class RunCommandTest extends BaseCommandTest {
     @Test(description = "Run a ballerina project with the engagement of all type of compiler plugins",
             dataProvider = "optimizeDependencyCompilation")
     public void testRunBalProjectWithAllCompilerPlugins(Boolean optimizeDependencyCompilation) throws IOException {
-        Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-                "log_creator_combined_plugin/compiler-plugin.txt");
+        Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
         Files.createDirectories(logFile.getParent());
         Files.writeString(logFile, "");
         Path compilerPluginPath = Paths.get("./src/test/resources/test-resources").resolve("compiler-plugins");

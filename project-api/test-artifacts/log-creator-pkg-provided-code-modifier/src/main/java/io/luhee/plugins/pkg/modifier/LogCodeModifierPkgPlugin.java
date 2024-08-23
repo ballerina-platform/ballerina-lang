@@ -24,12 +24,14 @@ import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 /***
@@ -39,8 +41,8 @@ import java.nio.charset.StandardCharsets;
  */
 public class LogCodeModifierPkgPlugin extends CompilerPlugin {
 
-    static String filePath = "./src/test/resources/compiler_plugin_tests/" +
-            "log_creator_combined_plugin/compiler-plugin.txt";
+    private static final Path filePath = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
+            .toAbsolutePath();
 
     @Override
     public void init(CompilerPluginContext pluginContext) {
@@ -54,7 +56,7 @@ public class LogCodeModifierPkgPlugin extends CompilerPlugin {
         @Override
         public void init(CodeModifierContext modifierContext) {
             modifierContext.addSourceModifierTask(sourceGeneratorContext ->
-                appendToOutputFile(filePath, "source-modifier"));
+                appendToOutputFile("source-modifier"));
             modifierContext.addSyntaxNodeAnalysisTask(new LogSyntaxNodeAnalysis(), SyntaxKind.FUNCTION_DEFINITION);
         }
     }
@@ -65,15 +67,23 @@ public class LogCodeModifierPkgPlugin extends CompilerPlugin {
     public static class LogSyntaxNodeAnalysis implements AnalysisTask<SyntaxNodeAnalysisContext> {
         @Override
         public void perform(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext) {
-            appendToOutputFile(filePath, "syntax-node-analysis-modifier");
+            appendToOutputFile("syntax-node-analysis-modifier");
         }
     }
 
-    private static void appendToOutputFile(String filePath, String content) {
-        File outputFile = new File(filePath);
-        try (FileOutputStream fileStream = new FileOutputStream(outputFile, true);
-             Writer writer = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8)) {
-            writer.write("pkg-provided-" + content + "\n");
+    private static void appendToOutputFile(String content) {
+        try {
+            Path parentDir = filePath.getParent();
+            if (parentDir != null) {
+                Files.createDirectories(parentDir);
+            }
+            if (Files.notExists(filePath)) {
+                Files.createFile(filePath);
+            }
+            try (FileOutputStream fileStream = new FileOutputStream(filePath.toFile(), true);
+                 Writer writer = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8)) {
+                writer.write("pkg-provided-" + content + "\n");
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -351,8 +351,7 @@ public class CompilerPluginTests {
 
     @Test(description = "Test a combination of in-built and package provided compiler plugins")
     public void testCombinationOfCompilerPlugins() throws IOException {
-        Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-                "log_creator_combined_plugin/compiler-plugin.txt");
+        Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
         Files.writeString(logFile, "");
         Package currentPackage = loadPackage("log_creator_combined_plugin");
         currentPackage.getCompilation();
@@ -676,8 +675,7 @@ public class CompilerPluginTests {
 
     @AfterSuite
     private void cleanup() throws IOException {
-        Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-                "log_creator_combined_plugin/compiler-plugin.txt");
+        Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
         Files.delete(logFile);
     }
 }
