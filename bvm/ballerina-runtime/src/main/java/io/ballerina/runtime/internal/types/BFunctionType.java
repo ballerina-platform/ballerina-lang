@@ -35,6 +35,7 @@ import io.ballerina.runtime.internal.types.semtype.FunctionQualifiers;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * {@code {@link BFunctionType }} represents a function type in ballerina.
@@ -132,31 +133,14 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
             return false;
         }
 
-        boolean isSourceAnyFunction = SymbolFlags.isFlagOn(this.flags, SymbolFlags.ANY_FUNCTION);
-        boolean isTargetAnyFunction = SymbolFlags.isFlagOn(that.flags, SymbolFlags.ANY_FUNCTION);
-
-        if (isSourceAnyFunction && isTargetAnyFunction) {
-            return true;
-        }
-
-        if (isSourceAnyFunction != isTargetAnyFunction) {
-            return false;
-        }
-
-        if (SymbolFlags.isFlagOn(that.flags, SymbolFlags.ISOLATED) != SymbolFlags
-                .isFlagOn(this.flags, SymbolFlags.ISOLATED)) {
-            return false;
-        }
-
-        if (SymbolFlags.isFlagOn(that.flags, SymbolFlags.TRANSACTIONAL) != SymbolFlags
-                .isFlagOn(this.flags, SymbolFlags.TRANSACTIONAL)) {
+        if (this.flags != that.flags) {
             return false;
         }
 
         if (!Arrays.equals(parameters, that.parameters)) {
             return false;
         }
-        return retType.equals(that.retType);
+        return Objects.equals(retType, that.retType) && Objects.equals(restType, that.restType);
     }
 
     @Override
