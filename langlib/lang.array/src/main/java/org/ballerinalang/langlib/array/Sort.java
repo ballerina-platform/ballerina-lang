@@ -49,17 +49,12 @@ public class Sort {
 
     public static BArray sort(BArray arr, Object direction, Object func) {
         BArray sortedArray;
+        Type arrType = arr.getType();
         BFunctionPointer<Object, Object> function = (BFunctionPointer<Object, Object>) func;
-        Set<Type> typeList = new HashSet<>();
-        if (arr.getType().getTag() == TypeTags.TUPLE_TAG) {
-            if (!isOrderedType(arr.getType()) && function == null) {
-                throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
-                        StringUtils.fromString("Valid key function required"));
-            }
-            typeList = new HashSet<>(((BTupleType) arr.getType()).getTupleTypes());
-            if (((BTupleType) arr.getType()).getRestType() != null) {
-                typeList.add(((BTupleType) arr.getType()).getRestType());
-            }
+        // Check if the array type is an Ordered type, otherwise a key function is mandatory
+        if (!isOrderedType(arrType) && function == null) {
+            throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
+                    StringUtils.fromString("Valid key function required"));
         }
         Object[][] sortArr = new Object[arr.size()][2];
         Object[][] sortArrClone = new Object[arr.size()][2];
@@ -74,7 +69,11 @@ public class Sort {
             }
         }
         mergesort(sortArr, sortArrClone, 0, sortArr.length - 1, direction.toString());
-        if (arr.getType().getTag() == TypeTags.TUPLE_TAG) {
+        if (arrType.getTag() == TypeTags.TUPLE_TAG) {
+            Set<Type> typeList = new HashSet<>(((BTupleType) arrType).getTupleTypes());
+            if (((BTupleType) arrType).getRestType() != null) {
+                typeList.add(((BTupleType) arrType).getRestType());
+            }
             sortedArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(
                     TypeCreator.createUnionType(typeList.stream().toList())));
         } else {

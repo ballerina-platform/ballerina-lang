@@ -31,8 +31,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * A utility class containing methods needed for the sort operation on tuples and arrays
+ *
+ * @since 2201.10.0
+ */
 public class SortUtils {
 
+    /**
+     * Check if the provided type is an Ordered type.
+     * @param type type to be checked.
+     * @return true if type is Ordered, false otherwise.
+     */
     public static boolean isOrderedType(Type type) {
         type = TypeUtils.getImpliedType(type);
         switch (type.getTag()) {
@@ -86,6 +96,12 @@ public class SortUtils {
         }
     }
 
+    /**
+     * Check if the values space of the provided finite type belongs to the value space of the given type
+     * @param finiteType finite type to be checked.
+     * @param type type to be checked against.
+     * @return true if the finite type belongs to the same value space, false otherwise.
+     */
     public static boolean checkValueSpaceHasSameType(BFiniteType finiteType, Type type) {
         Type baseType = TypeUtils.getImpliedType(type);
         if (baseType.getTag() == TypeTags.FINITE_TYPE_TAG) {
@@ -100,6 +116,12 @@ public class SortUtils {
         return true;
     }
 
+    /**
+     * Check whether a given type is different to a target type.
+     * @param source type to check.
+     * @param target type to compare with.
+     * @return true if the source type does not belong to the target type, false otherwise.
+     */
     public static boolean isDifferentOrderedType(Type source, Type target) {
         source = TypeUtils.getImpliedType(source);
         target = TypeUtils.getImpliedType(target);
@@ -109,6 +131,11 @@ public class SortUtils {
         return !TypeChecker.checkIsType(source, target);
     }
 
+    /**
+     * Check whether the given type tag belongs to a simple basic type.
+     * @param tag type tag to check.
+     * @return true if the tag belongs to a simple basic type, false otherwise.
+     */
     public static boolean isSimpleBasicType(int tag) {
         return switch (tag) {
             case TypeTags.BYTE_TAG, TypeTags.FLOAT_TAG, TypeTags.DECIMAL_TAG, TypeTags.BOOLEAN_TAG, TypeTags.NULL_TAG ->
