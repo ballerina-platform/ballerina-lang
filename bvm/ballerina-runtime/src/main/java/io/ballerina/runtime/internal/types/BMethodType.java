@@ -85,7 +85,6 @@ public class BMethodType extends BFunctionType implements MethodType {
         return SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED);
     }
 
-    @Override
     public String name() {
         return funcName;
     }
