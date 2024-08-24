@@ -83,6 +83,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.APPLICATIO
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
 import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
 import static org.ballerinalang.central.client.CentralClientConstants.BALA_URL;
+import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_CENTRAL_TELEMETRY_DISABLED;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_PLATFORM;
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_TYPE;
@@ -99,6 +100,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.SHA256_ALG
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
+import static org.ballerinalang.central.client.Utils.SET_TEST_MODE_ACTIVE;
 import static org.ballerinalang.central.client.Utils.checkHash;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
@@ -1681,16 +1683,14 @@ public class CentralAPIClient {
      * @return Http request builder
      */
     protected Request.Builder getNewRequest(String supportedPlatform, String ballerinaVersion) {
-        if (this.accessToken.isEmpty()) {
-            return new Request.Builder()
-                    .addHeader(BALLERINA_PLATFORM, supportedPlatform)
-                    .addHeader(USER_AGENT, ballerinaVersion);
-        } else {
-            return new Request.Builder()
-                    .addHeader(BALLERINA_PLATFORM, supportedPlatform)
-                    .addHeader(USER_AGENT, ballerinaVersion)
-                    .addHeader(AUTHORIZATION, getBearerToken(this.accessToken));
+        Request.Builder requestBuilder = new Request.Builder()
+                .addHeader(BALLERINA_PLATFORM, supportedPlatform)
+                .addHeader(USER_AGENT, ballerinaVersion)
+                .addHeader(BALLERINA_CENTRAL_TELEMETRY_DISABLED, String.valueOf(SET_TEST_MODE_ACTIVE));
+        if (!this.accessToken.isEmpty()) {
+            requestBuilder.addHeader(AUTHORIZATION, getBearerToken(this.accessToken));
         }
+        return requestBuilder;
     }
 
     public String accessToken() {
