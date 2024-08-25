@@ -60,7 +60,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
 public abstract class AbstractArrayValue implements ArrayValue {
 
     static final int SYSTEM_ARRAY_MAX = Integer.MAX_VALUE - 8;
-    private Definition readonlyAttachedDefinition;
+    private final ThreadLocal<Definition> readonlyAttachedDefinition = new ThreadLocal<>();
 
     /**
      * The maximum size of arrays to allocate.
@@ -312,18 +312,18 @@ public abstract class AbstractArrayValue implements ArrayValue {
     }
 
     @Override
-    public Optional<Definition> getReadonlyShapeDefinition() {
-        return Optional.ofNullable(readonlyAttachedDefinition);
+    public synchronized Optional<Definition> getReadonlyShapeDefinition() {
+        return Optional.ofNullable(readonlyAttachedDefinition.get());
     }
 
     @Override
-    public void setReadonlyShapeDefinition(Definition definition) {
-        readonlyAttachedDefinition = definition;
+    public synchronized void setReadonlyShapeDefinition(Definition definition) {
+        readonlyAttachedDefinition.set(definition);
     }
 
     @Override
-    public void resetReadonlyShapeDefinition() {
-        readonlyAttachedDefinition = null;
+    public synchronized void resetReadonlyShapeDefinition() {
+        readonlyAttachedDefinition.remove();
     }
 
     @Override
