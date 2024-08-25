@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -93,6 +94,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         this.sealed = sealed;
         this.typeFlags = typeFlags;
         this.readonly = SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
+        registerWithTypeCreator();
     }
 
     /**
@@ -122,6 +124,13 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
             this.fields = fields;
         }
         this.internalName = typeName;
+        registerWithTypeCreator();
+    }
+
+    private void registerWithTypeCreator() {
+        if (this.typeName != null && this.pkg != null) {
+            TypeCreator.registerRecordType(this.typeName, this.pkg, this);
+        }
     }
 
     private Map<String, Field> getReadOnlyFields(Map<String, Field> fields) {
