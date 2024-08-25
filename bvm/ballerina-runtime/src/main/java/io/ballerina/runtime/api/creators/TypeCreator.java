@@ -43,6 +43,7 @@ import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.types.CopyOnWriteBMapWrapper;
@@ -53,6 +54,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Class @{@link TypeCreator} provides APIs to create ballerina type instances.
@@ -179,7 +182,7 @@ public final class TypeCreator {
                   int typeFlags, boolean isCyclic, boolean readonly) {
         TypeMemoKey key = new TypeMemoKey(name, pkg);
         return tupleTypeMemo.computeIfAbsent(key,
-                (ignored) -> new BTupleType(name, pkg, typeFlags, isCyclic, readonly));
+                createMappingFn(() -> new BTupleType(name, pkg, typeFlags, isCyclic, readonly)));
     }
 
     /**
@@ -214,7 +217,8 @@ public final class TypeCreator {
      */
     public static MapType createMapType(String typeName, Type constraint, Module module) {
         TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return mapTypeMemo.computeIfAbsent(key, (ignored) -> new BMapType(typeName, constraint, module));
+        return mapTypeMemo.computeIfAbsent(key,
+                createMappingFn(() -> new BMapType(typeName, constraint, module)));
     }
 
     /**
@@ -228,7 +232,8 @@ public final class TypeCreator {
      */
     public static MapType createMapType(String typeName, Type constraint, Module module, boolean readonly) {
         TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return mapTypeMemo.computeIfAbsent(key, (ignored) -> new BMapType(typeName, constraint, module, readonly));
+        return mapTypeMemo.computeIfAbsent(key,
+                createMappingFn(() -> new BMapType(typeName, constraint, module, readonly)));
     }
 
     /**
@@ -245,7 +250,7 @@ public final class TypeCreator {
                                               int typeFlags) {
         TypeMemoKey key = new TypeMemoKey(typeName, module);
         return recordTypeMemo.computeIfAbsent(key,
-                (ignored) -> new BRecordType(typeName, typeName, module, flags, sealed, typeFlags));
+                createMappingFn(() -> new BRecordType(typeName, typeName, module, flags, sealed, typeFlags)));
     }
 
     /**
@@ -265,7 +270,8 @@ public final class TypeCreator {
                                               boolean sealed, int typeFlags) {
         TypeMemoKey key = new TypeMemoKey(typeName, module);
         return recordTypeMemo.computeIfAbsent(key,
-                (ignored) -> new BRecordType(typeName, module, flags, fields, restFieldType, sealed, typeFlags));
+                createMappingFn(
+                        () -> new BRecordType(typeName, module, flags, fields, restFieldType, sealed, typeFlags)));
     }
 
     /**
@@ -278,7 +284,7 @@ public final class TypeCreator {
      */
     public static ObjectType createObjectType(String typeName, Module module, long flags) {
         TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return objectTypeMemo.computeIfAbsent(key, (ignored) -> new BObjectType(typeName, module, flags));
+        return objectTypeMemo.computeIfAbsent(key, createMappingFn(() -> new BObjectType(typeName, module, flags)));
     }
 
     /**
@@ -305,7 +311,7 @@ public final class TypeCreator {
                                               Type completionType, Module modulePath) {
         TypeMemoKey key = new TypeMemoKey(typeName, modulePath);
         return streamTypeMemo.computeIfAbsent(key,
-                (ignored) -> new BStreamType(typeName, constraint, completionType, modulePath));
+                createMappingFn(() -> new BStreamType(typeName, constraint, completionType, modulePath)));
     }
 
     /**
@@ -333,7 +339,7 @@ public final class TypeCreator {
     public static StreamType createStreamType(String typeName, Type completionType, Module modulePath) {
         TypeMemoKey key = new TypeMemoKey(typeName, modulePath);
         return streamTypeMemo.computeIfAbsent(key,
-                (ignored) -> new BStreamType(typeName, completionType, modulePath));
+                createMappingFn(() -> new BStreamType(typeName, completionType, modulePath)));
     }
 
     /**
@@ -405,7 +411,7 @@ public final class TypeCreator {
                                             boolean isCyclic, long flags) {
         TypeMemoKey key = new TypeMemoKey(name, pkg);
         return unionTypeMemo.computeIfAbsent(key,
-                (ignored) -> new BUnionType(memberTypes, name, pkg, typeFlags, isCyclic, flags));
+                createMappingFn(() -> new BUnionType(memberTypes, name, pkg, typeFlags, isCyclic, flags)));
     }
 
     /**
@@ -417,7 +423,7 @@ public final class TypeCreator {
      */
     public static ErrorType createErrorType(String typeName, Module module) {
         TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return errorTypeMemo.computeIfAbsent(key, (ignored) -> new BErrorType(typeName, module));
+        return errorTypeMemo.computeIfAbsent(key, createMappingFn(() -> new BErrorType(typeName, module)));
     }
 
     /**
@@ -430,7 +436,7 @@ public final class TypeCreator {
      */
     public static ErrorType createErrorType(String typeName, Module module, Type detailType) {
         TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return errorTypeMemo.computeIfAbsent(key, (ignored) -> new BErrorType(typeName, module, detailType));
+        return errorTypeMemo.computeIfAbsent(key, createMappingFn(() -> new BErrorType(typeName, module, detailType)));
     }
 
     /**
@@ -490,7 +496,7 @@ public final class TypeCreator {
      */
     public static XmlType createXMLType(String typeName, Type constraint, Module module) {
         TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return xmlTypeMemo.computeIfAbsent(key, (ignored) -> new BXmlType(typeName, constraint, module));
+        return xmlTypeMemo.computeIfAbsent(key, createMappingFn(() -> new BXmlType(typeName, constraint, module)));
     }
 
     /**
@@ -504,7 +510,7 @@ public final class TypeCreator {
      */
     public static XmlType createXMLType(String typeName, Module module, int tag, boolean readonly) {
         TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return xmlTypeMemo.computeIfAbsent(key, (ignored) -> new BXmlType(typeName, module, tag, readonly));
+        return xmlTypeMemo.computeIfAbsent(key, createMappingFn(() -> new BXmlType(typeName, module, tag, readonly)));
     }
 
     /**
@@ -528,7 +534,7 @@ public final class TypeCreator {
      */
     public static JsonType createJSONType(String typeName, Module module, boolean readonly) {
         TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return jsonTypeMemo.computeIfAbsent(key, (ignored) -> new BJsonType(typeName, module, readonly));
+        return jsonTypeMemo.computeIfAbsent(key, createMappingFn(() -> new BJsonType(typeName, module, readonly)));
     }
 
     /**
@@ -556,7 +562,21 @@ public final class TypeCreator {
     private TypeCreator() {
     }
 
-    private record TypeMemoKey(String typeName, Module module) {
+    public record TypeMemoKey(String typeName, Module module) {
 
+    }
+
+    public static void registerRecordType(String typeName, Module module, BRecordType recordType) {
+        TypeMemoKey key = new TypeMemoKey(typeName, module);
+        recordTypeMemo.put(key, recordType);
+        recordType.setLookupKey(key);
+    }
+
+    private static <E extends BType> Function<TypeMemoKey, E> createMappingFn(Supplier<E> innerSuppler) {
+        return (key) -> {
+            E bType = innerSuppler.get();
+            bType.setLookupKey(key);
+            return bType;
+        };
     }
 }
