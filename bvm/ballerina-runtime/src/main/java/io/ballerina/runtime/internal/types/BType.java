@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
@@ -57,6 +58,7 @@ public abstract class BType implements Type, SubTypeData, MutableSemType, Clonea
     private Type cachedReferredType = null;
     private Type cachedImpliedType = null;
     private volatile SemType cachedSemType = null;
+    private TypeCreator.TypeMemoKey lookupKey = null;
     private Map<SemType, CachedResult> cachedResults;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
@@ -317,5 +319,9 @@ public abstract class BType implements Type, SubTypeData, MutableSemType, Clonea
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
+    }
+
+    public void setLookupKey(TypeCreator.TypeMemoKey lookupKey) {
+        this.lookupKey = lookupKey;
     }
 }
