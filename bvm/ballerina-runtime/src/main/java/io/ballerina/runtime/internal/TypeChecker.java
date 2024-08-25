@@ -615,7 +615,7 @@ public final class TypeChecker {
 
     private static boolean isSubTypeWithShape(Context cx, Object sourceValue, SemType target) {
         return Builder.shapeOf(cx, sourceValue)
-                .map(source -> Core.isSubType(cx, source, target))
+                .map(source -> !Core.isEmpty(cx, source) && Core.isSubType(cx, source, target))
                 .orElse(false);
     }
 
