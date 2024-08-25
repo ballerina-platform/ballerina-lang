@@ -39,6 +39,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
+
 /**
  * {@code BIntersectionType} represents an intersection type in Ballerina.
  *
@@ -237,12 +239,12 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
             result = Core.intersect(result, memberType);
         }
         if (Core.isSubtypeSimple(result, Builder.errorType())) {
-            BErrorType effectiveErrorType = (BErrorType) effectiveType;
+            BErrorType effectiveErrorType = (BErrorType) getImpliedType(effectiveType);
             DistinctIdSupplier distinctIdSupplier =
                     new DistinctIdSupplier(TypeChecker.context().env, effectiveErrorType.getTypeIdSet());
             result = distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct).reduce(result, Core::intersect);
         } else if (Core.isSubtypeSimple(result, Builder.objectType())) {
-            BObjectType effectiveObjectType = (BObjectType) effectiveType;
+            BObjectType effectiveObjectType = (BObjectType) getImpliedType(effectiveType);
             DistinctIdSupplier distinctIdSupplier =
                     new DistinctIdSupplier(TypeChecker.context().env, effectiveObjectType.getTypeIdSet());
             result = distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(result, Core::intersect);
@@ -272,4 +274,5 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
     public boolean couldShapeBeDifferent() {
         return true;
     }
+
 }
