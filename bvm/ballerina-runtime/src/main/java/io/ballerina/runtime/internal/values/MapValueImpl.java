@@ -107,7 +107,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private final Map<String, Object> nativeData = new HashMap<>();
     private Type iteratorNextReturnType;
     private SemType shape;
-    private Definition readonlyAttachedDefinition;
+    private final ThreadLocal<Definition> readonlyAttachedDefinition = new ThreadLocal<>();
 
     public MapValueImpl(TypedescValue typedesc) {
         this(typedesc.getDescribingType());
@@ -618,18 +618,18 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public Optional<Definition> getReadonlyShapeDefinition() {
-        return Optional.ofNullable(readonlyAttachedDefinition);
+    public synchronized Optional<Definition> getReadonlyShapeDefinition() {
+        return Optional.ofNullable(readonlyAttachedDefinition.get());
     }
 
     @Override
-    public void setReadonlyShapeDefinition(Definition definition) {
-        readonlyAttachedDefinition = definition;
+    public synchronized void setReadonlyShapeDefinition(Definition definition) {
+        readonlyAttachedDefinition.set(definition);
     }
 
     @Override
-    public void resetReadonlyShapeDefinition() {
-        readonlyAttachedDefinition = null;
+    public synchronized void resetReadonlyShapeDefinition() {
+        readonlyAttachedDefinition.remove();
     }
 
     /**
