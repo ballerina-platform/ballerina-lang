@@ -527,7 +527,8 @@ public class XMLToRecordConverter {
         }
         annotations.add(getXMLAttributeNode());
         NodeList<AnnotationNode> annotationNodes = NodeFactory.createNodeList(annotations);
-        MetadataNode metadataNode = withoutAttributeAnnot ? null : NodeFactory.createMetadataNode(null, annotationNodes);
+        MetadataNode metadataNode = withoutAttributeAnnot ? null :
+                NodeFactory.createMetadataNode(null, annotationNodes);
 
         if (xmlAttributeNode.getPrefix() != null &&
                 xmlAttributeNode.getPrefix().equals(XMLNS_PREFIX)) {
