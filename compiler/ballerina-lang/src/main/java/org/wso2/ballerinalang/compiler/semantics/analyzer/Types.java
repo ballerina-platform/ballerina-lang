@@ -174,7 +174,6 @@ public class Types {
     private BLangDiagnosticLog dlog;
     private Names names;
     private int finiteTypeCount = 0;
-    private BUnionType expandedXMLBuiltinSubtypes;
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private SymbolEnv env;
     private boolean ignoreObjectTypeIds = false;
@@ -212,9 +211,6 @@ public class Types {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
-        this.expandedXMLBuiltinSubtypes = BUnionType.create(typeEnv, null,
-                                                            symTable.xmlElementType, symTable.xmlCommentType,
-                                                            symTable.xmlPIType, symTable.xmlTextType);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
@@ -3080,194 +3076,6 @@ public class Types {
         return !Symbols.isPrivate(rhsSym) && !Symbols.isPublic(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID);
     }
 
-    private void updateSet(Set<BType> set, BType ...types) {
-        for (BType type : types) {
-            if (!SemTypeHelper.isFullSemType(type.tag)) {
-                set.add(type);
-            }
-        }
-    }
-
-    private static boolean maybeRecursiveTypeCheck(BType source, BType target) {
-        return (isJsonAnydataOrUserDefinedUnion(source) && ((BUnionType) source).isCyclic) ||
-                (source.tag == TypeTags.TUPLE && ((BTupleType) source).isCyclic);
-    }
-
-    private boolean isAssignableToUnionType(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        TypePair pair = new TypePair(source, target);
-        if (unresolvedTypes.contains(pair)) {
-            return true;
-        }
-
-        source = getImpliedType(source);
-        target = getImpliedType(target);
-        if (maybeRecursiveTypeCheck(source, target)) {
-            // add cyclic source to target pair to avoid recursive calls
-            unresolvedTypes.add(pair);
-        }
-
-        Set<BType> sourceTypes = new LinkedHashSet<>();
-        Set<BType> targetTypes = new LinkedHashSet<>();
-
-        if (isJsonAnydataOrUserDefinedUnion(source)) {
-            updateSet(sourceTypes, getEffectiveMemberTypes((BUnionType) source).toArray(new BType[0]));
-        } else {
-            updateSet(sourceTypes, source);
-        }
-
-        boolean targetIsAUnion = false;
-        if (target.tag == TypeTags.UNION) {
-            targetIsAUnion = true;
-            updateSet(targetTypes, getEffectiveMemberTypes((BUnionType) target).toArray(new BType[0]));
-        } else {
-            updateSet(targetTypes, target);
-        }
-
-        // check if all the value types are assignable between two unions
-        var sourceIterator = sourceTypes.iterator();
-        while (sourceIterator.hasNext()) {
-            BType sMember = sourceIterator.next();
-            if (sMember.tag == TypeTags.NEVER) {
-                sourceIterator.remove();
-                continue;
-            }
-            if (sMember.tag == TypeTags.FINITE && isAssignable(sMember, target, unresolvedTypes)) {
-                sourceIterator.remove();
-                continue;
-            }
-            if (sMember.tag == TypeTags.XML &&
-                    isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)) {
-                sourceIterator.remove();
-                continue;
-            }
-
-            if (!isValueType(sMember)) {
-                if (!targetIsAUnion) {
-                    continue;
-                }
-                BUnionType targetUnion = (BUnionType) target;
-                // prevent cyclic unions being compared as individual items
-                if (sMember instanceof BUnionType) {
-                    BUnionType sUnion = (BUnionType) sMember;
-                    if (sUnion.isCyclic && targetUnion.isCyclic) {
-                        unresolvedTypes.add(new TypePair(sUnion, targetUnion));
-                         if (isAssignable(sUnion, targetUnion, unresolvedTypes)) {
-                             sourceIterator.remove();
-                             continue;
-                         }
-                    }
-                    if (sMember.tag == TypeTags.JSON && isAssignable(sUnion, targetUnion, unresolvedTypes)) {
-                        sourceIterator.remove();
-                        continue;
-                    }
-                }
-                // readonly can match to a union similar to any|error
-                if (sMember.tag == TypeTags.READONLY && isAssignable(symTable.anyAndReadonlyOrError, targetUnion)) {
-                    sourceIterator.remove();
-                    continue;
-                }
-                continue;
-            }
-
-            boolean sourceTypeIsNotAssignableToAnyTargetType = true;
-            var targetIterator = targetTypes.iterator();
-            while (targetIterator.hasNext()) {
-                BType t = targetIterator.next();
-                if (isAssignable(sMember, t, unresolvedTypes)) {
-                    sourceIterator.remove();
-                    sourceTypeIsNotAssignableToAnyTargetType = false;
-                    break;
-                }
-            }
-            if (sourceTypeIsNotAssignableToAnyTargetType) {
-                unresolvedTypes.remove(pair);
-                return false;
-            }
-        }
-
-        // check the structural values for similarity
-        sourceIterator = sourceTypes.iterator();
-        while (sourceIterator.hasNext()) {
-            BType sourceMember = sourceIterator.next();
-            boolean sourceTypeIsNotAssignableToAnyTargetType = true;
-            var targetIterator = targetTypes.iterator();
-
-            boolean selfReferencedSource = (sourceMember != source) &&
-                    isSelfReferencedStructuredType(source, sourceMember);
-
-            while (targetIterator.hasNext()) {
-                BType targetMember = targetIterator.next();
-
-                boolean selfReferencedTarget = isSelfReferencedStructuredType(target, targetMember);
-                if (selfReferencedTarget && selfReferencedSource && (sourceMember.tag == targetMember.tag)) {
-                    sourceTypeIsNotAssignableToAnyTargetType = false;
-                    break;
-                }
-
-                if (isAssignable(sourceMember, targetMember, unresolvedTypes)) {
-                    sourceTypeIsNotAssignableToAnyTargetType = false;
-                    break;
-                }
-            }
-            if (sourceTypeIsNotAssignableToAnyTargetType) {
-                unresolvedTypes.remove(pair);
-                return false;
-            }
-        }
-
-        unresolvedTypes.add(pair);
-        return true;
-    }
-
-    private static boolean isJsonAnydataOrUserDefinedUnion(BType type) {
-        int tag = type.tag;
-        return tag == TypeTags.UNION || tag == TypeTags.JSON || tag == TypeTags.ANYDATA;
-    }
-
-    public boolean isSelfReferencedStructuredType(BType source, BType s) {
-        if (source == s) {
-            return true;
-        }
-
-        s = getImpliedType(s);
-        if (s.tag == TypeTags.ARRAY) {
-            return isSelfReferencedStructuredType(source, ((BArrayType) s).eType);
-        }
-        if (s.tag == TypeTags.MAP) {
-            return isSelfReferencedStructuredType(source, ((BMapType) s).constraint);
-        }
-        if (s.tag == TypeTags.TABLE) {
-            return isSelfReferencedStructuredType(source, ((BTableType) s).constraint);
-        }
-        return false;
-    }
-
-    public BType updateSelfReferencedWithNewType(BType source, BType s, BType target) {
-        if (s.tag == TypeTags.ARRAY) {
-            BArrayType arrayType = (BArrayType) s;
-            if (arrayType.eType == source) {
-                return new BArrayType(typeEnv(), target, arrayType.tsymbol, arrayType.getSize(),
-                        arrayType.state, arrayType.getFlags());
-            }
-        }
-        if (s.tag == TypeTags.MAP) {
-            BMapType mapType = (BMapType) s;
-            if (mapType.constraint == source) {
-                return new BMapType(typeEnv(), mapType.tag, target, mapType.tsymbol, mapType.getFlags());
-            }
-        }
-        if (s.tag == TypeTags.TABLE) {
-            BTableType tableType = (BTableType) s;
-            if (tableType.constraint == source) {
-                return new BTableType(symTable.typeEnv(), tableType.tag, target, tableType.tsymbol,
-                        tableType.getFlags());
-            } else if (tableType.constraint instanceof BMapType) {
-                return updateSelfReferencedWithNewType(source, tableType.constraint, target);
-            }
-        }
-        return s;
-    }
-
     private Set<BType> getEffectiveMemberTypes(BUnionType unionType) {
         Set<BType> memTypes = new LinkedHashSet<>();
 
@@ -5475,40 +5283,6 @@ public class Types {
             return true;
         }
         return hasFillerValue(type.eType);
-    }
-
-    /**
-     * Get result type of the query output.
-     *
-     * @param type type of query expression.
-     * @return result type.
-     */
-    public BType resolveExprType(BType type) {
-        switch (type.tag) {
-            case TypeTags.STREAM:
-                return ((BStreamType) type).constraint;
-            case TypeTags.TABLE:
-                return ((BTableType) type).constraint;
-            case TypeTags.ARRAY:
-                return ((BArrayType) type).eType;
-            case TypeTags.UNION:
-                List<BType> exprTypes = new ArrayList<>(((BUnionType) type).getMemberTypes());
-                for (BType returnType : exprTypes) {
-                    switch (returnType.tag) {
-                        case TypeTags.STREAM:
-                            return ((BStreamType) returnType).constraint;
-                        case TypeTags.TABLE:
-                            return ((BTableType) returnType).constraint;
-                        case TypeTags.ARRAY:
-                            return ((BArrayType) returnType).eType;
-                        case TypeTags.STRING:
-                        case TypeTags.XML:
-                            return returnType;
-                    }
-                }
-            default:
-                return type;
-        }
     }
 
     /**
