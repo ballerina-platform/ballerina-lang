@@ -51,7 +51,7 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance = new BMainInstance(balServer);
         // Build and push config Lib project.
         bMainInstance.compilePackageAndPushToLocal(Paths.get(testFileLocation, "configLibProject").toString(),
-                "testOrg-configLib-java17-0.1.0");
+                "testOrg-configLib-java21-0.1.0");
     }
 
     @Test

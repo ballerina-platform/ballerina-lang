@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.cli.utils.TestUtils;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
@@ -239,10 +240,10 @@ public class TestCommandTest extends BaseCommandTest {
         Assert.assertEquals(md5BinJar, DigestUtils.md5Hex(
                 Files.newInputStream(projectPath.resolve("target").resolve("bin").resolve("winery.jar"))));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java21")
+                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java21")
+                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-winery-0.1.0-testable.jar").toFile().exists());
     }
 
@@ -371,7 +372,7 @@ public class TestCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog, getOutput("test-project-with-dump-graph.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve("java21")
+                .resolve("package_a").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
@@ -398,7 +399,7 @@ public class TestCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog, getOutput("test-project-with-dump-raw-graphs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve("java21")
+                .resolve("package_a").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));

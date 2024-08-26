@@ -859,7 +859,7 @@ public class PackageResolutionTests extends BaseTest {
         // Change `ballerina_version` of `package_c` in the central to a higher dist version --> package_c_two
         Path packageJsonInProjectBalaPath = testBuildDirectory.resolve("user-home").resolve("repositories")
                 .resolve("central.ballerina.io").resolve("bala").resolve("various_dist_test")
-                .resolve("package_c").resolve("0.1.0").resolve("java21").resolve("package.json");
+                .resolve("package_c").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code()).resolve("package.json");
         changeBallerinaVersionInPackageJson(packageJsonInProjectBalaPath, "2301.89.0");
 
         BCompileUtil.compileAndCacheBala(

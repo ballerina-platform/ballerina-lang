@@ -1753,7 +1753,7 @@ public class TestBuildProject extends BaseTest {
             Path moduleJarPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
                     .resolve(module.descriptor().org().toString())
                     .resolve(module.descriptor().packageName().toString())
-                    .resolve(module.descriptor().version().toString()).resolve("java21")
+                    .resolve(module.descriptor().version().toString()).resolve(JvmTarget.JAVA_21.code())
                     .resolve(module.descriptor().org().toString() + "-" + module.descriptor().name().toString() + "-"
                             + module.descriptor().version().toString() + ".jar");
             JarFile jar = new JarFile(moduleJarPath.toString());
@@ -1765,7 +1765,7 @@ public class TestBuildProject extends BaseTest {
             Path testableJarPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
                     .resolve(module.descriptor().org().toString())
                     .resolve(module.descriptor().packageName().toString())
-                    .resolve(module.descriptor().version().toString()).resolve("java21")
+                    .resolve(module.descriptor().version().toString()).resolve(JvmTarget.JAVA_21.code())
                     .resolve(module.descriptor().org().toString() + "-" + module.descriptor().name().toString() + "-"
                             + module.descriptor().version().toString() + "-testable.jar");
             if (Files.exists(testableJarPath)) {
