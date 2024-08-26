@@ -31,6 +31,7 @@
  import java.util.StringJoiner;
  import java.util.concurrent.CompletableFuture;
  import java.util.concurrent.ExecutionException;
+ import java.util.concurrent.atomic.AtomicBoolean;
 
  /**
   * <p>
@@ -44,18 +45,18 @@
   */
  public class FutureValue implements BFuture, RefValue {
 
-     private BTypedesc typedesc;
-
      public Strand strand;
-
      Type type;
-
      public final CompletableFuture<Object> completableFuture;
+     private final BTypedesc typedesc;
+     private final AtomicBoolean waited;
 
      public FutureValue(Strand strand, Type constraint) {
          this.strand = strand;
          this.type = new BFutureType(constraint);
+         this.typedesc = new TypedescValueImpl(this.type);
          this.completableFuture = new CompletableFuture<>();
+         this.waited = new AtomicBoolean();
      }
 
      @Override
@@ -96,15 +97,12 @@
 
      @Override
      public BTypedesc getTypedesc() {
-         if (this.typedesc == null) {
-             this.typedesc = new TypedescValueImpl(this.type);
-         }
          return typedesc;
      }
 
      @Override
      public void cancel() {
-         this.completableFuture.cancel(true);
+         this.strand.cancel = true;
      }
 
      /**
@@ -112,12 +110,12 @@
       * @return result value
       */
      @Override
-     public Object getResult() {
+     public Object get() {
          try {
              return completableFuture.get();
          } catch (ExecutionException | InterruptedException e) {
-             if (e.getCause() instanceof BError) {
-                 throw ErrorCreator.createError(e.getCause());
+             if (e.getCause() instanceof BError bError) {
+                 throw bError;
              }
              throw ErrorCreator.createError(e);
          }
@@ -140,5 +138,9 @@
      @Override
      public boolean isPanic() {
          return completableFuture.isCompletedExceptionally();
+     }
+
+     public boolean getAndSetWaited() {
+         return waited.getAndSet(true);
      }
  }

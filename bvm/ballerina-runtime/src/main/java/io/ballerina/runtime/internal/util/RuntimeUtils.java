@@ -20,23 +20,14 @@ package io.ballerina.runtime.internal.util;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.ErrorUtils;
-import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
-import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.scheduling.WorkerUtils;
-import io.ballerina.runtime.internal.types.BArrayType;
-import io.ballerina.runtime.internal.values.ArrayValue;
-import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.io.PrintStream;
@@ -62,49 +53,8 @@ public class RuntimeUtils {
     private static final String CRASH_LOGGER = "b7a.log.crash";
     private static final PrintStream errStream = System.err;
     public static final String USER_DIR = System.getProperty("user.dir");
-    public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
-    private static final Logger crashLogger = Logger.getLogger(CRASH_LOGGER);
+     private static final Logger crashLogger = Logger.getLogger(CRASH_LOGGER);
     private static ConsoleHandler handler;
-
-    /**
-     * Used to handle rest args passed in to the main method.
-     *
-     * @param args args from main method
-     * @param index starting index of var args
-     * @param type array type
-     * @return ArrayValue
-     */
-    public static ArrayValue createVarArgsArray(String[] args, int index, BArrayType type) {
-
-        ArrayValue array = new ArrayValueImpl(type);
-        for (int i = index; i < args.length; i++) {
-            addToArray(type.getElementType(), args[i], array);
-        }
-        return array;
-    }
-
-    public static void addToArray(Type type, String value, ArrayValue array) {
-        // TODO: need to add parsing logic for ref values for both var args and other args as well.
-        switch (type.getTag()) {
-            case TypeTags.STRING_TAG:
-                array.add(array.size(), StringUtils.fromString(value));
-                break;
-            case TypeTags.INT_TAG:
-                array.add(array.size(), (long) TypeConverter.convertValues(type, value));
-                break;
-            case TypeTags.FLOAT_TAG:
-                array.add(array.size(), (double) TypeConverter.convertValues(type, value));
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                array.add(array.size(), (boolean) TypeConverter.convertValues(type, value));
-                break;
-            case TypeTags.BYTE_TAG:
-                array.add(array.size(), (int) TypeConverter.convertValues(type, value));
-                break;
-            default:
-                array.append(value);
-        }
-    }
 
     /**
      * Check a given int value is within ballerina byte value range.
@@ -113,83 +63,40 @@ public class RuntimeUtils {
      * @return true if within byte value range
      */
     public static boolean isByteLiteral(int intValue) {
-
         return (intValue >= BBYTE_MIN_VALUE && intValue <= BBYTE_MAX_VALUE);
     }
 
-    /**
-     * Keep a function parameter info, required for argument parsing.
-     */
-    public static class ParamInfo {
-        String name;
-        boolean hasDefaultable;
-        Type type;
-
-        public ParamInfo(boolean hasDefaultable, String name, Type type) {
-            this.name = name;
-            this.hasDefaultable = hasDefaultable;
-            this.type = type;
+    public static void handleFuture(FutureValue future) {
+        try {
+            Object result = future.get();
+            if (result instanceof ErrorValue errorValue) {
+                errStream.println("error: " + errorValue.getPrintableError());
+            }
+        } catch (ErrorValue error) {
+            printToConsole(error);
         }
     }
 
-    public static void handleBErrorAndExit(Throwable throwable) {
-        if (throwable instanceof ErrorValue) {
-            printToConsole((ErrorValue) throwable);
-        }
-        Runtime.getRuntime().exit(1);
-    }
-
-    public static void handleAllRuntimeErrorsAndExit(Throwable throwable) {
-        handleAllRuntimeErrors(throwable);
-        Runtime.getRuntime().exit(1);
-    }
-
-    public static void handleAllRuntimeErrors(Throwable throwable) {
-        if (throwable instanceof ErrorValue) {
-            printToConsole((ErrorValue) throwable);
-        } else {
-            logBadSad(throwable);
-        }
-    }
-
-    public void handleError(Throwable r) {
-
-    }
-
-    public void handleError2() {
-
-    }
-
-    public static void handleWorkerPanic(Strand strand, String[] sendWorkerChannelKeys, Throwable throwable) {
-        BError error;
-        if (throwable instanceof BError bError) {
-            error = bError;
-        } else {
-            error = ErrorCreator.createError(throwable);
-        }
-        WorkerUtils.completedChannelsWithPanic(strand, sendWorkerChannelKeys, error);
-    }
-
-    public static void handleWorkerReturn(Strand strand, String workerName, String[] sendWorkerChannelKeys,
-                                          String[] receiveWorkerChannels) {
-        WorkerUtils.removeCompletedChannels(strand, workerName, sendWorkerChannelKeys, receiveWorkerChannels);
-    }
-
-    private static void printToConsole(ErrorValue throwable) {
-        errStream.println("error: " + throwable.getPrintableStackTrace());
-    }
-
-    public static void handleRuntimeReturnValues(Object returnValue) {
-        if (returnValue instanceof ErrorValue errorValue) {
-            errStream.println("error: " + errorValue.getPrintableError());
+    public static void handleFutureAndExit(FutureValue future) {
+        try {
+            Object result = future.get();
+            if (result instanceof ErrorValue errorValue) {
+                errStream.println("error: " + errorValue.getPrintableError());
+            }
+            Runtime.getRuntime().exit(0);
+        } catch (ErrorValue error) {
+            printToConsole(error);
             Runtime.getRuntime().exit(1);
         }
     }
 
-    public static void handleRuntimeErrorReturns(Object returnValue) {
-        if (returnValue instanceof ErrorValue errorValue) {
-            errStream.println("error: " + errorValue.getPrintableError());
-        }
+    public static void handleThrowable(Throwable throwable) {
+        logBadSad(throwable);
+        Runtime.getRuntime().exit(1);
+    }
+
+    private static void printToConsole(ErrorValue throwable) {
+        errStream.println("error: " + throwable.getPrintableStackTrace());
     }
 
     public static void handleDiagnosticErrors(RuntimeDiagnosticLog diagnosticLog) {
@@ -197,19 +104,6 @@ public class RuntimeUtils {
         if (diagnosticLog.getErrorCount() > 0) {
             Runtime.getRuntime().exit(1);
         }
-    }
-
-    public static void handleInvalidOption(String arg) {
-        handleUsageError("value for option '--' (<String=String>) should be in KEY=VALUE format but was " + arg);
-    }
-
-    public static void handleInvalidConfig() {
-        handleUsageError("value for option 'config' is missing");
-    }
-
-    public static void handleUsageError(String errorMsg) {
-        errStream.println("ballerina: " + errorMsg);
-        Runtime.getRuntime().exit(1);
     }
 
     public static void logBadSad(Throwable throwable) {
