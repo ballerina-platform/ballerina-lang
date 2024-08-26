@@ -53,8 +53,8 @@ public class FunctionOps extends CommonOps implements BasicTypeOps {
                 functionUnionQualifiers(cx, pos), pos, neg);
     }
 
-    private static boolean functionPathIsEmpty(Context cx, SemType rets, SemType params, SemType qualifiers, Conjunction pos,
-                                               Conjunction neg) {
+    private static boolean functionPathIsEmpty(Context cx, SemType rets, SemType params, SemType qualifiers,
+                                               Conjunction pos, Conjunction neg) {
         if (neg == null) {
             return false;
         } else {

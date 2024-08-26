@@ -31,7 +31,6 @@ import static io.ballerina.types.BasicTypeCode.BT_TABLE;
 import static io.ballerina.types.BasicTypeCode.BT_XML;
 import static io.ballerina.types.BasicTypeCode.VT_INHERENTLY_IMMUTABLE;
 import static io.ballerina.types.ComplexSemType.createComplexSemType;
-import static io.ballerina.types.Core.intersect;
 import static io.ballerina.types.Core.union;
 import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_COMMENT_RO;
 import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_COMMENT_RW;
