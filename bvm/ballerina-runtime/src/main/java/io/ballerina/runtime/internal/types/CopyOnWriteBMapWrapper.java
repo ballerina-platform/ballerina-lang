@@ -163,4 +163,9 @@ public final class CopyOnWriteBMapWrapper implements MapType, TypeWithShape {
     public boolean couldShapeBeDifferent() {
         return inner.couldShapeBeDifferent();
     }
+
+    @Override
+    public String toString() {
+        return inner.toString();
+    }
 }
