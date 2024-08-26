@@ -23,12 +23,8 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.SubType;
 import io.ballerina.runtime.internal.types.BSemTypeWrapper;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Objects;
-import java.util.WeakHashMap;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
 

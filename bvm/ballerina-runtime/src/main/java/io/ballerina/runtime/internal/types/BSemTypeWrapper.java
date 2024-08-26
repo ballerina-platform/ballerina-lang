@@ -32,6 +32,7 @@ import java.util.function.Supplier;
  * Decorator on {@code BTypes} allowing them to behave as {@code SemType}. All {@code Types} that needs to behave as
  * both a {@code BType} and a {@code SemType} should extend this class.
  *
+ * @param <E> The type of the {@code BType} that is being wrapped.
  * @since 2201.10.0
  */
 public non-sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType implements Type {

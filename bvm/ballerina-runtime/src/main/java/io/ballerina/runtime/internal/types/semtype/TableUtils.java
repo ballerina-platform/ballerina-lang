@@ -78,7 +78,6 @@ public final class TableUtils {
     }
 
     private static SemType tableContaining(Env env, SemType tableConstraint, CellAtomicType.CellMutability mut) {
-        // FIXME: type
         return tableContaining(env, tableConstraint, Builder.valType(), Builder.valType(), mut);
     }
 

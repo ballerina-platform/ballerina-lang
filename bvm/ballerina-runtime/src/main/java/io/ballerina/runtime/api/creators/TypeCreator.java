@@ -266,12 +266,8 @@ public final class TypeCreator {
      * @return the new record type
      */
     public static RecordType createRecordType(String typeName, Module module, long flags, Map<String, Field> fields,
-                                              Type restFieldType,
-                                              boolean sealed, int typeFlags) {
-        TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return recordTypeMemo.computeIfAbsent(key,
-                createMappingFn(
-                        () -> new BRecordType(typeName, module, flags, fields, restFieldType, sealed, typeFlags)));
+                                              Type restFieldType, boolean sealed, int typeFlags) {
+        return new BRecordType(typeName, module, flags, fields, restFieldType, sealed, typeFlags);
     }
 
     /**
