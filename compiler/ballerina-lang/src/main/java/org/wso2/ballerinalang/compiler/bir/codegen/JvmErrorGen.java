@@ -20,6 +20,9 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.CatchIns;
@@ -80,8 +83,8 @@ public class JvmErrorGen {
     }
 
     public void generateTryCatch(BIRNode.BIRFunction func, String funcName, BIRNode.BIRBasicBlock currentBB,
-                                 JvmTerminatorGen termGen, LabelGenerator labelGen, int localVarOffset,
-                                 int sendWorkerChannelNamesVar, int receiveWorkerChannelNamesVar) {
+                                 JvmTerminatorGen termGen, LabelGenerator labelGen, int channelMapVarIndex,
+                                 int sendWorkerChannelNamesVar, int receiveWorkerChannelNamesVar, int localVarOffset) {
 
         BIRNode.BIRErrorEntry currentEE = findErrorEntry(func.errorTable, currentBB);
         if (currentEE == null) {
@@ -108,7 +111,7 @@ public class JvmErrorGen {
                 this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, CREATE_INTEROP_ERROR_METHOD,
                         CREATE_ERROR_FROM_THROWABLE, false);
                 jvmInstructionGen.generateVarStore(this.mv, retVarDcl, retIndex);
-                termGen.genReturnTerm(retIndex, func, localVarOffset, sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar);
+                termGen.genReturnTerm(retIndex, func, channelMapVarIndex, sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar, localVarOffset);
                 this.mv.visitJumpInsn(GOTO, jumpLabel);
             }
             if (!exeptionExist) {

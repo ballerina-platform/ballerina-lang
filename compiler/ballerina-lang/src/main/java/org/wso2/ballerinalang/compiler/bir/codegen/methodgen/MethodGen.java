@@ -64,11 +64,78 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.AASTORE;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ANEWARRAY;
+import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.ATHROW;
+import static org.objectweb.asm.Opcodes.BIPUSH;
+import static org.objectweb.asm.Opcodes.DCONST_0;
+import static org.objectweb.asm.Opcodes.DRETURN;
+import static org.objectweb.asm.Opcodes.DSTORE;
+import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.FCONST_0;
+import static org.objectweb.asm.Opcodes.FSTORE;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.GOTO;
+import static org.objectweb.asm.Opcodes.IADD;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
+import static org.objectweb.asm.Opcodes.IFEQ;
+import static org.objectweb.asm.Opcodes.IF_ICMPEQ;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.IRETURN;
+import static org.objectweb.asm.Opcodes.ISTORE;
+import static org.objectweb.asm.Opcodes.LCONST_0;
+import static org.objectweb.asm.Opcodes.LRETURN;
+import static org.objectweb.asm.Opcodes.LSTORE;
+import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.SCOPE_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.*;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIONS_METHOD_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANNOTATIONS_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NO_OF_DEPENDANT_MODULES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_SELF_INSTANCE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARENT_MODULE_START_ATTEMPTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECEIVE_WORKER_CHANNEL_NAMES_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SEND_WORKER_CHANNEL_NAMES_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_LOCAL_VARIABLE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_CHANNELS_ADD_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_CHANNELS_COMPLETE_WITH_PANIC_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_CHANNEL_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_CHANNEL_MAP_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRAY_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BDECIMAL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BOBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_HANDLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.WORKER_CHANNELS_ADD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.WORKER_CHANNELS_COMPLETE_WITH_PANIC;
 
 /**
  * BIR function to JVM byte code generation class.
@@ -161,8 +228,6 @@ public class MethodGen {
                                    boolean isObjectMethodSplit) {
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-        boolean isWorker = Symbols.isFlagOn(func.flags, Flags.WORKER);
-
         // generate method desc
         int access = Opcodes.ACC_PUBLIC;
         // localVarOffset is actually the local var index of the strand which is passed as an argument to the function
@@ -175,12 +240,10 @@ public class MethodGen {
             localVarOffset = 0;
             access += ACC_STATIC;
         }
-
         indexMap.addIfNotExists(STRAND, symbolTable.stringType);
         if (isObjectMethodSplit) {
             indexMap.addIfNotExists(OBJECT_SELF_INSTANCE, symbolTable.anyType);
         }
-
         String funcName = func.name.value;
         BType retType = getReturnType(func);
         String desc;
@@ -191,28 +254,21 @@ public class MethodGen {
         }
         MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
         mv.visitCode();
-
         visitStartFunction(module.packageID, funcName, mv);
 
         Label methodStartLabel = new Label();
         mv.visitLabel(methodStartLabel);
 
         genLocalVars(indexMap, mv, func.localVars);
-
         int returnVarRefIndex = getReturnVarRefIndex(func, indexMap, retType, mv);
         int channelMapVarIndex = getWorkerChannelMapVarIndex(func, indexMap, mv);
         List<BIRNode.ChannelDetails> sendWorkerChannels = new ArrayList<>();
         List<BIRNode.ChannelDetails> receiveWorkerChannels = new ArrayList<>();
-        for (BIRNode.ChannelDetails workerChannel : func.workerChannels) {
-            if (workerChannel.send) {
-                sendWorkerChannels.add(workerChannel);
-            } else {
-                receiveWorkerChannels.add(workerChannel);
-            }
-        }
-        int sendWorkerChannelNamesVar = getSendWorkerChannelNamesVarIndex(func, indexMap, mv, sendWorkerChannels);
+        filterWorkerChannels(func, sendWorkerChannels, receiveWorkerChannels);
+        int sendWorkerChannelNamesVar = getSendWorkerChannelNamesVarIndex(func, indexMap, mv, sendWorkerChannels,
+                channelMapVarIndex, localVarOffset);
         int receiveWorkerChannelNamesVar = getReceiveWorkerChannelNamesVarIndex(func, indexMap, mv,
-                receiveWorkerChannels);
+                receiveWorkerChannels, channelMapVarIndex, localVarOffset);
         LabelGenerator labelGen = new LabelGenerator();
 
         // handle module start and init specific logic
@@ -221,11 +277,7 @@ public class MethodGen {
         Label tryLabel = new Label();
         Label catchLabel = new Label();
         Label handleThrowableLabel = new Label();
-        if ((func.flags & Flags.WORKER) == Flags.WORKER && func.workerChannels.length > 0) {
-            mv.visitTryCatchBlock(tryLabel, catchLabel, handleThrowableLabel, THROWABLE);
-            mv.visitLabel(tryLabel);
-        }
-
+        createWorkerPanicLabels(func, mv, tryLabel);
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module.packageID, jvmPackageGen, jvmTypeGen,
                 jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
@@ -234,36 +286,21 @@ public class MethodGen {
 
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, channelMapVarIndex,
                 localVarOffset, module, attachedType, sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar);
-
-        if ((func.flags & Flags.WORKER) == Flags.WORKER && func.workerChannels.length > 0) {
-            mv.visitLabel(catchLabel);
-            Label label3 = new Label();
-            mv.visitJumpInsn(GOTO, label3);
-            mv.visitLabel(handleThrowableLabel);
-            mv.visitVarInsn(ASTORE, 2);
-            mv.visitVarInsn(ALOAD, localVarOffset);
-            mv.visitVarInsn(ALOAD, sendWorkerChannelNamesVar);
-            mv.visitVarInsn(ALOAD, 2);
-            mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_WORKER_PANIC_METHOD, HANDLE_WORKER_PANIC, false);
-            mv.visitVarInsn(ALOAD, 2);
-            mv.visitInsn(ATHROW);
-            mv.visitLabel(label3);
-        }
-        termGen.genReturnTerm(returnVarRefIndex, func, localVarOffset, sendWorkerChannelNamesVar,
-                receiveWorkerChannelNamesVar);
+        termGen.genReturnTerm(returnVarRefIndex, func, channelMapVarIndex, sendWorkerChannelNamesVar,
+                receiveWorkerChannelNamesVar, localVarOffset);
+        handleWorkerPanic(func, mv, tryLabel, catchLabel, handleThrowableLabel, channelMapVarIndex,
+                sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar, localVarOffset);
         Label methodEndLabel = new Label();
         mv.visitLabel(methodEndLabel);
-
 
 
         // Create Local Variable Table
         createLocalVariableTable(func, indexMap, localVarOffset, mv, methodStartLabel, labelGen, methodEndLabel,
                 isObjectMethodSplit);
-
-
         JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, moduleClassName);
         mv.visitEnd();
     }
+
 
     private void handleDependantModuleForInit(MethodVisitor mv, PackageID packageID, String funcName) {
         if (isModuleInitFunction(funcName)) {
@@ -333,13 +370,6 @@ public class MethodGen {
         return returnVarRefIndex;
     }
 
-    private int getWorkerThrowableVarIndex(BIRFunction func, BIRVarToJVMIndexMap indexMap) {
-        if (!func.hasWorkers) {
-            return -1;
-        }
-        return indexMap.addIfNotExists(WORKER_THROWABLE_VAR_NAME, symbolTable.anyType);
-    }
-
     private int getWorkerChannelMapVarIndex(BIRFunction func, BIRVarToJVMIndexMap indexMap, MethodVisitor mv) {
         if (!func.hasWorkers) {
             return -1;
@@ -352,9 +382,19 @@ public class MethodGen {
         return channelMapVarIndex;
     }
 
+    private static void filterWorkerChannels(BIRFunction func, List<BIRNode.ChannelDetails> sendWorkerChannels, List<BIRNode.ChannelDetails> receiveWorkerChannels) {
+        for (BIRNode.ChannelDetails workerChannel : func.workerChannels) {
+            if (workerChannel.send) {
+                sendWorkerChannels.add(workerChannel);
+            } else {
+                receiveWorkerChannels.add(workerChannel);
+            }
+        }
+    }
 
     private int getSendWorkerChannelNamesVarIndex(BIRFunction func, BIRVarToJVMIndexMap indexMap, MethodVisitor mv,
-                                                  List<BIRNode.ChannelDetails> sendWorkerChannels) {
+                                                  List<BIRNode.ChannelDetails> sendWorkerChannels,
+                                                  int channelMapVarIndex, int localVarOffset) {
         if (func.workerChannels.length == 0) {
             return -1;
         }
@@ -362,24 +402,29 @@ public class MethodGen {
                 symbolTable.anyType);
         if (sendWorkerChannels.isEmpty()) {
             mv.visitInsn(ACONST_NULL);
-        } else {
-            int channelSize = sendWorkerChannels.size();
-            mv.visitIntInsn(BIPUSH, channelSize);
-            mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
-            int count = 0;
-            for (BIRNode.ChannelDetails sendWorkerChannel : sendWorkerChannels) {
-                mv.visitInsn(DUP);
-                mv.visitIntInsn(BIPUSH, count++);
-                mv.visitLdcInsn(sendWorkerChannel.name);
-                mv.visitInsn(AASTORE);
-            }
+            mv.visitVarInsn(ASTORE, sendWorkerChannelNamesVar);
+            return sendWorkerChannelNamesVar;
+        }
+        int channelSize = sendWorkerChannels.size();
+        mv.visitIntInsn(BIPUSH, channelSize);
+        mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
+        int count = 0;
+        for (BIRNode.ChannelDetails sendWorkerChannel : sendWorkerChannels) {
+            mv.visitInsn(DUP);
+            mv.visitIntInsn(BIPUSH, count++);
+            mv.visitLdcInsn(sendWorkerChannel.name);
+            mv.visitInsn(AASTORE);
         }
         mv.visitVarInsn(ASTORE, sendWorkerChannelNamesVar);
+        JvmCodeGenUtil.loadWorkerChannelMap(mv, func, channelMapVarIndex, localVarOffset);
+        mv.visitVarInsn(ALOAD, sendWorkerChannelNamesVar);
+        mv.visitMethodInsn(INVOKESTATIC, WORKER_UTILS, WORKER_CHANNELS_ADD_METHOD, WORKER_CHANNELS_ADD, false);
         return sendWorkerChannelNamesVar;
     }
 
     private int getReceiveWorkerChannelNamesVarIndex(BIRFunction func, BIRVarToJVMIndexMap indexMap, MethodVisitor mv,
-                                                     List<BIRNode.ChannelDetails> receiveWorkerChannels) {
+                                                     List<BIRNode.ChannelDetails> receiveWorkerChannels,
+                                                     int channelMapVarIndex, int localVarOffset) {
         if (func.workerChannels.length == 0) {
             return -1;
         }
@@ -387,19 +432,23 @@ public class MethodGen {
                 symbolTable.anyType);
         if (receiveWorkerChannels.isEmpty()) {
             mv.visitInsn(ACONST_NULL);
-        } else {
-            int channelSize = receiveWorkerChannels.size();
-            mv.visitIntInsn(BIPUSH, channelSize);
-            mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
-            int count = 0;
-            for (BIRNode.ChannelDetails sendWorkerChannel : receiveWorkerChannels) {
-                mv.visitInsn(DUP);
-                mv.visitIntInsn(BIPUSH, count++);
-                mv.visitLdcInsn(sendWorkerChannel.name);
-                mv.visitInsn(AASTORE);
-            }
+            mv.visitVarInsn(ASTORE, receiveWorkerChannelNamesVar);
+            return receiveWorkerChannelNamesVar;
+        }
+        int channelSize = receiveWorkerChannels.size();
+        mv.visitIntInsn(BIPUSH, channelSize);
+        mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
+        int count = 0;
+        for (BIRNode.ChannelDetails sendWorkerChannel : receiveWorkerChannels) {
+            mv.visitInsn(DUP);
+            mv.visitIntInsn(BIPUSH, count++);
+            mv.visitLdcInsn(sendWorkerChannel.name);
+            mv.visitInsn(AASTORE);
         }
         mv.visitVarInsn(ASTORE, receiveWorkerChannelNamesVar);
+        JvmCodeGenUtil.loadWorkerChannelMap(mv, func, channelMapVarIndex, localVarOffset);
+        mv.visitVarInsn(ALOAD, receiveWorkerChannelNamesVar);
+        mv.visitMethodInsn(INVOKESTATIC, WORKER_UTILS, WORKER_CHANNELS_ADD_METHOD, WORKER_CHANNELS_ADD, false);
         return receiveWorkerChannelNamesVar;
     }
 
@@ -485,17 +534,48 @@ public class MethodGen {
             mv.visitLabel(bbEndLabel);
             BIRTerminator terminator = bb.terminator;
             processTerminator(mv, func, module, funcName, terminator);
+            JvmCodeGenUtil.genStrandAction(mv, terminator, localVarOffset, "yield");
             termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType,
                     channelMapVarIndex, sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar);
             lastScope = JvmCodeGenUtil.getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope,
                     visitedScopesSet);
-            errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen, localVarOffset,
-                    sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar);
+            errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen, channelMapVarIndex,
+                    sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar, localVarOffset);
             BIRBasicBlock thenBB = terminator.thenBB;
-            if (thenBB != null) {
-                JvmCodeGenUtil.genStrandResume(mv, labelGen, thenBB, funcName, localVarOffset);
-            }
+            JvmCodeGenUtil.genStrandAction(mv, terminator, localVarOffset, "resume");
+            JvmCodeGenUtil.genGotoThenBB(mv, thenBB, labelGen, terminator, funcName);
         }
+    }
+
+    private static void createWorkerPanicLabels(BIRFunction func, MethodVisitor mv, Label tryLabel) {
+        if (func.workerChannels.length == 0) {
+            return;
+        }
+        mv.visitLabel(tryLabel);
+    }
+
+    private static void handleWorkerPanic(BIRFunction func, MethodVisitor mv, Label tryLabel, Label catchLabel,
+                                          Label handleThrowableLabel, int channelMapVarIndex,
+                                          int sendWorkerChannelNamesVar, int receiveWorkerChannelNamesVar,
+                                          int localVarOffset) {
+        if (func.workerChannels.length == 0) {
+            return;
+        }
+        mv.visitTryCatchBlock(tryLabel, catchLabel, handleThrowableLabel, THROWABLE);
+        mv.visitLabel(catchLabel);
+        Label label3 = new Label();
+        mv.visitJumpInsn(GOTO, label3);
+        mv.visitLabel(handleThrowableLabel);
+        mv.visitVarInsn(ASTORE, 2);
+        JvmCodeGenUtil.loadWorkerChannelMap(mv, func, channelMapVarIndex, localVarOffset);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, sendWorkerChannelNamesVar);
+        mv.visitVarInsn(ALOAD, receiveWorkerChannelNamesVar);
+        mv.visitMethodInsn(INVOKESTATIC, WORKER_UTILS, WORKER_CHANNELS_COMPLETE_WITH_PANIC_METHOD,
+                WORKER_CHANNELS_COMPLETE_WITH_PANIC, false);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitInsn(ATHROW);
+        mv.visitLabel(label3);
     }
 
     private void processTerminator(MethodVisitor mv, BIRFunction func, BIRPackage module, String funcName,

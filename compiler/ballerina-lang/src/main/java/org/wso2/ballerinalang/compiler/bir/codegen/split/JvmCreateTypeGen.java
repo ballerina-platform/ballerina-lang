@@ -648,8 +648,7 @@ public class JvmCreateTypeGen {
     //              getFunctionType() generation methods
     // -------------------------------------------------------
     public void generateFunctionTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                          Map<String, byte[]> jarEntries,
-                                          List<BIRNode.BIRFunction> sortedFunctions) {
+                                          JarEntries jarEntries, List<BIRNode.BIRFunction> sortedFunctions) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V21, ACC_PUBLIC + ACC_SUPER, functionTypesClass, null, OBJECT, null);
         generateGetFunctionTypeMainMethod(cw, sortedFunctions);

@@ -29,17 +29,23 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import static org.objectweb.asm.Opcodes.GETFIELD;
 import org.objectweb.asm.Type;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_WORKER_CHANNEL_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_WORKER_CHANNEL_MAP;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JTermKind;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JTerminator;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -57,9 +63,84 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
-import static org.objectweb.asm.Opcodes.*;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.*;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
+
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.ATHROW;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.GOTO;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.NEW;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME_PERIOD_SEPERATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_STRINGS_PER_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OVERFLOW_LINE_NUMBER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA_VAR_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WINDOWS_PATH_SEPERATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FP_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FROM_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRAY_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BDECIMAL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BOBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_HANDLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JSTRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_ARRAY_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_B_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_DECIMAL_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_ERROR_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_HANDLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_JOBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_REGEX_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_STREAM_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_TABLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_TYPEDESC_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_XML_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STRING_BUILDER_APPEND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -423,12 +504,38 @@ public class JvmCodeGenUtil {
         return lastScope;
     }
 
-    public static void genStrandResume(MethodVisitor mv, LabelGenerator labelGen, BIRNode.BIRBasicBlock thenBB,
-                                       String funcName, int localVarOffset) {
+    public static void genStrandAction(MethodVisitor mv, BIRTerminator terminator, int localVarOffset,
+                                       String strandAction) {
+        switch (terminator.kind) {
+            case WK_RECEIVE, WK_ALT_RECEIVE, WK_MULTIPLE_RECEIVE, FLUSH, WAIT, WAIT_ALL:
+                genStrandAction(mv, localVarOffset, strandAction);
+                break;
+            case WK_SEND:
+                if (((BIRTerminator.WorkerSend) terminator).isSync) {
+                    genStrandAction(mv, localVarOffset, strandAction);
+                }
+                break;
+            case PLATFORM:
+                if (terminator instanceof JTerminator jTerminator &&
+                        jTerminator.jTermKind == JTermKind.JI_METHOD_CALL) {
+                    genStrandAction(mv, localVarOffset, strandAction);
+                }
+                break;
+            default:
+        }
+    }
+
+    private static void genStrandAction(MethodVisitor mv, int localVarOffset, String strandAction) {
         mv.visitVarInsn(ALOAD, localVarOffset);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "resume", VOID_METHOD_DESC, false);
-        Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
-        mv.visitJumpInsn(GOTO, gotoLabel);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, strandAction, VOID_METHOD_DESC, false);
+    }
+
+    public static void genGotoThenBB(MethodVisitor mv, BIRNode.BIRBasicBlock thenBB, LabelGenerator labelGen,
+                                     BIRTerminator terminator, String funcName) {
+        if (thenBB != null) {
+            Label gotoLabel = labelGen.getLabel(funcName + terminator.thenBB.id.value);
+            mv.visitJumpInsn(GOTO, gotoLabel);
+        }
     }
 
     public static PackageID cleanupPackageID(PackageID pkgID) {
@@ -560,7 +667,6 @@ public class JvmCodeGenUtil {
 
     public static void createDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex,
                                          String errorMessage) {
-
         mv.visitLabel(defaultCaseLabel);
         mv.visitTypeInsn(NEW, ERROR_VALUE);
         mv.visitInsn(DUP);
@@ -569,24 +675,19 @@ public class JvmCodeGenUtil {
         mv.visitTypeInsn(NEW, STRING_BUILDER);
         mv.visitInsn(DUP);
         mv.visitLdcInsn(errorMessage);
-        mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, JVM_INIT_METHOD, INIT_WITH_STRING,
-                false);
+        mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, JVM_INIT_METHOD, INIT_WITH_STRING, false);
         mv.visitVarInsn(ALOAD, nameRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append",
-                STRING_BUILDER_APPEND, false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, JVM_TO_STRING_METHOD, GET_JSTRING
-                , false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append", STRING_BUILDER_APPEND, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, JVM_TO_STRING_METHOD, GET_JSTRING, false);
         mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString", FROM_STRING, false);
-        mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD, INIT_ERROR,
-                false);
+        mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD, INIT_ERROR, false);
         mv.visitInsn(ATHROW);
     }
 
     public static void castToJavaString(MethodVisitor mv, int fieldNameRegIndex, int strKeyVarIndex) {
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD,
-                GET_JSTRING, true);
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, GET_JSTRING, true);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
     }
 
@@ -601,9 +702,8 @@ public class JvmCodeGenUtil {
         try {
             mv.visitMaxs(0, 0);
         } catch (Throwable e) {
-            throw new BLangCompilerException(
-                    "error while generating method '" + Utils.decodeIdentifier(funcName) + "' in class '" +
-                            Utils.decodeIdentifier(className) + "'", e);
+            throw new BLangCompilerException("error while generating method '" + Utils.decodeIdentifier(funcName) +
+                    "' in class '" + Utils.decodeIdentifier(className) + "'", e);
         }
     }
 
@@ -650,6 +750,16 @@ public class JvmCodeGenUtil {
             } else {
                 return 'L' + className + ';';
             }
+        }
+    }
+
+    public static void loadWorkerChannelMap(MethodVisitor mv, BIRNode.BIRFunction func, int channelMapVarIndex,
+                                            int localVarOffset) {
+        if (func.hasWorkers) {
+            mv.visitVarInsn(ALOAD, channelMapVarIndex);
+        } else {
+            mv.visitVarInsn(ALOAD, localVarOffset);
+            mv.visitFieldInsn(GETFIELD, STRAND_CLASS, STRAND_WORKER_CHANNEL_MAP, GET_WORKER_CHANNEL_MAP);
         }
     }
 }

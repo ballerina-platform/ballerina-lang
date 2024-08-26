@@ -24,6 +24,8 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_FUTURE;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
@@ -38,26 +40,17 @@ import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
-import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFLE;
-import static org.objectweb.asm.Opcodes.INSTANCEOF;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.ISUB;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_RESULT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_RETURNED_ERROR_METHOD_WITHOUT_EXIT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_STOP_PANIC_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NO_OF_DEPENDANT_MODULES;
@@ -65,12 +58,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_ISOLATED_WORKER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_ERROR_RETURN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_STOP_PANIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_STOP;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_CALL;
 
 /**
@@ -126,7 +115,7 @@ public class ModuleStopMethodGen {
         // create FP value
         generateMethodBody(mv, initClass, stopFuncName, asyncDataCollector);
         // handle any runtime errors
-        genHandleRuntimeErrors(mv, moduleClass, labelIf);
+        genHandleRuntimeErrors(mv, labelIf);
     }
 
     private void generateMethodBody(MethodVisitor mv, String initClass, String stopFuncName,
@@ -146,37 +135,12 @@ public class ModuleStopMethodGen {
         mv.visitVarInsn(ASTORE, 1);
     }
 
-    private void genHandleRuntimeErrors(MethodVisitor mv, String moduleClass, Label labelJump) {
-
+    private void genHandleRuntimeErrors(MethodVisitor mv, Label labelJump) {
         // load future value
         mv.visitVarInsn(ALOAD, 1);
-
-        // get future result
-        mv.visitMethodInsn(INVOKEVIRTUAL, FUTURE_VALUE, GET_RESULT, RETURN_OBJECT, false);
-        mv.visitVarInsn(ASTORE, 2);
-
-        // check result is an error
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
-        Label labelIf = new Label();
-        mv.visitJumpInsn(IFEQ, labelIf);
-        mv.visitFieldInsn(GETSTATIC, moduleClass, MODULE_STARTED, "Z");
-        mv.visitJumpInsn(IFEQ, labelIf);
-
-        // handle error
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitTypeInsn(CHECKCAST, THROWABLE);
-        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, HANDLE_STOP_PANIC, false);
-        mv.visitJumpInsn(GOTO, labelJump);
-        mv.visitLabel(labelIf);
-        genHandleErrorReturn(mv);
+        // get future result and handle result
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_FUTURE_METHOD, HANDLE_FUTURE, false);
         mv.visitLabel(labelJump);
-    }
-
-    private void genHandleErrorReturn(MethodVisitor mv) {
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitMethodInsn(INVOKESTATIC , RUNTIME_UTILS , HANDLE_RETURNED_ERROR_METHOD_WITHOUT_EXIT,
-                HANDLE_ERROR_RETURN, false);
     }
 
     private Label createIfLabel(MethodVisitor mv, String moduleClass) {

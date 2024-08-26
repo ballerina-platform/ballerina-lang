@@ -26,7 +26,14 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DAEMON_STRAND_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_AND_EXIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_FUTURE;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
@@ -48,24 +55,71 @@ import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
-import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.ICONST_2;
-import static org.objectweb.asm.Opcodes.IFEQ;
-import static org.objectweb.asm.Opcodes.INSTANCEOF;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static org.objectweb.asm.Opcodes.LCONST_1;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.*;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA_HOME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA_VERSION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLI_SPEC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIG_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_THROWABLE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HASH_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPERAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPOSITORY_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WAIT_ON_LISTENERS_METHOD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_ISOLATED_WORKER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_NON_ISOLATED_WORKER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_ARGUMENTS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_CONFIG_ARGS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_BALLERINA_INFO;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_SHUTDOWN_HOOK;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_CONFIG_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAIN_ARGS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_PATH;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_ARRAY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TEST_CONFIG_PATH;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_THROWABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CLI_SPEC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIG;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIGURABLES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPERAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_SIGNAL_LISTENER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TEST_ARGS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAIN_METHOD_SIGNATURE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_STRING_PARAM;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_CALL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
  * Generates Jvm byte code for the main method.
@@ -74,9 +128,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
  */
 public class MainMethodGen {
 
-    public static final String FUTURE_RESULT_VAR = "futureResultVar";
-    public static final String SCHEDULER_VAR = "schedulerVar";
-    public static final String CONFIG_VAR = "configVar";
+    public static final String FUTURE_VAR = "$future";
+    public static final String RESULT_VAR = "$resultVar";
+    public static final String SCHEDULER_VAR = "$schedulerVar";
+    public static final String CONFIG_VAR = "$configVar";
     private final SymbolTable symbolTable;
     private final String moduleInitClass;
     private final BIRVarToJVMIndexMap indexMap;
@@ -102,7 +157,8 @@ public class MainMethodGen {
                                    String initClass, boolean serviceEPAvailable, boolean isTestable) {
 
         int schedulerVarIndex = indexMap.addIfNotExists(SCHEDULER_VAR, symbolTable.anyType);
-        int resultVarIndex = indexMap.addIfNotExists(FUTURE_RESULT_VAR, symbolTable.anyType);
+        int futureVarIndex = indexMap.addIfNotExists(FUTURE_VAR, symbolTable.anyType);
+        int resultVarIndex = indexMap.addIfNotExists(RESULT_VAR, symbolTable.anyType);
 
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, MAIN_METHOD, MAIN_METHOD_SIGNATURE,
                 null, null);
@@ -127,7 +183,8 @@ public class MainMethodGen {
         }
 
         boolean hasInitFunction = MethodGenUtils.hasInitFunction(pkg);
-        generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable, schedulerVarIndex, resultVarIndex);
+        generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable, schedulerVarIndex, futureVarIndex,
+                resultVarIndex);
 
         if (hasInitFunction && !isTestable) {
             setListenerFound(mv, serviceEPAvailable, schedulerVarIndex);
@@ -143,7 +200,7 @@ public class MainMethodGen {
         mv.visitLabel(tryCatchEnd);
         mv.visitInsn(RETURN);
         mv.visitLabel(tryCatchHandle);
-        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_ALL_THROWABLE_METHOD, HANDLE_THROWABLE, false);
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD, HANDLE_THROWABLE, false);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, "main", initClass);
         mv.visitEnd();
@@ -164,22 +221,22 @@ public class MainMethodGen {
     }
 
     private void generateExecuteFunctionCall(String initClass, MethodVisitor mv, BIRNode.BIRFunction userMainFunc,
-                                             boolean isTestable, int schedulerVarIndex, int resultVarIndex) {
+                                             boolean isTestable, int schedulerVarIndex, int futureVarIndex,
+                                             int resultVarIndex) {
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
         // invoke the module execute method
-        genSubmitToScheduler(initClass, mv, userMainFunc, isTestable, resultVarIndex);
-        genReturn(mv, resultVarIndex);
+        genSubmitToScheduler(initClass, mv, userMainFunc, isTestable, futureVarIndex);
+    }
+
+    private void stopListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
+        mv.visitLdcInsn(isServiceEPAvailable);
+        mv.visitMethodInsn(INVOKESTATIC , LAUNCH_UTILS, "stopListeners", "(Z)V", false);
     }
 
     private void generateModuleStopCall(String initClass, MethodVisitor mv, int schedulerVarIndex) {
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
         mv.visitMethodInsn(INVOKESTATIC, initClass, JvmConstants.CURRENT_MODULE_STOP,
                 JvmSignatures.CURRENT_MODULE_STOP, false);
-    }
-
-    private void startScheduler(int schedulerVarIndex, MethodVisitor mv) {
-        mv.visitVarInsn(ALOAD, schedulerVarIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, VOID_METHOD_DESC, false);
     }
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
@@ -262,8 +319,7 @@ public class MainMethodGen {
         if (serviceEPAvailable) {
             mv.visitVarInsn(ALOAD, schedulerVarIndex);
             mv.visitInsn(ICONST_1);
-            mv.visitMethodInsn(INVOKEVIRTUAL , SCHEDULER, SET_LISTENER_FOUND_METHOD_NAME, "(Z)V", false);
-            startScheduler(schedulerVarIndex, mv);
+            mv.visitMethodInsn(INVOKEVIRTUAL , SCHEDULER, WAIT_ON_LISTENERS_METHOD_NAME, "(Z)V", false);
         }
     }
 
@@ -378,13 +434,8 @@ public class MainMethodGen {
         return defaultableNames;
     }
 
-    private void genReturn(MethodVisitor mv, int resultVarIndex) {
-        mv.visitVarInsn(ALOAD, resultVarIndex);
-        mv.visitMethodInsn(INVOKESTATIC , RUNTIME_UTILS , HANDLE_RETURNED_ERROR_METHOD, HANDLE_ERROR_RETURN, false);
-    }
-
     private void genSubmitToScheduler(String initClass, MethodVisitor mv, BIRNode.BIRFunction userMainFunc,
-                                      boolean isTestable, int resultVarIndex) {
+                                      boolean isTestable, int futureVarIndex) {
         JvmCodeGenUtil.createFunctionPointer(mv, initClass, LAMBDA_PREFIX + MODULE_EXECUTE_METHOD + "$");
         // no parent strand
         mv.visitInsn(ACONST_NULL);
@@ -407,32 +458,23 @@ public class MainMethodGen {
         } else {
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, START_NON_ISOLATED_WORKER, SCHEDULE_CALL, false);
         }
-        mv.visitMethodInsn(INVOKEVIRTUAL, FUTURE_VALUE, GET_RESULT, RETURN_OBJECT, false);
-        mv.visitVarInsn(ASTORE, resultVarIndex);
-        handleErrorFromFutureValue(mv, initClass, isTestable, resultVarIndex);
+        mv.visitVarInsn(ASTORE, futureVarIndex);
+        setDaemonStrand(mv, futureVarIndex);
+        handleFutureValue(mv, isTestable, futureVarIndex);
     }
 
-    private void stopListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
-        mv.visitLdcInsn(isServiceEPAvailable);
-        mv.visitMethodInsn(INVOKESTATIC , LAUNCH_UTILS, "stopListeners", "(Z)V", false);
+    private void setDaemonStrand(MethodVisitor mv, int futureVarIndex) {
+        mv.visitVarInsn(ALOAD, futureVarIndex);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, STRAND, GET_STRAND);
+        mv.visitFieldInsn(PUTSTATIC, SCHEDULER, DAEMON_STRAND_NAME, GET_STRAND);
     }
 
-    private void handleErrorFromFutureValue(MethodVisitor mv, String initClass, boolean isTestFunction, int resultVarIndex) {
-        // handle any runtime errors
-        mv.visitVarInsn(ALOAD, resultVarIndex);
-        mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
-        Label labelIf = new Label();
-        mv.visitJumpInsn(IFEQ, labelIf);
-        mv.visitVarInsn(ALOAD, resultVarIndex);
-        mv.visitTypeInsn(CHECKCAST, THROWABLE);
+    private void handleFutureValue(MethodVisitor mv, boolean isTestFunction, int futureVarIndex) {
+        mv.visitVarInsn(ALOAD, futureVarIndex);
         if (isTestFunction) {
-            mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, HANDLE_THROWABLE, false);
-            mv.visitInsn(LCONST_1);
-            mv.visitFieldInsn(PUTSTATIC, initClass, TEST_EXECUTION_STATE, "J");
+            mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_FUTURE_METHOD, HANDLE_FUTURE, false);
         } else {
-            mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD, HANDLE_THROWABLE, false);
+            mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_FUTURE_AND_EXIT_METHOD, HANDLE_FUTURE, false);
         }
-        mv.visitInsn(RETURN);
-        mv.visitLabel(labelIf);
     }
 }

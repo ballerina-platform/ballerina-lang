@@ -26,8 +26,13 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_METHOD;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_FUTURE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_STRAND;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
@@ -85,12 +90,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLI_SPEC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_STOP;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_RESULT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GRACEFUL_EXIT_METHOD_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_STOP_PANIC_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
@@ -110,7 +111,18 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_VALUE_CREATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAIN_ARGS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_REGISTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_STOP_PANIC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_NULL_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_STOP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_ARRAY_RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_CALL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -272,7 +284,7 @@ public class InitMethodGen {
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-        mv.visitMethodInsn(INVOKEVIRTUAL, RUNTIME_REGISTRY_CLASS, "gracefulStop", SET_STRAND, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, RUNTIME_REGISTRY_CLASS, "gracefulStop", PASS_STRAND, false);
         mv.visitInsn(ACONST_NULL);
         MethodGenUtils.visitReturn(mv, lambdaName, initClass);
     }
@@ -281,20 +293,9 @@ public class InitMethodGen {
                                                AsyncDataCollector asyncDataCollector, JvmConstantsGen jvmConstantsGen) {
         addRuntimeRegistryAsParameter(mv);
         generateMethodBody(mv, moduleInitClass, lambdaName, asyncDataCollector, jvmConstantsGen);
-        // get future result
+        // handle future result
         mv.visitVarInsn(ALOAD, 3);
-        mv.visitMethodInsn(INVOKEVIRTUAL, FUTURE_VALUE, GET_RESULT, RETURN_OBJECT, false);
-        mv.visitVarInsn(ASTORE, 4);
-
-        // handle any runtime errors
-        Label labelIf = new Label();
-        mv.visitVarInsn(ALOAD, 4);
-        mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
-        mv.visitJumpInsn(IFEQ, labelIf);
-        mv.visitVarInsn(ALOAD, 4);
-        mv.visitTypeInsn(CHECKCAST, THROWABLE);
-        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, HANDLE_STOP_PANIC, false);
-        mv.visitLabel(labelIf);
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_FUTURE_METHOD, HANDLE_FUTURE, false);
     }
 
     private void addRuntimeRegistryAsParameter(MethodVisitor mv) {
@@ -565,7 +566,7 @@ public class InitMethodGen {
         jiMethodCall.args = new ArrayList<>();
         jiMethodCall.varArgExist = false;
         jiMethodCall.jClassName = typeOwnerClass;
-        jiMethodCall.jMethodVMSig = GRACEFUL_EXIT_METHOD;
+        jiMethodCall.jMethodVMSig = PASS_STRAND;
         jiMethodCall.name = GRACEFUL_EXIT_METHOD_NAME;
         jiMethodCall.invocationType = INVOKESTATIC;
         jiMethodCall.thenBB = nextBB;
@@ -646,7 +647,7 @@ public class InitMethodGen {
     }
 
     public void generateGracefulExitMethod(ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, GRACEFUL_EXIT_METHOD_NAME, SET_STRAND, null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, GRACEFUL_EXIT_METHOD_NAME, PASS_STRAND, null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "scheduler", GET_SCHEDULER);

@@ -252,7 +252,7 @@ public class InteropMethodGen {
         Label retLabel = labelGen.getLabel("return_lable");
         mv.visitLabel(retLabel);
         mv.visitLineNumber(birFunc.pos.lineRange().endLine().line() + 1, retLabel);
-        termGen.genReturnTerm(returnVarRefIndex, birFunc, -1, -1, -1);
+        termGen.genReturnTerm(returnVarRefIndex, birFunc, -1, -1, -1, -1);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, birFunc.name.value, birFunc.javaField.getDeclaringClassName());
         mv.visitEnd();
     }

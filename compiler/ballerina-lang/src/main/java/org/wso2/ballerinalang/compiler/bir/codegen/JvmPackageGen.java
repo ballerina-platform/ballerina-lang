@@ -124,7 +124,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_LOCK_STORE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.injectDefaultParamInits;

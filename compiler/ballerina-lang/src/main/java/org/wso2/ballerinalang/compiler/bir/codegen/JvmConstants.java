@@ -67,7 +67,7 @@ public class JvmConstants {
     public static final String TYPEDESC_VALUE_IMPL_CLOSURES = "closures";
     public static final String TYPEDESC_VALUE = "io/ballerina/runtime/internal/values/TypedescValue";
     public static final String HANDLE_VALUE = "io/ballerina/runtime/internal/values/HandleValue";
-    public static final String LOCK_STORE = "io/ballerina/runtime/internal/BLockStore";
+    public static final String LOCK_STORE = "io/ballerina/runtime/internal/lock/BLockStore";
     public static final String FUNCTION_POINTER = "io/ballerina/runtime/internal/values/FPValue";
     public static final String ARRAY_VALUE_IMPL = "io/ballerina/runtime/internal/values/ArrayValueImpl";
     public static final String TABLE_VALUE_IMPL = "io/ballerina/runtime/internal/values/TableValueImpl";
@@ -192,7 +192,6 @@ public class JvmConstants {
     public static final String VALUE_CREATOR = "io/ballerina/runtime/internal/values/ValueCreator";
     public static final String XML_FACTORY = "io/ballerina/runtime/internal/XmlFactory";
     public static final String XML_SEQUENCE = "io/ballerina/runtime/internal/values/XmlSequence";
-    public static final String CHANNEL_DETAILS = "io/ballerina/runtime/internal/values/ChannelDetails";
     public static final String ASYNC_UTILS = "io/ballerina/runtime/internal/scheduling/AsyncUtils";
     public static final String WORKER_UTILS = "io/ballerina/runtime/internal/scheduling/WorkerUtils";
     public static final String WORKER_CHANNEL_MAP = "io/ballerina/runtime/internal/scheduling/WorkerChannelMap";
@@ -237,8 +236,6 @@ public class JvmConstants {
     public static final String PATH = "java/nio/file/Path";
     public static final String REENTRANT_LOCK = "java/util/concurrent/locks/ReentrantLock";
     public static final String SYSTEM = "java/lang/System";
-    public static final String STRING_CONCAT_FACTORY = "java/lang/invoke/StringConcatFactory";
-
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
@@ -258,7 +255,7 @@ public class JvmConstants {
     public static final String TRAP_ERROR_METHOD = "trapError";
 
     // future related constants
-    public static final String GET_RESULT = "getResult";
+    public static final String GET = "get";
 
     // union and tuple related constants
     public static final String SET_MEMBERS_METHOD = "setMemberTypes";
@@ -271,14 +268,10 @@ public class JvmConstants {
     // exception classes
     public static final String THROWABLE = "java/lang/Throwable";
     public static final String STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
-    public static final String HANDLE_THROWABLE_METHOD = "handleBErrorAndExit";
-    public static final String HANDLE_ALL_THROWABLE_METHOD = "handleAllRuntimeErrorsAndExit";
-    public static final String HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
     public static final String UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
-    public static final String HANDLE_STOP_PANIC_METHOD = "handleAllRuntimeErrors";
-    public static final String HANDLE_RETURNED_ERROR_METHOD_WITHOUT_EXIT = "handleRuntimeErrorReturns";
-    public static final String HANDLE_WORKER_PANIC_METHOD = "handleWorkerPanic";
-    public static final String HANDLE_WORKER_RETURN_METHOD = "handleWorkerReturn";
+    public static final String HANDLE_FUTURE_METHOD = "handleFuture";
+    public static final String HANDLE_FUTURE_AND_EXIT_METHOD = "handleFutureAndExit";
+    public static final String HANDLE_THROWABLE_METHOD = "handleThrowable";
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
@@ -369,12 +362,13 @@ public class JvmConstants {
     public static final String GLOBAL_LOCK_NAME = "lock";
     public static final String SERVICE_EP_AVAILABLE = "$serviceEPAvailable";
     public static final String LOCK_STORE_VAR_NAME = "$LOCK_STORE";
-    public static final String WORKER_THROWABLE_VAR_NAME = "$workerThrowable";
     public static final String WORKER_CHANNEL_MAP_VAR_NAME = "$channelMap";
     public static final String SEND_WORKER_CHANNEL_NAMES_VAR_NAME = "$sendWorkerChannelNames";
     public static final String RECEIVE_WORKER_CHANNEL_NAMES_VAR_NAME = "$receiveWorkerChannelNames";
-    public static final String WORKER_CHANNEL_NAMES= "$channelNames";
     public static final String WORKER_CHANNEL_NAMES_MAP = "$channelNamesMap";
+    public static final String WORKER_CHANNELS_ADD_METHOD = "addWorkerChannels";
+    public static final String WORKER_CHANNELS_COMPLETE_METHOD = "completedWorkerChannels";
+    public static final String WORKER_CHANNELS_COMPLETE_WITH_PANIC_METHOD = "completeWorkerChannelsWithPanic";
     public static final String RECORD_INIT_WRAPPER_NAME = "$init";
     public static final String RUNTIME_REGISTRY_VARIABLE = "runtimeRegistry";
     public static final String SCHEDULER_VARIABLE = "scheduler";
@@ -383,8 +377,6 @@ public class JvmConstants {
     public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
     public static final String CONFIGURE_INIT_ATTEMPTED = "$configureInitAttempted";
     public static final String HANDLE_ANYDATA_VALUES = "handleAnydataValues";
-    public static final String MAKE_CONCAT_WITH_CONSTANTS = "makeConcatWithConstants";
-    public static final String START_OF_HEADING_WITH_SEMICOLON = ":\u0001";
     public static final String CREATE_INTEROP_ERROR_METHOD = "createInteropError";
     public static final String LAMBDA_PREFIX = "$lambda$";
     public static final String SPLIT_CLASS_SUFFIX = "$split$";
@@ -398,12 +390,12 @@ public class JvmConstants {
     // scheduler related constants
     public static final String START_ISOLATED_WORKER = "startIsolatedWorker";
     public static final String START_NON_ISOLATED_WORKER = "startNonIsolatedWorker";
-    public static final String SCHEDULER_START_METHOD = "start";
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
     public static final String CREATE_ERROR_VALUE = "createErrorValue";
     public static final String CALL_FUNCTION = "call";
     public static final String INSTANTIATE_FUNCTION = "instantiate";
+    public static final String DAEMON_STRAND_NAME ="daemonStrand";
 
     public static final String GET_ANON_TYPE_METHOD = "getAnonType";
     public static final String GET_FUNCTION_TYPE_METHOD = "getFunctionType";
@@ -413,11 +405,12 @@ public class JvmConstants {
     public static final String STRAND_THREAD = "thread";
     public static final String STRAND_NAME = "name";
     public static final String STRAND_POLICY_NAME = "policy";
+    public static final String STRAND_WORKER_CHANNEL_MAP = "workerChannelMap";
     public static final String STRAND_VALUE_ANY = "any";
     public static final String STRAND_METADATA_VAR_PREFIX = "$strand_metadata$";
     public static final String MAIN_ARG_VAR_PREFIX = "%param";
     public static final String GRACEFUL_EXIT_METHOD_NAME = "gracefulExit";
-    public static final String SET_LISTENER_FOUND_METHOD_NAME = "setListenerDeclarationFound";
+    public static final String WAIT_ON_LISTENERS_METHOD_NAME = "waitOnListeners";
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
     public static final String DEFAULT_STRAND_NAME= "anon";
 
