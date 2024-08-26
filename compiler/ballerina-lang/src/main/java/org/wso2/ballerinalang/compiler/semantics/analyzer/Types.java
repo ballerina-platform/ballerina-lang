@@ -388,14 +388,13 @@ public class Types {
         return target.accept(orderedTypeVisitor, source);
     }
 
-    public boolean isPureType(BType type) {
-        IsPureTypeUniqueVisitor visitor = new IsPureTypeUniqueVisitor();
-        return visitor.visit(type);
+    public SemType anydata() {
+        return Core.createAnydata(semTypeCtx);
     }
 
     public boolean isAnydata(BType type) {
-        IsAnydataUniqueVisitor visitor = new IsAnydataUniqueVisitor();
-        return visitor.visit(type);
+        SemType s = SemTypeHelper.semType(type);
+        return SemTypes.isSubtype(semTypeCtx, s, Core.createAnydata(semTypeCtx));
     }
 
     private boolean isSameType(BType source, BType target, Set<TypePair> unresolvedTypes) {
@@ -838,7 +837,11 @@ public class Types {
     private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
         SemType semSource = SemTypeHelper.semType(source, this.ignoreObjectTypeIds);
         SemType semTarget = SemTypeHelper.semType(target, this.ignoreObjectTypeIds);
-        return SemTypes.isSubtype(semTypeCtx, semSource, semTarget);
+        return isSubtype(semSource, semTarget);
+    }
+
+    public boolean isSubtype(SemType t1, SemType t2) {
+        return SemTypes.isSubtype(semTypeCtx, t1, t2);
     }
 
     BField getTableConstraintField(BType constraintType, String fieldName) {
