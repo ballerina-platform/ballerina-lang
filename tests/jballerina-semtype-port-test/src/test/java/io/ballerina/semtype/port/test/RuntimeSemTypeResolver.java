@@ -40,7 +40,6 @@ import io.ballerina.runtime.internal.types.semtype.TypedescUtils;
 import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -49,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -280,7 +280,8 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         }
         FunctionDefinition fd = new FunctionDefinition();
         attachedDefinitions.put(functionType, fd);
-        SemType[] params = getParameters(cx, mod, defn, depth, functionType);
+        Map<String, BLangNode> paramScope = new HashMap<>();
+        SemType[] params = getParameters(cx, mod, paramScope, defn, depth, functionType);
         SemType rest;
         if (functionType.getRestParameters() == null) {
             rest = Builder.neverType();
@@ -288,8 +289,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             ArrayTypeNode arrayType = (ArrayTypeNode) functionType.getRestParameters().getTypeNode();
             rest = resolveTypeDesc(cx, mod, defn, depth + 1, arrayType.getElementType());
         }
-        SemType returnType = functionType.getReturnTypeNode() != null ?
-                resolveTypeDesc(cx, mod, defn, depth + 1, functionType.getReturnTypeNode()) : Builder.nilType();
+        SemType returnType = resolveReturnType(cx, mod, paramScope, defn, depth + 1, functionType.getReturnTypeNode());
         ListDefinition paramListDefinition = new ListDefinition();
         FunctionQualifiers qualifiers = FunctionQualifiers.create(functionType.flagSet.contains(Flag.ISOLATED),
                 functionType.flagSet.contains(Flag.TRANSACTIONAL));
@@ -297,8 +297,9 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
                 CellAtomicType.CellMutability.CELL_MUT_NONE), returnType, qualifiers);
     }
 
-    private SemType[] getParameters(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
-                                    int depth, BLangFunction functionType) {
+    private SemType[] getParameters(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                    Map<String, BLangNode> paramScope, BLangTypeDefinition defn, int depth,
+                                    BLangFunction functionType) {
         List<SemType> params = new ArrayList<>();
         if (functionType instanceof BLangResourceFunction resourceFunctionType) {
             params.add(Builder.stringConst(resourceFunctionType.methodName.value));
@@ -306,9 +307,13 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
                 params.add(resolveTypeDesc(cx, mod, defn, depth + 1, each.typeNode));
             }
         }
-        functionType.getParameters().stream()
-                .map(paramVar -> resolveTypeDesc(cx, mod, defn, depth + 1, paramVar.typeNode))
-                .forEach(params::add);
+        for (BLangSimpleVariable paramVar : functionType.getParameters()) {
+            SemType semType = resolveTypeDesc(cx, mod, defn, depth + 1, paramVar.typeNode);
+            if (Core.isSubtypeSimple(semType, Builder.typeDescType())) {
+                paramScope.put(paramVar.name.value, paramVar);
+            }
+            params.add(semType);
+        }
         return params.toArray(SemType[]::new);
     }
 
@@ -335,9 +340,16 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         }
         FunctionDefinition fd = new FunctionDefinition();
         attachedDefinitions.put(td, fd);
-        List<SemType> params =
-                td.params.stream().map(param -> resolveTypeDesc(cx, mod, defn, depth + 1, param.typeNode))
-                        .toList();
+
+        Map<String, BLangNode> tdScope = new HashMap<>();
+        List<SemType> params = new ArrayList<>(td.params.size());
+        for (BLangSimpleVariable param : td.params) {
+            SemType paramType = resolveTypeDesc(cx, mod, defn, depth + 1, param.typeNode);
+            params.add(paramType);
+            if (Core.isSubtypeSimple(paramType, Builder.typeDescType())) {
+                tdScope.put(param.name.value, param);
+            }
+        }
         SemType rest;
         if (td.restParam == null) {
             rest = Builder.neverType();
@@ -345,14 +357,50 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             BLangArrayType restArrayType = (BLangArrayType) td.restParam.typeNode;
             rest = resolveTypeDesc(cx, mod, defn, depth + 1, restArrayType.elemtype);
         }
-        SemType returnType = td.returnTypeNode != null ? resolveTypeDesc(cx, mod, defn, depth + 1, td.returnTypeNode) :
-                Builder.nilType();
+        SemType returnType = resolveReturnType(cx, mod, tdScope, defn, depth + 1, td.returnTypeNode);
         ListDefinition paramListDefinition = new ListDefinition();
         return fd.define(env,
                 paramListDefinition.defineListTypeWrapped(env, params.toArray(SemType[]::new), params.size(), rest,
                         CELL_MUT_NONE),
                 returnType,
                 FunctionQualifiers.create(td.flagSet.contains(Flag.ISOLATED), td.flagSet.contains(Flag.TRANSACTIONAL)));
+    }
+
+    private SemType resolveReturnType(TypeTestContext<SemType> cx,
+                                      Map<String, BLangNode> mod,
+                                      Map<String, BLangNode> mayBeDependentlyTypeNodes,
+                                      BLangTypeDefinition defn,
+                                      int depth, BLangType returnTypeNode) {
+        if (returnTypeNode == null) {
+            return Builder.nilType();
+        }
+        SemType innerType;
+        // Dependently typed function are quite rare so doing it via exception handling should be faster than actually
+        //  checking if it is a dependently typed one.
+        boolean isDependentlyType;
+        try {
+            innerType = resolveTypeDesc(cx, mod, defn, depth + 1, returnTypeNode);
+            isDependentlyType = false;
+        } catch (IndexOutOfBoundsException err) {
+            innerType =
+                    resolveDependentlyTypedReturnType(cx, mod, mayBeDependentlyTypeNodes, defn, depth, returnTypeNode);
+            isDependentlyType = true;
+        }
+        ListDefinition ld = new ListDefinition();
+        return ld.defineListTypeWrapped((Env) cx.getInnerEnv(),
+                new SemType[]{!isDependentlyType ? Builder.booleanType() : Builder.booleanConst(true),
+                        innerType}, 2, Builder.neverType(),
+                CELL_MUT_LIMITED);
+    }
+
+    private SemType resolveDependentlyTypedReturnType(TypeTestContext<SemType> cx,
+                                                      Map<String, BLangNode> mod,
+                                                      Map<String, BLangNode> mayBeDependentlyTypeNodes,
+                                                      BLangTypeDefinition defn, int depth,
+                                                      TypeNode returnTypeNode) {
+        Map<String, BLangNode> combined = new HashMap<>(mod);
+        combined.putAll(mayBeDependentlyTypeNodes);
+        return resolveTypeDesc(cx, combined, defn, depth + 1, returnTypeNode);
     }
 
     private boolean isFunctionTop(BLangFunctionTypeNode td) {
@@ -569,20 +617,28 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
 
         BLangNode moduleLevelDef = mod.get(name);
         if (moduleLevelDef == null) {
-            throw new IllegalStateException("unknown type: " + name);
+            throw new IndexOutOfBoundsException("unknown type " + name);
         }
 
-        if (moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
-            SemType ty = resolveTypeDefnRec(cx, mod, (BLangTypeDefinition) moduleLevelDef, depth);
-            if (td.flagSet.contains(Flag.DISTINCT)) {
-                return getDistinctSemType(cx, ty);
+        switch (moduleLevelDef.getKind()) {
+            case TYPE_DEFINITION -> {
+                SemType ty = resolveTypeDefnRec(cx, mod, (BLangTypeDefinition) moduleLevelDef, depth);
+                if (td.flagSet.contains(Flag.DISTINCT)) {
+                    return getDistinctSemType(cx, ty);
+                }
+                return ty;
             }
-            return ty;
-        } else if (moduleLevelDef.getKind() == NodeKind.CONSTANT) {
-            BLangConstant constant = (BLangConstant) moduleLevelDef;
-            return resolveTypeDefnRec(cx, mod, constant.associatedTypeDefinition, depth);
-        } else {
-            throw new UnsupportedOperationException("constants and class defns not implemented");
+            case CONSTANT -> {
+                BLangConstant constant = (BLangConstant) moduleLevelDef;
+                return resolveTypeDefnRec(cx, mod, constant.getAssociatedTypeDefinition(), depth);
+            }
+            case VARIABLE -> {
+                // This happens when the type is a parameter of a dependently typed function
+                BLangVariable variable = (BLangVariable) moduleLevelDef;
+                BLangConstrainedType typeDescType = (BLangConstrainedType) variable.getTypeNode();
+                return resolveTypeDesc(cx, mod, null, depth, typeDescType.constraint);
+            }
+            default -> throw new UnsupportedOperationException("class defns not implemented");
         }
     }
 
