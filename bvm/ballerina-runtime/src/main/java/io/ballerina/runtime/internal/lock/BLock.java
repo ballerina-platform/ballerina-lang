@@ -17,6 +17,7 @@
 package io.ballerina.runtime.internal.lock;
 
 import io.ballerina.runtime.internal.scheduling.Strand;
+
 import java.util.concurrent.locks.ReentrantLock;
 
 /**

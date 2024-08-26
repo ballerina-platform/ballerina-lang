@@ -31,7 +31,6 @@
  import io.ballerina.runtime.api.values.BString;
  import io.ballerina.runtime.internal.values.ErrorValue;
 
- import java.util.Arrays;
  import java.util.Map;
  import java.util.concurrent.CompletableFuture;
 

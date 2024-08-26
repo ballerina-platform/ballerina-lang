@@ -16,20 +16,14 @@
  */
 package io.ballerina.runtime.internal.scheduling;
 
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.internal.ErrorUtils;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
-import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 
 import java.io.PrintStream;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.locks.ReentrantLock;
-
-import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
 
 /**
  * The registry for runtime dynamic listeners and stop handlers.

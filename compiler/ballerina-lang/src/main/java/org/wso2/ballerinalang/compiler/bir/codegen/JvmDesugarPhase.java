@@ -133,7 +133,7 @@ public class JvmDesugarPhase {
 
         List<BIRVariableDcl> localVars = func.localVars;
         List<BIRVariableDcl> updatedLocalVars = new ArrayList<>();
-        updatedLocalVars.add(localVars.get(0));
+        updatedLocalVars.add(localVars.getFirst());
         updatedLocalVars.add(selfParam);
         int index = 1;
         while (index < localVars.size()) {

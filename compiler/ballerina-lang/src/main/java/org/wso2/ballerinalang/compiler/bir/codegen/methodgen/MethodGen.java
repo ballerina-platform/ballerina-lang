@@ -382,7 +382,8 @@ public class MethodGen {
         return channelMapVarIndex;
     }
 
-    private static void filterWorkerChannels(BIRFunction func, List<BIRNode.ChannelDetails> sendWorkerChannels, List<BIRNode.ChannelDetails> receiveWorkerChannels) {
+    private static void filterWorkerChannels(BIRFunction func, List<BIRNode.ChannelDetails> sendWorkerChannels,
+                                             List<BIRNode.ChannelDetails> receiveWorkerChannels) {
         for (BIRNode.ChannelDetails workerChannel : func.workerChannels) {
             if (workerChannel.send) {
                 sendWorkerChannels.add(workerChannel);
@@ -707,8 +708,7 @@ public class MethodGen {
             case TypeTags.NIL, TypeTags.NEVER, TypeTags.ANY, TypeTags.ANYDATA, TypeTags.UNION,
                  TypeTags.JSON, TypeTags.FINITE, TypeTags.READONLY -> GET_OBJECT;
             case JTypeTags.JTYPE -> InteropMethodGen.getJTypeSignature((JType) bType);
-            default -> throw new BLangCompilerException("JVM code generation is not supported for type " +
-                    bType);
+            default -> throw new BLangCompilerException("JVM code generation is not supported for type " + bType);
         };
     }
 }

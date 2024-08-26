@@ -317,10 +317,6 @@ public class JvmPackageGen {
         mv.visitFieldInsn(PUTSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
     }
 
-    static String computeLockNameFromString(String varName) {
-        return "$lock" + varName;
-    }
-
     public static BIRFunctionWrapper getFunctionWrapper(BIRFunction currentFunc, PackageID packageID,
                                                         String moduleClass) {
         BInvokableType functionTypeDesc = currentFunc.type;
@@ -512,11 +508,11 @@ public class JvmPackageGen {
         int count = 0;
         // Generate init class. Init function should be the first function of the package, hence check first
         // function.
-        BIRFunction initFunc = functions.get(0);
+        BIRFunction initFunc = functions.getFirst();
         String functionName = Utils.encodeFunctionIdentifier(initFunc.name.value);
         String fileName = initFunc.pos.lineRange().fileName();
         JavaClass klass = new JavaClass(fileName, fileName);
-        klass.functions.add(0, initFunc);
+        klass.functions.addFirst(initFunc);
         PackageID packageID = birPackage.packageID;
         jvmClassMap.put(initClass, klass);
         String pkgName = JvmCodeGenUtil.getPackageName(packageID);
@@ -574,7 +570,7 @@ public class JvmPackageGen {
                     javaClass.functions.add(birFunc);
                 } else {
                     klass = new JavaClass(balFileName, cleanedBalFileName);
-                    klass.functions.add(0, birFunc);
+                    klass.functions.addFirst(birFunc);
                     jvmClassMap.put(birModuleClassName, klass);
                 }
             }

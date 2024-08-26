@@ -400,7 +400,8 @@ public class BRunUtil {
         }
     }
 
-    private static Function<Object[], Object> getFunction(Class<?> initClazz, String funcName) throws NoSuchMethodException {
+    private static Function<Object[], Object> getFunction(Class<?> initClazz, String funcName)
+            throws NoSuchMethodException {
         final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
         return objects -> {
             try {

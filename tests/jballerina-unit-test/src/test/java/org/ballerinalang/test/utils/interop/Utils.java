@@ -20,8 +20,8 @@ package org.ballerinalang.test.utils.interop;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+
 import java.io.PrintStream;
 
 /**

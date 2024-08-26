@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.internal.scheduling;
 
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
@@ -68,7 +67,7 @@ public class AsyncUtils {
         if (strand.isIsolated) {
             return getFutureResult(completableFuture);
         }
-        return handleNonIsolatedStrand(strand, completableFuture::isDone,() -> getFutureResult(completableFuture));
+        return handleNonIsolatedStrand(strand, completableFuture::isDone, () -> getFutureResult(completableFuture));
     }
 
     @SuppressWarnings("unused")
@@ -91,7 +90,8 @@ public class AsyncUtils {
     /*
      * Used for codegen wait for all futures from given list.
      */
-    public static void handleWaitMultiple(Strand strand, Map<String, FutureValue> futureMap, MapValue<BString, Object> target) {
+    public static void handleWaitMultiple(Strand strand, Map<String, FutureValue> futureMap,
+                                          MapValue<BString, Object> target) {
         Collection<FutureValue> futures = futureMap.values();
         List<CompletableFuture<?>> cFutures = new ArrayList<>();
         List<String> alreadyWaitedKeys = new ArrayList<>();
@@ -143,7 +143,7 @@ public class AsyncUtils {
             for (CompletableFuture<?> completableFuture : cFutures) {
                 if (completableFuture.isDone()) {
                     result = getFutureResult(completableFuture);
-                    if(!(result instanceof BError)) {
+                    if (!(result instanceof BError)) {
                         return result;
                     }
                 } else {
@@ -182,7 +182,7 @@ public class AsyncUtils {
             });
         }
         CompletableFuture<Object> anyFuture = CompletableFuture.anyOf(resultFuture, CompletableFuture.allOf(cFutures));
-        Object r =  getFutureResult(anyFuture);
+        Object r = getFutureResult(anyFuture);
         if (r != null) {
             return r;
         }
