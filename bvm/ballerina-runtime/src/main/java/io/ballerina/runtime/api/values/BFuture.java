@@ -37,7 +37,7 @@
       *
       * @return result value
       */
-     Object getResult();
+     Object get();
 
      /**
       * Returns completion status of the Ballerina strand that the future is attached.
