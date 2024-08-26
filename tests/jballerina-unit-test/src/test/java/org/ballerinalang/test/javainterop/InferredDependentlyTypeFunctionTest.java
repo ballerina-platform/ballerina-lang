@@ -196,10 +196,9 @@ public class InferredDependentlyTypeFunctionTest {
                 " return type does not depend on", 178, 46);
         validateError(negativeResult, index++, "cannot have more than one defaultable parameter with an inferred " +
                 "typedesc default", 180, 1);
-        // TODO: 16/8/24 ballerina-platform/ballerina-spec#633
-//        validateError(negativeResult, index++, "incompatible types: expected 'function (typedesc<(any|error)>," +
-//                "typedesc<boolean>) returns ((t|td))', found 'function (typedesc<(any|error)>,typedesc<boolean>) " +
-//                "returns ((int|string))'", 180, 74);
+        validateError(negativeResult, index++, "incompatible types: expected 'function (typedesc<(any|error)>," +
+                "typedesc<boolean>) returns ((t|td))', found 'function (typedesc<(any|error)>,typedesc<boolean>) " +
+                "returns ((int|string))'", 180, 74);
         validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': expected " +
                 "an argument for the parameter or a contextually-expected type to infer the argument", 185, 44);
         validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': expected " +

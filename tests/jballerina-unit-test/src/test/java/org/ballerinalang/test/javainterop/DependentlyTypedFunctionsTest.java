@@ -78,27 +78,22 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 115, 45);
         validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) " +
                 "returns (string)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 126, 61);
+        validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
+                "(typedesc<anydata>) returns (td|error)', found 'public function get(typedesc<anydata>) returns" +
+                " (other|error)'", 140, 5);
         validateError(errors, indx++,
                 "a function with a non-'external' function body cannot be a dependently-typed function", 140, 64);
+        validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
+                "(typedesc<anydata>) returns (td|error)', found 'public function get(typedesc<anydata>) returns" +
+                " (other|error)'", 144, 5);
         validateError(errors, indx++,
                 "a function with a non-'external' function body cannot be a dependently-typed function", 144, 64);
-        // TODO: 16/8/24 ballerina-platform/ballerina-spec#633
-//        validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
-//                "(typedesc<anydata>) returns (td|error)', found 'public function get(typedesc<anydata>) returns" +
-//                " (other|error)'", 140, 5);
-//        validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
-//                "function", 140, 64);
-//        validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
-//                "(typedesc<anydata>) returns (td|error)', found 'public function get(typedesc<anydata>) returns" +
-//                " (other|error)'", 144, 5);
-//        validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
-//                "function", 144, 64);
-//        validateError(errors, indx++, "incompatible types: expected 'Bar', found 'Baz'", 176, 15);
+        validateError(errors, indx++, "incompatible types: expected 'Bar', found 'Baz'", 176, 15);
         validateError(errors, indx++, "incompatible types: expected 'Quux', found 'Qux'", 180, 17);
         validateError(errors, indx++, "incompatible types: expected 'Qux', found 'Quux'", 181, 15);
         validateError(errors, indx++, "incompatible types: expected 'Baz', found 'Quux'", 182, 16);
         validateError(errors, indx++, "incompatible types: expected 'Quuz', found 'Qux'", 183, 17);
-        // TODO: 16/8/24 ballerina-platform/ballerina-spec#633
+        // TODO: 26/8/24 verify
 //        validateError(errors, indx++, "incompatible types: expected 'Corge', found 'Grault'", 185, 19);
 //        validateError(errors, indx++, "incompatible types: expected 'Grault', found 'Corge'", 186, 21);
         validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 196, 16);
