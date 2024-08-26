@@ -59,7 +59,6 @@ public class WorkerChannelMap {
     }
 
     public void panicSendWorkerChannels(String channelKey, BError error) {
-        // System.out.println("panic send" +  channelKey + Scheduler.getStrand().getName());
         try {
             channelMapLock.writeLock().lock();
             WorkerChannel workerChannel = channelMap.get(channelKey);
@@ -73,7 +72,6 @@ public class WorkerChannelMap {
     }
 
     public void panicReceiveWorkerChannels(String channelKey, BError error) {
-        // System.out.println("panic receive" +  channelKey + Scheduler.getStrand().getName());
         try {
             channelMapLock.writeLock().lock();
             WorkerChannel workerChannel = channelMap.get(channelKey);
@@ -87,7 +85,6 @@ public class WorkerChannelMap {
     }
 
     public void completeSendWorkerChannels(String channelKey, Object returnValue) {
-        // System.out.println("Remove send" +  channelKey + Scheduler.getStrand().getName());
         try {
             channelMapLock.writeLock().lock();
             WorkerChannel workerChannel = channelMap.get(channelKey);
@@ -101,7 +98,6 @@ public class WorkerChannelMap {
     }
 
     public void completeReceiveWorkerChannels(String channelKey, Object returnValue) {
-        // System.out.println("Remove receive" +  channelKey + Scheduler.getStrand().getName());
         try {
             channelMapLock.writeLock().lock();
             WorkerChannel workerChannel = channelMap.get(channelKey);

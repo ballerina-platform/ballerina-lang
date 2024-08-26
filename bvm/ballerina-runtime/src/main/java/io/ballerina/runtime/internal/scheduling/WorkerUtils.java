@@ -49,10 +49,8 @@
       */
      @SuppressWarnings("unused")
      public static void asyncSend(WorkerChannelMap workerChannelMap, String channelKey, Object result) {
-         // System.out.println("async Send " + channelKey);
          WorkerChannel channel = workerChannelMap.get(channelKey);
          channel.write(result);
-         // System.out.println("async Send done" + channelKey);
      }
 
      /*
@@ -60,20 +58,17 @@
       */
      @SuppressWarnings("unused")
      public static Object syncSend(Strand strand, WorkerChannelMap workerChannelMap, String channelKey, Object result) {
-         // System.out.println("sync Send " + channelKey);
          WorkerChannel channel = workerChannelMap.get(channelKey);
          channel.write(result);
          Object waitResult = AsyncUtils.handleWait(strand, channel.getReceiveFuture());
          if (waitResult instanceof BError error) {
              return error;
          }
-         // System.out.println("sync Send Done" + channelKey);
          return null;
 
      }
 
      public static Object flush(Strand strand, WorkerChannelMap workerChannelMap, String[] workerChannelKeys) {
-         // System.out.println("flush" + strand.getName());
          CompletableFuture<?>[] futures = new CompletableFuture[workerChannelKeys.length];
          WorkerChannel[] channels = new WorkerChannel[workerChannelKeys.length];
          for (int i = 0; i < workerChannelKeys.length; i++) {
@@ -97,7 +92,6 @@
      }
 
      public static Object receive(Strand strand, WorkerChannelMap workerChannelMap, String channelKey) {
-         // System.out.println("receive  " + channelKey);
          WorkerChannel channel = workerChannelMap.get(channelKey);
          if (strand.isIsolated) {
              return channel.read();
@@ -111,7 +105,6 @@
      @SuppressWarnings("unused")
      public static Object alternateReceive(Strand strand, WorkerChannelMap workerChannelMap,
                                            String[] workerChannelKeys) {
-         // System.out.println("alternative receive  " + Arrays.toString(workerChannelKeys));
          WorkerChannel[] channels = new WorkerChannel[workerChannelKeys.length];
          int count = 0;
          for (String workerChanelKey : workerChannelKeys) {
@@ -130,7 +123,6 @@
      @SuppressWarnings({"unused", "unchecked"})
      public static BMap<BString, Object> multipleReceive(Strand strand, WorkerChannelMap workerChannelMap,
                                                          Map<String, String> channelFieldNameMap, Type targetType) {
-         // System.out.println("multiple receive  " + Arrays.toString(channelFieldNameMap.keySet().toArray(new String[0])));
          WorkerChannel[] channels = new WorkerChannel[channelFieldNameMap.size()];
          int count = 0;
          for (Map.Entry<String, String> entry : channelFieldNameMap.entrySet()) {
@@ -153,7 +145,6 @@
       */
      @SuppressWarnings("unused")
      public static void addWorkerChannels(WorkerChannelMap workerChannelMap, String[] workerChannelKeys) {
-         // System.out.println("add  " + Arrays.toString(workerChannelKeys));
          workerChannelMap.addChannelKeys(workerChannelKeys);
      }
 
@@ -164,7 +155,6 @@
      public static void completedWorkerChannels(WorkerChannelMap workerChannelMap,
                                                 Object returnValue, String[] sendWorkerChannelKeys,
                                                 String[] receiveWorkerChannelKeys) {
-         // System.out.println("complete  " + Scheduler.getStrand().getName());
          if (sendWorkerChannelKeys == null && receiveWorkerChannelKeys == null) {
              return;
          }
@@ -188,7 +178,6 @@
      public static void completeWorkerChannelsWithPanic(WorkerChannelMap workerChannelMap, Throwable throwable,
                                                         String[] sendWorkerChannelKeys,
                                                         String[] receiveWorkerChannelKeys) {
-         // System.out.println("panic  " + Scheduler.getStrand().getName());
          if (sendWorkerChannelKeys == null && receiveWorkerChannelKeys == null) {
              return;
          }

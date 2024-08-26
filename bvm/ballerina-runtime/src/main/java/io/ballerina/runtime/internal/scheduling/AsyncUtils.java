@@ -41,7 +41,6 @@ public class AsyncUtils {
 
     public static Object handleNonIsolatedStrand(Strand strand, Supplier<Boolean> conditionSupplier,
                                                  Supplier<?> resultSupplier) {
-        // System.out.println("yield " + strand.getName());
         boolean waitDone = false;
         while (!waitDone) {
             try {
@@ -51,7 +50,6 @@ public class AsyncUtils {
                 strand.resume();
             }
         }
-        // System.out.println("resume " + strand.getName());
         return resultSupplier.get();
     }
 
@@ -60,7 +58,6 @@ public class AsyncUtils {
      * Used for codegen wait for future.
      */
     public static Object handleWait(Strand strand, FutureValue future) {
-        // System.out.println("wait  " + future.strand.getName() + " " + strand.getName());
         if (future.getAndSetWaited()) {
             return ErrorUtils.createWaitOnSameFutureError();
         }
@@ -95,7 +92,6 @@ public class AsyncUtils {
      * Used for codegen wait for all futures from given list.
      */
     public static void handleWaitMultiple(Strand strand, Map<String, FutureValue> futureMap, MapValue<BString, Object> target) {
-        // System.out.println("wait multiple " + " " + strand.getName());
         Collection<FutureValue> futures = futureMap.values();
         List<CompletableFuture<?>> cFutures = new ArrayList<>();
         List<String> alreadyWaitedKeys = new ArrayList<>();
@@ -175,18 +171,13 @@ public class AsyncUtils {
         AtomicInteger c = new AtomicInteger();
         for (CompletableFuture<?> f : cFutures) {
             f.whenComplete((result, ex) -> {
-                // System.out.println("**********" + result);
-                // System.out.println("**********" + ex);
-                // System.out.println("**********" + c.get());
                 if (ex != null) {
-                    // System.out.println("**********" + "completeExceptionally");
                     resultFuture.completeExceptionally(ex);
                     return;
                 }
                 if (c.incrementAndGet() < fSize && result instanceof BError) {
                     return;
                 }
-                // System.out.println("**********" + "completed" + result);
                 resultFuture.complete(result);
             });
         }
@@ -212,7 +203,6 @@ public class AsyncUtils {
     }
 
     public static void waitForAllFutureResult(CompletableFuture<?>[] futures) {
-        // System.out.println("Waiting for futures" + Scheduler.getStrand().getName());
         CompletableFuture<?> failure = new CompletableFuture<>();
         for (CompletableFuture<?> f : futures) {
             f.exceptionally(ex -> {
@@ -222,7 +212,6 @@ public class AsyncUtils {
         }
         CompletableFuture<Object> future = CompletableFuture.anyOf(failure, CompletableFuture.allOf(futures));
         getFutureResult(future);
-        // System.out.println("not Getting exception");
     }
 
     private AsyncUtils() {
