@@ -656,7 +656,7 @@ public final class TypeChecker {
                 Core.isSubType(context(), sourceType, INHERENTLY_IMMUTABLE_TYPE) || sourceType instanceof ReadonlyType;
     }
 
-    // FIXME:
+    // NOTE: this is not the same as selectively immutable as it stated in the spec
     public static boolean isSelectivelyImmutableType(Type type, Set<Type> unresolvedTypes) {
         if (!unresolvedTypes.add(type)) {
             return true;
