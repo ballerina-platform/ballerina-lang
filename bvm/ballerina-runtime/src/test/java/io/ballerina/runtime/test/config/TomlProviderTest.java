@@ -571,7 +571,7 @@ public class TomlProviderTest {
 
     @Test(dataProvider = "map-data-provider")
     public void testTomlProviderMaps(String variableName, Type constraint, Map<String, Object> expectedValues) {
-        MapType type = TypeCreator.createMapType("MapType", constraint, ROOT_MODULE, false);
+        MapType type = TypeCreator.createMapType(variableName + "Type", constraint, ROOT_MODULE, false);
         IntersectionType mapType = new BIntersectionType(ROOT_MODULE, new Type[]{type, PredefinedTypes.TYPE_READONLY}
                 , type, 1, true);
         VariableKey mapVar = new VariableKey(ROOT_MODULE, variableName, mapType, true);
