@@ -300,6 +300,11 @@ public final class Core {
     }
 
     public static boolean isSubType(Context cx, SemType t1, SemType t2) {
+        // This is really a workaround for Standard libraries that create record types that are not the "same". But
+        // with the same name and expect them to be same.
+        if (t1.equals(t2)) {
+            return true;
+        }
         SemType.CachedResult cached = t1.cachedSubTypeRelation(t2);
         if (cached != SemType.CachedResult.NOT_FOUND) {
             return cached == SemType.CachedResult.TRUE;

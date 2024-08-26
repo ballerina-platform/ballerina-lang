@@ -61,9 +61,9 @@ public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicTy
 
     private static final class CellAtomCache {
 
-        private final static Map<Integer, CellAtomicType> NONE_CACHE = new HashMap<>();
-        private final static Map<Integer, CellAtomicType> LIMITED_CACHE = new HashMap<>();
-        private final static Map<Integer, CellAtomicType> UNLIMITED_CACHE = new HashMap<>();
+        private static final Map<Integer, CellAtomicType> NONE_CACHE = new HashMap<>();
+        private static final Map<Integer, CellAtomicType> LIMITED_CACHE = new HashMap<>();
+        private static final Map<Integer, CellAtomicType> UNLIMITED_CACHE = new HashMap<>();
 
         private static CellAtomicType get(SemType semType, CellMutability mut) {
             if (semType.some() != 0) {

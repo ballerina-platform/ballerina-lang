@@ -23,6 +23,8 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
@@ -31,10 +33,7 @@ import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
-import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.MapValue;
-
-import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
@@ -118,18 +117,7 @@ public final class MapUtils {
     }
 
     private static boolean containsNilType(Type type) {
-        // FIXME:
-        type = TypeUtils.getImpliedType(type);
-        int tag = type.getTag();
-        if (tag == TypeTags.UNION_TAG) {
-            List<Type> memTypes = ((BUnionType) type).getMemberTypes();
-            for (Type memType : memTypes) {
-                if (containsNilType(memType)) {
-                    return true;
-                }
-            }
-        }
-        return tag == TypeTags.NULL_TAG;
+        return Core.containsBasicType(type, Builder.nilType());
     }
 
     public static BError createOpNotSupportedError(Type type, String op) {
