@@ -408,7 +408,7 @@ public class RefTypeTests {
     }
 
     public static Object useFuture(FutureValue future) {
-        return future.getResult();
+        return future.get();
     }
 
     public static FutureValue getFuture(Object a) {

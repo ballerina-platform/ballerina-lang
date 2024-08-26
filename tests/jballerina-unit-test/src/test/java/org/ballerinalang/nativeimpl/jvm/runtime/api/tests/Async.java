@@ -50,11 +50,11 @@ public class Async {
     }
 
     public static long getFieldValWithMultipleOptionalArgsDefaultVal(Environment env, BObject obj) {
-        return startNonIsolatedWorker(env, obj, "getFieldValWithMultipleOptionalArgs", 0, 0, 0);
+        return startNonIsolatedWorker(env, obj, "getFieldValWithMultipleOptionalArgs");
     }
 
     public static long getFieldValWithMultipleOptionalArgsDefaultValAsync(Environment env, BObject obj) {
-        return startNonIsolatedWorker(env, obj, "getFieldValWithMultipleOptionalArgsAsync", 0, 0, 0);
+        return startNonIsolatedWorker(env, obj, "getFieldValWithMultipleOptionalArgsAsync");
     }
 
     public static long getFieldValWithProvidedOptionalArgVal(Environment env, BObject obj, BString fieldName) {
@@ -180,13 +180,13 @@ public class Async {
     private static long startNonIsolatedWorker(Environment env, BObject obj, String methodName, Object... args) {
         env.markAsync();
         return (long) env.getRuntime().startNonIsolatedWorker(obj, methodName, methodName,
-                null, null, args).getResult();
+                null, null, args).get();
     }
 
     private static long startIsolatedWorker(Environment env, BObject obj, String methodName, Object... args) {
         env.markAsync();
         return (long) env.getRuntime().startNonIsolatedWorker(obj, methodName, methodName,
-                null, null, args).getResult();
+                null, null, args).get();
     }
 
     private static boolean isResourceMethodIsolated(BObject obj) {

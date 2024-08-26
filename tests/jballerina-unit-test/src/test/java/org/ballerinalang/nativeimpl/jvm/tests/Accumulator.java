@@ -41,7 +41,7 @@ public class Accumulator {
 
     private static long accumulateI(ObjectValue intFunction, long i, long to, Runtime runtime, long[] relay) {
         BFuture bFuture = runtime.startIsolatedWorker(intFunction, "invoke", null, null, null, i);
-        relay[0] += (long) bFuture.getResult();
+        relay[0] += (long) bFuture.get();
         if (i == to) {
             return relay[0];
         } else {

@@ -18,7 +18,6 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import org.testng.Assert;
@@ -34,14 +33,12 @@ public class Timer {
 
     public static void startTimer(Environment env, int interval, int count, ObjectValue object) {
         Runtime runtime = env.getRuntime();
-
-        new Thread(() -> {
+        Thread.startVirtualThread(() -> {
             for (int i = 0; i < count; i++) {
                 sleep(interval);
-                runtime.startIsolatedWorker(object, "exec", null, null, null, null,
-                                                      PredefinedTypes.TYPE_NULL);
+                runtime.startIsolatedWorker(object, "exec", null, null, null);
             }
-        }).start();
+        });
     }
 
     public static void sleep(int millis) {

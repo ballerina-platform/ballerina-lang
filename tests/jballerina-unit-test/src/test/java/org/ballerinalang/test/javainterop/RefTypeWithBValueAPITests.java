@@ -27,7 +27,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.FPValue;
@@ -489,7 +488,7 @@ public class RefTypeWithBValueAPITests {
     }
 
     public static Object useFuture(io.ballerina.runtime.api.values.BFuture future) {
-        return future.getResult();
+        return future.get();
     }
 
     public static io.ballerina.runtime.api.values.BFuture getFuture(Object a) {

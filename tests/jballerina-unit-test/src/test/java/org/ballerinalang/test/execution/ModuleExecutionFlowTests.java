@@ -167,8 +167,10 @@ public class ModuleExecutionFlowTests {
                 "listener gracefulStop panicked, service name - dependent" + System.lineSeparator() +
                 "basic:TestListener listener gracefulStop called, service name - basic";
 
-        String expectedErrorString = "error: panicked while starting module 'dependent'" + System.lineSeparator() +
-                "\tat testorg.start_stop_failing_project:start(basic.bal:35)";
+        String expectedErrorString = "error: panicked while starting module 'dependent'\n" +
+                "\tat testorg.start_stop_failing_project:start(basic.bal:35)\n" +
+                "error: panicked while stopping module 'dependent'\n" +
+                "\tat testorg.start_stop_failing_project:gracefulStop(basic.bal:44)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
