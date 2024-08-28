@@ -50,7 +50,8 @@ public class ReadonlyObjectTest {
                 "testReadOnlyServiceClass",
                 "testReadOnlyClassIntersectionWithMismatchedQualifiersRuntimeNegative",
                 "testReadOnlyClassIntersectionWithValidQualifiers",
-                "testRecursiveObjectArrayReadonlyClone"
+                "testRecursiveObjectArrayReadonlyClone",
+                "testReadonlyObjectMethodCall"
         };
     }
 
