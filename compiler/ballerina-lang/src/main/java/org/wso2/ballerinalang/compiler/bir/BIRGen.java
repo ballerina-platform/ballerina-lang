@@ -207,6 +207,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 
+import javax.xml.XMLConstants;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -216,8 +217,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.INVOCATION;
@@ -1119,6 +1118,7 @@ public class BIRGen extends BLangNodeVisitor {
         birVarDcl.annotAttachments.addAll(getBIRAnnotAttachments(varNode.symbol.getAnnotations()));
 
         this.env.enclPkg.globalVars.add(birVarDcl);
+        this.env.symbolVarMap.put(varNode.symbol, birVarDcl);
 
         this.globalVarMap.put(varNode.symbol, birVarDcl);
         env.enclPkg.isListenerAvailable |= Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER);
@@ -1703,10 +1703,6 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayLiteral astArrayLiteralExpr) {
-        BType bType = astArrayLiteralExpr.getBType();
-        if (bType.tag == TypeTags.TUPLE) {
-            visitTypedesc(astArrayLiteralExpr.pos, bType);
-        }
         generateListConstructorExpr(astArrayLiteralExpr);
     }
 
@@ -1722,10 +1718,6 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJSONArrayLiteral jsonArrayLiteralExpr) {
-        BType bType = jsonArrayLiteralExpr.getBType();
-        if (bType.tag == TypeTags.TUPLE) {
-            visitTypedesc(jsonArrayLiteralExpr.pos, bType);
-        }
         generateListConstructorExpr(jsonArrayLiteralExpr);
     }
 
@@ -2013,7 +2005,6 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
         this.env.isInArrayOrStructure++;
-        visitTypedesc(waitLiteral.pos, waitLiteral.getBType());
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId());
         addToTrapStack(thenBB);
         BType type = waitLiteral.getBType();
@@ -2279,30 +2270,12 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
         BType type = typeLoad.symbol.tag == SymTag.TYPE_DEF ?
                 ((BTypeDefinitionSymbol) typeLoad.symbol).referenceType : typeLoad.symbol.type;
-        visitTypedesc(typeLoad.pos, type);
-    }
-
-    private void visitTypedesc(Location pos, BType type) {
-        visitTypedesc(pos, type, Collections.emptyList(), null);
-    }
-
-    private void visitTypedesc(Location pos, BType type, BIROperand annotations) {
-        visitTypedesc(pos, type, Collections.emptyList(), annotations);
-    }
-
-    private void visitTypedesc(Location pos, BType type, List<BIROperand> varDcls, BIROperand annotations) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.typeDesc, this.env.nextLocalVarId(names),
-                                                       VarScope.FUNCTION, VarKind.TEMP);
-        BIRGenEnv env = this.env;
-        env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
-        if (annotations != null) {
-            setScopeAndEmit(new BIRNonTerminator.NewTypeDesc(pos, toVarRef, type, varDcls, annotations));
-            env.targetOperand = toVarRef;
-            return;
+        BIRVariableDcl typedescVar = getTypedescVariable(type);
+        if (typedescVar != null) {
+            env.targetOperand = new BIROperand(typedescVar);
+        } else {
+            createNewTypedescInst(type, type, typeLoad.pos);
         }
-        setScopeAndEmit(new BIRNonTerminator.NewTypeDesc(pos, toVarRef, type, Collections.emptyList()));
-        env.targetOperand = toVarRef;
     }
 
     @Override
