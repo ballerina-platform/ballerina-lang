@@ -150,8 +150,7 @@ public class BuildLangLib {
                     .toString(), true);
 
         } catch (Exception e) {
-            out.println("Unknown error building : " + projectDir.toString());
-            e.printStackTrace();
+            out.println("Unknown error building : " + projectDir.toString() + " due to " + e);
             throw e;
         }
     }
