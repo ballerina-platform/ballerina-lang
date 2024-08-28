@@ -793,13 +793,12 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
 
+        // Desugar variables, constants and type definitions.
         desugarTopLevelNodes(pkgNode);
 
         annotationDesugar.rewritePackageAnnotations(pkgNode, env);
 
         rewrite(pkgNode.xmlnsList, env);
-        rewrite(pkgNode.constants, env);
-        rewrite(pkgNode.globalVars, env);
         rewrite(pkgNode.classDefinitions, env);
 
         // Add invocation for user specified module init function (`init()`) if present and return.
@@ -853,6 +852,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangAssignment constInit = ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef, expression);
         initFnBody.stmts.add(constInit);
         constant.expr = null;
+        rewrite(constant, initFunctionEnv);
     }
 
     private void createTypedescVariableDef(BLangType typeNode) {
@@ -1015,6 +1015,7 @@ public class Desugar extends BLangNodeVisitor {
         for (BLangStatement statement : statements) {
             addToGlobalVariableList(statement, initFnBody, variable, desugaredGlobalVarList);
         }
+        rewrite(variable, initFunctionEnv);
     }
 
     private void desugarGlobalVariables(SymbolEnv initFunctionEnv, List<BLangVariable> desugaredGlobalVarList,
@@ -1035,6 +1036,7 @@ public class Desugar extends BLangNodeVisitor {
         // Add variable to the initialization function
         addToInitFunction(simpleGlobalVar, initFnBody);
         desugaredGlobalVarList.add(simpleGlobalVar);
+        rewrite(simpleGlobalVar, initFunctionEnv);
     }
 
     private void handleConfigurableGlobalVariable(BLangSimpleVariable simpleGlobalVar, SymbolEnv initFunctionEnv) {
