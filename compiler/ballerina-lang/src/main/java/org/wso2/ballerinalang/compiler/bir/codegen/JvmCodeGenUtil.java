@@ -202,8 +202,14 @@ public class JvmCodeGenUtil {
         objectType = getImpliedType(objectType);
         // The call name will be in the format of`objectTypeName.funcName` for attached functions of imported modules.
         // Therefore, We need to remove the type name.
+        Name originalName = objectType.tsymbol.originalName;
         if (!objectType.tsymbol.name.value.isEmpty() && value.startsWith(objectType.tsymbol.name.value)) {
             value = value.replace(objectType.tsymbol.name.value + ".", "").trim();
+        }
+        // The call name will be in the format of`objectTypeOriginalName.funcName` for attached functions of
+        // object definitions. Therefore, We need to remove it.
+        if (originalName != null && !originalName.value.isEmpty() && value.startsWith(originalName.value)) {
+            value = value.replace(originalName.value + ".", "").trim();
         }
         return Utils.encodeFunctionIdentifier(value);
     }
