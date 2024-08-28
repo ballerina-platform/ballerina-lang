@@ -187,7 +187,6 @@ public function main() {
 ```java
 class Test {
     public static BString callPlay(Environment env, BObject object, BString bString) {
-        Future future = env.markAsync();
         env.getRuntime().invokeMethodAsyncConcurrently(object, "play", "play", null,
             new Callback() {
                 @Override

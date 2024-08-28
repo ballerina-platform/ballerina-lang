@@ -231,7 +231,7 @@ public class JvmPackageGen {
         fv.visitEnd();
     }
 
-    private static void generateLockForVariable(ClassWriter cw) {
+    private static void generateLockStoreVariable(ClassWriter cw) {
         FieldVisitor fv;
         fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, LOCK_STORE_VAR_NAME, GET_LOCK_STORE, null, null);
         fv.visitEnd();
@@ -391,7 +391,7 @@ public class JvmPackageGen {
                 if (isTestable) {
                     initMethodGen.generateGetTestExecutionState(cw, moduleClass);
                 }
-                generateLockForVariable(cw);
+                generateLockStoreVariable(cw);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, typesClass);
                 initMethodGen.generateModuleStop(cw, moduleInitClass, asyncDataCollector, jvmConstantsGen);
                 ModuleStopMethodGen stopMethodGen = new ModuleStopMethodGen(jvmTypeGen, jvmConstantsGen);

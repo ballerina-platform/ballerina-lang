@@ -181,6 +181,7 @@ public class JvmConstants {
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
 
     // other jvm-specific classes
+    public static final String BAL_RUNTIME = "io/ballerina/runtime/internal/BalRuntime";
     public static final String TYPE_CHECKER = "io/ballerina/runtime/internal/TypeChecker";
     public static final String SCHEDULER = "io/ballerina/runtime/internal/scheduling/Scheduler";
     public static final String JSON_UTILS = "io/ballerina/runtime/internal/JsonInternalUtils";
@@ -318,7 +319,7 @@ public class JvmConstants {
     public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
-    public static final String CURRENT_MODULE_STOP = "$currentModuleStop";
+    public static final String CURRENT_MODULE_STOP_METHOD = "$currentModuleStop";
     public static final String MODULE_INIT_METHOD = "$moduleInit";
     public static final String MODULE_START_METHOD = "$moduleStart";
     public static final String MODULE_STOP_METHOD = "$moduleStop";
@@ -361,7 +362,8 @@ public class JvmConstants {
     public static final String CREATE_TYPE_INSTANCES_METHOD = "$createTypeInstances";
     public static final String GLOBAL_LOCK_NAME = "lock";
     public static final String SERVICE_EP_AVAILABLE = "$serviceEPAvailable";
-    public static final String LOCK_STORE_VAR_NAME = "$LOCK_STORE";
+    public static final String BAL_RUNTIME_VAR_NAME = "$balRuntime";
+    public static final String LOCK_STORE_VAR_NAME = "$lockStore";
     public static final String WORKER_CHANNEL_MAP_VAR_NAME = "$channelMap";
     public static final String SEND_WORKER_CHANNEL_NAMES_VAR_NAME = "$sendWorkerChannelNames";
     public static final String RECEIVE_WORKER_CHANNEL_NAMES_VAR_NAME = "$receiveWorkerChannelNames";

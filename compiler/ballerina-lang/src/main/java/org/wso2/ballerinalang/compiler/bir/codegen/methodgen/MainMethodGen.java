@@ -26,7 +26,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
@@ -62,6 +61,7 @@ import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA_VERSION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLI_SPEC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
@@ -87,6 +87,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPOSITORY_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_VARIABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_ISOLATED_WORKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_NON_ISOLATED_WORKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
@@ -101,6 +102,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAIN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
@@ -113,7 +115,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CON
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIGURABLES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPERAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPTION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_SIGNAL_LISTENER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TEST_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAIN_METHOD_SIGNATURE;
@@ -128,6 +130,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
  */
 public class MainMethodGen {
 
+    public static final String RUNTIME_VAR = "$runtime";
     public static final String FUTURE_VAR = "$future";
     public static final String SCHEDULER_VAR = "$schedulerVar";
     public static final String CONFIG_VAR = "$configVar";
@@ -155,6 +158,7 @@ public class MainMethodGen {
     public void generateMainMethod(BIRNode.BIRFunction userMainFunc, ClassWriter cw, BIRNode.BIRPackage pkg,
                                    String initClass, boolean serviceEPAvailable, boolean isTestable) {
 
+        int runtimeVarIndex = indexMap.addIfNotExists(RUNTIME_VAR, symbolTable.anyType);
         int schedulerVarIndex = indexMap.addIfNotExists(SCHEDULER_VAR, symbolTable.anyType);
         int futureVarIndex = indexMap.addIfNotExists(FUTURE_VAR, symbolTable.anyType);
 
@@ -174,18 +178,17 @@ public class MainMethodGen {
         // start all listeners and TRAP signal handler
         startListenersAndSignalHandler(mv, serviceEPAvailable);
 
-        genInitScheduler(mv, schedulerVarIndex);
+        genRuntimeAndGetScheduler(mv, initClass, runtimeVarIndex, schedulerVarIndex);
         // register a shutdown hook to call package stop() method.
         if (!isTestable) {
-            genShutdownHook(mv, initClass, schedulerVarIndex);
+            genShutdownHook(mv, initClass, runtimeVarIndex);
         }
 
         boolean hasInitFunction = MethodGenUtils.hasInitFunction(pkg);
-        generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable, schedulerVarIndex, futureVarIndex
-        );
+        generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable, schedulerVarIndex, futureVarIndex);
 
         if (hasInitFunction && !isTestable) {
-            setListenerFound(mv, serviceEPAvailable, schedulerVarIndex);
+            setListenerFound(mv, serviceEPAvailable, runtimeVarIndex);
         }
         stopListeners(mv, serviceEPAvailable);
         if (!serviceEPAvailable && !isTestable) {
@@ -193,7 +196,7 @@ public class MainMethodGen {
         }
 
         if (isTestable) {
-            generateModuleStopCall(initClass, mv, schedulerVarIndex);
+            generateModuleStopCall(initClass, mv);
         }
         mv.visitLabel(tryCatchEnd);
         mv.visitInsn(RETURN);
@@ -230,10 +233,8 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC , LAUNCH_UTILS, "stopListeners", "(Z)V", false);
     }
 
-    private void generateModuleStopCall(String initClass, MethodVisitor mv, int schedulerVarIndex) {
-        mv.visitVarInsn(ALOAD, schedulerVarIndex);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, JvmConstants.CURRENT_MODULE_STOP,
-                JvmSignatures.CURRENT_MODULE_STOP, false);
+    private void generateModuleStopCall(String initClass, MethodVisitor mv) {
+        mv.visitMethodInsn(INVOKESTATIC, initClass, JvmConstants.CURRENT_MODULE_STOP_METHOD, VOID_METHOD_DESC, false);
     }
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
@@ -293,30 +294,34 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListenersAndSignalHandler", "(Z)V", false);
     }
 
-    private void genShutdownHook(MethodVisitor mv, String initClass, int schedulerVarIndex) {
+    private void genShutdownHook(MethodVisitor mv, String initClass, int runtimeVarIndex) {
         String shutdownClassName = initClass + "$SignalListener";
         mv.visitMethodInsn(INVOKESTATIC, JAVA_RUNTIME, "getRuntime", GET_RUNTIME, false);
         mv.visitTypeInsn(NEW, shutdownClassName);
         mv.visitInsn(DUP);
-        mv.visitVarInsn(ALOAD, schedulerVarIndex);
+        mv.visitVarInsn(ALOAD, runtimeVarIndex);
         mv.visitMethodInsn(INVOKESPECIAL, shutdownClassName, JVM_INIT_METHOD, INIT_SIGNAL_LISTENER, false);
         mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "addShutdownHook", ADD_SHUTDOWN_HOOK, false);
     }
 
-    private void genInitScheduler(MethodVisitor mv, int schedulerVarIndex) {
-        mv.visitTypeInsn(NEW, SCHEDULER);
+    private void genRuntimeAndGetScheduler(MethodVisitor mv, String initClass, int runtimeVarIndex,
+                                           int schedulerVarIndex) {
+        mv.visitTypeInsn(NEW, BAL_RUNTIME);
         mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
-        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, JVM_INIT_METHOD, INIT_SCHEDULER, false);
+        mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
+        mv.visitMethodInsn(INVOKESPECIAL, BAL_RUNTIME, JVM_INIT_METHOD, INIT_RUNTIME, false);
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ASTORE, runtimeVarIndex);
+        mv.visitFieldInsn(GETFIELD, BAL_RUNTIME, SCHEDULER_VARIABLE, GET_SCHEDULER);
         mv.visitVarInsn(ASTORE, schedulerVarIndex);
     }
 
-    private void setListenerFound(MethodVisitor mv, boolean serviceEPAvailable, int schedulerVarIndex) {
+    private void setListenerFound(MethodVisitor mv, boolean serviceEPAvailable, int runtimeVarIndex) {
         // need to set immortal=true and start the scheduler again
         if (serviceEPAvailable) {
-            mv.visitVarInsn(ALOAD, schedulerVarIndex);
+            mv.visitVarInsn(ALOAD, runtimeVarIndex);
             mv.visitInsn(ICONST_1);
-            mv.visitMethodInsn(INVOKEVIRTUAL , SCHEDULER, WAIT_ON_LISTENERS_METHOD_NAME, "(Z)V", false);
+            mv.visitMethodInsn(INVOKEVIRTUAL , BAL_RUNTIME, WAIT_ON_LISTENERS_METHOD_NAME, "(Z)V", false);
         }
     }
 

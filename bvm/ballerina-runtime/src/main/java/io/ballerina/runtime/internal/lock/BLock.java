@@ -30,12 +30,10 @@ public class BLock extends ReentrantLock {
     public void lock(Strand strand) {
         super.lock();
         strand.acquiredLockCount++;
-
     }
 
     public void unlock(Strand strand) {
         super.unlock();
         strand.acquiredLockCount--;
     }
-
 }

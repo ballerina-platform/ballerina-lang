@@ -73,28 +73,10 @@ public class RuntimeRegistry {
 
     public void gracefulStop(Strand strand) {
         while (!listenerQueue.isEmpty()) {
-            invokeListenerGracefulStop(strand, (ObjectValue) listenerQueue.pollFirst());
+            ((ObjectValue) listenerQueue.pollFirst()).call(strand, "gracefulStop");
         }
         while (!stopHandlerQueue.isEmpty()) {
-            invokeStopHandlerFunction(stopHandlerQueue.pollLast());
-        }
-    }
-
-    private void invokeListenerGracefulStop(Strand strand, ObjectValue listener) {
-        try {
-            Object result = listener.call(strand, "gracefulStop");
-//            RuntimeUtils.handleRuntimeErrorReturns(result);
-        } catch (Throwable error) {
-//            RuntimeUtils.handleRuntimeErrorReturns(error);
-        }
-    }
-
-    private void invokeStopHandlerFunction(BFunctionPointer bFunctionPointer) {
-        try {
-            Object result = bFunctionPointer.call();
-//            RuntimeUtils.handleRuntimeErrorReturns(result);
-        } catch (Throwable error) {
-//            RuntimeUtils.handleRuntimeErrorReturns(error);
+            stopHandlerQueue.pollLast().call();
         }
     }
 }

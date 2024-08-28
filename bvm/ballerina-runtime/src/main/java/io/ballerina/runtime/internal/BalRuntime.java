@@ -38,6 +38,8 @@ import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
@@ -52,12 +54,15 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CL
  */
 public class BalRuntime extends Runtime {
 
-    private final Scheduler scheduler;
-    private final Module rootModule;
+    public final Scheduler scheduler;
+    public final Module rootModule;
+    public final RuntimeRegistry runtimeRegistry;
+    private final CompletableFuture<Void> stopFuture = new CompletableFuture<>();
 
     public BalRuntime(Module rootModule) {
         this.scheduler = new Scheduler(this);
         this.rootModule = rootModule;
+        this.runtimeRegistry = new RuntimeRegistry(this.scheduler);
     }
 
     @Override
@@ -82,7 +87,7 @@ public class BalRuntime extends Runtime {
     @Override
     public void stop() {
         try {
-            scheduler.poison();
+            gracefulExit();
             invokeModuleStop();
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
                  IllegalAccessException e) {
@@ -93,12 +98,12 @@ public class BalRuntime extends Runtime {
 
     @Override
     public Object call(Module module, String functionName, Object... args) {
-        return scheduler.call(module, functionName, Scheduler.getStrand(), args);
+        return scheduler.call(module, functionName, scheduler.getStrand(), args);
     }
 
     @Override
     public Object call(BObject object, String methodName, Object... args) {
-        return scheduler.call(object, methodName, Scheduler.getStrand(), args);
+        return scheduler.call(object, methodName, scheduler.getStrand(), args);
     }
 
     @Override
@@ -142,17 +147,17 @@ public class BalRuntime extends Runtime {
 
     @Override
     public void registerListener(BObject listener) {
-        scheduler.getRuntimeRegistry().registerListener(listener);
+        this.runtimeRegistry.registerListener(listener);
     }
 
     @Override
     public void deregisterListener(BObject listener) {
-        scheduler.getRuntimeRegistry().deregisterListener(listener);
+        this.runtimeRegistry.deregisterListener(listener);
     }
 
     @Override
     public void registerStopHandler(BFunctionPointer stopHandler) {
-        scheduler.getRuntimeRegistry().registerStopHandler(stopHandler);
+        this.runtimeRegistry.registerStopHandler(stopHandler);
     }
 
     private void invokeConfigInit() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
@@ -177,7 +182,7 @@ public class BalRuntime extends Runtime {
             IllegalAccessException {
         Class<?> configClass = loadClass(MODULE_INIT_CLASS_NAME);
         Method method = configClass.getDeclaredMethod("$currentModuleStop", RuntimeRegistry.class);
-        method.invoke(null, scheduler.getRuntimeRegistry());
+        method.invoke(null, this.runtimeRegistry);
     }
 
     private Class<?> loadClass(String className) throws ClassNotFoundException {
@@ -195,5 +200,20 @@ public class BalRuntime extends Runtime {
             className = encodeNonFunctionIdentifier(orgName) + "." + className;
         }
         return className;
+    }
+
+    public void waitOnListeners(boolean listenerDeclarationFound) {
+        if (!listenerDeclarationFound && this.runtimeRegistry.listenerQueue.isEmpty()) {
+            return;
+        }
+        try {
+            this.stopFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw ErrorCreator.createError(e);
+        }
+    }
+
+    public void gracefulExit() {
+        this.stopFuture.complete(null);
     }
 }

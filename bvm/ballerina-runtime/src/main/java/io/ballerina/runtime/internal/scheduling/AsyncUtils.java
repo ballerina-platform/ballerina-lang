@@ -168,14 +168,14 @@ public class AsyncUtils {
     public static Object getAnyFutureResult(CompletableFuture<?>[] cFutures) {
         int fSize = cFutures.length;
         CompletableFuture<Object> resultFuture = new CompletableFuture<>();
-        AtomicInteger c = new AtomicInteger();
+        AtomicInteger count = new AtomicInteger();
         for (CompletableFuture<?> f : cFutures) {
             f.whenComplete((result, ex) -> {
                 if (ex != null) {
                     resultFuture.completeExceptionally(ex);
                     return;
                 }
-                if (c.incrementAndGet() < fSize && result instanceof BError) {
+                if (count.incrementAndGet() < fSize && result instanceof BError) {
                     return;
                 }
                 resultFuture.complete(result);

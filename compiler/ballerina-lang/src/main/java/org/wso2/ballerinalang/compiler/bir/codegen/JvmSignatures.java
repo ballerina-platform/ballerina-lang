@@ -24,6 +24,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
@@ -199,7 +200,7 @@ public class JvmSignatures {
     public static final String CREATE_XML_PI = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";Z)L" + XML_VALUE + ";";
     public static final String CREATE_XML_TEXT = "(L" + B_STRING_VALUE + ";)L" + XML_VALUE + ";";
     public static final String CRETAE_XML_SEQUENCE = "()L" + XML_SEQUENCE + ";";
-    public static final String CURRENT_MODULE_STOP = "(L" + SCHEDULER + ";)V";
+    public static final String CURRENT_MODULE_STOP = "(L" + BAL_RUNTIME + ";)V";
     public static final String DECIMAL_NEGATE = "()L" + DECIMAL_VALUE + ";";
     public static final String DECIMAL_TO_HANDLE = "(L" + OBJECT + ";)L" + HANDLE_VALUE + ";";
     public static final String DECIMAL_VALUE_OF_BOOLEAN = "(B)L" + DECIMAL_VALUE + ";";
@@ -223,6 +224,7 @@ public class JvmSignatures {
     public static final String GET_ARRAY_TYPE_IMPL = "L" + ARRAY_TYPE_IMPL + ";";
     public static final String GET_ARRAY_VALUE = "L" + ARRAY_VALUE + ";";
     public static final String GET_ATTRAIBUTE_MAP = "()L" + MAP_VALUE + ";";
+    public static final String GET_BAL_RUNTIME = "L" + BAL_RUNTIME + ";";
     public static final String GET_BDECIMAL = "L" + DECIMAL_VALUE + ";";
     public static final String GET_BOBJECT = "L" + B_OBJECT + ";";
     public static final String GET_BSTRING = "L" + B_STRING_VALUE + ";";
@@ -318,8 +320,8 @@ public class JvmSignatures {
     public static final String INIT_OPERAND = "(ZL" + STRING_VALUE + ";L" + TYPE + ";)V";
     public static final String INIT_OPTION = "(L" + TYPE + ";I)V";
     public static final String INIT_PARAMETERIZED_TYPE_IMPL = "(L" + TYPE + ";I)V";
-    public static final String INIT_SCHEDULER = "(L" + MODULE + ";)V";
-    public static final String INIT_SIGNAL_LISTENER = "(L" + SCHEDULER + ";)V";
+    public static final String INIT_RUNTIME = "(L" + MODULE + ";)V";
+    public static final String INIT_SIGNAL_LISTENER = "(L" + BAL_RUNTIME + ";)V";
     public static final String INIT_STRAND = "(L" + STRING_VALUE + ";L" + STRAND_METADATA + ";L" + SCHEDULER + ";L" +
             STRAND_CLASS + ";L" + MAP + ";L" + TRANSACTION_CONTEXT_CLASS + ";)V";
     public static final String INIT_STRAND_METADATA = "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + STRING_VALUE +
