@@ -37,10 +37,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public final class Env {
     // Currently there is no reason to worry about above restrictions since Env is a singleton, but strictly speaking
-    // there is not technical restriction to have multiple instances of Env.
+    // there is not technical restriction preventing multiple instances of Env.
 
     private static final Env INSTANCE = new Env();
 
+    // Each atom is created once but will be accessed multiple times during type checking. Also in perfect world we
+    //  will create atoms at the beginning of the execution and will eventually reach a steady state.
+    private final ReadWriteLock atomLock = new ReentrantReadWriteLock();
     private final Map<AtomicType, Reference<TypeAtom>> atomTable;
 
     private final ReadWriteLock recListLock = new ReentrantReadWriteLock();
@@ -74,7 +77,8 @@ public final class Env {
     }
 
     private TypeAtom typeAtom(AtomicType atomicType) {
-        synchronized (this.atomTable) {
+        atomLock.readLock().lock();
+        try {
             Reference<TypeAtom> ref = this.atomTable.get(atomicType);
             if (ref != null) {
                 TypeAtom atom = ref.get();
@@ -82,9 +86,16 @@ public final class Env {
                     return atom;
                 }
             }
+        } finally {
+            atomLock.readLock().unlock();
+        }
+        atomLock.writeLock().lock();
+        try {
             TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size(), atomicType);
             this.atomTable.put(result.atomicType(), new WeakReference<>(result));
             return result;
+        } finally {
+            atomLock.writeLock().unlock();
         }
     }
 
@@ -115,9 +126,14 @@ public final class Env {
     }
 
     public void setRecListAtomType(RecAtom rec, ListAtomicType atomicType) {
-        synchronized (this.recListAtoms) {
+        // NOTE: this is fine since we are not actually changing the recList
+        recListLock.readLock().lock();
+        try {
             this.recListAtoms.set(rec.index(), atomicType);
+        } finally {
+            recListLock.readLock().unlock();
         }
+
     }
 
     public Atom listAtom(ListAtomicType atomicType) {
@@ -154,11 +170,11 @@ public final class Env {
     }
 
     public void setRecMappingAtomType(RecAtom rec, MappingAtomicType atomicType) {
-        recMapLock.writeLock().lock();
+        recMapLock.readLock().lock();
         try {
             this.recMappingAtoms.set(rec.index(), atomicType);
         } finally {
-            recMapLock.writeLock().unlock();
+            recMapLock.readLock().unlock();
         }
     }
 
@@ -188,11 +204,11 @@ public final class Env {
     }
 
     public void setRecFunctionAtomType(RecAtom rec, FunctionAtomicType atomicType) {
-        recFunctionLock.writeLock().lock();
+        recFunctionLock.readLock().lock();
         try {
             this.recFunctionAtoms.set(rec.index(), atomicType);
         } finally {
-            recFunctionLock.writeLock().unlock();
+            recFunctionLock.readLock().unlock();
         }
     }
 
