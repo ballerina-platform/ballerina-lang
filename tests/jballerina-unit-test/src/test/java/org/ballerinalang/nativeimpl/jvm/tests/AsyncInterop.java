@@ -30,7 +30,6 @@ import org.testng.Assert;
 public class AsyncInterop {
 
     public static int countSlowly(Environment env) {
-        env.markAsync();
         new Thread(AsyncInterop::sleep).start();
         return 42;
     }

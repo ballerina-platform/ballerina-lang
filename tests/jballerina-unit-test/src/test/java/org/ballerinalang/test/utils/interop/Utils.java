@@ -32,7 +32,6 @@ import java.io.PrintStream;
 public class Utils {
 
     public static void sleep(Environment env, long delayMillis) {
-        env.markAsync();
         try {
             Thread.sleep(delayMillis);
         } catch (InterruptedException e) {

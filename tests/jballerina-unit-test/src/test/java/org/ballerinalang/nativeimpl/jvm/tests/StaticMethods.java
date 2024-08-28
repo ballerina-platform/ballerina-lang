@@ -535,7 +535,6 @@ public class StaticMethods {
     }
 
     public static long addTwoNumbersSlowAsyncVoidSig(Environment env, long a, long b) {
-        env.markAsync();
         CompletableFuture<Long> cf = new CompletableFuture<>();
         new Thread(() -> {
             sleep();
@@ -549,7 +548,6 @@ public class StaticMethods {
     }
 
     public static long addTwoNumbersFastAsyncVoidSig(Environment env, long a, long b) {
-        env.markAsync();
         CompletableFuture<Long> cf = new CompletableFuture<>();
         cf.complete(a + b);
         try {
@@ -561,7 +559,6 @@ public class StaticMethods {
 
 
     public static long addTwoNumbersSlowAsync(Environment env, long a, long b) {
-        env.markAsync();
         CompletableFuture<Long> cf = new CompletableFuture<>();
         new Thread(() -> {
             sleep();
@@ -575,7 +572,6 @@ public class StaticMethods {
     }
 
     public static long addTwoNumbersFastAsync(Environment env, long a, long b) {
-        env.markAsync();
         CompletableFuture<Long> cf = new CompletableFuture<>();
         cf.complete(a + b);
         try {
@@ -817,18 +813,15 @@ public class StaticMethods {
     }
 
     public static BString getStringWithBalEnv(Environment env) {
-        env.markAsync();
         return StringUtils.fromString("Hello World!");
     }
 
     public static Object getIntWithBalEnv(Environment env) {
-        env.markAsync();
         return 7;
     }
 
     public static BMap<BString, Object> getMapValueWithBalEnv(Environment env, BString name, long age,
                                              MapValue<BString, Object> results) {
-        env.markAsync();
         BMap<BString, Object> output = ValueCreator.createMapValue();
         output.put(StringUtils.fromString("name"), name);
         output.put(StringUtils.fromString("age"), age);
