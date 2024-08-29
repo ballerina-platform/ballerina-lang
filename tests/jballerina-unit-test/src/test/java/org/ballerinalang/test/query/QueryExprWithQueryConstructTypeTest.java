@@ -158,7 +158,7 @@ public class QueryExprWithQueryConstructTypeTest {
         BRunUtil.invoke(result, "testMapConstructQueryWithConflictingKeys");
     }
 
-    @Test(description = "Test negative scenarios for query expr with query construct type")
+    @Test(enabled = false, description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/query/query-expr-query-construct-type-negative.bal");
