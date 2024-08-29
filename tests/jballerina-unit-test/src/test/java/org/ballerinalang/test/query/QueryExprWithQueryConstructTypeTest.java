@@ -36,14 +36,11 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  */
 public class QueryExprWithQueryConstructTypeTest {
 
-    private CompileResult result, negativeResult, semanticsNegativeResult;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/query/query-expr-with-query-construct-type.bal");
-        negativeResult = BCompileUtil.compile("test-src/query/query-expr-query-construct-type-negative.bal");
-        semanticsNegativeResult = BCompileUtil.compile("test-src/query/query-expr-query-construct-type-semantics" +
-                "-negative.bal");
     }
 
     @Test(description = "Test query expr returning a stream ")
@@ -163,8 +160,10 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
-        int index = 0;
+        CompileResult negativeResult =
+                BCompileUtil.compile("test-src/query/query-expr-query-construct-type-negative.bal");
 
+        int index = 0;
         validateError(negativeResult, index++, "incompatible types: expected 'Person[]', found 'stream<Person>'",
                 54, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'Customer[]', " +
@@ -335,6 +334,9 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test semantic negative scenarios for query expr with query construct type")
     public void testSemanticNegativeScenarios() {
+        CompileResult semanticsNegativeResult =
+                BCompileUtil.compile("test-src/query/query-expr-query-construct-type-semantics-negative.bal");
+
         int index = 0;
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
                         "maps or tables with key specifiers", 39, 13);
@@ -534,7 +536,5 @@ public class QueryExprWithQueryConstructTypeTest {
     @AfterClass
     public void tearDown() {
         result = null;
-        negativeResult = null;
-        semanticsNegativeResult = null;
     }
 }
