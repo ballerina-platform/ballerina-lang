@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.PredefinedType;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
@@ -1574,29 +1575,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     }
 
     public void validateXMLConstraintType(BType type, Location pos) {
-        BType constraintType = Types.getImpliedType(type);
-        int constrainedTag = constraintType.tag;
-
-        if (constrainedTag == TypeTags.UNION) {
-            checkUnionTypeForXMLSubTypes((BUnionType) constraintType, pos);
-            return;
-        }
-
-        if (!TypeTags.isXMLTypeTag(constrainedTag) && constrainedTag != TypeTags.NEVER) {
+        if (!SemTypeHelper.isSubtypeSimple(type, PredefinedType.XML)) {
             dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType, type);
-        }
-    }
-
-    private void checkUnionTypeForXMLSubTypes(BUnionType constraintUnionType, Location pos) {
-        for (BType memberType : constraintUnionType.getMemberTypes()) {
-            memberType = Types.getImpliedType(memberType);
-            if (memberType.tag == TypeTags.UNION) {
-                checkUnionTypeForXMLSubTypes((BUnionType) memberType, pos);
-            }
-            if (!TypeTags.isXMLTypeTag(memberType.tag)) {
-                dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType,
-                        constraintUnionType);
-            }
         }
     }
 

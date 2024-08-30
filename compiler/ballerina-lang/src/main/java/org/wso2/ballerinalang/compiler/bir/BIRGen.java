@@ -22,6 +22,7 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import io.ballerina.types.PredefinedType;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -59,6 +60,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -2801,10 +2803,7 @@ public class BIRGen extends BLangNodeVisitor {
             if (astIndexBasedAccessExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
                 insKind = InstructionKind.XML_ATTRIBUTE_STORE;
                 keyRegIndex = getQNameOP(astIndexBasedAccessExpr.indexExpr, keyRegIndex);
-            } else if (astAccessExprExprType.tag == TypeTags.OBJECT ||
-                    (astAccessExprExprType.tag == TypeTags.UNION &&
-                            Types.getImpliedType(((BUnionType) astAccessExprExprType).getMemberTypes().iterator()
-                                    .next()).tag == TypeTags.OBJECT)) {
+            } else if (SemTypeHelper.isSubtypeSimple(astAccessExprExprType, PredefinedType.OBJECT)) {
                 insKind = InstructionKind.OBJECT_STORE;
             } else {
                 insKind = InstructionKind.MAP_STORE;
@@ -2833,10 +2832,7 @@ public class BIRGen extends BLangNodeVisitor {
                         keyRegIndex);
                 this.varAssignment = false;
                 return;
-            } else if (astAccessExprExprType.tag == TypeTags.OBJECT ||
-                    (astAccessExprExprType.tag == TypeTags.UNION &&
-                            Types.getImpliedType(((BUnionType) astAccessExprExprType).getMemberTypes().iterator()
-                                    .next()).tag == TypeTags.OBJECT)) {
+            } else if (SemTypeHelper.isSubtypeSimple(astAccessExprExprType, PredefinedType.OBJECT)) {
                 insKind = InstructionKind.OBJECT_LOAD;
             } else {
                 insKind = InstructionKind.MAP_LOAD;
