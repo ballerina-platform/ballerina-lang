@@ -19,7 +19,6 @@ package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Definition;
-import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.TypeWithShape;
 
 import java.util.Collection;
@@ -201,11 +200,6 @@ public interface BMap<K, V> extends BRefValue, BCollection, PatternMatchableValu
     @Override
     default TypeWithShape getTypeWithShape() {
         return (TypeWithShape) getType();
-    }
-
-    @Override
-    default void cacheShape(SemType semType) {
-        throw new UnsupportedOperationException("Method not implemented");
     }
 
     @Override

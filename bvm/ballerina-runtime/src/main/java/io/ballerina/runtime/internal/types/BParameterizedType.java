@@ -88,6 +88,6 @@ public class BParameterizedType extends BType implements ParameterizedType {
         if (paramValueType instanceof BType bType) {
             return bType.createSemType();
         }
-        return paramValueType;
+        return SemType.tryInto(paramValueType);
     }
 }

@@ -38,7 +38,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.xml.namespace.QName;
 
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;

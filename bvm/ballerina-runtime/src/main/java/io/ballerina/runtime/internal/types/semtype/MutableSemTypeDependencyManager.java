@@ -47,15 +47,18 @@ public final class MutableSemTypeDependencyManager {
         Object lock = getLock(semType);
         synchronized (lock) {
             List<Reference<MutableSemType>> mutableSemTypes = dependencies.get(semType);
+            List<MutableSemType> toBeRecalculated = new ArrayList<>();
             if (mutableSemTypes != null) {
                 dependencies.remove(semType);
                 for (var dependent : mutableSemTypes) {
                     MutableSemType dependentSemType = dependent.get();
                     if (dependentSemType != null) {
                         dependentSemType.resetSemType();
+                        toBeRecalculated.add(dependentSemType);
                     }
                 }
             }
+            toBeRecalculated.forEach(MutableSemType::updateInnerSemTypeIfNeeded);
         }
     }
 
@@ -64,7 +67,7 @@ public final class MutableSemTypeDependencyManager {
         if (target instanceof MutableSemType mutableTarget) {
             addDependency(self, mutableTarget);
         }
-        return target;
+        return SemType.tryInto(target);
     }
 
     private void addDependency(MutableSemType self, MutableSemType mutableTarget) {

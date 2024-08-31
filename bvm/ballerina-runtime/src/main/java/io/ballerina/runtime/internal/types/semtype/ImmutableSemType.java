@@ -33,21 +33,15 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
  *
  * @since 2201.10.0
  */
-public abstract sealed class ImmutableSemType implements SemType permits BSemTypeWrapper, PureSemType {
+public abstract sealed class ImmutableSemType extends SemType permits BSemTypeWrapper, PureSemType {
 
     private static final SubType[] EMPTY_SUBTYPE_DATA = new SubType[0];
     private static final int CACHEABLE_TYPE_MASK = (~BasicTypeCode.BASIC_TYPE_MASK) & ((1 << (CODE_UNDEF + 1)) - 1);
 
-    private final int all;
-    private final int some;
-    private final SubType[] subTypeData;
-
     private Integer hashCode;
 
     ImmutableSemType(int all, int some, SubType[] subTypeData) {
-        this.all = all;
-        this.some = some;
-        this.subTypeData = subTypeData;
+        super(all, some, subTypeData);
     }
 
     ImmutableSemType(int all) {
@@ -64,21 +58,6 @@ public abstract sealed class ImmutableSemType implements SemType permits BSemTyp
     }
 
     @Override
-    public final int all() {
-        return all;
-    }
-
-    @Override
-    public final int some() {
-        return some;
-    }
-
-    @Override
-    public final SubType[] subTypeData() {
-        return subTypeData;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -87,7 +66,7 @@ public abstract sealed class ImmutableSemType implements SemType permits BSemTyp
             return false;
         }
         return all() == semType.all() && some() == semType.some() &&
-                Objects.deepEquals(subTypeData, semType.subTypeData);
+                Objects.deepEquals(this.subTypeData(), semType.subTypeData());
     }
 
     @Override
@@ -105,7 +84,7 @@ public abstract sealed class ImmutableSemType implements SemType permits BSemTyp
     }
 
     private int computeHashCode() {
-        return Objects.hash(all(), some(), Arrays.hashCode(subTypeData));
+        return Objects.hash(all(), some(), Arrays.hashCode(subTypeData()));
     }
 
     private boolean shouldCache() {
@@ -126,15 +105,5 @@ public abstract sealed class ImmutableSemType implements SemType permits BSemTyp
         CachedResult cachedResult = cachedSubTypeRelation(other);
         return cachedResult == CachedResult.NOT_FOUND ||
                 cachedResult == (result ? CachedResult.TRUE : CachedResult.FALSE);
-    }
-
-    @Override
-    public final SubType subTypeByCode(int code) {
-        if ((some() & (1 << code)) == 0) {
-            return null;
-        }
-        int someMask = (1 << code) - 1;
-        int some = some() & someMask;
-        return subTypeData()[Integer.bitCount(some)];
     }
 }

@@ -17,9 +17,6 @@
  */
 package io.ballerina.runtime.api.types;
 
-import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.api.types.semtype.SubType;
-
 /**
  * {@code MethodType} represents a function type in ballerina.
  *
@@ -37,34 +34,4 @@ public interface MethodType extends FunctionType {
      * @return true if {@link MethodType} method is isolated otherwise false.
      */
     boolean isIsolated();
-
-    @Override
-    default int all() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default int some() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default SubType[] subTypeData() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default CachedResult cachedSubTypeRelation(SemType other) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default void cacheSubTypeRelation(SemType other, boolean result) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default SubType subTypeByCode(int code) {
-        throw new UnsupportedOperationException();
-    }
 }
