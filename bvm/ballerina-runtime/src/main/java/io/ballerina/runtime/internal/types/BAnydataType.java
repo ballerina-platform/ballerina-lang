@@ -25,10 +25,8 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.AnydataType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.RefValue;
 
 /**
@@ -36,7 +34,7 @@ import io.ballerina.runtime.internal.values.RefValue;
  *
  * @since 0.995.0
  */
-public class BAnydataType extends BUnionType implements AnydataType, SemType {
+public class BAnydataType extends BUnionType implements AnydataType {
     /**
      * Create a {@code BAnydataType} which represents the anydata type.
      *
@@ -94,7 +92,6 @@ public class BAnydataType extends BUnionType implements AnydataType, SemType {
     // TODO: this type don't have mutable parts so this should be a immutable semtype
     @Override
     public SemType createSemType() {
-        Context cx = TypeChecker.context();
         SemType semType = Builder.anyDataType();
         if (isReadOnly()) {
             semType = Core.intersect(semType, Builder.readonlyType());

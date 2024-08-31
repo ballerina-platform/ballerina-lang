@@ -23,7 +23,6 @@ import io.ballerina.runtime.internal.types.semtype.BFutureSubType;
 import io.ballerina.runtime.internal.types.semtype.BIntSubType;
 import io.ballerina.runtime.internal.types.semtype.BObjectSubType;
 import io.ballerina.runtime.internal.types.semtype.BStreamSubType;
-import io.ballerina.runtime.internal.types.semtype.BSubType;
 import io.ballerina.runtime.internal.types.semtype.BTableSubType;
 import io.ballerina.runtime.internal.types.semtype.BTypedescSubType;
 import io.ballerina.runtime.internal.types.semtype.DelegatedSubType;
@@ -283,7 +282,6 @@ public final class Core {
         }
         for (SubType subType : t.subTypeData()) {
             assert subType != null : "subtype array must not be sparse";
-            assert !(subType instanceof BSubType) : "expect pure semtype";
             if (!subType.isEmpty(cx)) {
                 return false;
             }

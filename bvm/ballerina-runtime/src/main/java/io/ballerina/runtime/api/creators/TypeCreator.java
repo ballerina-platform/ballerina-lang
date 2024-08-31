@@ -46,7 +46,6 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
-import io.ballerina.runtime.internal.types.CopyOnWriteBMapWrapper;
 
 import java.util.Arrays;
 import java.util.IdentityHashMap;
@@ -73,8 +72,7 @@ public final class TypeCreator {
     private static final Map<TypeMemoKey, BErrorType> errorTypeMemo = new WeakHashMap<>(100);
     private static final Map<TypeMemoKey, BXmlType> xmlTypeMemo = new WeakHashMap<>(100);
     private static final Map<TypeMemoKey, BJsonType> jsonTypeMemo = new WeakHashMap<>(100);
-
-    private static final Map<Type, CopyOnWriteBMapWrapper> mapTypeWrapperMemo = new IdentityHashMap<>();
+    private static final Map<Type, BMapType> mapTypeCache = new IdentityHashMap<>();
     /**
      * Creates a new array type with given element type.
      *
@@ -192,8 +190,7 @@ public final class TypeCreator {
     * @return the new map type
     */
     public static MapType createMapType(Type constraint) {
-        return mapTypeWrapperMemo.computeIfAbsent(constraint,
-                (ignored) -> new CopyOnWriteBMapWrapper(new BMapType(constraint)));
+        return mapTypeCache.computeIfAbsent(constraint, (ignore) -> new BMapType(constraint));
     }
 
     /**

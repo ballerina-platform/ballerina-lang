@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.MethodType;
-import io.ballerina.runtime.api.types.ParameterizedType;
 import io.ballerina.runtime.api.types.ReadonlyType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
@@ -130,8 +129,8 @@ public final class TypeChecker {
             return sourceVal;
         }
         Type sourceType = getType(sourceVal);
-        if (Core.containsBasicType(sourceType, CONVERTIBLE_CAST_MASK) &&
-                Core.containsBasicType(targetType, CONVERTIBLE_CAST_MASK)) {
+        if (Core.containsBasicType(SemType.tryInto(sourceType), CONVERTIBLE_CAST_MASK) &&
+                Core.containsBasicType(SemType.tryInto(targetType), CONVERTIBLE_CAST_MASK)) {
             // We need to maintain order for these?
             if (targetType instanceof BUnionType unionType) {
                 for (Type memberType : unionType.getMemberTypes()) {
@@ -265,11 +264,12 @@ public final class TypeChecker {
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
         Context cx = context();
-        SemType sourceSemType = getType(sourceVal);
-        if (Core.isSubType(cx, sourceSemType, targetType)) {
+        SemType sourceSemType = SemType.tryInto(getType(sourceVal));
+        SemType semTargetType = SemType.tryInto(targetType);
+        if (Core.isSubType(cx, sourceSemType, semTargetType)) {
             return true;
         }
-        return couldShapeBeDifferent(sourceSemType) && isSubTypeWithShape(cx, sourceVal, targetType);
+        return couldShapeBeDifferent(sourceSemType) && isSubTypeWithShape(cx, sourceVal, semTargetType);
     }
 
     /**
@@ -317,7 +317,7 @@ public final class TypeChecker {
         Optional<SemType> readonlyShape = Builder.readonlyShapeOf(cx, sourceValue);
         assert readonlyShape.isPresent();
         SemType shape = readonlyShape.get();
-        SemType targetSemType = targetType;
+        SemType targetSemType = SemType.tryInto(targetType);
         if (Core.isSubType(cx, shape, NUMERIC_TYPE) && allowNumericConversion) {
             targetSemType = appendNumericConversionTypes(targetSemType);
         }
@@ -346,7 +346,7 @@ public final class TypeChecker {
      * @return true if the two types are same; false otherwise
      */
     public static boolean isSameType(Type sourceType, Type targetType) {
-        return Core.isSameType(context(), sourceType, targetType);
+        return Core.isSameType(context(), SemType.tryInto(sourceType), SemType.tryInto(targetType));
     }
 
     public static Type getType(Object value) {
@@ -600,7 +600,7 @@ public final class TypeChecker {
     }
 
     public static boolean isNumericType(Type type) {
-        return Core.isSubType(context(), type, NUMERIC_TYPE);
+        return Core.isSubType(context(), SemType.tryInto(type), NUMERIC_TYPE);
     }
 
     static boolean isByteLiteral(long longValue) {
@@ -616,13 +616,7 @@ public final class TypeChecker {
     }
 
     private static boolean isSubType(Type source, Type target) {
-        if (source instanceof ParameterizedType sourceParamType) {
-            if (target instanceof ParameterizedType targetParamType) {
-                return isSubType(sourceParamType.getParamValueType(), targetParamType.getParamValueType());
-            }
-            return isSubType(sourceParamType.getParamValueType(), target);
-        }
-        return Core.isSubType(context(), source, target);
+        return Core.isSubType(context(), SemType.tryInto(source), SemType.tryInto(target));
     }
 
     private static SemType widenedType(Context cx, Object value) {
@@ -653,7 +647,8 @@ public final class TypeChecker {
     public static boolean isInherentlyImmutableType(Type sourceType) {
         // readonly part is there to match to old API
         return
-                Core.isSubType(context(), sourceType, INHERENTLY_IMMUTABLE_TYPE) || sourceType instanceof ReadonlyType;
+                Core.isSubType(context(), SemType.tryInto(sourceType), INHERENTLY_IMMUTABLE_TYPE) ||
+                        sourceType instanceof ReadonlyType;
     }
 
     // NOTE: this is not the same as selectively immutable as it stated in the spec
@@ -1247,8 +1242,9 @@ public final class TypeChecker {
 
     static boolean belongToSingleBasicTypeOrString(Type type) {
         Context cx = context();
-        return isSingleBasicType(type) && Core.isSubType(cx, type, Builder.simpleOrStringType()) &&
-                !Core.isSubType(cx, type, Builder.nilType());
+        SemType semType = SemType.tryInto(type);
+        return isSingleBasicType(semType) && Core.isSubType(cx, semType, Builder.simpleOrStringType()) &&
+                !Core.isSubType(cx, semType, Builder.nilType());
     }
 
     private static boolean isSingleBasicType(SemType semType) {

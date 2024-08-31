@@ -63,7 +63,7 @@ public interface BValue {
     Type getType();
 
     default SemType widenedType(Context cx) {
-        return getType();
+        return SemType.tryInto(getType());
     }
 
     default Optional<SemType> shapeOf(Context cx) {

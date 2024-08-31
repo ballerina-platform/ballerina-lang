@@ -25,11 +25,9 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.MutableSemType;
 import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.api.types.semtype.SubType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.MutableSemTypeDependencyManager;
-import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 
 import java.util.Map;
 import java.util.Objects;
@@ -45,7 +43,7 @@ import java.util.WeakHashMap;
  *
  * @since 0.995.0
  */
-public abstract class BType implements Type, SubTypeData, MutableSemType, Cloneable {
+public abstract non-sealed class BType extends SemType implements Type, MutableSemType, Cloneable {
 
     protected String typeName;
     protected Module pkg;
@@ -251,32 +249,25 @@ public abstract class BType implements Type, SubTypeData, MutableSemType, Clonea
         throw new IllegalStateException("Child that are used for type checking must implement this method");
     }
 
-    protected SemType getSemType() {
+    @Override
+    public void updateInnerSemTypeIfNeeded() {
         SemType semType = cachedSemType;
-        if (semType != null) {
-            return semType;
+        if (semType == null) {
+            synchronized (this) {
+                semType = cachedSemType;
+                if (semType == null) {
+                    semType = createSemType();
+                    cachedSemType = semType;
+                    setAll(cachedSemType.all());
+                    setSome(cachedSemType.some(), cachedSemType.subTypeData());
+                }
+            }
         }
-        semType = createSemType();
-        cachedSemType = semType;
-        return semType;
     }
 
-    @Override
-    public int all() {
-        getSemType();
-        return cachedSemType.all();
-    }
-
-    @Override
-    public int some() {
-        getSemType();
-        return cachedSemType.some();
-    }
-
-    @Override
-    public SubType[] subTypeData() {
-        getSemType();
-        return cachedSemType.subTypeData();
+    protected SemType getSemType() {
+        updateInnerSemTypeIfNeeded();
+        return cachedSemType;
     }
 
     @Override
@@ -294,15 +285,12 @@ public abstract class BType implements Type, SubTypeData, MutableSemType, Clonea
     }
 
     @Override
-    public SubType subTypeByCode(int code) {
-        getSemType();
-        return cachedSemType.subTypeByCode(code);
-    }
-
-    @Override
     public void resetSemType() {
+        boolean shouldResetDependencies = cachedSemType != null;
         cachedSemType = null;
-        mutableSemTypeDependencyManager.notifyDependenciesToReset(this);
+        if (shouldResetDependencies) {
+            mutableSemTypeDependencyManager.notifyDependenciesToReset(this);
+        }
     }
 
     @Override

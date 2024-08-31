@@ -409,7 +409,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     private static SemType fieldShape(Context cx, ShapeSupplier shapeSupplier, Field field,
                                       AbstractObjectValue objectValue, boolean isImmutable) {
         if (!isImmutable) {
-            return field.getFieldType();
+            return SemType.tryInto(field.getFieldType());
         }
         BString fieldName = StringUtils.fromString(field.getFieldName());
         Optional<SemType> shape = shapeSupplier.get(cx, objectValue.get(fieldName));

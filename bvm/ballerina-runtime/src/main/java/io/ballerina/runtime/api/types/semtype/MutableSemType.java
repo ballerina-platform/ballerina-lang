@@ -18,9 +18,13 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
-public interface MutableSemType extends SemType {
+import io.ballerina.runtime.internal.types.BType;
+
+public sealed interface MutableSemType permits BType {
 
     SemType createSemType();
 
     void resetSemType();
+
+    void updateInnerSemTypeIfNeeded();
 }
