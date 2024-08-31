@@ -18,8 +18,6 @@
 package io.ballerina.runtime.api.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.api.types.semtype.SubType;
 
 /**
  * {@code Type} represents a type in Ballerina.
@@ -31,7 +29,7 @@ import io.ballerina.runtime.api.types.semtype.SubType;
  *
  * @since 2.0.0
  */
-public interface Type extends SemType {
+public interface Type {
 
     // TODO: remove default implementations when standard library types are updated
     /**
@@ -74,37 +72,6 @@ public interface Type extends SemType {
      */
     default Type getCachedImpliedType() {
         return null;
-    }
-
-    // Default implementations for SemTypes since some standard library test utils define there own anonymous classes
-    @Override
-    default int all() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default int some() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default SubType[] subTypeData() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default CachedResult cachedSubTypeRelation(SemType other) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default void cacheSubTypeRelation(SemType other, boolean result) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default SubType subTypeByCode(int code) {
-        throw new UnsupportedOperationException();
     }
 
     /**

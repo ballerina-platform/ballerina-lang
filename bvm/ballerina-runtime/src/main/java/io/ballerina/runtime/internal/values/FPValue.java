@@ -113,6 +113,6 @@ public class FPValue implements BFunctionPointer, RefValue {
 
     @Override
     public Optional<SemType> shapeOf(Context cx) {
-        return Optional.of(getType());
+        return Optional.of(SemType.tryInto(getType()));
     }
 }

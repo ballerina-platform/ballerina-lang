@@ -184,9 +184,11 @@ public final class ValueConverter {
         }
         Context cx = TypeChecker.context();
         List<BXml> list = new ArrayList<>();
+        SemType targetSemType = SemType.tryInto(targetType);
         for (BXml child : xmlSequence.getChildrenList()) {
-            SemType childType = child.getType();
-            boolean isReadonly = Core.isSubType(cx, Core.intersect(childType, targetType), Builder.readonlyType());
+            SemType childType = SemType.tryInto(child.getType());
+            boolean isReadonly =
+                    Core.isSubType(cx, Core.intersect(childType, targetSemType), Builder.readonlyType());
             if (isReadonly) {
                 list.add((BXml) CloneUtils.cloneReadOnly(child));
             } else {

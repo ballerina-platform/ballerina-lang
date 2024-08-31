@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
@@ -117,7 +118,7 @@ public final class MapUtils {
     }
 
     private static boolean containsNilType(Type type) {
-        return Core.containsBasicType(type, Builder.nilType());
+        return Core.containsBasicType(SemType.tryInto(type), Builder.nilType());
     }
 
     public static BError createOpNotSupportedError(Type type, String op) {

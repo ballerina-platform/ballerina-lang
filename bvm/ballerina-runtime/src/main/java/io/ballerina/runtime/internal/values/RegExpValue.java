@@ -84,11 +84,6 @@ public class RegExpValue implements BRegexpValue, RefValue {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return this == obj;
-    }
-
-    @Override
     public BTypedesc getTypedesc() {
         if (this.typedesc == null) {
             this.typedesc = getTypedescValue(type, this);

@@ -147,7 +147,7 @@ public final class TypeConverter {
             return anyToByteCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BYTE));
         }
-        Predicate<SemType> isIntSubType = (subType) -> Core.isSameType(cx, targetType, subType);
+        Predicate<Type> isIntSubType = (subType) -> Core.isSameType(cx, targetType, SemType.tryInto(subType));
         if (isIntSubType.test(PredefinedTypes.TYPE_INT_SIGNED_32)) {
             return anyToSigned32(inputValue);
         }
@@ -171,7 +171,8 @@ public final class TypeConverter {
     }
 
     public static Object castValues(Type targetType, Object inputValue) {
-        return castValuesInner(targetType, inputValue, () -> ErrorUtils.createTypeCastError(inputValue, targetType));
+        return castValuesInner(SemType.tryInto(targetType), inputValue,
+                () -> ErrorUtils.createTypeCastError(inputValue, targetType));
     }
 
     static Object castValuesInner(SemType targetType, Object inputValue, Supplier<BError> errorSupplier) {
