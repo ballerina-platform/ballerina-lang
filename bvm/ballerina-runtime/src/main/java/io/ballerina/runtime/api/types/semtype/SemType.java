@@ -20,7 +20,7 @@ package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.internal.types.semtype.PureSemType;
 
-public interface SemType extends BasicTypeBitSet {
+public interface SemType {
 
     static SemType from(int all, int some, SubType[] subTypeData) {
         return new PureSemType(all, some, subTypeData);
