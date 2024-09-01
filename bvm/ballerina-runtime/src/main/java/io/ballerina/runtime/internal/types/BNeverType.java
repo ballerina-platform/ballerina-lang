@@ -30,23 +30,18 @@ import java.util.List;
  *
  * @since 2.0.0-preview1
  */
-public class BNeverType extends BNullType implements NeverType {
+public final class BNeverType extends BNullType implements NeverType {
     /**
      * Create a {@code BNeverType} represents the type of a {@code Never}.
      *
      * @param pkg package path
      */
     public BNeverType(Module pkg) {
-        super(TypeConstants.NEVER_TNAME, pkg, Builder.neverType());
+        super(TypeConstants.NEVER_TNAME, pkg, Builder.neverType(), TypeTags.NEVER_TAG);
     }
 
     @Override
     public boolean isAnydata() {
         return true;
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.NEVER_TAG;
     }
 }

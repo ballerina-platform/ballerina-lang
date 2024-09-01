@@ -39,7 +39,7 @@ import java.util.Optional;
  *
  * @since 0.995.0
  */
-public class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> implements AnyType {
+public final class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> implements AnyType {
 
     /**
      * Create a {@code BAnyType} which represents the any type.
@@ -48,7 +48,7 @@ public class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> implements 
      */
     public BAnyType(String typeName, Module pkg, boolean readonly) {
         super(new ConcurrentLazySupplier<>(() -> new BAnyTypeImpl(typeName, pkg, readonly)),
-                typeName, pickSemType(readonly));
+                typeName, TypeTags.ANY_TAG, pickSemType(readonly));
     }
 
     @Override

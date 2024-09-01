@@ -56,7 +56,7 @@ public final class BBooleanType extends BSemTypeWrapper<BBooleanType.BBooleanTyp
     }
 
     private BBooleanType(Supplier<BBooleanTypeImpl> bTypeSupplier, String typeName, SemType semType) {
-        super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, semType);
+        super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, TypeTags.BOOLEAN_TAG, semType);
     }
 
     protected static final class BBooleanTypeImpl extends BType implements BooleanType {

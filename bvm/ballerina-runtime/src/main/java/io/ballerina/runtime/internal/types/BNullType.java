@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  *
  * @since 0.995.0
  */
-public class BNullType extends BSemTypeWrapper<BNullType.BNullTypeImpl> implements NullType {
+public sealed class BNullType extends BSemTypeWrapper<BNullType.BNullTypeImpl> implements NullType permits BNeverType {
 
     /**
      * Create a {@code BNullType} represents the type of a {@code NullLiteral}.
@@ -40,15 +40,15 @@ public class BNullType extends BSemTypeWrapper<BNullType.BNullTypeImpl> implemen
      * @param pkg package path
      */
     public BNullType(String typeName, Module pkg) {
-        this(() -> new BNullTypeImpl(typeName, pkg), typeName, Builder.nilType());
+        this(() -> new BNullTypeImpl(typeName, pkg), typeName, TypeTags.NULL_TAG, Builder.nilType());
     }
 
-    protected BNullType(String typeName, Module pkg, SemType semType) {
-        this(() -> new BNullTypeImpl(typeName, pkg), typeName, semType);
+    protected BNullType(String typeName, Module pkg, SemType semType, int tag) {
+        this(() -> new BNullTypeImpl(typeName, pkg), typeName, tag, semType);
     }
 
-    private BNullType(Supplier<BNullTypeImpl> bNullTypeSupplier, String typeName, SemType semType) {
-        super(new ConcurrentLazySupplier<>(bNullTypeSupplier), typeName, semType);
+    private BNullType(Supplier<BNullTypeImpl> bNullTypeSupplier, String typeName, int tag, SemType semType) {
+        super(new ConcurrentLazySupplier<>(bNullTypeSupplier), typeName, tag, semType);
     }
 
     protected static final class BNullTypeImpl extends BType implements NullType {

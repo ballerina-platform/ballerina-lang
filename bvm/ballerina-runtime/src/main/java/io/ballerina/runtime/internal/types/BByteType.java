@@ -50,7 +50,7 @@ public final class BByteType extends BSemTypeWrapper<BByteType.BByteTypeImpl> im
     }
 
     private BByteType(Supplier<BByteTypeImpl> bTypeSupplier, String typeName, SemType semType) {
-        super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, semType);
+        super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, TypeTags.BYTE_TAG, semType);
     }
 
     public static BByteType singletonType(long value) {

@@ -55,15 +55,16 @@ public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTyp
      * @param typeName string name of the type
      */
     public BIntegerType(String typeName, Module pkg) {
-        this(() -> new BIntegerTypeImpl(typeName, pkg, TypeTags.INT_TAG), typeName, Builder.intType());
+        this(() -> new BIntegerTypeImpl(typeName, pkg, TypeTags.INT_TAG), typeName, TypeTags.INT_TAG,
+                Builder.intType());
     }
 
     public BIntegerType(String typeName, Module pkg, int tag) {
-        this(() -> new BIntegerTypeImpl(typeName, pkg, tag), typeName, pickSemType(tag));
+        this(() -> new BIntegerTypeImpl(typeName, pkg, tag), typeName, tag, pickSemType(tag));
     }
 
-    private BIntegerType(Supplier<BIntegerTypeImpl> bIntegerTypeSupplier, String typeName, SemType semType) {
-        super(new ConcurrentLazySupplier<>(bIntegerTypeSupplier), typeName, semType);
+    private BIntegerType(Supplier<BIntegerTypeImpl> bIntegerTypeSupplier, String typeName, int tag, SemType semType) {
+        super(new ConcurrentLazySupplier<>(bIntegerTypeSupplier), typeName, tag, semType);
     }
 
     private static SemType pickSemType(int tag) {
@@ -88,7 +89,7 @@ public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTyp
 
     private static BIntegerType createSingletonType(long value) {
         return new BIntegerType(() -> (BIntegerTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.INT_TNAME,
-                Builder.intConst(value));
+                TypeTags.INT_TAG, Builder.intConst(value));
     }
 
     protected static final class BIntegerTypeImpl extends BType implements IntegerType, Cloneable {

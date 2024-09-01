@@ -36,7 +36,7 @@ import static io.ballerina.runtime.api.types.PredefinedTypes.EMPTY_MODULE;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BFloatType extends BSemTypeWrapper<BFloatType.BFloatTypeImpl> implements FloatType {
+public final class BFloatType extends BSemTypeWrapper<BFloatType.BFloatTypeImpl> implements FloatType {
 
     /**
      * Create a {@code BFloatType} which represents the boolean type.
@@ -48,7 +48,7 @@ public class BFloatType extends BSemTypeWrapper<BFloatType.BFloatTypeImpl> imple
     }
 
     private BFloatType(Supplier<BFloatTypeImpl> bType, String typeName, SemType semType) {
-        super(new ConcurrentLazySupplier<>(bType), typeName, semType);
+        super(new ConcurrentLazySupplier<>(bType), typeName, TypeTags.FLOAT_TAG, semType);
     }
 
     public static BFloatType singletonType(Double value) {
