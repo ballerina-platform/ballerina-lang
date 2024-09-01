@@ -47,20 +47,21 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
      * @param typeName string name of the type
      */
     public BStringType(String typeName, Module pkg) {
-        this(() -> new BStringTypeImpl(typeName, pkg, TypeTags.STRING_TAG), typeName, Builder.stringType());
+        this(() -> new BStringTypeImpl(typeName, pkg, TypeTags.STRING_TAG), typeName, TypeTags.STRING_TAG,
+                Builder.stringType());
     }
 
     public BStringType(String typeName, Module pkg, int tag) {
-        this(() -> new BStringTypeImpl(typeName, pkg, tag), typeName, pickSemtype(tag));
+        this(() -> new BStringTypeImpl(typeName, pkg, tag), typeName, tag, pickSemtype(tag));
     }
 
-    private BStringType(Supplier<BStringTypeImpl> bTypeSupplier, String typeName, SemType semType) {
-        super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, semType);
+    private BStringType(Supplier<BStringTypeImpl> bTypeSupplier, String typeName, int tag, SemType semType) {
+        super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, tag, semType);
     }
 
     public static BStringType singletonType(String value) {
         return new BStringType(() -> (BStringTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.STRING_TNAME,
-                Builder.stringConst(value));
+                TypeTags.STRING_TAG, Builder.stringConst(value));
     }
 
     private static SemType pickSemtype(int tag) {

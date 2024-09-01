@@ -35,55 +35,60 @@ import java.util.function.Supplier;
  * @param <E> The type of the {@code BType} that is being wrapped.
  * @since 2201.10.0
  */
-public non-sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType implements Type {
+public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType implements Type
+        permits BAnyType, BBooleanType, BByteType, BDecimalType, BFloatType, BHandleType, BIntegerType, BNullType,
+        BReadonlyType, BStringType {
 
     private final Supplier<E> bTypeSupplier;
+    private final int tag;
     protected final String typeName; // Debugger uses this field to show the type name
 
-    BSemTypeWrapper(Supplier<E> bTypeSupplier, String typeName, SemType semType) {
+    protected BSemTypeWrapper(Supplier<E> bTypeSupplier, String typeName, int tag, SemType semType) {
         super(semType);
         this.bTypeSupplier = bTypeSupplier;
         this.typeName = typeName;
+        this.tag = tag;
     }
 
-    public <V extends Object> Class<V> getValueClass() {
+    final public <V extends Object> Class<V> getValueClass() {
         return getbType().getValueClass();
     }
 
-    public <V extends Object> V getZeroValue() {
+    @Override
+    final public <V extends Object> V getZeroValue() {
         return getbType().getZeroValue();
     }
 
     @Override
-    public <V extends Object> V getEmptyValue() {
+    final public <V extends Object> V getEmptyValue() {
         return getbType().getEmptyValue();
     }
 
     @Override
-    public int getTag() {
-        return getbType().getTag();
+    final public int getTag() {
+        return tag;
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
         return getbType().toString();
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof BSemTypeWrapper other)) {
+        if (!(obj instanceof BSemTypeWrapper<?> other)) {
             return false;
         }
         return getbType().equals(other.getbType());
     }
 
     @Override
-    public boolean isNilable() {
+    public final boolean isNilable() {
         return getbType().isNilable();
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return getbType().hashCode();
     }
 
