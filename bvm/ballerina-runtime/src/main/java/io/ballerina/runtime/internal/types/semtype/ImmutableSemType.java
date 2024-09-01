@@ -18,15 +18,12 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
-import io.ballerina.runtime.api.types.semtype.BasicTypeCode;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.SubType;
 import io.ballerina.runtime.internal.types.BSemTypeWrapper;
 
 import java.util.Arrays;
 import java.util.Objects;
-
-import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
 
 /**
  * Runtime representation of SemType.
@@ -36,7 +33,6 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
 public abstract sealed class ImmutableSemType extends SemType permits BSemTypeWrapper, PureSemType {
 
     private static final SubType[] EMPTY_SUBTYPE_DATA = new SubType[0];
-    private static final int CACHEABLE_TYPE_MASK = (~BasicTypeCode.BASIC_TYPE_MASK) & ((1 << (CODE_UNDEF + 1)) - 1);
 
     private Integer hashCode;
 
@@ -87,23 +83,4 @@ public abstract sealed class ImmutableSemType extends SemType permits BSemTypeWr
         return Objects.hash(all(), some(), Arrays.hashCode(subTypeData()));
     }
 
-    private boolean shouldCache() {
-        return (some() & CACHEABLE_TYPE_MASK) != 0;
-    }
-
-    @Override
-    public CachedResult cachedSubTypeRelation(SemType other) {
-        return CachedResult.NOT_FOUND;
-    }
-
-    @Override
-    public void cacheSubTypeRelation(SemType other, boolean result) {
-        return;
-    }
-
-    private boolean isValidCacheState(SemType other, boolean result) {
-        CachedResult cachedResult = cachedSubTypeRelation(other);
-        return cachedResult == CachedResult.NOT_FOUND ||
-                cachedResult == (result ? CachedResult.TRUE : CachedResult.FALSE);
-    }
 }

@@ -3,11 +3,15 @@ package io.ballerina.runtime.api.types.semtype;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.semtype.ImmutableSemType;
 
+import java.util.Map;
+import java.util.WeakHashMap;
+
 public sealed class SemType extends BasicTypeBitSet
         permits io.ballerina.runtime.internal.types.BType, ImmutableSemType {
 
     private int some;
     private SubType[] subTypeData;
+    private Map<SemType, CachedResult> cachedResults;
 
     protected SemType(int all, int some, SubType[] subTypeData) {
         super(all);
@@ -35,12 +39,17 @@ public sealed class SemType extends BasicTypeBitSet
         return subTypeData;
     }
 
-    public CachedResult cachedSubTypeRelation(SemType other) {
-        return CachedResult.NOT_FOUND;
+    public final CachedResult cachedSubTypeRelation(SemType other) {
+        if (cachedResults == null) {
+            cachedResults = new WeakHashMap<>();
+            return CachedResult.NOT_FOUND;
+        }
+        return cachedResults.getOrDefault(other, CachedResult.NOT_FOUND);
     }
 
-    public void cacheSubTypeRelation(SemType other, boolean result) {
-
+    public final void cacheSubTypeRelation(SemType other, boolean result) {
+        // we always check of the result before caching so there will always be a map
+        cachedResults.put(other, result ? CachedResult.TRUE : CachedResult.FALSE);
     }
 
     public final SubType subTypeByCode(int code) {
