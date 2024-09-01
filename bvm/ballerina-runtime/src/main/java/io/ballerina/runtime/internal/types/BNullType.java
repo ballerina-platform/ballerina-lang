@@ -40,15 +40,16 @@ public sealed class BNullType extends BSemTypeWrapper<BNullType.BNullTypeImpl> i
      * @param pkg package path
      */
     public BNullType(String typeName, Module pkg) {
-        this(() -> new BNullTypeImpl(typeName, pkg), typeName, TypeTags.NULL_TAG, Builder.nilType());
+        this(() -> new BNullTypeImpl(typeName, pkg), typeName, pkg, TypeTags.NULL_TAG, Builder.nilType());
     }
 
     protected BNullType(String typeName, Module pkg, SemType semType, int tag) {
-        this(() -> new BNullTypeImpl(typeName, pkg), typeName, tag, semType);
+        this(() -> new BNullTypeImpl(typeName, pkg), typeName, pkg, tag, semType);
     }
 
-    private BNullType(Supplier<BNullTypeImpl> bNullTypeSupplier, String typeName, int tag, SemType semType) {
-        super(new ConcurrentLazySupplier<>(bNullTypeSupplier), typeName, tag, semType);
+    private BNullType(Supplier<BNullTypeImpl> bNullTypeSupplier, String typeName, Module pkg, int tag,
+                      SemType semType) {
+        super(new ConcurrentLazySupplier<>(bNullTypeSupplier), typeName, pkg, tag, semType);
     }
 
     protected static final class BNullTypeImpl extends BType implements NullType {

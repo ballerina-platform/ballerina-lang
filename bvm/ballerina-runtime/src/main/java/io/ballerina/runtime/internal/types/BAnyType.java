@@ -48,7 +48,7 @@ public final class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> imple
      */
     public BAnyType(String typeName, Module pkg, boolean readonly) {
         super(new ConcurrentLazySupplier<>(() -> new BAnyTypeImpl(typeName, pkg, readonly)),
-                typeName, TypeTags.ANY_TAG, pickSemType(readonly));
+                typeName, pkg, TypeTags.ANY_TAG, pickSemType(readonly));
     }
 
     @Override

@@ -44,16 +44,16 @@ public final class BFloatType extends BSemTypeWrapper<BFloatType.BFloatTypeImpl>
      * @param typeName string name of the type
      */
     public BFloatType(String typeName, Module pkg) {
-        this(() -> new BFloatTypeImpl(typeName, pkg), typeName, Builder.floatType());
+        this(() -> new BFloatTypeImpl(typeName, pkg), typeName, pkg, Builder.floatType());
     }
 
-    private BFloatType(Supplier<BFloatTypeImpl> bType, String typeName, SemType semType) {
-        super(new ConcurrentLazySupplier<>(bType), typeName, TypeTags.FLOAT_TAG, semType);
+    private BFloatType(Supplier<BFloatTypeImpl> bType, String typeName, Module pkg, SemType semType) {
+        super(new ConcurrentLazySupplier<>(bType), typeName, pkg, TypeTags.FLOAT_TAG, semType);
     }
 
     public static BFloatType singletonType(Double value) {
         return new BFloatType(() -> new BFloatTypeImpl(TypeConstants.FLOAT_TNAME, EMPTY_MODULE),
-                TypeConstants.FLOAT_TNAME, Builder.floatConst(value));
+                TypeConstants.FLOAT_TNAME, EMPTY_MODULE, Builder.floatConst(value));
     }
 
     protected static final class BFloatTypeImpl extends BType implements FloatType {
