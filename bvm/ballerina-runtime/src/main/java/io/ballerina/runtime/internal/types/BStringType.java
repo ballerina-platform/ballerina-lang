@@ -38,8 +38,9 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
 
     // We are creating separate empty module instead of reusing PredefinedTypes.EMPTY_MODULE to avoid cyclic
     // dependencies.
+    private static final Module DEFAULT_MODULE = new Module(null, null, null);
     private static final BStringTypeImpl DEFAULT_B_TYPE =
-            new BStringTypeImpl(TypeConstants.STRING_TNAME, new Module(null, null, null), TypeTags.STRING_TAG);
+            new BStringTypeImpl(TypeConstants.STRING_TNAME, DEFAULT_MODULE, TypeTags.STRING_TAG);
 
     /**
      * Create a {@code BStringType} which represents the boolean type.
@@ -47,21 +48,22 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
      * @param typeName string name of the type
      */
     public BStringType(String typeName, Module pkg) {
-        this(() -> new BStringTypeImpl(typeName, pkg, TypeTags.STRING_TAG), typeName, TypeTags.STRING_TAG,
+        this(() -> new BStringTypeImpl(typeName, pkg, TypeTags.STRING_TAG), typeName, pkg, TypeTags.STRING_TAG,
                 Builder.stringType());
     }
 
     public BStringType(String typeName, Module pkg, int tag) {
-        this(() -> new BStringTypeImpl(typeName, pkg, tag), typeName, tag, pickSemtype(tag));
+        this(() -> new BStringTypeImpl(typeName, pkg, tag), typeName, pkg, tag, pickSemtype(tag));
     }
 
-    private BStringType(Supplier<BStringTypeImpl> bTypeSupplier, String typeName, int tag, SemType semType) {
-        super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, tag, semType);
+    private BStringType(Supplier<BStringTypeImpl> bTypeSupplier, String typeName, Module pkg, int tag,
+                        SemType semType) {
+        super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, pkg, tag, semType);
     }
 
     public static BStringType singletonType(String value) {
         return new BStringType(() -> (BStringTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.STRING_TNAME,
-                TypeTags.STRING_TAG, Builder.stringConst(value));
+                DEFAULT_MODULE, TypeTags.STRING_TAG, Builder.stringConst(value));
     }
 
     private static SemType pickSemtype(int tag) {

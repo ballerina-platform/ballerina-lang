@@ -37,10 +37,10 @@ public final class BBooleanType extends BSemTypeWrapper<BBooleanType.BBooleanTyp
 
     private static final BBooleanType TRUE =
             new BBooleanType(() -> new BBooleanTypeImpl(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE),
-                    TypeConstants.BOOLEAN_TNAME, Builder.booleanConst(true));
+                    TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE, Builder.booleanConst(true));
     private static final BBooleanType FALSE =
             new BBooleanType(() -> new BBooleanTypeImpl(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE),
-                    TypeConstants.BOOLEAN_TNAME, Builder.booleanConst(false));
+                    TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE, Builder.booleanConst(false));
 
     /**
      * Create a {@code BBooleanType} which represents the boolean type.
@@ -48,15 +48,15 @@ public final class BBooleanType extends BSemTypeWrapper<BBooleanType.BBooleanTyp
      * @param typeName string name of the type
      */
     public BBooleanType(String typeName, Module pkg) {
-        this(() -> new BBooleanTypeImpl(typeName, pkg), typeName, Builder.booleanType());
+        this(() -> new BBooleanTypeImpl(typeName, pkg), typeName, pkg, Builder.booleanType());
     }
 
     public static BBooleanType singletonType(boolean value) {
         return value ? TRUE : FALSE;
     }
 
-    private BBooleanType(Supplier<BBooleanTypeImpl> bTypeSupplier, String typeName, SemType semType) {
-        super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, TypeTags.BOOLEAN_TAG, semType);
+    private BBooleanType(Supplier<BBooleanTypeImpl> bTypeSupplier, String typeName, Module pkg, SemType semType) {
+        super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, pkg, TypeTags.BOOLEAN_TAG, semType);
     }
 
     protected static final class BBooleanTypeImpl extends BType implements BooleanType {

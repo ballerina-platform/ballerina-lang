@@ -18,7 +18,6 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntegerType;
@@ -28,6 +27,7 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.function.Supplier;
 
+import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED16_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED16_MIN_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED32_MAX_VALUE;
@@ -47,7 +47,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_
 public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTypeImpl> implements IntegerType {
 
     private static final BIntegerTypeImpl DEFAULT_B_TYPE =
-            new BIntegerTypeImpl(TypeConstants.INT_TNAME, PredefinedTypes.EMPTY_MODULE, TypeTags.INT_TAG);
+            new BIntegerTypeImpl(TypeConstants.INT_TNAME, EMPTY_MODULE, TypeTags.INT_TAG);
 
     /**
      * Create a {@code BIntegerType} which represents the boolean type.
@@ -55,16 +55,17 @@ public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTyp
      * @param typeName string name of the type
      */
     public BIntegerType(String typeName, Module pkg) {
-        this(() -> new BIntegerTypeImpl(typeName, pkg, TypeTags.INT_TAG), typeName, TypeTags.INT_TAG,
+        this(() -> new BIntegerTypeImpl(typeName, pkg, TypeTags.INT_TAG), typeName, pkg, TypeTags.INT_TAG,
                 Builder.intType());
     }
 
     public BIntegerType(String typeName, Module pkg, int tag) {
-        this(() -> new BIntegerTypeImpl(typeName, pkg, tag), typeName, tag, pickSemType(tag));
+        this(() -> new BIntegerTypeImpl(typeName, pkg, tag), typeName, pkg, tag, pickSemType(tag));
     }
 
-    private BIntegerType(Supplier<BIntegerTypeImpl> bIntegerTypeSupplier, String typeName, int tag, SemType semType) {
-        super(new ConcurrentLazySupplier<>(bIntegerTypeSupplier), typeName, tag, semType);
+    private BIntegerType(Supplier<BIntegerTypeImpl> bIntegerTypeSupplier, String typeName, Module pkg, int tag,
+                         SemType semType) {
+        super(new ConcurrentLazySupplier<>(bIntegerTypeSupplier), typeName, pkg, tag, semType);
     }
 
     private static SemType pickSemType(int tag) {
@@ -88,7 +89,7 @@ public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTyp
     }
 
     private static BIntegerType createSingletonType(long value) {
-        return new BIntegerType(() -> (BIntegerTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.INT_TNAME,
+        return new BIntegerType(() -> (BIntegerTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.INT_TNAME, EMPTY_MODULE,
                 TypeTags.INT_TAG, Builder.intConst(value));
     }
 

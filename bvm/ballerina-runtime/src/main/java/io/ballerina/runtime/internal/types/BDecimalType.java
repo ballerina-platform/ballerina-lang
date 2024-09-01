@@ -49,16 +49,16 @@ public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTyp
      * @param typeName string name of the type
      */
     public BDecimalType(String typeName, Module pkg) {
-        this(() -> new BDecimalTypeImpl(typeName, pkg), typeName, Builder.decimalType());
+        this(() -> new BDecimalTypeImpl(typeName, pkg), typeName, pkg, Builder.decimalType());
     }
 
     public static BDecimalType singletonType(BigDecimal value) {
         return new BDecimalType(() -> (BDecimalTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.DECIMAL_TNAME,
-                Builder.decimalConst(value));
+                EMPTY_MODULE, Builder.decimalConst(value));
     }
 
-    private BDecimalType(Supplier<BDecimalTypeImpl> bType, String typeName, SemType semType) {
-        super(new ConcurrentLazySupplier<>(bType), typeName, TypeTags.DECIMAL_TAG, semType);
+    private BDecimalType(Supplier<BDecimalTypeImpl> bType, String typeName, Module pkg, SemType semType) {
+        super(new ConcurrentLazySupplier<>(bType), typeName, pkg, TypeTags.DECIMAL_TAG, semType);
     }
 
     protected static final class BDecimalTypeImpl extends BType implements DecimalType, Cloneable {

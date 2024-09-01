@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.semtype.ImmutableSemType;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 // TODO: make this a sealed class with clearly defined extensions
@@ -42,12 +43,14 @@ public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType im
     private final Supplier<E> bTypeSupplier;
     private final int tag;
     protected final String typeName; // Debugger uses this field to show the type name
+    private final Module pkg;
 
-    protected BSemTypeWrapper(Supplier<E> bTypeSupplier, String typeName, int tag, SemType semType) {
+    protected BSemTypeWrapper(Supplier<E> bTypeSupplier, String typeName, Module pkg, int tag, SemType semType) {
         super(semType);
         this.bTypeSupplier = bTypeSupplier;
         this.typeName = typeName;
         this.tag = tag;
+        this.pkg = pkg;
     }
 
     final public <V extends Object> Class<V> getValueClass() {
@@ -79,7 +82,7 @@ public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType im
         if (!(obj instanceof BSemTypeWrapper<?> other)) {
             return false;
         }
-        return getbType().equals(other.getbType());
+        return Objects.equals(this.typeName, other.typeName) && Objects.equals(this.pkg, other.pkg);
     }
 
     @Override
@@ -89,7 +92,7 @@ public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType im
 
     @Override
     public final int hashCode() {
-        return getbType().hashCode();
+        return Objects.hash(this.typeName, this.pkg);
     }
 
     @Override
