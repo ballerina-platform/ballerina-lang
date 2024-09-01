@@ -33,7 +33,6 @@ import io.ballerina.runtime.internal.types.semtype.MutableSemTypeDependencyManag
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.WeakHashMap;
 
 /**
  * {@code BType} represents a type in Ballerina.
@@ -270,20 +269,6 @@ public abstract non-sealed class BType extends SemType implements Type, MutableS
     protected SemType getSemType() {
         updateInnerSemTypeIfNeeded();
         return cachedSemType;
-    }
-
-    @Override
-    public CachedResult cachedSubTypeRelation(SemType other) {
-        if (cachedResults == null) {
-            cachedResults = new WeakHashMap<>();
-        }
-        return cachedResults.getOrDefault(other, CachedResult.NOT_FOUND);
-    }
-
-    @Override
-    public void cacheSubTypeRelation(SemType other, boolean result) {
-        // we always check of the result before caching so there will always be a map
-        cachedResults.put(other, result ? CachedResult.TRUE : CachedResult.FALSE);
     }
 
     @Override

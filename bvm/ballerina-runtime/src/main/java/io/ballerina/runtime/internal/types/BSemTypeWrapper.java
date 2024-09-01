@@ -53,22 +53,22 @@ public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType im
         this.pkg = pkg;
     }
 
-    final public <V extends Object> Class<V> getValueClass() {
+    public final <V extends Object> Class<V> getValueClass() {
         return getbType().getValueClass();
     }
 
     @Override
-    final public <V extends Object> V getZeroValue() {
+    public final <V extends Object> V getZeroValue() {
         return getbType().getZeroValue();
     }
 
     @Override
-    final public <V extends Object> V getEmptyValue() {
+    public final <V extends Object> V getEmptyValue() {
         return getbType().getEmptyValue();
     }
 
     @Override
-    final public int getTag() {
+    public final int getTag() {
         return tag;
     }
 
