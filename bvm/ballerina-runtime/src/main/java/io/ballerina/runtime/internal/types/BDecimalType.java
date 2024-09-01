@@ -58,7 +58,7 @@ public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTyp
     }
 
     private BDecimalType(Supplier<BDecimalTypeImpl> bType, String typeName, SemType semType) {
-        super(new ConcurrentLazySupplier<>(bType), typeName, semType);
+        super(new ConcurrentLazySupplier<>(bType), typeName, TypeTags.DECIMAL_TAG, semType);
     }
 
     protected static final class BDecimalTypeImpl extends BType implements DecimalType, Cloneable {

@@ -29,10 +29,10 @@ import io.ballerina.runtime.internal.values.RefValue;
  *
  * @since 1.3.0
  */
-public class BReadonlyType extends BSemTypeWrapper<BReadonlyType.BReadonlyTypeImpl> implements ReadonlyType {
+public final class BReadonlyType extends BSemTypeWrapper<BReadonlyType.BReadonlyTypeImpl> implements ReadonlyType {
 
     public BReadonlyType(String typeName, Module pkg) {
-        super(new ConcurrentLazySupplier<>(() -> new BReadonlyTypeImpl(typeName, pkg)), typeName,
+        super(new ConcurrentLazySupplier<>(() -> new BReadonlyTypeImpl(typeName, pkg)), typeName, TypeTags.READONLY_TAG,
                 Builder.readonlyType());
     }
 
