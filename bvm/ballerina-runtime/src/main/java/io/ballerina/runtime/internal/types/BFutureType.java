@@ -107,7 +107,7 @@ public class BFutureType extends BType implements FutureType, TypeWithShape {
         if (constraint == null) {
             return Builder.futureType();
         }
-        SemType constraintSemType = mutableSemTypeDependencyManager.getSemType(constraint, this);
+        SemType constraintSemType = tryInto(constraint);
         Context cx = TypeChecker.context();
         assert !Core.containsBasicType(constraintSemType, Builder.bType()) : "constraint shouldn't have BTypes";
         return FutureUtils.futureContaining(cx.env, constraintSemType);

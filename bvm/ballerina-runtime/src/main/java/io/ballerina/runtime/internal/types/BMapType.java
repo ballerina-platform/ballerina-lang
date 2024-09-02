@@ -191,7 +191,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         }
         MappingDefinition md = new MappingDefinition();
         defn = md;
-        SemType restType = mutableSemTypeDependencyManager.getSemType(getConstrainedType(), this);
+        SemType restType = tryInto(getConstrainedType());
         assert !Core.containsBasicType(restType, Builder.bType()) : "Map shouldn't have BTypes";
         return getSemTypePart(md, restType);
     }

@@ -260,7 +260,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
             boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
-            SemType fieldType = mutableSemTypeDependencyManager.getSemType(field.getFieldType(), this);
+            SemType fieldType = tryInto(field.getFieldType());
             if (!isOptional && Core.isNever(fieldType)) {
                 return neverType();
             }
@@ -273,8 +273,8 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
                     isReadonly, isOptional);
         }
         CellMutability mut = isReadOnly() ? CELL_MUT_NONE : CellMutability.CELL_MUT_LIMITED;
-        SemType rest =
-                restFieldType != null ? mutableSemTypeDependencyManager.getSemType(restFieldType, this) : neverType();
+        SemType rest;
+        rest = restFieldType != null ? tryInto(restFieldType) : neverType();
         assert !Core.containsBasicType(rest, Builder.bType()) : "Unexpected BType in record rest field";
         return md.defineMappingTypeWrapped(env, mappingFields, rest, mut);
     }

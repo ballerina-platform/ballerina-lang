@@ -163,10 +163,9 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         } else {
             SemType contraintSemtype;
             if (constraint instanceof ParameterizedType parameterizedType) {
-                contraintSemtype =
-                        mutableSemTypeDependencyManager.getSemType(parameterizedType.getParamValueType(), this);
+                contraintSemtype = tryInto(parameterizedType.getParamValueType());
             } else {
-                contraintSemtype = mutableSemTypeDependencyManager.getSemType(constraint, this);
+                contraintSemtype = tryInto(constraint);
             }
             assert !Core.containsBasicType(contraintSemtype, Core.B_TYPE_TOP) : "XML is a pure semtype";
             semType = XmlUtils.xmlSequence(contraintSemtype);

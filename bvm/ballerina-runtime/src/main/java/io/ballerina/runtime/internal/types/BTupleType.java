@@ -329,9 +329,8 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
         ListDefinition ld = new ListDefinition();
         defn = ld;
         SemType[] memberTypes = new SemType[tupleTypes.size()];
-        boolean hasBTypePart = false;
         for (int i = 0; i < tupleTypes.size(); i++) {
-            SemType memberType = mutableSemTypeDependencyManager.getSemType(tupleTypes.get(i), this);
+            SemType memberType = tryInto(tupleTypes.get(i));
             if (Core.isNever(memberType)) {
                 return neverType();
             }
@@ -340,7 +339,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
         }
         CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        SemType rest = restType != null ? mutableSemTypeDependencyManager.getSemType(restType, this) : neverType();
+        SemType rest = restType != null ? tryInto(restType) : neverType();
         assert !Core.containsBasicType(rest, Builder.bType()) : "Tuple rest type cannot be a BType";
         return ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, rest, mut);
     }

@@ -27,7 +27,6 @@ import io.ballerina.runtime.api.types.semtype.MutableSemType;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.types.semtype.MutableSemTypeDependencyManager;
 
 import java.util.Map;
 import java.util.Objects;
@@ -47,8 +46,6 @@ public abstract non-sealed class BType extends SemType implements Type, MutableS
     protected String typeName;
     protected Module pkg;
     protected Class<? extends Object> valueClass;
-    protected MutableSemTypeDependencyManager mutableSemTypeDependencyManager =
-            MutableSemTypeDependencyManager.getInstance();
     private int hashCode;
     private Type cachedReferredType = null;
     private Type cachedImpliedType = null;
@@ -271,11 +268,7 @@ public abstract non-sealed class BType extends SemType implements Type, MutableS
 
     @Override
     public void resetSemType() {
-        boolean shouldResetDependencies = cachedSemType != null;
         cachedSemType = null;
-        if (shouldResetDependencies) {
-            mutableSemTypeDependencyManager.notifyDependenciesToReset(this);
-        }
     }
 
     @Override

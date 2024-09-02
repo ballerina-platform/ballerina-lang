@@ -132,7 +132,7 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     @Override
     public SemType createSemType() {
         Type referredType = getReferredType();
-        return mutableSemTypeDependencyManager.getSemType(referredType, this);
+        return tryInto(referredType);
     }
 
     @Override
