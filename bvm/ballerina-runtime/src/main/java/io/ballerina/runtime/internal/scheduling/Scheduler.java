@@ -99,7 +99,9 @@ public class Scheduler {
 
     public Object call(FPValue fp, Strand parentStrand, Object... args) {
         parentStrand.resume();
-        Object[] argsWithStrand = getArgsWithStrand(parentStrand, args);
+        FunctionType functionType = (FunctionType) TypeUtils.getImpliedType(TypeUtils.getType(fp));
+        Object[] argsWithStrand = getArgsWithStrand(parentStrand,
+                getArgsWithDefaultValues(functionType, parentStrand, args));
         return fp.function.apply(argsWithStrand);
     }
 
@@ -319,7 +321,8 @@ public class Scheduler {
     private Object[] getArgsWithDefaultValues(ObjectType objectType, MethodType methodType, Strand strand,
                                               Object... args) {
         Module module = objectType.getPackage();
-        if (args.length == 0 || module == null) {
+        Parameter[] parameters = methodType.getType().getParameters();
+        if ((args.length == 0 || module == null) && parameters.length == 0) {
             return new Object[]{};
         }
         return getArgsWithDefaultValues(strand, args, methodType, module);
@@ -327,7 +330,8 @@ public class Scheduler {
 
     private Object[] getArgsWithDefaultValues(FunctionType functionType, Strand strand, Object... args) {
         Module module = functionType.getPackage();
-        if (args.length == 0 || module == null) {
+        Parameter[] parameters = functionType.getParameters();
+        if ((args.length == 0 || module == null) && parameters.length == 0) {
             return new Object[]{};
         }
         return getArgsWithDefaultValues(strand, args, functionType, module);
@@ -337,11 +341,12 @@ public class Scheduler {
                                               Module module) {
         Parameter[] parameters = functionType.getParameters();
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module, false));
-        Object[] argsWithDefaultValues = new Object[]{parameters.length};
+        int length = functionType.getRestType() == null ? parameters.length : parameters.length + 1;
+        Object[] argsWithDefaultValues = new Object[length];
         System.arraycopy(args, 0, argsWithDefaultValues, 0, args.length);
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
-            if (args.length >= i && parameter.isDefault) {
+            if (args.length >= i && parameter.isDefault && args[i] == null && !parameter.type.isNilable()) {
                 Object defaultValue = valueCreator.call(strand, parameter.defaultFunctionName, argsWithDefaultValues);
                 argsWithDefaultValues[i] = defaultValue;
             }

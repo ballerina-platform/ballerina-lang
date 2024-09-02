@@ -53,7 +53,7 @@ public class Call {
         List<Object> argsList = new java.util.ArrayList<>();
 
         if (checkIsValidPositionalArgs(args, argsList, functionType, paramTypes, argTypes) ||
-                 checkIsValidRestArgs(args, argsList, functionType, paramTypes, argTypes)) {
+                 checkIsValidRestArgs(args, argsList, functionType, argTypes)) {
             Type restType =
                     functionType.restType != null ? ((BArrayType) functionType.restType).getElementType() : null;
             throw ErrorCreator.createError(
@@ -85,7 +85,7 @@ public class Call {
                 }
                 argsList.add(arg);
             } else if (parameter.isDefault) {
-                argsList.add(0);
+                argsList.add(null);
             } else {
                 errored = true;
             }
@@ -94,7 +94,7 @@ public class Call {
     }
 
     private static boolean checkIsValidRestArgs(Object[] args, List<Object> argsList, BFunctionType functionType,
-                                                List<Type> paramTypes, List<Type> argTypes) {
+                                                List<Type> argTypes) {
         boolean errored = false;
         int numOfArgs = args.length;
         int numOfRestArgs = Math.max(numOfArgs - functionType.parameters.length, 0);
