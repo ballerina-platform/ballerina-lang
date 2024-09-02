@@ -36,7 +36,6 @@ import io.ballerina.runtime.api.types.semtype.CellAtomicType;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
-import io.ballerina.runtime.api.types.semtype.MutableSemType;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
@@ -48,7 +47,6 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.Member;
-import io.ballerina.runtime.internal.types.semtype.MutableSemTypeDependencyManager;
 import io.ballerina.runtime.internal.types.semtype.ObjectDefinition;
 import io.ballerina.runtime.internal.types.semtype.ObjectQualifiers;
 import io.ballerina.runtime.internal.values.AbstractObjectValue;
@@ -309,7 +307,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             Field field = entry.getValue();
             boolean isPublic = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.PUBLIC);
             boolean isImmutable = qualifiers.readonly() | SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
-            SemType ty = mutableSemTypeDependencyManager.getSemType(field.getFieldType(), this);
+            SemType ty = tryInto(field.getFieldType());
             assert !Core.containsBasicType(ty, Builder.bType()) : "object member can't have BTypes";
             members.add(new Member(name, ty, Member.Kind.Field,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, isImmutable));
@@ -428,27 +426,24 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             return List.of();
         }
         return Arrays.stream(methodTypes)
-                .map(method -> MethodData.fromMethod(mutableSemTypeDependencyManager, this, method)).toList();
+                .map(MethodData::fromMethod).toList();
     }
 
     protected record MethodData(String name, long flags, SemType semType) {
 
-        static MethodData fromMethod(MutableSemTypeDependencyManager dependencyManager, MutableSemType parent,
-                                     MethodType method) {
+        static MethodData fromMethod(MethodType method) {
             return new MethodData(method.getName(), method.getFlags(),
-                    dependencyManager.getSemType(method.getType(), parent));
+                    tryInto(method.getType()));
         }
 
-        static MethodData fromRemoteMethod(MutableSemTypeDependencyManager dependencyManager, MutableSemType parent,
-                                           MethodType method) {
+        static MethodData fromRemoteMethod(MethodType method) {
             // Remote methods need to be distinct with remote methods only there can be instance methods with the same
             // name
             return new MethodData("@remote_" + method.getName(), method.getFlags(),
-                    dependencyManager.getSemType(method.getType(), parent));
+                    tryInto(method.getType()));
         }
 
-        static MethodData fromResourceMethod(MutableSemTypeDependencyManager dependencyManager, MutableSemType parent,
-                                             BResourceMethodType method) {
+        static MethodData fromResourceMethod(BResourceMethodType method) {
             StringBuilder sb = new StringBuilder();
             sb.append(method.getAccessor());
             for (var each : method.getResourcePath()) {
@@ -463,21 +458,21 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
                 if (part == null) {
                     paramTypes.add(Builder.anyType());
                 } else {
-                    SemType semType = dependencyManager.getSemType(part, parent);
+                    SemType semType = tryInto(part);
                     assert !Core.containsBasicType(semType, Builder.bType()) :
                             "resource method path segment can't have BType";
                     paramTypes.add(semType);
                 }
             }
             for (Parameter paramType : innerFn.getParameters()) {
-                SemType semType = dependencyManager.getSemType(paramType.type, parent);
+                SemType semType = tryInto(paramType.type);
                 assert !Core.containsBasicType(semType, Builder.bType()) : "resource method params can't have BType";
                 paramTypes.add(semType);
             }
             SemType rest;
             Type restType = innerFn.getRestType();
             if (restType instanceof BArrayType arrayType) {
-                rest = dependencyManager.getSemType(arrayType.getElementType(), parent);
+                rest = tryInto(arrayType.getElementType());
                 assert !Core.containsBasicType(rest, Builder.bType()) : "resource method rest can't have BType";
             } else {
                 rest = Builder.neverType();
@@ -485,7 +480,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
 
             SemType returnType;
             if (innerFn.getReturnType() != null) {
-                returnType = dependencyManager.getSemType(innerFn.getReturnType(), parent);
+                returnType = tryInto(innerFn.getReturnType());
                 assert !Core.containsBasicType(returnType, Builder.bType()) :
                         "resource method retType can't have BType";
             } else {
