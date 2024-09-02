@@ -230,7 +230,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         }
         ListDefinition ld = new ListDefinition();
         defn = ld;
-        SemType elementType = mutableSemTypeDependencyManager.getSemType(getElementType(), this);
+        SemType elementType = tryInto(getElementType());
         assert !Core.containsBasicType(elementType, Core.B_TYPE_TOP) : "Array element can't have BTypes";
         return getSemTypePart(ld, isReadOnly(), size, elementType);
     }

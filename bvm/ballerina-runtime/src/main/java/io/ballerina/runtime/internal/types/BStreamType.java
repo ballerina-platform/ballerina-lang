@@ -154,9 +154,9 @@ public class BStreamType extends BType implements StreamType {
         }
         StreamDefinition sd = new StreamDefinition();
         definition = sd;
-        SemType valueTy = mutableSemTypeDependencyManager.getSemType(constraint, this);
+        SemType valueTy = tryInto(constraint);
         assert !Core.containsBasicType(valueTy, Builder.bType()) : "Value type shouldn't have BTypes";
-        SemType completionTy = mutableSemTypeDependencyManager.getSemType(completionType, this);
+        SemType completionTy = tryInto(completionType);
         assert !Core.containsBasicType(completionTy, Builder.bType()) : "Completion type shouldn't have BTypes";
         return sd.define(env, valueTy, completionTy);
     }

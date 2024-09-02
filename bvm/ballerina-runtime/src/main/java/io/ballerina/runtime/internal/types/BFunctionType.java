@@ -273,7 +273,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     // TODO: consider moving this to builder
     private SemType getSemType(Type type) {
-        SemType semType = mutableSemTypeDependencyManager.getSemType(type, this);
+        SemType semType = tryInto(type);
         assert !Core.containsBasicType(semType, Builder.bType()) : "function type part with BType";
         return semType;
     }

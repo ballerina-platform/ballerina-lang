@@ -26,7 +26,6 @@ import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.TypedescUtils;
@@ -98,9 +97,8 @@ public class BTypedescType extends BType implements TypedescType {
         if (constraint == null) {
             return Builder.typeDescType();
         }
-        SemType constraint = mutableSemTypeDependencyManager.getSemType(getConstraint(), this);
+        SemType constraint = tryInto(getConstraint());
         Context cx = TypeChecker.context();
-        assert !Core.containsBasicType(constraint, Builder.bType()) : "Typedesc constraint cannot be a BType";
         return TypedescUtils.typedescContaining(cx.env, constraint);
     }
 }
