@@ -34,8 +34,7 @@ public class Map {
 
     public static BXml map(BXml x, BFunctionPointer func) {
         if (x.isSingleton()) {
-            func.call(x);
-            return null;
+            return (BXml) func.call(x);
         }
         List<BXml> elements = new ArrayList<>();
         int size = x.size();
