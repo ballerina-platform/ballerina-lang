@@ -42,7 +42,7 @@ public class Map {
         TableType newTableType = TypeCreator.createTableType(newConstraintType,
                 PredefinedTypes.TYPE_NEVER, tblType.isReadOnly());
 
-        BTable<BString, Object> newTable = ValueCreator.createTableValue(newTableType);
+        BTable newTable = ValueCreator.createTableValue(newTableType);
         int size = tbl.size();
         Object[] tableValues = tbl.values().toArray();
         for (int i = 0; i < size; i++) {

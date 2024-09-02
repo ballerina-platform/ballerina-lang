@@ -35,12 +35,12 @@ public class Filter {
 
     public static BTable<?, ?> filter(BTable<BString, ?> tbl, BFunctionPointer func) {
         TableType tableType = (TableType) TypeUtils.getImpliedType(tbl.getType());
-        BTable<BString, Object> newTable = ValueCreator.createTableValue(TypeCreator
+        BTable newTable = ValueCreator.createTableValue(TypeCreator
                         .createTableType(tableType.getConstrainedType(), tableType.getFieldNames(), false));
         int size = tbl.size();
-        BString[] keys = tbl.getKeys();
+        Object[] keys = tbl.getKeys();
         for (int i = 0; i < size; i++) {
-            BString key = keys[i];
+            Object key = keys[i];
             Object value = tbl.get(key);
             boolean isFiltered = (boolean) func.call(value);
             if (isFiltered) {
