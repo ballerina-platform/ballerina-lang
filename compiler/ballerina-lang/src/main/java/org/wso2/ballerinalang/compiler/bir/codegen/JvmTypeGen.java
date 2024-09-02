@@ -23,7 +23,6 @@ import io.ballerina.types.Context;
 import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
-import io.ballerina.types.SemTypes;
 import io.ballerina.types.subtypedata.BooleanSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
@@ -350,8 +349,8 @@ public class JvmTypeGen {
     }
 
     public int typeFlag(BType type) {
-        boolean isAnydata = SemTypes.isSubtype(semTypeCtx, SemTypeHelper.semType(type), Core.createAnydata(semTypeCtx));
-        boolean isPureType = isAnydata || SemTypes.isSubtype(semTypeCtx, SemTypeHelper.semType(type),
+        boolean isAnydata = SemTypeHelper.isSubtype(semTypeCtx, type, Core.createAnydata(semTypeCtx));
+        boolean isPureType = isAnydata || SemTypeHelper.isSubtype(semTypeCtx, type,
                 Core.union(Core.createAnydata(semTypeCtx), PredefinedType.ERROR));
         return TypeFlags.asMask(type.isNullable(), isAnydata, isPureType);
     }

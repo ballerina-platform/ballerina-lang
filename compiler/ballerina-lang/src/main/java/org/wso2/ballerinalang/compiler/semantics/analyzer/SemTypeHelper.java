@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.ComplexSemType;
+import io.ballerina.types.Context;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
@@ -106,6 +107,16 @@ public final class SemTypeHelper {
 
     public static SemType semType(BType t) {
         return semType(t, false);
+    }
+
+    public static boolean isSubtypeSimple(BType bt, BasicTypeBitSet bbs) {
+        SemType t = SemTypeHelper.semType(bt);
+        return SemTypes.isSubtypeSimple(t, bbs);
+    }
+
+    public static boolean isSubtype(Context context, BType bt, SemType st) {
+        SemType s = SemTypeHelper.semType(bt);
+        return SemTypes.isSubtype(context, s, st);
     }
 
     public static SemType semType(BType t, boolean ignoreObjectTypeIds) {

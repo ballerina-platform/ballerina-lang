@@ -109,7 +109,11 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public SemType semType() {
-        return distinctIdSupplier.get().stream().map(SemTypes::objectDistinct).reduce(semTypeInner(), Core::intersect);
+        return distinctIdWrapper(semTypeInner());
+    }
+
+    SemType distinctIdWrapper(SemType semTypeInner) {
+        return distinctIdSupplier.get().stream().map(SemTypes::objectDistinct).reduce(semTypeInner, Core::intersect);
     }
 
     private SemType semTypeInner() {

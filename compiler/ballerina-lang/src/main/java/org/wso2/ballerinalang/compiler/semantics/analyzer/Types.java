@@ -389,8 +389,7 @@ public class Types {
     }
 
     public boolean isAnydata(BType type) {
-        SemType s = SemTypeHelper.semType(type);
-        return SemTypes.isSubtype(semTypeCtx, s, Core.createAnydata(semTypeCtx));
+        return SemTypeHelper.isSubtype(semTypeCtx, type, Core.createAnydata(semTypeCtx));
     }
 
     private boolean isSameType(BType source, BType target, Set<TypePair> unresolvedTypes) {
@@ -3428,8 +3427,7 @@ public class Types {
      * @return a boolean
      */
     boolean isXmlSubType(BType type) {
-        SemType t = SemTypeHelper.semType(type);
-        return SemTypes.isSubtypeSimple(t, PredefinedType.XML);
+        return SemTypeHelper.isSubtypeSimple(type, PredefinedType.XML);
     }
 
     /**
@@ -3439,8 +3437,7 @@ public class Types {
      * @return a boolean
      */
     boolean isStringSubtype(BType type) {
-        SemType t = SemTypeHelper.semType(type);
-        return SemTypes.isSubtypeSimple(t, PredefinedType.STRING);
+        return SemTypeHelper.isSubtypeSimple(type, PredefinedType.STRING);
     }
 
     /**

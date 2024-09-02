@@ -152,6 +152,8 @@ public class BIntersectionType extends BType implements IntersectionType {
         BType referredType = Types.getReferredType(this.effectiveType);
         if (referredType instanceof BErrorType effErr) {
             t = effErr.distinctIdWrapper(t);
+        } else if (referredType instanceof BObjectType effObj) {
+            t = effObj.distinctIdWrapper(t);
         }
         return t;
     }

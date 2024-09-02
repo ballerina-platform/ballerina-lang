@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import io.ballerina.types.CellAtomicType;
+import io.ballerina.types.Core;
 import io.ballerina.types.Env;
 import io.ballerina.types.SemType;
 import io.ballerina.types.definition.Field;
@@ -176,7 +177,7 @@ public class BRecordType extends BStructureType implements RecordType {
                     return NEVER;
                 }
 
-                if (restFieldSemType.equals(NEVER)) {
+                if (Core.isNever(restFieldSemType)) {
                     // record { never x?; never...;} is equivalent to record { never... }
                     // ignore the field
                     continue;
