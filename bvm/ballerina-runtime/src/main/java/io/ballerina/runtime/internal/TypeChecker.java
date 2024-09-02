@@ -124,6 +124,7 @@ public final class TypeChecker {
     private static final SemType REF_TYPE_MASK = createRefValueMask();
     private static final SemType CONVERTIBLE_CAST_MASK = createConvertibleCastMask();
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
+    private static final SemType TOP_TYPES_WITH_ALWAYS_FILLING = createTopTypesWithFillerValues();
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
@@ -988,9 +989,38 @@ public final class TypeChecker {
         return hasFillerValue(type, new ArrayList<>());
     }
 
+    private enum FillerValueResult {
+        TRUE, FALSE, MAYBE
+    }
+
+    private static SemType createTopTypesWithFillerValues() {
+        return Stream.of(Builder.intType(), Builder.floatType(), Builder.decimalType(), Builder.stringType(),
+                Builder.booleanType(), Builder.nilType(), Builder.tableType(), Builder.mappingType(),
+                Builder.listType()).reduce(Builder.neverType(), Core::union);
+    }
+
+    private static FillerValueResult hasFillerValueSemType(Context cx, SemType type) {
+        if (Core.containsBasicType(type, Builder.nilType())) {
+            return FillerValueResult.TRUE;
+        }
+        if (Integer.bitCount(type.all() | type.some()) > 1) {
+            return FillerValueResult.FALSE;
+        }
+        if (type.some() != 0) {
+            return FillerValueResult.MAYBE;
+        }
+        return Core.containsBasicType(type, TOP_TYPES_WITH_ALWAYS_FILLING) ? FillerValueResult.TRUE :
+                FillerValueResult.FALSE;
+    }
+
     private static boolean hasFillerValue(Type type, List<Type> unanalyzedTypes) {
         if (type == null) {
             return true;
+        }
+
+        FillerValueResult fastResult = hasFillerValueSemType(context(), SemType.tryInto(type));
+        if (fastResult != FillerValueResult.MAYBE) {
+            return fastResult == FillerValueResult.TRUE;
         }
 
         int typeTag = type.getTag();
@@ -1021,7 +1051,7 @@ public final class TypeChecker {
         };
     }
 
-    private static boolean checkFillerValue(BTupleType tupleType,  List<Type> unAnalyzedTypes) {
+    private static boolean checkFillerValue(BTupleType tupleType, List<Type> unAnalyzedTypes) {
         if (unAnalyzedTypes.contains(tupleType)) {
             return true;
         }
