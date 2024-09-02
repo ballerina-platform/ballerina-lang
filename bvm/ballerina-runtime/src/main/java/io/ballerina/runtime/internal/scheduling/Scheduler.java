@@ -320,26 +320,22 @@ public class Scheduler {
 
     private Object[] getArgsWithDefaultValues(ObjectType objectType, MethodType methodType, Strand strand,
                                               Object... args) {
-        Module module = objectType.getPackage();
-        Parameter[] parameters = methodType.getType().getParameters();
-        if ((args.length == 0 || module == null) && parameters.length == 0) {
-            return new Object[]{};
-        }
-        return getArgsWithDefaultValues(strand, args, methodType, module);
+        return getArgsWithDefaultValues(strand, args, methodType, objectType.getPackage());
     }
 
     private Object[] getArgsWithDefaultValues(FunctionType functionType, Strand strand, Object... args) {
-        Module module = functionType.getPackage();
-        Parameter[] parameters = functionType.getParameters();
-        if ((args.length == 0 || module == null) && parameters.length == 0) {
-            return new Object[]{};
-        }
-        return getArgsWithDefaultValues(strand, args, functionType, module);
+        return getArgsWithDefaultValues(strand, args, functionType, functionType.getPackage());
     }
 
     private Object[] getArgsWithDefaultValues(Strand strand, Object[] args, FunctionType functionType,
                                               Module module) {
         Parameter[] parameters = functionType.getParameters();
+        if (args.length == 0 && parameters.length == 0) {
+            return new Object[]{};
+        }
+        if (module == null) {
+            return args;
+        }
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module, false));
         int length = functionType.getRestType() == null ? parameters.length : parameters.length + 1;
         Object[] argsWithDefaultValues = new Object[length];
