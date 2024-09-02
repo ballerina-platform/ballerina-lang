@@ -265,11 +265,12 @@ public final class TypeChecker {
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
         Context cx = context();
-        SemType sourceSemType = SemType.tryInto(getType(sourceVal));
-        SemType semTargetType = SemType.tryInto(targetType);
-        if (Core.isSubType(cx, sourceSemType, semTargetType)) {
+        Type sourceType = getType(sourceVal);
+        if (isSubType(sourceType, targetType)) {
             return true;
         }
+        SemType sourceSemType = SemType.tryInto(sourceType);
+        SemType semTargetType = SemType.tryInto(targetType);
         return couldShapeBeDifferent(sourceSemType) && isSubTypeWithShape(cx, sourceVal, semTargetType);
     }
 
@@ -617,7 +618,15 @@ public final class TypeChecker {
     }
 
     private static boolean isSubType(Type source, Type target) {
-        return Core.isSubType(context(), SemType.tryInto(source), SemType.tryInto(target));
+        // This is really a workaround for Standard libraries that create record types that are not the "same". But
+        // with the same name and expect them to be same.
+        if (source.equals(target)) {
+            return true;
+        }
+        Context cx = context();
+        SemType sourceSemType = SemType.tryInto(source);
+        SemType targetSemType = SemType.tryInto(target);
+        return Core.isSubType(cx, sourceSemType, targetSemType);
     }
 
     private static SemType widenedType(Context cx, Object value) {
