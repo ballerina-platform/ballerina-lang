@@ -26,10 +26,9 @@ import java.util.Optional;
 
 public interface TypeWithShape {
 
+    Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object);
+
     Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object);
 
-    // Calculate the shape assuming object is readonly. This is the shape of value spec calls looks like shape
-    Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object);
-
-    boolean couldShapeBeDifferent();
+    boolean couldInherentTypeBeDifferent();
 }

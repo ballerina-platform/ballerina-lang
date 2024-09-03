@@ -23,9 +23,9 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
-import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -251,6 +251,6 @@ public abstract class AbstractObjectValue implements ObjectValue {
     @Override
     public Optional<SemType> shapeOf(Context cx) {
         TypeWithShape typeWithShape = (TypeWithShape) getType();
-        return typeWithShape.shapeOf(cx, Builder::shapeOf, this);
+        return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
     }
 }

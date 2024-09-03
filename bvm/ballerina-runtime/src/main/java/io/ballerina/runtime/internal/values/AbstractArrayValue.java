@@ -20,10 +20,10 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
@@ -331,6 +331,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
     @Override
     public Optional<SemType> shapeOf(Context cx) {
         TypeWithShape typeWithShape = (TypeWithShape) getType();
-        return typeWithShape.shapeOf(cx, Builder::shapeOf, this);
+        return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
     }
 }

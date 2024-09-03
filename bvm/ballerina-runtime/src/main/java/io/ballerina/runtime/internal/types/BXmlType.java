@@ -189,7 +189,7 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         XmlValue xmlValue = (XmlValue) object;
         if (!isReadOnly(xmlValue)) {
             return Optional.of(getSemType());
@@ -198,12 +198,12 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
     }
 
     @Override
-    public boolean couldShapeBeDifferent() {
+    public boolean couldInherentTypeBeDifferent() {
         return true;
     }
 
     @Override
-    public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
         return readonlyShapeOf(object).map(semType -> Core.intersect(semType, Builder.readonlyType()));
     }
 

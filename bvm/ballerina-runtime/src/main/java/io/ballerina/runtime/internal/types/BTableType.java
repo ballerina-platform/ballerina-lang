@@ -193,7 +193,7 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         if (!isReadOnly()) {
             return Optional.of(getSemType());
         }
@@ -207,12 +207,12 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     }
 
     @Override
-    public boolean couldShapeBeDifferent() {
+    public boolean couldInherentTypeBeDifferent() {
         return isReadOnly();
     }
 
     @Override
-    public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
         return Optional.of(valueShape(cx, shapeSupplierFn, (BTable<?, ?>) object));
     }
 
