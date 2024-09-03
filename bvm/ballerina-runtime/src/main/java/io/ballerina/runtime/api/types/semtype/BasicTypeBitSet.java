@@ -1,6 +1,6 @@
 package io.ballerina.runtime.api.types.semtype;
 
-public abstract sealed class BasicTypeBitSet permits SemType {
+abstract sealed class BasicTypeBitSet permits SemType {
 
     private int all;
 

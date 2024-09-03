@@ -312,12 +312,10 @@ public final class Core {
         return data == AllOrNothing.NOTHING;
     }
 
-    // Describes the subtype of int included in the type: true/false mean all or none of string
     public static SubTypeData intSubtype(SemType t) {
         return subTypeData(t, BT_INT);
     }
 
-    // Describes the subtype of string included in the type: true/false mean all or none of string
     public static SubTypeData stringSubtype(SemType t) {
         return subTypeData(t, BT_STRING);
     }
@@ -343,24 +341,8 @@ public final class Core {
         return isSubType(cx, t1, t2) && isSubType(cx, t2, t1);
     }
 
-    public static SemType widenToBasicTypes(SemType t) {
-        int all = t.all() | t.some();
-        if (cardinality(all) > 1) {
-            throw new IllegalStateException("Cannot widen to basic type for a type with multiple basic types");
-        }
-        return Builder.basicTypeUnion(all);
-    }
-
     private static int cardinality(int bitset) {
         return Integer.bitCount(bitset);
-    }
-
-    public static SemType widenToBasicTypeUnion(SemType t) {
-        if (t.some() == 0) {
-            return t;
-        }
-        int all = t.all() | t.some();
-        return SemType.from(all);
     }
 
     public static SemType cellContainingInnerVal(Env env, SemType t) {
@@ -425,14 +407,6 @@ public final class Core {
             default -> throw new IllegalArgumentException("Unexpected type code: " + typeCode);
         };
         return SemType.from(0, 1 << typeCode.code(), new SubType[]{subType});
-    }
-
-    private static SemType unionOf(SemType... semTypes) {
-        SemType result = Builder.neverType();
-        for (SemType semType : semTypes) {
-            result = union(result, semType);
-        }
-        return result;
     }
 
     public static SemType mappingMemberTypeInnerVal(Context cx, SemType t, SemType k) {
