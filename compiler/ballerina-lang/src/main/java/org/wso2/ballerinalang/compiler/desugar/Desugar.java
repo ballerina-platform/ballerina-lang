@@ -841,18 +841,18 @@ public class Desugar extends BLangNodeVisitor {
         result = pkgNode;
     }
 
-    private void desugarConstants(BLangConstant constant, BLangBlockFunctionBody initFnBody,
-                                  SymbolEnv initFunctionEnv) {
+    private void desugarConstants(BLangConstant constant, List<BLangVariable> desugaredGlobalVarList,
+                                  BLangBlockFunctionBody initFnBody, SymbolEnv initFunctionEnv) {
         BType constType = Types.getReferredType(constant.symbol.type);
         if (constType.tag != TypeTags.INTERSECTION) {
             return;
         }
+        rewrite(constant, initFunctionEnv);
+        addTypeDescStmtsToInitFunction(initFunctionEnv, desugaredGlobalVarList, initFnBody);
         BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
-        BLangExpression expression = rewrite(constant.expr, initFunctionEnv);
-        BLangAssignment constInit = ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef, expression);
+        BLangAssignment constInit = ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef, constant.expr);
         initFnBody.stmts.add(constInit);
         constant.expr = null;
-        rewrite(constant, initFunctionEnv);
     }
 
     private void createTypedescVariableDef(BLangType typeNode) {
@@ -972,6 +972,7 @@ public class Desugar extends BLangNodeVisitor {
         return new ArrayList<>(Arrays.asList(orgLiteral, moduleNameLiteral, versionLiteral, configNameLiteral,
                 typedescExpr));
     }
+
     private void desugarTopLevelNodes(BLangPackage pkgNode) {
         List<BLangVariable> desugaredGlobalVarList = new ArrayList<>();
         typedescList = new ArrayList<>();
@@ -981,41 +982,42 @@ public class Desugar extends BLangNodeVisitor {
         for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
             TopLevelNode topLevelNode = pkgNode.topLevelNodes.get(i);
             switch (topLevelNode.getKind()) {
-                case TUPLE_VARIABLE:
-                case RECORD_VARIABLE:
-                case ERROR_VARIABLE:
-                    desugarVariable((BLangVariable) topLevelNode, initFunctionEnv, initFnBody, desugaredGlobalVarList);
-                    break;
-                case VARIABLE:
-                    desugarGlobalVariables(initFunctionEnv, desugaredGlobalVarList, (BLangVariable) topLevelNode,
-                                           initFnBody);
-                    break;
-                case CONSTANT:
-                    desugarConstants((BLangConstant) topLevelNode, initFnBody, initFunctionEnv);
-                    break;
-                case TYPE_DEFINITION:
+                case TUPLE_VARIABLE, RECORD_VARIABLE, ERROR_VARIABLE ->
+                        desugarVariable((BLangVariable) topLevelNode, initFunctionEnv, initFnBody,
+                                desugaredGlobalVarList);
+                case VARIABLE ->
+                        desugarGlobalVariables(initFunctionEnv, desugaredGlobalVarList, (BLangVariable) topLevelNode,
+                                initFnBody);
+                case CONSTANT ->
+                        desugarConstants((BLangConstant) topLevelNode, desugaredGlobalVarList, initFnBody,
+                                initFunctionEnv);
+                case TYPE_DEFINITION -> {
                     rewrite((BLangTypeDefinition) topLevelNode, env);
-                    break;
-            }
-            if (!typedescList.isEmpty()) {
-                for (BLangSimpleVariableDef variableDef : typedescList) {
-                    desugarGlobalVariables(initFunctionEnv, desugaredGlobalVarList, variableDef.var, initFnBody);
+                    addTypeDescStmtsToInitFunction(initFunctionEnv, desugaredGlobalVarList, initFnBody);
                 }
-                typedescList.clear();
             }
         }
         pkgNode.globalVars = desugaredGlobalVarList;
+    }
+
+    private void addTypeDescStmtsToInitFunction(SymbolEnv initFunctionEnv, List<BLangVariable> desugaredGlobalVarList,
+                                                BLangBlockFunctionBody initFnBody) {
+        for (BLangSimpleVariableDef variableDef : typedescList) {
+            rewrite(variableDef, initFunctionEnv);
+            addToInitFunction(variableDef.var, initFnBody);
+            desugaredGlobalVarList.add(variableDef.var);
+        }
+        typedescList.clear();
     }
 
     private void desugarVariable(BLangVariable variable, SymbolEnv initFunctionEnv,
                                  BLangBlockFunctionBody initFnBody, List<BLangVariable> desugaredGlobalVarList) {
         BLangNode blockStatementNode = rewrite(variable, initFunctionEnv);
         List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
-
+        addTypeDescStmtsToInitFunction(initFunctionEnv, desugaredGlobalVarList, initFnBody);
         for (BLangStatement statement : statements) {
             addToGlobalVariableList(statement, initFnBody, variable, desugaredGlobalVarList);
         }
-        rewrite(variable, initFunctionEnv);
     }
 
     private void desugarGlobalVariables(SymbolEnv initFunctionEnv, List<BLangVariable> desugaredGlobalVarList,
@@ -1032,11 +1034,11 @@ public class Desugar extends BLangNodeVisitor {
         if (Symbols.isFlagOn(globalVarFlags, Flags.LISTENER) && containsErrorType(globalVar.expr.getBType())) {
             handleListenerWithErrorType(globalVar);
         }
-
+        rewrite(simpleGlobalVar, initFunctionEnv);
+        addTypeDescStmtsToInitFunction(initFunctionEnv, desugaredGlobalVarList, initFnBody);
         // Add variable to the initialization function
         addToInitFunction(simpleGlobalVar, initFnBody);
         desugaredGlobalVarList.add(simpleGlobalVar);
-        rewrite(simpleGlobalVar, initFunctionEnv);
     }
 
     private void handleConfigurableGlobalVariable(BLangSimpleVariable simpleGlobalVar, SymbolEnv initFunctionEnv) {
