@@ -231,7 +231,7 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
             return Builder.neverType();
         }
         SemType result = constituentTypes.stream().map(SemType::tryInto).reduce(Core::intersect).orElseThrow();
-        // FIXME:
+        // TODO:refactor this
         if (Core.isSubtypeSimple(result, Builder.errorType())) {
             BErrorType effectiveErrorType = (BErrorType) getImpliedType(effectiveType);
             DistinctIdSupplier distinctIdSupplier =

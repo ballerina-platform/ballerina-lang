@@ -337,7 +337,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
                 }
                 boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
                 boolean isReadonly = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
-                // FIXME:
+                // TODO: refactor this
                 SemType fieldType = SemType.tryInto(field.getFieldType());
                 if (isReadonly && isOptional && value.get(StringUtils.fromString(name)) == null) {
                     fieldType = Builder.undef();
