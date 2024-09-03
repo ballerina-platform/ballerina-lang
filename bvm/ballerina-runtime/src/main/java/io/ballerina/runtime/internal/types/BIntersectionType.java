@@ -247,25 +247,25 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
     }
 
     @Override
-    public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
         Type effectiveType = getEffectiveType();
         if (effectiveType instanceof TypeWithShape typeWithShape) {
-            return typeWithShape.readonlyShapeOf(cx, shapeSupplierFn, object);
+            return typeWithShape.shapeOf(cx, shapeSupplierFn, object);
         }
         return Optional.empty();
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         Type effectiveType = getEffectiveType();
         if (effectiveType instanceof TypeWithShape typeWithShape) {
-            return typeWithShape.shapeOf(cx, shapeSupplier, object);
+            return typeWithShape.inherentTypeOf(cx, shapeSupplier, object);
         }
         return Optional.empty();
     }
 
     @Override
-    public boolean couldShapeBeDifferent() {
+    public boolean couldInherentTypeBeDifferent() {
         return true;
     }
 

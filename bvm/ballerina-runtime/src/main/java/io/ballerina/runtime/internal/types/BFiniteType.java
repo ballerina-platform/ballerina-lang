@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.RefValue;
 
@@ -223,7 +224,7 @@ public class BFiniteType extends BType implements FiniteType {
         Set<Object> bTypeValueSpace = new HashSet<>();
         SemType result = Builder.neverType();
         for (Object each : this.valueSpace) {
-            Optional<SemType> semType = Builder.shapeOf(TypeChecker.context(), each);
+            Optional<SemType> semType = ShapeAnalyzer.inherentTypeOf(TypeChecker.context(), each);
             if (semType.isPresent()) {
                 result = Core.union(result, semType.get());
             } else {

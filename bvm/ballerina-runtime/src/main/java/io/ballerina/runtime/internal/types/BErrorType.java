@@ -144,7 +144,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         BError errorValue = (BError) object;
         Object details = errorValue.getDetails();
         if (!(details instanceof BMap<?, ?> errorDetails)) {
@@ -161,7 +161,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
     }
 
     @Override
-    public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
         BError errorValue = (BError) object;
         Object details = errorValue.getDetails();
         if (!(details instanceof BMap<?, ?> errorDetails)) {
@@ -171,7 +171,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
     }
 
     @Override
-    public boolean couldShapeBeDifferent() {
+    public boolean couldInherentTypeBeDifferent() {
         // TODO: consider properly handling this
         return true;
     }

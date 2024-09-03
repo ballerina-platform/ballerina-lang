@@ -18,10 +18,6 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
-import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BValue;
-import io.ballerina.runtime.internal.types.TypeWithShape;
 import io.ballerina.runtime.internal.types.semtype.BBooleanSubType;
 import io.ballerina.runtime.internal.types.semtype.BCellSubType;
 import io.ballerina.runtime.internal.types.semtype.BDecimalSubType;
@@ -35,7 +31,6 @@ import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.types.semtype.TableUtils;
 import io.ballerina.runtime.internal.types.semtype.XmlUtils;
-import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -265,51 +260,6 @@ public final class Builder {
 
     static SubType[] initializeSubtypeArray(int some) {
         return new SubType[Integer.bitCount(some)];
-    }
-
-    public static Optional<SemType> readonlyShapeOf(Context cx, Object object) {
-        if (object == null) {
-            return Optional.of(nilType());
-        } else if (object instanceof DecimalValue decimalValue) {
-            return Optional.of(decimalConst(decimalValue.value()));
-        } else if (object instanceof Double doubleValue) {
-            return Optional.of(floatConst(doubleValue));
-        } else if (object instanceof Number intValue) {
-            long value =
-                    intValue instanceof Byte byteValue ? Byte.toUnsignedLong(byteValue) : intValue.longValue();
-            return Optional.of(intConst(value));
-        } else if (object instanceof Boolean booleanValue) {
-            return Optional.of(booleanConst(booleanValue));
-        } else if (object instanceof BString stringValue) {
-            return Optional.of(stringConst(stringValue.getValue()));
-        } else if (object instanceof BValue bValue) {
-            Type type = bValue.getType();
-            if (type instanceof TypeWithShape typeWithShape) {
-                return typeWithShape.readonlyShapeOf(cx, Builder::readonlyShapeOf, object);
-            } else {
-                return Optional.empty();
-            }
-        }
-        return Optional.empty();
-    }
-
-    // TODO: factor this to a separate class
-    public static Optional<SemType> shapeOf(Context cx, Object object) {
-        if (object instanceof BValue bValue) {
-            return bValue.shapeOf(cx);
-        }
-        if (object == null) {
-            return Optional.of(nilType());
-        } else if (object instanceof Double doubleValue) {
-            return Optional.of(floatConst(doubleValue));
-        } else if (object instanceof Number intValue) {
-            long value =
-                    intValue instanceof Byte byteValue ? Byte.toUnsignedLong(byteValue) : intValue.longValue();
-            return Optional.of(intConst(value));
-        } else if (object instanceof Boolean booleanValue) {
-            return Optional.of(booleanConst(booleanValue));
-        }
-        return Optional.empty();
     }
 
     public static SemType roCellContaining(Env env, SemType ty) {
