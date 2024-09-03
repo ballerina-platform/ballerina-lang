@@ -1,0 +1,50 @@
+{
+  "position": {
+    "line": 18,
+    "character": 25
+  },
+  "source": "clone_value11.bal",
+  "description": "Clone a map value",
+  "expected": [
+    {
+      "title": "Clone the value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 18,
+              "character": 25
+            },
+            "end": {
+              "line": 18,
+              "character": 25
+            }
+          },
+          "newText": ".clone()"
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Clone as a readonly value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 18,
+              "character": 25
+            },
+            "end": {
+              "line": 18,
+              "character": 25
+            }
+          },
+          "newText": ".cloneReadOnly()"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

@@ -30,8 +30,8 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
     private Path testResources;
     private Path testDistCacheDirectory;
     ProjectEnvironmentBuilder projectEnvironmentBuilder;
-    private static final Path LOG_FILE = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-            "log_creator_combined_plugin/compiler-plugin.txt");
+    private static final Path LOG_FILE = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
+            .toAbsolutePath();
 
     @BeforeClass
     public void setup() throws IOException {

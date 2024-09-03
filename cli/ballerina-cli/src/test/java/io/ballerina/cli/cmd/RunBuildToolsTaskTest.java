@@ -58,9 +58,9 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
 
     private static final long TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
     private static final long HALF_DAY = 12 * 60 * 60 * 1000;
-    
-    private static final Path LOG_FILE = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-            "log_creator_combined_plugin/compiler-plugin.txt");
+
+    private static final Path LOG_FILE = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
+            .toAbsolutePath();
 
     @BeforeClass
     public void setup() throws IOException {

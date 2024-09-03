@@ -1,0 +1,1 @@
+const CONST = 10;
