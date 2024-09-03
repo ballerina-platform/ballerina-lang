@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.CellAtomicType;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
@@ -334,13 +333,11 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
             if (Core.isNever(memberType)) {
                 return neverType();
             }
-            assert !Core.containsBasicType(memberType, Builder.bType()) : "Tuple member cannot be a BType";
             memberTypes[i] = memberType;
         }
         CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
         SemType rest = restType != null ? tryInto(restType) : neverType();
-        assert !Core.containsBasicType(rest, Builder.bType()) : "Tuple rest type cannot be a BType";
         return ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, rest, mut);
     }
 

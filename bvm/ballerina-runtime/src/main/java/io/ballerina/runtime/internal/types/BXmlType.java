@@ -167,7 +167,6 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
             } else {
                 contraintSemtype = tryInto(constraint);
             }
-            assert !Core.containsBasicType(contraintSemtype, Core.B_TYPE_TOP) : "XML is a pure semtype";
             semType = XmlUtils.xmlSequence(contraintSemtype);
         }
         return isReadOnly() ? Core.intersect(Builder.readonlyType(), semType) : semType;

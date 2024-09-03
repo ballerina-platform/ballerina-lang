@@ -130,9 +130,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
         if (detailType == null || isTopType()) {
             err = Builder.errorType();
         } else {
-            SemType detailType = tryInto(getDetailType());
-            assert Core.isNever(Core.intersect(detailType, Core.B_TYPE_TOP));
-            err = ErrorUtils.errorDetail(detailType);
+            err = ErrorUtils.errorDetail(tryInto(getDetailType()));
         }
 
         if (distinctIdSupplier == null) {

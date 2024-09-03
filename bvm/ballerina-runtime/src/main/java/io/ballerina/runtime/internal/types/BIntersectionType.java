@@ -230,14 +230,8 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
         if (constituentTypes.isEmpty()) {
             return Builder.neverType();
         }
-        SemType result = tryInto(constituentTypes.get(0));
-        assert !Core.containsBasicType(result, Builder.bType()) : "Intersection constituent cannot be a BType";
-        result = Core.intersect(result, Core.SEMTYPE_TOP);
-        for (int i = 1; i < constituentTypes.size(); i++) {
-            SemType memberType = tryInto(constituentTypes.get(i));
-            assert !Core.containsBasicType(memberType, Builder.bType()) : "Intersection constituent cannot be a BType";
-            result = Core.intersect(result, memberType);
-        }
+        SemType result = constituentTypes.stream().map(SemType::tryInto).reduce(Core::intersect).orElseThrow();
+        // FIXME:
         if (Core.isSubtypeSimple(result, Builder.errorType())) {
             BErrorType effectiveErrorType = (BErrorType) getImpliedType(effectiveType);
             DistinctIdSupplier distinctIdSupplier =
