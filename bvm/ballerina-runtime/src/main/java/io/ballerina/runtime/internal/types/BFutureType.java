@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.FutureUtils;
@@ -107,10 +106,7 @@ public class BFutureType extends BType implements FutureType, TypeWithShape {
         if (constraint == null) {
             return Builder.futureType();
         }
-        SemType constraintSemType = tryInto(constraint);
-        Context cx = TypeChecker.context();
-        assert !Core.containsBasicType(constraintSemType, Builder.bType()) : "constraint shouldn't have BTypes";
-        return FutureUtils.futureContaining(cx.env, constraintSemType);
+        return FutureUtils.futureContaining(TypeChecker.context().env, tryInto(constraint));
     }
 
     @Override

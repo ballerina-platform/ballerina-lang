@@ -33,7 +33,7 @@ final class SubtypePairIterator implements Iterator<SubtypePair> {
 
     // NOTE: this needs to be very efficient since pretty much all type operations depends on it
     private int index = 0;
-    private static final int maxIndex = BasicTypeCode.CODE_B_TYPE + 1;
+    private static final int maxIndex = BasicTypeCode.CODE_UNDEF + 1;
     private final int some;
     private final SemType t1;
     private final SemType t2;

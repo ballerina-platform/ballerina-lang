@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -154,10 +153,6 @@ public class BStreamType extends BType implements StreamType {
         }
         StreamDefinition sd = new StreamDefinition();
         definition = sd;
-        SemType valueTy = tryInto(constraint);
-        assert !Core.containsBasicType(valueTy, Builder.bType()) : "Value type shouldn't have BTypes";
-        SemType completionTy = tryInto(completionType);
-        assert !Core.containsBasicType(completionTy, Builder.bType()) : "Completion type shouldn't have BTypes";
-        return sd.define(env, valueTy, completionTy);
+        return sd.define(env, tryInto(constraint), tryInto(completionType));
     }
 }

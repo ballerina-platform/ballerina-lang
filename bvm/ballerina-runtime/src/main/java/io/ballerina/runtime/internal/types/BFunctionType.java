@@ -27,7 +27,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.CellAtomicType;
-import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
@@ -271,11 +270,8 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
                 SymbolFlags.isFlagOn(flags, SymbolFlags.TRANSACTIONAL));
     }
 
-    // TODO: consider moving this to builder
     private SemType getSemType(Type type) {
-        SemType semType = tryInto(type);
-        assert !Core.containsBasicType(semType, Builder.bType()) : "function type part with BType";
-        return semType;
+        return tryInto(type);
     }
 
     private boolean isFunctionTop() {

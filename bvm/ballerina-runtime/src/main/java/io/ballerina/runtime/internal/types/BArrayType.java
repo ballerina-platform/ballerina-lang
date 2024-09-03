@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.CellAtomicType;
 import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -230,9 +229,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         }
         ListDefinition ld = new ListDefinition();
         defn = ld;
-        SemType elementType = tryInto(getElementType());
-        assert !Core.containsBasicType(elementType, Core.B_TYPE_TOP) : "Array element can't have BTypes";
-        return getSemTypePart(ld, isReadOnly(), size, elementType);
+        return getSemTypePart(ld, isReadOnly(), size, tryInto(getElementType()));
     }
 
     private SemType getSemTypePart(ListDefinition defn, boolean isReadOnly, int size, SemType elementType) {
