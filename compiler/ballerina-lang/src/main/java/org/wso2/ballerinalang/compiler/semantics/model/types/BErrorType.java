@@ -115,6 +115,10 @@ public class BErrorType extends BType implements ErrorType {
         }
     }
 
+    public static void resetAllocatedIds() {
+        DistinctIdSupplier.allocatedIds.clear();
+    }
+
     private final class DistinctIdSupplier implements Supplier<List<Integer>> {
 
         private List<Integer> ids = null;

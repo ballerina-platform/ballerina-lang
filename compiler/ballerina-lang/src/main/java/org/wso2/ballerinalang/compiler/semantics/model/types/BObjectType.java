@@ -248,6 +248,10 @@ public class BObjectType extends BStructureType implements ObjectType {
         return false;
     }
 
+    public static void resetAllocatedIds() {
+        DistinctIdSupplier.allocatedIds.clear();
+    }
+
     private final class DistinctIdSupplier implements Supplier<List<Integer>> {
 
         private List<Integer> ids = null;
