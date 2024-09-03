@@ -67,6 +67,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIG_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DAEMON_STRAND_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
@@ -97,6 +98,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WAIT_ON_LISTENERS_METHOD_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_BALLERINA_INFO;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_SHUTDOWN_HOOK;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CURRENT_MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_CONFIG_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAIN_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
@@ -196,7 +198,7 @@ public class MainMethodGen {
         }
 
         if (isTestable) {
-            generateModuleStopCall(initClass, mv);
+            generateModuleStopCall(initClass, mv, runtimeVarIndex);
         }
         mv.visitLabel(tryCatchEnd);
         mv.visitInsn(RETURN);
@@ -233,8 +235,9 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC , LAUNCH_UTILS, "stopListeners", "(Z)V", false);
     }
 
-    private void generateModuleStopCall(String initClass, MethodVisitor mv) {
-        mv.visitMethodInsn(INVOKESTATIC, initClass, JvmConstants.CURRENT_MODULE_STOP_METHOD, VOID_METHOD_DESC, false);
+    private void generateModuleStopCall(String initClass, MethodVisitor mv, int runtimeVarIndex) {
+        mv.visitVarInsn(ALOAD, runtimeVarIndex);
+        mv.visitMethodInsn(INVOKESTATIC, initClass, CURRENT_MODULE_STOP_METHOD, CURRENT_MODULE_STOP, false);
     }
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {

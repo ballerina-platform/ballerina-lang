@@ -181,8 +181,8 @@ public class BalRuntime extends Runtime {
     private void invokeModuleStop() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
         Class<?> configClass = loadClass(MODULE_INIT_CLASS_NAME);
-        Method method = configClass.getDeclaredMethod("$currentModuleStop", RuntimeRegistry.class);
-        method.invoke(null, this.runtimeRegistry);
+        Method method = configClass.getDeclaredMethod("$currentModuleStop", BalRuntime.class);
+        method.invoke(null, this);
     }
 
     private Class<?> loadClass(String className) throws ClassNotFoundException {
