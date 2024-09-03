@@ -53,7 +53,7 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_OBJECT;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_REGEXP;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_TYPEDESC;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_XML;
-import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
@@ -158,10 +158,6 @@ public final class Builder {
 
     public static SemType intType() {
         return from(BasicTypeCode.BT_INT);
-    }
-
-    public static SemType bType() {
-        return from(BasicTypeCode.BT_B_TYPE);
     }
 
     public static SemType decimalType() {
@@ -501,19 +497,19 @@ public final class Builder {
 
         private static final SemType[] cache;
         static {
-            cache = new SemType[CODE_B_TYPE + 2];
-            for (int i = 0; i < CODE_B_TYPE + 1; i++) {
+            cache = new SemType[CODE_UNDEF + 2];
+            for (int i = 0; i < CODE_UNDEF + 1; i++) {
                 cache[i] = SemType.from(1 << i);
             }
         }
 
         private static boolean isCached(BasicTypeCode code) {
             int i = code.code();
-            return 0 < i && i <= CODE_B_TYPE;
+            return 0 < i && i <= CODE_UNDEF;
         }
 
         private static boolean isCached(int code) {
-            return 0 < code && code <= CODE_B_TYPE;
+            return 0 < code && code <= CODE_UNDEF;
         }
     }
 }

@@ -45,7 +45,6 @@ public final class BasicTypeCode {
     public static final int CODE_OBJECT = 0x11;
     public static final int CODE_CELL = 0x12;
     public static final int CODE_UNDEF = 0x13;
-    public static final int CODE_B_TYPE = 0x14;
 
     // TODO: see if we can turn this class to an enum with a value
     // Inherently immutable
@@ -75,7 +74,6 @@ public final class BasicTypeCode {
     // Non-val
     public static final BasicTypeCode BT_CELL = from(CODE_CELL);
     public static final BasicTypeCode BT_UNDEF = from(CODE_UNDEF);
-    public static final BasicTypeCode BT_B_TYPE = from(CODE_B_TYPE);
 
     // Helper bit fields (does not represent basic type tag)
     static final int VT_COUNT = CODE_OBJECT + 1;
@@ -122,8 +120,8 @@ public final class BasicTypeCode {
 
         private static final BasicTypeCode[] cache;
         static {
-            cache = new BasicTypeCode[CODE_B_TYPE + 2];
-            for (int i = CODE_NIL; i < CODE_B_TYPE + 1; i++) {
+            cache = new BasicTypeCode[CODE_UNDEF + 2];
+            for (int i = CODE_NIL; i < CODE_UNDEF + 1; i++) {
                 cache[i] = new BasicTypeCode(i);
             }
         }

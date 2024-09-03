@@ -27,7 +27,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.CellAtomicType;
 import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -191,9 +190,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         }
         MappingDefinition md = new MappingDefinition();
         defn = md;
-        SemType restType = tryInto(getConstrainedType());
-        assert !Core.containsBasicType(restType, Builder.bType()) : "Map shouldn't have BTypes";
-        return getSemTypePart(md, restType);
+        return getSemTypePart(md, tryInto(getConstrainedType()));
     }
 
     @Override

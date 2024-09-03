@@ -21,7 +21,6 @@ package io.ballerina.runtime.internal.types.semtype;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_BOOLEAN;
-import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_CELL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_DECIMAL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_ERROR;
@@ -56,7 +55,7 @@ final class SemTypeHelper {
         return "all[" + bitSetRepr(ty.all()) + "] some [" + bitSetRepr(ty.some()) + "]";
     }
 
-    private static String bitSetRepr(int bits) {
+    public static String bitSetRepr(int bits) {
         StringBuilder sb = new StringBuilder();
         appendBitSetRepr(sb, bits, CODE_NIL, "NIL");
         appendBitSetRepr(sb, bits, CODE_BOOLEAN, "BOOLEAN");
@@ -78,7 +77,6 @@ final class SemTypeHelper {
         appendBitSetRepr(sb, bits, CODE_OBJECT, "OBJECT");
         appendBitSetRepr(sb, bits, CODE_CELL, "CELL");
         appendBitSetRepr(sb, bits, CODE_UNDEF, "UNDEF");
-        appendBitSetRepr(sb, bits, CODE_B_TYPE, "B_TYPE");
         return sb.toString();
     }
 

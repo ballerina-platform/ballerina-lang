@@ -552,12 +552,6 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
 
     @Override
     public SemType createSemType() {
-        SemType result = Builder.neverType();
-        for (Type each : memberTypes) {
-            SemType eachSemType = tryInto(each);
-            assert !Core.containsBasicType(eachSemType, Builder.bType()) : "Union constituent cannot be a BType";
-            result = Core.union(result, eachSemType);
-        }
-        return result;
+        return memberTypes.stream().map(SemType::tryInto).reduce(Builder.neverType(), Core::union);
     }
 }

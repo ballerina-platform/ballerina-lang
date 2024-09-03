@@ -307,9 +307,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             Field field = entry.getValue();
             boolean isPublic = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.PUBLIC);
             boolean isImmutable = qualifiers.readonly() | SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
-            SemType ty = tryInto(field.getFieldType());
-            assert !Core.containsBasicType(ty, Builder.bType()) : "object member can't have BTypes";
-            members.add(new Member(name, ty, Member.Kind.Field,
+            members.add(new Member(name, tryInto(field.getFieldType()), Member.Kind.Field,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, isImmutable));
         }
         for (MethodData method : allMethods()) {
@@ -318,9 +316,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
                 continue;
             }
             boolean isPublic = SymbolFlags.isFlagOn(method.flags(), SymbolFlags.PUBLIC);
-            SemType semType = method.semType();
-            assert !Core.containsBasicType(semType, Builder.bType()) : "object method can't have BTypes";
-            members.add(new Member(name, semType, Member.Kind.Method,
+            members.add(new Member(name, method.semType(), Member.Kind.Method,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, true));
         }
         return od.define(env, qualifiers, members);
@@ -385,9 +381,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             boolean isPublic = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.PUBLIC);
             boolean isImmutable = qualifiers.readonly() | SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY) |
                     SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.FINAL);
-            SemType ty = fieldShape(cx, shapeSupplier, field, object, isImmutable);
-            assert !Core.containsBasicType(ty, Builder.bType()) : "field can't have BType";
-            members.add(new Member(name, ty, Member.Kind.Field,
+            members.add(new Member(name, fieldShape(cx, shapeSupplier, field, object, isImmutable), Member.Kind.Field,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, isImmutable));
         }
         for (MethodData method : allMethods()) {
@@ -396,9 +390,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
                 continue;
             }
             boolean isPublic = SymbolFlags.isFlagOn(method.flags(), SymbolFlags.PUBLIC);
-            SemType semType = method.semType();
-            assert !Core.containsBasicType(semType, Builder.bType()) : "method can't have BType";
-            members.add(new Member(name, semType, Member.Kind.Method,
+            members.add(new Member(name, method.semType(), Member.Kind.Method,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, true));
         }
         return od.define(env, qualifiers, members);
@@ -458,22 +450,16 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
                 if (part == null) {
                     paramTypes.add(Builder.anyType());
                 } else {
-                    SemType semType = tryInto(part);
-                    assert !Core.containsBasicType(semType, Builder.bType()) :
-                            "resource method path segment can't have BType";
-                    paramTypes.add(semType);
+                    paramTypes.add(tryInto(part));
                 }
             }
             for (Parameter paramType : innerFn.getParameters()) {
-                SemType semType = tryInto(paramType.type);
-                assert !Core.containsBasicType(semType, Builder.bType()) : "resource method params can't have BType";
-                paramTypes.add(semType);
+                paramTypes.add(tryInto(paramType.type));
             }
             SemType rest;
             Type restType = innerFn.getRestType();
             if (restType instanceof BArrayType arrayType) {
                 rest = tryInto(arrayType.getElementType());
-                assert !Core.containsBasicType(rest, Builder.bType()) : "resource method rest can't have BType";
             } else {
                 rest = Builder.neverType();
             }
@@ -481,8 +467,6 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             SemType returnType;
             if (innerFn.getReturnType() != null) {
                 returnType = tryInto(innerFn.getReturnType());
-                assert !Core.containsBasicType(returnType, Builder.bType()) :
-                        "resource method retType can't have BType";
             } else {
                 returnType = Builder.nilType();
             }

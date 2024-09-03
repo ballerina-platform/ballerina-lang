@@ -36,7 +36,6 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_B_TYPE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_DECIMAL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_FLOAT;
@@ -48,7 +47,6 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_OBJECT;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_STREAM;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_TABLE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_TYPEDESC;
-import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
 import static io.ballerina.runtime.api.types.semtype.Builder.cellContaining;
 import static io.ballerina.runtime.api.types.semtype.Builder.listType;
@@ -65,9 +63,6 @@ import static io.ballerina.runtime.internal.types.semtype.BMappingProj.mappingMe
  * @since 2201.10.0
  */
 public final class Core {
-
-    public static final SemType SEMTYPE_TOP = SemType.from((1 << (CODE_UNDEF + 1)) - 1);
-    public static final SemType B_TYPE_TOP = SemType.from(1 << BT_B_TYPE.code());
 
     private Core() {
     }
