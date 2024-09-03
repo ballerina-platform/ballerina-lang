@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.TomlDocument;
@@ -230,7 +231,7 @@ public class PushCommandTest extends BaseCommandTest {
                 validBalProject.resolve("target-dir").toFile(), validBalProject.resolve("custom").toFile());
 
         Path customTargetDirBalaPath = validBalProject.resolve("custom").resolve("bala")
-                .resolve("gayaldassanayake-tool_gayal-java17-1.1.0.bala");
+                .resolve("gayaldassanayake-tool_gayal-java21-1.1.0.bala");
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false,
                 customTargetDirBalaPath);
         String[] args = { "--repository=local" };
@@ -253,7 +254,7 @@ public class PushCommandTest extends BaseCommandTest {
         try {
             ProjectFiles.validateBalaProjectPath(mockRepo.resolve("repositories").resolve("local")
                     .resolve("bala").resolve("gayaldassanayake").resolve("tool_gayal")
-                    .resolve("1.1.0").resolve("java17"));
+                    .resolve("1.1.0").resolve(JvmTarget.JAVA_21.code()));
         } catch (ProjectException e) {
             Assert.fail(e.getMessage());
         }

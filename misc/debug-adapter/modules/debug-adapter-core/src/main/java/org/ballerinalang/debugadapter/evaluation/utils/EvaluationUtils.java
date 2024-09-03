@@ -256,8 +256,10 @@ public class EvaluationUtils {
             Method forNameMethod = null;
             List<Method> methods = classType.methodsByName(FOR_NAME_METHOD);
             for (Method method : methods) {
-                if (method.argumentTypeNames().size() == 3) {
+                List<String> argumentTypeNames = method.argumentTypeNames();
+                if (argumentTypeNames.size() == 3 && argumentTypeNames.getFirst().equals(JAVA_STRING_CLASS)) {
                     forNameMethod = method;
+                    break;
                 }
             }
             if (forNameMethod == null) {

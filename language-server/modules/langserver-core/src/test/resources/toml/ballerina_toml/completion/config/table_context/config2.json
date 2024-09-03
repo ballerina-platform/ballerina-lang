@@ -91,28 +91,32 @@
       "kind": "Snippet",
       "detail": "String",
       "sortText": "A",
-      "insertText": "distribution=\"${1:}\""
+      "insertText": "distribution=\"${1:}\"",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "visibility",
       "kind": "Snippet",
       "detail": "String",
       "sortText": "A",
-      "insertText": "visibility=\"${1:}\""
+      "insertText": "visibility=\"${1:}\"",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "icon",
       "kind": "Snippet",
       "detail": "String",
       "sortText": "A",
-      "insertText": "icon=\"${1:}\""
+      "insertText": "icon=\"${1:}\"",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "template",
       "kind": "Snippet",
       "detail": "Boolean",
       "sortText": "A",
-      "insertText": "template=${1:false}"
+      "insertText": "template=${1:false}",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "format",
@@ -120,6 +124,27 @@
       "detail": "Table",
       "sortText": "C",
       "insertText": "[format]"
+    },
+    {
+      "label": "platform.java21.dependency",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java21.dependency]]"
+    },
+    {
+      "label": "platform.java21.repository",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java21.repository]]"
+    },
+    {
+      "label": "platform.java21",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[platform.java21]"
     }
   ]
 }

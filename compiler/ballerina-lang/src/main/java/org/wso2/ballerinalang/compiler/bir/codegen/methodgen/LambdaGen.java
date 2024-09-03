@@ -81,7 +81,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
-import static org.objectweb.asm.Opcodes.V17;
+import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALL_FUNCTION;
@@ -141,7 +141,7 @@ public class LambdaGen {
     }
 
     private void generateConstantsClassInit(ClassWriter cw, String lambdaClassName) {
-        cw.visit(V17, ACC_PUBLIC | ACC_SUPER, lambdaClassName, null, JvmConstants.OBJECT, null);
+        cw.visit(V21, ACC_PUBLIC | ACC_SUPER, lambdaClassName, null, JvmConstants.OBJECT, null);
         MethodVisitor methodVisitor =
                 cw.visitMethod(ACC_PRIVATE, JvmConstants.JVM_INIT_METHOD, VOID_METHOD_DESC, null, null);
         methodVisitor.visitCode();

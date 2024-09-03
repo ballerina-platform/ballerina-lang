@@ -522,7 +522,7 @@ public class PackageResolutionTests extends BaseTest {
                 compilation.getResolution().dependencyGraph();
         Assert.assertEquals(depGraphOfSrcProject.getNodes().size(), 2);
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
@@ -567,7 +567,7 @@ public class PackageResolutionTests extends BaseTest {
                 BuildOptions.builder().setOptimizeDependencyCompilation(optimizeDependencyCompilation).build());
 
         PackageCompilation compilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
         diagnosticResult.errors().forEach(OUT::println);
@@ -859,7 +859,7 @@ public class PackageResolutionTests extends BaseTest {
         // Change `ballerina_version` of `package_c` in the central to a higher dist version --> package_c_two
         Path packageJsonInProjectBalaPath = testBuildDirectory.resolve("user-home").resolve("repositories")
                 .resolve("central.ballerina.io").resolve("bala").resolve("various_dist_test")
-                .resolve("package_c").resolve("0.1.0").resolve("java17").resolve("package.json");
+                .resolve("package_c").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code()).resolve("package.json");
         changeBallerinaVersionInPackageJson(packageJsonInProjectBalaPath, "2301.89.0");
 
         BCompileUtil.compileAndCacheBala(

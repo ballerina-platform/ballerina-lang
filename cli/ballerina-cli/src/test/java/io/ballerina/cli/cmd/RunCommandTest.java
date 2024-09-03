@@ -2,6 +2,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.cli.launcher.RuntimePanicException;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
@@ -286,10 +287,10 @@ public class RunCommandTest extends BaseCommandTest {
                 ".0")));
         Assert.assertTrue(Files.exists(customTargetDir.resolve("cache").resolve("wso2").resolve("foo").resolve("0.1" +
                 ".0")));
-        if (!(Files.exists(customTargetDir.resolve("cache").resolve("wso2").resolve("foo").resolve("0.1" +
-                ".0").resolve("java17").resolve("wso2-foo-0.1.0.jar")) || Files.exists(customTargetDir.resolve(
-                        "cache").resolve("wso2").resolve("foo").resolve("0.1" +
-                ".0").resolve("any").resolve("wso2-foo-0.1.0.jar")))) {
+        if (!(Files.exists(customTargetDir.resolve("cache").resolve("wso2").resolve("foo").resolve("0.1.0")
+                .resolve(JvmTarget.JAVA_21.code()).resolve("wso2-foo-0.1.0.jar"))
+                || Files.exists(customTargetDir.resolve("cache").resolve("wso2").resolve("foo").resolve("0.1.0")
+                .resolve("any").resolve("wso2-foo-0.1.0.jar")))) {
             Assert.fail("Run command with custom target dir failed");
         }
     }
@@ -372,7 +373,7 @@ public class RunCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog, getOutput("run-project-with-dump-graph.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve("java17")
+                .resolve("package_a").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
@@ -396,7 +397,7 @@ public class RunCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog, getOutput("run-project-with-dump-raw-graphs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve("java17")
+                .resolve("package_a").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));

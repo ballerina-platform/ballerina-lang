@@ -484,7 +484,7 @@ public class CompilerPluginTests {
         Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
 
         PackageCompilation packageCompilation = newPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         CompileResult compileResult = new CompileResult(newPackage, jBallerinaBackend);
 
         try {
@@ -506,7 +506,7 @@ public class CompilerPluginTests {
         Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
 
         PackageCompilation packageCompilation = newPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         CompileResult compileResult = new CompileResult(newPackage, jBallerinaBackend);
 
         try {

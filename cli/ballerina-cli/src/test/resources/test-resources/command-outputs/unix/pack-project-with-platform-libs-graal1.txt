@@ -2,4 +2,4 @@ Compiling source
 	sameera/myproject:0.1.0
 
 Creating bala
-	target/bala/sameera-myproject-java17-0.1.0.bala
+	target/bala/sameera-myproject-java21-0.1.0.bala

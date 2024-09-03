@@ -32,7 +32,7 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V17;
+import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
@@ -52,7 +52,7 @@ public class ShutDownListenerGen {
     void generateShutdownSignalListener(String initClass, JarEntries jarEntries) {
         String innerClassName = initClass + "$SignalListener";
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V17, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);
+        cw.visit(V21, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);
         FieldVisitor fv = cw.visitField(ACC_PRIVATE, RUNTIME_REGISTRY_VARIABLE,
                 GET_RUNTIME_REGISTRY, null, null);
         fv.visitEnd();

@@ -93,7 +93,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V17;
+import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
@@ -382,7 +382,7 @@ public class JvmPackageGen {
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
             boolean isTestable = testExecuteFunc != null;
             if (isInitClass) {
-                cw.visit(V17, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
+                cw.visit(V21, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, VALUE_CREATOR);
                 jvmTypeGen.generateUserDefinedTypeFields(cw, module.typeDefs);
                 jvmTypeGen.generateGetAnonTypeMethod(cw, moduleClass);
@@ -412,7 +412,7 @@ public class JvmPackageGen {
                 stopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, asyncDataCollector,
                         immediateImports);
             } else {
-                cw.visit(V17, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
+                cw.visit(V21, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, OBJECT);
             }
             cw.visitSource(javaClass.sourceFileName, null);

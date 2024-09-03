@@ -492,7 +492,7 @@ public class PushCommand implements BLauncherCmd {
             }
 
             try {
-                client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_17.code(),
+                client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_21.code(),
                                    RepoUtils.getBallerinaVersion());
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();

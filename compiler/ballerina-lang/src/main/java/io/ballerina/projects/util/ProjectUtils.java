@@ -1272,7 +1272,7 @@ public class ProjectUtils {
     }
 
     /**
-     * Return the path of a bala with the available platform directory (java17 or any).
+     * Return the path of a bala with the available platform directory (java21 or any).
      *
      * @param balaDirPath path to the bala directory
      * @param org org name of the bala

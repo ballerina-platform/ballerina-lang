@@ -1,4 +1,4 @@
 [[dependency]]
 org = "toml"
 name = "toml4j"
-path = "../TestProject1/target/balo/toml4j-2020r2-java17-0.7.2.balo"
+path = "../TestProject1/target/balo/toml4j-2020r2-java21-0.7.2.balo"

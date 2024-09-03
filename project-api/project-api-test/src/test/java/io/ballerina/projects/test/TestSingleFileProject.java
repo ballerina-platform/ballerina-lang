@@ -248,7 +248,7 @@ public class TestSingleFileProject {
         PackageCompilation compilation = currentPackage.getCompilation();
 
         Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 1);
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
         Assert.assertEquals(jBallerinaBackend.diagnosticResult().diagnosticCount(), 1);
 
         Assert.assertEquals(

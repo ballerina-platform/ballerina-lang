@@ -56,7 +56,7 @@ import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.V17;
+import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
@@ -100,7 +100,7 @@ public class JvmObjectCreatorGen {
                                      List<BIRTypeDefinition> objectTypeDefList,
                                      SymbolTable symbolTable, AsyncDataCollector asyncDataCollector) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, objectsClass, null, OBJECT, null);
+        cw.visit(V21, ACC_PUBLIC + ACC_SUPER, objectsClass, null, OBJECT, null);
         String metadataVarName = JvmCodeGenUtil.setAndGetStrandMetadataVarName(CREATE_OBJECT_VALUE, asyncDataCollector);
         generateCreateObjectMethods(cw, objectTypeDefList, module.packageID, moduleInitClass, objectsClass,
                 symbolTable, metadataVarName);
