@@ -13,6 +13,7 @@ public abstract sealed class BasicTypeBitSet permits SemType {
     }
 
     public final int all() {
+        assert all != -1 : "SemType created by no arg constructor must be initialized with setAll";
         return all;
     }
 }

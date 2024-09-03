@@ -21,7 +21,11 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.ImmutableSemType;
 
 import java.util.Objects;
@@ -39,6 +43,9 @@ import java.util.function.Supplier;
 public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType implements Type
         permits BAnyType, BBooleanType, BByteType, BDecimalType, BFloatType, BHandleType, BIntegerType, BNullType,
         BReadonlyType, BStringType {
+
+    private Type cachedReferredType = null;
+    private Type cachedImpliedType = null;
 
     private final Supplier<E> bTypeSupplier;
     private final int tag;
@@ -87,7 +94,7 @@ public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType im
 
     @Override
     public final boolean isNilable() {
-        return getbType().isNilable();
+        return Core.containsBasicType(this, Builder.nilType());
     }
 
     @Override
@@ -97,17 +104,22 @@ public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType im
 
     @Override
     public String getName() {
-        return getbType().getName();
+        return typeName == null ? "" : typeName;
     }
 
     @Override
     public String getQualifiedName() {
-        return getbType().getQualifiedName();
+        String name = getName();
+        if (name.isEmpty()) {
+            return "";
+        }
+
+        return pkg == null ? name : pkg + ":" + name;
     }
 
     @Override
     public Module getPackage() {
-        return getbType().getPackage();
+        return pkg;
     }
 
     @Override
@@ -120,21 +132,22 @@ public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType im
         return getbType().isNative();
     }
 
-    // TODO: use semtype
     @Override
     public boolean isAnydata() {
-        return getbType().isAnydata();
+        Context cx = TypeChecker.context();
+        return Core.isSubType(cx, this, Builder.anyDataType());
     }
 
     @Override
     public boolean isPureType() {
-        return getbType().isPureType();
+        Context cx = TypeChecker.context();
+        return Core.isSubType(cx, this, Builder.errorType()) || isAnydata();
     }
 
-    // TODO: use semtype
     @Override
     public boolean isReadOnly() {
-        return getbType().isReadOnly();
+        Context cx = TypeChecker.context();
+        return Core.isSubType(cx, this, Builder.readonlyType());
     }
 
     @Override
@@ -149,7 +162,7 @@ public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType im
 
     @Override
     public Module getPkg() {
-        return getbType().getPkg();
+        return pkg;
     }
 
     @Override
@@ -159,22 +172,22 @@ public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType im
 
     @Override
     public void setCachedReferredType(Type type) {
-        getbType().setCachedReferredType(type);
+        cachedReferredType = type;
     }
 
     @Override
     public Type getCachedReferredType() {
-        return getbType().getCachedReferredType();
+        return cachedReferredType;
     }
 
     @Override
     public void setCachedImpliedType(Type type) {
-        getbType().setCachedImpliedType(type);
+        cachedImpliedType = type;
     }
 
     @Override
     public Type getCachedImpliedType() {
-        return getbType().getCachedImpliedType();
+        return cachedImpliedType;
     }
 
     protected E getbType() {
