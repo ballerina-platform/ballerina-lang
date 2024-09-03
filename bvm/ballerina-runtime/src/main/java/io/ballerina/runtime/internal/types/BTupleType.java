@@ -349,7 +349,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         if (!isReadOnly()) {
             return Optional.of(getSemType());
         }
@@ -364,12 +364,12 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     }
 
     @Override
-    public boolean couldShapeBeDifferent() {
+    public boolean couldInherentTypeBeDifferent() {
         return isReadOnly();
     }
 
     @Override
-    public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         return Optional.of(readonlyShape(cx, shapeSupplier, (BArray) object));
     }
 

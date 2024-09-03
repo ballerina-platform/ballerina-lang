@@ -17,9 +17,9 @@
  */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.internal.types.TypeWithShape;
 
 import java.io.PrintWriter;
@@ -97,6 +97,6 @@ public abstract class BError extends RuntimeException implements BValue, Pattern
     @Override
     public Optional<SemType> shapeOf(Context cx) {
         TypeWithShape type = getTypeWithShape();
-        return type.shapeOf(cx, Builder::shapeOf, this);
+        return type.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
     }
 }

@@ -33,6 +33,7 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
@@ -275,7 +276,7 @@ public final class TypeChecker {
         }
         SemType sourceSemType = SemType.tryInto(sourceType);
         SemType semTargetType = SemType.tryInto(targetType);
-        return couldShapeBeDifferent(sourceSemType) && isSubTypeWithShape(cx, sourceVal, semTargetType);
+        return couldInherentTypeBeDifferent(sourceSemType) && isSubTypeWithInherentType(cx, sourceVal, semTargetType);
     }
 
     /**
@@ -292,9 +293,9 @@ public final class TypeChecker {
     }
 
     // This is just an optimization since shapes are not cached, when in doubt return false
-    private static boolean couldShapeBeDifferent(SemType type) {
+    private static boolean couldInherentTypeBeDifferent(SemType type) {
         if (type instanceof TypeWithShape typeWithShape) {
-            return typeWithShape.couldShapeBeDifferent();
+            return typeWithShape.couldInherentTypeBeDifferent();
         }
         return true;
     }
@@ -320,7 +321,7 @@ public final class TypeChecker {
      */
     public static boolean checkIsLikeType(Object sourceValue, Type targetType, boolean allowNumericConversion) {
         Context cx = context();
-        Optional<SemType> readonlyShape = Builder.readonlyShapeOf(cx, sourceValue);
+        Optional<SemType> readonlyShape = ShapeAnalyzer.shapeOf(cx, sourceValue);
         assert readonlyShape.isPresent();
         SemType shape = readonlyShape.get();
         SemType targetSemType = SemType.tryInto(targetType);
@@ -615,9 +616,10 @@ public final class TypeChecker {
 
     // Private methods
 
-    private static boolean isSubTypeWithShape(Context cx, Object sourceValue, SemType target) {
-        return Builder.shapeOf(cx, sourceValue)
+    private static boolean isSubTypeWithInherentType(Context cx, Object sourceValue, SemType target) {
+        return ShapeAnalyzer.inherentTypeOf(cx, sourceValue)
                 .map(source -> !Core.isEmpty(cx, source) && Core.isSubType(cx, source, target))
+                // OR else do the normal type check by taking the shape of
                 .orElse(false);
     }
 
@@ -837,8 +839,8 @@ public final class TypeChecker {
 
     private static boolean checkValueEqual(Object lhsValue, Object rhsValue, Set<ValuePair> checkedValues) {
         Context cx = context();
-        SemType lhsShape = Builder.shapeOf(cx, lhsValue).orElseThrow();
-        SemType rhsShape = Builder.shapeOf(cx, rhsValue).orElseThrow();
+        SemType lhsShape = ShapeAnalyzer.inherentTypeOf(cx, lhsValue).orElseThrow();
+        SemType rhsShape = ShapeAnalyzer.inherentTypeOf(cx, rhsValue).orElseThrow();
         Predicate<SemType> belongToSameBasicType = (basicType) -> Core.containsBasicType(lhsShape, basicType) &&
                 Core.containsBasicType(rhsShape, basicType);
         if (belongToSameBasicType.test(Builder.stringType()) || belongToSameBasicType.test(Builder.booleanType())) {

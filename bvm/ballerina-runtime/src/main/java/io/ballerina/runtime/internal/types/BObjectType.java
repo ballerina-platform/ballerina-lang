@@ -337,7 +337,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     }
 
     @Override
-    public synchronized Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+    public synchronized Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         AbstractObjectValue abstractObjectValue = (AbstractObjectValue) object;
         SemType cachedShape = abstractObjectValue.shapeOf();
         if (cachedShape != null) {
@@ -353,12 +353,12 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     }
 
     @Override
-    public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
         return Optional.of(valueShape(cx, shapeSupplierFn, (AbstractObjectValue) object));
     }
 
     @Override
-    public boolean couldShapeBeDifferent() {
+    public boolean couldInherentTypeBeDifferent() {
         if (SymbolFlags.isFlagOn(getFlags(), SymbolFlags.READONLY)) {
             return true;
         }

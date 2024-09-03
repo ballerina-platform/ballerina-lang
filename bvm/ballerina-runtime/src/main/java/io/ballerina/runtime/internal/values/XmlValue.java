@@ -20,9 +20,9 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
-import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
@@ -38,7 +38,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.xml.namespace.QName;
 
 import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
@@ -281,6 +280,6 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
     @Override
     public Optional<SemType> shapeOf(Context cx) {
         TypeWithShape typeWithShape = (TypeWithShape) type;
-        return typeWithShape.shapeOf(cx, Builder::shapeOf, this);
+        return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
     }
 }

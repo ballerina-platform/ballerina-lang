@@ -283,7 +283,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         BMap<?, ?> value = (BMap<?, ?>) object;
         SemType cachedSemType = value.shapeOf();
         if (cachedSemType != null) {
@@ -359,7 +359,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     }
 
     @Override
-    public boolean couldShapeBeDifferent() {
+    public boolean couldInherentTypeBeDifferent() {
         if (couldShapeBeDifferentCache != 0) {
             return couldShapeBeDifferentCache == 1;
         }
@@ -376,7 +376,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     }
 
     @Override
-    public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         return Optional.of(shapeOfInner(cx, shapeSupplier, (BMap<?, ?>) object, true));
     }
 
