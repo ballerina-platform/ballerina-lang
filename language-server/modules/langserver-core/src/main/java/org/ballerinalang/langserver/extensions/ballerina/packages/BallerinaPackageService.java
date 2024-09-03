@@ -74,6 +74,7 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
                 if (project.isEmpty()) {
                     return metadata;
                 }
+                metadata.setOrgName(project.get().currentPackage().packageOrg().value());
                 metadata.setPath(project.get().sourceRoot().toString());
                 ProjectKind projectKind = project.get().kind();
                 if (projectKind != ProjectKind.SINGLE_FILE_PROJECT) {

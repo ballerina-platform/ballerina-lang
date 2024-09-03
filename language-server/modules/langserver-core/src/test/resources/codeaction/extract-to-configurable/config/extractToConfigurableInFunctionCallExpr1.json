@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 5,
+    "character": 19
+  },
+  "source": "extractToConfigurableInFunctionCallExpr.bal",
+  "expected": [
+    {
+      "title": "Extract to configurable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "configurable string config = \"arg1\";\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 16
+            },
+            "end": {
+              "line": 5,
+              "character": 22
+            }
+          },
+          "newText": "config"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

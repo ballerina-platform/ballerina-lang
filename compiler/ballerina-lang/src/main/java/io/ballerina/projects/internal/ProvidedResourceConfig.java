@@ -21,9 +21,9 @@ package io.ballerina.projects.internal;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.util.ProjectConstants;
-import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;
+import java.util.Locale;
 
 /**
  * {@code Resource} contains necessary configuration elements required to create an instance of a {@code Resource}.
@@ -37,13 +37,33 @@ import java.nio.file.Path;
  */
 public class ProvidedResourceConfig extends ResourceConfig {
 
+    public static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+
     private ProvidedResourceConfig(DocumentId documentId, Path path, String name, byte[] content) {
         super(documentId, path, name, content);
     }
 
-    public static ProvidedResourceConfig from(DocumentId documentId, Path resource, Path modulePath) {
-        Path resourcePath = modulePath.resolve(ProjectConstants.RESOURCE_DIR_NAME).relativize(resource);
-        String unixPath = FilenameUtils.separatorsToUnix(resourcePath.toString());
-        return new ProvidedResourceConfig(documentId, resource, unixPath, null);
+    public static ProvidedResourceConfig from(DocumentId documentId, Path resource, Path packagePath) {
+        Path relativeResourcePath;
+        if (resource.startsWith(packagePath)) {
+            relativeResourcePath = packagePath.relativize(resource);
+        } else {
+            relativeResourcePath = resource;
+        }
+        String resourcePath = relativeResourcePath.toString();
+        String marker = ProjectConstants.RESOURCE_DIR_NAME + (OS.contains("win") ? "\\" : "/");
+        int markerIndex = resourcePath.indexOf(marker);
+        String path = markerIndex != -1
+                ? resourcePath.substring(markerIndex + marker.length())
+                : resourcePath;
+        return new ProvidedResourceConfig(documentId, resource, convertWinPathToUnixFormat(path), null);
     }
+
+    public static String convertWinPathToUnixFormat(String path) {
+        if (OS.contains("win")) {
+            path = path.replace("\\", "/");
+        }
+        return path;
+    }
+
 }
