@@ -23,19 +23,16 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FutureType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.FutureUtils;
-
-import java.util.Optional;
 
 /**
  * {@code BFutureType} represents a future value in Ballerina.
  *
  * @since 0.995.0
  */
-public class BFutureType extends BType implements FutureType, TypeWithShape {
+public class BFutureType extends BType implements FutureType {
 
     private final Type constraint;
 
@@ -107,20 +104,5 @@ public class BFutureType extends BType implements FutureType, TypeWithShape {
             return Builder.futureType();
         }
         return FutureUtils.futureContaining(TypeChecker.context().env, tryInto(constraint));
-    }
-
-    @Override
-    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean couldInherentTypeBeDifferent() {
-        return false;
     }
 }

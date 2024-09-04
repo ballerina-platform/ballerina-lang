@@ -349,7 +349,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
 
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
-        if (!isReadOnly()) {
+        if (!couldInherentTypeBeDifferent()) {
             return Optional.of(getSemType());
         }
         BArray value = (BArray) object;
