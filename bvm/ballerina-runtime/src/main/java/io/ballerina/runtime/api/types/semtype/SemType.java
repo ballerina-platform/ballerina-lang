@@ -2,6 +2,7 @@ package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.semtype.ImmutableSemType;
+import io.ballerina.runtime.internal.types.semtype.SemTypeHelper;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -78,5 +79,10 @@ public sealed class SemType extends BasicTypeBitSet
         TRUE,
         FALSE,
         NOT_FOUND
+    }
+
+    @Override
+    public String toString() {
+        return SemTypeHelper.stringRepr(this);
     }
 }
