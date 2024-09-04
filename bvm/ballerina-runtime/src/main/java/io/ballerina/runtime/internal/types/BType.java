@@ -30,7 +30,6 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -53,7 +52,6 @@ public abstract non-sealed class BType extends SemType implements Type, MutableS
     private Type cachedImpliedType = null;
     private volatile SemType cachedSemType = null;
     private TypeCreator.TypeMemoKey lookupKey = null;
-    private Map<SemType, CachedResult> cachedResults;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -277,7 +275,6 @@ public abstract non-sealed class BType extends SemType implements Type, MutableS
     public BType clone() {
         try {
             BType clone = (BType) super.clone();
-            clone.cachedResults = null;
             clone.cachedSemType = null;
             clone.setCachedImpliedType(null);
             clone.setCachedReferredType(null);
