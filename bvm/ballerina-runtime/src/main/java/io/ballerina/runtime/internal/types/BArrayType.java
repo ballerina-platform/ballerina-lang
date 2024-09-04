@@ -251,7 +251,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
 
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
-        if (!isReadOnly()) {
+        if (!couldInherentTypeBeDifferent()) {
             return Optional.of(getSemType());
         }
         BArray value = (BArray) object;

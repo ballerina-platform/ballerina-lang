@@ -194,7 +194,7 @@ public class BTableType extends BType implements TableType, TypeWithShape {
 
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
-        if (!isReadOnly()) {
+        if (!couldInherentTypeBeDifferent()) {
             return Optional.of(getSemType());
         }
         BTable<?, ?> table = (BTable<?, ?>) object;

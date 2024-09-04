@@ -145,6 +145,9 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
 
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        if (!couldInherentTypeBeDifferent()) {
+            return Optional.of(getSemType());
+        }
         BError errorValue = (BError) object;
         Object details = errorValue.getDetails();
         if (!(details instanceof BMap<?, ?> errorDetails)) {
