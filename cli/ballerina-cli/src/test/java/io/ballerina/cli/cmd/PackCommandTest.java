@@ -42,8 +42,8 @@ public class PackCommandTest extends BaseCommandTest {
     private static final String VALID_PROJECT = "validApplicationProject";
     private Path testResources;
 
-    static Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-            "log_creator_combined_plugin/compiler-plugin.txt");
+    private static final Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
+            .toAbsolutePath();
 
     @BeforeClass
     public void setup() throws IOException {
