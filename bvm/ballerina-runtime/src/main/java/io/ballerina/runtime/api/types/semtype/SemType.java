@@ -42,6 +42,9 @@ public sealed class SemType extends BasicTypeBitSet
     }
 
     public final CachedResult cachedSubTypeRelation(SemType other) {
+        if (skipCache()) {
+            return CachedResult.NOT_FOUND;
+        }
         if (cachedResults == null) {
             cachedResults = new WeakHashMap<>();
             return CachedResult.NOT_FOUND;
@@ -49,7 +52,14 @@ public sealed class SemType extends BasicTypeBitSet
         return cachedResults.getOrDefault(other, CachedResult.NOT_FOUND);
     }
 
+    private boolean skipCache() {
+        return this.some() == 0;
+    }
+
     public final void cacheSubTypeRelation(SemType other, boolean result) {
+        if (skipCache() || other.skipCache()) {
+            return;
+        }
         // we always check of the result before caching so there will always be a map
         cachedResults.put(other, result ? CachedResult.TRUE : CachedResult.FALSE);
     }
