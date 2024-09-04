@@ -201,7 +201,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
 
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
-        if (!isReadOnly()) {
+        if (!couldInherentTypeBeDifferent()) {
             return Optional.of(getSemType());
         }
         BMap value = (BMap) object;

@@ -137,6 +137,9 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
 
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        if (!couldInherentTypeBeDifferent()) {
+            return Optional.of(getSemType());
+        }
         Type referredType = getReferredType();
         if (referredType instanceof TypeWithShape typeWithShape) {
             return typeWithShape.inherentTypeOf(cx, shapeSupplier, object);
@@ -146,7 +149,7 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
 
     @Override
     public boolean couldInherentTypeBeDifferent() {
-        return true;
+        return referredType instanceof TypeWithShape typeWithShape && typeWithShape.couldInherentTypeBeDifferent();
     }
 
     @Override

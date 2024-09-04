@@ -338,6 +338,9 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
 
     @Override
     public synchronized Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        if (!couldInherentTypeBeDifferent()) {
+            return Optional.of(getSemType());
+        }
         AbstractObjectValue abstractObjectValue = (AbstractObjectValue) object;
         SemType cachedShape = abstractObjectValue.shapeOf();
         if (cachedShape != null) {

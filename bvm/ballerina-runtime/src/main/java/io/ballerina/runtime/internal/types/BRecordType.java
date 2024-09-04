@@ -75,7 +75,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     private IntersectionType intersectionType = null;
     private MappingDefinition defn;
     private final Env env = Env.getInstance();
-    private byte couldShapeBeDifferentCache = 0;
+    private byte couldInhereTypeBeDifferentCache = 0;
 
     private final Map<String, BFunctionPointer> defaultValues = new LinkedHashMap<>();
 
@@ -284,6 +284,9 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
 
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        if (!couldInherentTypeBeDifferent()) {
+            return Optional.of(getSemType());
+        }
         BMap<?, ?> value = (BMap<?, ?>) object;
         SemType cachedSemType = value.shapeOf();
         if (cachedSemType != null) {
@@ -360,11 +363,11 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
 
     @Override
     public boolean couldInherentTypeBeDifferent() {
-        if (couldShapeBeDifferentCache != 0) {
-            return couldShapeBeDifferentCache == 1;
+        if (couldInhereTypeBeDifferentCache != 0) {
+            return couldInhereTypeBeDifferentCache == 1;
         }
         boolean result = couldShapeBeDifferentInner();
-        couldShapeBeDifferentCache = (byte) (result ? 1 : 2);
+        couldInhereTypeBeDifferentCache = (byte) (result ? 1 : 2);
         return result;
     }
 
