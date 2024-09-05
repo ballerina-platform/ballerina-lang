@@ -200,16 +200,16 @@ public class JvmCodeGenUtil {
 
     public static String rewriteVirtualCallTypeName(String value, BType objectType) {
         objectType = getImpliedType(objectType);
-        // The call name will be in the format of`objectTypeName.funcName` for attached functions of imported modules.
-        // Therefore, We need to remove the type name.
-        Name originalName = objectType.tsymbol.originalName;
-        if (!objectType.tsymbol.name.value.isEmpty() && value.startsWith(objectType.tsymbol.name.value)) {
-            value = value.replace(objectType.tsymbol.name.value + ".", "").trim();
-        }
-        // The call name will be in the format of`objectTypeOriginalName.funcName` for attached functions of
-        // object definitions. Therefore, We need to remove it.
-        if (originalName != null && !originalName.value.isEmpty() && value.startsWith(originalName.value)) {
-            value = value.replace(originalName.value + ".", "").trim();
+        String typeName = objectType.tsymbol.name.value;
+        String originalName = objectType.tsymbol.originalName != null ? objectType.tsymbol.originalName.value : "";
+        if (!typeName.isEmpty() && value.startsWith(typeName)) {
+            // The call name will be in the format of`objectTypeName.funcName` for attached functions of imported
+            // modules. Therefore, We need to remove the type name.
+            value = value.replace(typeName + ".", "").trim();
+        } else if (value.startsWith(originalName)) {
+            // The call name will be in the format of`objectTypeOriginalName.funcName` for attached functions of
+            // object definitions. Therefore, We need to remove it.
+            value = value.replace(originalName + ".", "").trim();
         }
         return Utils.encodeFunctionIdentifier(value);
     }
