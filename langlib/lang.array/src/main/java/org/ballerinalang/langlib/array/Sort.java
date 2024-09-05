@@ -70,9 +70,10 @@ public class Sort {
         }
         mergesort(sortArr, sortArrClone, 0, sortArr.length - 1, direction.toString());
         if (arrType.getTag() == TypeTags.TUPLE_TAG) {
-            Set<Type> typeList = new HashSet<>(((BTupleType) arrType).getTupleTypes());
-            if (((BTupleType) arrType).getRestType() != null) {
-                typeList.add(((BTupleType) arrType).getRestType());
+            BTupleType tupleType = (BTupleType) arrType;
+            Set<Type> typeList = new HashSet<>(tupleType.getTupleTypes());
+            if (tupleType.getRestType() != null) {
+                typeList.add(tupleType.getRestType());
             }
             sortedArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(
                     TypeCreator.createUnionType(typeList.stream().toList())));

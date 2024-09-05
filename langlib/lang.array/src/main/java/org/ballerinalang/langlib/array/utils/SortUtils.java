@@ -39,6 +39,11 @@ import java.util.Set;
 public class SortUtils {
 
     /**
+     * A private constructor to avoid code coverage warnings.
+     */
+    private SortUtils() {};
+
+    /**
      * Check if the provided type is an Ordered type.
      * @param type type to be checked.
      * @return true if type is Ordered, false otherwise.
@@ -71,9 +76,10 @@ public class SortUtils {
             case TypeTags.ARRAY_TAG:
                 return isOrderedType(((BArrayType) type).getElementType());
             case TypeTags.TUPLE_TAG:
-                List<Type> tupleTypes = ((BTupleType) type).getTupleTypes();
-                if (((BTupleType) type).getRestType() != null) {
-                    tupleTypes.add(((BTupleType) type).getRestType());
+                BTupleType tupleType = (BTupleType) type;
+                List<Type> tupleTypes = tupleType.getTupleTypes();
+                if (tupleType.getRestType() != null) {
+                    tupleTypes.add(tupleType.getRestType());
                 }
                 if (!isOrderedType(tupleTypes.get(0))) {
                     return false;
@@ -85,9 +91,10 @@ public class SortUtils {
                 }
                 return true;
             case TypeTags.FINITE_TYPE_TAG:
-                Set<Object> valSpace = ((BFiniteType) type).getValueSpace();
+                BFiniteType finiteType = (BFiniteType) type;
+                Set<Object> valSpace = finiteType.getValueSpace();
                 Type baseExprType = TypeUtils.getType(valSpace.iterator().next());
-                if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
+                if (!checkValueSpaceHasSameType(finiteType, baseExprType)) {
                     return false;
                 }
                 return isOrderedType(baseExprType);
@@ -97,7 +104,7 @@ public class SortUtils {
     }
 
     /**
-     * Check if the values space of the provided finite type belongs to the value space of the given type.
+     * Check if the value space of the provided finite type belongs to the value space of the given type.
      * @param finiteType finite type to be checked.
      * @param type type to be checked against.
      * @return true if the finite type belongs to the same value space, false otherwise.
