@@ -193,7 +193,8 @@ public class OpenRecordTypeInclusionTest {
                 "testCyclicRecord",
                 "testOutOfOrderFieldOverridingFieldFromTypeInclusion",
                 "testCreatingRecordWithOverriddenFields",
-                "testDefaultValuesOfRecordFieldsWithTypeInclusion"
+                "testDefaultValuesOfRecordFieldsWithTypeInclusion",
+                "defaultValueFromInclusion"
         };
     }
 

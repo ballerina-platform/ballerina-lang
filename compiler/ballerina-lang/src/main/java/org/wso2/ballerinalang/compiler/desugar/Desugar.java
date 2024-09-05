@@ -6152,6 +6152,7 @@ public class Desugar extends BLangNodeVisitor {
                                                               List<String> fieldNames,
                                                               Map<String, BInvokableSymbol> defaultValues,
                                                               Location pos, boolean isReadonly) {
+        List<RecordLiteralNode.RecordField> generatedFields = new ArrayList<>();
         for (Map.Entry<String, BInvokableSymbol> entry : defaultValues.entrySet()) {
             String fieldName = entry.getKey();
             if (fieldNames.contains(fieldName)) {
@@ -6174,7 +6175,11 @@ public class Desugar extends BLangNodeVisitor {
                 }
             }
             BLangRecordLiteral.BLangRecordKeyValueField member = createRecordKeyValueField(pos, fieldName, expression);
-            fields.add(member);
+            generatedFields.add(member);
+        }
+        for (int i = generatedFields.size() - 1; i >= 0; i--) {
+            var each = generatedFields.get(i);
+            fields.add(0, each);
         }
     }
 
@@ -6191,7 +6196,7 @@ public class Desugar extends BLangNodeVisitor {
     public void generateFieldsForUserUnspecifiedRecordFields(BLangRecordLiteral recordLiteral,
                                                               List<RecordLiteralNode.RecordField> userSpecifiedFields) {
         BType type = Types.getImpliedType(recordLiteral.getBType());
-        if (type.getKind() != TypeKind.RECORD) {
+        if (type.getKind() != TypeKind.RECORD || isSpreadingAnOpenRecord(userSpecifiedFields)) {
             return;
         }
         List<String> fieldNames = getNamesOfUserSpecifiedRecordFields(userSpecifiedFields);
@@ -6199,6 +6204,22 @@ public class Desugar extends BLangNodeVisitor {
         BRecordType recordType = (BRecordType) type;
         boolean isReadonly = Symbols.isFlagOn(recordType.flags, Flags.READONLY);
         generateFieldsForUserUnspecifiedRecordFields(recordType, userSpecifiedFields, fieldNames, pos, isReadonly);
+    }
+
+    private static boolean isSpreadingAnOpenRecord(List<RecordLiteralNode.RecordField> userSpecifiedFields) {
+        for (RecordLiteralNode.RecordField field : userSpecifiedFields) {
+            if (!(field instanceof BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField)) {
+                continue;
+            }
+            BType type = Types.getReferredType(spreadOperatorField.expr.getBType());
+            if (!(type instanceof BRecordType recordType)) {
+                return true;
+            }
+            if (recordType.restFieldType != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void generateFieldsForUserUnspecifiedRecordFields(BRecordType recordType,

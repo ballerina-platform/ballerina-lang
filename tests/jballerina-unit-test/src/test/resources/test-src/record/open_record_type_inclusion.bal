@@ -289,6 +289,28 @@ function testDefaultValuesOfRecordFieldsWithTypeInclusion() {
     assertEquality(30, info1.age);
 }
 
+type Inner record {|
+    int foo;
+|};
+
+type Outer record {|
+    Inner inner?;
+|};
+
+type OuterXBase record {
+    Inner inner = {foo: 10};
+};
+
+type OuterX record {|
+    *OuterXBase;
+|};
+
+function defaultValueFromInclusion() {
+    Outer o = {};
+    OuterX ox = {...o};
+    assertEquality(ox.inner.foo, 10);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
