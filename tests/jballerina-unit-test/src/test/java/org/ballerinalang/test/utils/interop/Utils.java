@@ -20,8 +20,8 @@ package org.ballerinalang.test.utils.interop;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+
 import java.io.PrintStream;
 
 /**
@@ -32,7 +32,6 @@ import java.io.PrintStream;
 public class Utils {
 
     public static void sleep(Environment env, long delayMillis) {
-        env.markAsync();
         try {
             Thread.sleep(delayMillis);
         } catch (InterruptedException e) {

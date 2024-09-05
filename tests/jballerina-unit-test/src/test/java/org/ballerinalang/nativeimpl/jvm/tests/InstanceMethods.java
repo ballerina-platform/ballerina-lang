@@ -222,17 +222,14 @@ public class InstanceMethods {
     }
 
     public BString getStringWithBalEnv(Environment env) {
-        env.markAsync();
         return StringUtils.fromString("Hello World!");
     }
 
     public long getIntWithBalEnv(Environment env) {
-        env.markAsync();
         return 7;
     }
 
     public BMap<BString, Object> getMapValueWithBalEnv(Environment env) {
-        env.markAsync();
         BMap<BString, Object> mapValue = ValueCreator.createMapValue();
         mapValue.put(StringUtils.fromString("a"), 10);
         mapValue.put(StringUtils.fromString("b"), 12.5);

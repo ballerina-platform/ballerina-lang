@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.BalRuntime;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -66,7 +66,7 @@ public class RuntimeAPITest {
     public void testRecordNoStrandDefaultValue() {
         CompileResult strandResult = BCompileUtil.compile("test-src/runtime/api/no_strand");
         Package currentPackage = strandResult.project().currentPackage();
-        final Scheduler scheduler = new Scheduler(new Module(currentPackage.packageOrg().value(),
+        final BalRuntime runtime = new BalRuntime(new Module(currentPackage.packageOrg().value(),
                 currentPackage.packageName().value(), currentPackage.packageVersion().toString()));
         AtomicReference<Throwable> exceptionRef = new AtomicReference<>();
         Thread thread1 = new Thread(() -> BRunUtil.call(strandResult, "main"));
@@ -82,7 +82,7 @@ public class RuntimeAPITest {
             } catch (Throwable e) {
                 exceptionRef.set(e);
             } finally {
-                scheduler.poison();
+                runtime.gracefulExit();
             }
         });
         try {

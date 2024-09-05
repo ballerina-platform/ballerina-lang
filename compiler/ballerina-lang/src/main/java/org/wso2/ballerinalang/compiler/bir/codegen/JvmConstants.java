@@ -46,7 +46,7 @@ public class JvmConstants {
     public static final String ARRAY_VALUE = "io/ballerina/runtime/internal/values/ArrayValue";
     public static final String ABSTRACT_OBJECT_VALUE = "io/ballerina/runtime/internal/values/AbstractObjectValue";
     public static final String BREF_VALUE = "io/ballerina/runtime/api/values/BRefValue";
-     public static final String ERROR_VALUE = "io/ballerina/runtime/internal/values/ErrorValue";
+    public static final String ERROR_VALUE = "io/ballerina/runtime/internal/values/ErrorValue";
     public static final String BERROR = "io/ballerina/runtime/api/values/BError";
     public static final String STRING_VALUE = "java/lang/String";
     public static final String FUNCTION_PARAMETER = "io/ballerina/runtime/api/types/Parameter";
@@ -181,6 +181,7 @@ public class JvmConstants {
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
 
     // other jvm-specific classes
+    public static final String BAL_RUNTIME = "io/ballerina/runtime/internal/BalRuntime";
     public static final String TYPE_CHECKER = "io/ballerina/runtime/internal/TypeChecker";
     public static final String SCHEDULER = "io/ballerina/runtime/internal/scheduling/Scheduler";
     public static final String JSON_UTILS = "io/ballerina/runtime/internal/JsonInternalUtils";
@@ -318,7 +319,7 @@ public class JvmConstants {
     public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
-    public static final String CURRENT_MODULE_STOP = "$currentModuleStop";
+    public static final String CURRENT_MODULE_STOP_METHOD = "$currentModuleStop";
     public static final String MODULE_INIT_METHOD = "$moduleInit";
     public static final String MODULE_START_METHOD = "$moduleStart";
     public static final String MODULE_STOP_METHOD = "$moduleStop";
@@ -335,7 +336,7 @@ public class JvmConstants {
     public static final String ENCODED_DOT_CHARACTER = "&0046";
     public static final String ENCODED_JAVA_MODULE = "jballerina&0046java";
     public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, new Name(ENCODED_DOT_CHARACTER),
-                                                          DEFAULT_VERSION);
+            DEFAULT_VERSION);
     public static final String BUILT_IN_PACKAGE_NAME = "lang" + ENCODED_DOT_CHARACTER + "annotations";
     public static final String MODULE_START_ATTEMPTED = "$moduleStartAttempted";
     public static final String PARENT_MODULE_START_ATTEMPTED = "$parentModuleStartAttempted";
@@ -361,7 +362,8 @@ public class JvmConstants {
     public static final String CREATE_TYPE_INSTANCES_METHOD = "$createTypeInstances";
     public static final String GLOBAL_LOCK_NAME = "lock";
     public static final String SERVICE_EP_AVAILABLE = "$serviceEPAvailable";
-    public static final String LOCK_STORE_VAR_NAME = "$LOCK_STORE";
+    public static final String BAL_RUNTIME_VAR_NAME = "$balRuntime";
+    public static final String LOCK_STORE_VAR_NAME = "$lockStore";
     public static final String WORKER_CHANNEL_MAP_VAR_NAME = "$channelMap";
     public static final String SEND_WORKER_CHANNEL_NAMES_VAR_NAME = "$sendWorkerChannelNames";
     public static final String RECEIVE_WORKER_CHANNEL_NAMES_VAR_NAME = "$receiveWorkerChannelNames";
@@ -395,7 +397,7 @@ public class JvmConstants {
     public static final String CREATE_ERROR_VALUE = "createErrorValue";
     public static final String CALL_FUNCTION = "call";
     public static final String INSTANTIATE_FUNCTION = "instantiate";
-    public static final String DAEMON_STRAND_NAME ="daemonStrand";
+    public static final String DAEMON_STRAND_NAME = "daemonStrand";
 
     public static final String GET_ANON_TYPE_METHOD = "getAnonType";
     public static final String GET_FUNCTION_TYPE_METHOD = "getFunctionType";
@@ -412,7 +414,7 @@ public class JvmConstants {
     public static final String GRACEFUL_EXIT_METHOD_NAME = "gracefulExit";
     public static final String WAIT_ON_LISTENERS_METHOD_NAME = "waitOnListeners";
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
-    public static final String DEFAULT_STRAND_NAME= "anon";
+    public static final String DEFAULT_STRAND_NAME = "anon";
 
     // transaction related constants
     public static final String TRANSACTION_CONTEXT_CLASS = "io/ballerina/runtime/transactions/TransactionLocalContext";

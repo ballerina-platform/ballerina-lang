@@ -18,7 +18,112 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.*;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANYDATA_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_RUNTIME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_INITIAL_VALUE_ENTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_LIST_INITIAL_VALUE_ENTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING_INITIAL_VALUE_ENTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_XML_QNAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COLLECTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIG_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_CODES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FLOAT_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_PARAMETER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTEGER_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTABLE_REFERENCE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_STREAM;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_ENTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.METHOD_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.METHOD_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NEVER_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NULL_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPERAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.READONLY_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_ASSERTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_ATOM_QUANTIFIER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CAPTURING_GROUP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_ESCAPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_SET_RANGE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_DISJUNCTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_FLAG_EXPR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_FLAG_ON_OFF;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_QUANTIFIER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_SEQUENCE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_METHOD_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_REGISTRY_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TRANSACTION_CONTEXT_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ID_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_REF_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VARIABLE_KEY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_CHANNEL_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_SEQUENCE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 
 /**
  * JVM bytecode generation related constants.
@@ -37,17 +142,11 @@ public class JvmSignatures {
             ";ZL" + VALUE_CREATOR + ";)V";
     public static final String ALT_RECEIVE_CALL = "(L" + STRAND_CLASS + ";L" + WORKER_CHANNEL_MAP + ";[L" +
             STRING_VALUE + ";)L" + OBJECT + ";";
-    public static final String ANNOTATION_GET_STRAND = "(L" + FUNCTION_POINTER + ";L" + STRING_VALUE + ";)L" +
-            STRING_VALUE + ";";
     public static final String ANY_TO_BYTE = "(L" + OBJECT + ";)I";
     public static final String ANY_TO_DECIMAL = "(L" + OBJECT + ";)L" + DECIMAL_VALUE + ";";
     public static final String ANY_TO_JBOOLEAN = "(L" + OBJECT + ";)Z";
-    public static final String ANY_TO_JBYTE = "(L" + OBJECT + ";)B";
-    public static final String ANY_TO_JCHAR = "(L" + OBJECT + ";)C";
     public static final String ANY_TO_JDOUBLE = "(L" + OBJECT + ";)D";
-    public static final String ANY_TO_JFLOAT = "(L" + OBJECT + ";)F";
     public static final String ANY_TO_JLONG = "(L" + OBJECT + ";)J";
-    public static final String ANY_TO_JSTRING = "(L" + OBJECT + ";)S";
     public static final String ARRAY_ADD_BSTRING = "(JL" + JvmConstants.B_STRING_VALUE + ";)V";
     public static final String ARRAY_ADD_OBJECT = "(JL" + OBJECT + ";)V";
     public static final String BAL_ENV_PARAM = "(L" + BAL_ENV + ";";
@@ -101,7 +200,7 @@ public class JvmSignatures {
     public static final String CREATE_XML_PI = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";Z)L" + XML_VALUE + ";";
     public static final String CREATE_XML_TEXT = "(L" + B_STRING_VALUE + ";)L" + XML_VALUE + ";";
     public static final String CRETAE_XML_SEQUENCE = "()L" + XML_SEQUENCE + ";";
-    public static final String CURRENT_MODULE_STOP = "(L" + SCHEDULER + ";)V";
+    public static final String CURRENT_MODULE_STOP = "(L" + BAL_RUNTIME + ";)V";
     public static final String DECIMAL_NEGATE = "()L" + DECIMAL_VALUE + ";";
     public static final String DECIMAL_TO_HANDLE = "(L" + OBJECT + ";)L" + HANDLE_VALUE + ";";
     public static final String DECIMAL_VALUE_OF_BOOLEAN = "(B)L" + DECIMAL_VALUE + ";";
@@ -125,6 +224,7 @@ public class JvmSignatures {
     public static final String GET_ARRAY_TYPE_IMPL = "L" + ARRAY_TYPE_IMPL + ";";
     public static final String GET_ARRAY_VALUE = "L" + ARRAY_VALUE + ";";
     public static final String GET_ATTRAIBUTE_MAP = "()L" + MAP_VALUE + ";";
+    public static final String GET_BAL_RUNTIME = "L" + BAL_RUNTIME + ";";
     public static final String GET_BDECIMAL = "L" + DECIMAL_VALUE + ";";
     public static final String GET_BOBJECT = "L" + B_OBJECT + ";";
     public static final String GET_BSTRING = "L" + B_STRING_VALUE + ";";
@@ -174,13 +274,11 @@ public class JvmSignatures {
     public static final String GET_UNION_TYPE_IMPL = "L" + UNION_TYPE_IMPL + ";";
     public static final String GET_WORKER_CHANNEL_MAP = "L" + WORKER_CHANNEL_MAP + ";";
     public static final String GET_XML = "L" + XML_VALUE + ";";
-    public static final String HANDLE_ERROR_RETURN = "(L" + OBJECT + ";)V";
     public static final String HANDLE_FLUSH = "(L" + STRAND_CLASS + ";L" + WORKER_CHANNEL_MAP + ";[L" +
             STRING_VALUE + ";)" + "L" + OBJECT + ";";
     public static final String HANDLE_FUTURE = "(L" + FUTURE_VALUE + ";)V";
     public static final String HANDLE_MAP_STORE = "(L" + MAP_VALUE + ";L" + B_STRING_VALUE + ";L" + OBJECT + ";)V";
     public static final String HANDLE_OBJECT_LONG_ARGS = "(" + GET_HANDLE_VALUE + GET_OBJECT + "J)V";
-    public static final String HANDLE_STOP_PANIC = "(L" + THROWABLE + ";)V";
     public static final String HANDLE_TABLE_STORE = "(L" + TABLE_VALUE + ";L" + OBJECT + ";L" + OBJECT + ";)V";
     public static final String HANDLE_THROWABLE = "(L" + JvmConstants.THROWABLE + ";)V";
     public static final String HANDLE_WAIT = "(L" + STRAND_CLASS + ";L" + FUTURE_VALUE + ";)L" + OBJECT + ";";
@@ -194,7 +292,6 @@ public class JvmSignatures {
     public static final String INIT_BAL_ENV = "(L" + STRAND_CLASS + ";L" + MODULE + ";)V";
     public static final String INIT_BAL_ENV_WITH_FUNC_NAME = "(L" + STRAND_CLASS + ";L" + MODULE + ";L" +
             STRING_VALUE + ";[L" + FUNCTION_PARAMETER + ";)V";
-    public static final String INIT_CHANNEL_DETAILS = "(L" + STRING_VALUE + ";ZZ)V";
     public static final String INIT_CLI_SPEC = "(L" + OPTION + ";[L" + OPERAND + ";[L" + STRING_VALUE + ";)V";
     public static final String INIT_CONFIG = "(L" + MAP + ";" + "[L" + STRING_VALUE + ";[L" + PATH + ";L" +
             STRING_VALUE + ";)V";
@@ -223,8 +320,8 @@ public class JvmSignatures {
     public static final String INIT_OPERAND = "(ZL" + STRING_VALUE + ";L" + TYPE + ";)V";
     public static final String INIT_OPTION = "(L" + TYPE + ";I)V";
     public static final String INIT_PARAMETERIZED_TYPE_IMPL = "(L" + TYPE + ";I)V";
-    public static final String INIT_SCHEDULER = "(L" + MODULE + ";)V";
-    public static final String INIT_SIGNAL_LISTENER = "(L" + SCHEDULER + ";)V";
+    public static final String INIT_RUNTIME = "(L" + MODULE + ";)V";
+    public static final String INIT_SIGNAL_LISTENER = "(L" + BAL_RUNTIME + ";)V";
     public static final String INIT_STRAND = "(L" + STRING_VALUE + ";L" + STRAND_METADATA + ";L" + SCHEDULER + ";L" +
             STRAND_CLASS + ";L" + MAP + ";L" + TRANSACTION_CONTEXT_CLASS + ";)V";
     public static final String INIT_STRAND_METADATA = "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + STRING_VALUE +
@@ -246,7 +343,6 @@ public class JvmSignatures {
     public static final String INSTANTIATE = "(L" + STRAND_CLASS + ";)L" + OBJECT + ";";
     public static final String INSTANTIATE_WITH_INITIAL_VALUES = "(L" + STRAND_CLASS + ";[L" + B_INITIAL_VALUE_ENTRY +
             ";)L" + OBJECT + ";";
-    public static final String INT_TO_STRING = "(I)L" + STRING_VALUE + ";";
     public static final String INT_VALUE_OF_METHOD = "(I)L" + INT_VALUE + ";";
     public static final String INTI_VARIABLE_KEY = "(L" + MODULE + ";L" + STRING_VALUE + ";L" + TYPE + ";L" +
             STRING_VALUE + ";Z)V";
@@ -311,8 +407,8 @@ public class JvmSignatures {
     public static final String PROCESS_ANNOTATIONS = "(L" + MAP_VALUE + ";L" + TYPE + ";)V";
     public static final String PROCESS_OBJ_CTR_ANNOTATIONS =
             "(L" + OBJECT_TYPE_IMPL + ";L" + MAP_VALUE + ";L" + STRAND_CLASS + ";)V";
-    public static final String RECEIVE_DATA = "(L" + STRAND_CLASS + ";L" + WORKER_CHANNEL_MAP + ";L" + STRING_VALUE + ";" +
-            ")L" + OBJECT + ";";
+    public static final String RECEIVE_DATA =
+            "(L" + STRAND_CLASS + ";L" + WORKER_CHANNEL_MAP + ";L" + STRING_VALUE + ";" + ")L" + OBJECT + ";";
     public static final String RECORD_GET = "(L" + STRING_VALUE + ";L" + OBJECT + ";)L" + OBJECT + ";";
     public static final String RECORD_GET_KEYS = "()[L" + OBJECT + ";";
     public static final String RECORD_PUT = "(L" + STRING_VALUE + ";L" + OBJECT + ";L" + OBJECT + ";)L" + OBJECT + ";";
@@ -323,7 +419,6 @@ public class JvmSignatures {
             ";JZI)V";
     public static final String RECORD_VALUE_CLASS = "<K:L" + OBJECT + ";V:L" + OBJECT + ";>L" + MAP_VALUE_IMPL +
             "<TK;TV;>;L" + MAP_VALUE + "<TK;TV;>;";
-    public static final String REMOVE_COMPLETED_CHANNELS = "(L" + STRAND_CLASS + ";[L" + STRING_VALUE + ";)V";
     public static final String RESOURCE_METHOD_TYPE_ARRAY_PARAM = "([L" + RESOURCE_METHOD_TYPE + ";)V";
     public static final String RESOURCE_METHOD_TYPE_IMPL_INIT =
             "(L" + STRING_VALUE + ";L" + MODULE + ";L" + OBJECT_TYPE_IMPL + ";L" + FUNCTION_TYPE_IMPL + ";[L" + TYPE +
@@ -360,7 +455,6 @@ public class JvmSignatures {
     public static final String SET_METHODS = "([L" + METHOD_TYPE + ";)V";
     public static final String SET_ON_INIT = "(L" + B_STRING_VALUE + ";L" + OBJECT + ";)V";
     public static final String SET_RESOURCE_METHOD_TYPE_ARRAY = "([L" + RESOURCE_METHOD_TYPE + ";)V";
-    public static final String SET_STRAND = "(L" + STRAND_CLASS + ";)V";
     public static final String SET_TYPE_ARRAY = "([L" + TYPE + ";)V";
     public static final String SET_TYPE_ID_SET = "(L" + TYPE_ID_SET + ";)V";
     public static final String SET_VALUE = "(L" + B_STRING_VALUE + ";L" + OBJECT + ";)V";
@@ -395,5 +489,6 @@ public class JvmSignatures {
     public static final String XML_SET_ATTRIBUTE = "(L" + B_XML_QNAME + ";L" + B_STRING_VALUE + ";)V";
 
     private JvmSignatures() {
+
     }
 }

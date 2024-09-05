@@ -27,9 +27,9 @@ import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.BmpStringValue;
@@ -199,11 +199,10 @@ public class BRunUtil {
                             functionName + "'"), e);
                 }
             };
-
-            Scheduler scheduler = new Scheduler(new Module(packageManifest.org().toString(),
+            BalRuntime runtime = new BalRuntime(new Module(packageManifest.org().toString(),
                     packageManifest.name().toString(),
                     packageManifest.version().toString()));
-            final FutureValue future = scheduler.startNonIsolatedWorker(func, null,
+            final FutureValue future = runtime.scheduler.startNonIsolatedWorker(func, null,
                     PredefinedTypes.TYPE_ANY, "test",
                     new StrandMetadata(ANON_ORG, DOT, DEFAULT_MAJOR_VERSION.value, functionName), args);
             return future.get();
@@ -358,14 +357,14 @@ public class BRunUtil {
         String configClassName = JarResolver.getQualifiedClassName(org, module, version, CONFIGURATION_CLASS_NAME);
 
         Class<?> initClazz = compileResult.getClassLoader().loadClass(initClassName);
-        final Scheduler scheduler = new Scheduler(new Module(org, module, version));
+        final BalRuntime runtime = new BalRuntime(new Module(org, module, version));
         ConfigDetails configurationDetails = LaunchUtils.getConfigurationDetails();
         callConfigInit(compileResult.getClassLoader().loadClass(configClassName),
                 new Class<?>[]{Map.class, String[].class, Path[].class, String.class},
                 new Object[]{new HashMap<>(), new String[]{},
                         configurationDetails.paths, configurationDetails.configContent});
-        runOnSchedule(initClazz, "$moduleInit", scheduler);
-        runOnSchedule(initClazz, "$moduleStart", scheduler);
+        runOnSchedule(initClazz, "$moduleInit", runtime);
+        runOnSchedule(initClazz, "$moduleStart", runtime);
     }
 
     private static void callConfigInit(Class<?> initClazz, Class<?>[] paramTypes, Object[] args) {
@@ -384,16 +383,16 @@ public class BRunUtil {
         }
     }
 
-    private static void runOnSchedule(Class<?> initClazz, String name, Scheduler scheduler) {
-        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, name), scheduler);
+    private static void runOnSchedule(Class<?> initClazz, String name, BalRuntime runtime) {
+        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, name), runtime);
     }
 
-    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler) {
+    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, BalRuntime runtime) {
         String funcName = JvmCodeGenUtil.cleanupFunctionName(name.value);
         try {
             Function<Object[], Object> func = getFunction(initClazz, funcName);
-            final FutureValue future = scheduler.startNonIsolatedWorker(func, null, PredefinedTypes.TYPE_ANY, funcName,
-                    null, new Object[1]);
+            final FutureValue future = runtime.scheduler.startNonIsolatedWorker(func, null, PredefinedTypes.TYPE_ANY,
+                    funcName, null, new Object[1]);
            future.get();
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
@@ -405,7 +404,8 @@ public class BRunUtil {
         }
     }
 
-    private static Function<Object[], Object> getFunction(Class<?> initClazz, String funcName) throws NoSuchMethodException {
+    private static Function<Object[], Object> getFunction(Class<?> initClazz, String funcName)
+            throws NoSuchMethodException {
         final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
         return objects -> {
             try {

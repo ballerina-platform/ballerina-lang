@@ -126,7 +126,8 @@ public class JvmErrorCreatorGen {
         int i = 0;
         for (BIRNode.BIRTypeDefinition errorDefinition : errorTypeDefList) {
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_ERROR_VALUE + methodCount++, CREATE_ERROR, null, null);
+                mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_ERROR_VALUE + methodCount++, CREATE_ERROR, null,
+                        null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
                 int remainingCases = errorTypeDefList.size() - bTypesCount;

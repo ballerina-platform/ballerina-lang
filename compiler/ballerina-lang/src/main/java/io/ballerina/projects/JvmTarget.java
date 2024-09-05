@@ -24,9 +24,10 @@ package io.ballerina.projects;
  */
 // TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
 public enum JvmTarget implements CompilerBackend.TargetPlatform {
-    JAVA_21("java21"),
     JAVA_17("java17"),
+    JAVA_21("java21"),
     JAVA_11("java11");
+    // TODO need to move java21 to the top when the central issue #2792 is fixed
 
     private final String code;
 

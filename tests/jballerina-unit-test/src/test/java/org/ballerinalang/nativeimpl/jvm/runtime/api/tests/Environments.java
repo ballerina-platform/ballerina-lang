@@ -35,7 +35,6 @@ public class Environments {
 
     public static long callClientGetGreeting(Environment env, long p1, BString p2, boolean pn, BArray path, long t1,
                                              BString t2, boolean tn) {
-        env.markAsync();
         String functionName = env.getFunctionName();
         Parameter[] pathParameters = env.getFunctionPathParameters();
         Parameter[] expectedPathParams = {
@@ -68,7 +67,6 @@ public class Environments {
 
     public static long callClientPostGreeting(Environment env, long p1, BDecimal p2, float pn, long t1, BString t2,
                                               boolean tn) {
-        env.markAsync();
         String functionName = env.getFunctionName();
         Parameter[] pathParameters = env.getFunctionPathParameters();
         Parameter[] expectedPathParams = {

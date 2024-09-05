@@ -62,7 +62,7 @@ jobs:
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew build -Pnative.test --max-workers=2 --scan --no-daemon -x jballerina-debugger-integration-test:test
+          ./gradlew build -Pnative.test --max-workers=2 --scan --no-daemon
 
       - name: Generate Jacoco report
         if: github.event_name == 'pull_request'

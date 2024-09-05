@@ -43,8 +43,6 @@ import io.ballerina.runtime.internal.values.ValueCreator;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
@@ -57,24 +55,14 @@ public class Scheduler {
 
     public final ReentrantLock globalNonIsolatedLock = new ReentrantLock();
 
-    public final RuntimeRegistry runtimeRegistry;
-
-    public final BalRuntime runtime;
-
     public static Strand daemonStrand;
 
     private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
 
-    private CompletableFuture<Void> stopFuture = new CompletableFuture();
+    public  final BalRuntime runtime;
 
     public Scheduler(BalRuntime runtime) {
-        this.runtimeRegistry = new RuntimeRegistry(this);
         this.runtime = runtime;
-    }
-
-    public Scheduler(Module rootModule) {
-        this.runtimeRegistry = new RuntimeRegistry(this);
-        this.runtime = new BalRuntime(rootModule);
     }
 
     public static Strand getStrand() {
@@ -297,8 +285,8 @@ public class Scheduler {
     }
 
     /*
-  Only use for tests
- */
+        Only use for tests
+    */
     public FutureValue startNonIsolatedWorker(Function<Object[], Object> function, Strand parentStrand, Type returnType,
                                               String strandName, StrandMetadata metadata, Object[] args) {
         FutureValue future = createFuture(parentStrand, false, null, returnType, strandName, metadata, null);
@@ -406,27 +394,5 @@ public class Scheduler {
         System.arraycopy(args, 0, argsWithStrand, 1, args.length);
         argsWithStrand[0] = parentStrand;
         return argsWithStrand;
-    }
-
-    public void poison() {
-    }
-
-    public void waitOnListeners(boolean listenerDeclarationFound) {
-        if (!listenerDeclarationFound && runtimeRegistry.listenerQueue.isEmpty()) {
-            return;
-        }
-        try {
-            stopFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw ErrorCreator.createError(e);
-        }
-    }
-
-    public RuntimeRegistry getRuntimeRegistry() {
-        return runtimeRegistry;
-    }
-
-    public void gracefulExit() {
-        this.stopFuture.complete(null);
     }
 }

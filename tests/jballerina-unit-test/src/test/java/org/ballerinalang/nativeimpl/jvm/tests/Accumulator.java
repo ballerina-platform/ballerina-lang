@@ -35,7 +35,6 @@ public class Accumulator {
 
     public static long accumulate(Environment env, ObjectValue intFunction, long from, long to) {
         Runtime runtime = env.getRuntime();
-        env.markAsync();
         return accumulateI(intFunction, from, to, runtime, new long[1]);
     }
 

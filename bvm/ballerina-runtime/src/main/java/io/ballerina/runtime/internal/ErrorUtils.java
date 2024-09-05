@@ -36,7 +36,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.FLOAT_LANG_LIB
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.INCOMPATIBLE_CONVERT_OPERATION;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
-import java.util.Arrays;
 
 /**
  * This class contains internal methods used by codegen and runtime classes to handle errors.

@@ -473,7 +473,7 @@ public class JvmValueGen {
                     jvmConstantsGen, asyncDataCollector);
         }
 
-        this.createObjectInit(cw, fields, className);
+        this.createObjectInit(cw);
         jvmObjectGen.createAndSplitCallMethod(cw, attachedFuncs, className, jvmCastGen);
         jvmObjectGen.createAndSplitGetMethod(cw, fields, className, jvmCastGen);
         jvmObjectGen.createAndSplitSetMethod(cw, fields, className, jvmCastGen);
@@ -547,7 +547,7 @@ public class JvmValueGen {
         }
     }
 
-    private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createObjectInit(ClassWriter cw) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, OBJECT_TYPE_IMPL_INIT, null,
                 null);

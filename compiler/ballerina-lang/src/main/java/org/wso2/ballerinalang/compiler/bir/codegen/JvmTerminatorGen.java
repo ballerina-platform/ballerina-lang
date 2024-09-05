@@ -24,8 +24,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_STRAND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_STRAND_AND_LOCK_NAME;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
@@ -116,7 +114,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINED_TYPES;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REENTRANT_LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_ISOLATED_WORKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_NON_ISOLATED_WORKER;
@@ -157,6 +154,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_INITIALIZER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MULTIPLE_RECEIVE_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_STRAND_AND_LOCK_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECEIVE_DATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_CALL;
@@ -973,7 +972,8 @@ public class JvmTerminatorGen {
         this.storeToVar(ins.lhsOp.variableDcl);
     }
 
-    private void genFlushIns(BIRTerminator.Flush ins, BIRNode.BIRFunction func, int channelMapVarIndex, int localVarOffset) {
+    private void genFlushIns(BIRTerminator.Flush ins, BIRNode.BIRFunction func, int channelMapVarIndex,
+                             int localVarOffset) {
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         JvmCodeGenUtil.loadWorkerChannelMap(this.mv, func, channelMapVarIndex, localVarOffset);
         int channelSize = ins.channels.length;

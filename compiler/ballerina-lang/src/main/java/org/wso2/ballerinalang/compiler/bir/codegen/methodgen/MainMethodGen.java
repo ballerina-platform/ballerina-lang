@@ -26,14 +26,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DAEMON_STRAND_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_AND_EXIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_FUTURE;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
@@ -69,12 +61,18 @@ import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA_VERSION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLI_SPEC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIG_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DAEMON_STRAND_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_AND_EXIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_THROWABLE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
@@ -90,30 +88,36 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPOSITORY_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WAIT_ON_LISTENERS_METHOD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_VARIABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_ISOLATED_WORKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_NON_ISOLATED_WORKER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_ARGUMENTS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_CONFIG_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WAIT_ON_LISTENERS_METHOD_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_BALLERINA_INFO;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_SHUTDOWN_HOOK;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CURRENT_MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_CONFIG_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAIN_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TEST_CONFIG_PATH;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_FUTURE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CLI_SPEC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIGURABLES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPERAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPTION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_SIGNAL_LISTENER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TEST_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAIN_METHOD_SIGNATURE;
@@ -128,8 +132,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
  */
 public class MainMethodGen {
 
+    public static final String RUNTIME_VAR = "$runtime";
     public static final String FUTURE_VAR = "$future";
-    public static final String RESULT_VAR = "$resultVar";
     public static final String SCHEDULER_VAR = "$schedulerVar";
     public static final String CONFIG_VAR = "$configVar";
     private final SymbolTable symbolTable;
@@ -156,9 +160,9 @@ public class MainMethodGen {
     public void generateMainMethod(BIRNode.BIRFunction userMainFunc, ClassWriter cw, BIRNode.BIRPackage pkg,
                                    String initClass, boolean serviceEPAvailable, boolean isTestable) {
 
+        int runtimeVarIndex = indexMap.addIfNotExists(RUNTIME_VAR, symbolTable.anyType);
         int schedulerVarIndex = indexMap.addIfNotExists(SCHEDULER_VAR, symbolTable.anyType);
         int futureVarIndex = indexMap.addIfNotExists(FUTURE_VAR, symbolTable.anyType);
-        int resultVarIndex = indexMap.addIfNotExists(RESULT_VAR, symbolTable.anyType);
 
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, MAIN_METHOD, MAIN_METHOD_SIGNATURE,
                 null, null);
@@ -176,18 +180,17 @@ public class MainMethodGen {
         // start all listeners and TRAP signal handler
         startListenersAndSignalHandler(mv, serviceEPAvailable);
 
-        genInitScheduler(mv, schedulerVarIndex);
+        genRuntimeAndGetScheduler(mv, initClass, runtimeVarIndex, schedulerVarIndex);
         // register a shutdown hook to call package stop() method.
         if (!isTestable) {
-            genShutdownHook(mv, initClass, schedulerVarIndex);
+            genShutdownHook(mv, initClass, runtimeVarIndex);
         }
 
         boolean hasInitFunction = MethodGenUtils.hasInitFunction(pkg);
-        generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable, schedulerVarIndex, futureVarIndex,
-                resultVarIndex);
+        generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable, schedulerVarIndex, futureVarIndex);
 
         if (hasInitFunction && !isTestable) {
-            setListenerFound(mv, serviceEPAvailable, schedulerVarIndex);
+            setListenerFound(mv, serviceEPAvailable, runtimeVarIndex);
         }
         stopListeners(mv, serviceEPAvailable);
         if (!serviceEPAvailable && !isTestable) {
@@ -195,7 +198,7 @@ public class MainMethodGen {
         }
 
         if (isTestable) {
-            generateModuleStopCall(initClass, mv, schedulerVarIndex);
+            generateModuleStopCall(initClass, mv, runtimeVarIndex);
         }
         mv.visitLabel(tryCatchEnd);
         mv.visitInsn(RETURN);
@@ -221,8 +224,7 @@ public class MainMethodGen {
     }
 
     private void generateExecuteFunctionCall(String initClass, MethodVisitor mv, BIRNode.BIRFunction userMainFunc,
-                                             boolean isTestable, int schedulerVarIndex, int futureVarIndex,
-                                             int resultVarIndex) {
+                                             boolean isTestable, int schedulerVarIndex, int futureVarIndex) {
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
         // invoke the module execute method
         genSubmitToScheduler(initClass, mv, userMainFunc, isTestable, futureVarIndex);
@@ -233,10 +235,9 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC , LAUNCH_UTILS, "stopListeners", "(Z)V", false);
     }
 
-    private void generateModuleStopCall(String initClass, MethodVisitor mv, int schedulerVarIndex) {
-        mv.visitVarInsn(ALOAD, schedulerVarIndex);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, JvmConstants.CURRENT_MODULE_STOP,
-                JvmSignatures.CURRENT_MODULE_STOP, false);
+    private void generateModuleStopCall(String initClass, MethodVisitor mv, int runtimeVarIndex) {
+        mv.visitVarInsn(ALOAD, runtimeVarIndex);
+        mv.visitMethodInsn(INVOKESTATIC, initClass, CURRENT_MODULE_STOP_METHOD, CURRENT_MODULE_STOP, false);
     }
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
@@ -296,30 +297,34 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListenersAndSignalHandler", "(Z)V", false);
     }
 
-    private void genShutdownHook(MethodVisitor mv, String initClass, int schedulerVarIndex) {
+    private void genShutdownHook(MethodVisitor mv, String initClass, int runtimeVarIndex) {
         String shutdownClassName = initClass + "$SignalListener";
         mv.visitMethodInsn(INVOKESTATIC, JAVA_RUNTIME, "getRuntime", GET_RUNTIME, false);
         mv.visitTypeInsn(NEW, shutdownClassName);
         mv.visitInsn(DUP);
-        mv.visitVarInsn(ALOAD, schedulerVarIndex);
+        mv.visitVarInsn(ALOAD, runtimeVarIndex);
         mv.visitMethodInsn(INVOKESPECIAL, shutdownClassName, JVM_INIT_METHOD, INIT_SIGNAL_LISTENER, false);
         mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "addShutdownHook", ADD_SHUTDOWN_HOOK, false);
     }
 
-    private void genInitScheduler(MethodVisitor mv, int schedulerVarIndex) {
-        mv.visitTypeInsn(NEW, SCHEDULER);
+    private void genRuntimeAndGetScheduler(MethodVisitor mv, String initClass, int runtimeVarIndex,
+                                           int schedulerVarIndex) {
+        mv.visitTypeInsn(NEW, BAL_RUNTIME);
         mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
-        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, JVM_INIT_METHOD, INIT_SCHEDULER, false);
+        mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
+        mv.visitMethodInsn(INVOKESPECIAL, BAL_RUNTIME, JVM_INIT_METHOD, INIT_RUNTIME, false);
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ASTORE, runtimeVarIndex);
+        mv.visitFieldInsn(GETFIELD, BAL_RUNTIME, SCHEDULER_VARIABLE, GET_SCHEDULER);
         mv.visitVarInsn(ASTORE, schedulerVarIndex);
     }
 
-    private void setListenerFound(MethodVisitor mv, boolean serviceEPAvailable, int schedulerVarIndex) {
+    private void setListenerFound(MethodVisitor mv, boolean serviceEPAvailable, int runtimeVarIndex) {
         // need to set immortal=true and start the scheduler again
         if (serviceEPAvailable) {
-            mv.visitVarInsn(ALOAD, schedulerVarIndex);
+            mv.visitVarInsn(ALOAD, runtimeVarIndex);
             mv.visitInsn(ICONST_1);
-            mv.visitMethodInsn(INVOKEVIRTUAL , SCHEDULER, WAIT_ON_LISTENERS_METHOD_NAME, "(Z)V", false);
+            mv.visitMethodInsn(INVOKEVIRTUAL , BAL_RUNTIME, WAIT_ON_LISTENERS_METHOD_NAME, "(Z)V", false);
         }
     }
 
@@ -420,9 +425,10 @@ public class MainMethodGen {
         int defaultableIndex = 0;
         for (BIRNode.BIRAnnotationAttachment attachment : annotAttachments) {
             if (attachment != null && attachment.annotTagRef.value.equals(JvmConstants.DEFAULTABLE_ARGS_ANOT_NAME)) {
-                Map<?, ?> annotFieldMap = (Map<?,?>) ((BIRNode.BIRConstAnnotationAttachment) attachment)
+                Map<?, ?> annotFieldMap = (Map<?, ?>) ((BIRNode.BIRConstAnnotationAttachment) attachment)
                         .annotValue.value;
-                BIRNode.ConstValue annConstValue = (BIRNode.ConstValue) annotFieldMap.get(JvmConstants.DEFAULTABLE_ARGS_ANOT_FIELD);
+                BIRNode.ConstValue annConstValue =
+                        (BIRNode.ConstValue) annotFieldMap.get(JvmConstants.DEFAULTABLE_ARGS_ANOT_FIELD);
                 BIRNode.ConstValue[] annotArrayValue = (BIRNode.ConstValue[]) annConstValue.value;
                 for (BIRNode.ConstValue entryOptional : annotArrayValue) {
                     defaultableNames.add(defaultableIndex, (String) entryOptional.value);

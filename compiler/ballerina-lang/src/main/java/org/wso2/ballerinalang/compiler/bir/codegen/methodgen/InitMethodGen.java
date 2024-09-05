@@ -21,18 +21,12 @@ package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_METHOD;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_FUTURE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_STRAND;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
@@ -49,12 +43,10 @@ import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -78,20 +70,20 @@ import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
-import static org.objectweb.asm.Opcodes.IFEQ;
-import static org.objectweb.asm.Opcodes.INSTANCEOF;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.LRETURN;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.RETURN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLI_SPEC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_STOP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GRACEFUL_EXIT_METHOD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
@@ -105,21 +97,24 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_R
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_REGISTRY_VARIABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_VARIABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_ISOLATED_WORKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_VALUE_CREATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CURRENT_MODULE_STOP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BAL_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAIN_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_REGISTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_STOP_PANIC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_FUTURE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_NULL_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_ARRAY_RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
@@ -252,18 +247,25 @@ public class InitMethodGen {
                                    JvmConstantsGen jvmConstantsGen) {
         // Using object return type since this is similar to a ballerina function without a return.
         // A ballerina function with no returns is equivalent to a function with nil-return.
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_STOP,
-                JvmSignatures.CURRENT_MODULE_STOP, null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_STOP_METHOD, CURRENT_MODULE_STOP,
+                null, null);
         mv.visitCode();
+        generateGetSchedulerVar(mv);
         String lambdaName = generateStopDynamicLambdaBody(cw, moduleInitClass);
         generateCallStopDynamicLambda(mv, lambdaName, moduleInitClass, asyncDataCollector, jvmConstantsGen);
 
-        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 1);
         mv.visitVarInsn(ALOAD, 3);
         mv.visitMethodInsn(INVOKESTATIC, moduleInitClass, MODULE_STOP_METHOD, MODULE_STOP, false);
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMaxStackForMethod(mv, CURRENT_MODULE_STOP, moduleInitClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CURRENT_MODULE_STOP_METHOD, moduleInitClass);
         mv.visitEnd();
+    }
+
+    private static void generateGetSchedulerVar(MethodVisitor mv) {
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitFieldInsn(GETFIELD, BAL_RUNTIME, SCHEDULER_VARIABLE, GET_SCHEDULER);
+        mv.visitVarInsn(ASTORE, 1);
     }
 
     private String generateStopDynamicLambdaBody(ClassWriter cw, String initClass) {
@@ -291,27 +293,27 @@ public class InitMethodGen {
 
     private void generateCallStopDynamicLambda(MethodVisitor mv, String lambdaName, String moduleInitClass,
                                                AsyncDataCollector asyncDataCollector, JvmConstantsGen jvmConstantsGen) {
-        addRuntimeRegistryAsParameter(mv);
+        addRuntimeRegistryAsParameter(mv, moduleInitClass);
         generateMethodBody(mv, moduleInitClass, lambdaName, asyncDataCollector, jvmConstantsGen);
         // handle future result
         mv.visitVarInsn(ALOAD, 3);
         mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_FUTURE_METHOD, HANDLE_FUTURE, false);
     }
 
-    private void addRuntimeRegistryAsParameter(MethodVisitor mv) {
+    private void addRuntimeRegistryAsParameter(MethodVisitor mv, String initClass) {
         mv.visitIntInsn(BIPUSH, 2);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
         mv.visitVarInsn(ASTORE, 2);
         mv.visitVarInsn(ALOAD, 2);
         mv.visitInsn(ICONST_1);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, SCHEDULER, RUNTIME_REGISTRY_VARIABLE, GET_RUNTIME_REGISTRY);
+        mv.visitFieldInsn(GETFIELD, BAL_RUNTIME, RUNTIME_REGISTRY_VARIABLE, GET_RUNTIME_REGISTRY);
         mv.visitInsn(AASTORE);
     }
 
     private void generateMethodBody(MethodVisitor mv, String initClass, String stopFuncName,
                                     AsyncDataCollector asyncDataCollector, JvmConstantsGen jvmConstantsGen) {
-        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 1);
         JvmCodeGenUtil.createFunctionPointer(mv, initClass, stopFuncName);
         mv.visitInsn(ACONST_NULL);
         mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_NULL", LOAD_NULL_TYPE);
@@ -494,9 +496,8 @@ public class InitMethodGen {
                                                               List<BIROperand> args) {
         BIRNode.BIRGlobalVariableDcl defaultFuncVar = getDefaultFuncFPGlobalVar(defaultFunc.name, globalVars);
         BIROperand defaultFP = new BIROperand(defaultFuncVar);
-        boolean workerDerivative = Symbols.isFlagOn(defaultFunc.flags, Flags.WORKER);
-        return new BIRTerminator.FPCall(null, InstructionKind.FP_CALL, defaultFP, args, argOperand, false,
-                thenBB, null, workerDerivative, new ArrayList<>());
+        return new BIRTerminator.FPCall(null, InstructionKind.FP_CALL, defaultFP, args, argOperand, false, thenBB,
+                null, new ArrayList<>());
     }
 
     private BIRNode.BIRGlobalVariableDcl getDefaultFuncFPGlobalVar(Name name,
@@ -595,8 +596,8 @@ public class InitMethodGen {
     }
 
     private BIRNode.BIRBasicBlock addCheckedInvocationWithArgs(BIRNode.BIRFunction func, PackageID modId,
-                                                               String initFuncName,
-                                                               BIROperand retVar, BIROperand boolRef,
+                                                               String initFuncName, BIROperand retVar,
+                                                               BIROperand boolRef,
                                                                List<BIROperand> args,
                                                                List<BIRNode.BIRAnnotationAttachment>
                                                                        calleeAnnotAttachments) {
@@ -651,7 +652,8 @@ public class InitMethodGen {
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "scheduler", GET_SCHEDULER);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, GRACEFUL_EXIT_METHOD_NAME, "()V", false);
+        mv.visitFieldInsn(GETFIELD, SCHEDULER, "runtime", GET_BAL_RUNTIME);
+        mv.visitMethodInsn(INVOKEVIRTUAL, BAL_RUNTIME, GRACEFUL_EXIT_METHOD_NAME, "()V", false);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, GRACEFUL_EXIT_METHOD_NAME, SCHEDULER);
         mv.visitEnd();

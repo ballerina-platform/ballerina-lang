@@ -17,6 +17,7 @@
 package io.ballerina.runtime.internal.lock;
 
 import io.ballerina.runtime.internal.scheduling.Strand;
+
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -29,12 +30,10 @@ public class BLock extends ReentrantLock {
     public void lock(Strand strand) {
         super.lock();
         strand.acquiredLockCount++;
-
     }
 
     public void unlock(Strand strand) {
         super.unlock();
         strand.acquiredLockCount--;
     }
-
 }

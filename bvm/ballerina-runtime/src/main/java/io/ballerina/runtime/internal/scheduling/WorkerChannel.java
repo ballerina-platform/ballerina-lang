@@ -18,8 +18,8 @@
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.values.BError;
-
 import io.ballerina.runtime.internal.ErrorUtils;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 

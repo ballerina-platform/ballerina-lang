@@ -149,7 +149,7 @@ public class TestBalaWriter {
 
             Assert.assertEquals(packageJson.getVisibility(), "private");
 
-            Assert.assertEquals(packageJson.getPlatform(), "java21");
+            Assert.assertEquals(packageJson.getPlatform(), JvmTarget.JAVA_21.code());
             Assert.assertEquals(packageJson.getPlatformDependencies().size(), 1);
 
             Assert.assertEquals(packageJson.getBallerinaVersion(), RepoUtils.getBallerinaShortVersion());
@@ -239,12 +239,12 @@ public class TestBalaWriter {
         Assert.assertFalse(storageModuleSrcPath.resolve("Module.md").toFile().exists());
 
         // Check if platform dependencies exists
-        Path platformDependancy = balaExportPath.resolve("platform").resolve("java21")
+        Path platformDependancy = balaExportPath.resolve("platform").resolve(JvmTarget.JAVA_21.code())
                 .resolve("ballerina-io-1.0.0-java.txt");
         Assert.assertTrue(platformDependancy.toFile().exists());
 
         // Check if test scoped platform dependencies not exists
-        Path testScopePlatformDependancy = balaExportPath.resolve("platform").resolve("java21")
+        Path testScopePlatformDependancy = balaExportPath.resolve("platform").resolve(JvmTarget.JAVA_21.code())
                 .resolve("ballerina-io-1.2.0-java.txt");
         Assert.assertFalse(testScopePlatformDependancy.toFile().exists());
 
@@ -373,7 +373,7 @@ public class TestBalaWriter {
         Assert.assertTrue(packageJsonPath.toFile().exists());
         try (FileReader reader = new FileReader(String.valueOf(packageJsonPath))) {
             PackageJson packageJson = gson.fromJson(reader, PackageJson.class);
-            Assert.assertEquals(packageJson.getPlatform(), "java21");
+            Assert.assertEquals(packageJson.getPlatform(), JvmTarget.JAVA_21.code());
             JsonObject foundInBala = packageJson.getPlatformDependencies().get(0).getAsJsonObject();
             JsonObject expected = new JsonObject();
             expected.addProperty("artifactId", "project1");
@@ -384,7 +384,7 @@ public class TestBalaWriter {
             Assert.assertEquals(foundInBala, expected);
         }
         // Check if test scoped platform dependencies not exists
-        Path providedScopePlatformDependancy = balaExportPath.resolve("platform").resolve("java21")
+        Path providedScopePlatformDependancy = balaExportPath.resolve("platform").resolve(JvmTarget.JAVA_21.code())
                 .resolve("project1-1.0.0.jar");
         Assert.assertFalse(providedScopePlatformDependancy.toFile().exists());
     }
@@ -540,9 +540,6 @@ public class TestBalaWriter {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
-
-//        // invoke write bala method
-//        BalaWriter.write(project.currentPackage(), balaPath);
     }
 
     @Test(description = "tests build project with a valid icon in Ballerina.toml")

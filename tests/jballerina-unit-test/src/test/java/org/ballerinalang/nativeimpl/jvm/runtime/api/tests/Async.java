@@ -178,13 +178,11 @@ public class Async {
     }
 
     private static long startNonIsolatedWorker(Environment env, BObject obj, String methodName, Object... args) {
-        env.markAsync();
         return (long) env.getRuntime().startNonIsolatedWorker(obj, methodName, methodName,
                 null, null, args).get();
     }
 
     private static long startIsolatedWorker(Environment env, BObject obj, String methodName, Object... args) {
-        env.markAsync();
         return (long) env.getRuntime().startNonIsolatedWorker(obj, methodName, methodName,
                 null, null, args).get();
     }

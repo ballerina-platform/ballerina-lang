@@ -137,7 +137,8 @@ public abstract class Runtime {
      * object.getType().isIsolated(methodName) returns true.
      */
     public abstract BFuture startIsolatedWorker(BObject object, String methodName, String strandName,
-                                                StrandMetadata metadata, Map<String, Object> properties, Object... args);
+                                                StrandMetadata metadata, Map<String, Object> properties,
+                                                Object... args);
 
     /**
      * Invoke function as worker in same parent thread. This method will ensure that the object methods are
