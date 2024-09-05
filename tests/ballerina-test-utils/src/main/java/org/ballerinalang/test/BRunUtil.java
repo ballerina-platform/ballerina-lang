@@ -23,6 +23,7 @@ import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
@@ -66,8 +67,11 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static org.ballerinalang.test.util.TestConstant.CONFIGURATION_CLASS_NAME;
 import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_MAJOR_VERSION;
 
 /**
  * Utility methods for run Ballerina functions with JVM arguments and return values.
@@ -199,8 +203,9 @@ public class BRunUtil {
             Scheduler scheduler = new Scheduler(new Module(packageManifest.org().toString(),
                     packageManifest.name().toString(),
                     packageManifest.version().toString()));
-            final FutureValue future = scheduler.startNonIsolatedWorker(func, null, PredefinedTypes.TYPE_ANY,
-                    functionName, null, args);
+            final FutureValue future = scheduler.startNonIsolatedWorker(func, null,
+                    PredefinedTypes.TYPE_ANY, "test",
+                    new StrandMetadata(ANON_ORG, DOT, DEFAULT_MAJOR_VERSION.value, functionName), args);
             return future.get();
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);

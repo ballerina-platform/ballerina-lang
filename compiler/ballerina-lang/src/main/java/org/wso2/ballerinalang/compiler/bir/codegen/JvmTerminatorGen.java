@@ -695,13 +695,12 @@ public class JvmTerminatorGen {
                     }
 
                     if (recordValue.containsKey(STRAND_NAME)) {
-                        BIRNode.ConstValue constValue = (BIRNode.ConstValue) recordValue.get(STRAND_THREAD);
-                        strandName = constValue.toString();
-
+                        BIRNode.ConstValue constValue = (BIRNode.ConstValue) recordValue.get(STRAND_NAME);
+                        strandName = (String) constValue.value;
                     }
 
                     if (recordValue.containsKey(STRAND_POLICY_NAME)) {
-                        BIRNode.ConstValue constValue = (BIRNode.ConstValue) recordValue.get(STRAND_THREAD);
+                        BIRNode.ConstValue constValue = (BIRNode.ConstValue) recordValue.get(STRAND_POLICY_NAME);
                         if (!DEFAULT_STRAND_DISPATCHER.equals(constValue.value)) {
                             throw new BLangCompilerException("Unsupported policy. Only 'DEFAULT' policy is " +
                                     "supported by jBallerina runtime.");
@@ -827,18 +826,25 @@ public class JvmTerminatorGen {
                             isIsolated = true;
                         }
                     }
+                    if (recordValue.containsKey(STRAND_NAME)) {
+                        BIRNode.ConstValue constValue = (BIRNode.ConstValue) recordValue.get(STRAND_NAME);
+                        workerName = (String) constValue.value;
+                    }
+                    if (recordValue.containsKey(STRAND_POLICY_NAME)) {
+                        BIRNode.ConstValue constValue = (BIRNode.ConstValue) recordValue.get(STRAND_POLICY_NAME);
+                        if (!DEFAULT_STRAND_DISPATCHER.equals(constValue.value)) {
+                            throw new BLangCompilerException("Unsupported policy. Only 'DEFAULT' policy is "
+                                                             + "supported by jBallerina runtime.");
+                        }
+                    }
+                    break;
                 }
-                break;
             }
             // load function ref now
             this.loadVar(fpCall.fp.variableDcl);
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             loadFpReturnType(fpCall.lhsOp);
-            if (workerName == null) {
-                this.mv.visitInsn(ACONST_NULL);
-            } else {
-                this.mv.visitLdcInsn(workerName);
-            }
+            this.mv.visitLdcInsn(Objects.requireNonNullElse(workerName, DEFAULT_STRAND_NAME));
             this.submitToScheduler(fpCall.lhsOp, attachedType, funcName, isIsolated, fpCall, localVarOffset,
                     hasWorkers, channelMapVarIndex);
         } else {
