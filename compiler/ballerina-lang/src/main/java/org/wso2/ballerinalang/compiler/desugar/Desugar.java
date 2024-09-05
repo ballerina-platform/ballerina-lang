@@ -1002,7 +1002,13 @@ public class Desugar extends BLangNodeVisitor {
 
     private void addTypeDescStmtsToInitFunction(SymbolEnv initFunctionEnv, List<BLangVariable> desugaredGlobalVarList,
                                                 BLangBlockFunctionBody initFnBody) {
+        BSymbol owner = this.env.scope.owner;
         for (BLangSimpleVariableDef variableDef : typedescList) {
+            // typedesc statements are created while rewriting the type node. For that the env will be initFuncEnv.
+            // But the owner of the symbol should be the package. Hence, correct it here.
+            BSymbol varSymbol = variableDef.var.symbol;
+            varSymbol.pkgID = owner.pkgID;
+            varSymbol.owner = owner;
             rewrite(variableDef, initFunctionEnv);
             addToInitFunction(variableDef.var, initFnBody);
             desugaredGlobalVarList.add(variableDef.var);
