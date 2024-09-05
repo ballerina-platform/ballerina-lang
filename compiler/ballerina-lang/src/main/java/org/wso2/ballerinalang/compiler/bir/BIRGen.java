@@ -834,10 +834,11 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         PackageID pkgID = lambdaExpr.function.symbol.pkgID;
+        PackageID boundMethodPkgId = getPackageIdForBoundMethod(lambdaExpr, funcName.value);
         List<BIROperand> closureMapOperands = getClosureMapOperands(lambdaExpr);
         BIRNonTerminator.FPLoad fpLoad = new BIRNonTerminator.FPLoad(lambdaExpr.pos, pkgID, funcName, lhsOp, params,
                 closureMapOperands, lambdaExpr.getBType(), lambdaExpr.function.symbol.strandName,
-                lambdaExpr.function.symbol.schedulerPolicy);
+                lambdaExpr.function.symbol.schedulerPolicy, boundMethodPkgId);
         setScopeAndEmit(fpLoad);
         BType targetType = getRecordTargetType(funcName.value);
         if (lambdaExpr.function.flagSet.contains(Flag.RECORD) && targetType != null &&
@@ -3013,7 +3014,8 @@ public class BIRGen extends BLangNodeVisitor {
             params.add(birVarDcl);
         }
         setScopeAndEmit(new BIRNonTerminator.FPLoad(fpVarRef.pos, funcSymbol.pkgID, funcName, lhsOp, params,
-                new ArrayList<>(), funcSymbol.type, funcSymbol.strandName, funcSymbol.schedulerPolicy));
+                new ArrayList<>(), funcSymbol.type, funcSymbol.strandName, funcSymbol.schedulerPolicy,
+                funcSymbol.pkgID));
         this.env.targetOperand = lhsOp;
     }
 

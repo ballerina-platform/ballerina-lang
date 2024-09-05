@@ -405,6 +405,8 @@ public class JvmSignatures {
     public static final String POPULATE_CONFIG_DATA = "()[L" + VARIABLE_KEY + ";";
     public static final String POPULATE_INITIAL_VALUES = "([L" + B_MAPPING_INITIAL_VALUE_ENTRY + ";)V";
     public static final String PROCESS_ANNOTATIONS = "(L" + MAP_VALUE + ";L" + TYPE + ";)V";
+    public static final String PROCESS_FP_ANNOTATIONS =
+            "(L" + FUNCTION_POINTER + ";L" + MAP_VALUE + ";L" + STRING_VALUE + ";)V";
     public static final String PROCESS_OBJ_CTR_ANNOTATIONS =
             "(L" + OBJECT_TYPE_IMPL + ";L" + MAP_VALUE + ";L" + STRAND_CLASS + ";)V";
     public static final String RECEIVE_DATA =

@@ -871,10 +871,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public List<BIRVariableDcl> params;
         public List<BIROperand> closureMaps;
         public BType type;
+        public PackageID boundMethodPkgId;
 
         public FPLoad(Location location, PackageID pkgId, Name funcName, BIROperand lhsOp,
                       List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType type, String strandName,
-                      SchedulerPolicy schedulerPolicy) {
+                      SchedulerPolicy schedulerPolicy, PackageID boundMethodPkgId) {
             super(location, InstructionKind.FP_LOAD);
             this.schedulerPolicy = schedulerPolicy;
             this.strandName = strandName;
@@ -885,6 +886,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.closureMaps = closureMaps;
             this.type = type;
             this.type.name = funcName;
+            this.boundMethodPkgId = boundMethodPkgId == null ? pkgId : boundMethodPkgId;
         }
 
         @Override

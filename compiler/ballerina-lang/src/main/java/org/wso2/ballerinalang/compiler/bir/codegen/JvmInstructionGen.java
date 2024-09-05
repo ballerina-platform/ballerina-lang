@@ -248,6 +248,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_S
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_DOUBLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_LONG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_FP_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_OBJ_CTR_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_DECIMAL_RETURN_DECIMAL;
@@ -275,6 +276,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeVal
 public class JvmInstructionGen {
 
     public static final String TO_UNSIGNED_LONG = "toUnsignedLong";
+    public static final String ANON_METHOD_DELEGATE = "$anon$method$delegate$";
     //this any type is currently set from package gen class
     static BType anyType;
     private final MethodVisitor mv;
@@ -1671,6 +1673,20 @@ public class JvmInstructionGen {
             mv.visitInsn(ICONST_0);
         }
         this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD, FP_INIT, false);
+
+        PackageID boundMethodPkgId = inst.boundMethodPkgId;
+        String funcPkgName = JvmCodeGenUtil.getPackageName(boundMethodPkgId == null ? inst.pkgId : boundMethodPkgId);
+        // Set annotations if available.
+        this.mv.visitInsn(DUP);
+        String pkgClassName = funcPkgName.isEmpty() ? MODULE_INIT_CLASS_NAME :
+                jvmPackageGen.lookupGlobalVarClassName(funcPkgName, ANNOTATION_MAP_NAME);
+        this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, GET_MAP_VALUE);
+        // Format of name `$anon$method$delegate$Foo.func$0`.
+        this.mv.visitLdcInsn(name.startsWith(ANON_METHOD_DELEGATE) ?
+                name.subSequence(ANON_METHOD_DELEGATE.length(), name.lastIndexOf("$")) :
+                name);
+        this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processFPValueAnnotations",
+                PROCESS_FP_ANNOTATIONS, false);
         this.storeToVar(inst.lhsOp.variableDcl);
     }
 
