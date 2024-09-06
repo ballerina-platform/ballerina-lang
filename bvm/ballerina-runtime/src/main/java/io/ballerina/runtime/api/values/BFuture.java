@@ -17,9 +17,6 @@
   */
  package io.ballerina.runtime.api.values;
 
- import io.ballerina.runtime.api.async.Callback;
- import io.ballerina.runtime.internal.scheduling.Strand;
-
  /**
   * <p>
   * Represent a Ballerina future in Java.
@@ -35,22 +32,12 @@
       */
      void cancel();
 
-     // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
-     /**
-      * Returns the strand that the future is attached to.
-      *
-      * @return     strand
-      * @deprecated
-      */
-     @Deprecated(since = "2201.6.0", forRemoval = true)
-     Strand getStrand();
-
      /**
       * Returns the result value of the future.
       *
       * @return result value
       */
-     Object getResult();
+     Object get();
 
      /**
       * Returns completion status of the Ballerina strand that the future is attached.
@@ -60,16 +47,9 @@
      boolean isDone();
 
      /**
-      * Returns {@code Throwable} if the attached strand panic.
+      * Returns whether the future is completed with panic.
       *
-      * @return panic error or null if not panic occurred
+      * @return true if future is completed with panic otherwise false
       */
-     Throwable getPanic();
-
-     /**
-      * Returns {@link Callback} listening on the completion of this future.
-      *
-      * @return registered {@link Callback}
-      */
-     Callback getCallback();
+     boolean isPanic();
  }

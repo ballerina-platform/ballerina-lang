@@ -25,12 +25,6 @@ import io.ballerina.runtime.api.values.BTable;
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table", functionName = "removeIfHasKey",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "key", type = TypeKind.ANYDATA)},
-//        returnType = {@ReturnType(type = TypeKind.ANY)},
-//        isPublic = true
-//)
 public class RemoveIfHasKey {
 
     public static Object removeIfHasKey(BTable tbl, Object key) {

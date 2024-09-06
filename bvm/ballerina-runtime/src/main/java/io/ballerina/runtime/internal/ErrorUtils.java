@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
@@ -189,10 +190,34 @@ public class ErrorUtils {
                 ErrorHelper.getErrorDetails(ErrorCodes.INVALID_FRACTION_DIGITS));
     }
 
-    public static BError createNoMessageError(String chnlName) {
-        String[] splitWorkers = chnlName.split(":")[0].split("->");
+    public static BError createNoMessageError(String channelKey) {
+        String[] splitWorkers = channelKey.split(":")[0].split("->");
         return createError(BALLERINA_LANG_ERROR_PKG_ID, "NoMessage", ErrorReasons.NO_MESSAGE_ERROR,
                 null, ErrorHelper.getErrorDetails(ErrorCodes.NO_MESSAGE_ERROR,
                         StringUtils.fromString(splitWorkers[0]), StringUtils.fromString(splitWorkers[1])));
+    }
+
+    public static BError createWaitOnSameFutureError() {
+        return ErrorCreator.createError(StringUtils.fromString("multiple waits on the same future is not allowed"));
+    }
+
+    public static BError createErrorFromThrowable(Throwable t) {
+        if (t instanceof BError error) {
+            return error;
+        }
+        if (t.getCause() instanceof BError error) {
+            return error;
+        }
+        BError error;
+        if (t instanceof StackOverflowError) {
+            error = ErrorCreator.createError(ErrorReasons.STACK_OVERFLOW_ERROR);
+        } else if (t instanceof OutOfMemoryError) {
+            error = ErrorCreator.createError(ErrorReasons.JAVA_OUT_OF_MEMORY_ERROR,
+                    StringUtils.fromString(t.getMessage()));
+        } else {
+            error = ErrorCreator.createError(t);
+        }
+        error.setStackTrace(t.getStackTrace());
+        return error;
     }
 }

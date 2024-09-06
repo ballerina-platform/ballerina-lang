@@ -126,9 +126,8 @@ public class JvmErrorCreatorGen {
         int i = 0;
         for (BIRNode.BIRTypeDefinition errorDefinition : errorTypeDefList) {
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_ERROR_VALUE + methodCount++,
-                        CREATE_ERROR
-                        , null, null);
+                mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_ERROR_VALUE + methodCount++, CREATE_ERROR, null,
+                        null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
                 int remainingCases = errorTypeDefList.size() - bTypesCount;
@@ -149,8 +148,7 @@ public class JvmErrorCreatorGen {
             mv.visitVarInsn(ALOAD, messageIndex);
             mv.visitVarInsn(ALOAD, causeIndex);
             mv.visitVarInsn(ALOAD, detailsIndex);
-            mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD,
-                    ERROR_INIT, false);
+            mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD, ERROR_INIT, false);
             mv.visitInsn(ARETURN);
             i += 1;
             bTypesCount++;

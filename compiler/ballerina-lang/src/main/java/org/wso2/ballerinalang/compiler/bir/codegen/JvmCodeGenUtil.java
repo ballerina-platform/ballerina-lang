@@ -35,11 +35,14 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JTermKind;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JTerminator;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -57,22 +60,16 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
-import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
-import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
-import static org.objectweb.asm.Opcodes.H_INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
-import static org.objectweb.asm.Opcodes.ICONST_1;
-import static org.objectweb.asm.Opcodes.IFEQ;
-import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -83,7 +80,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTEN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
@@ -94,16 +90,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACK
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAKE_CONCAT_WITH_CONSTANTS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_STRINGS_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OVERFLOW_LINE_NUMBER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_OF_HEADING_WITH_SEMICOLON;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA_VAR_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_WORKER_CHANNEL_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_CONCAT_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WINDOWS_PATH_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FP_INIT;
@@ -124,13 +118,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_WORKER_CHANNEL_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_DESCRIPTOR_FOR_STRING_CONCAT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_TO_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_B_STRING_VALUE;
@@ -188,7 +180,7 @@ public class JvmCodeGenUtil {
 
         // load null here for type, since these are fps created for internal usage.
         mv.visitInsn(Opcodes.ACONST_NULL);
-        mv.visitInsn(Opcodes.ACONST_NULL);
+        mv.visitLdcInsn(lambdaName);
         mv.visitInsn(Opcodes.ICONST_0); // mark as not-concurrent ie: 'parent'
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD, FP_INIT, false);
     }
@@ -429,42 +421,6 @@ public class JvmCodeGenUtil {
         };
     }
 
-    public static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels,
-                                          int invocationVarIndex) {
-        mv.visitIntInsn(BIPUSH, channels.size());
-        mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
-        int index = 0;
-        for (BIRNode.ChannelDetails ch : channels) {
-            mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, index);
-            index += 1;
-
-            mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
-            mv.visitInsn(DUP);
-            mv.visitVarInsn(ILOAD, invocationVarIndex);
-            mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
-                    new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
-                            HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false),
-                    ch.name + START_OF_HEADING_WITH_SEMICOLON);
-
-            if (ch.channelInSameStrand) {
-                mv.visitInsn(ICONST_1);
-            } else {
-                mv.visitInsn(ICONST_0);
-            }
-
-            if (ch.send) {
-                mv.visitInsn(ICONST_1);
-            } else {
-                mv.visitInsn(ICONST_0);
-            }
-
-            mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, JVM_INIT_METHOD,
-                    INIT_CHANNEL_DETAILS, false);
-            mv.visitInsn(AASTORE);
-        }
-    }
-
     public static String toNameString(BType t) {
         BTypeSymbol typeSymbol = t.tsymbol;
         if ((typeSymbol.kind == SymbolKind.RECORD || typeSymbol.kind == SymbolKind.OBJECT) &&
@@ -547,38 +503,38 @@ public class JvmCodeGenUtil {
         return lastScope;
     }
 
-    public static void genYieldCheck(MethodVisitor mv, LabelGenerator labelGen, BIRNode.BIRBasicBlock thenBB,
-                                     String funcName, int localVarOffset, int yieldLocationVarIndex,
-                                     Location terminatorPos, String fullyQualifiedFuncName, String yieldStatus,
-                                     int yieldStatusVarIndex) {
-        mv.visitVarInsn(ALOAD, localVarOffset);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "isYielded", "()Z", false);
-        generateSetYieldedStatus(mv, labelGen, funcName, yieldLocationVarIndex, terminatorPos,
-                fullyQualifiedFuncName, yieldStatus, yieldStatusVarIndex);
-        Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
-        mv.visitJumpInsn(GOTO, gotoLabel);
+    public static void genStrandAction(MethodVisitor mv, BIRTerminator terminator, int localVarOffset,
+                                       String strandAction) {
+        switch (terminator.kind) {
+            case WK_RECEIVE, WK_ALT_RECEIVE, WK_MULTIPLE_RECEIVE, FLUSH, WAIT, WAIT_ALL:
+                genStrandAction(mv, localVarOffset, strandAction);
+                break;
+            case WK_SEND:
+                if (((BIRTerminator.WorkerSend) terminator).isSync) {
+                    genStrandAction(mv, localVarOffset, strandAction);
+                }
+                break;
+            case PLATFORM:
+                if (terminator instanceof JTerminator jTerminator &&
+                        jTerminator.jTermKind == JTermKind.JI_METHOD_CALL) {
+                    genStrandAction(mv, localVarOffset, strandAction);
+                }
+                break;
+            default:
+        }
     }
 
-    protected static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,
-                                                   int yieldLocationVarIndex, Location terminatorPos,
-                                                   String fullyQualifiedFuncName, String yieldStatus,
-                                                   int yieldStatusVarIndex) {
-        Label yieldLocationLabel = new Label();
-        mv.visitJumpInsn(IFEQ, yieldLocationLabel);
+    private static void genStrandAction(MethodVisitor mv, int localVarOffset, String strandAction) {
+        mv.visitVarInsn(ALOAD, localVarOffset);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, strandAction, VOID_METHOD_DESC, false);
+    }
 
-        StringBuilder yieldLocationData = new StringBuilder(fullyQualifiedFuncName);
-        if (terminatorPos != null) {
-            yieldLocationData.append("(").append(terminatorPos.lineRange().fileName()).append(":")
-                    .append(terminatorPos.lineRange().startLine().line() + 1).append(")");
+    public static void genGotoThenBB(MethodVisitor mv, BIRNode.BIRBasicBlock thenBB, LabelGenerator labelGen,
+                                     BIRTerminator terminator, String funcName) {
+        if (thenBB != null) {
+            Label gotoLabel = labelGen.getLabel(funcName + terminator.thenBB.id.value);
+            mv.visitJumpInsn(GOTO, gotoLabel);
         }
-        mv.visitLdcInsn(yieldLocationData.toString());
-        mv.visitVarInsn(ASTORE, yieldLocationVarIndex);
-        mv.visitLdcInsn(yieldStatus);
-        mv.visitVarInsn(ASTORE, yieldStatusVarIndex);
-
-        Label yieldLabel = labelGen.getLabel(funcName + "yield");
-        mv.visitJumpInsn(GOTO, yieldLabel);
-        mv.visitLabel(yieldLocationLabel);
     }
 
     public static PackageID cleanupPackageID(PackageID pkgID) {
@@ -710,7 +666,6 @@ public class JvmCodeGenUtil {
 
     public static void createDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex,
                                          String errorMessage) {
-
         mv.visitLabel(defaultCaseLabel);
         mv.visitTypeInsn(NEW, ERROR_VALUE);
         mv.visitInsn(DUP);
@@ -719,24 +674,19 @@ public class JvmCodeGenUtil {
         mv.visitTypeInsn(NEW, STRING_BUILDER);
         mv.visitInsn(DUP);
         mv.visitLdcInsn(errorMessage);
-        mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, JVM_INIT_METHOD, INIT_WITH_STRING,
-                false);
+        mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, JVM_INIT_METHOD, INIT_WITH_STRING, false);
         mv.visitVarInsn(ALOAD, nameRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append",
-                STRING_BUILDER_APPEND, false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, JVM_TO_STRING_METHOD, GET_JSTRING
-                , false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append", STRING_BUILDER_APPEND, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, JVM_TO_STRING_METHOD, GET_JSTRING, false);
         mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString", FROM_STRING, false);
-        mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD, INIT_ERROR,
-                false);
+        mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD, INIT_ERROR, false);
         mv.visitInsn(ATHROW);
     }
 
     public static void castToJavaString(MethodVisitor mv, int fieldNameRegIndex, int strKeyVarIndex) {
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD,
-                GET_JSTRING, true);
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, GET_JSTRING, true);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
     }
 
@@ -751,9 +701,8 @@ public class JvmCodeGenUtil {
         try {
             mv.visitMaxs(0, 0);
         } catch (Throwable e) {
-            throw new BLangCompilerException(
-                    "error while generating method '" + Utils.decodeIdentifier(funcName) + "' in class '" +
-                            Utils.decodeIdentifier(className) + "'", e);
+            throw new BLangCompilerException("error while generating method '" + Utils.decodeIdentifier(funcName) +
+                    "' in class '" + Utils.decodeIdentifier(className) + "'", e);
         }
     }
 
@@ -800,6 +749,16 @@ public class JvmCodeGenUtil {
             } else {
                 return 'L' + className + ';';
             }
+        }
+    }
+
+    public static void loadWorkerChannelMap(MethodVisitor mv, BIRNode.BIRFunction func, int channelMapVarIndex,
+                                            int localVarOffset) {
+        if (func.hasWorkers) {
+            mv.visitVarInsn(ALOAD, channelMapVarIndex);
+        } else {
+            mv.visitVarInsn(ALOAD, localVarOffset);
+            mv.visitFieldInsn(GETFIELD, STRAND_CLASS, STRAND_WORKER_CHANNEL_MAP, GET_WORKER_CHANNEL_MAP);
         }
     }
 }

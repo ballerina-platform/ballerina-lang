@@ -370,8 +370,8 @@ public class XMLLiteralTest {
     }
 
     @Test
-    public void testArithmaticExpreesionInXMLTemplate() {
-        Object returns = BRunUtil.invoke(result, "testArithmaticExpreesionInXMLTemplate");
+    public void testartIthmaticExpreesionInXMLTemplate() {
+        Object returns = BRunUtil.invoke(result, "testartIthmaticExpreesionInXMLTemplate");
         Assert.assertTrue(returns instanceof BXmlItem);
 
         Assert.assertEquals(returns.toString(), "<foo id=\"hello 5\">hello</foo>");

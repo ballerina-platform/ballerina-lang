@@ -26,14 +26,6 @@ import java.nio.charset.StandardCharsets;
 /**
  * Convert String to byte array.
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.string",
-//        functionName = "toBytes",
-//        args = {@Argument(name = "string", type = TypeKind.STRING),
-//                @Argument(name = "encoding", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
-//        isPublic = true
-//)
 public class ToBytes {
 
     public static BArray toBytes(BString value) {

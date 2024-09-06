@@ -25,7 +25,7 @@ class Person {
     public string name;
     function init(string name) {
         // async calls inside object
-        _ = start assertStrandMetadataResult("$anon/.:0.Person.init");
+        _ = start assertStrandMetadataResult("$anon/.:0.Person.init.anon");
         worker w2 {
             assertStrandMetadataResult("$anon/.:0.Person.init.w2");
         }
@@ -65,8 +65,8 @@ function testStrandMetadataAsyncCalls() {
     future<()> f1 = start assertStrandMetadataResult("$anon/.:0.testStrandMetadataAsyncCalls.f1");
 
     // anonymous async call
-    _ = start assertStrandMetadataResult("$anon/.:0.testStrandMetadataAsyncCalls");
-    _ = start assertStrandMetadataResult("$anon/.:0.testStrandMetadataAsyncCalls");
+    _ = start assertStrandMetadataResult("$anon/.:0.testStrandMetadataAsyncCalls.anon");
+    _ = start assertStrandMetadataResult("$anon/.:0.testStrandMetadataAsyncCalls.anon");
 
     // async call with strand name
     _ = @strand{name:"**my strand**"}
@@ -117,6 +117,8 @@ function assertStrandMetadataResult(string assertString) {
         if (typeNameVal is string) {
             typeName = "." + typeNameVal;
         }
+        println("Value - " + org +"/" + modName + ":" + modVersion + typeName + "." + parentFunc + name);
+        println("Expected - " + assertString);
         assertEquality(assertString, org +"/" + modName + ":" + modVersion + typeName + "." + parentFunc + name);
         assertTrue(id > 0);
     } else {

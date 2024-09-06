@@ -193,6 +193,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
             this.symbol = parent.symbol;
             this.async = parent.async;
             this.expr = varRef;
+            this.annAttachments = parent.annAttachments;
             this.setBType(parent.getBType());
         }
 

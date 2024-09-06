@@ -27,12 +27,6 @@ import java.util.PrimitiveIterator;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.string", functionName = "codePointCompare",
-//        args = {@Argument(name = "str1", type = TypeKind.STRING), @Argument(name = "str2", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.INT)},
-//        isPublic = true
-//)
 public class CodePointCompare {
 
     public static long codePointCompare(BString str1, BString str2) {

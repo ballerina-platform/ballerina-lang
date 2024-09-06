@@ -17,21 +17,15 @@
  */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
-
-import java.util.function.Function;
-
 /**
  * <p>
  * Ballerina runtime value representation of a function pointer.
  * </p>
  *
- * @param <T> the type of the input to the function
- * @param <R> the type of the result of the function
  *
  * @since 1.1.0
  */
-public interface BFunctionPointer<T, R> extends BValue {
+public interface BFunctionPointer extends BValue {
 
     /**
      * Execute the {@code Function} with given parameter array. Method can be used to call function pointer from
@@ -41,33 +35,5 @@ public interface BFunctionPointer<T, R> extends BValue {
      * @param t {@code Function to be executed}
      * @return The result of the executed function.
      */
-    R call(T t);
-
-    /**
-     * Schedule and asynchronously execute the {@code Function} with given parameter array. Method can be used to
-     * call function pointer from native function. This supports function pointers with async ballerina code.
-     *
-     * @param args  Function arguments.
-     * @param metaData  meta data for newly creating strand which is used to execute the function pointer.
-     * @return Future value received from invoking asynchronous function.
-     */
-    BFuture asyncCall(Object[] args, StrandMetadata metaData);
-
-    /**
-     * Schedule and asynchronously execute the {@code Function} with given parameter array. Method can be used to
-     * call function pointer from native function. This supports function pointers with async ballerina code.
-     *
-     * @param args                 Function arguments.
-     * @param resultHandleFunction Function used to process the result received after execution of function.
-     * @param metaData             meta data for newly creating strand which is used to execute the function pointer.
-     * @return Future value received from invoking asynchronous function.
-     */
-    BFuture asyncCall(Object[] args, Function<Object, Object> resultHandleFunction, StrandMetadata metaData);
-
-    /**
-     * Returns the {@code Function} the FP is pointed to.
-     *
-     * @return {@code Function}
-     */
-    Function<T, R> getFunction();
+    Object call(Object... t);
 }

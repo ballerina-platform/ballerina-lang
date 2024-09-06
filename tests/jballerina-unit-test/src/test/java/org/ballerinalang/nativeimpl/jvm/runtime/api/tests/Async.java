@@ -19,17 +19,13 @@
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.Future;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BServiceType;
 
 /**
@@ -37,69 +33,56 @@ import io.ballerina.runtime.internal.types.BServiceType;
  *
  * @since 2.0.0
  */
+@SuppressWarnings("unused")
 public class Async {
 
     public static long getFieldValWithNoArgs(Environment env, BObject obj) {
-        invokeMethodAsyncSequentially(env, obj, "getFieldValWithNoArgs");
-        return 0;
+        return startNonIsolatedWorker(env, obj, "getFieldValWithNoArgs");
     }
 
     public static long getFieldValWithRequiredArg(Environment env, BObject obj, long num) {
-        invokeMethodAsyncConcurrently(env, obj, "getFieldValWithRequiredArg", num, true);
-        return 0;
+        return startIsolatedWorker(env, obj, "getFieldValWithRequiredArg", num);
+
     }
 
     public static long getFieldValWithOptionalArgDefaultVal(Environment env, BObject obj) {
-        invokeMethodAsyncSequentially(env, obj, "getFieldValWithOptionalArg", StringUtils.fromString("any value here"),
-                false);
-        return 0;
+        return startNonIsolatedWorker(env, obj, "getFieldValWithOptionalArg");
     }
 
     public static long getFieldValWithMultipleOptionalArgsDefaultVal(Environment env, BObject obj) {
-        invokeMethodAsyncSequentially(env, obj, "getFieldValWithMultipleOptionalArgs", 0, false, 0, false, 0, false);
-        return 0;
+        return startNonIsolatedWorker(env, obj, "getFieldValWithMultipleOptionalArgs");
     }
 
     public static long getFieldValWithMultipleOptionalArgsDefaultValAsync(Environment env, BObject obj) {
-        invokeMethodAsyncSequentially(env, obj, "getFieldValWithMultipleOptionalArgsAsync", 0, false, 0, false, 0,
-                false);
-        return 0;
+        return startNonIsolatedWorker(env, obj, "getFieldValWithMultipleOptionalArgsAsync");
     }
 
     public static long getFieldValWithProvidedOptionalArgVal(Environment env, BObject obj, BString fieldName) {
-        invokeMethodAsyncSequentially(env, obj, "getFieldValWithOptionalArg", fieldName, true);
-        return 0;
+        return startNonIsolatedWorker(env, obj, "getFieldValWithOptionalArg", fieldName);
     }
 
     public static long getFieldValWithDefaultValSpecialChars(Environment env, BObject obj) {
-        invokeMethodAsyncSequentially(env, obj, "getFieldValWithDefaultValSpecialChars", 0, false, 0, false, 0,
-                false);
-        return 0;
+        return startNonIsolatedWorker(env, obj, "getFieldValWithDefaultValSpecialChars");
     }
 
     public static long getFieldValWithDefaultValSpecialCharsAsync(Environment env, BObject obj) {
-        invokeMethodAsyncSequentially(env, obj, "getFieldValWithDefaultValSpecialCharsAsync", 0, false, 0, false, 0,
-                false);
-        return 0;
+        return startNonIsolatedWorker(env, obj, "getFieldValWithDefaultValSpecialCharsAsync");
     }
 
     public static long getA(Environment env, BObject obj) {
-        invokeAsync(env, obj, "getA");
-        return 0;
+        return startIsolatedWorker(env, obj, "getA");
     }
 
     public static long getResourceA(Environment env, BObject obj) {
-        invokeAsync(env, obj, "$gen$$getA$&0046");
-        return 0;
+        return startIsolatedWorker(env, obj, "$gen$$getA$&0046");
     }
 
     public static long isolatedGetA(Environment env, BObject obj) {
-        invokeMethodAsyncConcurrently(env, obj, "getA");
-        return 0;
+        return startIsolatedWorker(env, obj, "getA");
     }
 
     public static boolean isolatedClassIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((BObjectType) obj.getOriginalType()).isIsolated();
     }
 
     public static boolean isolatedClassIsIsolatedFunction(BObject obj) {
@@ -107,27 +90,25 @@ public class Async {
     }
 
     public static boolean isIsolatedFunctionWithName(BObject obj, BString method) {
-        ObjectType objectType = obj.getType();
+        ObjectType objectType = ((BObjectType) obj.getOriginalType());
         return objectType.isIsolated() && objectType.isIsolated(method.getValue());
     }
 
     public static long nonIsolatedGetA(Environment env, BObject obj) {
-        invokeMethodAsyncSequentially(env, obj, "getA");
-        return 0;
+        return startNonIsolatedWorker(env, obj, "getA");
     }
 
     public static long getNonIsolatedResourceA(Environment env, BObject obj) {
-        invokeMethodAsyncConcurrently(env, obj, "$gen$$getA$&0046");
-        return 0;
+        return startIsolatedWorker(env, obj, "$gen$$getA$&0046");
+
     }
 
     public static long getNonIsolatedResourceB(Environment env, BObject obj) {
-        invokeMethodAsyncConcurrently(env, obj, "$gen$$getB$&0046");
-        return 0;
+        return startIsolatedWorker(env, obj, "$gen$$getB$&0046");
     }
 
     public static boolean nonIsolatedClassIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((BObjectType) obj.getOriginalType()).isIsolated();
     }
 
     public static boolean nonIsolatedClassIsIsolatedFunction(BObject obj) {
@@ -135,12 +116,12 @@ public class Async {
     }
 
     public static long isolatedServiceGetA(Environment env, BObject obj) {
-        invokeMethodAsyncConcurrently(env, obj, "$gen$$getA$&0046");
-        return 0;
+        return startIsolatedWorker(env, obj, "$gen$$getA$&0046");
+
     }
 
     public static boolean isolatedServiceIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((BObjectType) obj.getOriginalType()).isIsolated();
     }
 
     public static boolean isolatedServiceIsIsolatedFunction(BObject obj) {
@@ -148,12 +129,11 @@ public class Async {
     }
 
     public static long nonIsolatedServiceGetA(Environment env, BObject obj) {
-        invokeMethodAsyncSequentially(env, obj, "$gen$$getA$&0046");
-        return 0;
+        return startNonIsolatedWorker(env, obj, "$gen$$getA$&0046");
     }
 
     public static boolean nonIsolatedServiceIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((BObjectType) obj.getOriginalType()).isIsolated();
     }
 
     public static boolean nonIsolatedServiceIsIsolatedFunction(BObject obj) {
@@ -161,97 +141,54 @@ public class Async {
     }
 
     public static Object callAsyncNullObject(Environment env) {
-        invokeAsync(env, null, "getA");
-        return 0;
+        return startIsolatedWorker(env, null, "getA");
+
     }
 
     public static Object callAsyncNullObjectMethod(Environment env, BObject obj) {
-        invokeAsync(env, obj, null);
-        return 0;
+        return startIsolatedWorker(env, obj, null);
     }
 
     public static Object callAsyncInvalidObjectMethod(Environment env, BObject obj) {
-        invokeAsync(env, obj, "foo");
-        return 0;
+        return startIsolatedWorker(env, obj, "foo");
     }
 
     public static Object callAsyncNullObjectSequentially(Environment env) {
-        invokeAsync(env, null, "getA");
-        return 0;
+        return startIsolatedWorker(env, null, "getA");
     }
 
     public static Object callAsyncNullObjectMethodSequentially(Environment env, BObject obj) {
-        invokeAsync(env, obj, null);
-        return 0;
+        return startIsolatedWorker(env, obj, null);
     }
 
     public static Object callAsyncInvalidObjectMethodSequentially(Environment env, BObject obj) {
-        invokeAsync(env, obj, "foo");
-        return 0;
+        return startIsolatedWorker(env, obj, "foo");
     }
 
     public static Object callAsyncNullObjectConcurrently(Environment env) {
-        invokeAsync(env, null, "getA");
-        return 0;
+        return startIsolatedWorker(env, null, "getA");
     }
 
     public static Object callAsyncNullObjectMethodConcurrently(Environment env, BObject obj) {
-        invokeAsync(env, obj, null);
-        return 0;
+        return startIsolatedWorker(env, obj, null);
     }
 
     public static Object callAsyncInvalidObjectMethodConcurrently(Environment env, BObject obj) {
-        invokeAsync(env, obj, "foo");
-        return 0;
+        return startIsolatedWorker(env, obj, "foo");
     }
 
-    private static void invokeMethodAsyncSequentially(Environment env, BObject obj, String methodName, Object... args) {
-        Future future = env.markAsync();
-        BFuture bFuture = env.getRuntime().invokeMethodAsyncSequentially(obj, methodName, null, null, new Callback() {
-            @Override
-            public void notifySuccess(Object result) {
-                future.complete(result);
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                future.complete(error);
-            }
-        }, null, PredefinedTypes.TYPE_INT, args);
+    private static long startNonIsolatedWorker(Environment env, BObject obj, String methodName, Object... args) {
+        return (long) env.getRuntime().startNonIsolatedWorker(obj, methodName, methodName,
+                null, null, args).get();
     }
 
-    private static void invokeMethodAsyncConcurrently(Environment env, BObject obj, String methodName, Object... args) {
-        Future future = env.markAsync();
-        BFuture bFuture = env.getRuntime().invokeMethodAsyncConcurrently(obj, methodName, null, null, new Callback() {
-            @Override
-            public void notifySuccess(Object result) {
-                future.complete(result);
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                future.complete(error);
-            }
-        }, null, PredefinedTypes.TYPE_INT, args);
-    }
-
-    private static void invokeAsync(Environment env, BObject obj, String methodName) {
-        Future future = env.markAsync();
-        Object result = env.getRuntime().invokeMethodAsync(obj, methodName, null, null, new Callback() {
-            @Override
-            public void notifySuccess(Object result) {
-                future.complete(result);
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                future.complete(error);
-            }
-        });
+    private static long startIsolatedWorker(Environment env, BObject obj, String methodName, Object... args) {
+        return (long) env.getRuntime().startNonIsolatedWorker(obj, methodName, methodName,
+                null, null, args).get();
     }
 
     private static boolean isResourceMethodIsolated(BObject obj) {
-        MethodType[] methods = ((BServiceType) obj.getType()).getResourceMethods();
+        MethodType[] methods = ((BServiceType) obj.getOriginalType()).getResourceMethods();
         for (MethodType method : methods) {
             if (method.getName().equals("$gen$$getA$&0046")) {
                 return method.isIsolated();
@@ -261,7 +198,7 @@ public class Async {
     }
 
     private static boolean isRemoteMethodIsolated(BObject obj) {
-        MethodType[] methods = obj.getType().getMethods();
+        MethodType[] methods = ((BObjectType) obj.getOriginalType()).getMethods();
         for (MethodType method : methods) {
             if (method.getName().equals("getA")) {
                 return method.isIsolated();

@@ -22,8 +22,6 @@ import io.ballerina.runtime.api.values.BError;
 
 import java.io.PrintStream;
 
-import static org.ballerinalang.test.runtime.api.RuntimeAPITestUtils.blockAndInvokeMethodAsync;
-
 /**
  * Source class to test the functionality of Ballerina runtime APIs for invoking functions.
  *
@@ -39,7 +37,7 @@ public class RuntimeAPICallNegative {
 
         // Test function called before module initialization error for add, start and stop functions
         try {
-            blockAndInvokeMethodAsync(balRuntime, "add");
+            balRuntime.call(module, "add");
         } catch (BError e) {
             out.println(e.getMessage());
         }

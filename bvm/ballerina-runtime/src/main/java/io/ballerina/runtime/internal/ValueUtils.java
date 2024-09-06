@@ -33,7 +33,6 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.State;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.values.MapValue;
@@ -41,7 +40,6 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -54,8 +52,6 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class ValueUtils {
-
-    private static final PrintStream errStream = System.err;
 
     /**
      * Create a record value using the given package ID and record type name.
@@ -116,7 +112,7 @@ public class ValueUtils {
 
     public static BMap<BString, Object> populateDefaultValues(BMap<BString, Object> recordValue, BRecordType type,
                                                               Set<String> providedFields) {
-        Map<String, BFunctionPointer<Object, ?>> defaultValues = type.getDefaultValues();
+        Map<String, BFunctionPointer> defaultValues = type.getDefaultValues();
         if (defaultValues.isEmpty()) {
             return recordValue;
         }
@@ -126,7 +122,7 @@ public class ValueUtils {
 
     public static BMap<BString, Object> populateDefaultValues(BMap<BString, Object> recordValue, BRecordType type,
                                                               List<String> notProvidedFieldNames) {
-        Map<String, BFunctionPointer<Object, ?>> defaultValues = type.getDefaultValues();
+        Map<String, BFunctionPointer> defaultValues = type.getDefaultValues();
         if (defaultValues.isEmpty()) {
             return recordValue;
         }
@@ -134,24 +130,18 @@ public class ValueUtils {
         return populateRecordDefaultValues(recordValue, defaultValues);
     }
 
-    private static BMap<BString, Object> populateRecordDefaultValues(
-            BMap<BString, Object> recordValue, Map<String, BFunctionPointer<Object, ?>> defaultValues) {
-        Strand strand = Scheduler.getStrandNoException();
-        if (strand == null) {
-            // Create a dummy strand only for keep frames.
-            strand = new Strand();
-        }
-        for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
-            recordValue.populateInitialValue(StringUtils.fromString(field.getKey()),
-                    field.getValue().call(new Object[]{strand}));
+    private static BMap<BString, Object> populateRecordDefaultValues(BMap<BString, Object> recordValue, Map<String,
+            BFunctionPointer> defaultValues) {
+        for (Map.Entry<String, BFunctionPointer> field : defaultValues.entrySet()) {
+            recordValue.populateInitialValue(StringUtils.fromString(field.getKey()), field.getValue().call());
         }
         return recordValue;
     }
 
-    private static Map<String, BFunctionPointer<Object, ?>> getNonProvidedDefaultValues(
-            Map<String, BFunctionPointer<Object, ?>> defaultValues, Set<String> providedFields) {
-        Map<String, BFunctionPointer<Object, ?>> result = new HashMap<>();
-        for (Map.Entry<String, BFunctionPointer<Object, ?>> entry : defaultValues.entrySet()) {
+    private static Map<String, BFunctionPointer> getNonProvidedDefaultValues(
+            Map<String, BFunctionPointer> defaultValues, Set<String> providedFields) {
+        Map<String, BFunctionPointer> result = new HashMap<>();
+        for (Map.Entry<String, BFunctionPointer> entry : defaultValues.entrySet()) {
             if (!providedFields.contains(entry.getKey())) {
                 result.put(entry.getKey(), entry.getValue());
             }
@@ -159,9 +149,9 @@ public class ValueUtils {
         return result;
     }
 
-    private static Map<String, BFunctionPointer<Object, ?>> getNonProvidedDefaultValues(
-            Map<String, BFunctionPointer<Object, ?>> defaultValues, List<String> notProvidedFieldNames) {
-        Map<String, BFunctionPointer<Object, ?>> result = new HashMap<>();
+    private static Map<String, BFunctionPointer> getNonProvidedDefaultValues(
+            Map<String, BFunctionPointer> defaultValues, List<String> notProvidedFieldNames) {
+        Map<String, BFunctionPointer> result = new HashMap<>();
         for (String notProvidedFieldName : notProvidedFieldNames) {
             result.put(notProvidedFieldName, defaultValues.get(notProvidedFieldName));
         }
@@ -245,7 +235,7 @@ public class ValueUtils {
      * @return               value of the object.
      */
     public static BObject createObjectValue(Module packageId, String objectTypeName, Object... fieldValues) {
-        Strand currentStrand = Scheduler.getStrandNoException();
+        Strand currentStrand = Scheduler.getStrand();
         Object[] fields = new Object[fieldValues.length];
         // Adding boolean values for each arg
         for (int i = 0, j = 0; i < fieldValues.length; i++) {
@@ -254,55 +244,26 @@ public class ValueUtils {
         return createObjectValue(currentStrand, packageId, objectTypeName, fields);
     }
 
-    /**
-     * Create object value with strand, package ID, object type name and given field values.
-     *
-     * @param currentStrand   current strand.
-     * @param packageId       the package ID that the object type resides.
-     * @param objectTypeName  name of the object type.
-     * @param fieldValues     values to be used for fields when creating the object value instance.
-     * @return                value of the object.
-     */
     public static BObject createObjectValue(Strand currentStrand, Module packageId, String objectTypeName,
-                                             Object[] fieldValues) {
+                                            Object[] fieldValues) {
 
         // This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
         io.ballerina.runtime.internal.values.ValueCreator
-                valueCreator =  io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(ValueCreator
+                valueCreator = io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(ValueCreator
                 .getLookupKey(packageId, false));
 
-        // Here the variables are initialized with default values
-        Scheduler scheduler = null;
-        State prevState = State.RUNNABLE;
-        boolean prevBlockedOnExtern = false;
-
         try {
-            // Check for non-blocking call
-            if (currentStrand != null) {
-                scheduler = currentStrand.scheduler;
-                prevBlockedOnExtern = currentStrand.blockedOnExtern;
-                prevState = currentStrand.getState();
-                currentStrand.blockedOnExtern = false;
-                currentStrand.setState(State.RUNNABLE);
+            return valueCreator.createObjectValue(objectTypeName, currentStrand.scheduler, currentStrand, null,
+                    fieldValues);
+        } catch (BError e) {
+            // If object type definition not found, get it from test module.
+            String testLookupKey = ValueCreator.getLookupKey(packageId, true);
+            if (ValueCreator.containsValueCreator(testLookupKey)) {
+                valueCreator = ValueCreator.getValueCreator(testLookupKey);
+                return valueCreator.createObjectValue(objectTypeName, currentStrand.scheduler, currentStrand, null,
+                        fieldValues);
             }
-            try {
-                return valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand,
-                        null, fieldValues);
-            } catch (BError e) {
-                // If object type definition not found, get it from test module.
-                String testLookupKey = ValueCreator.getLookupKey(packageId, true);
-                if (ValueCreator.containsValueCreator(testLookupKey)) {
-                    valueCreator = ValueCreator.getValueCreator(testLookupKey);
-                    return valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand,
-                            null, fieldValues);
-                }
-                throw e;
-            }
-        } finally {
-            if (currentStrand != null) {
-                currentStrand.blockedOnExtern = prevBlockedOnExtern;
-                currentStrand.setState(prevState);
-            }
+            throw e;
         }
     }
 

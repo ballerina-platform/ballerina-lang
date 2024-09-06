@@ -220,7 +220,7 @@ public class ErrorCreator {
     @Deprecated
     public static BError createDistinctError(String typeIdName, Module typeIdPkg, BString message,
                                              BError cause) {
-        MapValueImpl<Object, Object> details = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
+        MapValueImpl<BString, Object> details = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
         return new ErrorValue(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(),
                                              TypeChecker.getType(details)), message, cause, details,
                               typeIdName, typeIdPkg);

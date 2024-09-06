@@ -28,12 +28,6 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  * 
  * @since 0.982.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "appendChildren",
-//        args = {@Argument(name = "children", type = TypeKind.XML)},
-//        isPublic = true
-//)
 public class AppendChildren {
 
     private static final String OPERATION = "add children to xml element";

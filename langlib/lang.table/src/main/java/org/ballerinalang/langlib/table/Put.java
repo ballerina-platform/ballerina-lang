@@ -27,11 +27,6 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "put",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "vals", type = TypeKind.ANYDATA)},
-//        isPublic = true
-//)
 public class Put {
 
     public static void put(BTable tbl, BMap val) {

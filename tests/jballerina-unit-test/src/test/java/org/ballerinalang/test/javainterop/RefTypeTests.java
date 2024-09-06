@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.FutureValue;
@@ -393,7 +392,7 @@ public class RefTypeTests {
     }
 
     public static int useFunctionPointer(FPValue fp) {
-        return ((Long) fp.call(new Object[]{Scheduler.getStrand(), 3, 4})).intValue();
+        return ((Long) fp.call(new Object[]{3, 4})).intValue();
     }
 
     public static FPValue getFunctionPointer(Object fp) {
@@ -409,7 +408,7 @@ public class RefTypeTests {
     }
 
     public static Object useFuture(FutureValue future) {
-        return future.getResult();
+        return future.get();
     }
 
     public static FutureValue getFuture(Object a) {

@@ -33,7 +33,6 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.ValueUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
@@ -58,7 +57,7 @@ public class BRecordType extends BStructureType implements RecordType {
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
 
-    private final Map<String, BFunctionPointer<Object, ?>> defaultValues = new LinkedHashMap<>();
+    private final Map<String, BFunctionPointer> defaultValues = new LinkedHashMap<>();
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -133,9 +132,9 @@ public class BRecordType extends BStructureType implements RecordType {
         if (defaultValues.isEmpty()) {
             return (V) recordValue;
         }
-        for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
+        for (Map.Entry<String, BFunctionPointer> field : defaultValues.entrySet()) {
             recordValue.put(StringUtils.fromString(field.getKey()),
-                    field.getValue().call(new Object[] {Scheduler.getStrand()}));
+                    field.getValue().call());
         }
         return (V) recordValue;
     }
@@ -213,11 +212,11 @@ public class BRecordType extends BStructureType implements RecordType {
         return typeFlags;
     }
 
-    public void setDefaultValue(String fieldName, BFunctionPointer<Object, ?> defaultValue) {
+    public void setDefaultValue(String fieldName, BFunctionPointer defaultValue) {
         defaultValues.put(fieldName, defaultValue);
     }
 
-    public Map<String, BFunctionPointer<Object, ?>> getDefaultValues() {
+    public Map<String, BFunctionPointer> getDefaultValues() {
         return defaultValues;
     }
 

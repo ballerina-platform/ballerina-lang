@@ -26,12 +26,6 @@ import io.ballerina.runtime.api.values.BMap;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map", functionName = "iterator",
-//        args = {@Argument(name = "m", type = TypeKind.MAP)},
-//        returnType = {@ReturnType(type = TypeKind.OBJECT)},
-//        isPublic = true
-//)
 public class GetIterator {
 
     public static BIterator iterator(BMap<?, ?> map) {

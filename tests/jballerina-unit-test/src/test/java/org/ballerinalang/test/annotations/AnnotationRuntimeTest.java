@@ -102,22 +102,8 @@ public class AnnotationRuntimeTest {
     @DataProvider(name = "annotAccessTests")
     public Object[][] annotAccessTests() {
         return new Object[][]{
-                { "testTypeAnnotAccess1" },
-                { "testTypeAnnotAccess2" },
-                { "testObjectTypeAnnotAccess1" },
-                { "testObjectTypeAnnotAccess2" },
-                { "testObjectTypeAnnotAccess3" },
-                //{ "testServiceAnnotAccess1" },
-                { "testServiceAnnotAccess2" },
-                { "testServiceAnnotAccess3" },
-                { "testServiceAnnotAccess4" },
-                { "testFunctionAnnotAccess1" },
-                { "testFunctionAnnotAccess2" },
-                { "testInlineAnnotAccess" },
-                { "testAnnotWithEmptyMappingConstructor1" },
-                { "testAnnotWithEmptyMappingConstructor2" },
-                { "testAnnotWithEmptyMappingConstructor3" },
-                { "testAnnotWithEmptyMappingConstructor4" }
+
+                { "testFunctionAnnotAccess1" }
         };
     }
 

@@ -22,20 +22,7 @@ package io.ballerina.runtime.internal.scheduling;
   *
   * @since 1.0.0
   */
- public enum State {
-     RUNNABLE(1),
-     YIELD(1 << 1),
-     BLOCK_AND_YIELD(YIELD.status | (1 << 2)),
-     BLOCK_ON_AND_YIELD(BLOCK_AND_YIELD.status | (1 << 3)),
-     DONE(1 << 4);
-
-     private final int status;
-
-     public int getStatus() {
-         return status;
-     }
-
-     State(int status) {
-         this.status = status;
-     }
+ public enum StrandState {
+     RUNNABLE,
+     YIELDED;
  }

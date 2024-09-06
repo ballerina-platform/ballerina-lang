@@ -175,7 +175,7 @@ public class InteropMethodGen {
 
         // Load receiver which is the 0th parameter in the birFunc
         if (!jField.isStatic()) {
-            BIRNode.BIRVariableDcl var = birFuncParams.get(0);
+            BIRNode.BIRVariableDcl var = birFuncParams.getFirst();
             int receiverLocalVarIndex = indexMap.addIfNotExists(var.name.value, var.type);
             mv.visitVarInsn(ALOAD, receiverLocalVarIndex);
             mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, "()Ljava/lang/Object;", false);
@@ -252,7 +252,7 @@ public class InteropMethodGen {
         Label retLabel = labelGen.getLabel("return_lable");
         mv.visitLabel(retLabel);
         mv.visitLineNumber(birFunc.pos.lineRange().endLine().line() + 1, retLabel);
-        termGen.genReturnTerm(returnVarRefIndex, birFunc, -1, 0);
+        termGen.genReturnTerm(returnVarRefIndex, birFunc, -1, -1, -1, -1);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, birFunc.name.value, birFunc.javaField.getDeclaringClassName());
         mv.visitEnd();
     }
@@ -379,7 +379,7 @@ public class InteropMethodGen {
         thenBB.terminator = new BIRTerminator.GOTO(birFunc.pos, retBB);
 
         if (JvmCodeGenUtil.getImpliedType(retType).tag != TypeTags.NIL) {
-            BIROperand retRef = new BIROperand(birFunc.localVars.get(0));
+            BIROperand retRef = new BIROperand(birFunc.localVars.getFirst());
             if (JType.J_VOID != jMethodRetType) {
                 BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(jMethodRetType, new Name("$_ret_jobject_var_$"),
                         null, VarKind.LOCAL);

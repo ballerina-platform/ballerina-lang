@@ -26,13 +26,6 @@ import org.ballerinalang.langlib.string.utils.StringUtils;
  *
  * @since 0.8.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.string",
-//        functionName = "length",
-//        args = {@Argument(name = "s", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.INT)},
-//        isPublic = true
-//)
 public class Length {
 
     public static long length(BString value) {

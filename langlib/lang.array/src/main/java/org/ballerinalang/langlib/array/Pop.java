@@ -32,12 +32,6 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsClosedArra
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "pop",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.ANY)},
-//        isPublic = true
-//)
 public class Pop {
 
     private static final String FUNCTION_SIGNATURE = "pop()";

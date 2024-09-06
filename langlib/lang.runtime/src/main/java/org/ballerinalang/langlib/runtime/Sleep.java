@@ -18,14 +18,11 @@
 
 package org.ballerinalang.langlib.runtime;
 
-import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.Future;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BDecimal;
 
 import java.math.BigDecimal;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Native implementation for sleep function.
@@ -34,25 +31,25 @@ import java.util.concurrent.TimeUnit;
  */
 public class Sleep {
 
-    private static final int CORE_THREAD_POOL_SIZE = 1;
     private static final BigDecimal LONG_MAX = new BigDecimal(Long.MAX_VALUE);
 
-    private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
-
-    public static void sleep(Environment env, BDecimal delaySeconds) {
+    public static void sleep(BDecimal delaySeconds) {
         BigDecimal delayDecimal = delaySeconds.decimalValue();
         if (delayDecimal.compareTo(BigDecimal.ZERO) <= 0) {
             return;
         }
         delayDecimal = delayDecimal.multiply(new BigDecimal("1000.0"));
-        Future balFuture = env.markAsync();
         long delay;
         if (delayDecimal.compareTo(LONG_MAX) > 0) {
             delay = Long.MAX_VALUE;
         } else {
             delay = delayDecimal.longValue();
         }
-        executor.schedule(() -> balFuture.complete(null), delay, TimeUnit.MILLISECONDS);
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            throw ErrorCreator.createError(StringUtils.fromString("error occurred during sleep"), e);
+        }
     }
 
     private Sleep() {

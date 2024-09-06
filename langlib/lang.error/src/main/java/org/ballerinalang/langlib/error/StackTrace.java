@@ -121,11 +121,13 @@ public class StackTrace {
         }
 
         @Override
+        @Deprecated
         public Object call(Strand strand, String funcName, Object... args) {
             throw ErrorCreator.createError(StringUtils.fromString("No such field or method: " + funcName));
         }
 
         @Override
+        @Deprecated
         public BFuture start(Strand strand, String funcName, Object... args) {
             throw ErrorCreator.createError(StringUtils.fromString("No such field or method: " + funcName));
         }

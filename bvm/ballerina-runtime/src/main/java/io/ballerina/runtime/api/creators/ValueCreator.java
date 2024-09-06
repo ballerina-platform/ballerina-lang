@@ -759,6 +759,17 @@ public class ValueCreator {
     }
 
     /**
+     * Create a runtime map value with given initial values and given type.
+     *
+     * @param recordType record type
+     * @param keyValues  initial map values to be populated
+     * @return map value
+     */
+    public static BMap<BString, Object> createMapValue(RecordType recordType, BMapInitialValueEntry[] keyValues) {
+        return new MapValueImpl<>(recordType, keyValues);
+    }
+
+    /**
      * Create a runtime map value with given initial values and given map type.
      *
      * @param mapType   map type
@@ -957,8 +968,8 @@ public class ValueCreator {
      * @param tableType table type
      * @return          table value for given type
      */
-    public static BTable createTableValue(TableType tableType) {
-        return new TableValueImpl(tableType);
+    public static BTable<?, ?> createTableValue(TableType tableType) {
+        return new TableValueImpl<>(tableType);
     }
 
     /**

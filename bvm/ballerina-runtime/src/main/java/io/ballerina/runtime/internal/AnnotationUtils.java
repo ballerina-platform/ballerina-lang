@@ -99,7 +99,7 @@ public class AnnotationUtils {
         if (globalAnnotMap.containsKey(annotationKey)) {
             Object annot = globalAnnotMap.get(annotationKey);
             // If annotations are already set via desugard service-decl, skip.
-            Object annotValue = ((FPValue) annot).call(new Object[]{strand});
+            Object annotValue = ((FPValue) annot).call();
             bType.setAnnotations((MapValue<BString, Object>) annotValue);
         }
         for (MethodType attachedFunction : bType.getMethods()) {
@@ -120,7 +120,7 @@ public class AnnotationUtils {
         if (globalAnnotMap.containsKey(annotationKey)) {
             ((BMethodType) attachedFunction)
                     .setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(annotationKey))
-                            .call(new Object[]{strand}));
+                            .call());
         }
     }
 
@@ -139,27 +139,4 @@ public class AnnotationUtils {
         }
     }
 
-    /**
-     * Returns true if given {@link FPValue} is annotated to be run concurrently.
-     *
-     * @param fpValue function pointer to be invoked
-     * @return true if should run concurrently
-     */
-    public static boolean isConcurrent(FPValue fpValue) {
-        return fpValue.isConcurrent;
-    }
-
-    /**
-     * Returns strand name of given {@link FPValue}.
-     *
-     * @param fpValue     function pointer to be invoked
-     * @param defaultName default strand name
-     * @return annotated strand name
-     */
-    public static String getStrandName(FPValue fpValue, String defaultName) {
-        if (fpValue.strandName != null) {
-            return fpValue.strandName;
-        }
-        return defaultName;
-    }
 }

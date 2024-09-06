@@ -187,14 +187,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_BYTE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBYTE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JCHAR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JDOUBLE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JFLOAT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JLONG;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ARRAY_ADD_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ARRAY_ADD_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BAL_ENV_PARAM;
@@ -314,29 +307,6 @@ public class JvmInstructionGen {
         typeTestGen = new JvmTypeTestGen(this, types, mv, jvmTypeGen, jvmCastGen);
         this.functions = new HashMap<>();
         this.moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(currentPackage, MODULE_INIT_CLASS_NAME);
-    }
-
-    static void addJUnboxInsn(MethodVisitor mv, JType jType) {
-
-        if (jType == null) {
-            return;
-        }
-
-        switch (jType.jTag) {
-            case JTypeTags.JBYTE -> mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJByte", ANY_TO_JBYTE, false);
-            case JTypeTags.JCHAR -> mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJChar", ANY_TO_JCHAR, false);
-            case JTypeTags.JSHORT ->
-                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJShort", ANY_TO_JSTRING, false);
-            case JTypeTags.JINT -> mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJInt", ANY_TO_BYTE, false);
-            case JTypeTags.JLONG -> mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJLong", ANY_TO_JLONG, false);
-            case JTypeTags.JFLOAT ->
-                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJFloat", ANY_TO_JFLOAT, false);
-            case JTypeTags.JDOUBLE ->
-                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJDouble", ANY_TO_JDOUBLE, false);
-            case JTypeTags.JBOOLEAN -> mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJBoolean", ANY_TO_JBOOLEAN,
-                    false);
-            case JTypeTags.JREF -> mv.visitTypeInsn(CHECKCAST, ((JType.JRefType) jType).typeValue);
-        }
     }
 
     private void generateJVarLoad(MethodVisitor mv, JType jType, int valueIndex) {
@@ -1671,8 +1641,6 @@ public class JvmInstructionGen {
         String name = inst.funcName.value;
 
         String funcKey = inst.pkgId.toString() + ":" + name;
-
-
         BType type = JvmCodeGenUtil.getImpliedType(inst.type);
         if (type.tag != TypeTags.INVOKABLE) {
             throw new BLangCompilerException("Expected BInvokableType, found " + type);
@@ -1704,8 +1672,7 @@ public class JvmInstructionGen {
         } else {
             mv.visitInsn(ICONST_0);
         }
-        this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD,
-                                FP_INIT, false);
+        this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD, FP_INIT, false);
 
         PackageID boundMethodPkgId = inst.boundMethodPkgId;
         String funcPkgName = JvmCodeGenUtil.getPackageName(boundMethodPkgId == null ? inst.pkgId : boundMethodPkgId);
@@ -1716,11 +1683,10 @@ public class JvmInstructionGen {
         this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, GET_MAP_VALUE);
         // Format of name `$anon$method$delegate$Foo.func$0`.
         this.mv.visitLdcInsn(name.startsWith(ANON_METHOD_DELEGATE) ?
-                                     name.subSequence(ANON_METHOD_DELEGATE.length(), name.lastIndexOf("$")) :
-                                     name);
+                name.subSequence(ANON_METHOD_DELEGATE.length(), name.lastIndexOf("$")) :
+                name);
         this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processFPValueAnnotations",
                 PROCESS_FP_ANNOTATIONS, false);
-
         this.storeToVar(inst.lhsOp.variableDcl);
     }
 

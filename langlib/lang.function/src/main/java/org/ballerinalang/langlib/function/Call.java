@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.function;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BNever;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
@@ -36,7 +36,6 @@ import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import java.util.LinkedList;
 import java.util.List;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FUNCTION_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INCOMPATIBLE_ARGUMENTS;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
@@ -48,17 +47,14 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  */
 public class Call {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, FUNCTION_LANG_LIB,
-                                                                      "1.0.0", "call");
-
-    public static Object call(BFunctionPointer<Object, Object> func, Object... args) {
+    public static Object call(BFunctionPointer func, Object... args) {
         BFunctionType functionType = (BFunctionType) TypeUtils.getImpliedType(func.getType());
         List<Type> paramTypes = new LinkedList<>();
         List<Type> argTypes = new LinkedList<>();
         List<Object> argsList = new java.util.ArrayList<>();
 
         if (checkIsValidPositionalArgs(args, argsList, functionType, paramTypes, argTypes) ||
-                 checkIsValidRestArgs(args, argsList, functionType, paramTypes, argTypes)) {
+                 checkIsValidRestArgs(args, argsList, functionType, argTypes)) {
             Type restType =
                     functionType.restType != null ? ((BArrayType) functionType.restType).getElementType() : null;
             throw ErrorCreator.createError(
@@ -68,7 +64,7 @@ public class Call {
                         removeBracketsFromStringFormatOfTuple(new BTupleType(paramTypes, restType, 0, false))));
         }
 
-        return func.asyncCall(argsList.toArray(), METADATA);
+        return func.call(argsList.toArray());
     }
 
     private static boolean checkIsValidPositionalArgs(Object[] args, List<Object> argsList, BFunctionType functionType,
@@ -89,10 +85,8 @@ public class Call {
                     errored = true;
                 }
                 argsList.add(arg);
-                argsList.add(true);
             } else if (parameter.isDefault) {
-                argsList.add(0);
-                argsList.add(false);
+                argsList.add(BNever.getValue());
             } else {
                 errored = true;
             }
@@ -101,7 +95,7 @@ public class Call {
     }
 
     private static boolean checkIsValidRestArgs(Object[] args, List<Object> argsList, BFunctionType functionType,
-                                                List<Type> paramTypes, List<Type> argTypes) {
+                                                List<Type> argTypes) {
         boolean errored = false;
         int numOfArgs = args.length;
         int numOfRestArgs = Math.max(numOfArgs - functionType.parameters.length, 0);
@@ -121,7 +115,6 @@ public class Call {
             }
             if (!errored) {
                 argsList.add(new ArrayValueImpl(restType, -1L, initialValues));
-                argsList.add(true);
             }
         } else if (numOfRestArgs > 0) {
             errored = true;

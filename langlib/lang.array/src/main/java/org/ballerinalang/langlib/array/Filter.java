@@ -19,23 +19,15 @@
 package org.ballerinalang.langlib.array;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import org.ballerinalang.langlib.array.utils.ArrayUtils;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
-import static org.ballerinalang.langlib.array.utils.Constants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:filter(Type[], function).
@@ -44,34 +36,23 @@ import static org.ballerinalang.langlib.array.utils.Constants.ARRAY_VERSION;
  */
 public class Filter {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
-                                                                      ARRAY_VERSION, "filter");
-
-    public static BArray filter(BArray arr, BFunctionPointer<Object, Boolean> func) {
+    public static BArray filter(BArray arr, BFunctionPointer func) {
         BArray newArr;
         Type arrType = TypeUtils.getImpliedType(arr.getType());
-        switch (arrType.getTag()) {
-            case TypeTags.ARRAY_TAG:
-                newArr = ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));
-                break;
-            case TypeTags.TUPLE_TAG:
-                newArr = ArrayUtils.createEmptyArrayFromTuple(arr);
-                break;
-            default:
-                throw createOpNotSupportedError(arrType, "filter()");
-
-        }
+        newArr = switch (arrType.getTag()) {
+            case TypeTags.ARRAY_TAG -> ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));
+            case TypeTags.TUPLE_TAG -> ArrayUtils.createEmptyArrayFromTuple(arr);
+            default -> throw createOpNotSupportedError(arrType, "filter()");
+        };
         int size = arr.size();
-        AtomicInteger newArraySize = new AtomicInteger(-1);
-        AtomicInteger index = new AtomicInteger(-1);
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{arr.get(index.incrementAndGet()), true},
-                result -> {
-                    if ((boolean) result) {
-                        newArr.add(newArraySize.incrementAndGet(),
-                                arr.get(index.get()));
-                    }
-                }, () -> newArr, Scheduler.getStrand().scheduler);
+        int index = 0;
+        for (int i = 0; i < size; i++) {
+            Object value = arr.get(i);
+            boolean isFiltered = (boolean) func.call(value);
+             if (isFiltered) {
+                 newArr.add(index++, value);
+             }
+        }
         return newArr;
     }
 

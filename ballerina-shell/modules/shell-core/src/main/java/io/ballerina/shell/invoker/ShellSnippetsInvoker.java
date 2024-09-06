@@ -33,9 +33,6 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectUtils;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.values.BFuture;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.InvokerException;
@@ -61,7 +58,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 
 /**
  * Invoker that invokes a command to evaluate a list of snippets.
@@ -90,12 +86,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     private static final String TEMP_FILE_SUFFIX = ".bal";
     /* Error type codes */
     private static final String MODULE_NOT_FOUND_CODE = "BCE2003";
-
-    /**
-     * Scheduler used to run the init and main methods
-     * of the generated classes.
-     */
-    private final Scheduler scheduler;
     /**
      * File object that is used to create projects and write.
      * Depending on USE_TEMP_FILE flag, this may be either a file in cwd
@@ -104,7 +94,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     private File bufferFile;
 
     protected ShellSnippetsInvoker() {
-        this.scheduler = new Scheduler(false);
+
     }
 
     /**
@@ -421,25 +411,13 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             // Get class and method references
             Class<?> clazz = classLoader.loadClass(className);
             Method method = clazz.getDeclaredMethod(methodName, Strand.class);
-            Function<Object[], Object> methodInvocation = createInvokerCallback(method);
-
-            // Schedule and run the function and return if result is valid
-            BFuture out = scheduler.schedule(new Object[1], methodInvocation, null, null, null,
-                    PredefinedTypes.TYPE_ERROR, null, null);
-            scheduler.start();
-
-            Object result = out.getResult();
-            Throwable panic = out.getPanic();
-
-            if (panic != null) {
-                // Unexpected runtime error
-                throw new InvokerPanicException(panic);
+            try {
+                return method.invoke(null, new Strand());
+            } catch (InvocationTargetException e) {
+                return e.getTargetException();
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Error while invoking function.", e);
             }
-            if (result instanceof Throwable) {
-                // Function returned error (panic)
-                throw new InvokerPanicException((Throwable) result);
-            }
-            return result;
         } catch (ClassNotFoundException e) {
             addErrorDiagnostic(className + " class not found: " + e.getMessage());
             throw new InvokerException(e);
@@ -483,24 +461,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             addErrorDiagnostic(methodName + " exception at target: " + e.getTargetException());
             throw new InvokerException(e);
         }
-    }
-
-    /**
-     * Creates a callback to the method to directly call it with given params.
-     *
-     * @param method Method to create invocation.
-     * @return Created callback.
-     */
-    private Function<Object[], Object> createInvokerCallback(Method method) {
-        return (params) -> {
-            try {
-                return method.invoke(null, params);
-            } catch (InvocationTargetException e) {
-                return e.getTargetException();
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Error while invoking function.", e);
-            }
-        };
     }
 
     /* Util methods */

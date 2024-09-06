@@ -234,7 +234,7 @@ public class ReadOnlyUtils {
                         origRecordType.flags |= SymbolFlags.READONLY, fields,
                         null, origRecordType.sealed,
                         origRecordType.typeFlags);
-                for (Map.Entry<String, BFunctionPointer<Object, ?>> field : origRecordType.getDefaultValues()
+                for (Map.Entry<String, BFunctionPointer> field : origRecordType.getDefaultValues()
                         .entrySet()) {
                     immutableRecordType.setDefaultValue(field.getKey(), field.getValue());
                 }

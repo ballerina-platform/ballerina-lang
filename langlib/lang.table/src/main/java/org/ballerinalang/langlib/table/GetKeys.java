@@ -32,13 +32,6 @@ import io.ballerina.runtime.api.values.BTable;
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table",
-//        functionName = "keys",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},
-//        isPublic = true
-//)
 public class GetKeys {
 
     public static BArray keys(BTable tbl) {

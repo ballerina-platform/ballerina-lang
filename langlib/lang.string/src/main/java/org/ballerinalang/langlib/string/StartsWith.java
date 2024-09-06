@@ -24,12 +24,6 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.string", functionName = "startsWith",
-//        args = {@Argument(name = "str", type = TypeKind.STRING), @Argument(name = "substr", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-//        isPublic = true
-//)
 public class StartsWith {
 
     public static boolean startsWith(BString str, BString substr) {

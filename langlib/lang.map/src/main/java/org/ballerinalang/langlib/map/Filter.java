@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.map;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
@@ -29,16 +28,9 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
-import static org.ballerinalang.langlib.map.util.Constants.MAP_VERSION;
 
 /**
  * Native implementation of lang.map:filter(map&lt;Type&gt;, function).
@@ -47,36 +39,27 @@ import static org.ballerinalang.langlib.map.util.Constants.MAP_VERSION;
  */
 public class Filter {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
-                                                                      MAP_VERSION, "filter");
-
-    public static BMap filter(BMap<?, ?> m, BFunctionPointer<Object, Boolean> func) {
+    public static BMap<?, ?> filter(BMap<?, ?> m, BFunctionPointer func) {
         Type mapType = TypeUtils.getImpliedType(m.getType());
-        Type constraint;
-        switch (mapType.getTag()) {
-            case TypeTags.MAP_TAG:
+        Type constraint = switch (mapType.getTag()) {
+            case TypeTags.MAP_TAG -> {
                 MapType type = (MapType) mapType;
-                constraint = type.getConstrainedType();
-                break;
-            case TypeTags.RECORD_TYPE_TAG:
-                constraint = MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
-                break;
-            default:
-                throw createOpNotSupportedError(mapType, "filter()");
-        }
+                yield type.getConstrainedType();
+            }
+            case TypeTags.RECORD_TYPE_TAG -> MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
+            default -> throw createOpNotSupportedError(mapType, "filter()");
+        };
         BMap<BString, Object> newMap = ValueCreator.createMapValue(TypeCreator.createMapType(constraint));
         int size = m.size();
-        AtomicInteger index = new AtomicInteger(-1);
         Object[] keys = m.getKeys();
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{m.get(keys[index.incrementAndGet()]), true},
-                result -> {
-                    if ((Boolean) result) {
-                        Object key = keys[index.get()];
-                        Object value = m.get(key);
-                        newMap.put((BString) key, value);
-                    }
-                }, () -> newMap, Scheduler.getStrand().scheduler);
+        for (int i = 0; i < size; i++) {
+            Object key = keys[i];
+            boolean isFiltered = (boolean) func.call(m.get(keys[i]));
+            if (isFiltered) {
+                Object value = m.get(key);
+                newMap.put((BString) key, value);
+            }
+        }
         return newMap;
     }
 }
