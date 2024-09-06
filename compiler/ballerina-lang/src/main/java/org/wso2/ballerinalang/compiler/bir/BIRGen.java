@@ -2831,9 +2831,16 @@ public class BIRGen extends BLangNodeVisitor {
                                                listConstructorExpr.pos));
 
         } else {
-            setScopeAndEmit(
-                    new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef, sizeOp,
-                            initialValues));
+            BIRNonTerminator.NewArray newArrayIns = new BIRNonTerminator.NewArray(listConstructorExpr.pos,
+                    listConstructorExprType, toVarRef, sizeOp, initialValues);
+            BType elementType = Types.getImpliedType(((BArrayType) referredType).getElementType());
+            // If the referredType is an array type and the element type is record type, then we need to set
+            // the element type desc which will be used to initialize the `ArrayValueImpl`
+            if (elementType.tag == TypeTags.RECORD) {
+                BIRVariableDcl typedescVar = getTypedescVariable(elementType);
+                newArrayIns.elementTypedescOp = new BIROperand(typedescVar);
+            }
+            setScopeAndEmit(newArrayIns);
         }
         this.env.targetOperand = toVarRef;
         this.env.isInArrayOrStructure--;

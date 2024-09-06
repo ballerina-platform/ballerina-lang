@@ -319,6 +319,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      */
     public static class NewArray extends BIRNonTerminator {
         public BIROperand typedescOp;
+        public BIROperand elementTypedescOp;
         public BIROperand sizeOp;
         public BType type;
         public List<BIRListConstructorEntry> values;

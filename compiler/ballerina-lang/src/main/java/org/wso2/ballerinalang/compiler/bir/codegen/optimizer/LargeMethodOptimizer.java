@@ -248,7 +248,8 @@ public class LargeMethodOptimizer {
         BIROperand handleArrayOperand = new BIROperand(handleArray);
         createAndAddNewHandleArrayForLargeArrayIns(parentFuncEnv, arrayIns, handleArray, handleArrayOperand);
         JLargeArrayInstruction newLargeArrayIns = new JLargeArrayInstruction(arrayIns.pos,
-                arrayIns.type, arrayIns.lhsOp, arrayIns.typedescOp, arrayIns.sizeOp, handleArrayOperand);
+                arrayIns.type, arrayIns.lhsOp, arrayIns.typedescOp, arrayIns.elementTypedescOp, arrayIns.sizeOp,
+                handleArrayOperand);
 
         // populating ListConstructorEntry array elements at runtime using jMethodCalls
         // creating method calls

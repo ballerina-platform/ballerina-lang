@@ -529,9 +529,8 @@ public class JvmInstructionGen {
             jvmTypeGen.loadType(this.mv, inst.type);
             loadListInitialValues(inst);
             BType elementType = JvmCodeGenUtil.getImpliedType(((BArrayType) instType).eType);
-            if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
-                    ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
-                visitNewRecordArray(elementType);
+            if (elementType.tag == TypeTags.RECORD) {
+                visitNewRecordArray(inst.elementTypedescOp.variableDcl);
             } else {
                 this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
                         INIT_ARRAY, false);
@@ -1447,7 +1446,7 @@ public class JvmInstructionGen {
             BType elementType = JvmCodeGenUtil.getImpliedType(((BArrayType) instType).eType);
 
             if (elementType.tag == TypeTags.RECORD) {
-                visitNewRecordArray(elementType);
+                visitNewRecordArray(inst.elementTypedescOp.variableDcl);
             } else {
                 this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
                         INIT_ARRAY, false);
@@ -1463,12 +1462,8 @@ public class JvmInstructionGen {
         }
     }
 
-    private void visitNewRecordArray(BType type) {
-        BType elementType = JvmCodeGenUtil.getImpliedType(type);
-        String typeOwner = JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
-        String typedescFieldName =
-                jvmTypeGen.getTypedescFieldName(toNameString(elementType));
-        this.mv.visitFieldInsn(GETSTATIC, typeOwner, typedescFieldName, "L" + TYPEDESC_VALUE + ";");
+    private void visitNewRecordArray(BIRNode.BIRVariableDcl elementTypeDesc) {
+        this.loadVar(elementTypeDesc);
         this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
                 INIT_ARRAY_WITH_INITIAL_VALUES, false);
     }
