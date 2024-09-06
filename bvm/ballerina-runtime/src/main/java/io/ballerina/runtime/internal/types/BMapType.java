@@ -27,10 +27,8 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -204,7 +202,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         if (!couldInherentTypeBeDifferent()) {
             return Optional.of(getSemType());
         }
-        BMap value = (BMap) object;
+        MapValueImpl<?, ?> value = (MapValueImpl<?, ?>) object;
         SemType cachedShape = value.shapeOf();
         if (cachedShape != null) {
             return Optional.of(cachedShape);
@@ -220,21 +218,17 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
 
     @Override
     public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
-        return readonlyShape(cx, shapeSupplierFn, (BMap<?, ?>) object);
+        return readonlyShape(cx, shapeSupplierFn, (MapValueImpl<?, ?>) object);
     }
 
-    static Optional<SemType> readonlyShape(Context cx, ShapeSupplier shapeSupplier, BMap<?, ?> value) {
-        int nFields = value.size();
-        MappingDefinition md;
-
-        Optional<Definition> readonlyShapeDefinition = value.getReadonlyShapeDefinition();
-        if (readonlyShapeDefinition.isPresent()) {
-            md = (MappingDefinition) readonlyShapeDefinition.get();
-            return Optional.of(md.getSemType(cx.env));
-        } else {
-            md = new MappingDefinition();
-            value.setReadonlyShapeDefinition(md);
+    static Optional<SemType> readonlyShape(Context cx, ShapeSupplier shapeSupplier, MapValueImpl<?, ?> value) {
+        MappingDefinition readonlyShapeDefinition = value.getReadonlyShapeDefinition();
+        if (readonlyShapeDefinition != null) {
+            return Optional.of(readonlyShapeDefinition.getSemType(cx.env));
         }
+        int nFields = value.size();
+        MappingDefinition md = new MappingDefinition();
+        value.setReadonlyShapeDefinition(md);
         MappingDefinition.Field[] fields = new MappingDefinition.Field[nFields];
         Map.Entry<?, ?>[] entries = value.entrySet().toArray(Map.Entry[]::new);
         for (int i = 0; i < nFields; i++) {

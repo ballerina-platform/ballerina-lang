@@ -33,7 +33,6 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
-import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -288,7 +287,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         if (!couldInherentTypeBeDifferent()) {
             return Optional.of(getSemType());
         }
-        BMap<?, ?> value = (BMap<?, ?>) object;
+        MapValueImpl<?, ?> value = (MapValueImpl<?, ?>) object;
         SemType cachedSemType = value.shapeOf();
         if (cachedSemType != null) {
             return Optional.of(cachedSemType);
@@ -298,17 +297,16 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         return Optional.of(semTypePart);
     }
 
-    private SemType shapeOfInner(Context cx, ShapeSupplier shapeSupplier, BMap<?, ?> value, boolean readonly) {
+    private SemType shapeOfInner(Context cx, ShapeSupplier shapeSupplier, MapValueImpl<?, ?> value, boolean readonly) {
         int nFields = value.size();
         List<MappingDefinition.Field> fields = new ArrayList<>(nFields);
         Map.Entry<?, ?>[] entries = value.entrySet().toArray(Map.Entry[]::new);
         Set<String> handledFields = new HashSet<>(nFields);
         MappingDefinition md;
         if (readonly) {
-            Optional<Definition> readonlyShapeDefinition = value.getReadonlyShapeDefinition();
-            if (readonlyShapeDefinition.isPresent()) {
-                md = (MappingDefinition) readonlyShapeDefinition.get();
-                return md.getSemType(env);
+            MappingDefinition readonlyShapeDefinition = value.getReadonlyShapeDefinition();
+            if (readonlyShapeDefinition != null) {
+                return readonlyShapeDefinition.getSemType(env);
             } else {
                 md = new MappingDefinition();
                 value.setReadonlyShapeDefinition(md);
@@ -381,7 +379,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
 
     @Override
     public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
-        return Optional.of(shapeOfInner(cx, shapeSupplier, (BMap<?, ?>) object, true));
+        return Optional.of(shapeOfInner(cx, shapeSupplier, (MapValueImpl<?, ?>) object, true));
     }
 
     private Type fieldType(String fieldName) {

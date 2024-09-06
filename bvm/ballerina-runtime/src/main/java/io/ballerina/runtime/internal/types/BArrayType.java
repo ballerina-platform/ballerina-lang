@@ -24,12 +24,11 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
+import io.ballerina.runtime.internal.values.AbstractArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
@@ -254,7 +253,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         if (!couldInherentTypeBeDifferent()) {
             return Optional.of(getSemType());
         }
-        BArray value = (BArray) object;
+        AbstractArrayValue value = (AbstractArrayValue) object;
         SemType cachedShape = value.shapeOf();
         if (cachedShape != null) {
             return Optional.of(cachedShape);
@@ -271,21 +270,18 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
 
     @Override
     public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
-        return Optional.of(readonlyShape(cx, shapeSupplier, (BArray) object));
+        return Optional.of(readonlyShape(cx, shapeSupplier, (AbstractArrayValue) object));
     }
 
-    private SemType readonlyShape(Context cx, ShapeSupplier shapeSupplier, BArray value) {
+    private SemType readonlyShape(Context cx, ShapeSupplier shapeSupplier, AbstractArrayValue value) {
+        ListDefinition readonlyShapeDefinition = value.getReadonlyShapeDefinition();
+        if (readonlyShapeDefinition != null) {
+            return readonlyShapeDefinition.getSemType(cx.env);
+        }
         int size = value.size();
         SemType[] memberTypes = new SemType[size];
-        ListDefinition ld;
-        Optional<Definition> readonlyShapeDefinition = value.getReadonlyShapeDefinition();
-        if (readonlyShapeDefinition.isPresent()) {
-            ld = (ListDefinition) readonlyShapeDefinition.get();
-            return ld.getSemType(cx.env);
-        } else {
-            ld = new ListDefinition();
-            value.setReadonlyShapeDefinition(ld);
-        }
+        ListDefinition ld = new ListDefinition();
+        value.setReadonlyShapeDefinition(ld);
         for (int i = 0; i < size; i++) {
             Optional<SemType> memberType = shapeSupplier.get(cx, value.get(i));
             assert memberType.isPresent();
