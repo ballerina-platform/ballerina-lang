@@ -54,8 +54,8 @@ import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 public class ProfileCommandTest extends BaseCommandTest {
     private Path testResources;
 
-    static Path logFile = Paths.get(".", "src", "test", "resources", "compiler_plugin_tests",
-            "log_creator_combined_plugin", "compiler-plugin.txt");
+    private static final Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
+            .toAbsolutePath();
 
     @BeforeSuite
     public void setupSuite() throws IOException {
