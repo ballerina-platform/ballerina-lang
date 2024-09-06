@@ -968,7 +968,7 @@ public class ValueCreator {
      * @param tableType table type
      * @return          table value for given type
      */
-    public static BTable<?,?> createTableValue(TableType tableType) {
+    public static BTable<?, ?> createTableValue(TableType tableType) {
         return new TableValueImpl<>(tableType);
     }
 
