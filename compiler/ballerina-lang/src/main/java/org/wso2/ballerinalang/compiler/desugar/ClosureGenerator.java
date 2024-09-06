@@ -430,7 +430,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
             return;
         }
         List<String> fieldNames = getFieldNames(recordTypeNode.fields);
-
         BTypeSymbol typeSymbol = recordTypeNode.getBType().tsymbol;
         String typeName = recordTypeNode.symbol.name.value;
         for (BLangType type : recordTypeNode.typeRefs) {
