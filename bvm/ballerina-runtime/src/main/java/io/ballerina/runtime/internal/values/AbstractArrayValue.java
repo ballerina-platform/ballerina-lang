@@ -22,7 +22,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -33,6 +32,7 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.utils.IteratorUtils;
 import io.ballerina.runtime.internal.types.TypeWithShape;
+import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -58,10 +58,10 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  * 
  * @since 1.1.0
  */
-public abstract class AbstractArrayValue implements ArrayValue {
+public abstract class AbstractArrayValue implements ArrayValue, RecursiveValue<ListDefinition> {
 
     static final int SYSTEM_ARRAY_MAX = Integer.MAX_VALUE - 8;
-    private final ThreadLocal<Definition> readonlyAttachedDefinition = new ThreadLocal<>();
+    private final ThreadLocal<ListDefinition> readonlyAttachedDefinition = new ThreadLocal<>();
 
     /**
      * The maximum size of arrays to allocate.
@@ -315,12 +315,12 @@ public abstract class AbstractArrayValue implements ArrayValue {
     }
 
     @Override
-    public synchronized Optional<Definition> getReadonlyShapeDefinition() {
-        return Optional.ofNullable(readonlyAttachedDefinition.get());
+    public synchronized ListDefinition getReadonlyShapeDefinition() {
+        return readonlyAttachedDefinition.get();
     }
 
     @Override
-    public synchronized void setReadonlyShapeDefinition(Definition definition) {
+    public synchronized void setReadonlyShapeDefinition(ListDefinition definition) {
         readonlyAttachedDefinition.set(definition);
     }
 

@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -54,6 +53,7 @@ import io.ballerina.runtime.internal.utils.CycleUtils;
 import io.ballerina.runtime.internal.utils.IteratorUtils;
 import io.ballerina.runtime.internal.utils.MapUtils;
 import io.ballerina.runtime.internal.types.TypeWithShape;
+import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -100,7 +100,7 @@ import static io.ballerina.runtime.internal.values.ReadOnlyUtils.handleInvalidUp
  * @since 0.995.0
  */
 public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue, CollectionValue, MapValue<K, V>,
-        BMap<K, V> {
+        BMap<K, V>, RecursiveValue<MappingDefinition> {
 
     private BTypedesc typedesc;
     private Type type;
@@ -108,7 +108,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private final Map<String, Object> nativeData = new HashMap<>();
     private Type iteratorNextReturnType;
     private SemType shape;
-    private final ThreadLocal<Definition> readonlyAttachedDefinition = new ThreadLocal<>();
+    private final ThreadLocal<MappingDefinition> readonlyAttachedDefinition = new ThreadLocal<>();
 
     public MapValueImpl(TypedescValue typedesc) {
         this(typedesc.getDescribingType());
@@ -619,12 +619,12 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public synchronized Optional<Definition> getReadonlyShapeDefinition() {
-        return Optional.ofNullable(readonlyAttachedDefinition.get());
+    public synchronized MappingDefinition getReadonlyShapeDefinition() {
+        return readonlyAttachedDefinition.get();
     }
 
     @Override
-    public synchronized void setReadonlyShapeDefinition(Definition definition) {
+    public synchronized void setReadonlyShapeDefinition(MappingDefinition definition) {
         readonlyAttachedDefinition.set(definition);
     }
 

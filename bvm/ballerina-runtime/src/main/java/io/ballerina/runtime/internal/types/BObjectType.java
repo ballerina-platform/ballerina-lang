@@ -371,7 +371,12 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     }
 
     private SemType valueShape(Context cx, ShapeSupplier shapeSupplier, AbstractObjectValue object) {
+        ObjectDefinition readonlyShapeDefinition = object.getReadonlyShapeDefinition();
+        if (readonlyShapeDefinition != null) {
+            return readonlyShapeDefinition.getSemType(cx.env);
+        }
         ObjectDefinition od = new ObjectDefinition();
+        object.setReadonlyShapeDefinition(od);
         List<Member> members = new ArrayList<>();
         Set<String> seen = new HashSet<>(fields.size() + methodTypes.length);
         ObjectQualifiers qualifiers = getObjectQualifiers();
