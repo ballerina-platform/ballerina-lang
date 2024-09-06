@@ -191,12 +191,12 @@ public class NativeUtils {
                         }
                         HashSet<String> methodSet = getMethodSet(qualifiedTestClass);
                         originalTestFileRefConfClz = new ReflectConfigClass(qualifiedTestClassName);
-                        for (int i = 0; i < mockedFunctions.length; i++) {
-                            if (!methodSet.contains(mockedFunctions[i])) {
+                        for (String mockedFunction : mockedFunctions) {
+                            if (!methodSet.contains(mockedFunction)) {
                                 continue;
                             }
                             originalTestFileRefConfClz.addReflectConfigClassMethod(
-                                    new ReflectConfigClassMethod(mockedFunctions[i]));
+                                    new ReflectConfigClassMethod(mockedFunction));
                             originalTestFileRefConfClz.setUnsafeAllocated(true);
                             originalTestFileRefConfClz.setAllDeclaredFields(true);
                             originalTestFileRefConfClz.setQueryAllDeclaredMethods(true);
