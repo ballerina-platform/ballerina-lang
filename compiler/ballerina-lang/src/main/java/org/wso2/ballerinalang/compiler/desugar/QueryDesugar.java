@@ -1994,7 +1994,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     }
                 }
                 identifiers.put(identifier, symbol);
-            } else if (identifiers.containsKey(identifier) && (withinLambdaOrArrowFunc || withinQuery)) {
+            } else if (identifiers.containsKey(identifier)) {
                 symbol = identifiers.get(identifier);
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
