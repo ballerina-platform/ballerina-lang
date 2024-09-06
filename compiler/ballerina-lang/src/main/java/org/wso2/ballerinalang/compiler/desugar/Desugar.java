@@ -978,8 +978,8 @@ public class Desugar extends BLangNodeVisitor {
                     List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
 
                     int statementSize = statements.size();
-                    for (int i = 0; i < statementSize; i++) {
-                        addToGlobalVariableList(statements.get(i), initFnBody, globalVar, desugaredGlobalVarList);
+                    for (BLangStatement bLangStatement : statements) {
+                        addToGlobalVariableList(bLangStatement, initFnBody, globalVar, desugaredGlobalVarList);
                     }
                     break;
                 case RECORD_VARIABLE:
@@ -4374,8 +4374,8 @@ public class Desugar extends BLangNodeVisitor {
     private List<String> getKeysToRemove(BLangMappingBindingPattern mappingBindingPattern) {
         List<String> keysToRemove = new ArrayList<>();
         List<BLangFieldBindingPattern> fieldBindingPatterns = mappingBindingPattern.fieldBindingPatterns;
-        for (int i = 0; i < fieldBindingPatterns.size(); i++) {
-            keysToRemove.add(fieldBindingPatterns.get(i).fieldName.value);
+        for (BLangFieldBindingPattern fieldBindingPattern : fieldBindingPatterns) {
+            keysToRemove.add(fieldBindingPattern.fieldName.value);
         }
         return keysToRemove;
     }

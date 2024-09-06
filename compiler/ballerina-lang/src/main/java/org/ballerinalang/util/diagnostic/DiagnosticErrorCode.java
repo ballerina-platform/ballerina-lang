@@ -251,7 +251,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INCOMPATIBLE_TYPES_CONVERSION_WITH_SUGGESTION("BCE2503", "incompatible.types.conversion.with.suggestion"),
     UNSAFE_CAST_ATTEMPT("BCE2504", "unsafe.cast.attempt"),
 
-    INVALID_LITERAL_FOR_TYPE("BCE2506", "invalid.literal.for.type"),
     INCOMPATIBLE_MAPPING_CONSTRUCTOR("BCE2507", "incompatible.mapping.constructor.expression"),
     MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND("BCE2508", "mapping.constructor.compatible.type.not.found"),
     CANNOT_INFER_TYPES_FOR_TUPLE_BINDING("BCE2509", "cannot.infer.types.for.tuple.binding"),
@@ -333,7 +332,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ANY_VAR_DEF("BCE2574", "invalid.any.var.def"),
     INVALID_RECORD_LITERAL("BCE2575", "invalid.record.literal"),
     INVALID_FIELD_IN_RECORD_BINDING_PATTERN("BCE2576", "invalid.field.in.record.binding.pattern"),
-    INVALID_RECORD_LITERAL_BINDING_PATTERN("BCE2577", "invalid.record.literal.in.binding.pattern"),
     DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR("BCE2578", "duplicate.key.in.mapping.constructor"),
     DUPLICATE_KEY_IN_TABLE_LITERAL("BCE2579", "duplicate.key.in.table.literal"),
     DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP("BCE2580", "duplicate.key.in.record.literal.spread.op"),

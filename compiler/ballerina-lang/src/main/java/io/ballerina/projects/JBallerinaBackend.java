@@ -79,7 +79,6 @@ import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getConflictingResourcesMsg;
-import static io.ballerina.projects.util.ProjectUtils.getResourcesPath;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 
@@ -163,6 +162,9 @@ public class JBallerinaBackend extends CompilerBackend {
         // collect compilation diagnostics
         List<Diagnostic> moduleDiagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
+            if (shrink) {
+                ModuleContext.shrinkDocuments(moduleContext);
+            }
             if (moduleContext.moduleId().packageId().equals(packageContext.packageId())) {
                 if (packageCompilation.diagnosticResult().hasErrors()) {
                     for (Diagnostic diagnostic : moduleContext.diagnostics()) {
@@ -185,9 +187,6 @@ public class JBallerinaBackend extends CompilerBackend {
                 }
             }
 
-            if (shrink) {
-                ModuleContext.shrinkDocuments(moduleContext);
-            }
             if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
                 moduleContext.cleanBLangPackage();
             }
@@ -576,59 +575,61 @@ public class JBallerinaBackend extends CompilerBackend {
     private void copyJar(ZipArchiveOutputStream outStream, JarLibrary jarLibrary,
                          HashMap<String, JarLibrary> copiedEntries, HashMap<String,
             StringBuilder> services) throws IOException {
-
-        ZipFile zipFile = new ZipFile(jarLibrary.path().toFile());
-        ZipArchiveEntryPredicate predicate = entry -> {
-            String entryName = entry.getName();
-            if (entryName.equals("META-INF/MANIFEST.MF")) {
-                return false;
-            }
-            if (entryName.equals("module-info.class")) {
-                return false;
-            }
-            if (entryName.startsWith("META-INF/services")) {
-                StringBuilder s = services.get(entryName);
-                if (s == null) {
-                    s = new StringBuilder();
-                    services.put(entryName, s);
+        if (Thread.currentThread().isInterrupted()) {
+            return;
+        }
+        try (ZipFile zipFile = new ZipFile(jarLibrary.path().toFile())) {
+            ZipArchiveEntryPredicate predicate = entry -> {
+                String entryName = entry.getName();
+                if (entryName.equals("META-INF/MANIFEST.MF")) {
+                    return false;
                 }
-                char c = '\n';
-
-                int len;
-                try (BufferedInputStream inStream = new BufferedInputStream(zipFile.getInputStream(entry))) {
-                    while ((len = inStream.read()) != -1) {
-                        c = (char) len;
-                        s.append(c);
+                if (entryName.equals("module-info.class")) {
+                    return false;
+                }
+                if (entryName.startsWith("META-INF/services")) {
+                    StringBuilder s = services.get(entryName);
+                    if (s == null) {
+                        s = new StringBuilder();
+                        services.put(entryName, s);
                     }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    char c = '\n';
+
+                    int len;
+                    try (BufferedInputStream inStream = new BufferedInputStream(zipFile.getInputStream(entry))) {
+                        while ((len = inStream.read()) != -1) {
+                            c = (char) len;
+                            s.append(c);
+                        }
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (c != '\n') {
+                        s.append('\n');
+                    }
+
+                    // Its not required to copy SPI entries in here as we'll be adding merged SPI related entries
+                    // separately. Therefore the predicate should be set as false.
+                    return false;
                 }
-                if (c != '\n') {
-                    s.append('\n');
+
+                // Skip already copied files or excluded extensions.
+                if (isCopiedEntry(entryName, copiedEntries)) {
+                    addConflictedJars(jarLibrary, copiedEntries, entryName);
+                    return false;
                 }
+                if (isExcludedEntry(entryName)) {
+                    return false;
+                }
+                // SPIs will be merged first and then put into jar separately.
+                copiedEntries.put(entryName, jarLibrary);
+                return true;
+            };
 
-                // Its not required to copy SPI entries in here as we'll be adding merged SPI related entries
-                // separately. Therefore the predicate should be set as false.
-                return false;
-            }
-
-            // Skip already copied files or excluded extensions.
-            if (isCopiedEntry(entryName, copiedEntries)) {
-                addConflictedJars(jarLibrary, copiedEntries, entryName);
-                return false;
-            }
-            if (isExcludedEntry(entryName)) {
-                return false;
-            }
-            // SPIs will be merged first and then put into jar separately.
-            copiedEntries.put(entryName, jarLibrary);
-            return true;
-        };
-
-        // Transfers selected entries from this zip file to the output stream, while preserving its compression and
-        // all the other original attributes.
-        zipFile.copyRawEntries(outStream, predicate);
-        zipFile.close();
+            // Transfers selected entries from this zip file to the output stream, while preserving its compression and
+            // all the other original attributes.
+            zipFile.copyRawEntries(outStream, predicate);
+        }
     }
 
     private static boolean isCopiedEntry(String entryName, HashMap<String, JarLibrary> copiedEntries) {
@@ -722,7 +723,6 @@ public class JBallerinaBackend extends CompilerBackend {
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
                     "-H:Path=" + executableFilePath.getParent(),
-                    "-H:IncludeResources=" + getResourcesPath(),
                     "--no-fallback"));
         }
 

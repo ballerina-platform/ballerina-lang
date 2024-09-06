@@ -37,8 +37,7 @@ public class Concat {
     public static BXml concat(Object... arrayValue) {
         List<BXml> backingArray = new ArrayList<>();
         BXml lastItem = null;
-        for (int i = 0; i < arrayValue.length; i++) {
-            Object refValue = arrayValue[i];
+        for (Object refValue : arrayValue) {
             if (refValue instanceof BString bString) {
                 if (lastItem != null && lastItem.getNodeType() == XmlNodeType.TEXT) {
                     // If last added item is a string, then concat prev values with this values and replace prev value.

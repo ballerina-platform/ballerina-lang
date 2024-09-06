@@ -35,9 +35,7 @@ public class Min {
 
     public static BDecimal min(BDecimal n, BDecimal[] ns) {
         BDecimal min = n;
-        int size = ns.length;
-        for (int i = 0; i < size; i++) {
-            BDecimal current = ns[i];
+        for (BDecimal current : ns) {
             min = current.value().compareTo(min.value()) <= 0 ? current : min;
         }
         return min;

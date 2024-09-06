@@ -28,6 +28,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -66,23 +67,34 @@ public abstract class BaseCommandTest {
         this.printStream = new PrintStream(this.console);
     }
 
+    @DataProvider(name = "optimizeDependencyCompilation")
+    public Object [] [] provideOptimizeDependencyCompilation() {
+        return new Object [][] {{ false }, { true }};
+    }
+
     protected String readOutput() throws IOException {
         return readOutput(false);
     }
 
     protected String readOutput(boolean silent) throws IOException {
+        return readOutput(silent, true);
+    }
+
+    protected String readOutput(boolean silent, boolean closeConsole) throws IOException {
         String output = "";
         output = console.toString();
-        console.close();
-        console = new ByteArrayOutputStream();
-        printStream = new PrintStream(console);
+        if (closeConsole) {
+            console.close();
+            console = new ByteArrayOutputStream();
+            printStream = new PrintStream(console);
+        }
         if (!silent) {
             PrintStream out = System.out;
             out.println(output);
         }
         return output;
     }
-    
+
     /**
      * Execute a command and get the exception.
      *
