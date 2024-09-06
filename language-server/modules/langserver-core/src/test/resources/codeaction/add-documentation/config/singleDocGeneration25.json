@@ -1,7 +1,7 @@
 {
   "position": {
-    "line": 85,
-    "character": 16
+    "line": 119,
+    "character": 15
   },
   "source": "singleDocGeneration.bal",
   "expected": [
@@ -15,11 +15,11 @@
             "key": "node.range",
             "value": {
               "start": {
-                "line": 84,
+                "line": 119,
                 "character": 0
               },
               "end": {
-                "line": 85,
+                "line": 119,
                 "character": 30
               }
             }
