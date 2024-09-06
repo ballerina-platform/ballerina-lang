@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BNever;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.ErrorUtils;
@@ -330,7 +331,7 @@ public class Scheduler {
         System.arraycopy(args, 0, argsWithDefaultValues, 0, args.length);
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
-            if (args.length >= i && parameter.isDefault && args[i] == null && !parameter.type.isNilable()) {
+            if (args.length >= i && parameter.isDefault && args[i] == BNever.getValue()) {
                 Object defaultValue = valueCreator.call(strand, parameter.defaultFunctionName, argsWithDefaultValues);
                 argsWithDefaultValues[i] = defaultValue;
             }
@@ -338,7 +339,7 @@ public class Scheduler {
         return argsWithDefaultValues;
     }
 
-    private MethodType getObjectMethodType(String methodName, ObjectType objectType) {
+    public MethodType getObjectMethodType(String methodName, ObjectType objectType) {
         Map<String, MethodType> methodTypesMap = new HashMap<>();
         if (objectType.getTag() == TypeTags.SERVICE_TAG) {
             BServiceType serviceType = (BServiceType) objectType;

@@ -46,7 +46,7 @@ public class Async {
     }
 
     public static long getFieldValWithOptionalArgDefaultVal(Environment env, BObject obj) {
-        return startNonIsolatedWorker(env, obj, "getFieldValWithOptionalArg", StringUtils.fromString("any value here"));
+        return startNonIsolatedWorker(env, obj, "getFieldValWithOptionalArg");
     }
 
     public static long getFieldValWithMultipleOptionalArgsDefaultVal(Environment env, BObject obj) {
@@ -62,11 +62,11 @@ public class Async {
     }
 
     public static long getFieldValWithDefaultValSpecialChars(Environment env, BObject obj) {
-        return startNonIsolatedWorker(env, obj, "getFieldValWithDefaultValSpecialChars", 0, 0, 0);
+        return startNonIsolatedWorker(env, obj, "getFieldValWithDefaultValSpecialChars");
     }
 
     public static long getFieldValWithDefaultValSpecialCharsAsync(Environment env, BObject obj) {
-        return startNonIsolatedWorker(env, obj, "getFieldValWithDefaultValSpecialCharsAsync", 0, 0, 0);
+        return startNonIsolatedWorker(env, obj, "getFieldValWithDefaultValSpecialCharsAsync");
     }
 
     public static long getA(Environment env, BObject obj) {

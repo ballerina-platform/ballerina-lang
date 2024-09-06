@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BNever;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
@@ -85,7 +86,7 @@ public class Call {
                 }
                 argsList.add(arg);
             } else if (parameter.isDefault) {
-                argsList.add(null);
+                argsList.add(BNever.getValue());
             } else {
                 errored = true;
             }

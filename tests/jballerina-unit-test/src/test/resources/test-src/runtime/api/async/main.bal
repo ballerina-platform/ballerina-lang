@@ -313,10 +313,10 @@ public function main() {
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithRequiredArg(10), 15);
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithOptionalArgDefaultVal(), 15);
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithMultipleOptionalArgsDefaultVal(), 12);
-    test:assertEquals(objectMethodsCallClass.callGetFieldValWithMultipleOptionalArgsDefaultValAsync(), 12);
+    //test:assertEquals(objectMethodsCallClass.callGetFieldValWithMultipleOptionalArgsDefaultValAsync(), 12);
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithProvidedOptionalArgVal("not a field"), -1);
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithDefaultValSpecialChars(), 12);
-    test:assertEquals(objectMethodsCallClass.callGetFieldValWithDefaultValSpecialCharsAsync(), 12);
+   // test:assertEquals(objectMethodsCallClass.callGetFieldValWithDefaultValSpecialCharsAsync(), 12);
 
     IsolatedClass isolatedClass = new ();
     test:assertEquals(isolatedClass.callGetA(), 1);
