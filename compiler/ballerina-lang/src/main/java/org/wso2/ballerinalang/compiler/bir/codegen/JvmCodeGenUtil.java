@@ -202,6 +202,7 @@ public class JvmCodeGenUtil {
     }
 
     public static String rewriteVirtualCallTypeName(String value, BType objectType) {
+        objectType = getImpliedType(objectType);
         String typeName = objectType.tsymbol.name.value;
         Name originalName = objectType.tsymbol.originalName;
         if (!typeName.isEmpty() && value.startsWith(typeName)) {
