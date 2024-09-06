@@ -44,10 +44,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BBooleanType;
-import io.ballerina.runtime.internal.types.BByteType;
 import io.ballerina.runtime.internal.types.BFiniteType;
-import io.ballerina.runtime.internal.types.BFloatType;
-import io.ballerina.runtime.internal.types.BIntegerType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BRecordType;
@@ -371,14 +368,12 @@ public final class TypeChecker {
 
     private static Type getNumberType(Number number) {
         if (number instanceof Double) {
-            return BFloatType.singletonType(number.doubleValue());
+            return TYPE_FLOAT;
         }
-        long numberValue =
-                number instanceof Byte byteValue ? Byte.toUnsignedLong(byteValue) : number.longValue();
         if (number instanceof Integer || number instanceof Byte) {
-            return BByteType.singletonType(numberValue);
+            return TYPE_BYTE;
         }
-        return BIntegerType.singletonType(numberValue);
+        return TYPE_INT;
     }
 
     /**
