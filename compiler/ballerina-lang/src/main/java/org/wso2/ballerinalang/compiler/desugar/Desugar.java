@@ -6153,7 +6153,6 @@ public class Desugar extends BLangNodeVisitor {
                                                               List<String> fieldNames,
                                                               Map<String, BInvokableSymbol> defaultValues,
                                                               Location pos, boolean isReadonly) {
-        List<RecordLiteralNode.RecordField> generatedFields = new ArrayList<>();
         for (Map.Entry<String, BInvokableSymbol> entry : defaultValues.entrySet()) {
             String fieldName = entry.getKey();
             if (fieldNames.contains(fieldName)) {
@@ -6176,11 +6175,7 @@ public class Desugar extends BLangNodeVisitor {
                 }
             }
             BLangRecordLiteral.BLangRecordKeyValueField member = createRecordKeyValueField(pos, fieldName, expression);
-            generatedFields.add(member);
-        }
-        for (int i = generatedFields.size() - 1; i >= 0; i--) {
-            var each = generatedFields.get(i);
-            fields.add(0, each);
+            fields.add(member);
         }
     }
 
@@ -6195,7 +6190,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void generateFieldsForUserUnspecifiedRecordFields(BLangRecordLiteral recordLiteral,
-                                                              List<RecordLiteralNode.RecordField> userSpecifiedFields) {
+                                                             List<RecordLiteralNode.RecordField> userSpecifiedFields) {
         BType type = Types.getImpliedType(recordLiteral.getBType());
         if (type.getKind() != TypeKind.RECORD || isSpreadingAnOpenRecord(userSpecifiedFields)) {
             return;
