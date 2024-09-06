@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.BmpStringValue;
@@ -393,14 +394,15 @@ public class BRunUtil {
             Function<Object[], Object> func = getFunction(initClazz, funcName);
             final FutureValue future = runtime.scheduler.startNonIsolatedWorker(func, null, PredefinedTypes.TYPE_ANY,
                     funcName, null, new Object[1]);
-           future.get();
+            Scheduler.daemonStrand = future.strand;
+            future.get();
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         } catch (Throwable t) {
             if (t instanceof ErrorValue errorValue) {
                 throw new BLangTestException("error: " + errorValue.getPrintableError());
             }
-            throw new BLangTestException("error: " + Arrays.toString(t.getStackTrace()));
+            throw new BLangTestException("error: " + Arrays.toString(t.getStackTrace()), t);
         }
     }
 
