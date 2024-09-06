@@ -18,10 +18,7 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.internal.types.TypeWithShape;
-
-import java.util.Optional;
 
 /**
  * <p>
@@ -30,7 +27,7 @@ import java.util.Optional;
  * 
  * @since 1.1.0
  */
-public interface BArray extends BRefValue, BCollection, PatternMatchableValue,  RecursiveValue {
+public interface BArray extends BRefValue, BCollection, PatternMatchableValue {
 
     /**
      * Get value in the given array index.
@@ -244,20 +241,5 @@ public interface BArray extends BRefValue, BCollection, PatternMatchableValue,  
     @Override
     default TypeWithShape getTypeWithShape() {
         return (TypeWithShape) getType();
-    }
-
-    @Override
-    default Optional<Definition> getReadonlyShapeDefinition() {
-        throw new UnsupportedOperationException("Method not implemented");
-    }
-
-    @Override
-    default void setReadonlyShapeDefinition(Definition definition) {
-        throw new UnsupportedOperationException("Method not implemented");
-    }
-
-    @Override
-    default void resetReadonlyShapeDefinition() {
-        throw new UnsupportedOperationException("Method not implemented");
     }
 }

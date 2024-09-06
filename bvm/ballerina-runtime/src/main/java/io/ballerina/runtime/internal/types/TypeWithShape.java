@@ -24,6 +24,12 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.Optional;
 
+/**
+ * Types that are not basic types and have values whose shape could be different form the actual type (i.e. not handles)
+ * must implement this interface. Note that multiple values could share the same instance of TypeWithShape. Ideally
+ * different objects should be able to do their shape calculations in a non-blocking manner, even when they share the
+ * same instance of {@code TypeWithShape}.
+ */
 public interface TypeWithShape {
 
     Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object);

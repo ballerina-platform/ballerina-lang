@@ -29,10 +29,10 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.ErrorUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.util.Optional;
 
@@ -150,7 +150,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
         }
         BError errorValue = (BError) object;
         Object details = errorValue.getDetails();
-        if (!(details instanceof BMap<?, ?> errorDetails)) {
+        if (!(details instanceof MapValueImpl<?, ?> errorDetails)) {
             return Optional.empty();
         }
         if (distinctIdSupplier == null) {
@@ -167,7 +167,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
     public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
         BError errorValue = (BError) object;
         Object details = errorValue.getDetails();
-        if (!(details instanceof BMap<?, ?> errorDetails)) {
+        if (!(details instanceof MapValueImpl<?, ?> errorDetails)) {
             return Optional.empty();
         }
         return BMapType.readonlyShape(cx, shapeSupplierFn, errorDetails).map(ErrorUtils::errorDetail);

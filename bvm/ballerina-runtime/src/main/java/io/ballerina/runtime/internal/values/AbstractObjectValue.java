@@ -39,6 +39,7 @@ import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.TypeWithShape;
+import io.ballerina.runtime.internal.types.semtype.ObjectDefinition;
 
 import java.util.HashMap;
 import java.util.List;
@@ -62,11 +63,12 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  * 
  * @since 0.995.0
  */
-public abstract class AbstractObjectValue implements ObjectValue {
+public abstract class AbstractObjectValue implements ObjectValue, RecursiveValue<ObjectDefinition> {
     private BTypedesc typedesc;
     private final BObjectType objectType;
     private final Type type;
     private SemType shape;
+    private final ThreadLocal<ObjectDefinition> readonlyAttachedDefinition = new ThreadLocal<>();
 
     private final HashMap<String, Object> nativeData = new HashMap<>();
 
@@ -252,5 +254,20 @@ public abstract class AbstractObjectValue implements ObjectValue {
     public Optional<SemType> shapeOf(Context cx) {
         TypeWithShape typeWithShape = (TypeWithShape) getType();
         return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
+    }
+
+    @Override
+    public ObjectDefinition getReadonlyShapeDefinition() {
+        return readonlyAttachedDefinition.get();
+    }
+
+    @Override
+    public void setReadonlyShapeDefinition(ObjectDefinition definition) {
+        readonlyAttachedDefinition.set(definition);
+    }
+
+    @Override
+    public void resetReadonlyShapeDefinition() {
+        readonlyAttachedDefinition.remove();
     }
 }
