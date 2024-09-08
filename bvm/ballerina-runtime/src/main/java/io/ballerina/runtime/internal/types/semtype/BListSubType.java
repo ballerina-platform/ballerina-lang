@@ -27,7 +27,6 @@ import io.ballerina.runtime.api.types.semtype.Conjunction;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
-import io.ballerina.runtime.api.types.semtype.ListAtomicType;
 import io.ballerina.runtime.api.types.semtype.Pair;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.SubType;

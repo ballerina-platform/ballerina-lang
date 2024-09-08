@@ -16,7 +16,13 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.api.types.semtype;
+package io.ballerina.runtime.internal.types.semtype;
+
+import io.ballerina.runtime.api.types.semtype.Atom;
+import io.ballerina.runtime.api.types.semtype.AtomicType;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.TypeAtom;
 
 import java.util.HashMap;
 import java.util.Map;

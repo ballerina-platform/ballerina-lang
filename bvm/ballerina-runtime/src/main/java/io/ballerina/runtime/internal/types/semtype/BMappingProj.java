@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.types.semtype.BddNode;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
-import io.ballerina.runtime.api.types.semtype.MappingAtomicType;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.ArrayList;

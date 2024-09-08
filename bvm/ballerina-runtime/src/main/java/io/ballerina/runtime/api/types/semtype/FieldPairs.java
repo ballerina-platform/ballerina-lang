@@ -19,6 +19,7 @@
 package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.internal.types.semtype.Common;
+import io.ballerina.runtime.internal.types.semtype.MappingAtomicType;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
