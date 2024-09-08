@@ -16,11 +16,11 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.api.types.semtype;
+package io.ballerina.runtime.internal.types.semtype;
 
-import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
+import io.ballerina.runtime.api.types.semtype.AtomicType;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
-// TODO: move this to internal along with cell atomic type
 public record ListAtomicType(FixedLengthArray members, SemType rest) implements AtomicType {
 
 }

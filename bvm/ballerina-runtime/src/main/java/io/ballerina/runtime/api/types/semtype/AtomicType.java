@@ -18,6 +18,11 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
+import io.ballerina.runtime.internal.types.semtype.FunctionAtomicType;
+import io.ballerina.runtime.internal.types.semtype.ListAtomicType;
+import io.ballerina.runtime.internal.types.semtype.MappingAtomicType;
+
 /**
  * Marker type representing AtomicType.
  *

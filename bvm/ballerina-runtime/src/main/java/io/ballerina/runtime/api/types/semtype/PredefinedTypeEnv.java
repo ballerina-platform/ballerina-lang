@@ -23,7 +23,10 @@ import io.ballerina.runtime.internal.types.semtype.BListSubType;
 import io.ballerina.runtime.internal.types.semtype.BMappingSubType;
 import io.ballerina.runtime.internal.types.semtype.BObjectSubType;
 import io.ballerina.runtime.internal.types.semtype.BTableSubType;
+import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
+import io.ballerina.runtime.internal.types.semtype.ListAtomicType;
+import io.ballerina.runtime.internal.types.semtype.MappingAtomicType;
 import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 
 import java.util.ArrayList;
