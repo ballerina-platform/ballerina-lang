@@ -5,7 +5,6 @@ import io.ballerina.runtime.api.types.semtype.Bdd;
 import io.ballerina.runtime.api.types.semtype.BddAllOrNothing;
 import io.ballerina.runtime.api.types.semtype.BddNode;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.CellAtomicType;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;

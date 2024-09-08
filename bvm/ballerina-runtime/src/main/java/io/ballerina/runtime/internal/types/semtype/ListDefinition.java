@@ -21,10 +21,8 @@ package io.ballerina.runtime.internal.types.semtype;
 import io.ballerina.runtime.api.types.semtype.Atom;
 import io.ballerina.runtime.api.types.semtype.BasicTypeCode;
 import io.ballerina.runtime.api.types.semtype.BddNode;
-import io.ballerina.runtime.api.types.semtype.CellAtomicType;
 import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.Env;
-import io.ballerina.runtime.api.types.semtype.ListAtomicType;
 import io.ballerina.runtime.api.types.semtype.RecAtom;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
@@ -32,7 +30,7 @@ import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 import static io.ballerina.runtime.api.types.semtype.Builder.basicSubType;
 import static io.ballerina.runtime.api.types.semtype.Builder.cellContaining;
 import static io.ballerina.runtime.api.types.semtype.Builder.undef;
-import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.api.types.semtype.Core.isNever;
 import static io.ballerina.runtime.api.types.semtype.Core.union;
 

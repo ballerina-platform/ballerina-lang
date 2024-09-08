@@ -18,6 +18,10 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+import io.ballerina.runtime.internal.types.semtype.FunctionAtomicType;
+import io.ballerina.runtime.internal.types.semtype.ListAtomicType;
+import io.ballerina.runtime.internal.types.semtype.MappingAtomicType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

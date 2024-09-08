@@ -17,7 +17,13 @@
  *
  */
 
-package io.ballerina.runtime.api.types.semtype;
+package io.ballerina.runtime.internal.types.semtype;
+
+import io.ballerina.runtime.api.types.semtype.AtomicType;
+import io.ballerina.runtime.api.types.semtype.Env;
+import io.ballerina.runtime.api.types.semtype.FieldPair;
+import io.ballerina.runtime.api.types.semtype.FieldPairs;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -23,7 +23,7 @@ package io.ballerina.runtime.api.types.semtype;
  *
  * @since 2201.10.0
  */
-public interface Atom {
+public sealed interface Atom permits RecAtom, TypeAtom {
 
     int index();
 }

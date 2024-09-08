@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.CellAtomicType;
+import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.Env;
@@ -39,7 +39,7 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 
 /**
  * {@code BMapType} represents a type of a map in Ballerina.
