@@ -48,11 +48,8 @@ public final class BBooleanSubType extends SubType {
         if (!(otherSubtype instanceof BBooleanSubType other)) {
             throw new IllegalArgumentException("union of different subtypes");
         }
-        if (this.isAll()) {
-            return this;
-        }
-        if (other.isAll()) {
-            return other;
+        if (this.isAll() || other.isAll()) {
+            return ALL;
         }
         if (this.isNothing()) {
             return other;
@@ -101,9 +98,6 @@ public final class BBooleanSubType extends SubType {
             return this;
         }
         if (this.isAll()) {
-            if (other.isNothing()) {
-                return this;
-            }
             return from(!other.data.value);
         }
         return this.data.value == other.data.value ? NOTHING : this;
@@ -155,10 +149,6 @@ public final class BBooleanSubType extends SubType {
         private static final BBooleanSubTypeData NOTHING = new BBooleanSubTypeData(false, true, false);
         private static final BBooleanSubTypeData TRUE = new BBooleanSubTypeData(false, false, true);
         private static final BBooleanSubTypeData FALSE = new BBooleanSubTypeData(false, false, false);
-
-        static BBooleanSubTypeData from(boolean value) {
-            return value ? TRUE : FALSE;
-        }
 
         SubTypeData toData() {
             if (isAll()) {

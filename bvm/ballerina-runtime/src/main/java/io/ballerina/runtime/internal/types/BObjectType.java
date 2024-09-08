@@ -32,7 +32,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeIdSet;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
@@ -43,6 +42,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.Member;
@@ -275,7 +275,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     }
 
     @Override
-    public SemType createSemType() {
+    public synchronized SemType createSemType() {
         if (distinctIdSupplier == null) {
             distinctIdSupplier = new DistinctIdSupplier(env, typeIdSet);
         }
@@ -290,7 +290,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
         return !seen.add(name);
     }
 
-    private synchronized SemType semTypeInner() {
+    private SemType semTypeInner() {
         if (defn != null) {
             return defn.getSemType(env);
         }
@@ -337,7 +337,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     }
 
     @Override
-    public synchronized Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         if (!couldInherentTypeBeDifferent()) {
             return Optional.of(getSemType());
         }

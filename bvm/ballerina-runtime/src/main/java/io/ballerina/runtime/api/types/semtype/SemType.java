@@ -12,7 +12,7 @@ public sealed class SemType extends BasicTypeBitSet
 
     private int some;
     private SubType[] subTypeData;
-    private Map<SemType, CachedResult> cachedResults;
+    private volatile Map<SemType, CachedResult> cachedResults;
 
     protected SemType(int all, int some, SubType[] subTypeData) {
         super(all);
@@ -46,7 +46,11 @@ public sealed class SemType extends BasicTypeBitSet
             return CachedResult.NOT_FOUND;
         }
         if (cachedResults == null) {
-            cachedResults = new WeakHashMap<>();
+            synchronized (this) {
+                if (cachedResults == null) {
+                    cachedResults = new WeakHashMap<>();
+                }
+            }
             return CachedResult.NOT_FOUND;
         }
         return cachedResults.getOrDefault(other, CachedResult.NOT_FOUND);
