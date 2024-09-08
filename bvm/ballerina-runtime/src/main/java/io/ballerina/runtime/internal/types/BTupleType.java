@@ -24,11 +24,11 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.values.AbstractArrayValue;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
@@ -320,7 +320,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     }
 
     @Override
-    public synchronized SemType createSemType() {
+    public SemType createSemType() {
         if (defn != null) {
             return defn.getSemType(env);
         }

@@ -51,6 +51,21 @@ public final class Context {
         return new Context(env);
     }
 
+    /**
+     * Memoization logic
+     * Castagna's paper does not deal with this fully. Although he calls it memoization, it is not, strictly speaking,
+     * just memoization, since it is not just an optimization, but required for correct handling of recursive types.
+     * The handling of recursive types depends on our types being defined inductively, rather than coinductively.
+     * This means that each shape that is a member of the  set denoted by the type is finite. There is a tricky problem
+     * here with memoizing results that rely on assumptions that subsequently turn out to be false. Memoization/caching
+     * is discussed in section 7.1.2 of the Frisch thesis. This follows Frisch's approach of undoing memoizations that
+     * turn out to be wrong. (I did not succeed in fully understanding his approach, so I am not  completely sure if we
+     * are doing the same.)
+     * @param memoTable corresponding memo table for the Bdd
+     * @param isEmptyPredicate predicate to be applied on the Bdd
+     * @param bdd Bdd to be checked
+     * @return result of applying predicate on the bdd
+     */
     public boolean memoSubtypeIsEmpty(Map<Bdd, BddMemo> memoTable, BddIsEmptyPredicate isEmptyPredicate, Bdd bdd) {
         BddMemo m = memoTable.computeIfAbsent(bdd, ignored -> new BddMemo());
         return m.isEmpty().orElseGet(() -> memoSubTypeIsEmptyInner(isEmptyPredicate, bdd, m));
