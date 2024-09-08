@@ -30,7 +30,6 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
@@ -41,6 +40,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -248,7 +248,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     }
 
     @Override
-    public synchronized SemType createSemType() {
+    public SemType createSemType() {
         if (defn != null) {
             return defn.getSemType(env);
         }

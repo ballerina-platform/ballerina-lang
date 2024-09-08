@@ -19,11 +19,11 @@
 package io.ballerina.runtime.test.semtype;
 
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import org.testng.annotations.Test;
 

@@ -25,11 +25,11 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
@@ -182,7 +182,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     }
 
     @Override
-    public synchronized SemType createSemType() {
+    public SemType createSemType() {
         if (defn != null) {
             return defn.getSemType(env);
         }

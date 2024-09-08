@@ -251,4 +251,29 @@ public abstract sealed class Bdd extends SubType implements SubTypeData permits 
 
     public abstract boolean posMaybeEmpty();
 
+    // This is for debugging purposes.
+    // It uses the Frisch/Castagna notation.
+    public static String bddToString(Bdd b, boolean inner) {
+        if (b instanceof BddAllOrNothing) {
+            return b.isAll() ? "1" : "0";
+        } else {
+            String str;
+            BddNode bdd = (BddNode) b;
+            Atom a = bdd.atom();
+
+            if (a instanceof RecAtom) {
+                str = "r";
+            } else {
+                str = "a";
+            }
+            str += a.index();
+            str += "?" + bddToString(bdd.left(), true) + ":" + bddToString(bdd.middle(), true) +
+                    ":" + bddToString(bdd.right(), true);
+            if (inner) {
+                str = "(" + str + ")";
+            }
+            return str;
+        }
+    }
+
 }
