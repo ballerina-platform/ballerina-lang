@@ -45,6 +45,10 @@ public class FunctionBodyBlockNode extends FunctionBodyNode {
         return new NodeList<>(childInBucket(2));
     }
 
+    public NodeAndCommentList<NonTerminalNode> statementsWithComments() {
+        return new NodeAndCommentList<>(childInBucket(2), childInBucket(3));
+    }
+
     public Token closeBraceToken() {
         return childInBucket(3);
     }
