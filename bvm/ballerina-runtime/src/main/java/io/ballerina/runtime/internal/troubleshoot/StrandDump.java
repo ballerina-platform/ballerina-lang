@@ -42,12 +42,13 @@ public class StrandDump {
     private static volatile HotSpotDiagnosticMXBean hotSpotDiagnosticMXBean;
 
     public static String getStrandDump() {
-        String filename = "thread_dump" + LocalDateTime.now();
+        final String WORKING_DIR = System.getProperty("user.dir") + "/";
+        final String FILENAME = "thread_dump" + LocalDateTime.now();
         String dump;
         try {
-            getStrandDump(System.getProperty("user.dir") + "/" + filename);
-            dump = new String(Files.readAllBytes(Paths.get(filename)));
-            File fileObj = new File(filename);
+            getStrandDump( WORKING_DIR + FILENAME);
+            dump = new String(Files.readAllBytes(Paths.get(FILENAME)));
+            File fileObj = new File(FILENAME);
             fileObj.delete();
         } catch (Exception e) {
             return "Error occurred during strand dump generation";
@@ -56,6 +57,11 @@ public class StrandDump {
     }
 
     private static String generateOutput(String dump) {
+        final String VIRTUAL_THREAD_IDENTIFIER = "virtual";
+        final String ISOLATED_WORKER_IDENTIFIER = "Scheduler.lambda$startIsolatedWorker";
+        final String NON_ISOLATED_WORKER_IDENTIFIER = "Scheduler.lambda$startNonIsolatedWorker";
+        final String JAVA_TRACE_ITEM_IDENTIFIER = "java";
+        final String BAL_TRACE_ITEM_IDENTIFIER = ".bal";
         String[] dump_items = dump.split("\\n\\n");
         int id = 0;
         Set<Integer> isolatedWorkerList = new HashSet<>();
@@ -66,21 +72,21 @@ public class StrandDump {
             String[] subitems = lines[0].split("\" ");
             ArrayList<String> balTraceItems = new ArrayList<>();
             boolean bal_strand = false;
-            if(subitems.length > 1 && subitems[1].equals("virtual")) {
-                balTraceItems.add("\tStrand " + lines[0].replace("virtual", ":") + "\n\t\tat");
+            if(subitems.length > 1 && subitems[1].equals(VIRTUAL_THREAD_IDENTIFIER)) {
+                balTraceItems.add("\tStrand " + lines[0].replace(VIRTUAL_THREAD_IDENTIFIER, ":") + "\n\t\tat");
                 String prefix = " ";
                 for(String line : lines) {
-                    if(line.contains("Scheduler.lambda$startIsolatedWorker")) {
+                    if(line.contains(ISOLATED_WORKER_IDENTIFIER)) {
                         isolatedWorkerList.add(id);
                     }
-                    if(line.contains("Scheduler.lambda$startNonIsolatedWorker")) {
+                    if(line.contains(NON_ISOLATED_WORKER_IDENTIFIER)) {
                         nonIsolatedWorkerList.add(id);
                     }
-                    if(!line.contains("java") && !line.contains("\" virtual")){
+                    if(!line.contains(JAVA_TRACE_ITEM_IDENTIFIER) && !line.contains("\" " + VIRTUAL_THREAD_IDENTIFIER)){
                         balTraceItems.add(prefix + line + "\n");
                         prefix = "\t\t   ";
                     }
-                    if(line.contains(".bal")) {
+                    if(line.contains(BAL_TRACE_ITEM_IDENTIFIER)) {
                         bal_strand = true;
                     }
                 }
