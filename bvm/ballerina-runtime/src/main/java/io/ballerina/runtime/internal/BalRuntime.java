@@ -23,9 +23,15 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BNever;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
@@ -36,11 +42,17 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.FutureValue;
+import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.ListInitialValueEntry;
+import io.ballerina.runtime.internal.values.ValueCreator;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -126,46 +138,108 @@ public class BalRuntime extends Runtime {
     @Override
     public BFuture startIsolatedWorker(Module module, String functionName, String strandName, StrandMetadata metadata,
                                        Map<String, Object> properties, Object... args) {
-        return this.scheduler.startIsolatedWorker(functionName, module, this.getAndHandleStrand(functionName),
-                strandName, metadata, properties, args);
+        List<Object> argsList = new ArrayList<>();
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
+                module.getName(), module.getMajorVersion(), module.isTestPkg()));
+        FunctionType functionType = valueCreator.getFunctionType(functionName);
+        processFunctionArguments(functionType, args, argsList);
+        return scheduler.startIsolatedWorker(functionName, module, this.getAndHandleStrand(functionName), strandName,
+                metadata, properties, argsList.toArray());
     }
 
     @Override
     public BFuture startIsolatedWorker(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                        Map<String, Object> properties, Object... args) {
-        this.validateArgs(object, methodName);
+        validateArgs(object, methodName);
+        List<Object> argsList = new ArrayList<>();
+        ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
+        MethodType methodType = scheduler.getObjectMethodType(methodName, objectType);
+        if (methodType == null) {
+            throw ErrorCreator.createError(StringUtils.fromString("No such method: " + methodName));
+        }
+        this.processFunctionArguments(methodType, args, argsList);
         return this.scheduler.startIsolatedWorker(object, methodName, this.getAndHandleStrand(object, methodName),
-                strandName, metadata, properties, args);
+                strandName, metadata, properties, argsList.toArray());
     }
 
     @Override
     public BFuture startIsolatedWorker(FPValue fp, String strandName, StrandMetadata metadata,
                                        Map<String, Object> properties, Object... args) {
-        return this.scheduler.startIsolatedWorker(fp, strandName, this.getAndHandleStrand(fp.name),
-                metadata, properties, args);
+        Module module = fp.getType().getPackage();
+        List<Object> argsList = new java.util.ArrayList<>();
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
+                module.getName(), module.getMajorVersion(), module.isTestPkg()));
+        FunctionType functionType = valueCreator.getFunctionType(fp.getName());
+        this.processFunctionArguments(functionType, args, argsList);
+        return this.scheduler.startIsolatedWorker(fp, strandName, this.getAndHandleStrand(fp.name), metadata,
+                properties, argsList.toArray());
     }
 
     @Override
     public BFuture startNonIsolatedWorker(Module module, String functionName, String strandName,
                                           StrandMetadata metadata,
                                           Map<String, Object> properties, Object... args) {
+        List<Object> argsList = new ArrayList<>();
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
+                module.getName(), module.getMajorVersion(), module.isTestPkg()));
+        FunctionType functionType = valueCreator.getFunctionType(functionName);
+        this.processFunctionArguments(functionType, args, argsList);
         return this.scheduler.startNonIsolatedWorker(functionName, module, this.getAndHandleStrand(functionName),
-                strandName, metadata, properties, args);
+                strandName, metadata, properties, argsList.toArray());
+    }
+
+    private void processFunctionArguments(FunctionType functionType, Object[] args, List<Object> argsList) {
+        Parameter[] parameters = functionType.getParameters();
+        int numOfParams = parameters.length;
+        int numOfArgs = args.length;
+        for (int i = 0; i < numOfParams; i++) {
+            Parameter parameter = parameters[i];
+            if (i < numOfArgs) {
+                argsList.add(args[i]);
+            } else if (parameter.isDefault) {
+                argsList.add(BNever.getValue());
+            }
+        }
+        int numOfRestArgs = Math.max(numOfArgs - numOfParams, 0);
+        BArrayType restType = (BArrayType) functionType.getRestType();
+        if (restType != null) {
+            ListInitialValueEntry.ExpressionEntry[] initialValues = new
+                    ListInitialValueEntry.ExpressionEntry[numOfRestArgs];
+            restType.getElementType();
+            for (int i = 0; i < numOfRestArgs; i++) {
+                Object arg = args[numOfArgs - numOfRestArgs + i];
+                initialValues[i] = new ListInitialValueEntry.ExpressionEntry(arg);
+            }
+            argsList.add(new ArrayValueImpl(restType, -1L, initialValues));
+        }
     }
 
     @Override
     public BFuture startNonIsolatedWorker(BObject object, String methodName, String strandName,
                                           StrandMetadata metadata, Map<String, Object> properties, Object... args) {
         this.validateArgs(object, methodName);
-        return this.scheduler.startNonIsolatedWorker(object, methodName, this.getAndHandleStrand(object, methodName),
-                strandName, metadata, properties, args);
+        ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
+        MethodType methodType = scheduler.getObjectMethodType(methodName, objectType);
+        if (methodType == null) {
+            throw ErrorCreator.createError(StringUtils.fromString("No such method: " + methodName));
+        }
+        List<Object> argList = new ArrayList<>();
+        processFunctionArguments(methodType, args, argList);
+        return scheduler.startNonIsolatedWorker(object, methodName, this.getAndHandleStrand(object, methodName),
+                strandName, metadata, properties, argList.toArray());
     }
 
     @Override
     public BFuture startNonIsolatedWorker(FPValue fp, String strandName, StrandMetadata metadata,
                                           Map<String, Object> properties, Object... args) {
+        Module module = fp.getType().getPackage();
+        List<Object> argsList = new ArrayList<>();
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
+                module.getName(), module.getMajorVersion(), module.isTestPkg()));
+        FunctionType functionType = valueCreator.getFunctionType(fp.getName());
+        processFunctionArguments(functionType, args, argsList);
         return this.scheduler.startNonIsolatedWorker(fp, strandName, this.getAndHandleStrand(fp.name), metadata,
-                properties, args);
+                properties, argsList.toArray());
     }
 
     @Override

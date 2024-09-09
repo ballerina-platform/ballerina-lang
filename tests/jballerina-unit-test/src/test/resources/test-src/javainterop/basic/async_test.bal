@@ -1,5 +1,4 @@
 import ballerina/jballerina.java;
-import ballerina/lang.runtime;
 
 function asyncTest() returns int {
     return countSlowly();

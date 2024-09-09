@@ -169,7 +169,7 @@ public class XMLIterationTest {
 
     @Test
     public void testXMLFilterOp() {
-        Object returns = BRunUtil.invoke(result, "xml.bal");
+        BRunUtil.invoke(result, "filterOpTest");
     }
 
     @Test

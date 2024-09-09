@@ -403,7 +403,7 @@ public class BRunUtil {
             if (t instanceof ErrorValue errorValue) {
                 throw new BLangTestException("error: " + errorValue.getPrintableError());
             }
-            throw new BLangTestException("error: " + Arrays.toString(t.getStackTrace()));
+            throw new BLangTestException("error: " + Arrays.toString(t.getStackTrace()), t);
         }
     }
 

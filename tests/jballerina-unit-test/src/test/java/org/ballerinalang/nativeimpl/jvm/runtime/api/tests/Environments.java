@@ -46,12 +46,12 @@ public class Environments {
         };
         String expectedFunctionNamePrefix = "$get$greeting$";
         return assertFunctionNameAndPathParams(functionName, pathParameters, expectedPathParams,
-                expectedFunctionNamePrefix);
+                expectedFunctionNamePrefix,1);
     }
 
     private static long assertFunctionNameAndPathParams(String functionName,
                                                         Parameter[] pathParameters, Parameter[] expectedPathParams,
-                                                        String expectedFunctionNamePrefix) {
+                                                        String expectedFunctionNamePrefix, int expectedReturnVal) {
         if (functionName == null || !functionName.startsWith(expectedFunctionNamePrefix) || pathParameters == null
                 || pathParameters.length != expectedPathParams.length) {
             return -1;
@@ -62,7 +62,7 @@ public class Environments {
                 return -1;
             }
         }
-        return 0;
+        return expectedReturnVal;
     }
 
     public static long callClientPostGreeting(Environment env, long p1, BDecimal p2, float pn, long t1, BString t2,
@@ -76,6 +76,6 @@ public class Environments {
         };
         String expectedFunctionNamePrefix = "$post$greeting$";
         return assertFunctionNameAndPathParams(functionName, pathParameters, expectedPathParams,
-                expectedFunctionNamePrefix);
+                expectedFunctionNamePrefix, 2);
     }
 }

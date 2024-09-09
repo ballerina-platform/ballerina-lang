@@ -17,7 +17,6 @@
   */
  package io.ballerina.runtime.internal.values;
 
- import io.ballerina.runtime.api.creators.ErrorCreator;
  import io.ballerina.runtime.api.types.Type;
  import io.ballerina.runtime.api.values.BError;
  import io.ballerina.runtime.api.values.BFuture;
@@ -32,7 +31,6 @@
  import java.util.Map;
  import java.util.StringJoiner;
  import java.util.concurrent.CompletableFuture;
- import java.util.concurrent.ExecutionException;
  import java.util.concurrent.atomic.AtomicBoolean;
 
  /**
