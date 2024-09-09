@@ -16,7 +16,7 @@
 
 import ballerina/jballerina.java;
 
-function init() {
+isolated function init() {
     print("Initializing module 'current'");
     worker w1 {
         print("executing worker 'w1'");
@@ -26,22 +26,22 @@ function init() {
     }
 }
 
-public function main() {
+public isolated function main() {
     print("main function invoked for 'current' module");
 }
 
-function print(string value) {
+isolated function print(string value) {
     handle strValue = java:fromString(value);
     handle stdout1 = stdout();
     printInternal(stdout1, strValue);
 }
 
-function stdout() returns handle = @java:FieldGet {
+isolated function stdout() returns handle = @java:FieldGet {
     name: "out",
     'class: "java/lang/System"
 } external;
 
-function printInternal(handle receiver, handle strValue) = @java:Method {
+isolated function printInternal(handle receiver, handle strValue) = @java:Method {
     name: "println",
     'class: "java/io/PrintStream",
     paramTypes: ["java.lang.String"]
