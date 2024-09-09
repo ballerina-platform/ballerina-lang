@@ -445,7 +445,7 @@ public class LSPackageLoader {
         }
     }
 
-    public void cacheListenerMetaData(LSListenerIndex lsListenerIndex) {
+    private void cacheListenerMetaData(LSListenerIndex lsListenerIndex) {
         this.cachedListenerMetaData = new HashMap<>();
         for (LSPackage lsPackage : lsListenerIndex.ballerina()) {
             String qulName = lsPackage.orgName() + ":" + lsPackage.module();

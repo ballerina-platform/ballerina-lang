@@ -26,6 +26,7 @@ import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -40,6 +41,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,6 +60,8 @@ public abstract class AbstractLSTest {
     private static final List<LSPackageLoader.ModuleInfo> LOCAL_PACKAGES = new ArrayList<>();
     private static final List<LSPackageLoader.ModuleInfo> CENTRAL_PACKAGES = new ArrayList<>();
     private static final List<LSPackageLoader.ModuleInfo> DISTRIBUTION_PACKAGES = new ArrayList<>();
+    private static final Map<String, List<ServiceTemplateGenerator.IndexedListenerMetaData>>
+            LISTENER_METADATA_MAP = new HashMap<>();
 
     private Endpoint serviceEndpoint;
 
@@ -80,6 +84,7 @@ public abstract class AbstractLSTest {
                     .toList());
             DISTRIBUTION_PACKAGES.addAll(mockDistRepoPackages(LSPackageLoader.getInstance(context)));
             mockCentralPackages();
+            mockLSListenerMetaDataMap();
         } catch (Exception e) {
             //ignore
         } finally {
@@ -98,13 +103,23 @@ public abstract class AbstractLSTest {
         }
     }
 
-    private void loadLSPackageIndexAndCacheListenerMetaData() {
+    private static void mockLSListenerMetaDataMap() {
         try {
             FileReader fileReader = new FileReader(
                     FileUtils.RES_DIR.resolve("ls_package_index/LS-INDEX-2201.10.0.json").toFile());
             LSPackageLoader.LSListenerIndex lsListenerIndex = GSON.fromJson(fileReader,
                     LSPackageLoader.LSListenerIndex.class);
-            this.lsPackageLoader.cacheListenerMetaData(lsListenerIndex);
+
+            for (LSPackageLoader.LSPackage lsPackage : lsListenerIndex.ballerina()) {
+                String qulName = lsPackage.orgName() + ":" + lsPackage.module();
+                LISTENER_METADATA_MAP.put(qulName,
+                        ServiceTemplateGenerator.generateIndexedListenerMetaData(lsPackage));
+            }
+            for (LSPackageLoader.LSPackage lsPackage : lsListenerIndex.ballerinax()) {
+                String qulName = lsPackage.orgName() + ":" + lsPackage.module();
+                LISTENER_METADATA_MAP.put(qulName,
+                        ServiceTemplateGenerator.generateIndexedListenerMetaData(lsPackage));
+            }
         } catch (Exception e) {
             //ignore
         }
@@ -137,12 +152,12 @@ public abstract class AbstractLSTest {
         Mockito.when(this.lsPackageLoader.getLocalRepoModules()).thenReturn(LOCAL_PACKAGES);
         Mockito.when(this.lsPackageLoader.getCentralPackages()).thenReturn(CENTRAL_PACKAGES);
         Mockito.when(this.lsPackageLoader.getDistributionRepoModules()).thenReturn(DISTRIBUTION_PACKAGES);
+        Mockito.when(this.lsPackageLoader.getCachedListenerMetaData()).thenReturn(LISTENER_METADATA_MAP);
         Mockito.when(this.lsPackageLoader.checkAndResolvePackagesFromRepository(Mockito.any(), Mockito.any(),
                 Mockito.any())).thenCallRealMethod();
         Mockito.doNothing().when(this.lsPackageLoader).loadModules(Mockito.any());
         Mockito.when(this.lsPackageLoader.getAllVisiblePackages(Mockito.any())).thenCallRealMethod();
         Mockito.when(this.lsPackageLoader.getPackagesFromBallerinaUserHome(Mockito.any())).thenCallRealMethod();
-        this.loadLSPackageIndexAndCacheListenerMetaData();
     }
 
     private static List<LSPackageLoader.ModuleInfo> mockDistRepoPackages(LSPackageLoader lsPackageLoader) {
