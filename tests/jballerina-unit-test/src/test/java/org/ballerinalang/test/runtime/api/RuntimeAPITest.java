@@ -69,8 +69,8 @@ public class RuntimeAPITest {
         final BalRuntime runtime = new BalRuntime(new Module(currentPackage.packageOrg().value(),
                 currentPackage.packageName().value(), currentPackage.packageVersion().toString()));
         AtomicReference<Throwable> exceptionRef = new AtomicReference<>();
-        Thread thread1 = new Thread(() -> BRunUtil.call(strandResult, "main"));
-        Thread thread2 = new Thread(() -> {
+        Thread thread1 = Thread.ofVirtual().unstarted(() -> BRunUtil.call(strandResult, "main"));
+        Thread thread2 = Thread.ofVirtual().unstarted(() -> {
             try {
                 Thread.sleep(1000);
                 BMap<BString, Object> recordValue = ValueCreator.createRecordValue(new Module("testorg",

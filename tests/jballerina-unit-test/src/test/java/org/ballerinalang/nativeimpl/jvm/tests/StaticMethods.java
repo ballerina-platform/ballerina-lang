@@ -536,10 +536,10 @@ public class StaticMethods {
 
     public static long addTwoNumbersSlowAsyncVoidSig(Environment env, long a, long b) {
         CompletableFuture<Long> cf = new CompletableFuture<>();
-        new Thread(() -> {
+        Thread.startVirtualThread(() -> {
             sleep();
             cf.complete(a + b);
-        }).start();
+        });
         try {
             return cf.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -560,10 +560,10 @@ public class StaticMethods {
 
     public static long addTwoNumbersSlowAsync(Environment env, long a, long b) {
         CompletableFuture<Long> cf = new CompletableFuture<>();
-        new Thread(() -> {
+        Thread.startVirtualThread(() -> {
             sleep();
             cf.complete(a + b);
-        }).start();
+        });
         try {
             return cf.get();
         } catch (InterruptedException | ExecutionException e) {

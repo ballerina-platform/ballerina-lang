@@ -30,7 +30,9 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -205,7 +207,7 @@ public class BRunUtil {
             final FutureValue future = runtime.scheduler.startNonIsolatedWorker(func, null,
                     PredefinedTypes.TYPE_ANY, "test",
                     new StrandMetadata(ANON_ORG, DOT, DEFAULT_MAJOR_VERSION.value, functionName), args);
-            return future.get();
+            return RuntimeUtils.getFutureValue(future);
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
         } catch (BError e) {
@@ -363,8 +365,10 @@ public class BRunUtil {
                 new Class<?>[]{Map.class, String[].class, Path[].class, String.class},
                 new Object[]{new HashMap<>(), new String[]{},
                         configurationDetails.paths, configurationDetails.configContent});
-        runOnSchedule(initClazz, "$moduleInit", runtime);
-        runOnSchedule(initClazz, "$moduleStart", runtime);
+        FutureValue future = runOnSchedule(initClazz, "$moduleInit", runtime);
+        Scheduler.daemonStrand = future.strand;
+        RuntimeUtils.getFutureValue(future);
+        RuntimeUtils.getFutureValue(runOnSchedule(initClazz, "$moduleStart", runtime));
     }
 
     private static void callConfigInit(Class<?> initClazz, Class<?>[] paramTypes, Object[] args) {
@@ -383,17 +387,16 @@ public class BRunUtil {
         }
     }
 
-    private static void runOnSchedule(Class<?> initClazz, String name, BalRuntime runtime) {
-        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, name), runtime);
+    private static FutureValue runOnSchedule(Class<?> initClazz, String name, BalRuntime runtime) {
+        return runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, name), runtime);
     }
 
-    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, BalRuntime runtime) {
+    private static FutureValue runOnSchedule(Class<?> initClazz, BLangIdentifier name, BalRuntime runtime) {
         String funcName = JvmCodeGenUtil.cleanupFunctionName(name.value);
         try {
             Function<Object[], Object> func = getFunction(initClazz, funcName);
-            final FutureValue future = runtime.scheduler.startNonIsolatedWorker(func, null, PredefinedTypes.TYPE_ANY,
+            return runtime.scheduler.startNonIsolatedWorker(func, null, PredefinedTypes.TYPE_ANY,
                     funcName, null, new Object[1]);
-           future.get();
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         } catch (Throwable t) {

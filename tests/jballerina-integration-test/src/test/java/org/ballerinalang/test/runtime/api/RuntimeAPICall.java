@@ -23,6 +23,8 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 
+import java.io.PrintStream;
+
 /**
  * Source class to test the functionality of Ballerina runtime APIs for invoking functions.
  *
@@ -30,22 +32,28 @@ import io.ballerina.runtime.api.values.BObject;
  */
 public class RuntimeAPICall {
 
+    private static final PrintStream out = System.out;
+
     public static void main(String[] args) {
         Module module = new Module("testorg", "function_invocation", "1");
         Runtime balRuntime = Runtime.from(module);
         balRuntime.init();
         balRuntime.start();
-        balRuntime.call(module, "add", 5L, 7L);
+        Object result = balRuntime.call(module, "add", 5L, 7L);
+        out.println(result);
 
-        BObject person = ValueCreator.createObjectValue(module, "Person", 1001,
-                StringUtils.fromString("John Doe"));
-        balRuntime.call(person, "getNameWithTitle", PredefinedTypes.TYPE_STRING, StringUtils.fromString("Dr. "), false);
+        BObject person = ValueCreator.createObjectValue(module, "Person", 1001, StringUtils.fromString("John Doe"));
+        result = balRuntime.call(person, "getNameWithTitle", StringUtils.fromString("Dr. "), false);
+        out.println(result);
         balRuntime.stop();
 
-        balRuntime = Runtime.from(new Module("testorg", "function_invocation.moduleA", "1"));
+        module = new Module("testorg", "function_invocation.moduleA", "1");
+        balRuntime = Runtime.from(module);
         balRuntime.init();
         balRuntime.start();
-        balRuntime.call(module, "getPerson", 1001L, StringUtils.fromString("John"), StringUtils.fromString("100m"));
+        result = balRuntime.call(module, "getPerson", 1001L, StringUtils.fromString("John"),
+                StringUtils.fromString("100m"));
+        out.println(result);
         balRuntime.stop();
     }
 }
