@@ -125,6 +125,10 @@ public class CentralAPIClient {
     private static final String RESOLVE_MODULES = "resolve-modules";
     private static final String DEPRECATE = "deprecate";
     private static final String UN_DEPRECATE = "undeprecate";
+    private static final String DOCS = "docs";
+    private static final String LS_INDEX = "ls-index";
+    private static final String CHECKSUM = "checksum";
+    private static final String BAL_VERSION = "bal_version";
     private static final String PACKAGE_PATH_PREFIX = SEPARATOR + PACKAGES + SEPARATOR;
     private static final String TOOL_PATH_PREFIX = SEPARATOR + TOOLS + SEPARATOR;
     private static final String CONNECTOR_PATH_PREFIX = SEPARATOR + CONNECTORS + SEPARATOR;
@@ -1405,6 +1409,108 @@ public class CentralAPIClient {
                    // ignore
                }
            }
+    }
+
+    /**
+     * Get the checksum of the ls package index.
+     *
+     * @param ballerinaVersion Ballerina version.
+     * @return JSON element containing the checksum.
+     */
+    public JsonElement getLSPackageIndexChecksum(String ballerinaVersion) throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .followRedirects(false)
+                .connectTimeout(callTimeout, TimeUnit.SECONDS)
+                .readTimeout(readTimeout, TimeUnit.SECONDS)
+                .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                .callTimeout(callTimeout, TimeUnit.SECONDS)
+                .proxy(this.proxy)
+                .build();
+
+        try {
+            String resourceUrl = this.baseUrl + SEPARATOR + DOCS + SEPARATOR + LS_INDEX + SEPARATOR + CHECKSUM;
+            HttpUrl.Builder httpUrl = Objects.requireNonNull(HttpUrl.parse(resourceUrl).newBuilder());
+            httpUrl.addQueryParameter(BAL_VERSION, ballerinaVersion);
+            Request request = getNewRequest(ANY_PLATFORM, ballerinaVersion)
+                    .url(httpUrl.build())
+                    .get()
+                    .build();
+
+            Call httpRequest = client.newCall(request);
+            Response response = httpRequest.execute();
+            ResponseBody responseBody = response.body();
+            body = responseBody != null ? Optional.of(responseBody) : Optional.empty();
+            if (body.isPresent()) {
+                MediaType contentType = body.get().contentType();
+                if (contentType != null && isApplicationJsonContentType(contentType.toString()) &&
+                        response.code() == HttpsURLConnection.HTTP_OK) {
+                    return new Gson().toJsonTree(body.get().string());
+                }
+            }
+            handleResponseErrors(response, ERR_CANNOT_SEARCH);
+            return new JsonObject();
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_SEARCH + "'. Reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Get the LS Package index.
+     *
+     * @param ballerinaVersion Ballerina version.
+     * @return JSON element containing the LS package index.
+     */
+    public JsonElement getLSPackageIndex(String ballerinaVersion) throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .followRedirects(false)
+                .connectTimeout(callTimeout, TimeUnit.SECONDS)
+                .readTimeout(readTimeout, TimeUnit.SECONDS)
+                .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                .callTimeout(callTimeout, TimeUnit.SECONDS)
+                .proxy(this.proxy)
+                .build();
+
+        try {
+            String resourceUrl = this.baseUrl + SEPARATOR + DOCS + SEPARATOR + LS_INDEX;
+            HttpUrl.Builder httpUrl = Objects.requireNonNull(HttpUrl.parse(resourceUrl).newBuilder());
+            httpUrl.addQueryParameter(BAL_VERSION, ballerinaVersion);
+            Request request = getNewRequest(ANY_PLATFORM, ballerinaVersion)
+                    .url(httpUrl.build())
+                    .get()
+                    .build();
+
+            Call httpRequest = client.newCall(request);
+            Response response = httpRequest.execute();
+            ResponseBody responseBody = response.body();
+            body = responseBody != null ? Optional.of(responseBody) : Optional.empty();
+            if (body.isPresent()) {
+                MediaType contentType = body.get().contentType();
+                if (contentType != null && isApplicationJsonContentType(contentType.toString()) &&
+                        response.code() == HttpsURLConnection.HTTP_OK) {
+                    return new Gson().toJsonTree(body.get().string());
+                }
+            }
+            handleResponseErrors(response, ERR_CANNOT_SEARCH);
+            return new JsonObject();
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_SEARCH + "'. Reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
     }
 
     /**

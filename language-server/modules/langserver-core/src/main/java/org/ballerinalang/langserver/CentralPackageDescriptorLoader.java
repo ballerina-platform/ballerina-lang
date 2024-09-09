@@ -23,9 +23,11 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.extensions.ballerina.connector.CentralPackageListResult;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.util.ArrayList;
@@ -92,12 +94,36 @@ public class CentralPackageDescriptorLoader {
         return Collections.emptyList();
     }
 
-    private record CentralPackageGraphQLResponse(Packages data) {
+    public String getLSPackageIndexChecksum() {
+        try {
+            Settings settings = RepoUtils.readSettings();
+            CentralAPIClient centralAPIClient = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                    ProjectUtils.initializeProxy(settings.getProxy()), ProjectUtils.getAccessTokenOfCLI(settings));
+            JsonElement checksumResponse = centralAPIClient.getLSPackageIndexChecksum(RepoUtils.getBallerinaVersion());
+            ChecksumResponse response = new Gson().fromJson(checksumResponse.getAsString(), ChecksumResponse.class);
+            return response.checksum;
+        } catch (Exception e) {
+        }
+        return "";
     }
 
-    private record PackageList(List<LSPackageLoader.ModuleInfo> packages) {
+    public LSPackageLoader.LSListenerIndex getLSPackageIndex() throws Exception {
+        Settings settings = RepoUtils.readSettings();
+        CentralAPIClient centralAPIClient = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                ProjectUtils.initializeProxy(settings.getProxy()), ProjectUtils.getAccessTokenOfCLI(settings));
+        JsonElement checksumResponse = centralAPIClient.getLSPackageIndex(RepoUtils.getBallerinaVersion());
+        return new Gson().fromJson(checksumResponse.getAsString(), LSPackageLoader.LSListenerIndex.class);
     }
 
-    private record Packages(PackageList packages) {
+    public record ChecksumResponse(String checksum) {
+    }
+
+    public record CentralPackageGraphQLResponse(Packages data) {
+    }
+
+    public record PackageList(List<LSPackageLoader.ModuleInfo> packages) {
+    }
+
+    public record Packages(PackageList packages) {
     }
 }

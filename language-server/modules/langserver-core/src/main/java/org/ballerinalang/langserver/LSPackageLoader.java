@@ -177,7 +177,7 @@ public class LSPackageLoader {
                         .forEach(packageInfo -> packagesList.put(packageInfo.packageIdentifier(), packageInfo));
                 try {
                     this.loadListeners();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }).thenRunAsync(() -> {
@@ -400,52 +400,52 @@ public class LSPackageLoader {
         return checksum.toString();
     }
 
-    public void loadListeners() throws IOException {
+    private void loadListeners() throws Exception { // TODO: Handle the no internet case
         // Read the listener file from the ballerina user home
         if (Files.exists(BALLERINA_USER_HOME_INDEX)) {
-            // read the json file
-            LSListenerIndex lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(BALLERINA_USER_HOME_INDEX),
-                    LSListenerIndex.class);
-            boolean checksumValid = "af6986b411ccb1a0b5571699b79cc37eebcfc8f66897c9384aff2153b0df7c7f"
-                    .equals(lsListenerIndex.checksum);
+            LSListenerIndex lsListenerIndex;
+            String userHomeIndexFileChecksum = getFileChecksum(BALLERINA_USER_HOME_INDEX.toString());
             boolean indexUpdated = false;
-            if (!checksumValid) {
+            if (!userHomeIndexFileChecksum.equals(this.centralPackageDescriptorLoader.getLSPackageIndexChecksum())) {
                 // Download the file from the central and load the listeners
+                lsListenerIndex = this.centralPackageDescriptorLoader.getLSPackageIndex();
                 indexUpdated = true;
+            } else {
+                lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(BALLERINA_USER_HOME_INDEX),
+                        LSListenerIndex.class);
             }
 
             cacheListenerMetaData(lsListenerIndex);
-            // Cache it in the memory
             if (indexUpdated) {
-                try (Writer myWriter = new FileWriter(BALLERINA_USER_HOME_INDEX.toFile(), StandardCharsets.UTF_8)) {
-                    myWriter.write(lsListenerIndex.toString());
-                } catch (IOException e) {
-                }
+                saveLSPackageIndexInBallerinaUserHome(lsListenerIndex);
             }
         } else if (Files.exists(BALLERINA_HOME_INDEX)) {
-            // read the file
-            // get the check sum
-            // validate the checksum
-            boolean checksumValid = true;
-            boolean indexUpdated = false;
-            if (checksumValid) {
-                // Load the listeners
-            } else {
+            LSListenerIndex lsListenerIndex;
+            String ballerinaHomeIndexFileChecksum = getFileChecksum(BALLERINA_HOME_INDEX.toString());
+            if (!ballerinaHomeIndexFileChecksum.equals(this.centralPackageDescriptorLoader.getLSPackageIndexChecksum())) {
                 // Download the file from the central and load the listeners
-                indexUpdated = true;
+                lsListenerIndex = this.centralPackageDescriptorLoader.getLSPackageIndex();
+            } else {
+                lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(BALLERINA_HOME_INDEX),
+                        LSListenerIndex.class);
             }
-            // Cache the index in the memory
-            if (indexUpdated) {
-                // stroe the index in the user home
-            }
+            cacheListenerMetaData(lsListenerIndex);
+            saveLSPackageIndexInBallerinaUserHome(lsListenerIndex);
         } else {
-            // Download the file from the central and load the listeners
-            // cache the index in the memory
-            // store the index in the user home
+            LSListenerIndex lsListenerIndex = this.centralPackageDescriptorLoader.getLSPackageIndex();
+            cacheListenerMetaData(lsListenerIndex);
+            saveLSPackageIndexInBallerinaUserHome(lsListenerIndex);
         }
     }
 
-    private void cacheListenerMetaData(LSListenerIndex lsListenerIndex) {
+    private void saveLSPackageIndexInBallerinaUserHome(LSListenerIndex lsListenerIndex) {
+        try (Writer myWriter = new FileWriter(BALLERINA_USER_HOME_INDEX.toFile(), StandardCharsets.UTF_8)) {
+            myWriter.write(lsListenerIndex.toString());
+        } catch (IOException ignored) {
+        }
+    }
+
+    public void cacheListenerMetaData(LSListenerIndex lsListenerIndex) {
         this.cachedListenerMetaData = new HashMap<>();
         for (LSPackage lsPackage : lsListenerIndex.ballerina()) {
             String qulName = lsPackage.orgName() + ":" + lsPackage.module();
