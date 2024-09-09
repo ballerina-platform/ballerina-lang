@@ -28,10 +28,14 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.RuntimeRegistry;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -58,6 +62,9 @@ public class BalRuntime extends Runtime {
     public final Module rootModule;
     public final RuntimeRegistry runtimeRegistry;
     private final CompletableFuture<Void> stopFuture = new CompletableFuture<>();
+    public boolean moduleInitialized = false;
+    public boolean moduleStarted = false;
+    public boolean moduleStopped = false;
 
     public BalRuntime(Module rootModule) {
         this.scheduler = new Scheduler(this);
@@ -67,9 +74,13 @@ public class BalRuntime extends Runtime {
 
     @Override
     public void init() {
+        handleAlreadyCalled(moduleInitialized, "init");
         try {
-            invokeConfigInit();
-            scheduler.startIsolatedWorker("$moduleInit", rootModule, "$moduleInit", null, null);
+            this.invokeConfigInit();
+            FutureValue future = scheduler.startIsolatedWorker("$moduleInit", rootModule, null, "$moduleInit", null,
+                    null);
+            Scheduler.daemonStrand = future.strand;
+            this.moduleInitialized = true;
         } catch (ClassNotFoundException e) {
             throw ErrorCreator.createError(StringUtils.fromString(String.format("module '%s' does not exist",
                     rootModule)));
@@ -81,14 +92,20 @@ public class BalRuntime extends Runtime {
 
     @Override
     public void start() {
-        call(rootModule, "$moduleStart");
+        handleCallBeforeModuleInit("start");
+        handleAlreadyCalled(moduleStarted, "start");
+        this.scheduler.call(rootModule, "$moduleStart", Scheduler.getStrand());
+        this.moduleStarted = true;
     }
 
     @Override
     public void stop() {
+        handleCallBeforeModuleInit("stop");
+        handleAlreadyCalled(moduleStopped, "stop");
         try {
-            gracefulExit();
-            invokeModuleStop();
+            this.gracefulExit();
+            this.invokeModuleStop();
+            this.moduleStopped = true;
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
                  IllegalAccessException e) {
             throw ErrorCreator.createError(StringUtils.fromString("error occurred during module stop due to " +
@@ -98,51 +115,57 @@ public class BalRuntime extends Runtime {
 
     @Override
     public Object call(Module module, String functionName, Object... args) {
-        return scheduler.call(module, functionName, scheduler.getStrand(), args);
+        return this.scheduler.call(module, functionName, this.getAndHandleStrand(functionName), args);
     }
 
     @Override
     public Object call(BObject object, String methodName, Object... args) {
-        return scheduler.call(object, methodName, scheduler.getStrand(), args);
+        return this.scheduler.call(object, methodName, this.getAndHandleStrand(object, methodName), args);
     }
 
     @Override
     public BFuture startIsolatedWorker(Module module, String functionName, String strandName, StrandMetadata metadata,
                                        Map<String, Object> properties, Object... args) {
-        return scheduler.startIsolatedWorker(functionName, module, strandName, metadata, properties, args);
+        return this.scheduler.startIsolatedWorker(functionName, module, this.getAndHandleStrand(functionName),
+                strandName, metadata, properties, args);
     }
 
     @Override
     public BFuture startIsolatedWorker(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                        Map<String, Object> properties, Object... args) {
-        validateArgs(object, methodName);
-        return scheduler.startIsolatedWorker(object, methodName, strandName, metadata, properties, args);
+        this.validateArgs(object, methodName);
+        return this.scheduler.startIsolatedWorker(object, methodName, this.getAndHandleStrand(object, methodName),
+                strandName, metadata, properties, args);
     }
 
     @Override
     public BFuture startIsolatedWorker(FPValue fp, String strandName, StrandMetadata metadata,
                                        Map<String, Object> properties, Object... args) {
-        return scheduler.startIsolatedWorker(fp, strandName, metadata, properties, args);
+        return this.scheduler.startIsolatedWorker(fp, strandName, this.getAndHandleStrand(fp.name),
+                metadata, properties, args);
     }
 
     @Override
     public BFuture startNonIsolatedWorker(Module module, String functionName, String strandName,
                                           StrandMetadata metadata,
                                           Map<String, Object> properties, Object... args) {
-        return scheduler.startNonIsolatedWorker(functionName, module, strandName, metadata, properties, args);
+        return this.scheduler.startNonIsolatedWorker(functionName, module, this.getAndHandleStrand(functionName),
+                strandName, metadata, properties, args);
     }
 
     @Override
     public BFuture startNonIsolatedWorker(BObject object, String methodName, String strandName,
                                           StrandMetadata metadata, Map<String, Object> properties, Object... args) {
-        validateArgs(object, methodName);
-        return scheduler.startNonIsolatedWorker(object, methodName, strandName, metadata, properties, args);
+        this.validateArgs(object, methodName);
+        return this.scheduler.startNonIsolatedWorker(object, methodName, this.getAndHandleStrand(object, methodName),
+                strandName, metadata, properties, args);
     }
 
     @Override
     public BFuture startNonIsolatedWorker(FPValue fp, String strandName, StrandMetadata metadata,
                                           Map<String, Object> properties, Object... args) {
-        return scheduler.startNonIsolatedWorker(fp, strandName, metadata, properties, args);
+        return this.scheduler.startNonIsolatedWorker(fp, strandName, this.getAndHandleStrand(fp.name), metadata,
+                properties, args);
     }
 
     @Override
@@ -160,6 +183,27 @@ public class BalRuntime extends Runtime {
         this.runtimeRegistry.registerStopHandler(stopHandler);
     }
 
+
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen wait for listeners
+     */
+    public void waitOnListeners(boolean listenerDeclarationFound) {
+        if (!listenerDeclarationFound && this.runtimeRegistry.listenerQueue.isEmpty()) {
+            return;
+        }
+        try {
+            System.out.println("waiting on stop future");
+            this.stopFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw ErrorCreator.createError(e);
+        }
+    }
+
+    public void gracefulExit() {
+        this.stopFuture.complete(null);
+    }
+
     private void invokeConfigInit() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
         Class<?> configClass = loadClass(CONFIGURATION_CLASS_NAME);
@@ -167,6 +211,36 @@ public class BalRuntime extends Runtime {
         String funcName = Utils.encodeFunctionIdentifier("$configureInit");
         Method method = configClass.getDeclaredMethod(funcName, Map.class, String[].class, Path[].class, String.class);
         method.invoke(null, new HashMap<>(), new String[]{}, configDetails.paths, configDetails.configContent);
+    }
+
+    private void handleCallBeforeModuleInit(String functionName) {
+        if (!moduleInitialized) {
+            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION_BEFORE_MODULE_INIT,
+                    functionName);
+        }
+    }
+
+    private void handleAlreadyCalled(boolean isAlreadyCalled, String functionName) {
+        if (isAlreadyCalled) {
+            throw ErrorHelper.getRuntimeException(ErrorCodes.FUNCTION_ALREADY_CALLED,functionName);
+        }
+    }
+
+    public Strand getAndHandleStrand(String functionName) {
+        Strand strand = Scheduler.getStrand();
+        if (strand != null) {
+            return strand;
+        }
+        throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION_BEFORE_MODULE_INIT, functionName);
+    }
+
+    private Strand getAndHandleStrand(BObject object, String methodName) {
+        Strand strand = Scheduler.getStrand();
+        if (strand != null) {
+            return strand;
+        }
+        throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION_BEFORE_MODULE_INIT,
+                object.getOriginalType().getName() + ":" + methodName);
     }
 
     private void validateArgs(BObject object, String methodName) {
@@ -200,20 +274,5 @@ public class BalRuntime extends Runtime {
             className = encodeNonFunctionIdentifier(orgName) + "." + className;
         }
         return className;
-    }
-
-    public void waitOnListeners(boolean listenerDeclarationFound) {
-        if (!listenerDeclarationFound && this.runtimeRegistry.listenerQueue.isEmpty()) {
-            return;
-        }
-        try {
-            this.stopFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw ErrorCreator.createError(e);
-        }
-    }
-
-    public void gracefulExit() {
-        this.stopFuture.complete(null);
     }
 }
