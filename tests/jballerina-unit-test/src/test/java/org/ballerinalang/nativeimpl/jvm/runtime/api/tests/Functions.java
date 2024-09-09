@@ -29,7 +29,7 @@ import io.ballerina.runtime.internal.values.ValueCreator;
  */
 public class Functions {
 
-    private static final Module functionModule = new Module("testorg", "runtime_api_types.functions", "1");
+    private static final Module functionModule = new Module("testorg", "types.functions", "1");
 
     public static int getFunctionParameterCountByName(BString functionName) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(functionModule, false));

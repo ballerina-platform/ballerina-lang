@@ -23,6 +23,8 @@
  import io.ballerina.runtime.api.values.BFuture;
  import io.ballerina.runtime.api.values.BLink;
  import io.ballerina.runtime.api.values.BTypedesc;
+ import io.ballerina.runtime.internal.scheduling.AsyncUtils;
+ import io.ballerina.runtime.internal.scheduling.Scheduler;
  import io.ballerina.runtime.internal.scheduling.Strand;
  import io.ballerina.runtime.internal.types.BFutureType;
  import io.ballerina.runtime.internal.util.StringUtils;
@@ -111,14 +113,7 @@
       */
      @Override
      public Object get() {
-         try {
-             return completableFuture.get();
-         } catch (ExecutionException | InterruptedException e) {
-             if (e.getCause() instanceof BError bError) {
-                 throw bError;
-             }
-             throw ErrorCreator.createError(e);
-         }
+         return AsyncUtils.handleWait(Scheduler.getStrand(), completableFuture);
      }
 
      /**
