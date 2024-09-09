@@ -141,7 +141,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         // We are only doing a best effort cleanup here. If we held a strong reference to the map
         // GC will not be able to clean the projects. It impacts tests since all run in the same JVM.
         WeakReference<Map<Path, ProjectContext>> weekMap = new WeakReference<>(sourceRootToProject);
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+        Runtime.getRuntime().addShutdownHook(Thread.ofVirtual().unstarted(() -> {
             Map<Path, ProjectContext> map = weekMap.get();
             if (map == null) {
                 return;

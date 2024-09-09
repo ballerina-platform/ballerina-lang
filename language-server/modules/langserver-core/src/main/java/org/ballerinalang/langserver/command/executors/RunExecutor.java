@@ -60,9 +60,7 @@ public class RunExecutor implements LSCommandExecutor {
     }
 
     public void listenOutputAsync(ExtendedLanguageClient client, Supplier<InputStream> getInputStream, String channel) {
-        Thread thread = new Thread(() -> listenOutput(client, getInputStream, channel));
-        thread.setDaemon(true);
-        thread.start();
+        Thread.startVirtualThread(() -> listenOutput(client, getInputStream, channel));
     }
 
     private static void listenOutput(ExtendedLanguageClient client, Supplier<InputStream> inSupplier, String channel) {
