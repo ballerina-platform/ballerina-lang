@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.util;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -32,6 +33,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.io.PrintStream;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -68,10 +70,7 @@ public class RuntimeUtils {
 
     public static void handleFuture(FutureValue future) {
         try {
-            Object result = future.get();
-            if (result instanceof ErrorValue errorValue) {
-                errStream.println("error: " + errorValue.getPrintableError());
-            }
+            handleErrorResult(getFutureValue(future));
         } catch (ErrorValue error) {
             printToConsole(error);
         }
@@ -79,10 +78,7 @@ public class RuntimeUtils {
 
     public static void handleFutureAndExit(FutureValue future) {
         try {
-            Object result = future.get();
-            if (result instanceof ErrorValue errorValue) {
-                errStream.println("error: " + errorValue.getPrintableError());
-            }
+            handleErrorResult(getFutureValue(future));
             Runtime.getRuntime().exit(0);
         } catch (ErrorValue error) {
             printToConsole(error);
@@ -93,6 +89,23 @@ public class RuntimeUtils {
     public static void handleThrowable(Throwable throwable) {
         logBadSad(throwable);
         Runtime.getRuntime().exit(1);
+    }
+
+    public static void handleErrorResult(Object result) {
+        if (result instanceof ErrorValue errorValue) {
+            errStream.println("error: " + errorValue.getPrintableError());
+        }
+    }
+
+    public static Object getFutureValue(FutureValue future) {
+        try {
+            return future.completableFuture.get();
+        } catch (ExecutionException | InterruptedException e) {
+            if (e.getCause() instanceof BError bError) {
+                throw bError;
+            }
+            throw ErrorCreator.createError(e);
+        }
     }
 
     private static void printToConsole(ErrorValue throwable) {

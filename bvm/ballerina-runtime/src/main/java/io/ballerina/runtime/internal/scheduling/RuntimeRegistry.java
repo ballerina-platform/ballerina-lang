@@ -18,6 +18,8 @@ package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.internal.types.BFunctionType;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ObjectValue;
 
 import java.io.PrintStream;
@@ -73,10 +75,11 @@ public class RuntimeRegistry {
 
     public void gracefulStop(Strand strand) {
         while (!listenerQueue.isEmpty()) {
-            ((ObjectValue) listenerQueue.pollFirst()).call(strand, "gracefulStop");
+            RuntimeUtils.handleErrorResult(((ObjectValue) listenerQueue.pollFirst()).call(strand, "gracefulStop"));
+
         }
         while (!stopHandlerQueue.isEmpty()) {
-            stopHandlerQueue.pollLast().call();
+            RuntimeUtils.handleErrorResult(stopHandlerQueue.pollFirst().call());
         }
     }
 }

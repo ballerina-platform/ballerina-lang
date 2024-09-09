@@ -78,7 +78,7 @@ public class Profiler {
 
     private void addShutdownHookAndCleanup() {
         // Add a shutdown hook to stop the profiler and parse the output when the program is closed.
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+        Runtime.getRuntime().addShutdownHook(Thread.ofVirtual().unstarted(() -> {
             try {
                 long profilerTotalTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS) -
                         profilerStartTime;
