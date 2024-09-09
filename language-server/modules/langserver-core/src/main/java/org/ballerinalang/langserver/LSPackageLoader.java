@@ -360,7 +360,7 @@ public class LSPackageLoader {
             .resolve("ls-index")
             .resolve("ls-index-" + RepoUtils.getBallerinaVersion() + ".json");
 
-    public record LSListenerIndex(String checksum, List<LSPackage> ballerina, List<LSPackage> ballerinax) {
+    public record LSListenerIndex(List<LSPackage> ballerina, List<LSPackage> ballerinax) {
     }
 
     public record LSPackage(@SerializedName(value = "organization") String orgName,
