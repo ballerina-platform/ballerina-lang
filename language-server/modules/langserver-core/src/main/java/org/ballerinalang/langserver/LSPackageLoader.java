@@ -46,6 +46,7 @@ import org.eclipse.lsp4j.WorkDoneProgressEnd;
 import org.eclipse.lsp4j.WorkDoneProgressReport;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -352,11 +353,12 @@ public class LSPackageLoader {
     private final Path BALLERINA_USER_HOME_INDEX = Path.of(System.getProperty("user.home"))
             .resolve(".ballerina")
             .resolve(".config")
-            .resolve("ls-index.json");
+            .resolve("ls-index-" + RepoUtils.getBallerinaVersion() + ".json");
 
     private final Path BALLERINA_HOME_INDEX = Path.of(System.getProperty("ballerina.home"))
             .resolve("resources")
-            .resolve("ls-index.json");
+            .resolve("ls-index")
+            .resolve("ls-index-" + RepoUtils.getBallerinaVersion() + ".json");
 
     public record LSListenerIndex(String checksum, List<LSPackage> ballerina, List<LSPackage> ballerinax) {
     }
@@ -400,41 +402,57 @@ public class LSPackageLoader {
         return checksum.toString();
     }
 
-    private void loadListeners() throws Exception { // TODO: Handle the no internet case
+    private void loadListeners() throws Exception {
         // Read the listener file from the ballerina user home
         if (Files.exists(BALLERINA_USER_HOME_INDEX)) {
             LSListenerIndex lsListenerIndex;
             String userHomeIndexFileChecksum = getFileChecksum(BALLERINA_USER_HOME_INDEX.toString());
             boolean indexUpdated = false;
-            if (!userHomeIndexFileChecksum.equals(this.centralPackageDescriptorLoader.getLSPackageIndexChecksum())) {
-                // Download the file from the central and load the listeners
-                lsListenerIndex = this.centralPackageDescriptorLoader.getLSPackageIndex();
-                indexUpdated = true;
-            } else {
-                lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(BALLERINA_USER_HOME_INDEX),
-                        LSListenerIndex.class);
+            try {
+                String expectedCheckSum = this.centralPackageDescriptorLoader.getLSPackageIndexChecksum();
+                if (!userHomeIndexFileChecksum.equals(expectedCheckSum)) {
+                    // Download the file from the central and load the listeners
+                    lsListenerIndex = this.centralPackageDescriptorLoader.getLSPackageIndex();
+                    indexUpdated = true;
+                } else {
+                    lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(BALLERINA_USER_HOME_INDEX),
+                            LSListenerIndex.class);
+                }
+                cacheListenerMetaData(lsListenerIndex);
+                if (indexUpdated) {
+                    saveLSPackageIndexInBallerinaUserHome(lsListenerIndex);
+                }
+                return;
+            } catch (Exception ignore) {
             }
-
-            cacheListenerMetaData(lsListenerIndex);
-            if (indexUpdated) {
-                saveLSPackageIndexInBallerinaUserHome(lsListenerIndex);
-            }
-        } else if (Files.exists(BALLERINA_HOME_INDEX)) {
+        }
+        if (Files.exists(BALLERINA_HOME_INDEX)) {
             LSListenerIndex lsListenerIndex;
             String ballerinaHomeIndexFileChecksum = getFileChecksum(BALLERINA_HOME_INDEX.toString());
-            if (!ballerinaHomeIndexFileChecksum.equals(this.centralPackageDescriptorLoader.getLSPackageIndexChecksum())) {
-                // Download the file from the central and load the listeners
-                lsListenerIndex = this.centralPackageDescriptorLoader.getLSPackageIndex();
-            } else {
+            try {
+                String expectedCheckSum = this.centralPackageDescriptorLoader.getLSPackageIndexChecksum();
+                if (!ballerinaHomeIndexFileChecksum.equals(expectedCheckSum)) {
+                    // Download the file from the central and load the listeners
+                    lsListenerIndex = this.centralPackageDescriptorLoader.getLSPackageIndex();
+                } else {
+                    lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(BALLERINA_HOME_INDEX),
+                            LSListenerIndex.class);
+                }
+                cacheListenerMetaData(lsListenerIndex);
+                saveLSPackageIndexInBallerinaUserHome(lsListenerIndex);
+            } catch (Exception ignore) {
                 lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(BALLERINA_HOME_INDEX),
                         LSListenerIndex.class);
+                cacheListenerMetaData(lsListenerIndex);
+                saveLSPackageIndexInBallerinaUserHome(lsListenerIndex);
             }
-            cacheListenerMetaData(lsListenerIndex);
-            saveLSPackageIndexInBallerinaUserHome(lsListenerIndex);
         } else {
-            LSListenerIndex lsListenerIndex = this.centralPackageDescriptorLoader.getLSPackageIndex();
-            cacheListenerMetaData(lsListenerIndex);
-            saveLSPackageIndexInBallerinaUserHome(lsListenerIndex);
+            try {
+                LSListenerIndex lsListenerIndex = this.centralPackageDescriptorLoader.getLSPackageIndex();
+                cacheListenerMetaData(lsListenerIndex);
+                saveLSPackageIndexInBallerinaUserHome(lsListenerIndex);
+            } catch (Exception ignore) {
+            }
         }
     }
 

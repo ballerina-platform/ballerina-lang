@@ -94,17 +94,13 @@ public class CentralPackageDescriptorLoader {
         return Collections.emptyList();
     }
 
-    public String getLSPackageIndexChecksum() {
-        try {
-            Settings settings = RepoUtils.readSettings();
-            CentralAPIClient centralAPIClient = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                    ProjectUtils.initializeProxy(settings.getProxy()), ProjectUtils.getAccessTokenOfCLI(settings));
-            JsonElement checksumResponse = centralAPIClient.getLSPackageIndexChecksum(RepoUtils.getBallerinaVersion());
-            ChecksumResponse response = new Gson().fromJson(checksumResponse.getAsString(), ChecksumResponse.class);
-            return response.checksum;
-        } catch (Exception e) {
-        }
-        return "";
+    public String getLSPackageIndexChecksum() throws Exception {
+        Settings settings = RepoUtils.readSettings();
+        CentralAPIClient centralAPIClient = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                ProjectUtils.initializeProxy(settings.getProxy()), ProjectUtils.getAccessTokenOfCLI(settings));
+        JsonElement checksumResponse = centralAPIClient.getLSPackageIndexChecksum(RepoUtils.getBallerinaVersion());
+        ChecksumResponse response = new Gson().fromJson(checksumResponse.getAsString(), ChecksumResponse.class);
+        return response.checksum;
     }
 
     public LSPackageLoader.LSListenerIndex getLSPackageIndex() throws Exception {
