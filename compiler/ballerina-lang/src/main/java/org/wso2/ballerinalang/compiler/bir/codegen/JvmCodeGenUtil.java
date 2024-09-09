@@ -163,6 +163,7 @@ public final class JvmCodeGenUtil {
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
     public static Boolean isOptimizedCodeGen = false;
     public static Boolean isRootPkgCodeGen = false;
+    // TODO: fix the key
     public static Map<String, PackageID> duplicatePkgsMap = new HashMap<>();
 
     static void visitInvokeDynamic(MethodVisitor mv, String currentClass, String lambdaName, int size) {
@@ -829,7 +830,8 @@ public final class JvmCodeGenUtil {
             }
         }
     }
-    public static void markIsRootPackage() {
+
+    public static void markAsRootPackage() {
         isRootPkgCodeGen = true;
     }
 }

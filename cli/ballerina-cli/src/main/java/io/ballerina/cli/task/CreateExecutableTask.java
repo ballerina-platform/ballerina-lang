@@ -136,6 +136,7 @@ public class CreateExecutableTask implements Task {
             }
         }
 
+        // TODO: this has lot of common code with default case, refactor to common method
         if (project.buildOptions().optimizeCodegen()) {
             Path relativePathToExecutable = currentDir.relativize(executablePath);
             String relativePathToExecutableString =

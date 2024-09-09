@@ -124,7 +124,7 @@ public final class BCompileUtil {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         BuildOptions buildOptions =
                 buildOptionsBuilder.setOptimizeCodegen(Boolean.TRUE).setOptimizeReport(Boolean.TRUE).build();
-        Project project = ProjectLoader.loadProject(testSourcesDirectory.resolve(sourceFilePath), buildOptions);
+        Project project = ProjectLoader.loadProject(TEST_SOURCES_DIRECTORY.resolve(sourceFilePath), buildOptions);
 
         Package currentPackage = project.currentPackage();
         JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);

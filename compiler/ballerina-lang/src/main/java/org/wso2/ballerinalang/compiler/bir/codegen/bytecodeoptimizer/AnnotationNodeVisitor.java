@@ -26,7 +26,7 @@ import static org.objectweb.asm.Opcodes.ASM9;
 /**
  * A visitor class used to visit annotations and collect used class types.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class AnnotationNodeVisitor extends AnnotationVisitor {
 

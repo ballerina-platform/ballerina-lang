@@ -45,8 +45,8 @@ public final class CodegenOptimizationUtils {
     private static final String ENV_OPTION_BAL_JAVA_DEBUG = "BAL_DISABLE_HARDCODED_OPTIMIZATIONS";
     private static final boolean DISABLE_HARDCODED_OPTIMIZATIONS =
             System.getenv().containsKey(ENV_OPTION_BAL_JAVA_DEBUG);
-    private static final Set<String> WHITELSITED_FILE_NAMES = Set.of("types.bal", "error.bal", "stream_types.bal");
-    private static final Set<String> PKGS_WITH_WHITELSITED_FILES =
+    private static final Set<String> WHITELISTED_FILE_NAMES = Set.of("types.bal", "error.bal", "stream_types.bal");
+    private static final Set<String> PKGS_WITH_WHITELISTED_FILES =
             Set.of("ballerinax/mysql", "ballerina/sql", "ballerinax/persist.sql");
 
     // These directories are whitelisted due to usages of "sun.misc.Unsafe" class
@@ -105,14 +105,14 @@ public final class CodegenOptimizationUtils {
         if (DISABLE_HARDCODED_OPTIMIZATIONS) {
             return false;
         }
-        return PKGS_WITH_WHITELSITED_FILES.contains(packageName);
+        return PKGS_WITH_WHITELISTED_FILES.contains(packageName);
     }
 
     public static boolean isWhiteListedFile(String fileName) {
         if (DISABLE_HARDCODED_OPTIMIZATIONS) {
             return false;
         }
-        return WHITELSITED_FILE_NAMES.contains(fileName);
+        return WHITELISTED_FILE_NAMES.contains(fileName);
     }
 
     public static boolean isWhiteListedDirectory(String path) {

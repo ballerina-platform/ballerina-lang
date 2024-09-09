@@ -46,9 +46,10 @@ import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -267,10 +268,8 @@ class ModuleContext {
         // TODO This logic needs to be updated. We need a proper way to decide on the initial state
         if (compilationCache.getBir(moduleDescriptor.name()).length == 0) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
-        } else if (this.project().kind() == ProjectKind.BUILD_PROJECT
-                && !this.project.buildOptions().enableCache()) {
-            moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
-        } else if (this.shouldOptimizeCodegen()) {
+        } else if ((this.project().kind() == ProjectKind.BUILD_PROJECT
+                && !this.project.buildOptions().enableCache()) || this.shouldOptimizeCodegen()) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
         } else {
             moduleCompState = ModuleCompilationState.LOADED_FROM_CACHE;

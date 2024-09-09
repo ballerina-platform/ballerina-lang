@@ -101,12 +101,11 @@ public class FileSystemCache extends CompilationCache {
         Path targetPlatformCacheDirPath = isOptimizedLibrary ? getOptimizedTargetPlatformCacheDirPath(compilerBackend) :
                 getTargetPlatformCacheDirPath(compilerBackend);
         Path jarFilePath = targetPlatformCacheDirPath.resolve(libraryFileName);
-        return Optional.of(jarFilePath);
+        return Files.exists(jarFilePath) ? Optional.of(jarFilePath) : Optional.empty();
     }
 
     @Override
-    public void cachePlatformSpecificLibrary(CompilerBackend compilerBackend,
-                                             String libraryName,
+    public void cachePlatformSpecificLibrary(CompilerBackend compilerBackend, String libraryName,
                                              ByteArrayOutputStream libraryContent, boolean isOptimizedLibrary) {
         String libraryFileName = libraryName + compilerBackend.libraryFileExtension();
         Path targetPlatformCacheDirPath = isOptimizedLibrary ? getOptimizedTargetPlatformCacheDirPath(compilerBackend) :

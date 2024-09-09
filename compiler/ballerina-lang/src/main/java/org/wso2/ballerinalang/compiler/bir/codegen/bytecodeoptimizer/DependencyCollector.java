@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 /**
  * Collects the dependent classes used by a particular class.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class DependencyCollector {
 

@@ -58,7 +58,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 /**
  * Analyses the BIR and marks unused functions and type definitions.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class UsedBIRNodeAnalyzer extends BIRVisitor {
 
@@ -221,8 +221,7 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
     @Override
     public void visit(BIRTerminator.Call call) {
         // If function pointers are passed as parameters, they will be bound to the parent function
-        List<BIRNode.BIRVariableDcl> argVars = getUsedLocalFPHolders(call.args);
-            argVars.forEach(var -> {
+        getUsedLocalFPHolders(call.args).forEach(var -> {
                 FunctionPointerData fpData = currentInvocationData.getFPData(var);
                 if (fpData != null && fpData.lambdaFunction != null) {
                     visitNode(fpData.lambdaFunction);
@@ -491,9 +490,6 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
     public static class InvocationData {
 
         // Following Sets are used to whitelist the bal types called through ValueCreator in native dependencies
-        private static final Set<String> WHITELSITED_FILE_NAMES = Set.of("types.bal", "error.bal", "stream_types.bal");
-        private static final Set<String> PKGS_WITH_WHITELSITED_FILES =
-                Set.of("ballerinax/mysql", "ballerina/sql", "ballerinax/persist.sql");
         private static final String BALLERINA_TEST_PKG_NAME = "ballerina/test:0.0.0";
         private static final String MOCK_FUNCTION_PREFIX = "$MOCK_";
         final Set<BIRNode.BIRFunction> usedFunctions = new LinkedHashSet<>();

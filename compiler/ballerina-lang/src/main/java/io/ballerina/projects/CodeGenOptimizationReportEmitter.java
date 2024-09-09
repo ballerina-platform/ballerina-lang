@@ -43,7 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Emits time durations and optimized node details for codegen optimization.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class CodeGenOptimizationReportEmitter {
 
@@ -70,7 +70,7 @@ public final class CodeGenOptimizationReportEmitter {
         return codegenOptimizationReportEmitter;
     }
 
-    protected void flipBirOptimizationTimer(PackageID pkgId) {
+    void flipBirOptimizationTimer(PackageID pkgId) {
         long currentTime = System.currentTimeMillis();
         if (this.birOptimizationDurations.containsKey(pkgId)) {
             long totalDuration = currentTime - this.birOptimizationDurations.get(pkgId);
@@ -80,7 +80,7 @@ public final class CodeGenOptimizationReportEmitter {
         }
     }
 
-    protected void flipNativeOptimizationTimer() {
+    void flipNativeOptimizationTimer() {
         if (this.nativeOptimizationDuration == 0) {
             this.nativeOptimizationDuration = System.currentTimeMillis();
         } else {
@@ -88,30 +88,31 @@ public final class CodeGenOptimizationReportEmitter {
         }
     }
 
-    protected void emitBirOptimizationDuration() {
+    void emitBirOptimizationDuration() {
         long totalDuration = this.birOptimizationDurations.values().stream().mapToLong(Long::longValue).sum();
         this.out.printf("Duration for unused BIR node analysis : %dms%n", totalDuration);
         this.birOptimizationDurations.forEach((key, value) -> this.out.printf("    %s : %dms%n", key, value));
         this.out.println();
     }
 
-    protected void emitNativeOptimizationDuration() {
+    void emitNativeOptimizationDuration() {
         this.out.println(
                 "Duration for Bytecode optimization (analysis + deletion) : " + this.nativeOptimizationDuration + "ms");
         this.nativeOptimizationDuration = 0;
     }
 
-    protected void emitOptimizedExecutableSize(Path executableFilePath) {
+    void emitOptimizedExecutableSize(Path executableFilePath) {
+        float optimizedJarSize;
         try {
-            float optimizedJarSize = Files.size(executableFilePath) / (1024f * 1024f);
-            System.out.printf("Optimized file size : %f MB%n", optimizedJarSize);
+            optimizedJarSize = Files.size(executableFilePath) / (1024f * 1024f);
         } catch (IOException e) {
             throw new ProjectException("Failed to emit optimized executable size ", e);
         }
+        System.out.printf("Optimized file size : %f MB%n", optimizedJarSize);
     }
 
-    protected void emitCodegenOptimizationReport(Map<PackageID, UsedBIRNodeAnalyzer.InvocationData> invocationDataMap,
-                                                 Path targetDirectoryPath) {
+    void emitCodegenOptimizationReport(Map<PackageID, UsedBIRNodeAnalyzer.InvocationData> invocationDataMap,
+                                       Path targetDirectoryPath) {
         if (!Files.exists(targetDirectoryPath)) {
             try {
                 Files.createDirectories(targetDirectoryPath);
@@ -119,7 +120,7 @@ public final class CodeGenOptimizationReportEmitter {
                 throw new ProjectException("Failed to create optimization report directory ", e);
             }
         }
-
+        // We are need to preserve the insertion order here since we use reports in tests.
         Map<String, CodegenOptimizationReport> reports = new LinkedHashMap<>(invocationDataMap.size());
         invocationDataMap.forEach((key, value) -> reports.put(key.toString(), getCodegenOptimizationReport(value)));
         Path jsonFilePath = targetDirectoryPath.resolve(CODEGEN_OPTIMIZATION_REPORT);
@@ -134,8 +135,7 @@ public final class CodeGenOptimizationReportEmitter {
         }
     }
 
-    private CodegenOptimizationReport getCodegenOptimizationReport(
-            UsedBIRNodeAnalyzer.InvocationData invocationData) {
+    private CodegenOptimizationReport getCodegenOptimizationReport(UsedBIRNodeAnalyzer.InvocationData invocationData) {
         return new CodegenOptimizationReport(getFunctionNames(invocationData.usedFunctions),
                 getFunctionNames(invocationData.unusedFunctions), getTypeDefNames(invocationData.usedTypeDefs),
                 getTypeDefNames(invocationData.unusedTypeDefs), invocationData.usedNativeClassPaths);

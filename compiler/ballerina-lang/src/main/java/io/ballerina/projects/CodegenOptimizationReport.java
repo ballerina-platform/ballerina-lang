@@ -23,17 +23,16 @@ import java.util.Set;
 /**
  * Java record used to store codegen optimization report data to JSON.
  *
- * @param usedFunctionNames   used BIR functions identified by the UsedBIRNodeAnalyzer
- * @param unusedFunctionNames unused BIR functions identified by the UsedBIRNodeAnalyzer
- * @param usedTypeDefNames    used BIR type definitions identified by the UsedBIRNodeAnalyzer
- * @param unusedTypeDefNames  unused BIR type definitions identified by the UsedBIRNodeAnalyzer
+ * @param usedFunctionNames    used BIR functions identified by the UsedBIRNodeAnalyzer
+ * @param unusedFunctionNames  unused BIR functions identified by the UsedBIRNodeAnalyzer
+ * @param usedTypeDefNames     used BIR type definitions identified by the UsedBIRNodeAnalyzer
+ * @param unusedTypeDefNames   unused BIR type definitions identified by the UsedBIRNodeAnalyzer
  * @param usedNativeClassPaths native class paths used by external functions
- *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 record CodegenOptimizationReport(FunctionNames usedFunctionNames, FunctionNames unusedFunctionNames,
-                                        TypeDefinitions usedTypeDefNames, TypeDefinitions unusedTypeDefNames,
-                                        Set<String> usedNativeClassPaths) {
+                                 TypeDefinitions usedTypeDefNames, TypeDefinitions unusedTypeDefNames,
+                                 Set<String> usedNativeClassPaths) {
 
     /**
      * @param sourceFunctions  BIR functions directly derived from source
