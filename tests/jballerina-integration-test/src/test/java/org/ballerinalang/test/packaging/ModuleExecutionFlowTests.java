@@ -81,7 +81,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
 
     @Test
     public void testDynamicListenerDeregister() throws BallerinaTestException {
-        runAssertDynamicListener( "dynamic_listener_deregister");
+        runAssertDynamicListener("dynamic_listener_deregister");
     }
 
     @Test

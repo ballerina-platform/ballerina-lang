@@ -35,8 +35,6 @@ import io.ballerina.runtime.api.values.BNever;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.ErrorUtils;
-import io.ballerina.runtime.internal.errors.ErrorCodes;
-import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.values.FPValue;

@@ -40,10 +40,10 @@ import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.RuntimeRegistry;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.values.FPValue;
-import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
@@ -267,7 +267,6 @@ public class BalRuntime extends Runtime {
             return;
         }
         try {
-            System.out.println("waiting on stop future");
             this.stopFuture.get();
         } catch (InterruptedException | ExecutionException e) {
             throw ErrorCreator.createError(e);
@@ -296,7 +295,7 @@ public class BalRuntime extends Runtime {
 
     private void handleAlreadyCalled(boolean isAlreadyCalled, String functionName) {
         if (isAlreadyCalled) {
-            throw ErrorHelper.getRuntimeException(ErrorCodes.FUNCTION_ALREADY_CALLED,functionName);
+            throw ErrorHelper.getRuntimeException(ErrorCodes.FUNCTION_ALREADY_CALLED, functionName);
         }
     }
 
