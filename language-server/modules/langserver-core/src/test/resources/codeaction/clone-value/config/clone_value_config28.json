@@ -1,0 +1,50 @@
+{
+  "position": {
+    "line": 4,
+    "character": 17
+  },
+  "source": "clone_value9.bal",
+  "description": "Clone a record value",
+  "expected": [
+    {
+      "title": "Clone the value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 32
+            },
+            "end": {
+              "line": 4,
+              "character": 32
+            }
+          },
+          "newText": ".clone()"
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Clone as a readonly value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 32
+            },
+            "end": {
+              "line": 4,
+              "character": 32
+            }
+          },
+          "newText": ".cloneReadOnly()"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

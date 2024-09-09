@@ -3,6 +3,9 @@
         "includes": [
             {
                 "pattern": "\\QMETA-INF/axiom.xml\\E"
+            },
+            {
+                "pattern": "resources/.*"
             }
         ]
     },

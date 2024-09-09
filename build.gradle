@@ -12,6 +12,10 @@ plugins {
 apply from: "$rootDir/gradle/repositories.gradle"
 
 allprojects {
+    tasks.withType(JavaCompile).configureEach {
+        options.fork = true
+    }
+
     group = project.group
     version = project.version
 
@@ -66,17 +70,41 @@ dependencies {
 
 def classFilesArray = []
 def execFilesArray = []
+def skipDirectories = [
+        "ballerina-gradle-plugins", // Gradle plugins
+        "jballerina-benchmark-test", // Benchmark test code
+        "lib-creator", // Gradle code for generate Bala files
+        "semtypes", // Tests are in nBallerina branch
+        "test-artifacts",// Tests directories for project api
+        "ballerina-lang/tests"// Ballerina Language Tests
+]
 
 tasks.register('copyExecFilesAndJavaClassFiles') {
     subprojects.forEach { subproject ->
-        def execFile = new File("${subproject.buildDir}/jacoco/jacoco.exec")
-        if (execFile.exists()) {
-            execFilesArray.push(execFile)
-            fileTree("${subproject.buildDir}/classes").matching {
-                exclude '**/test/*'
-                exclude '**/module-info.class'
-                include '**/*.class'
-            }.each { file -> classFilesArray.push(file) }
+        fileTree("${subproject.buildDir}/jacoco").matching {
+            include "**/*.exec"
+        }.each {
+            execFilesArray.push(it)
+        }
+        // Sources of modules used specifically for tests, gradle plugins are skipped
+        boolean skipProject = false
+        skipDirectories.forEach { dir ->
+            {
+                if (subproject.projectDir.path.contains(dir)) {
+                    skipProject = true
+                    return
+                }
+            }
+        }
+        if (skipProject) {
+            return
+        }
+        fileTree("${subproject.buildDir}/classes").matching {
+            exclude '**/java/test/**'
+            exclude '**/default/**'
+            exclude '**/module-info.class'
+        }.each { file ->
+            classFilesArray.push(file)
         }
     }
 }
@@ -90,15 +118,6 @@ tasks.register('copyBallerinaClassFiles') {
                 jarFiles.forEach { jar ->
                     zipTree(jar).matching {
                         exclude '**/tests/*'
-                        exclude '**/$_init.class'
-                        exclude '**/$value$Caller.class'
-                        exclude '**/$value$Detail.class'
-                        exclude '**/$value$DetailType.class'
-                        exclude '**/$value$EmptyIterator.class'
-                        exclude '**/$value$$anonType$_6.class'
-                        exclude '**/$value$$anonType$_*.class'
-                        exclude '**/$value$_Frame.class'
-                        include '**/*.class'
                     }.each { file -> classFilesArray.push(file) }
                 }
             }
@@ -129,4 +148,3 @@ sonarqube {
 }
 
 copyBallerinaClassFiles.dependsOn copyExecFilesAndJavaClassFiles 
-createCodeCoverageReport.dependsOn copyBallerinaClassFiles

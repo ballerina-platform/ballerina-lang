@@ -104,7 +104,7 @@ public class MethodGenUtils {
         String funcName;
         if (moduleName.equals(ENCODED_DOT_CHARACTER)) {
             funcName = ".." + funcSuffix;
-        } else if (version.equals("")) {
+        } else if (version.isEmpty()) {
             funcName = moduleName + "." + funcSuffix;
         } else {
             funcName = moduleName + ":" + version + "." + funcSuffix;

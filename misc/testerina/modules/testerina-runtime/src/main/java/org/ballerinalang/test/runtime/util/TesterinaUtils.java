@@ -114,7 +114,7 @@ public class TesterinaUtils {
             throw new BallerinaTestException("failed to load init class :" + initClassName);
         }
         String suiteExecuteFilePath = suite.getExecuteFilePath();
-        if (suiteExecuteFilePath.equals("")) {
+        if (suiteExecuteFilePath.isEmpty()) {
             out.println("\tNo tests found");
             return 0;
         }

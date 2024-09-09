@@ -195,7 +195,25 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                                 sourcePath, actual.edits, testConfig)) {
                             misMatched = true;
                         }
-                        actual.command = actualCommand;
+                        if (actualCommand.get("command").getAsString().equals("ADD_DOC")) {
+                            JsonObject actualNodeRange = getNodeRange(actualArgs);
+                            JsonObject expNodeRange = getNodeRange(expArgs);
+                            assert actualNodeRange != null;
+                            if (!actualNodeRange.equals(expNodeRange)) {
+                                misMatched = true;
+                                JsonArray newArgs = getNodeRangeArgument(actualArgs);
+                                if (newArgs != null) {
+                                    JsonObject command = new JsonObject();
+                                    command.add("title", actualCommand.get("title"));
+                                    command.add("command", actualCommand.get("command"));
+                                    command.add("arguments", getNodeRangeArgument(actualArgs));
+                                    actual.command = command;
+                                }
+                            }
+                        }
+                        if (actual.command == null) {
+                            actual.command = actualCommand;
+                        }
                     }
                 }
 
@@ -228,6 +246,31 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                             Arrays.toString(mismatchedCodeActions.toArray()),
                             cursorStartStr, cursorEndStr, sourcePath, testConfig.description));
         }
+    }
+
+    private JsonArray getNodeRangeArgument(JsonArray arguments) {
+        for (JsonElement arg : arguments) {
+            JsonObject argObj = arg.getAsJsonObject();
+            if ("node.range".equals(argObj.get("key").getAsString())) {
+                JsonArray array = new JsonArray(1);
+                array.add(argObj);
+                return array;
+            }
+        }
+        return null;
+    }
+
+    private JsonObject getNodeRange(JsonArray args) {
+        if (args == null) {
+            return null;
+        }
+        for (JsonElement arg : args) {
+            JsonObject argObj = arg.getAsJsonObject();
+            if ("node.range".equals(argObj.get("key").getAsString())) {
+                return argObj.get("value").getAsJsonObject();
+            }
+        }
+        return null;
     }
 
     public String getResponse(Path sourcePath, Range range, CodeActionContext codeActionContext) {
@@ -437,6 +480,9 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
             }
             return actualArgs.size() == 4 && validateExtractCmd(actualCommand, actualArgs, expArgs, sourceRoot)
                     && actualArgs.get(3).getAsJsonObject().equals(expArgs.get(3).getAsJsonObject());
+        } else if (CommandConstants.CREATE_CONFIG_TOML_COMMAND.equals(actualCommand.get("command").getAsString())) {
+            return actualArgs.size() == 2
+                    && validateCreateConfigTomlCommand(actualCommand, actualArgs, expArgs, sourceRoot);
         }
 
         for (JsonElement actualArg : actualArgs) {
@@ -476,6 +522,30 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         newArgs.add(actualName);
         newArgs.add(actualFilePath);
         newArgs.add(actualTextEdits);
+        actualCommand.add("arguments", newArgs);
+        return false;
+    }
+
+    private boolean validateCreateConfigTomlCommand(JsonObject actualCommand, JsonArray actualArgs, JsonArray expArgs,
+                                                                                      Path sourceRoot) {
+        String actualTextEdit = actualArgs.get(1).getAsString();
+        String expectedTextEdit = expArgs.get(1).getAsString();
+        String expectedFilePath = expArgs.get(0).getAsString();
+        String actualFilePath = actualArgs.get(0).getAsString().replace(sourceRoot.toString(), "");
+        if (actualFilePath.startsWith("/")) {
+            actualFilePath = actualFilePath.substring(1);
+        } else if (actualFilePath.startsWith("\\")) {
+            actualFilePath = actualFilePath.substring(1);
+            actualFilePath = actualFilePath.replace("\\", "/");
+            actualTextEdit = actualTextEdit.replaceAll(System.lineSeparator(), "\n");
+        }
+        if (actualFilePath.equals(expectedFilePath) && actualTextEdit.equals(expectedTextEdit)) {
+            return true;
+        }
+
+        JsonArray newArgs = new JsonArray();
+        newArgs.add(actualFilePath);
+        newArgs.add(actualTextEdit);
         actualCommand.add("arguments", newArgs);
         return false;
     }

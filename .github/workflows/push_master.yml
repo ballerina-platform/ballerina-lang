@@ -35,6 +35,15 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ github.sha }}
           restore-keys: ${{ runner.os }}-gradle
 
+      - name: Setup GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '17.0.7'
+          distribution: 'graalvm'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          set-java-home: 'false'
+
       - name: Build with Gradle
         run: |
           export DISPLAY=':99.0'
@@ -45,7 +54,7 @@ jobs:
   windows_build:
     name: Build with some tests on Windows
     runs-on: windows-latest
-    timeout-minutes: 120
+    timeout-minutes: 150
     concurrency:
       group: ${{ github.head_ref }}-windows
       cancel-in-progress: true
@@ -61,7 +70,7 @@ jobs:
           java-version: '17.0.7'
 
       - name: configure Pagefile
-        uses: al-cheb/configure-pagefile-action@1.4
+        uses: al-cheb/configure-pagefile-action@v1.4
         with:
           minimum-size: 8GB
           maximum-size: 16GB
@@ -77,8 +86,17 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
 
+      - name: Setup GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '17.0.7'
+          distribution: 'graalvm'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          set-java-home: 'false'
+
       - name: Build with Gradle
-        run: ./gradlew.bat build --continue -x :ballerina-lang:test -x :jballerina-integration-test:test -x :ballerina-shell:shell-cli:test -x :jballerina-debugger-integration-test:test -x javadoc --stacktrace -scan --console=plain --no-daemon --no-parallel
+        run: ./gradlew.bat build --continue -x :ballerina-lang:test -x :jballerina-integration-test:test -x :jballerina-debugger-integration-test:test -x javadoc --stacktrace -scan --console=plain --no-daemon --no-parallel
 
   
   sonarcloud_scan:

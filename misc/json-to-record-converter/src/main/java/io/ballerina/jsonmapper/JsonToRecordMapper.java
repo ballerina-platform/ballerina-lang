@@ -147,7 +147,7 @@ public class JsonToRecordMapper {
                         diagnosticMessages, isNullAsOptional);
             } else if (parsedJson.isJsonArray()) {
                 JsonObject object = new JsonObject();
-                object.add(((recordName == null) || recordName.equals("")) ? StringUtils.uncapitalize(NEW_RECORD_NAME) :
+                object.add(((recordName == null) || recordName.isEmpty()) ? StringUtils.uncapitalize(NEW_RECORD_NAME) :
                         StringUtils.uncapitalize(recordName), parsedJson);
                 generateRecords(object, null, isClosed, recordToTypeDescNodes, null, jsonFieldToElements,
                         existingFieldNames, updatedFieldNames, diagnosticMessages, isNullAsOptional);
@@ -172,7 +172,7 @@ public class JsonToRecordMapper {
                 .map(entry -> {
                     Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
                     String recordTypeName = entry.getKey() == null ?
-                            (recordName == null || recordName.equals("")) ?
+                            (recordName == null || recordName.isEmpty()) ?
                                     getAndUpdateFieldNames(NEW_RECORD_NAME, false,
                                             existingFieldNames, updatedFieldNames)
                                     : escapeIdentifier(StringUtils.capitalize(recordName)) : entry.getKey();

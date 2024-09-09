@@ -410,8 +410,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         StringJoiner sj = new StringJoiner(",");
         StringJoiner keyJoiner = new StringJoiner(",");
         String[] keysList = tableType.getFieldNames();
-        for (int i = 0; i < keysList.length; i++) {
-            keyJoiner.add(keysList[i]);
+        for (String string : keysList) {
+            keyJoiner.add(string);
         }
         while (itr.hasNext()) {
             Map.Entry<Long, List<V>> struct = itr.next();

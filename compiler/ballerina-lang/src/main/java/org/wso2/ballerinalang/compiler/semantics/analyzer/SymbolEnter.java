@@ -2401,8 +2401,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (varNode.restVariable != null) {
                 memberVariables.add(varNode.restVariable);
             }
-            for (int i = 0; i < memberVariables.size(); i++) {
-                BLangVariable memberVar = memberVariables.get(i);
+            for (BLangVariable memberVar : memberVariables) {
                 memberVar.isDeclaredWithVar = true;
                 defineNode(memberVar, env);
             }
@@ -3463,7 +3462,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     boolean isIgnoredOrEmpty(BLangSimpleVariable varNode) {
-        return varNode.name.value.equals(Names.IGNORE.value) || varNode.name.value.equals("");
+        return varNode.name.value.equals(Names.IGNORE.value) || varNode.name.value.isEmpty();
     }
 
     private boolean isRestDetailBindingAvailable(BLangErrorVariable errorVariable) {
@@ -4213,9 +4212,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void populateImmutableTypeFieldsAndMembers(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
-        int size = typeDefNodes.size();
-        for (int i = 0; i < size; i++) {
-            BLangTypeDefinition typeDef = typeDefNodes.get(i);
+        for (BLangTypeDefinition typeDef : typeDefNodes) {
             NodeKind nodeKind = typeDef.typeNode.getKind();
             if (nodeKind == NodeKind.OBJECT_TYPE) {
                 if (((BObjectType) typeDef.symbol.type).mutableType == null) {
@@ -4231,7 +4228,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeDef.typeNode, typeDef.symbol.scope, pkgEnv);
             ImmutableTypeCloner.defineUndefinedImmutableFields(typeDef, types, typeDefEnv, symTable,
-                                                               anonymousModelHelper, names);
+                    anonymousModelHelper, names);
 
             if (nodeKind != NodeKind.OBJECT_TYPE) {
                 continue;
@@ -4241,14 +4238,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             BObjectType mutableObjectType = immutableObjectType.mutableType;
 
             ImmutableTypeCloner.defineObjectFunctions((BObjectTypeSymbol) immutableObjectType.tsymbol,
-                                                      (BObjectTypeSymbol) mutableObjectType.tsymbol, names, symTable);
+                    (BObjectTypeSymbol) mutableObjectType.tsymbol, names, symTable);
         }
     }
 
     private void validateFieldsAndSetReadOnlyType(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
-        int origSize = typeDefNodes.size();
-        for (int i = 0; i < origSize; i++) {
-            BLangNode typeDefOrClass = typeDefNodes.get(i);
+        for (BLangNode typeDefOrClass : typeDefNodes) {
             if (typeDefOrClass.getKind() == NodeKind.CLASS_DEFN) {
                 BLangClassDefinition classDefinition = (BLangClassDefinition) typeDefOrClass;
                 if (isObjectCtor(classDefinition)) {
@@ -4882,8 +4877,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         int resourcePathCount = pathSegments.size();
         List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathCount);
         BResourcePathSegmentSymbol parentResource = null;
-        for (int i = 0; i < resourcePathCount; i++) {
-            BLangResourcePathSegment pathSegment = pathSegments.get(i);
+        for (BLangResourcePathSegment pathSegment : pathSegments) {
             Name resourcePathSymbolName = Names.fromString(pathSegment.name.value);
             BType resourcePathSegmentType = pathSegment.typeNode == null ?
                     symTable.noType : symResolver.resolveTypeNode(pathSegment.typeNode, env);
@@ -5249,25 +5243,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return false;
         }
 
-        if (!types.isAssignable(attachedFuncSym.type, referencedFuncSym.type)) {
-            return false;
-        }
-
-        List<BVarSymbol> params = referencedFuncSym.params;
-        for (int i = 0; i < params.size(); i++) {
-            BVarSymbol referencedFuncParam = params.get(i);
-            BVarSymbol attachedFuncParam = attachedFuncSym.params.get(i);
-            if (!referencedFuncParam.name.value.equals(attachedFuncParam.name.value) ||
-                    !hasSameVisibilityModifier(referencedFuncParam.flags, attachedFuncParam.flags)) {
-                return false;
-            }
-        }
-
-        if (referencedFuncSym.restParam != null && attachedFuncSym.restParam != null) {
-            return referencedFuncSym.restParam.name.value.equals(attachedFuncSym.restParam.name.value);
-        }
-
-        return referencedFuncSym.restParam == null && attachedFuncSym.restParam == null;
+        return types.isAssignable(attachedFuncSym.type, referencedFuncSym.type);
     }
 
     private boolean hasSameVisibilityModifier(long flags1, long flags2) {
@@ -5289,12 +5265,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         signatureBuilder.append(visibilityModifier).append("function ")
                 .append(funcSymbol.name.value.split("\\.")[1]);
 
-        funcSymbol.params.forEach(param -> paramListBuilder.add(
-                (Symbols.isPublic(param) ? "public " : "") + param.type.toString() + " " + param.name.value));
+        funcSymbol.params.forEach(param -> paramListBuilder.add(param.type.toString()));
 
         if (funcSymbol.restParam != null) {
-            paramListBuilder.add(((BArrayType) funcSymbol.restParam.type).eType.toString() + "... " +
-                                         funcSymbol.restParam.name.value);
+            paramListBuilder.add(((BArrayType) funcSymbol.restParam.type).eType.toString() + "...");
         }
 
         signatureBuilder.append(paramListBuilder.toString());
@@ -5465,7 +5439,7 @@ public class SymbolEnter extends BLangNodeVisitor {
      *
      * @since 0.985.0
      */
-    class LocationData {
+    private static class LocationData {
 
         private String name;
         private int row;

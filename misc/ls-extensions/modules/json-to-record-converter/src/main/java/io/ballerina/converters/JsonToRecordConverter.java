@@ -117,7 +117,7 @@ public class JsonToRecordConverter {
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed, boolean forceFormatRecordFields) throws IOException,
             JsonToRecordConverterException, FormatterException {
-        String name = ((recordName != null) && !recordName.equals("")) ? recordName : "NewRecord";
+        String name = ((recordName != null) && !recordName.isEmpty()) ? recordName : "NewRecord";
         ObjectMapper objectMapper = new ObjectMapper();
         OpenAPI model;
         JsonNode inputJson = objectMapper.readTree(jsonString);

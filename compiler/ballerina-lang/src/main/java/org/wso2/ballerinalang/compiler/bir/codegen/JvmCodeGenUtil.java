@@ -198,8 +198,14 @@ public class JvmCodeGenUtil {
         return name.replace(WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
     }
 
-    public static String rewriteVirtualCallTypeName(String value) {
-        return Utils.encodeFunctionIdentifier(cleanupObjectTypeName(value));
+    public static String rewriteVirtualCallTypeName(String value, BType objectType) {
+        objectType = getImpliedType(objectType);
+        // The call name will be in the format of`objectTypeName.funcName` for attached functions of imported modules.
+        // Therefore, We need to remove the type name.
+        if (!objectType.tsymbol.name.value.isEmpty() && value.startsWith(objectType.tsymbol.name.value)) {
+            value = value.replace(objectType.tsymbol.name.value + ".", "").trim();
+        }
+        return Utils.encodeFunctionIdentifier(value);
     }
 
     public static boolean isModuleInitializerMethod(String methodName) {
@@ -282,7 +288,7 @@ public class JvmCodeGenUtil {
             moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value) + Names.TEST_PACKAGE.value;
         }
         if (!moduleName.equals(ENCODED_DOT_CHARACTER)) {
-            if (!packageID.version.value.equals("")) {
+            if (!packageID.version.value.isEmpty()) {
                 packageName = getMajorVersion(packageID.version.value) + separator;
             }
             packageName = moduleName + separator + packageName;
@@ -421,22 +427,6 @@ public class JvmCodeGenUtil {
             case TypeTags.REGEXP -> RETURN_REGEX_VALUE;
             default -> throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         };
-    }
-
-    static String cleanupObjectTypeName(String typeName) {
-        int index = typeName.lastIndexOf("."); // Internal type names can contain dots hence use the `lastIndexOf`
-        int typeNameLength = typeName.length();
-        if (index > 1 && typeName.charAt(index - 1) == '\\') { // Methods can contain escaped characters
-            return typeName;
-        } else if (index > 0 && index != typeNameLength - 1) { // Resource method name can contain . at the end 
-            return typeName.substring(index + 1);
-        } else if (index > 0) {
-            // We will reach here for resource methods eg: (MyClient8.$get$.)
-            index = typeName.substring(0, typeNameLength - 1).lastIndexOf("."); // Index of the . before the last .
-            return typeName.substring(index + 1);
-        }
-        
-        return typeName;
     }
 
     public static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels,

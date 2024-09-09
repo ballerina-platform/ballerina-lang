@@ -1,0 +1,74 @@
+{
+  "range": {
+    "start": {
+      "line": 5,
+      "character": 38
+    },
+    "end": {
+      "line": 5,
+      "character": 55
+    }
+  },
+  "source": "extractToConfigurableInExplicitNewExpr.bal",
+  "expected": [
+    {
+      "title": "Extract to configurable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "configurable string arg2 = \"arg2\";\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 36
+            },
+            "end": {
+              "line": 5,
+              "character": 42
+            }
+          },
+          "newText": "arg2"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "configurable string arg3 = \"arg3\";\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 44
+            },
+            "end": {
+              "line": 5,
+              "character": 50
+            }
+          },
+          "newText": "arg3"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

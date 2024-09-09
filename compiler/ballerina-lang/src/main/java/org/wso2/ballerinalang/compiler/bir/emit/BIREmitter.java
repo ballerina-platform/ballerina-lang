@@ -142,7 +142,7 @@ public class BIREmitter {
 
         StringBuilder tDefStr = new StringBuilder();
         tDefStr.append(emitFlags(tDef.flags));
-        if (!tDefStr.toString().equals("")) {
+        if (!tDefStr.toString().isEmpty()) {
             tDefStr.append(emitSpaces(1));
         }
         tDefStr.append(emitName(tDef.internalName));
@@ -178,7 +178,7 @@ public class BIREmitter {
 
         String globalVarStr = "";
         globalVarStr += emitFlags(globalVar.flags);
-        if (!globalVarStr.equals("")) {
+        if (!globalVarStr.isEmpty()) {
             globalVarStr += emitSpaces(1);
         }
         globalVarStr += emitName(globalVar.name);
@@ -201,7 +201,7 @@ public class BIREmitter {
         String funcString = "";
         funcString += emitTabs(tabs);
         funcString += emitFlags(func.flags);
-        if (!funcString.equals("")) {
+        if (!funcString.isEmpty()) {
             funcString += emitSpaces(1);
         }
         funcString += emitName(func.name);

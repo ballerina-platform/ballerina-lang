@@ -936,7 +936,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangStatementExpression stmtExpr = createStatementExpression(ifElse, resultVarRef);
         stmtExpr.setBType(configurableVar.getBType());
 
-        return rewrite(stmtExpr, initFunctionEnv);
+        // This statement expression is desugared when it is visited in the init function
+        return stmtExpr;
     }
 
     private List<BLangExpression> getConfigurableLangLibInvocationParam(BLangSimpleVariable configurableVar) {
@@ -977,8 +978,8 @@ public class Desugar extends BLangNodeVisitor {
                     List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
 
                     int statementSize = statements.size();
-                    for (int i = 0; i < statementSize; i++) {
-                        addToGlobalVariableList(statements.get(i), initFnBody, globalVar, desugaredGlobalVarList);
+                    for (BLangStatement bLangStatement : statements) {
+                        addToGlobalVariableList(bLangStatement, initFnBody, globalVar, desugaredGlobalVarList);
                     }
                     break;
                 case RECORD_VARIABLE:
@@ -1355,6 +1356,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        BLangOnFailClause onFailClause = this.onFailClause;
+        this.onFailClause = null;
         Map<Name, BLangStatement> prevXmlnsDecls = this.stmtsToBePropagatedToQuery;
         if (!funcNode.flagSet.contains(Flag.QUERY_LAMBDA)) {
             this.stmtsToBePropagatedToQuery = new HashMap<>();
@@ -1381,6 +1384,7 @@ public class Desugar extends BLangNodeVisitor {
         }
         this.stmtsToBePropagatedToQuery = prevXmlnsDecls;
         result = funcNode;
+        this.onFailClause = onFailClause;
     }
 
     @Override
@@ -4370,8 +4374,8 @@ public class Desugar extends BLangNodeVisitor {
     private List<String> getKeysToRemove(BLangMappingBindingPattern mappingBindingPattern) {
         List<String> keysToRemove = new ArrayList<>();
         List<BLangFieldBindingPattern> fieldBindingPatterns = mappingBindingPattern.fieldBindingPatterns;
-        for (int i = 0; i < fieldBindingPatterns.size(); i++) {
-            keysToRemove.add(fieldBindingPatterns.get(i).fieldName.value);
+        for (BLangFieldBindingPattern fieldBindingPattern : fieldBindingPatterns) {
+            keysToRemove.add(fieldBindingPattern.fieldName.value);
         }
         return keysToRemove;
     }
@@ -6376,7 +6380,7 @@ public class Desugar extends BLangNodeVisitor {
                         (BVarSymbol) fieldAccessExpr.symbol, false, fieldAccessExpr.isStoreOnCreation);
             }
         } else if (types.isLaxFieldAccessAllowed(refType)) {
-            if (!(varRefTypeTag == TypeTags.XML || varRefTypeTag == TypeTags.XML_ELEMENT)) {
+            if (!types.isAssignable(refType, symTable.xmlType)) {
                 if (varRefTypeTag == TypeTags.MAP &&
                         TypeTags.isXMLTypeTag(Types.getImpliedType(((BMapType) refType).constraint).tag)) {
                     result = rewriteExpr(rewriteLaxMapAccess(fieldAccessExpr));
@@ -6387,6 +6391,7 @@ public class Desugar extends BLangNodeVisitor {
                 fieldAccessExpr.expr = types.addConversionExprIfRequired(fieldAccessExpr.expr, symTable.jsonType);
                 targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
             } else {
+                fieldAccessExpr.expr = types.addConversionExprIfRequired(fieldAccessExpr.expr, symTable.xmlType);
                 BLangInvocation xmlAccessInvocation = rewriteXMLAttributeOrElemNameAccess(fieldAccessExpr);
                 xmlAccessInvocation.setBType(fieldAccessExpr.getBType());
                 result = xmlAccessInvocation;

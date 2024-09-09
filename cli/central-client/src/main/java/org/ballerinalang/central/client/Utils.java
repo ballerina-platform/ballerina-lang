@@ -72,6 +72,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_R
 import static org.ballerinalang.central.client.CentralClientConstants.SHA256;
 import static org.ballerinalang.central.client.CentralClientConstants.SHA256_ALGORITHM;
 import static org.ballerinalang.central.client.CentralClientConstants.STAGING_REPO;
+import static org.ballerinalang.central.client.CentralClientConstants.TEST_MODE_ACTIVE;
 import static org.ballerinalang.central.client.CentralClientConstants.UPDATE_INTERVAL_MILLIS;
 
 /**
@@ -85,6 +86,7 @@ public class Utils {
             System.getenv(BALLERINA_STAGE_CENTRAL));
     public static final boolean SET_BALLERINA_DEV_CENTRAL = Boolean.parseBoolean(
             System.getenv(BALLERINA_DEV_CENTRAL));
+    public static final boolean SET_TEST_MODE_ACTIVE = Boolean.parseBoolean(System.getenv(TEST_MODE_ACTIVE));
 
     private Utils() {
     }
@@ -161,12 +163,13 @@ public class Utils {
                 downloadBody.ifPresent(ResponseBody::close);
                 throw new PackageAlreadyExistsException(
                         logFormatter.formatLog("package already exists in the home repository: " +
-                                balaCacheWithPkgPath.toString()));
+                                balaCacheWithPkgPath.toString()), validPkgVersion);
             }
         } catch (IOException e) {
             downloadBody.ifPresent(ResponseBody::close);
             throw new PackageAlreadyExistsException(
-                    logFormatter.formatLog("error accessing bala : " + balaCacheWithPkgPath.toString()));
+                    logFormatter.formatLog("error accessing bala : " + balaCacheWithPkgPath.toString()),
+                    validPkgVersion);
         }
 
         // Create the following temp path
@@ -226,7 +229,7 @@ public class Utils {
      * @return bala file name
      */
     private static String getBalaFileName(String contentDisposition, String balaFile) {
-        if (contentDisposition != null && !contentDisposition.equals("")) {
+        if (contentDisposition != null && !contentDisposition.isEmpty()) {
             return contentDisposition.substring("attachment; filename=".length());
         } else {
             return balaFile;

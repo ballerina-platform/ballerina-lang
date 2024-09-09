@@ -215,7 +215,7 @@ class AIDataMapperCodeActionUtil {
                 case "RECORD":
                 case "TYPE_REFERENCE":
                     //Check if the rhs is defined with var
-                    if ("".equals(foundTypeRight)) {
+                    if (foundTypeRight.isEmpty()) {
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", symbolAtCursorName, foundTypeLeft, symbolAtCursorName);
                         foundTypeRight = symbolAtCursorName;
@@ -232,14 +232,14 @@ class AIDataMapperCodeActionUtil {
                     boolean foundErrorRight = false;
 
                     // If the function is returning a record | error
-                    if ("".equals(foundTypeLeft)) {
+                    if (foundTypeLeft.isEmpty()) {
                         List<TypeSymbol> leftTypeSymbols = ((UnionTypeSymbol) lftTypeSymbol).memberTypeDescriptors();
                         lftTypeSymbol = findSymbol(leftTypeSymbols);
                         foundTypeLeft = lftTypeSymbol.getName().orElse("");
                         foundErrorLeft = true;
                     }
                     // If the check or checkpanic is used
-                    if ("".equals(foundTypeRight)) {
+                    if (foundTypeRight.isEmpty()) {
                         List<TypeSymbol> rightTypeSymbols = ((UnionTypeSymbol) rhsTypeSymbol).memberTypeDescriptors();
                         rhsTypeSymbol = findSymbol(rightTypeSymbols);
                         foundTypeRight = rhsTypeSymbol.getName().orElse("");

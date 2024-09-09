@@ -21,35 +21,24 @@ int counter = 0;
 
 public function main() {
     testListenerFunctionality();
-    runtime:deregisterListener(l2);
-    runtime:deregisterListener(l3);
 }
 
-listener l1 = new Listener(9090);
-listener Listener l2 = new Listener(9091);
+Listener l2 = new Listener(9091);
 Listener l3 = new Listener(9092);
 
 function testListenerFunctionality() {
     runtime:registerListener(l2);
+    runtime:registerListener(l3);
     Service s = new Service();
     error? result = l3.attach(s);
+    runtime:deregisterListener(l2);
+    runtime:deregisterListener(l3);
     test:assertTrue(result == ());
     result = l3.start();
     test:assertTrue(result == ());
-    test:assertEquals(counter, 7);
+    test:assertEquals(counter, 3);
     validateArtifactCount();
-}
-
-service /s1 on l1 {
-    resource function get addCount() {
-        counter += 1;
-    }
-}
-
-service /s2/s on l2 {
-    resource function get addCount() {
-        counter += 1;
-    }
+    validateIsRemoteManagementEnabled();
 }
 
 public service class Service {
@@ -88,5 +77,9 @@ public class Listener {
 }
 
 function validateArtifactCount() = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function validateIsRemoteManagementEnabled() = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;

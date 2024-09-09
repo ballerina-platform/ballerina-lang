@@ -49,6 +49,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,7 +60,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.EQUAL;
+import static io.ballerina.projects.util.ProjectConstants.OFFLINE_FLAG;
+import static io.ballerina.projects.util.ProjectConstants.REPOSITORY_FLAG;
+import static io.ballerina.projects.util.ProjectConstants.STICKY_FLAG;
 
 /**
  * Resolves dependencies and handles version conflicts in the dependency graph.
@@ -92,16 +98,129 @@ public class PackageResolution {
         this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext,
                 this.resolutionOptions.offline());
         diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
-
         this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext);
         this.dependencyGraph = buildDependencyGraph();
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
+        if (compilationOptions.optimizeDependencyCompilation()) {
+            generateCaches();
+        }
+    }
+
+    /**
+     * This method performs the BIR generation before the compilation by
+     * spinning up a new process.
+     * This is typically useful for large packages to avoid OOM issues.
+     */
+    private void generateCaches() {
+        for (ResolvedPackageDependency resolvedPackageDependency : this.dependencyGraph.toTopologicallySortedList()) {
+            Package packageInstance = resolvedPackageDependency.packageInstance();
+
+            // If the package instance is the current package, we have reached the root of the dependency graph.
+            // We skip the generation of the cache for the current package.
+            PackageDescriptor packageDescriptor = packageInstance.descriptor();
+            if (packageDescriptor == this.rootPackageContext.descriptor()) {
+                break;
+            }
+
+            // If the dependency is not loaded from sources, then we assume that the BIR is already generated.
+            // We skip the cache generation for the particular dependency.
+            if (packageInstance.getDefaultModule().moduleContext()
+                    .currentCompilationState() != ModuleCompilationState.LOADED_FROM_SOURCES) {
+                continue;
+            }
+
+            // We use the pull command to generate the BIR of the dependency.
+            List<String> cmdArgs = new ArrayList<>();
+            cmdArgs.add(System.getProperty(BALLERINA_HOME) + "/bin/bal");
+            cmdArgs.add("pull");
+            cmdArgs.add(STICKY_FLAG + EQUAL + resolutionOptions.sticky());
+            cmdArgs.add(OFFLINE_FLAG + EQUAL + resolutionOptions.offline());
+
+            // Specify which repository to resolve the dependency from
+            Optional<BlendedManifest.Dependency> dependency =
+                    blendedManifest.userSpecifiedDependency(packageDescriptor.org(), packageDescriptor.name());
+            if (dependency.isPresent() && dependency.get().repository() != null) {
+                cmdArgs.add(REPOSITORY_FLAG + EQUAL + dependency.get().repository());
+            }
+            cmdArgs.add(packageDescriptor.toString());
+
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs);
+            try {
+                Process process = processBuilder.start();
+                int i = process.waitFor();
+                if (i != 0) {
+                    String errMessage = packageDescriptor.toString();
+                    if (dependency.isPresent()) {
+                        errMessage += " [repository=" + dependency.get().repository() + "]";
+                    }
+                    throw new ProjectException("failed to compile " + errMessage);
+                }
+            } catch (IOException | InterruptedException e) {
+                throw new ProjectException(e);
+            }
+
+            // Finally, we set the compilation state of the dependency to LOADED_FROM_CACHE
+            for (ModuleId moduleId : packageInstance.moduleIds()) {
+                packageInstance.module(moduleId).moduleContext()
+                        .setCompilationState(ModuleCompilationState.LOADED_FROM_CACHE);
+            }
+        }
+    }
+
+    private PackageResolution(PackageResolution packageResolution, PackageContext rootPackageContext,
+                              CompilationOptions compilationOptions) {
+        this.rootPackageContext = rootPackageContext;
+        this.diagnosticList = new ArrayList<>();
+        this.compilationOptions = compilationOptions;
+        this.resolutionOptions = getResolutionOptions(rootPackageContext, compilationOptions);
+        ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
+        this.packageResolver = projectEnvContext.getService(PackageResolver.class);
+        this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext,
+                this.resolutionOptions.offline());
+        diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
+        this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext);
+        LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
+        moduleResolver.resolveModuleLoadRequests(moduleLoadRequests);
+        this.dependencyGraph = cloneDependencyGraphNewRoot(packageResolution.dependencyGraph,
+                rootPackageContext.project().currentPackage());
+        this.dependencyGraphDump = packageResolution.dependencyGraphDump;
+        DependencyResolution dependencyResolution = new DependencyResolution(
+                projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
+        resolveDependencies(dependencyResolution);
+    }
+
+    private DependencyGraph<ResolvedPackageDependency> cloneDependencyGraphNewRoot
+            (DependencyGraph<ResolvedPackageDependency> depGraph, Package rootPackage) {
+        ResolvedPackageDependency oldRoot = depGraph.getRoot();
+        ResolvedPackageDependency newRoot = new ResolvedPackageDependency(rootPackage,
+                oldRoot.scope(), oldRoot.dependencyResolvedType());
+        DependencyGraphBuilder<ResolvedPackageDependency> depGraphBuilder =
+                DependencyGraphBuilder.getBuilder(newRoot);
+        for (ResolvedPackageDependency depNode : depGraph.getNodes()) {
+            if (depNode == oldRoot) {
+                depGraphBuilder.add(newRoot);
+            } else {
+                depGraphBuilder.add(depNode);
+            }
+            List<ResolvedPackageDependency> directPkgDependencies =
+                    depGraph.getDirectDependencies(depNode)
+                            .stream()
+                            .map(directDepNode -> directDepNode == oldRoot ? newRoot : directDepNode)
+                            .collect(Collectors.toList());
+            depGraphBuilder.addDependencies(depNode, directPkgDependencies);
+        }
+        return depGraphBuilder.build();
     }
 
     static PackageResolution from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         return new PackageResolution(rootPackageContext, compilationOptions);
+    }
+
+    static PackageResolution from(PackageResolution packageResolution, PackageContext
+            packageContext, CompilationOptions compilationOptions) {
+        return new PackageResolution(packageResolution, packageContext, compilationOptions);
     }
 
     /**
@@ -184,7 +303,7 @@ public class PackageResolution {
      */
     private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph() {
         // TODO We should get diagnostics as well. Need to design that contract
-        if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
+        if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT && this.resolutionOptions.sticky()) {
             return resolveBALADependencies();
         } else {
             return resolveSourceDependencies();

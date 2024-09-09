@@ -1,0 +1,50 @@
+{
+  "position": {
+    "line": 18,
+    "character": 17
+  },
+  "source": "clone_value4.bal",
+  "description": "Clone a tuple value",
+  "expected": [
+    {
+      "title": "Clone the value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 18,
+              "character": 28
+            },
+            "end": {
+              "line": 18,
+              "character": 28
+            }
+          },
+          "newText": ".clone()"
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Clone as a readonly value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 18,
+              "character": 28
+            },
+            "end": {
+              "line": 18,
+              "character": 28
+            }
+          },
+          "newText": ".cloneReadOnly()"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

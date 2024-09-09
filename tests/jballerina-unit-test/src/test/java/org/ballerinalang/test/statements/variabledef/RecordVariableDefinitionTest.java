@@ -285,6 +285,11 @@ public class RecordVariableDefinitionTest {
     }
 
     @Test
+    public void testRecordTypedBindingPatternAgainstRecordLiteralInRecordDestructuring() {
+        BRunUtil.invoke(result, "testRecordTypedBindingPatternAgainstRecordLiteralInRecordDestructuring");
+    }
+
+    @Test
     public void testNegativeRecordVariables() {
         String redeclaredSymbol = "redeclared symbol ";
         int i = -1;
