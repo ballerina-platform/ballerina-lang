@@ -5,29 +5,5 @@
   },
   "source": "import_decl/source/import_decl_with_ballerinax_org4.bal",
   "description": "Test completions for ballerinax packages",
-  "items": [
-    {
-      "label": "azure.ad",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "A",
-      "insertText": "azure.ad",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 18
-            },
-            "end": {
-              "line": 0,
-              "character": 24
-            }
-          },
-          "newText": ""
-        }
-      ]
-    }
-  ]
+  "items": []
 }
