@@ -23,14 +23,13 @@ import java.util.Set;
 /**
  * Java record to store class level native optimization report data to JSON.
  *
- * @param startPointClasses start points identified by the NativeDependencyOptimizer
+ * @param startPointClasses   start points identified by the NativeDependencyOptimizer
  * @param usedExternalClasses used classes which are not present in the executable JAR (JRE classes)
- * @param usedClasses used classes present in the executable JAR
- * @param unusedClasses unused classes present in the executable JAR
- *
- * @since 2201.10.0
+ * @param usedClasses         used classes present in the executable JAR
+ * @param unusedClasses       unused classes present in the executable JAR
+ * @since 2201.11.0
  */
-record NativeDependencyOptimizationReport(Set<String> startPointClasses, Set<String> usedExternalClasses,
-                                          Set<String> usedClasses, Set<String> unusedClasses) {
+public record NativeDependencyOptimizationReport(Set<String> startPointClasses, Set<String> usedExternalClasses,
+                                                 Set<String> usedClasses, Set<String> unusedClasses) {
 
 }

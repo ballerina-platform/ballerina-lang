@@ -48,7 +48,7 @@ import static io.ballerina.projects.util.CodegenOptimizationUtils.getWhiteListed
 /**
  * Optimizes a given JAR on class file level.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class NativeDependencyOptimizer {
 
@@ -74,8 +74,8 @@ public final class NativeDependencyOptimizer {
         this.usedClassesStack = new Stack<>();
     }
 
-    private static Iterable<String> getServiceProviderImplementations(ZipFile originalJarFile,
-                                                                      ZipArchiveEntry entry) throws IOException {
+    private static Iterable<String> getServiceProviderImplementations(ZipFile originalJarFile, ZipArchiveEntry entry)
+            throws IOException {
         String allImplString = IOUtils.toString(originalJarFile.getInputStream(entry), StandardCharsets.UTF_8);
         Pattern pattern = Pattern.compile("\n");
         return pattern.splitAsStream(allImplString)

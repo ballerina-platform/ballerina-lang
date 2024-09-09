@@ -36,7 +36,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -128,10 +127,15 @@ public class JarResolver {
                 });
 
         // 3) Add the runtime library path
+        String packageName = getPackageName(rootPackageContext);
         jarFiles.add(new JarLibrary(jBalBackend.runtimeLibrary().path(),
                 PlatformLibraryScope.DEFAULT,
-                getPackageName(rootPackageContext)));
-
+                packageName));
+        // Add resources
+        Optional.ofNullable(jBalBackend.codeGeneratedResourcesLibrary(rootPackageContext.packageId()))
+                .ifPresent(library -> jarFiles.add(
+                        new JarLibrary(library.path(), PlatformLibraryScope.DEFAULT,
+                                packageName)));
         // TODO Filter out duplicate jar entries
         return jarFiles;
     }
@@ -158,6 +162,7 @@ public class JarResolver {
             ModuleContext moduleContext = packageContext.moduleContext(moduleId);
             PackageID pkgID = moduleContext.descriptor().moduleCompilationId();
 
+            // TODO: extract this condition out
             if (packageContext.project().buildOptions().optimizeCodegen() &&
                     !this.rootPackageContext.project().buildOptions().skipTests() &&
                     this.jBalBackend.getOptimizedPackageIDs().contains(pkgID)) {
@@ -175,7 +180,7 @@ public class JarResolver {
                                           PackageID pkgID) {
         PlatformLibrary generatedOptimizedLibrary = jBalBackend.codeGeneratedOptimizedLibrary(
                 packageContext.packageId(), moduleContext.moduleName());
-        Path optimizedJarLibraryPath = Paths.get(generatedOptimizedLibrary.path().toAbsolutePath().toString());
+        Path optimizedJarLibraryPath = generatedOptimizedLibrary.path().toAbsolutePath();
 
         if (JvmCodeGenUtil.duplicatePkgsMap.containsKey(pkgID.orgName + pkgID.getNameComps().toString())) {
             // Package is an optimized duplicated pkg.
@@ -208,7 +213,6 @@ public class JarResolver {
         if (addProvidedJars) {
             providedPlatformLibs.addAll(otherJarDependencies);
         }
-
         for (PlatformLibrary otherJarDependency : otherJarDependencies) {
             JarLibrary newEntry = (JarLibrary) otherJarDependency;
 
@@ -328,6 +332,7 @@ public class JarResolver {
                     addCodeGeneratedLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, allJarFileForTestExec);
                     // All platform-specific libraries(specified in Ballerina.toml) having the default scope
                     addPlatformLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, allJarFileForTestExec, false);
+                    addPlatformLibraryPaths(pkgContext, PlatformLibraryScope.PROVIDED, allJarFileForTestExec, false);
                 });
 
         // 6 Add other dependencies required to run Ballerina test cases

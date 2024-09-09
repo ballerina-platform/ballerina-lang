@@ -33,7 +33,7 @@ import java.util.Set;
 /**
  * Analyses a given type definition and marks its dependencies.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer.AnalyzerData> {
 

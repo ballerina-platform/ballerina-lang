@@ -19,7 +19,6 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
