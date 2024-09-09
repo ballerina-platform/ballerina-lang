@@ -16,9 +16,6 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import io.ballerina.compiler.api.ModuleID;
@@ -26,8 +23,6 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PackageDependencyScope;
-import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
@@ -36,8 +31,6 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageRepository;
-import io.ballerina.projects.environment.ResolutionOptions;
-import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
@@ -54,12 +47,14 @@ import org.eclipse.lsp4j.WorkDoneProgressReport;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -354,7 +349,7 @@ public class LSPackageLoader {
         return moduleInfos;
     }
 
-    private final Path USER_BALLERINA_HOME_INDEX = Path.of(System.getProperty("user.home"))
+    private final Path BALLERINA_USER_HOME_INDEX = Path.of(System.getProperty("user.home"))
             .resolve(".ballerina")
             .resolve(".config")
             .resolve("ls-index.json");
@@ -386,11 +381,30 @@ public class LSPackageLoader {
         return cachedListenerMetaData;
     }
 
+    private static String getFileChecksum(String filePath) throws Exception {
+        FileInputStream fileInputStream = new FileInputStream(filePath);
+
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+        byte[] buffer = new byte[1024];
+
+        int n = 0;
+        while ((n = fileInputStream.read(buffer)) != -1) {
+            messageDigest.update(buffer, 0, n);
+        }
+
+        byte[] checksumBytes = messageDigest.digest();
+        StringBuilder checksum = new StringBuilder();
+        for (byte b : checksumBytes) {
+            checksum.append(String.format("%02x", b & 0xff));
+        }
+        return checksum.toString();
+    }
+
     public void loadListeners() throws IOException {
         // Read the listener file from the ballerina user home
-        if (Files.exists(USER_BALLERINA_HOME_INDEX)) {
+        if (Files.exists(BALLERINA_USER_HOME_INDEX)) {
             // read the json file
-            LSListenerIndex lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(USER_BALLERINA_HOME_INDEX),
+            LSListenerIndex lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(BALLERINA_USER_HOME_INDEX),
                     LSListenerIndex.class);
             boolean checksumValid = "af6986b411ccb1a0b5571699b79cc37eebcfc8f66897c9384aff2153b0df7c7f"
                     .equals(lsListenerIndex.checksum);
@@ -400,21 +414,10 @@ public class LSPackageLoader {
                 indexUpdated = true;
             }
 
-            this.cachedListenerMetaData = new HashMap<>();
-            for (LSPackage lsPackage : lsListenerIndex.ballerina()) {
-                String qulName = lsPackage.orgName() + ":" + lsPackage.module();
-                this.cachedListenerMetaData.put(qulName,
-                        ServiceTemplateGenerator.generateIndexedListenerMetaData(lsPackage));
-
-            }
-            for (LSPackage lsPackage : lsListenerIndex.ballerinax()) {
-                String qulName = lsPackage.orgName() + ":" + lsPackage.module();
-                this.cachedListenerMetaData.put(qulName,
-                        ServiceTemplateGenerator.generateIndexedListenerMetaData(lsPackage));
-            }
+            cacheListenerMetaData(lsListenerIndex);
             // Cache it in the memory
             if (indexUpdated) {
-                try (Writer myWriter = new FileWriter(USER_BALLERINA_HOME_INDEX.toFile(), StandardCharsets.UTF_8)) {
+                try (Writer myWriter = new FileWriter(BALLERINA_USER_HOME_INDEX.toFile(), StandardCharsets.UTF_8)) {
                     myWriter.write(lsListenerIndex.toString());
                 } catch (IOException e) {
                 }
@@ -439,6 +442,21 @@ public class LSPackageLoader {
             // Download the file from the central and load the listeners
             // cache the index in the memory
             // store the index in the user home
+        }
+    }
+
+    private void cacheListenerMetaData(LSListenerIndex lsListenerIndex) {
+        this.cachedListenerMetaData = new HashMap<>();
+        for (LSPackage lsPackage : lsListenerIndex.ballerina()) {
+            String qulName = lsPackage.orgName() + ":" + lsPackage.module();
+            this.cachedListenerMetaData.put(qulName,
+                    ServiceTemplateGenerator.generateIndexedListenerMetaData(lsPackage));
+
+        }
+        for (LSPackage lsPackage : lsListenerIndex.ballerinax()) {
+            String qulName = lsPackage.orgName() + ":" + lsPackage.module();
+            this.cachedListenerMetaData.put(qulName,
+                    ServiceTemplateGenerator.generateIndexedListenerMetaData(lsPackage));
         }
     }
 
