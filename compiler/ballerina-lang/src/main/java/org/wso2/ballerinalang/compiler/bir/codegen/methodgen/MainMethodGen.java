@@ -57,6 +57,7 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA_HOME;
@@ -137,7 +138,6 @@ public class MainMethodGen {
     public static final String SCHEDULER_VAR = "$schedulerVar";
     public static final String CONFIG_VAR = "$configVar";
     private final SymbolTable symbolTable;
-    private final String moduleInitClass;
     private final BIRVarToJVMIndexMap indexMap;
     private final JvmTypeGen jvmTypeGen;
     private final AsyncDataCollector asyncDataCollector;
@@ -153,7 +153,6 @@ public class MainMethodGen {
         this.jvmTypeGen = jvmTypeGen;
         this.asyncDataCollector = asyncDataCollector;
         this.strandMetadataClass = jvmConstantsGen.getStrandMetadataConstantsClass();
-        this.moduleInitClass = moduleInitClass;
         this.isRemoteMgtEnabled = isRemoteMgtEnabled;
     }
 
@@ -187,6 +186,8 @@ public class MainMethodGen {
         }
 
         boolean hasInitFunction = MethodGenUtils.hasInitFunction(pkg);
+        // handle calling init and start during module initialization.
+        generateSetModuleInitialedAndStarted(mv, runtimeVarIndex);
         generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable, schedulerVarIndex, futureVarIndex);
 
         if (hasInitFunction && !isTestable) {
@@ -221,6 +222,15 @@ public class MainMethodGen {
         }
         mv.visitMethodInsn(Opcodes.INVOKESTATIC, REPOSITORY_IMPL, "addBallerinaRuntimeInformation", ADD_BALLERINA_INFO,
                 false);
+    }
+
+    private void generateSetModuleInitialedAndStarted(MethodVisitor mv, int runtimeVarIndex) {
+        mv.visitVarInsn(ALOAD, runtimeVarIndex);
+        mv.visitInsn(ICONST_1);
+        mv.visitFieldInsn(PUTFIELD, BAL_RUNTIME, "moduleInitialized", "Z");
+        mv.visitVarInsn(ALOAD, runtimeVarIndex);
+        mv.visitInsn(ICONST_1);
+        mv.visitFieldInsn(PUTFIELD, BAL_RUNTIME, "moduleStarted", "Z");
     }
 
     private void generateExecuteFunctionCall(String initClass, MethodVisitor mv, BIRNode.BIRFunction userMainFunc,
