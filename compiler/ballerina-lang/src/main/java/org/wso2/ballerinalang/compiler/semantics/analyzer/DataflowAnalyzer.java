@@ -2946,7 +2946,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         UN_INIT, PARTIAL_INIT
     }
 
-    private class BranchResult {
+    private static class BranchResult {
 
         Map<BSymbol, InitStatus> uninitializedVars;
         Map<BSymbol, InitStatus> possibleFailureUnInitVars;

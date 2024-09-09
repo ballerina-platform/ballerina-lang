@@ -5439,7 +5439,7 @@ public class SymbolEnter extends BLangNodeVisitor {
      *
      * @since 0.985.0
      */
-    class LocationData {
+    private static class LocationData {
 
         private String name;
         private int row;

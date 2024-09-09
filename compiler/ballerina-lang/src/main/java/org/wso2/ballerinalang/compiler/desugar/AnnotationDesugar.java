@@ -1174,7 +1174,7 @@ public class AnnotationDesugar {
         return annotAttachment;
     }
 
-    private class LocationData {
+    private static class LocationData {
         public PackageID pkgID;
         public BSymbol owner;
         public Location pos;
