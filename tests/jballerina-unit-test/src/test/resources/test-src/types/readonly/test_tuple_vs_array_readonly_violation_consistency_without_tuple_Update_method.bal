@@ -19,11 +19,19 @@ type Employee record {|
     string name;
 |};
 
-function testFrozenAnyArrayElementUpdate() returns error? {
+function frozenAnyArrayElementUpdate() returns error? {
     Employee e1 = {name: "Em", id: 1000};
     anydata[] i1 = [e1];
     anydata[] i2 = i1.cloneReadOnly();
     Employee e2 = check trap <Employee>i2[0];
     e2["name"] = "Zee";
     return ();
+}
+
+function testFrozenAnyArrayElementUpdate() returns error? {
+    error? actualError = trap frozenAnyArrayElementUpdate();
+    test:assertTrue(actualError is error);
+    test:assertEquals((<error>actualError).message(), "{ballerina/lang.map}InherentTypeViolation");
+    test:assertEquals((<error>actualError).detail()["message"],
+        "cannot update 'readonly' field 'name' in record of type '(Employee & readonly)'");
 }

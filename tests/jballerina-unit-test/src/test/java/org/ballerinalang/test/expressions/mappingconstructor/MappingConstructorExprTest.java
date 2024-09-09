@@ -38,6 +38,8 @@ public class MappingConstructorExprTest {
     private CompileResult inferRecordResult;
     private CompileResult spreadOpFieldResult;
     private CompileResult readOnlyFieldResult;
+    private CompileResult resultWithTupleUpdateMethod;
+    private CompileResult resultWithoutTupleUpdateMethod;
 
     @BeforeClass
     public void setup() {
@@ -47,6 +49,10 @@ public class MappingConstructorExprTest {
         varNameFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/var_name_field.bal");
         spreadOpFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/spread_op_field.bal");
         readOnlyFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/readonly_field.bal");
+        resultWithTupleUpdateMethod =
+                BCompileUtil.compile("test-src/types/readonly/test_tuple_vs_array_readonly_violation_consistency.bal");
+        resultWithoutTupleUpdateMethod = BCompileUtil.compile("test-src/types/readonly/" +
+                "test_tuple_vs_array_readonly_violation_consistency_without_tuple_Update_method.bal");
     }
 
     @Test(dataProvider = "mappingConstructorTests")
@@ -379,6 +385,16 @@ public class MappingConstructorExprTest {
         BRunUtil.invoke(readOnlyFieldResult, test);
     }
 
+    @Test
+    public void testReadOnlyFields2() {
+        BRunUtil.invoke(resultWithTupleUpdateMethod, "testFrozenAnyArrayElementUpdate");
+    }
+
+    @Test
+    public void testReadOnlyFields3() {
+        BRunUtil.invoke(resultWithoutTupleUpdateMethod, "testFrozenAnyArrayElementUpdate");
+    }
+
     @DataProvider(name = "readOnlyFieldTests")
     public Object[][] readOnlyFieldTests() {
         return new Object[][] {
@@ -502,5 +518,7 @@ public class MappingConstructorExprTest {
         inferRecordResult = null;
         spreadOpFieldResult = null;
         readOnlyFieldResult = null;
+        resultWithTupleUpdateMethod = null;
+        resultWithoutTupleUpdateMethod = null;
     }
 }

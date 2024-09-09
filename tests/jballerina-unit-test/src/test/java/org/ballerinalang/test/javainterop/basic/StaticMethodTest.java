@@ -172,7 +172,6 @@ public class StaticMethodTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InherentTypeViolation \\{\"message\":" +
                     "\"cannot update 'readonly' field 'name' in record of type 'Details & readonly'\".*")
     public void testCreateDetails() {
-
         BRunUtil.invoke(result, "testCreateDetails");
     }
 

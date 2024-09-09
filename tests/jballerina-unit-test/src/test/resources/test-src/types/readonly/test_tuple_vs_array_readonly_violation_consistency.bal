@@ -14,12 +14,22 @@
 //  specific language governing permissions and limitations
 //  under the License.
 
+import ballerina/test;
+
 type Employee record {|
     int id;
     string name;
 |};
 
 function testFrozenAnyArrayElementUpdate() returns error? {
+    error? actualError = trap frozenAnyArrayElementUpdate();
+    test:assertTrue(actualError is error);
+    test:assertEquals((<error>actualError).message(), "{ballerina/lang.map}InherentTypeViolation");
+    test:assertEquals((<error>actualError).detail()["message"],
+        "cannot update 'readonly' field 'name' in record of type '(Employee & readonly)'");
+}
+
+function frozenAnyArrayElementUpdate() returns error? {
     Employee e1 = {name: "Em", id: 1000};
     anydata[] i1 = [e1];
     anydata[] i2 = i1.cloneReadOnly();
@@ -28,7 +38,7 @@ function testFrozenAnyArrayElementUpdate() returns error? {
     return ();
 }
 
-function testFrozenTupleUpdate() {
+function frozenTupleUpdate() {
     Employee e1 = {name: "Em", id: 1000};
     [int, Employee] t1 = [1, e1];
     [int, Employee] t2 = t1.cloneReadOnly();
