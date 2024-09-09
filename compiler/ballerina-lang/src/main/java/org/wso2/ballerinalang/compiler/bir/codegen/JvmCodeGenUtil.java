@@ -202,7 +202,19 @@ public class JvmCodeGenUtil {
     }
 
     public static String rewriteVirtualCallTypeName(String value, BType objectType) {
-        return Utils.encodeFunctionIdentifier(cleanupObjectTypeName(value, getImpliedType(objectType)));
+        objectType = getImpliedType(objectType);
+        String typeName = objectType.tsymbol.name.value;
+        Name originalName = objectType.tsymbol.originalName;
+        if (!typeName.isEmpty() && value.startsWith(typeName)) {
+            // The call name will be in the format of`objectTypeName.funcName` for attached functions of imported
+            // modules. Therefore, We need to remove the type name.
+            value = value.replace(typeName + ".", "").trim();
+        } else if (originalName != null && value.startsWith(originalName.value)) {
+            // The call name will be in the format of`objectTypeOriginalName.funcName` for attached functions of
+            // object definitions. Therefore, We need to remove it.
+            value = value.replace(originalName + ".", "").trim();
+        }
+        return Utils.encodeFunctionIdentifier(value);
     }
 
     private static String cleanupBalExt(String name) {
@@ -516,15 +528,6 @@ public class JvmCodeGenUtil {
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
-    }
-
-    static String cleanupObjectTypeName(String callName, BType objectType) {
-        // For attached functions from another module the call name will be in the format `objectTypeName.funcName`.
-        // We need to remove the type name.
-        if (!objectType.tsymbol.name.value.isEmpty() && callName.startsWith(objectType.tsymbol.name.value)) {
-            callName = callName.replace(objectType.tsymbol.name.value + ".", "").trim();
-        }
-        return callName;
     }
 
     public static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels,
