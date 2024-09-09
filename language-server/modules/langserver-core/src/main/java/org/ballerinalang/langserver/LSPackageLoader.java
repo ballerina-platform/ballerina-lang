@@ -458,7 +458,7 @@ public class LSPackageLoader {
 
     private void saveLSPackageIndexInBallerinaUserHome(LSListenerIndex lsListenerIndex) {
         try (Writer myWriter = new FileWriter(BALLERINA_USER_HOME_INDEX.toFile(), StandardCharsets.UTF_8)) {
-            myWriter.write(lsListenerIndex.toString());
+            myWriter.write(new Gson().toJson(lsListenerIndex));
         } catch (IOException ignored) {
         }
     }
