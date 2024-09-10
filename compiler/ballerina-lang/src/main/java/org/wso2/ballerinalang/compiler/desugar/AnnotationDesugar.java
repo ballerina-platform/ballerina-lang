@@ -180,6 +180,8 @@ public class AnnotationDesugar {
     private void defineClassAnnotations(BLangPackage pkgNode, SymbolEnv env2, BLangFunction initFunction) {
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
 
+        // topLevelNodes are modified while iterating over them
+        // noinspection ForLoopReplaceableByForEach
         for (int i = 0, topLevelNodesSize = topLevelNodes.size(); i < topLevelNodesSize; i++) {
             TopLevelNode topLevelNode = topLevelNodes.get(i);
             if (topLevelNode.getKind() != NodeKind.CLASS_DEFN) {
@@ -310,8 +312,8 @@ public class AnnotationDesugar {
         BSymbol annSymbol = symResolver.lookupSymbolInAnnotationSpace(symTable.pkgEnvMap.get(symTable.rootPkgSymbol),
                 Names.fromString(SERVICE_INTROSPECTION_INFO_ANN));
         annSymbol.origin = SymbolOrigin.BUILTIN;
-        if (annSymbol instanceof BAnnotationSymbol) {
-            annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
+        if (annSymbol instanceof BAnnotationSymbol bAnnotationSymbol) {
+            annoAttachment.annotationSymbol = bAnnotationSymbol;
         }
 
         BLangIdentifier identifierNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
@@ -356,8 +358,8 @@ public class AnnotationDesugar {
         BSymbol fieldSymbol = symResolver.resolveStructField(position, pkgEnv,
                 Names.fromString(SERVICE_NAME), bStructSymbol);
 
-        if (fieldSymbol instanceof BVarSymbol) {
-            descriptorKeyValue.key.fieldSymbol = (BVarSymbol) fieldSymbol;
+        if (fieldSymbol instanceof BVarSymbol bVarSymbol) {
+            descriptorKeyValue.key.fieldSymbol = bVarSymbol;
         }
         if (valueLiteral != null) {
             descriptorKeyValue.valueExpr = valueLiteral;
@@ -727,8 +729,8 @@ public class AnnotationDesugar {
         mainFunc.addAnnotationAttachment(annoAttachment);
         final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(mainFunc.symbol.getEnclosingSymbol());
         BSymbol annSymbol = symResolver.lookupSymbolInAnnotationSpace(pkgEnv, Names.fromString(DEFAULTABLE_ANN));
-        if (annSymbol instanceof BAnnotationSymbol) {
-            annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
+        if (annSymbol instanceof BAnnotationSymbol bAnnotationSymbol) {
+            annoAttachment.annotationSymbol = bAnnotationSymbol;
         }
         BLangIdentifier identifierNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         annoAttachment.annotationName = identifierNode;
@@ -782,8 +784,8 @@ public class AnnotationDesugar {
         descriptorKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
         BSymbol fieldSymbol = symResolver.resolveStructField(mainFunc.pos, pkgEnv,
                 Names.fromString(ARG_NAMES), bStructSymbol);
-        if (fieldSymbol instanceof BVarSymbol) {
-            descriptorKeyValue.key.fieldSymbol = (BVarSymbol) fieldSymbol;
+        if (fieldSymbol instanceof BVarSymbol bVarSymbol) {
+            descriptorKeyValue.key.fieldSymbol = bVarSymbol;
         }
         if (valueLiteral != null) {
             descriptorKeyValue.valueExpr = valueLiteral;
@@ -1166,7 +1168,7 @@ public class AnnotationDesugar {
         return annotAttachment;
     }
 
-    private class LocationData {
+    private static class LocationData {
         public PackageID pkgID;
         public BSymbol owner;
         public Location pos;

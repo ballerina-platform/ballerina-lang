@@ -77,18 +77,24 @@ public abstract class BaseCommandTest {
     }
 
     protected String readOutput(boolean silent) throws IOException {
+        return readOutput(silent, true);
+    }
+
+    protected String readOutput(boolean silent, boolean closeConsole) throws IOException {
         String output = "";
         output = console.toString();
-        console.close();
-        console = new ByteArrayOutputStream();
-        printStream = new PrintStream(console);
+        if (closeConsole) {
+            console.close();
+            console = new ByteArrayOutputStream();
+            printStream = new PrintStream(console);
+        }
         if (!silent) {
             PrintStream out = System.out;
             out.println(output);
         }
         return output;
     }
-    
+
     /**
      * Execute a command and get the exception.
      *

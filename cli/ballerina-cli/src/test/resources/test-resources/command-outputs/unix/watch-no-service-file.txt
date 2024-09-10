@@ -1,0 +1,7 @@
+Compiling source
+	INSERT_PROJECT_NAME
+WARNING [:(1:1,1:1)] Skipped adding the generated source file with prefix "dummyfunc". Source file generation is not supported with standalone bal files
+WARNING [INSERT_PROJECT_NAME:(3:5,3:19)] unused variable 'y'
+
+Running executable
+

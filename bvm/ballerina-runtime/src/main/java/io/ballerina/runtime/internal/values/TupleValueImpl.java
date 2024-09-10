@@ -266,8 +266,8 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     public byte getByte(long index) {
         Object value = get(index);
-        if (value instanceof Long) {
-            return ((Long) value).byteValue();
+        if (value instanceof Long l) {
+            return l.byteValue();
         }
         return (Byte) value;
     }
@@ -530,8 +530,8 @@ public class TupleValueImpl extends AbstractArrayValue {
         refs.put(this, refValueArray);
         IntStream.range(0, this.size).forEach(i -> {
             Object value = this.refValues[i];
-            if (value instanceof BRefValue) {
-                values[i] = ((BRefValue) value).copy(refs);
+            if (value instanceof BRefValue bRefValue) {
+                values[i] = bRefValue.copy(refs);
             } else {
                 values[i] = value;
             }
@@ -617,8 +617,8 @@ public class TupleValueImpl extends AbstractArrayValue {
         this.tupleType = (TupleType) TypeUtils.getImpliedType(type);
         for (int i = 0; i < this.size; i++) {
             Object value = this.get(i);
-            if (value instanceof BRefValue) {
-                ((BRefValue) value).freezeDirect();
+            if (value instanceof BRefValue bRefValue) {
+                bRefValue.freezeDirect();
             }
         }
         this.typedesc = null;
