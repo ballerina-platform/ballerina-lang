@@ -13,6 +13,7 @@
 //  KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations
 //  under the License.
+import ballerina/test;
 
 type Employee record {|
     int id;
@@ -33,5 +34,5 @@ function testFrozenAnyArrayElementUpdate() returns error? {
     test:assertTrue(actualError is error);
     test:assertEquals((<error>actualError).message(), "{ballerina/lang.map}InherentTypeViolation");
     test:assertEquals((<error>actualError).detail()["message"],
-        "cannot update 'readonly' field 'name' in record of type '(Employee & readonly)'");
+        "cannot update 'readonly' field 'name' in record of type 'Employee & readonly'");
 }
