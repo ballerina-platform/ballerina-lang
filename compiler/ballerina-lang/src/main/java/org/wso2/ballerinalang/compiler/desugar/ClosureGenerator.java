@@ -209,10 +209,10 @@ import java.util.Queue;
 import java.util.Set;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isInParameterList;
 import static org.wso2.ballerinalang.compiler.util.Constants.DOLLAR;
 import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNDERSCORE;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isInParameterList;
 
 /**
  * ClosureGenerator for creating closures for default values.
@@ -421,36 +421,19 @@ public class ClosureGenerator extends BLangNodeVisitor {
             rewrite(field, recordTypeNode.typeDefEnv);
         }
         recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
-        // In the current implementation, closures generated for default values in inclusions defined in a
-        // separate module are unidentifiable.
-        // Due to that, if the inclusions are in different modules, we generate closures again.
-        // Will be fixed  with #41949 issue.
-        generateClosuresForDefaultValuesInTypeInclusionsFromDifferentModule(recordTypeNode);
+        generateClosuresForNonOverriddenFields(recordTypeNode);
         result = recordTypeNode;
     }
 
-    private List<String> getFieldNames(List<BLangSimpleVariable> fields) {
-        List<String> fieldNames = new ArrayList<>();
-        for (BLangSimpleVariable field : fields) {
-            fieldNames.add(field.name.getValue());
-        }
-        return fieldNames;
-    }
-
-    private void generateClosuresForDefaultValuesInTypeInclusionsFromDifferentModule(
-            BLangRecordTypeNode recordTypeNode) {
+    private void generateClosuresForNonOverriddenFields(BLangRecordTypeNode recordTypeNode) {
         if (recordTypeNode.typeRefs.isEmpty()) {
             return;
         }
         List<String> fieldNames = getFieldNames(recordTypeNode.fields);
         BTypeSymbol typeSymbol = recordTypeNode.getBType().tsymbol;
         String typeName = recordTypeNode.symbol.name.value;
-        PackageID packageID = typeSymbol.pkgID;
         for (BLangType type : recordTypeNode.typeRefs) {
             BType bType = type.getBType();
-            if (packageID.equals(bType.tsymbol.pkgID)) {
-                continue;
-            }
             BRecordType recordType = (BRecordType) Types.getReferredType(bType);
             Map<String, BInvokableSymbol> defaultValuesOfTypeRef =
                     ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
@@ -465,6 +448,14 @@ public class ClosureGenerator extends BLangNodeVisitor {
                 generateClosureForDefaultValues(closureName, name, invocation, symbol.retType, typeSymbol);
             }
         }
+    }
+
+    private List<String> getFieldNames(List<BLangSimpleVariable> fields) {
+        List<String> fieldNames = new ArrayList<>();
+        for (BLangSimpleVariable field : fields) {
+            fieldNames.add(field.name.getValue());
+        }
+        return fieldNames;
     }
 
     @Override
