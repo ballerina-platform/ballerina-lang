@@ -323,7 +323,12 @@ type InnerOpenRec record {|
     Inner...;
 |};
 
-isolated function defaultValueFromInclusion() {
+type OuterXAlsoClosed record {|
+    *OuterXBase;
+    never...;
+|};
+
+isolated function testDefaultValueFromInclusion() {
     Outer o = {};
     OuterX ox = {...o};
     assertEquality(ox.inner.foo, 10);
@@ -368,6 +373,17 @@ isolated function defaultValueFromInclusion() {
     assertEquality(10, ox6.inner.foo);
     lock {
         assertEquality(3, count);
+    }
+
+    OuterXAlsoClosed oxx = {...o};
+    assertEquality(oxx.inner.foo, 10);
+    lock {
+        assertEquality(4, count);
+    }
+    OuterXAlsoClosed oxx1 = {...o1};
+    assertEquality(20, oxx1.inner.foo);
+    lock {
+        assertEquality(4, count);
     }
 }
 
