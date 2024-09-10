@@ -198,7 +198,7 @@ public class BRunUtil {
                                 "{ballerina}StackOverflow {\"message\":\"stack overflow\"}"));
                     }
                     throw ErrorCreator.createError(StringUtils.fromString("Error while invoking function '" +
-                            functionName + "'"), e);
+                            functionName + "'"), t);
                 }
             };
             BalRuntime runtime = new BalRuntime(new Module(packageManifest.org().toString(),

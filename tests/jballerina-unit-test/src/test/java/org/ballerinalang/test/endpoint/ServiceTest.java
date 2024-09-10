@@ -18,6 +18,7 @@
 package org.ballerinalang.test.endpoint;
 
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.BRunUtil.ExitDetails;
@@ -52,7 +53,7 @@ public class ServiceTest {
         validateError(compileResult, errIdx++, "missing close brace token", 4, 1);
     }
 
-    @Test(expectedExceptions = { BLangTestException.class },
+    @Test(expectedExceptions = { BError.class },
           expectedExceptionsMessageRegExp = ".*startError.*")
     public void testServiceInitPanicNegativeTest() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_init_panic_negative.bal");
