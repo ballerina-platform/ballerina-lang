@@ -201,6 +201,7 @@ public class ClosedRecordTypeInclusionTest {
                 "testRestTypeOverriding",
                 "testOutOfOrderFieldOverridingFieldFromTypeInclusion",
                 "testTypeInclusionWithFiniteField",
+                "testDefaultValueFromInclusion"
         };
     }
 
