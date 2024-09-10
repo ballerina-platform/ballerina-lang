@@ -340,6 +340,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private void analyzeTopLevelNodes(BLangPackage pkgNode, AnalyzerData data) {
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
+
+        // topLevelNodes are modified while iterating over them
+        // noinspection ForLoopReplaceableByForEach
         for (int i = 0; i < topLevelNodes.size(); i++) {
             analyzeNode((BLangNode) topLevelNodes.get(i), data);
         }
@@ -3684,8 +3687,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private <E extends BLangExpression> void analyzeExprs(List<E> nodeList, AnalyzerData data) {
-        for (int i = 0; i < nodeList.size(); i++) {
-            analyzeExpr(nodeList.get(i), data);
+        for (E e : nodeList) {
+            analyzeExpr(e, data);
         }
     }
 
@@ -3850,8 +3853,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             Set<String> waitingOnWorkerSet = new HashSet<>();
             for (BLangNode action : worker.actions) {
                 if (isWaitAction(action)) {
-                    if (action instanceof BLangWaitForAllExpr) {
-                        BLangWaitForAllExpr waitForAllExpr = (BLangWaitForAllExpr) action;
+                    if (action instanceof BLangWaitForAllExpr waitForAllExpr) {
                         for (BLangWaitForAllExpr.BLangWaitKeyValue keyValuePair : waitForAllExpr.keyValuePairs) {
                             BSymbol workerSymbol = getWorkerSymbol(keyValuePair);
                             if (workerSymbol != null) {
@@ -3891,9 +3893,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private void handleWaitAction(WorkerActionSystem workerActionSystem, BLangNode currentAction,
                                   WorkerActionStateMachine worker, AnalyzerData data) {
-        if (currentAction instanceof BLangWaitForAllExpr) {
+        if (currentAction instanceof BLangWaitForAllExpr waitForAllExpr) {
             boolean allWorkersAreDone = true;
-            BLangWaitForAllExpr waitForAllExpr = (BLangWaitForAllExpr) currentAction;
             for (BLangWaitForAllExpr.BLangWaitKeyValue keyValuePair : waitForAllExpr.keyValuePairs) {
                 BSymbol workerSymbol = getWorkerSymbol(keyValuePair);
                 if (isWorkerSymbol(workerSymbol)) {

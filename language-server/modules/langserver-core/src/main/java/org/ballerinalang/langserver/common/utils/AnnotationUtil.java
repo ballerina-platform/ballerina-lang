@@ -208,8 +208,7 @@ public class AnnotationUtil {
                     annotationStart.append(" ").append(OPEN_BRACE_KEY).append(LINE_SEPARATOR);
                     List<String> insertTexts = new ArrayList<>();
                     SnippetContext snippetContext = new SnippetContext();
-                    for (int i = 0; i < requiredFields.size(); i++) {
-                        RecordFieldSymbol field = requiredFields.get(i);
+                    for (RecordFieldSymbol field : requiredFields) {
                         String fieldInsertionText = "\t" +
                                 RecordUtil.getRecordFieldCompletionInsertText(field, snippetContext);
                         insertTexts.add(fieldInsertionText);
