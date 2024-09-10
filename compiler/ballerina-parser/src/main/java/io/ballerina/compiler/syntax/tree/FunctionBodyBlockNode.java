@@ -45,7 +45,7 @@ public class FunctionBodyBlockNode extends FunctionBodyNode {
         return new NodeList<>(childInBucket(2));
     }
 
-    public NodeAndCommentList<NonTerminalNode> statementsWithComments() {
+    public NodeAndCommentList<NonTerminalNode, Node> statementsWithComments() {
         return new NodeAndCommentList<>(childInBucket(2), childInBucket(3));
     }
 

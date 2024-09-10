@@ -36,14 +36,15 @@ import static io.ballerina.compiler.internal.syntax.NodeListUtils.rangeCheckForA
  *
  * @since 2201.10.0
  */
-public class NodeAndCommentList<T extends NonTerminalNode> implements Iterable<T> {
+public class NodeAndCommentList<T extends NonTerminalNode, K extends Node> implements Iterable<K> {
     protected final STNodeList internalListNode;
     protected final NonTerminalNode nonTerminalNode;
     protected final Token semicolon;
     protected final int size;
+    protected final Node[] nodes;
 
     NodeAndCommentList(NonTerminalNode nonTerminalNode, Token semicolon) {
-        this(nonTerminalNode, semicolon, nonTerminalNode.bucketCount() + 1);
+        this(nonTerminalNode, semicolon, nonTerminalNode.bucketCount() * 2 + 1);
     }
 
     protected NodeAndCommentList(NonTerminalNode nonTerminalNode, Token semicolon, int size) {
@@ -54,30 +55,81 @@ public class NodeAndCommentList<T extends NonTerminalNode> implements Iterable<T
         this.internalListNode = (STNodeList) nonTerminalNode.internalNode();
         this.nonTerminalNode = nonTerminalNode;
         this.semicolon = semicolon;
-        this.size = size;
+//        this.size = size;
+        this.nodes = new Node[size]; // TODO: Init with max size
+        int x = 0;
+        for (int i = 0; i < nonTerminalNode.bucketCount(); i++) {
+            List<String> commentLines = new ArrayList<>();
+            Minutiae lastMinutiae = null;
+            for (Minutiae minutiae : nonTerminalNode.childInBucket(i).leadingMinutiae()) {
+                String[] splits = minutiae.text().split("// ");
+                if (splits.length >= 2) {
+                    commentLines.add(splits[1]);
+                    lastMinutiae = minutiae;
+                } else if (splits.length == 1 && splits[0].contains("//")) {
+                    commentLines.add("");
+                    lastMinutiae = minutiae;
+                }
+            }
+            if (!commentLines.isEmpty()) {
+                CommentNode commentNode = new CommentNode(nonTerminalNode.childInBucket(i).internalNode(), 0, null);
+                commentNode.setCommentAttachedNode(nonTerminalNode.childInBucket(i));
+                commentNode.setLastMinutiae(lastMinutiae);
+                commentNode.setCommentLines(commentLines);
+                this.nodes[i] = commentNode;
+                x++;
+            }
+            this.nodes[x] = nonTerminalNode.childInBucket(i);
+            x++;
+        }
+
+        List<String> commentLines = new ArrayList<>();
+        Minutiae lastMinutiae = null;
+        for (Minutiae minutiae : this.semicolon.leadingMinutiae()) {
+            String[] splits = minutiae.text().split("// ");
+            if (splits.length >= 2) {
+                commentLines.add(splits[1]);
+                lastMinutiae = minutiae;
+            } else if (splits.length == 1 && splits[0].contains("//")) {
+                commentLines.add("");
+                lastMinutiae = minutiae;
+            }
+        }
+        if (!commentLines.isEmpty()) {
+            CommentNode commentNode = new CommentNode(semicolon.internalNode(), 0, null);
+            commentNode.setCommentAttachedNode(semicolon);
+            commentNode.setLastMinutiae(lastMinutiae);
+            commentNode.setCommentLines(commentLines);
+            this.nodes[x++] = commentNode;
+        }
+        this.size = x;
     }
 
     // Positional access methods
 
-    public T get(int index) {
+    public K get(int index) { // 3 + semi
         rangeCheck(index, size);
-        return this.nonTerminalNode.childInBucket(index);
+//        if (index == size - 1) {
+//            return (K) this.semicolon;
+//        }
+//        return this.nonTerminalNode.childInBucket(index / 2);
+        return (K) this.nodes[index];
     }
 
     // Modification methods
 
-    public NodeAndCommentList<T> add(T node) {
+    public NodeAndCommentList<T, K> add(T node) {
         Objects.requireNonNull(node, "node should not be null");
         return new NodeAndCommentList<>(internalListNode.add(node.internalNode()).createUnlinkedFacade(), null);
     }
 
-    public NodeAndCommentList<T> add(int index, T node) {
+    public NodeAndCommentList<T, K> add(int index, T node) {
         Objects.requireNonNull(node, "node should not be null");
         rangeCheckForAdd(index, size);
         return new NodeAndCommentList<>(internalListNode.add(index, node.internalNode()).createUnlinkedFacade(), null);
     }
 
-    public NodeAndCommentList<T> addAll(Collection<T> c) {
+    public NodeAndCommentList<T, K> addAll(Collection<T> c) {
         if (c.isEmpty()) {
             return this;
         }
@@ -89,7 +141,7 @@ public class NodeAndCommentList<T extends NonTerminalNode> implements Iterable<T
         return new NodeAndCommentList<>(internalListNode.addAll(stNodesToBeAdded).createUnlinkedFacade(), null);
     }
 
-    public NodeAndCommentList<T> set(int index, T node) {
+    public NodeAndCommentList<T, K> set(int index, T node) {
         Objects.requireNonNull(node, "node should not be null");
         rangeCheck(index, size);
         if (nonTerminalNode.checkForReferenceEquality(index, node)) {
@@ -99,12 +151,12 @@ public class NodeAndCommentList<T extends NonTerminalNode> implements Iterable<T
         return new NodeAndCommentList<>(internalListNode.set(index, node.internalNode()).createUnlinkedFacade(), null);
     }
 
-    public NodeAndCommentList<T> remove(int index) {
+    public NodeAndCommentList<T, K> remove(int index) {
         rangeCheck(index, size);
         return new NodeAndCommentList<>(internalListNode.remove(index).createUnlinkedFacade(), null);
     }
 
-    public NodeAndCommentList<T> remove(T node) {
+    public NodeAndCommentList<T, K> remove(T node) {
         Objects.requireNonNull(node, "node should not be null");
         for (int bucket = 0; bucket < nonTerminalNode.bucketCount(); bucket++) {
             if (nonTerminalNode.checkForReferenceEquality(bucket, node)) {
@@ -115,7 +167,7 @@ public class NodeAndCommentList<T extends NonTerminalNode> implements Iterable<T
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
-    public NodeAndCommentList<T> removeAll(Collection<T> c) {
+    public NodeAndCommentList<T, K> removeAll(Collection<T> c) {
         if (c.isEmpty()) {
             return this;
         }
@@ -143,11 +195,11 @@ public class NodeAndCommentList<T extends NonTerminalNode> implements Iterable<T
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public Iterator<K> iterator() {
         return new NodeAndCommentListIterator();
     }
 
-    public Stream<T> stream() {
+    public Stream<K> stream() {
         return StreamSupport.stream(spliterator(), false);
     }
 
@@ -160,9 +212,9 @@ public class NodeAndCommentList<T extends NonTerminalNode> implements Iterable<T
      *
      * @since 2201.10.0
      */
-    protected class NodeAndCommentListIterator implements Iterator<T> {
+    protected class NodeAndCommentListIterator implements Iterator<K> {
         private int currentIndex = 0;
-        private T currentNode = null;
+        private K currentNode = null;
 
         @Override
         public boolean hasNext() {
@@ -170,20 +222,50 @@ public class NodeAndCommentList<T extends NonTerminalNode> implements Iterable<T
         }
 
         @Override
-        public T next() {
-            if (currentNode != null) {
-                currentIndex++;
-                T temp = currentNode;
-                currentNode = null;
-                return temp;
-            }
-            if (currentIndex == size - 1) {
-                currentIndex++;
-                return (T) new CommentNode(semicolon.internalNode(), 0, null);
-            }
-            currentNode = get(currentIndex);
-            return (T) new CommentNode(currentNode.internalNode(), 0, currentNode);
+        public K next() {
+//            if (currentNode != null) {
+//                currentIndex++;
+//                K temp = currentNode;
+//                currentNode = null;
+//                return temp;
+//            }
+//            currentNode = get(currentIndex);
+//            CommentNode commentNode = new CommentNode(currentNode.internalNode(), 0, null);
+//            commentNode.setCommentAttachedNode(currentNode);
+//            return (K) commentNode;
+//        }
+//
+//        public K next2() {
+            ////
+//            K node;
+//            if (currentIndex % 2 == 0) { // gen comment
+//                currentNode = get(currentIndex);
+//                List<String> commentLines = new ArrayList<>();
+//                Minutiae lastMinutiae = null;
+//                for (Minutiae minutiae : currentNode.leadingMinutiae()) {
+//                    String[] splits = minutiae.text().split("// ");
+//                    if (splits.length >= 2) {
+//                        commentLines.add(splits[1]);
+//                        lastMinutiae = minutiae;
+//                    } else if (splits.length == 1 && splits[0].contains("//")) {
+//                        commentLines.add("");
+//                        lastMinutiae = minutiae;
+//                    }
+//                }
+//                if (!commentLines.isEmpty()) {
+////                    return Optional.empty(); // set comment
+//                }
+//                CommentNode commentNode = new CommentNode(currentNode.internalNode(), 0, null);
+//                commentNode.setCommentAttachedNode(currentNode);
+//                node = (K) commentNode;
+//            } else {
+//                node = currentNode;
+//            }
+//            currentIndex++;
+//            return node;
+            ///
+
+            return get(currentIndex++);
         }
     }
-
 }

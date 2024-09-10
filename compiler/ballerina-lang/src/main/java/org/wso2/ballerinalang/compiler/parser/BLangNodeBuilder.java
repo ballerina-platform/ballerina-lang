@@ -1448,12 +1448,12 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             }
         }
 
-//        for (NonTerminalNode stmt : functionBodyBlockNode.statementsWithComments()) {
-//            NonTerminalNode s = stmt;
-//            if (stmt instanceof CommentNode) {
-//
-//            }
-//        }
+        for (Node stmt : functionBodyBlockNode.statementsWithComments()) {
+            Node s = stmt;
+            if (stmt instanceof CommentNode commentNode) {
+                Node commentAttachedNode = commentNode.getCommentAttachedNode();
+            }
+        }
         generateAndAddBLangStatements(functionBodyBlockNode.statements(), stmtList, 0, functionBodyBlockNode);
 
         bLFuncBody.stmts = statements;
@@ -2759,6 +2759,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(BlockStatementNode blockStatement) {
         BLangBlockStmt bLBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
         this.isInLocalContext = true;
+        for (Node stmt : blockStatement.statementsWithComments()) {
+            Node s = stmt;
+            if (stmt instanceof CommentNode commentNode) {
+                Node commentAttachedNode = commentNode.getCommentAttachedNode();
+            }
+        }
+
         bLBlockStmt.stmts = generateBLangStatements(blockStatement.statements(), blockStatement);
         this.isInLocalContext = false;
         bLBlockStmt.pos = getPosition(blockStatement);

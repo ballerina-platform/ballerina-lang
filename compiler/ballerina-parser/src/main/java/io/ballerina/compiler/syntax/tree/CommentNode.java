@@ -34,19 +34,40 @@ import java.util.List;
 public class CommentNode extends NonTerminalNode {
     protected MinutiaeList leadingMinutiaeList;
     protected MinutiaeList trailingMinutiaeList;
-    private final NonTerminalNode commentAttachedNode;
+    private Node commentAttachedNode;
+    private Minutiae lastMinutiae;
+    private List<String> commentLines;
 
     public CommentNode(STNode commentAttachedSTNode, int position, NonTerminalNode commentAttachedNode) {
         super(commentAttachedSTNode, position, commentAttachedNode);
+    }
+
+    public Node getCommentAttachedNode() {
+        return this.commentAttachedNode;
+    }
+
+    public void setCommentAttachedNode(Node commentAttachedNode) {
         this.commentAttachedNode = commentAttachedNode;
     }
 
-    public NonTerminalNode getParentNode() {
-        return this.commentAttachedNode;
+    public Minutiae getLastMinutiae() {
+        return this.lastMinutiae;
+    }
+
+    public void setLastMinutiae(Minutiae lastMinutiae) {
+        this.lastMinutiae = lastMinutiae;
     }
 
     public String text() {
         return ((STToken) this.internalNode).text();
+    }
+
+    public List<String> getCommentLines() {
+        return this.commentLines;
+    }
+
+    public void setCommentLines(List<String> commentLines) {
+        this.commentLines = commentLines;
     }
 
     public boolean containsLeadingMinutiae() {
