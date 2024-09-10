@@ -18,7 +18,7 @@ Running Tests
 				callableName: assertTrue moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 61
 				callableName: testMain moduleName: testerina_report.foo$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 24
 				callableName: testMain$lambda0$ moduleName: testerina_report.foo$test.0.tests.test_execute-generated_*****lineNumber: 4
-
+			
 
 
 		1 passing
