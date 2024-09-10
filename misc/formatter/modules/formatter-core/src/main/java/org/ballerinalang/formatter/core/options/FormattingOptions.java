@@ -179,6 +179,7 @@ public class FormattingOptions {
                     spacingFormattingOptions, forceFormattingOptions, importFormattingOptions, queryFormattingOptions);
         }
 
+        @SuppressWarnings("unchecked")
         public FormattingOptions build(Path root, Object formatSection) throws FormatterException {
             Optional<String> path = getFormattingFilePath(formatSection, root.toString());
             if (path.isEmpty()) {
@@ -187,33 +188,25 @@ public class FormattingOptions {
             Map<String, Object> configurations = getFormattingConfigurations(root, path.get());
             for (Map.Entry<String, Object> entry : configurations.entrySet()) {
                 Object value = entry.getValue();
-                if (!(value instanceof Map<?, ?> configs)) {
+                if (!(value instanceof Map<?, ?>)) {
                     continue;
                 }
+                Map<String, Object> configs = (Map<String, Object>) value;
                 String key = entry.getKey();
                 FormatSection section = FormatSection.fromString(key);
                 switch (section) {
-                    case INDENT -> indentFormattingOptions = IndentFormattingOptions.builder().build(
-                            (Map<String, Object>) configs);
-                    case WRAPPING -> wrappingFormattingOptions = WrappingFormattingOptions.builder().build(
-                            (Map<String, Object>) configs);
-                    case BRACES -> braceFormattingOptions = BraceFormattingOptions.builder().build(
-                            (Map<String, Object>) configs);
+                    case INDENT -> indentFormattingOptions = IndentFormattingOptions.builder().build(configs);
+                    case WRAPPING -> wrappingFormattingOptions = WrappingFormattingOptions.builder().build(configs);
+                    case BRACES -> braceFormattingOptions = BraceFormattingOptions.builder().build(configs);
                     case FUNCTION_DEFINITION ->
-                            functionDefFormattingOptions = FunctionDefFormattingOptions.builder().build(
-                                    (Map<String, Object>) configs);
+                            functionDefFormattingOptions = FunctionDefFormattingOptions.builder().build(configs);
                     case FUNCTION_CALL ->
-                            functionCallFormattingOptions = FunctionCallFormattingOptions.builder().build(
-                                    (Map<String, Object>) configs);
+                            functionCallFormattingOptions = FunctionCallFormattingOptions.builder().build(configs);
                     case IF_STATEMENT ->
-                            ifStatementFormattingOptions = IfStatementFormattingOptions.builder().build(
-                                    (Map<String, Object>) configs);
-                    case QUERY -> queryFormattingOptions = QueryFormattingOptions.builder().build(
-                            (Map<String, Object>) configs);
-                    case SPACING -> spacingFormattingOptions = SpacingFormattingOptions.builder().build(
-                            (Map<String, Object>) configs);
-                    case IMPORT -> importFormattingOptions = ImportFormattingOptions.builder().build(
-                            (Map<String, Object>) configs);
+                            ifStatementFormattingOptions = IfStatementFormattingOptions.builder().build(configs);
+                    case QUERY -> queryFormattingOptions = QueryFormattingOptions.builder().build(configs);
+                    case SPACING -> spacingFormattingOptions = SpacingFormattingOptions.builder().build(configs);
+                    case IMPORT -> importFormattingOptions = ImportFormattingOptions.builder().build(configs);
                 }
             }
             return build();
