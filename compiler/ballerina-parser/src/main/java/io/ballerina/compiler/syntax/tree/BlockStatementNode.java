@@ -40,7 +40,7 @@ public class BlockStatementNode extends StatementNode {
         return new NodeList<>(childInBucket(1));
     }
 
-    public NodeAndCommentList<NonTerminalNode, Node> statementsWithComments() {
+    public NodeAndCommentList<Node> statementsWithComments() {
         return new NodeAndCommentList<>(childInBucket(1), childInBucket(2));
     }
 

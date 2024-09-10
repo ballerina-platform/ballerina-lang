@@ -1,20 +1,19 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (http://wso2.com)
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
@@ -32,10 +31,9 @@ import static io.ballerina.compiler.internal.syntax.NodeListUtils.rangeCheckForA
 /**
  * Represent both nodes and attached comments to each node.
  *
- * @param <T> The type of NonTerminalNode
- * @param <K> The type of Node
+ * @param <T> The type of Node
  */
-public class NodeAndCommentList<T extends NonTerminalNode, K extends Node> implements Iterable<K> {
+public class NodeAndCommentList<T extends Node> implements Iterable<T> {
     protected final STNodeList internalListNode;
     protected final NonTerminalNode nonTerminalNode;
     protected final int size;
@@ -52,7 +50,7 @@ public class NodeAndCommentList<T extends NonTerminalNode, K extends Node> imple
 
         this.internalListNode = (STNodeList) nonTerminalNode.internalNode();
         this.nonTerminalNode = nonTerminalNode;
-        this.nodes = new Node[size]; // TODO: Init with max size
+        this.nodes = new Node[size];
         int nodeIndex = 0;
         for (int i = 0; i < nonTerminalNode.bucketCount(); i++) {
             Node node = nonTerminalNode.childInBucket(i);
@@ -95,25 +93,25 @@ public class NodeAndCommentList<T extends NonTerminalNode, K extends Node> imple
 
     // Positional access methods
 
-    public K get(int index) {
+    public T get(int index) {
         rangeCheck(index, size);
-        return (K) this.nodes[index];
+        return (T) this.nodes[index];
     }
 
     // Modification methods
 
-    public NodeAndCommentList<T, K> add(T node) {
+    public NodeAndCommentList<T> add(T node) {
         Objects.requireNonNull(node, "node should not be null");
         return new NodeAndCommentList<>(internalListNode.add(node.internalNode()).createUnlinkedFacade(), null);
     }
 
-    public NodeAndCommentList<T, K> add(int index, T node) {
+    public NodeAndCommentList<T> add(int index, T node) {
         Objects.requireNonNull(node, "node should not be null");
         rangeCheckForAdd(index, size);
         return new NodeAndCommentList<>(internalListNode.add(index, node.internalNode()).createUnlinkedFacade(), null);
     }
 
-    public NodeAndCommentList<T, K> addAll(Collection<T> c) {
+    public NodeAndCommentList<T> addAll(Collection<T> c) {
         if (c.isEmpty()) {
             return this;
         }
@@ -125,7 +123,7 @@ public class NodeAndCommentList<T extends NonTerminalNode, K extends Node> imple
         return new NodeAndCommentList<>(internalListNode.addAll(stNodesToBeAdded).createUnlinkedFacade(), null);
     }
 
-    public NodeAndCommentList<T, K> set(int index, T node) {
+    public NodeAndCommentList<T> set(int index, T node) {
         Objects.requireNonNull(node, "node should not be null");
         rangeCheck(index, size);
         if (nonTerminalNode.checkForReferenceEquality(index, node)) {
@@ -135,12 +133,12 @@ public class NodeAndCommentList<T extends NonTerminalNode, K extends Node> imple
         return new NodeAndCommentList<>(internalListNode.set(index, node.internalNode()).createUnlinkedFacade(), null);
     }
 
-    public NodeAndCommentList<T, K> remove(int index) {
+    public NodeAndCommentList<T> remove(int index) {
         rangeCheck(index, size);
         return new NodeAndCommentList<>(internalListNode.remove(index).createUnlinkedFacade(), null);
     }
 
-    public NodeAndCommentList<T, K> remove(T node) {
+    public NodeAndCommentList<T> remove(T node) {
         Objects.requireNonNull(node, "node should not be null");
         for (int bucket = 0; bucket < nonTerminalNode.bucketCount(); bucket++) {
             if (nonTerminalNode.checkForReferenceEquality(bucket, node)) {
@@ -151,7 +149,7 @@ public class NodeAndCommentList<T extends NonTerminalNode, K extends Node> imple
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
-    public NodeAndCommentList<T, K> removeAll(Collection<T> c) {
+    public NodeAndCommentList<T> removeAll(Collection<T> c) {
         if (c.isEmpty()) {
             return this;
         }
@@ -179,11 +177,11 @@ public class NodeAndCommentList<T extends NonTerminalNode, K extends Node> imple
     }
 
     @Override
-    public Iterator<K> iterator() {
+    public Iterator<T> iterator() {
         return new NodeAndCommentListIterator();
     }
 
-    public Stream<K> stream() {
+    public Stream<T> stream() {
         return StreamSupport.stream(spliterator(), false);
     }
 
@@ -196,7 +194,7 @@ public class NodeAndCommentList<T extends NonTerminalNode, K extends Node> imple
      *
      * @since 2201.10.0
      */
-    protected class NodeAndCommentListIterator implements Iterator<K> {
+    protected class NodeAndCommentListIterator implements Iterator<T> {
         private int currentIndex = 0;
 
         @Override
@@ -205,7 +203,7 @@ public class NodeAndCommentList<T extends NonTerminalNode, K extends Node> imple
         }
 
         @Override
-        public K next() {
+        public T next() {
             return get(currentIndex++);
         }
     }
