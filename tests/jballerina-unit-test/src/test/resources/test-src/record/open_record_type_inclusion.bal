@@ -328,6 +328,13 @@ type OuterXAlsoClosed record {|
     never...;
 |};
 
+type EffectivelyCloseRecord record {|
+    *OuterXBase;
+    record {|
+        never bar;
+    |}...;
+|};
+
 isolated function testDefaultValueFromInclusion() {
     Outer o = {};
     OuterX ox = {...o};
@@ -396,6 +403,18 @@ isolated function testDefaultValueFromInclusion() {
     assertEquality(ox8.inner.foo, 20);
     lock {
         assertEquality(5, count);
+    }
+
+    EffectivelyCloseRecord ecr = {...o};
+    assertEquality(ecr.inner.foo, 10);
+    lock {
+        assertEquality(6, count);
+    }
+
+    EffectivelyCloseRecord ecr1 = {...o1};
+    assertEquality(ecr1.inner.foo, 20);
+    lock {
+        assertEquality(6, count);
     }
 }
 

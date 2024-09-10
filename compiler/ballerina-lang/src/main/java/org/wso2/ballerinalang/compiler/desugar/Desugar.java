@@ -6205,7 +6205,7 @@ public class Desugar extends BLangNodeVisitor {
         generateFieldsForUserUnspecifiedRecordFields(recordType, userSpecifiedFields, fieldNames, pos, isReadonly);
     }
 
-    private static boolean isSpreadingAnOpenRecord(List<RecordLiteralNode.RecordField> userSpecifiedFields) {
+    private boolean isSpreadingAnOpenRecord(List<RecordLiteralNode.RecordField> userSpecifiedFields) {
         for (RecordLiteralNode.RecordField field : userSpecifiedFields) {
             if (!(field instanceof BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField)) {
                 continue;
@@ -6215,7 +6215,7 @@ public class Desugar extends BLangNodeVisitor {
                 return true;
             }
             if (recordType.restFieldType != null &&
-                    Types.getImpliedType(recordType.restFieldType).tag != TypeTags.NEVER) {
+                    !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(recordType.restFieldType)) {
                 return true;
             }
         }
