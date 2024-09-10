@@ -32,8 +32,6 @@ import java.util.List;
  * @since 2201.10.0
  */
 public class CommentNode extends NonTerminalNode {
-    protected MinutiaeList leadingMinutiaeList;
-    protected MinutiaeList trailingMinutiaeList;
     private Node commentAttachedNode;
     private Minutiae lastMinutiae;
     private List<String> commentLines;
@@ -58,10 +56,6 @@ public class CommentNode extends NonTerminalNode {
         this.lastMinutiae = lastMinutiae;
     }
 
-    public String text() {
-        return ((STToken) this.internalNode).text();
-    }
-
     public List<String> getCommentLines() {
         return this.commentLines;
     }
@@ -70,71 +64,9 @@ public class CommentNode extends NonTerminalNode {
         this.commentLines = commentLines;
     }
 
-    public boolean containsLeadingMinutiae() {
-        return internalNode.leadingMinutiae().bucketCount() > 0;
-    }
-
-    @Override
-    public MinutiaeList leadingMinutiae() {
-        if (leadingMinutiaeList != null) {
-            return leadingMinutiaeList;
-        }
-        // TODO: add proper node
-        leadingMinutiaeList = new MinutiaeList(null, internalNode.leadingMinutiae(), this.position());
-        return leadingMinutiaeList;
-    }
-
-    public boolean containsTrailingMinutiae() {
-        return internalNode.trailingMinutiae().bucketCount() > 0;
-    }
-
-    @Override
-    public MinutiaeList trailingMinutiae() {
-        if (trailingMinutiaeList != null) {
-            return trailingMinutiaeList;
-        }
-        int trailingMinutiaeStartPos = this.position() + internalNode.widthWithLeadingMinutiae();
-        trailingMinutiaeList = new MinutiaeList(null, internalNode.trailingMinutiae(), trailingMinutiaeStartPos);
-        return trailingMinutiaeList;
-    }
-
-//    public CommentNode modify(MinutiaeList leadingMinutiae, MinutiaeList trailingMinutiae) {
-//        if (internalNode.leadingMinutiae() == leadingMinutiae.internalNode() &&
-//                internalNode.trailingMinutiae() == trailingMinutiae.internalNode()) {
-//            return this;
-//        } else {
-//            return NodeFactory.createToken(this.kind(), leadingMinutiae, trailingMinutiae);
-//        }
-//    }
-
-    @Override
-    public Iterable<Diagnostic> diagnostics() {
-        if (!internalNode.hasDiagnostics()) {
-            return Collections::emptyIterator;
-        }
-
-        return () -> collectDiagnostics().iterator();
-    }
-
     @Override
     protected String[] childNames() {
         return new String[0];
-    }
-
-    private List<Diagnostic> collectDiagnostics() {
-        List<Diagnostic> diagnosticList = new ArrayList<>();
-
-        // Collect diagnostics inside invalid token minutiae
-        leadingInvalidTokens().forEach(token -> token.diagnostics().forEach(diagnosticList::add));
-        trailingInvalidTokens().forEach(token -> token.diagnostics().forEach(diagnosticList::add));
-
-        // Collect token diagnostics
-        for (STNodeDiagnostic stNodeDiagnostic : internalNode.diagnostics()) {
-            Diagnostic syntaxDiagnostic = createSyntaxDiagnostic(stNodeDiagnostic);
-            diagnosticList.add(syntaxDiagnostic);
-        }
-
-        return diagnosticList;
     }
 
     @Override

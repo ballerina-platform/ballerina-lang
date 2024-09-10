@@ -30,16 +30,14 @@ import static io.ballerina.compiler.internal.syntax.NodeListUtils.rangeCheck;
 import static io.ballerina.compiler.internal.syntax.NodeListUtils.rangeCheckForAdd;
 
 /**
- * Represents a list of {@code Node}s.
+ * Represent both nodes and attached comments to each node.
  *
- * @param <T> the type of the constituent node instance
- *
- * @since 2201.10.0
+ * @param <T> The type of NonTerminalNode
+ * @param <K> The type of Node
  */
 public class NodeAndCommentList<T extends NonTerminalNode, K extends Node> implements Iterable<K> {
     protected final STNodeList internalListNode;
     protected final NonTerminalNode nonTerminalNode;
-    protected final Token semicolon;
     protected final int size;
     protected final Node[] nodes;
 
@@ -54,38 +52,28 @@ public class NodeAndCommentList<T extends NonTerminalNode, K extends Node> imple
 
         this.internalListNode = (STNodeList) nonTerminalNode.internalNode();
         this.nonTerminalNode = nonTerminalNode;
-        this.semicolon = semicolon;
-//        this.size = size;
         this.nodes = new Node[size]; // TODO: Init with max size
-        int x = 0;
+        int nodeIndex = 0;
         for (int i = 0; i < nonTerminalNode.bucketCount(); i++) {
-            List<String> commentLines = new ArrayList<>();
-            Minutiae lastMinutiae = null;
-            for (Minutiae minutiae : nonTerminalNode.childInBucket(i).leadingMinutiae()) {
-                String[] splits = minutiae.text().split("// ");
-                if (splits.length >= 2) {
-                    commentLines.add(splits[1]);
-                    lastMinutiae = minutiae;
-                } else if (splits.length == 1 && splits[0].contains("//")) {
-                    commentLines.add("");
-                    lastMinutiae = minutiae;
-                }
+            Node node = nonTerminalNode.childInBucket(i);
+            CommentNode commentNode = getCommentNode(node);
+            if (commentNode != null) {
+                this.nodes[nodeIndex++] = commentNode;
             }
-            if (!commentLines.isEmpty()) {
-                CommentNode commentNode = new CommentNode(nonTerminalNode.childInBucket(i).internalNode(), 0, null);
-                commentNode.setCommentAttachedNode(nonTerminalNode.childInBucket(i));
-                commentNode.setLastMinutiae(lastMinutiae);
-                commentNode.setCommentLines(commentLines);
-                this.nodes[i] = commentNode;
-                x++;
-            }
-            this.nodes[x] = nonTerminalNode.childInBucket(i);
-            x++;
+            this.nodes[nodeIndex++] = node;
         }
 
+        CommentNode commentNodeBeforeEnd = getCommentNode(semicolon);
+        if (commentNodeBeforeEnd != null) {
+            this.nodes[nodeIndex++] = commentNodeBeforeEnd;
+        }
+        this.size = nodeIndex;
+    }
+
+    private CommentNode getCommentNode(Node node) {
         List<String> commentLines = new ArrayList<>();
         Minutiae lastMinutiae = null;
-        for (Minutiae minutiae : this.semicolon.leadingMinutiae()) {
+        for (Minutiae minutiae : node.leadingMinutiae()) {
             String[] splits = minutiae.text().split("// ");
             if (splits.length >= 2) {
                 commentLines.add(splits[1]);
@@ -95,24 +83,20 @@ public class NodeAndCommentList<T extends NonTerminalNode, K extends Node> imple
                 lastMinutiae = minutiae;
             }
         }
-        if (!commentLines.isEmpty()) {
-            CommentNode commentNode = new CommentNode(semicolon.internalNode(), 0, null);
-            commentNode.setCommentAttachedNode(semicolon);
-            commentNode.setLastMinutiae(lastMinutiae);
-            commentNode.setCommentLines(commentLines);
-            this.nodes[x++] = commentNode;
+        if (commentLines.isEmpty()) {
+            return null;
         }
-        this.size = x;
+        CommentNode commentNode = new CommentNode(node.internalNode(), 0, null);
+        commentNode.setCommentAttachedNode(node);
+        commentNode.setLastMinutiae(lastMinutiae);
+        commentNode.setCommentLines(commentLines);
+        return commentNode;
     }
 
     // Positional access methods
 
-    public K get(int index) { // 3 + semi
+    public K get(int index) {
         rangeCheck(index, size);
-//        if (index == size - 1) {
-//            return (K) this.semicolon;
-//        }
-//        return this.nonTerminalNode.childInBucket(index / 2);
         return (K) this.nodes[index];
     }
 
@@ -214,7 +198,6 @@ public class NodeAndCommentList<T extends NonTerminalNode, K extends Node> imple
      */
     protected class NodeAndCommentListIterator implements Iterator<K> {
         private int currentIndex = 0;
-        private K currentNode = null;
 
         @Override
         public boolean hasNext() {
@@ -223,48 +206,6 @@ public class NodeAndCommentList<T extends NonTerminalNode, K extends Node> imple
 
         @Override
         public K next() {
-//            if (currentNode != null) {
-//                currentIndex++;
-//                K temp = currentNode;
-//                currentNode = null;
-//                return temp;
-//            }
-//            currentNode = get(currentIndex);
-//            CommentNode commentNode = new CommentNode(currentNode.internalNode(), 0, null);
-//            commentNode.setCommentAttachedNode(currentNode);
-//            return (K) commentNode;
-//        }
-//
-//        public K next2() {
-            ////
-//            K node;
-//            if (currentIndex % 2 == 0) { // gen comment
-//                currentNode = get(currentIndex);
-//                List<String> commentLines = new ArrayList<>();
-//                Minutiae lastMinutiae = null;
-//                for (Minutiae minutiae : currentNode.leadingMinutiae()) {
-//                    String[] splits = minutiae.text().split("// ");
-//                    if (splits.length >= 2) {
-//                        commentLines.add(splits[1]);
-//                        lastMinutiae = minutiae;
-//                    } else if (splits.length == 1 && splits[0].contains("//")) {
-//                        commentLines.add("");
-//                        lastMinutiae = minutiae;
-//                    }
-//                }
-//                if (!commentLines.isEmpty()) {
-////                    return Optional.empty(); // set comment
-//                }
-//                CommentNode commentNode = new CommentNode(currentNode.internalNode(), 0, null);
-//                commentNode.setCommentAttachedNode(currentNode);
-//                node = (K) commentNode;
-//            } else {
-//                node = currentNode;
-//            }
-//            currentIndex++;
-//            return node;
-            ///
-
             return get(currentIndex++);
         }
     }
