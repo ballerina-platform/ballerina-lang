@@ -1690,9 +1690,6 @@ class SymbolFinder extends BaseVisitor {
         }
 
         if (this.symbolAtCursor == null) {
-            setEnclosingNode(symbol, resourceAccessInvocation.resourceAccessPathSegments.pos);
-        }
-        if (this.symbolAtCursor == null) {
             setEnclosingNode(symbol, resourceAccessInvocation.name.pos);
         }
     }
