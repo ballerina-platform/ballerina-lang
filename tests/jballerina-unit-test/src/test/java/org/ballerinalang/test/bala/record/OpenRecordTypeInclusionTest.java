@@ -194,7 +194,8 @@ public class OpenRecordTypeInclusionTest {
                 "testOutOfOrderFieldOverridingFieldFromTypeInclusion",
                 "testCreatingRecordWithOverriddenFields",
                 "testDefaultValuesOfRecordFieldsWithTypeInclusion",
-                "testDefaultValueFromInclusion"
+                "testDefaultValueFromInclusion",
+                "testSpreadOverrideDefault"
         };
     }
 
