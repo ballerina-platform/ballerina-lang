@@ -385,6 +385,38 @@ isolated function testDefaultValueFromInclusion() {
     lock {
         assertEquality(4, count);
     }
+
+    OuterX ox7 = {};
+    assertEquality(ox7.inner.foo, 10);
+    lock {
+        assertEquality(5, count);
+    }
+
+    OuterX ox8 = {inner: {foo: 20}};
+    assertEquality(ox8.inner.foo, 20);
+    lock {
+        assertEquality(5, count);
+    }
+}
+
+type Data record {
+    string id = fn();
+    string name;
+};
+
+type OpenData record {|
+    string name;
+    string...;
+|};
+
+isolated function fn() returns string {
+    panic error("shouldn't be called");
+}
+
+public function testSpreadOverrideDefault() {
+    OpenData or = {name: "May", "id": "A1234"};
+    Data emp = {...or};
+    assertEquality("A1234", emp.id);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
