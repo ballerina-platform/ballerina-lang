@@ -30,6 +30,7 @@ import io.ballerina.projects.internal.model.Proxy;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -311,8 +312,7 @@ public class PullCommand implements BLauncherCmd {
                     JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
                     String platform = resultObj.get(PLATFORM).getAsString();
                     Path actualBalaPath = mavenBalaCachePath.resolve(platform);
-                    org.apache.commons.io.FileUtils.copyDirectory(temporaryExtractionPath.toFile(),
-                            actualBalaPath.toFile());
+                    FileUtils.copyDirectory(temporaryExtractionPath.toFile(), actualBalaPath.toFile());
                 }
             } catch (MavenResolverClientException e) {
                 errStream.println("unexpected error occurred while pulling package:" + e.getMessage());

@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
@@ -190,7 +191,7 @@ public class BRunUtil {
                     if (t instanceof BLangTestException) {
                         throw ErrorCreator.createError(StringUtils.fromString(t.getMessage()));
                     }
-                    if (t instanceof io.ballerina.runtime.api.values.BError bError) {
+                    if (t instanceof BError bError) {
                         throw ErrorCreator.createError(StringUtils.fromString(
                                 "error: " + bError.getPrintableStackTrace()));
                     }

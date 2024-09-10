@@ -32,6 +32,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Map;
 
 /**
@@ -101,7 +103,6 @@ public class SchemaVisitorTest {
         obj.add("source", configJsonObject.get("source"));
         obj.add("expected", JsonParser.parseString(json));
         String objStr = obj.toString().concat(System.lineSeparator());
-        java.nio.file.Files.write(FileUtils.RES_DIR.resolve(configJsonPath),
-                objStr.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        Files.write(FileUtils.RES_DIR.resolve(configJsonPath), objStr.getBytes(StandardCharsets.UTF_8));
     }
 }

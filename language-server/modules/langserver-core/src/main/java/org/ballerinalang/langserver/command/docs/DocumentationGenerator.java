@@ -241,7 +241,7 @@ public class DocumentationGenerator {
         if (metadata != null && !metadata.annotations().isEmpty()) {
             docStart = PositionUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
-        io.ballerina.compiler.syntax.tree.Node typeDesc = typeDefNode.typeDescriptor();
+        Node typeDesc = typeDefNode.typeDescriptor();
         String desc = String.format("Description.%n");
         LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
         switch (typeDesc.kind()) {
@@ -312,7 +312,7 @@ public class DocumentationGenerator {
         boolean hasDeprecated = false;
         if (metadata != null && !metadata.annotations().isEmpty()) {
             for (AnnotationNode annotationNode : metadata.annotations()) {
-                io.ballerina.compiler.syntax.tree.Node annotReference = annotationNode.annotReference();
+                Node annotReference = annotationNode.annotReference();
                 if (annotReference.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
                         "deprecated".equals(((SimpleNameReferenceNode) annotReference).name().text())) {
                     hasDeprecated = true;
