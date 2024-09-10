@@ -378,11 +378,10 @@ public class SymbolBIRTest {
                 return true;
             }
 
-            if (!(obj instanceof SymbolInfo)) {
+            if (!(obj instanceof SymbolInfo info)) {
                 return false;
             }
 
-            SymbolInfo info = (SymbolInfo) obj;
             return this.name.equals(info.name) && this.kind == info.kind;
         }
 

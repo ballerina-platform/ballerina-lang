@@ -688,15 +688,16 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private boolean isFilteredVarSymbol(BSymbol symbol, Set<DiagnosticState> states) {
-        return symbol instanceof BVarSymbol && !states.contains(((BVarSymbol) symbol).state);
+        return symbol instanceof BVarSymbol varSymbol && !states.contains(varSymbol.state);
     }
 
     private boolean isObjectConstructorExpr(BLangNode node) {
-        return node instanceof BLangClassDefinition && ((BLangClassDefinition) node).flagSet.contains(Flag.OBJECT_CTOR);
+        return node instanceof BLangClassDefinition classDefinition &&
+                classDefinition.flagSet.contains(Flag.OBJECT_CTOR);
     }
 
     private boolean isAnonFunctionExpr(BLangNode node) {
-        return (node instanceof BLangFunction && ((BLangFunction) node).flagSet.contains(Flag.LAMBDA))
+        return (node instanceof BLangFunction bLangFunction && bLangFunction.flagSet.contains(Flag.LAMBDA))
                 || node instanceof BLangArrowFunction;
     }
 

@@ -1500,8 +1500,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     private Object getValue(BLangLiteral lhsLiteral) {
         Object value = lhsLiteral.value;
-        if (value instanceof BLangConstantValue) {
-            return ((BLangConstantValue) value).value;
+        if (value instanceof BLangConstantValue bLangConstantValue) {
+            return bLangConstantValue.value;
         }
         return value;
     }

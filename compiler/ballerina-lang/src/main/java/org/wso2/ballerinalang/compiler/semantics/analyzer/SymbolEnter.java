@@ -621,8 +621,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private Comparator<BLangNode> getTypePrecedenceComparator() {
         return (l, r) -> {
-            if (l instanceof OrderedNode && r instanceof OrderedNode) {
-                return ((OrderedNode) l).getPrecedence() - ((OrderedNode) r).getPrecedence();
+            if (l instanceof OrderedNode lNode && r instanceof OrderedNode rNode) {
+                return lNode.getPrecedence() - rNode.getPrecedence();
             }
             return 0;
         };
@@ -5213,8 +5213,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Cache the function symbol.
         BAttachedFunction attachedFunc;
-        if (referencedFunc instanceof BResourceFunction) {
-            BResourceFunction resourceFunction = (BResourceFunction) referencedFunc;
+        if (referencedFunc instanceof BResourceFunction resourceFunction) {
             BResourceFunction cacheFunc = new BResourceFunction(referencedFunc.funcName, funcSymbol,
                     (BInvokableType) funcSymbol.type, resourceFunction.accessor, resourceFunction.pathParams,
                     resourceFunction.restPathParam, referencedFunc.pos);

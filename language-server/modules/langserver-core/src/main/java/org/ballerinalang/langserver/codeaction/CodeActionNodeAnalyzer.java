@@ -722,9 +722,9 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     protected void visitSyntaxNode(Node node) {
         // Here we check for the statement nodes explicitly to identify the closest statement node
-        if (node instanceof StatementNode) {
+        if (node instanceof StatementNode statementNode) {
             if (!(node instanceof BlockStatementNode)) {
-                checkAndSetStatementNode((StatementNode) node);
+                checkAndSetStatementNode(statementNode);
             }
         }
 

@@ -137,10 +137,9 @@ public class RegExpFactory {
             disjunction = getNonCapturingGroupDisjunction();
         }
         for (Object s : disjunction.getRegExpSeqList()) {
-            if (!(s instanceof RegExpSequence)) {
+            if (!(s instanceof RegExpSequence seq)) {
                 continue;
             }
-            RegExpSequence seq = (RegExpSequence) s;
             translateRegExpTerms(seq.getRegExpTermsList());
         }
         return new RegExpValue(disjunction);
@@ -159,15 +158,14 @@ public class RegExpFactory {
 
     private static void translateRegExpTerms(RegExpTerm[] terms) {
         for (RegExpTerm t : terms) {
-            if (!(t instanceof RegExpAtomQuantifier)) {
+            if (!(t instanceof RegExpAtomQuantifier atomQuantifier)) {
                 continue;
             }
-            RegExpAtomQuantifier atomQuantifier = (RegExpAtomQuantifier) t;
             Object reAtom = atomQuantifier.getReAtom();
-            if (reAtom instanceof RegExpLiteralCharOrEscape) {
-                atomQuantifier.setReAtom(translateLiteralCharOrEscape((RegExpLiteralCharOrEscape) reAtom));
-            } else if (reAtom instanceof RegExpCharacterClass) {
-                atomQuantifier.setReAtom(translateCharacterClass((RegExpCharacterClass) reAtom));
+            if (reAtom instanceof RegExpLiteralCharOrEscape regExpLiteralCharOrEscape) {
+                atomQuantifier.setReAtom(translateLiteralCharOrEscape(regExpLiteralCharOrEscape));
+            } else if (reAtom instanceof RegExpCharacterClass regExpCharacterClass) {
+                atomQuantifier.setReAtom(translateCharacterClass(regExpCharacterClass));
             }
         }
     }
@@ -206,8 +204,7 @@ public class RegExpFactory {
         int c = charAtoms.length;
         for (int i = 0; i < c; i++) {
             Object charAtom = charAtoms[i];
-            if (charAtom instanceof RegExpCharSetRange) {
-                RegExpCharSetRange range = (RegExpCharSetRange) charAtom;
+            if (charAtom instanceof RegExpCharSetRange range) {
                 range.setLhsCharSetAtom(translateCharInCharacterClass(range.getLhsCharSetAtom()));
                 range.setRhsCharSetAom(translateCharInCharacterClass(range.getRhsCharSetAtom()));
                 continue;
@@ -220,10 +217,10 @@ public class RegExpFactory {
     }
 
     private static Object translateVisitor(Object node) {
-        if (node instanceof RegExpLiteralCharOrEscape) {
-            return translateLiteralCharOrEscape((RegExpLiteralCharOrEscape) node);
-        } else if (node instanceof String) {
-            return translateCharInCharacterClass((String) node);
+        if (node instanceof RegExpLiteralCharOrEscape regExpLiteralCharOrEscape) {
+            return translateLiteralCharOrEscape(regExpLiteralCharOrEscape);
+        } else if (node instanceof String s) {
+            return translateCharInCharacterClass(s);
         }
         return node;
     }
