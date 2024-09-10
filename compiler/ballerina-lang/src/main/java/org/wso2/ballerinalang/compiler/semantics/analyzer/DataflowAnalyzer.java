@@ -2635,23 +2635,23 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         boolean globalVarSymbol = isGlobalVarSymbol(symbol);
         BSymbol ownerSymbol = this.env.scope.owner;
-        boolean isInPkgLevel = ownerSymbol.getKind() == SymbolKind.PACKAGE;
-        // Restrict to observations made in pkg level.
-        if (isInPkgLevel && (globalVarSymbol || symbol instanceof BTypeSymbol)
-            || (ownerSymbol.tag == SymTag.LET && globalVarSymbol)) {
-            BSymbol dependent = this.currDependentSymbolDeque.peek();
-            addDependency(dependent, symbol);
-        } else if (ownerSymbol.kind == SymbolKind.FUNCTION && globalVarSymbol) {
-            // Global variable ref from non package level.
-            BInvokableSymbol invokableOwnerSymbol = (BInvokableSymbol) ownerSymbol;
-            addDependency(invokableOwnerSymbol, symbol);
-        } else if (ownerSymbol.kind == SymbolKind.OBJECT && globalVarSymbol) {
-            // Global variable reference from a field assignment of an object or a service.
-            // Or global variable reference from a init function of an object or a service.
-            addDependency(ownerSymbol, symbol);
-        } else if (ownerSymbol.kind == SymbolKind.RECORD && globalVarSymbol) {
-            // Global variable reference from a field assignment of an record type declaration.
-            addDependency(ownerSymbol, symbol);
+        switch (ownerSymbol.getKind()) {
+            case FUNCTION :
+                // Global variable ref from non package level.
+            case OBJECT:
+                // Global variable reference from a field assignment of an object or a service.
+                // Or global variable reference from an init function of an object or a service.
+            case RECORD:
+                // Global variable reference from a field assignment of a record type declaration.
+                if (globalVarSymbol) {
+                    addDependency(ownerSymbol, symbol);
+                    break;
+                }
+            default:
+                if (globalVarSymbol || symbol instanceof BTypeSymbol || ownerSymbol.tag == SymTag.LET) {
+                    BSymbol dependent = this.currDependentSymbolDeque.peek();
+                    addDependency(dependent, symbol);
+                }
         }
     }
 
