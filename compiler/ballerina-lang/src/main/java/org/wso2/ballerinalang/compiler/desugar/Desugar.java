@@ -6190,9 +6190,12 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void generateFieldsForUserUnspecifiedRecordFields(BLangRecordLiteral recordLiteral,
-                                                              List<RecordLiteralNode.RecordField> userSpecifiedFields) {
+                                                             List<RecordLiteralNode.RecordField> userSpecifiedFields) {
         BType type = Types.getImpliedType(recordLiteral.getBType());
-        if (type.getKind() != TypeKind.RECORD) {
+        // If we are spreading an open record at compile time we can't determine which fields may be missing. Instead,
+        // {@code MapValueImpl.populateInitialValues} should fill in any missing fields by calling the default
+        // closures.
+        if (type.getKind() != TypeKind.RECORD || isSpreadingAnOpenRecord(userSpecifiedFields)) {
             return;
         }
         List<String> fieldNames = getNamesOfUserSpecifiedRecordFields(userSpecifiedFields);
@@ -6200,6 +6203,23 @@ public class Desugar extends BLangNodeVisitor {
         BRecordType recordType = (BRecordType) type;
         boolean isReadonly = Symbols.isFlagOn(recordType.flags, Flags.READONLY);
         generateFieldsForUserUnspecifiedRecordFields(recordType, userSpecifiedFields, fieldNames, pos, isReadonly);
+    }
+
+    private boolean isSpreadingAnOpenRecord(List<RecordLiteralNode.RecordField> userSpecifiedFields) {
+        for (RecordLiteralNode.RecordField field : userSpecifiedFields) {
+            if (!(field instanceof BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField)) {
+                continue;
+            }
+            BType type = Types.getReferredType(spreadOperatorField.expr.getBType());
+            if (!(type instanceof BRecordType recordType)) {
+                return true;
+            }
+            if (recordType.restFieldType != null &&
+                    !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(recordType.restFieldType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void generateFieldsForUserUnspecifiedRecordFields(BRecordType recordType,
