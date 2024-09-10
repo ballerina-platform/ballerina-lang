@@ -333,7 +333,7 @@ public class EnvVarProvider implements ConfigProvider {
         return new EnvVar(key, value);
     }
 
-    public class EnvVar {
+    public static class EnvVar {
 
         public String key;
         public String value;

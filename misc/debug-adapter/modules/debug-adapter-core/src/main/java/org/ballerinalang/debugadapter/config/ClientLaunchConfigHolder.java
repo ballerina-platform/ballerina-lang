@@ -75,10 +75,10 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
     public boolean isNoDebugMode() {
         if (noDebug == null) {
             Object noDebugObject = clientRequestArgs.get(ARG_NO_DEBUG);
-            if (noDebugObject instanceof Boolean) {
-                noDebug = (Boolean) noDebugObject;
-            } else if (noDebugObject instanceof String) {
-                noDebug = Boolean.parseBoolean((String) noDebugObject);
+            if (noDebugObject instanceof Boolean b) {
+                noDebug = b;
+            } else if (noDebugObject instanceof String s) {
+                noDebug = Boolean.parseBoolean(s);
             } else {
                 noDebug = false;
             }
@@ -89,10 +89,10 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
     public boolean isTestDebug() {
         if (testDebug == null) {
             Object testDebugObj = clientRequestArgs.get(ARG_TEST_DEBUG);
-            if (testDebugObj instanceof Boolean) {
-                testDebug = (Boolean) testDebugObj;
-            } else if (testDebugObj instanceof String) {
-                testDebug = Boolean.parseBoolean((String) testDebugObj);
+            if (testDebugObj instanceof Boolean b) {
+                testDebug = b;
+            } else if (testDebugObj instanceof String s) {
+                testDebug = Boolean.parseBoolean(s);
             } else {
                 testDebug = false;
             }
@@ -103,10 +103,10 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
     public boolean isNetworkLogsEnabled() {
         if (networkLogsEnabled == null) {
             Object networkLogs = clientRequestArgs.get(ARG_NETWORK_LOGS);
-            if (networkLogs instanceof Boolean) {
-                networkLogsEnabled = (Boolean) networkLogs;
-            } else if (networkLogs instanceof String) {
-                networkLogsEnabled = Boolean.parseBoolean((String) networkLogs);
+            if (networkLogs instanceof Boolean b) {
+                networkLogsEnabled = b;
+            } else if (networkLogs instanceof String s) {
+                networkLogsEnabled = Boolean.parseBoolean(s);
             } else {
                 networkLogsEnabled = false;
             }

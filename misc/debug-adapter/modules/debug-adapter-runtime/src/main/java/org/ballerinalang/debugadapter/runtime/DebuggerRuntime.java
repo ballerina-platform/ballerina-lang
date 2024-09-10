@@ -262,8 +262,8 @@ public class DebuggerRuntime {
                     "found '" + typedescValue.toString() + "'."));
         }
         Type type = ((TypedescValue) typedescValue).getDescribingType();
-        if (type instanceof BAnnotatableType) {
-            return ((BAnnotatableType) type).getAnnotations().entrySet()
+        if (type instanceof BAnnotatableType bAnnotatableType) {
+            return bAnnotatableType.getAnnotations().entrySet()
                     .stream()
                     .filter(annotationEntry -> annotationEntry.getKey().getValue().endsWith(annotationName))
                     .findFirst()
@@ -295,8 +295,8 @@ public class DebuggerRuntime {
             return "int";
         } else if (value instanceof Float || value instanceof Double) {
             return "float";
-        } else if (value instanceof BValue) {
-            return ((BValue) value).getType().getName();
+        } else if (value instanceof BValue bValue) {
+            return bValue.getType().getName();
         } else {
             return "unknown";
         }

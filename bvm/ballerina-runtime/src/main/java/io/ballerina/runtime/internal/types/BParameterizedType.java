@@ -58,11 +58,9 @@ public class BParameterizedType extends BType implements ParameterizedType {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof BParameterizedType)) {
+        if (!(obj instanceof BParameterizedType otherParameterizedType)) {
             return false;
         }
-
-        BParameterizedType otherParameterizedType = (BParameterizedType) obj;
 
         return paramIndex == otherParameterizedType.paramIndex &&
                 paramValueType.equals(otherParameterizedType.getParamValueType());
