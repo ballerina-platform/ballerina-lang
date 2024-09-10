@@ -84,8 +84,8 @@ public class LauncherUtils {
 
     public static BLauncherException createLauncherException(String errorPrefix, Throwable cause) {
         String message;
-        if (cause instanceof BError) {
-            message = ((BError) cause).getPrintableStackTrace();
+        if (cause instanceof BError bError) {
+            message = bError.getPrintableStackTrace();
         } else {
             StringWriter sw = new StringWriter();
             cause.printStackTrace(new PrintWriter(sw));

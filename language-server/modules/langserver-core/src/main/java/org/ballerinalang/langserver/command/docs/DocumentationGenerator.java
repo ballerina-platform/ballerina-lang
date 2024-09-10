@@ -325,11 +325,11 @@ public class DocumentationGenerator {
         // Resource function path parameters
         if (!resourceNodes.isEmpty()) {
             resourceNodes.forEach(param-> {
-                if (param instanceof ResourcePathParameterNode) {
+                if (param instanceof ResourcePathParameterNode resourcePathParameterNode) {
                     Optional<Token> paramName = Optional.empty();
                     if (param.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM
                             || param.kind() == SyntaxKind.RESOURCE_PATH_REST_PARAM) {
-                        paramName = Optional.ofNullable(((ResourcePathParameterNode) param).paramName().orElse(null));
+                        paramName = Optional.ofNullable(resourcePathParameterNode.paramName().orElse(null));
                     }
                     paramName.ifPresent(token -> parameters.put(token.text(), "parameter description"));
                 } 

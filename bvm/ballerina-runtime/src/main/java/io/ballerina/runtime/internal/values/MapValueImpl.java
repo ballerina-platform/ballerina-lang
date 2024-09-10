@@ -130,8 +130,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public Long getIntValue(BString key) {
         Object value = get(key);
-        if (value instanceof Integer) { // field is an int subtype
-            return ((Integer) value).longValue();
+        if (value instanceof Integer i) { // field is an int subtype
+            return i.longValue();
         }
         return (Long) value;
     }
@@ -590,8 +590,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         this.referredType = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.referredType);
 
         this.values().forEach(val -> {
-            if (val instanceof BRefValue) {
-                ((BRefValue) val).freezeDirect();
+            if (val instanceof BRefValue bRefValue) {
+                bRefValue.freezeDirect();
             }
         });
         this.typedesc = null;

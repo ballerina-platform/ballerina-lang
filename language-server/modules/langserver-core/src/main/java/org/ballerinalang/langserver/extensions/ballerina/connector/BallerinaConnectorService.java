@@ -295,9 +295,9 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
 
                 Gson gson = new Gson();
                 if (recordNode != null) {
-                    if (recordJson instanceof JsonObject) {
+                    if (recordJson instanceof JsonObject jsonObject) {
                         JsonElement recordsJson = gson.toJsonTree(recordDefJsonMap);
-                        ((JsonObject) recordJson).add("records", recordsJson);
+                        jsonObject.add("records", recordsJson);
                     }
                     recordCache.addRecordAST(request.getOrg(), request.getModule(),
                             request.getVersion(), request.getName(), recordJson);

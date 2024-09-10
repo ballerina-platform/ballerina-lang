@@ -60,8 +60,8 @@ public class RegexUtil {
     }
 
     static int[] getSurrogatePositions(BString str) {
-        if (str instanceof NonBmpStringValue) {
-            return ((NonBmpStringValue) str).getSurrogates();
+        if (str instanceof NonBmpStringValue nonBmpStringValue) {
+            return nonBmpStringValue.getSurrogates();
         }
         return new int[0];
     }

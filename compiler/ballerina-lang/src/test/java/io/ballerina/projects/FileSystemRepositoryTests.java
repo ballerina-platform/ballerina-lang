@@ -39,7 +39,7 @@ import java.util.List;
  */
 public class FileSystemRepositoryTests {
 
-    class MockFileSystemRepository extends FileSystemRepository {
+   private static class MockFileSystemRepository extends FileSystemRepository {
 
         public MockFileSystemRepository(Environment environment, Path cacheDirectory) {
             super(environment, cacheDirectory);

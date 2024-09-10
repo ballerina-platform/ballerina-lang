@@ -42,11 +42,11 @@ public class BIROperand extends BIRNode {
             return true;
         }
 
-        if (!(other instanceof BIROperand)) {
+        if (!(other instanceof BIROperand birOperand)) {
             return false;
         }
 
-        return this.variableDcl.equals(((BIROperand) other).variableDcl);
+        return this.variableDcl.equals(birOperand.variableDcl);
     }
 
     @Override

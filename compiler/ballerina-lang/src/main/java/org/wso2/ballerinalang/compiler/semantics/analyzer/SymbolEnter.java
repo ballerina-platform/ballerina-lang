@@ -621,8 +621,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private Comparator<BLangNode> getTypePrecedenceComparator() {
         return (l, r) -> {
-            if (l instanceof OrderedNode && r instanceof OrderedNode) {
-                return ((OrderedNode) l).getPrecedence() - ((OrderedNode) r).getPrecedence();
+            if (l instanceof OrderedNode lNode && r instanceof OrderedNode rNode) {
+                return lNode.getPrecedence() - rNode.getPrecedence();
             }
             return 0;
         };
@@ -2401,8 +2401,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (varNode.restVariable != null) {
                 memberVariables.add(varNode.restVariable);
             }
-            for (int i = 0; i < memberVariables.size(); i++) {
-                BLangVariable memberVar = memberVariables.get(i);
+            for (BLangVariable memberVar : memberVariables) {
                 memberVar.isDeclaredWithVar = true;
                 defineNode(memberVar, env);
             }
@@ -4213,9 +4212,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void populateImmutableTypeFieldsAndMembers(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
-        int size = typeDefNodes.size();
-        for (int i = 0; i < size; i++) {
-            BLangTypeDefinition typeDef = typeDefNodes.get(i);
+        for (BLangTypeDefinition typeDef : typeDefNodes) {
             NodeKind nodeKind = typeDef.typeNode.getKind();
             if (nodeKind == NodeKind.OBJECT_TYPE) {
                 if (((BObjectType) typeDef.symbol.type).mutableType == null) {
@@ -4231,7 +4228,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeDef.typeNode, typeDef.symbol.scope, pkgEnv);
             ImmutableTypeCloner.defineUndefinedImmutableFields(typeDef, types, typeDefEnv, symTable,
-                                                               anonymousModelHelper, names);
+                    anonymousModelHelper, names);
 
             if (nodeKind != NodeKind.OBJECT_TYPE) {
                 continue;
@@ -4241,14 +4238,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             BObjectType mutableObjectType = immutableObjectType.mutableType;
 
             ImmutableTypeCloner.defineObjectFunctions((BObjectTypeSymbol) immutableObjectType.tsymbol,
-                                                      (BObjectTypeSymbol) mutableObjectType.tsymbol, names, symTable);
+                    (BObjectTypeSymbol) mutableObjectType.tsymbol, names, symTable);
         }
     }
 
     private void validateFieldsAndSetReadOnlyType(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
-        int origSize = typeDefNodes.size();
-        for (int i = 0; i < origSize; i++) {
-            BLangNode typeDefOrClass = typeDefNodes.get(i);
+        for (BLangNode typeDefOrClass : typeDefNodes) {
             if (typeDefOrClass.getKind() == NodeKind.CLASS_DEFN) {
                 BLangClassDefinition classDefinition = (BLangClassDefinition) typeDefOrClass;
                 if (isObjectCtor(classDefinition)) {
@@ -4882,8 +4877,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         int resourcePathCount = pathSegments.size();
         List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathCount);
         BResourcePathSegmentSymbol parentResource = null;
-        for (int i = 0; i < resourcePathCount; i++) {
-            BLangResourcePathSegment pathSegment = pathSegments.get(i);
+        for (BLangResourcePathSegment pathSegment : pathSegments) {
             Name resourcePathSymbolName = Names.fromString(pathSegment.name.value);
             BType resourcePathSegmentType = pathSegment.typeNode == null ?
                     symTable.noType : symResolver.resolveTypeNode(pathSegment.typeNode, env);
@@ -5219,8 +5213,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Cache the function symbol.
         BAttachedFunction attachedFunc;
-        if (referencedFunc instanceof BResourceFunction) {
-            BResourceFunction resourceFunction = (BResourceFunction) referencedFunc;
+        if (referencedFunc instanceof BResourceFunction resourceFunction) {
             BResourceFunction cacheFunc = new BResourceFunction(referencedFunc.funcName, funcSymbol,
                     (BInvokableType) funcSymbol.type, resourceFunction.accessor, resourceFunction.pathParams,
                     resourceFunction.restPathParam, referencedFunc.pos);
@@ -5447,7 +5440,7 @@ public class SymbolEnter extends BLangNodeVisitor {
      *
      * @since 0.985.0
      */
-    class LocationData {
+    private static class LocationData {
 
         private String name;
         private int row;

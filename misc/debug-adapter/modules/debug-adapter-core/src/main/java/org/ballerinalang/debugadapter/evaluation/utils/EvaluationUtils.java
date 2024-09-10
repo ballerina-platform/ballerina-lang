@@ -310,7 +310,7 @@ public class EvaluationUtils {
      */
     public static Value unboxValue(SuspendedContext context, Value value) {
         try {
-            if (!(value instanceof ObjectReference)) {
+            if (!(value instanceof ObjectReference objRef)) {
                 return value;
             }
 
@@ -318,16 +318,16 @@ public class EvaluationUtils {
             List<Method> method;
             switch (typeName) {
                 case JAVA_INT_CLASS:
-                    method = ((ObjectReference) value).referenceType().methodsByName(INT_VALUE_METHOD);
+                    method = objRef.referenceType().methodsByName(INT_VALUE_METHOD);
                     break;
                 case JAVA_LONG_CLASS:
-                    method = ((ObjectReference) value).referenceType().methodsByName(LONG_VALUE_METHOD);
+                    method = objRef.referenceType().methodsByName(LONG_VALUE_METHOD);
                     break;
                 case JAVA_FLOAT_CLASS:
-                    method = ((ObjectReference) value).referenceType().methodsByName(FLOAT_VALUE_METHOD);
+                    method = objRef.referenceType().methodsByName(FLOAT_VALUE_METHOD);
                     break;
                 case JAVA_DOUBLE_CLASS:
-                    method = ((ObjectReference) value).referenceType().methodsByName(DOUBLE_VALUE_METHOD);
+                    method = objRef.referenceType().methodsByName(DOUBLE_VALUE_METHOD);
                     break;
                 default:
                     return value;
@@ -533,12 +533,12 @@ public class EvaluationUtils {
      * so, returns it as a JDI value instance.
      */
     public static Optional<Value> getBError(Exception e) {
-        if (!(e instanceof InvocationException)) {
+        if (!(e instanceof InvocationException e1)) {
             return Optional.empty();
         }
-        String typeName = ((InvocationException) e).exception().referenceType().name();
+        String typeName = e1.exception().referenceType().name();
         if (typeName.equals(B_ERROR_VALUE_CLASS)) {
-            return Optional.ofNullable(((InvocationException) e).exception());
+            return Optional.ofNullable(e1.exception());
         }
         return Optional.empty();
     }
@@ -640,10 +640,10 @@ public class EvaluationUtils {
                             Value varValue = context.getFrame().getValue(localVariableProxy);
                             BVariable mapVar = VariableFactory.getVariable(context, varValue);
                             if (mapVar == null || mapVar.getBType() != BVariableType.MAP
-                                    || !(mapVar instanceof IndexedCompoundVariable)) {
+                                    || !(mapVar instanceof IndexedCompoundVariable indexedCompoundVariable)) {
                                 return null;
                             }
-                            return ((IndexedCompoundVariable) mapVar).getChildByName(nameReference);
+                            return indexedCompoundVariable.getChildByName(nameReference);
                         } catch (JdiProxyException | DebugVariableException e) {
                             return null;
                         }
