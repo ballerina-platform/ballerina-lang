@@ -237,4 +237,23 @@ public final class Env {
     public int distinctAtomCountGetAndIncrement() {
         return this.distinctAtomCount.getAndIncrement();
     }
+
+    // This is for debug purposes
+    public Optional<AtomicType> atomicTypeByIndex(int index) {
+        atomLock.readLock().lock();
+        try {
+            for (Map.Entry<AtomicType, Reference<TypeAtom>> entry : this.atomTable.entrySet()) {
+                TypeAtom typeAtom = entry.getValue().get();
+                if (typeAtom == null) {
+                    continue;
+                }
+                if (typeAtom.index() == index) {
+                    return Optional.of(entry.getKey());
+                }
+            }
+            return Optional.empty();
+        } finally {
+            atomLock.readLock().unlock();
+        }
+    }
 }
