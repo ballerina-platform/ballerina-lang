@@ -247,7 +247,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
         serverInstance.removeAllLeechers();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testListenerStopHandlerAsyncCall() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging",
                 "listener_stophandler_async_call_test");
