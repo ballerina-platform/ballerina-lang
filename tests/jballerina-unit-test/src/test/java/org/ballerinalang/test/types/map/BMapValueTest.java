@@ -20,6 +20,7 @@ package org.ballerinalang.test.types.map;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -168,7 +169,7 @@ public class BMapValueTest {
 
     @Test(description = "Testing convert map values to string")
     public void testBMapToString() {
-        MapValue<io.ballerina.runtime.api.values.BString, Object> map = new MapValueImpl<>();
+        MapValue<BString, Object> map = new MapValueImpl<>();
         map.put(StringUtils.fromString("key1"), 1);
         map.put(StringUtils.fromString("key2"), StringUtils.fromString("foo"));
         map.put(StringUtils.fromString("key3"), XmlFactory.parse("<bar>hello</bar>"));

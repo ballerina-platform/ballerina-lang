@@ -527,10 +527,10 @@ public class AnnotationAttachmentTest {
 
    private BType getConstrainedTypeFromRef(BType type) {
        BType constraint = type;
-       if (type.tag == org.wso2.ballerinalang.compiler.util.TypeTags.TYPEREFDESC) {
+       if (type.tag == TypeTags.TYPEREFDESC) {
            constraint = ((BTypeReferenceType) type).referredType;
        }
-       return constraint.tag == org.wso2.ballerinalang.compiler.util.TypeTags.TYPEREFDESC ?
+       return constraint.tag == TypeTags.TYPEREFDESC ?
                getConstrainedTypeFromRef(constraint) : constraint;
    }
 
