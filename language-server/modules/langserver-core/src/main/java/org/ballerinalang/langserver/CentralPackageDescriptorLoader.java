@@ -87,7 +87,7 @@ public class CentralPackageDescriptorLoader {
 
     public String getLSPackageIndexChecksum() throws Exception {
         Settings settings = RepoUtils.readSettings();
-        CentralAPIClient centralAPIClient = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+        CentralAPIClient centralAPIClient = new CentralAPIClient(RepoUtils.getDocGenRepoURL(),
                 ProjectUtils.initializeProxy(settings.getProxy()), ProjectUtils.getAccessTokenOfCLI(settings));
         JsonElement checksumResponse = centralAPIClient.getLSPackageIndexChecksum(RepoUtils.getBallerinaVersion());
         ChecksumResponse response = new Gson().fromJson(checksumResponse.getAsString(), ChecksumResponse.class);
@@ -96,7 +96,7 @@ public class CentralPackageDescriptorLoader {
 
     public LSPackageLoader.LSListenerIndex getLSPackageIndex() throws Exception {
         Settings settings = RepoUtils.readSettings();
-        CentralAPIClient centralAPIClient = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+        CentralAPIClient centralAPIClient = new CentralAPIClient(RepoUtils.getDocGenRepoURL(),
                 ProjectUtils.initializeProxy(settings.getProxy()), ProjectUtils.getAccessTokenOfCLI(settings));
         JsonElement checksumResponse = centralAPIClient.getLSPackageIndex(RepoUtils.getBallerinaVersion());
         return new Gson().fromJson(checksumResponse.getAsString(), LSPackageLoader.LSListenerIndex.class);
