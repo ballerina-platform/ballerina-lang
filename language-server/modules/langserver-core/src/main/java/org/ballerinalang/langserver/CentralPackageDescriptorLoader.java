@@ -17,24 +17,15 @@ package org.ballerinalang.langserver;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
-import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.extensions.ballerina.connector.CentralPackageListResult;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**

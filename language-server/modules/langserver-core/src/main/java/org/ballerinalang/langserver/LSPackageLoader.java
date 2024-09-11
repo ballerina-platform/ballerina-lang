@@ -77,13 +77,23 @@ public class LSPackageLoader {
 
     public static final LanguageServerContext.Key<LSPackageLoader> LS_PACKAGE_LOADER_KEY =
             new LanguageServerContext.Key<>();
+    private static final Path BALLERINA_USER_HOME_INDEX = Path.of(System.getProperty("user.home"))
+            .resolve(".ballerina")
+            .resolve(".config")
+            .resolve("ls-index-" + RepoUtils.getBallerinaVersion() + ".json");
+
+    private static final Path BALLERINA_HOME_INDEX = Path.of(System.getProperty("ballerina.home"))
+            .resolve("resources")
+            .resolve("ls-index")
+            .resolve("ls-index-" + RepoUtils.getBallerinaVersion() + ".json");
 
     private List<ModuleInfo> distRepoPackages = new ArrayList<>();
     private final List<ModuleInfo> remoteRepoPackages = new ArrayList<>();
     private final List<ModuleInfo> localRepoPackages = new ArrayList<>();
     private List<ModuleInfo> centralPackages = new ArrayList<>();
     private final LSClientLogger clientLogger;
-    private Map<String, List<ServiceTemplateGenerator.IndexedListenerMetaData>> cachedListenerMetaData = new HashMap<>();
+    private Map<String, List<ServiceTemplateGenerator.IndexedListenerMetaData>>
+            cachedListenerMetaData = new HashMap<>();
 
     ExtendedLanguageClient languageClient;
 
@@ -349,16 +359,6 @@ public class LSPackageLoader {
         this.remoteRepoPackages.addAll(moduleInfos);
         return moduleInfos;
     }
-
-    private final Path BALLERINA_USER_HOME_INDEX = Path.of(System.getProperty("user.home"))
-            .resolve(".ballerina")
-            .resolve(".config")
-            .resolve("ls-index-" + RepoUtils.getBallerinaVersion() + ".json");
-
-    private final Path BALLERINA_HOME_INDEX = Path.of(System.getProperty("ballerina.home"))
-            .resolve("resources")
-            .resolve("ls-index")
-            .resolve("ls-index-" + RepoUtils.getBallerinaVersion() + ".json");
 
     public record LSListenerIndex(List<LSPackage> ballerina, List<LSPackage> ballerinax) {
     }
