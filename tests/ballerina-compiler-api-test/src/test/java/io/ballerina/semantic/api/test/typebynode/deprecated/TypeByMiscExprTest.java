@@ -120,6 +120,7 @@ public class TypeByMiscExprTest extends TypeByNodeTest {
         };
     }
 
+    @Override
     void verifyAssertCount() {
         assertEquals(getAssertCount(), 16);
     }

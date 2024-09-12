@@ -144,6 +144,7 @@ public class SQLDBUtils {
             initDatabase(jdbcUrl, username, password, databaseScript);
         }
 
+        @Override
         public void stop() {
             BFileUtil.deleteDirectory(new File(this.dbDirectory));
         }

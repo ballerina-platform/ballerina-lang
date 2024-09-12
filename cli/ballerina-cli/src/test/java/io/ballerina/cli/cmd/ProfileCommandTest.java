@@ -65,6 +65,7 @@ public class ProfileCommandTest extends BaseCommandTest {
         Files.writeString(logFile, "");
     }
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();

@@ -80,6 +80,7 @@ public class TypeByReferenceTest extends TypeByNodeTest {
         };
     }
 
+    @Override
     void verifyAssertCount() {
         assertEquals(getAssertCount(), 4);
     }

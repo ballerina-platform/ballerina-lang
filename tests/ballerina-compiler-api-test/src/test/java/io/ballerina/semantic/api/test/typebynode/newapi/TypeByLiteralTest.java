@@ -89,6 +89,7 @@ public class TypeByLiteralTest extends TypeByNodeTest {
         };
     }
 
+    @Override
     void verifyAssertCount() {
         assertEquals(getAssertCount(), 9);
     }

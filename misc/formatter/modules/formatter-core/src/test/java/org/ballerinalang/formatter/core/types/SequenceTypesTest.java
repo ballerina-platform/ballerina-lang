@@ -29,6 +29,7 @@ import java.nio.file.Paths;
  */
 public class SequenceTypesTest extends FormatterTest {
 
+    @Override
     @Test(dataProvider = "test-file-provider")
     public void test(String config, String configPath) throws IOException {
         super.test(config, configPath);

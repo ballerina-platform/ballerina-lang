@@ -58,6 +58,7 @@ public class ProjectRenameTest extends AbstractRenameTest {
         };
     }
 
+    @Override
     @AfterClass
     public void shutDownLanguageServer() throws IOException {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);

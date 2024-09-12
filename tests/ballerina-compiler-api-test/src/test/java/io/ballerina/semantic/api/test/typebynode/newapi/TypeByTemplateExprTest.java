@@ -76,6 +76,7 @@ public class TypeByTemplateExprTest extends TypeByNodeTest {
         };
     }
 
+    @Override
     void verifyAssertCount() {
         assertEquals(getAssertCount(), 3);
     }

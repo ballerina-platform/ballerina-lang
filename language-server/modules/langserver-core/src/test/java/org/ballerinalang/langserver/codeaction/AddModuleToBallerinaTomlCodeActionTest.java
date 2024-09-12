@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
  */
 public class AddModuleToBallerinaTomlCodeActionTest extends AbstractCodeActionTest {
     
+    @Override
     protected void setupLanguageServer(TestUtil.LanguageServerBuilder builder) {
         builder.withInitOption(InitializationOptions.KEY_POSITIONAL_RENAME_SUPPORT, true);
     }

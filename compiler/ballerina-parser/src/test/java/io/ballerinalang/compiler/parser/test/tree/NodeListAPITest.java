@@ -105,6 +105,7 @@ public class NodeListAPITest extends AbstractSyntaxTreeAPITest {
                 statementNodes::add, "node_list_test_07.json");
     }
 
+    @Override
     protected SyntaxTree parseFile(String sourceFileName) {
         return super.parseFile(Paths.get("node_list_api").resolve(sourceFileName));
     }
