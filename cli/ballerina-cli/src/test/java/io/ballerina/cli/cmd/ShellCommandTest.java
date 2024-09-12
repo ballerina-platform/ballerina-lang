@@ -91,7 +91,7 @@ public class ShellCommandTest extends BaseCommandTest {
         PipedOutputStream shellOut = new PipedOutputStream();
         PipedInputStream testIn = new PipedInputStream(shellOut);
 
-        Thread testIntegratorThread = new Thread(() -> {
+        Thread testIntegratorThread = Thread.startVirtualThread(() -> {
             try {
                 PrintStream testPrint = new PrintStream(testOut, true, Charset.defaultCharset());
                 InputStreamReader inStreamReader = new InputStreamReader(testIn, Charset.defaultCharset());
@@ -113,7 +113,6 @@ public class ShellCommandTest extends BaseCommandTest {
             } catch (IOException | InterruptedException ignored) {
             }
         });
-        testIntegratorThread.start();
 
         try {
             BShellConfiguration configuration = new BShellConfiguration.Builder()

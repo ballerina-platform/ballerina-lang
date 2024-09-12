@@ -27,7 +27,6 @@ import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
-import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -35,18 +34,23 @@ import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BNever;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.RuntimeRegistry;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +74,9 @@ public class BalRuntime extends Runtime {
     public final Module rootModule;
     public final RuntimeRegistry runtimeRegistry;
     private final CompletableFuture<Void> stopFuture = new CompletableFuture<>();
+    public boolean moduleInitialized = false;
+    public boolean moduleStarted = false;
+    public boolean moduleStopped = false;
 
     public BalRuntime(Module rootModule) {
         this.scheduler = new Scheduler(this);
@@ -79,9 +86,13 @@ public class BalRuntime extends Runtime {
 
     @Override
     public void init() {
+        handleAlreadyCalled(moduleInitialized, "init");
         try {
-            invokeConfigInit();
-            scheduler.startIsolatedWorker("$moduleInit", rootModule, "$moduleInit", null, null);
+            this.invokeConfigInit();
+            FutureValue future = scheduler.startIsolatedWorker("$moduleInit", rootModule, null, "$moduleInit", null,
+                    null);
+            Scheduler.daemonStrand = future.strand;
+            this.moduleInitialized = true;
         } catch (ClassNotFoundException e) {
             throw ErrorCreator.createError(StringUtils.fromString(String.format("module '%s' does not exist",
                     rootModule)));
@@ -93,14 +104,20 @@ public class BalRuntime extends Runtime {
 
     @Override
     public void start() {
-        call(rootModule, "$moduleStart");
+        handleCallBeforeModuleInit("start");
+        handleAlreadyCalled(moduleStarted, "start");
+        this.scheduler.call(rootModule, "$moduleStart", Scheduler.getStrand());
+        this.moduleStarted = true;
     }
 
     @Override
     public void stop() {
+        handleCallBeforeModuleInit("stop");
+        handleAlreadyCalled(moduleStopped, "stop");
         try {
-            gracefulExit();
-            invokeModuleStop();
+            this.gracefulExit();
+            this.invokeModuleStop();
+            this.moduleStopped = true;
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
                  IllegalAccessException e) {
             throw ErrorCreator.createError(StringUtils.fromString("error occurred during module stop due to " +
@@ -110,38 +127,39 @@ public class BalRuntime extends Runtime {
 
     @Override
     public Object call(Module module, String functionName, Object... args) {
-        return scheduler.call(module, functionName, scheduler.getStrand(), args);
+        return this.scheduler.call(module, functionName, this.getAndHandleStrand(functionName), args);
     }
 
     @Override
     public Object call(BObject object, String methodName, Object... args) {
-        return scheduler.call(object, methodName, scheduler.getStrand(), args);
+        return this.scheduler.call(object, methodName, this.getAndHandleStrand(object, methodName), args);
     }
 
     @Override
     public BFuture startIsolatedWorker(Module module, String functionName, String strandName, StrandMetadata metadata,
                                        Map<String, Object> properties, Object... args) {
-        List<Object> argsList = new java.util.ArrayList<>();
+        List<Object> argsList = new ArrayList<>();
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
                 module.getName(), module.getMajorVersion(), module.isTestPkg()));
         FunctionType functionType = valueCreator.getFunctionType(functionName);
         processFunctionArguments(functionType, args, argsList);
-        return scheduler.startIsolatedWorker(functionName, module, strandName, metadata, properties,
-                argsList.toArray());
+        return scheduler.startIsolatedWorker(functionName, module, this.getAndHandleStrand(functionName), strandName,
+                metadata, properties, argsList.toArray());
     }
 
     @Override
     public BFuture startIsolatedWorker(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                        Map<String, Object> properties, Object... args) {
         validateArgs(object, methodName);
-        List<Object> argsList = new java.util.ArrayList<>();
+        List<Object> argsList = new ArrayList<>();
         ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
         MethodType methodType = scheduler.getObjectMethodType(methodName, objectType);
         if (methodType == null) {
             throw ErrorCreator.createError(StringUtils.fromString("No such method: " + methodName));
         }
-        processFunctionArguments(methodType, args, argsList);
-        return scheduler.startIsolatedWorker(object, methodName, strandName, metadata, properties, argsList.toArray());
+        this.processFunctionArguments(methodType, args, argsList);
+        return this.scheduler.startIsolatedWorker(object, methodName, this.getAndHandleStrand(object, methodName),
+                strandName, metadata, properties, argsList.toArray());
     }
 
     @Override
@@ -152,21 +170,22 @@ public class BalRuntime extends Runtime {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
                 module.getName(), module.getMajorVersion(), module.isTestPkg()));
         FunctionType functionType = valueCreator.getFunctionType(fp.getName());
-        processFunctionArguments(functionType, args, argsList);
-        return scheduler.startIsolatedWorker(fp, strandName, metadata, properties, argsList.toArray());
+        this.processFunctionArguments(functionType, args, argsList);
+        return this.scheduler.startIsolatedWorker(fp, strandName, this.getAndHandleStrand(fp.name), metadata,
+                properties, argsList.toArray());
     }
 
     @Override
     public BFuture startNonIsolatedWorker(Module module, String functionName, String strandName,
                                           StrandMetadata metadata,
                                           Map<String, Object> properties, Object... args) {
-        List<Object> argsList = new java.util.ArrayList<>();
+        List<Object> argsList = new ArrayList<>();
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
                 module.getName(), module.getMajorVersion(), module.isTestPkg()));
         FunctionType functionType = valueCreator.getFunctionType(functionName);
-        processFunctionArguments(functionType, args, argsList);
-        return scheduler.startNonIsolatedWorker(functionName, module, strandName, metadata, properties,
-                argsList.toArray());
+        this.processFunctionArguments(functionType, args, argsList);
+        return this.scheduler.startNonIsolatedWorker(functionName, module, this.getAndHandleStrand(functionName),
+                strandName, metadata, properties, argsList.toArray());
     }
 
     private void processFunctionArguments(FunctionType functionType, Object[] args, List<Object> argsList) {
@@ -186,7 +205,7 @@ public class BalRuntime extends Runtime {
         if (restType != null) {
             ListInitialValueEntry.ExpressionEntry[] initialValues = new
                     ListInitialValueEntry.ExpressionEntry[numOfRestArgs];
-            Type elementType = restType.getElementType();
+            restType.getElementType();
             for (int i = 0; i < numOfRestArgs; i++) {
                 Object arg = args[numOfArgs - numOfRestArgs + i];
                 initialValues[i] = new ListInitialValueEntry.ExpressionEntry(arg);
@@ -198,27 +217,29 @@ public class BalRuntime extends Runtime {
     @Override
     public BFuture startNonIsolatedWorker(BObject object, String methodName, String strandName,
                                           StrandMetadata metadata, Map<String, Object> properties, Object... args) {
-        validateArgs(object, methodName);
+        this.validateArgs(object, methodName);
         ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
         MethodType methodType = scheduler.getObjectMethodType(methodName, objectType);
         if (methodType == null) {
             throw ErrorCreator.createError(StringUtils.fromString("No such method: " + methodName));
         }
-        List<Object> argList = new java.util.ArrayList<>();
+        List<Object> argList = new ArrayList<>();
         processFunctionArguments(methodType, args, argList);
-        return scheduler.startNonIsolatedWorker(object, methodName, strandName, metadata, properties, argList.toArray());
+        return scheduler.startNonIsolatedWorker(object, methodName, this.getAndHandleStrand(object, methodName),
+                strandName, metadata, properties, argList.toArray());
     }
 
     @Override
     public BFuture startNonIsolatedWorker(FPValue fp, String strandName, StrandMetadata metadata,
                                           Map<String, Object> properties, Object... args) {
         Module module = fp.getType().getPackage();
-        List<Object> argsList = new java.util.ArrayList<>();
+        List<Object> argsList = new ArrayList<>();
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
                 module.getName(), module.getMajorVersion(), module.isTestPkg()));
         FunctionType functionType = valueCreator.getFunctionType(fp.getName());
         processFunctionArguments(functionType, args, argsList);
-        return scheduler.startNonIsolatedWorker(fp, strandName, metadata, properties, argsList.toArray());
+        return this.scheduler.startNonIsolatedWorker(fp, strandName, this.getAndHandleStrand(fp.name), metadata,
+                properties, argsList.toArray());
     }
 
     @Override
@@ -236,6 +257,26 @@ public class BalRuntime extends Runtime {
         this.runtimeRegistry.registerStopHandler(stopHandler);
     }
 
+
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen wait for listeners
+     */
+    public void waitOnListeners(boolean listenerDeclarationFound) {
+        if (!listenerDeclarationFound && this.runtimeRegistry.listenerQueue.isEmpty()) {
+            return;
+        }
+        try {
+            this.stopFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw ErrorCreator.createError(e);
+        }
+    }
+
+    public void gracefulExit() {
+        this.stopFuture.complete(null);
+    }
+
     private void invokeConfigInit() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
         Class<?> configClass = loadClass(CONFIGURATION_CLASS_NAME);
@@ -243,6 +284,36 @@ public class BalRuntime extends Runtime {
         String funcName = Utils.encodeFunctionIdentifier("$configureInit");
         Method method = configClass.getDeclaredMethod(funcName, Map.class, String[].class, Path[].class, String.class);
         method.invoke(null, new HashMap<>(), new String[]{}, configDetails.paths, configDetails.configContent);
+    }
+
+    private void handleCallBeforeModuleInit(String functionName) {
+        if (!moduleInitialized) {
+            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION_BEFORE_MODULE_INIT,
+                    functionName);
+        }
+    }
+
+    private void handleAlreadyCalled(boolean isAlreadyCalled, String functionName) {
+        if (isAlreadyCalled) {
+            throw ErrorHelper.getRuntimeException(ErrorCodes.FUNCTION_ALREADY_CALLED, functionName);
+        }
+    }
+
+    public Strand getAndHandleStrand(String functionName) {
+        Strand strand = Scheduler.getStrand();
+        if (strand != null) {
+            return strand;
+        }
+        throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION_BEFORE_MODULE_INIT, functionName);
+    }
+
+    private Strand getAndHandleStrand(BObject object, String methodName) {
+        Strand strand = Scheduler.getStrand();
+        if (strand != null) {
+            return strand;
+        }
+        throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION_BEFORE_MODULE_INIT,
+                object.getOriginalType().getName() + ":" + methodName);
     }
 
     private void validateArgs(BObject object, String methodName) {
@@ -276,20 +347,5 @@ public class BalRuntime extends Runtime {
             className = encodeNonFunctionIdentifier(orgName) + "." + className;
         }
         return className;
-    }
-
-    public void waitOnListeners(boolean listenerDeclarationFound) {
-        if (!listenerDeclarationFound && this.runtimeRegistry.listenerQueue.isEmpty()) {
-            return;
-        }
-        try {
-            this.stopFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw ErrorCreator.createError(e);
-        }
-    }
-
-    public void gracefulExit() {
-        this.stopFuture.complete(null);
     }
 }

@@ -60,7 +60,7 @@ public class RuntimeAPITest extends BaseTest {
     public void testRuntimeAPIsForBalFunctionInvocation() throws BallerinaTestException {
         Path jarPath = Paths.get(testFileLocation, "function_invocation", "target", "bin",
                 "function_invocation.jar").toAbsolutePath();
-        compileJavaSource(jarPath, "targetDir", "RuntimeAPICall.java", "RuntimeAPITestUtils.java");
+        compileJavaSource(jarPath, "targetDir", "RuntimeAPICall.java");
         unzipJarFile(jarPath, "targetDir");
         createExecutableJar("targetDir", "org.ballerinalang.test.runtime.api.RuntimeAPICall");
         Map<String, String> envProperties = new HashMap<>();
@@ -78,6 +78,7 @@ public class RuntimeAPITest extends BaseTest {
         ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
         Map<String, String> env = runProcessBuilder.environment();
         env.putAll(envProperties);
+        runProcessBuilder.redirectErrorStream(true);
         try {
             Process runProcess = runProcessBuilder.start();
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
@@ -101,7 +102,7 @@ public class RuntimeAPITest extends BaseTest {
     public void testBalFunctionInvocationAPINegative() throws BallerinaTestException {
         Path jarPath = Paths.get(testFileLocation, "function_invocation", "target", "bin",
                 "function_invocation.jar").toAbsolutePath();
-        compileJavaSource(jarPath, "target-dir-negative", "RuntimeAPICallNegative.java", "RuntimeAPITestUtils.java");
+        compileJavaSource(jarPath, "target-dir-negative", "RuntimeAPICallNegative.java");
         unzipJarFile(jarPath, "target-dir-negative");
         createExecutableJar("target-dir-negative",
                 "org.ballerinalang.test.runtime.api.RuntimeAPICallNegative");

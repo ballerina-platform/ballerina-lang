@@ -53,7 +53,7 @@ public class ServiceTest {
     }
 
     @Test(expectedExceptions = { BLangTestException.class },
-          expectedExceptionsMessageRegExp = ".*error: startError.*")
+          expectedExceptionsMessageRegExp = ".*startError.*")
     public void testServiceInitPanicNegativeTest() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_init_panic_negative.bal");
         BRunUtil.invoke(compileResult, "test1");

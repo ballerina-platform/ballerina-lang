@@ -50,6 +50,7 @@ public class BMainInstance implements BMain {
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private String agentArgs = "";
     private BalServer balServer;
+    public static final int TIMEOUT = 10000;
 
     private static class StreamGobbler extends Thread {
         private InputStream inputStream;
@@ -171,6 +172,9 @@ public class BMainInstance implements BMain {
     public void runMain(String sourceRoot, String packagePath, String[] flags, String[] args,
                         LogLeecher[] leechers) throws BallerinaTestException {
         runMain(sourceRoot, packagePath, flags, args, null, new String[]{}, leechers);
+        for (LogLeecher leecher : leechers) {
+            leecher.waitForText(TIMEOUT);
+        }
     }
 
     @Override

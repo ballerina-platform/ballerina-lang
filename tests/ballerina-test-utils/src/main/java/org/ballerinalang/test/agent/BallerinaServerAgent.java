@@ -139,7 +139,7 @@ public class BallerinaServerAgent {
      */
     public static void startAgentServer() {
         outStream.println("Starting Ballerina agent on host - " + agentHost + ", port - " + agentPort);
-        new Thread(() -> {
+        Thread.startVirtualThread(() -> {
             try {
                 WebServer ws = new WebServer(agentHost, agentPort);
 
@@ -157,18 +157,18 @@ public class BallerinaServerAgent {
             } catch (Throwable e) {
                 outStream.println("Error initializing agent server, error - " + e.getMessage());
             }
-        }).start();
+        });
         outStream.println("Ballerina agent started on host - " + agentHost + ", port - " + agentPort);
     }
 
     private static void shutdownServer() {
         outStream.println("Shutting down Ballerina server with agent port - " + agentPort);
-        new Thread(() -> Runtime.getRuntime().exit(exitStatus)).start();
+        Thread.startVirtualThread(() -> Runtime.getRuntime().exit(exitStatus));
 
         if (timeout <= 0) {
             return;
         }
-        Thread killThread = new Thread(() -> {
+        Thread.startVirtualThread(() -> {
             long startTime = System.currentTimeMillis();
             long endTime = startTime;
             while (endTime - startTime < timeout) {
@@ -183,15 +183,11 @@ public class BallerinaServerAgent {
                 }
             }
         });
-        killThread.setDaemon(true);
-        killThread.start();
     }
 
     private static void killServer() {
         outStream.println("Killing Ballerina server with agent port - " + agentPort);
-        Thread killThread = new Thread(() -> Runtime.getRuntime().halt(killStatus));
-        killThread.setDaemon(true);
-        killThread.start();
+        Thread.startVirtualThread(() -> Runtime.getRuntime().halt(killStatus));
     }
 
     private static Map<String, String> decodeAgentArgs(final String agentArgs) {

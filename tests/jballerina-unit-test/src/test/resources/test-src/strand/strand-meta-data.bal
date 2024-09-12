@@ -117,8 +117,6 @@ function assertStrandMetadataResult(string assertString) {
         if (typeNameVal is string) {
             typeName = "." + typeNameVal;
         }
-        println("Value - " + org +"/" + modName + ":" + modVersion + typeName + "." + parentFunc + name);
-        println("Expected - " + assertString);
         assertEquality(assertString, org +"/" + modName + ":" + modVersion + typeName + "." + parentFunc + name);
         assertTrue(id > 0);
     } else {
