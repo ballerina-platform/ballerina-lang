@@ -56,7 +56,6 @@ public class PullModuleExecutorTest {
     private Endpoint serviceEndpoint;
 
     private final Gson gson = new Gson();
-    private final JsonParser parser = new JsonParser();
 
     private final Path sourcesDir = new File(getClass().getClassLoader()
             .getResource("command").getFile()).toPath();
@@ -128,7 +127,7 @@ public class PullModuleExecutorTest {
         ExecuteCommandParams params = new ExecuteCommandParams(command, argsList);
         String response = TestUtil.getExecuteCommandResponse(params, this.serviceEndpoint)
                 .replace("\\r\\n", "\\n");
-        JsonObject responseJson = parser.parse(response).getAsJsonObject();
+        JsonObject responseJson = JsonParser.parseString(response).getAsJsonObject();
         responseJson.remove("id");
         return responseJson;
     }

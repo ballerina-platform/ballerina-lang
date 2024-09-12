@@ -57,8 +57,6 @@ public abstract class BallerinaTomlCompletionTest {
     private final Path testRoot = FileUtils.RES_DIR.resolve("toml" + File.separator
             + "ballerina_toml" + File.separator + "completion");
 
-    private final JsonParser parser = new JsonParser();
-
     private final Gson gson = new Gson();
 
     @BeforeClass
@@ -73,7 +71,7 @@ public abstract class BallerinaTomlCompletionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 
         String response = getResponse(configJsonObject);
-        JsonObject json = parser.parse(response).getAsJsonObject();
+        JsonObject json = JsonParser.parseString(response).getAsJsonObject();
         Type collectionType = new TypeToken<List<CompletionItem>>() { }.getType();
         JsonArray resultList = json.getAsJsonObject("result").getAsJsonArray("left");
         List<CompletionItem> responseItemList = gson.fromJson(resultList, collectionType);
