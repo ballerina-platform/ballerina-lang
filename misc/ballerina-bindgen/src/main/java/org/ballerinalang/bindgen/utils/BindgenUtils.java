@@ -103,25 +103,12 @@ public class BindgenUtils {
     }
 
     private static void printOutputFile(String content, String outPath, boolean append) throws BindgenException {
-        PrintWriter writer = null;
-        FileWriterWithEncoding fileWriter = null;
-        try {
-            fileWriter = new FileWriterWithEncoding(outPath, StandardCharsets.UTF_8, append);
-            writer = new PrintWriter(fileWriter);
+        try (FileWriterWithEncoding fileWriter = FileWriterWithEncoding.builder()
+                .setPath(outPath).setCharset(StandardCharsets.UTF_8).setAppend(append).get();
+             PrintWriter writer = new PrintWriter(fileWriter)) {
             writer.println(Formatter.format(content));
-            fileWriter.close();
         } catch (IOException | FormatterException e) {
             throw new BindgenException("error: unable to create the file: " + outPath + " " + e.getMessage(), e);
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
-            if (fileWriter != null) {
-                try {
-                    fileWriter.close();
-                } catch (IOException ignored) {
-                }
-            }
         }
     }
 

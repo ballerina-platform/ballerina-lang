@@ -60,6 +60,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_DEV_CENTRAL;
@@ -146,24 +147,30 @@ public class Utils {
         // <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>/<pkg-version>
 
         try {
-            if (Files.isDirectory(balaCacheWithPkgPath) && Files.list(balaCacheWithPkgPath).findAny().isPresent()) {
-                // update the existing deprecation details
-                Path deprecatedFilePath = balaCacheWithPkgPath.resolve(DEPRECATED_META_FILE_NAME);
-                if (deprecatedFilePath.toFile().exists() && deprecationMsg == null) {
-                    // delete deprecated file if it exists
-                    Files.delete(deprecatedFilePath);
-                } else if (deprecationMsg != null) {
-                    // write deprecation details to the file
-                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(deprecatedFilePath.toFile(),
-                            Charset.defaultCharset()))) {
-                        writer.write(deprecationMsg);
-                    }
+            if (Files.isDirectory(balaCacheWithPkgPath)) {
+                boolean hasChildren;
+                try (Stream<Path> paths = Files.list(balaCacheWithPkgPath)) {
+                    hasChildren = paths.findAny().isPresent();
                 }
+                if (hasChildren) {
+                    // update the existing deprecation details
+                    Path deprecatedFilePath = balaCacheWithPkgPath.resolve(DEPRECATED_META_FILE_NAME);
+                    if (deprecatedFilePath.toFile().exists() && deprecationMsg == null) {
+                        // delete deprecated file if it exists
+                        Files.delete(deprecatedFilePath);
+                    } else if (deprecationMsg != null) {
+                        // write deprecation details to the file
+                        try (BufferedWriter writer = new BufferedWriter(new FileWriter(deprecatedFilePath.toFile(),
+                                Charset.defaultCharset()))) {
+                            writer.write(deprecationMsg);
+                        }
+                    }
 
-                downloadBody.ifPresent(ResponseBody::close);
-                throw new PackageAlreadyExistsException(
-                        logFormatter.formatLog("package already exists in the home repository: " +
-                                balaCacheWithPkgPath.toString()), validPkgVersion);
+                    downloadBody.ifPresent(ResponseBody::close);
+                    throw new PackageAlreadyExistsException(
+                            logFormatter.formatLog("package already exists in the home repository: " +
+                                    balaCacheWithPkgPath.toString()), validPkgVersion);
+                }
             }
         } catch (IOException e) {
             downloadBody.ifPresent(ResponseBody::close);
@@ -459,7 +466,11 @@ public class Utils {
 
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path packageRoot = zipFileSystem.getPath("/");
-            List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).toList();
+            List<Path> paths;
+            try (Stream<Path> pathStream = Files.walk(packageRoot)) {
+                paths = pathStream.filter(path -> path != packageRoot).toList();
+            }
+
             for (Path path : paths) {
                 Path destPath = balaFileDestPath.resolve(packageRoot.relativize(path).toString());
                 // Handle overwriting existing bala

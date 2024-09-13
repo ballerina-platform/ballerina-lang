@@ -68,10 +68,8 @@ public class BaseTestCase {
     @AfterSuite
     public void copyBallerinaExecFiles() {
         List<Path> packageDirs;
-        try {
-            packageDirs = Files.walk(projectBasedTestsPath, 1)
-                    .filter(Files::isDirectory)
-                    .toList();
+        try (Stream<Path> paths = Files.walk(projectBasedTestsPath, 1)) {
+            packageDirs = paths.filter(Files::isDirectory).toList();
             for (Path dir : packageDirs) {
                 try {
                     FileUtils.copyBallerinaExec(dir, "");

@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class BallerinaToDependancyToml {
 
@@ -23,7 +24,9 @@ public class BallerinaToDependancyToml {
         Path dir = Paths.get(System.getProperty("user.dir")).resolve(path);
         PathMatcher pathMatcher = FileSystems.getDefault()
                 .getPathMatcher("glob:**/Ballerina.toml");
-        Files.walk(Paths.get("..")).filter(pathMatcher::matches).forEach(BallerinaToDependancyToml::migrate);
+        try (Stream<Path> paths = Files.walk(Paths.get(".."))) {
+            paths.filter(pathMatcher::matches).forEach(BallerinaToDependancyToml::migrate);
+        }
     }
 
     public static void migrate(Path ballerinaTomlPath) {

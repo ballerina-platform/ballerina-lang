@@ -75,6 +75,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -660,8 +661,9 @@ public class BallerinaDocGenerator {
         Path resourcesDirPath = absolutePkgPath.resolve("resources");
         List<Path> resources = new ArrayList<>();
         if (resourcesDirPath.toFile().exists()) {
-            resources = Files.walk(resourcesDirPath).filter(path -> !path.equals(resourcesDirPath)).collect(Collectors
-                    .toList());
+            try (Stream<Path> paths = Files.walk(resourcesDirPath)) {
+                resources = paths.filter(path -> !path.equals(resourcesDirPath)).toList();
+            }
         }
         return resources;
     }

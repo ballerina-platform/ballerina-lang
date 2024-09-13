@@ -156,13 +156,14 @@ public class HomeBalaRepo implements Repo<Path> {
         Path balaFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr);
         // try to find a compatible bala file
         if (Files.exists(balaFilePath)) {
-            Stream<Path> list = Files.list(balaFilePath);
-            PathMatcher pathMatcher = balaFilePath.getFileSystem()
-                    .getPathMatcher("glob:**/" + pkgName + "-*-" +
-                            platform + "-" + versionStr + ".bala");
-            for (Path file : (Iterable<Path>) list::iterator) {
-                if (pathMatcher.matches(file)) {
-                    return file;
+            try (Stream<Path> list = Files.list(balaFilePath)) {
+                PathMatcher pathMatcher = balaFilePath.getFileSystem()
+                        .getPathMatcher("glob:**/" + pkgName + "-*-" +
+                                platform + "-" + versionStr + ".bala");
+                for (Path file : (Iterable<Path>) list::iterator) {
+                    if (pathMatcher.matches(file)) {
+                        return file;
+                    }
                 }
             }
         }
