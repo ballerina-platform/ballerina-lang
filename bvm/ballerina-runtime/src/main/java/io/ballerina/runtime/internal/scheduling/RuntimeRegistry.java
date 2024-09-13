@@ -18,7 +18,6 @@ package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ObjectValue;
 

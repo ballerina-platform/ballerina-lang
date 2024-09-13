@@ -37,8 +37,8 @@ public class ServerLogReader implements Runnable {
     private final InputStream inputStream;
     private volatile boolean running = true;
     private final Set<LogLeecher> leechers = ConcurrentHashMap.newKeySet();
-    public static final PrintStream out = System.out;
-    public static final PrintStream err = System.err;
+    public final PrintStream out = System.out;
+    public final PrintStream err = System.err;
 
     /**
      * Initialize the reader with reader name and stream to read.

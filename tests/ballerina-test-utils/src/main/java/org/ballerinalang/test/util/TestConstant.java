@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.test.util;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * Constants used in test cases.
  */
