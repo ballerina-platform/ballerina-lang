@@ -116,9 +116,10 @@ public class HttpClientRequest {
         try {
             urlConnection = getURLConnection(endpoint);
             setHeadersAndMethod(urlConnection, headers, TestConstant.HTTP_METHOD_POST);
-            try (OutputStream out = urlConnection.getOutputStream();
-                Writer writer = new OutputStreamWriter(out, TestConstant.CHARSET_NAME)) {
+            try (OutputStream out = urlConnection.getOutputStream()) {
+                Writer writer = new OutputStreamWriter(out, TestConstant.CHARSET_NAME);
                 writer.write(postBody);
+                writer.close();
             }
             return buildResponse(urlConnection);
         } finally {
