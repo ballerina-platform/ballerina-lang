@@ -110,13 +110,11 @@ public class BuildLangLib {
             Files.createDirectories(balaPath);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
 
-            Path balaFilePath;
             try (Stream<Path> paths = Files.list(balaPath)) {
-                balaFilePath = paths.findAny().orElseThrow();
+                Path balaFilePath = paths.findAny().orElseThrow();
+                ProjectUtils.extractBala(balaFilePath, balaPath);
+                Files.delete(balaFilePath);
             }
-            ProjectUtils.extractBala(balaFilePath, balaPath);
-            Files.delete(balaFilePath);
-
 
             // Create zip file
             Path zipFilePath = targetPath.resolve(pkgDesc.name().value() + ".zip");

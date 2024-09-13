@@ -462,13 +462,10 @@ public class Utils {
             }
         }
 
-        try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+        try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>());
+             Stream<Path> pathStream = Files.walk(zipFileSystem.getPath("/"))) {
             Path packageRoot = zipFileSystem.getPath("/");
-            List<Path> paths;
-            try (Stream<Path> pathStream = Files.walk(packageRoot)) {
-                paths = pathStream.filter(path -> path != packageRoot).toList();
-            }
-
+            List<Path> paths = pathStream.filter(path -> path != packageRoot).toList();
             for (Path path : paths) {
                 Path destPath = balaFileDestPath.resolve(packageRoot.relativize(path).toString());
                 // Handle overwriting existing bala
