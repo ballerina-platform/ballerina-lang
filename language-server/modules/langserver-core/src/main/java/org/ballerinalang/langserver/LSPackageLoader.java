@@ -407,12 +407,14 @@ public class LSPackageLoader {
         if (Files.exists(BALLERINA_USER_HOME_INDEX)) {
             LSListenerIndex lsListenerIndex;
             String userHomeIndexFileChecksum = getFileChecksum(BALLERINA_USER_HOME_INDEX.toString());
+            String payload = "";
             boolean indexUpdated = false;
             try {
                 String expectedCheckSum = this.centralPackageDescriptorLoader.getLSPackageIndexChecksum();
                 if (!userHomeIndexFileChecksum.equals(expectedCheckSum)) {
                     // Download the file from the central and load the listeners
-                    lsListenerIndex = this.centralPackageDescriptorLoader.getLSPackageIndex();
+                    payload = this.centralPackageDescriptorLoader.getLSPackageIndex();
+                    lsListenerIndex = new Gson().fromJson(payload, LSListenerIndex.class);
                     indexUpdated = true;
                 } else {
                     lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(BALLERINA_USER_HOME_INDEX),
@@ -420,7 +422,7 @@ public class LSPackageLoader {
                 }
                 cacheListenerMetaData(lsListenerIndex);
                 if (indexUpdated) {
-                    saveLSPackageIndexInBallerinaUserHome(lsListenerIndex);
+                    saveLSPackageIndexInBallerinaUserHome(payload);
                 }
                 return;
             } catch (Exception ignore) {
@@ -428,37 +430,40 @@ public class LSPackageLoader {
         }
         if (Files.exists(BALLERINA_HOME_INDEX)) {
             LSListenerIndex lsListenerIndex;
+            String payload = "";
             String ballerinaHomeIndexFileChecksum = getFileChecksum(BALLERINA_HOME_INDEX.toString());
             try {
                 String expectedCheckSum = this.centralPackageDescriptorLoader.getLSPackageIndexChecksum();
                 if (!ballerinaHomeIndexFileChecksum.equals(expectedCheckSum)) {
                     // Download the file from the central and load the listeners
-                    lsListenerIndex = this.centralPackageDescriptorLoader.getLSPackageIndex();
+                    payload = this.centralPackageDescriptorLoader.getLSPackageIndex();
+                    lsListenerIndex = new Gson().fromJson(payload, LSListenerIndex.class);
                 } else {
                     lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(BALLERINA_HOME_INDEX),
                             LSListenerIndex.class);
                 }
                 cacheListenerMetaData(lsListenerIndex);
-                saveLSPackageIndexInBallerinaUserHome(lsListenerIndex);
+                saveLSPackageIndexInBallerinaUserHome(payload);
             } catch (Exception ignore) {
                 lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(BALLERINA_HOME_INDEX),
                         LSListenerIndex.class);
                 cacheListenerMetaData(lsListenerIndex);
-                saveLSPackageIndexInBallerinaUserHome(lsListenerIndex);
+                saveLSPackageIndexInBallerinaUserHome(payload);
             }
         } else {
             try {
-                LSListenerIndex lsListenerIndex = this.centralPackageDescriptorLoader.getLSPackageIndex();
+                String payload = this.centralPackageDescriptorLoader.getLSPackageIndex();
+                LSListenerIndex lsListenerIndex = new Gson().fromJson(payload, LSListenerIndex.class);
                 cacheListenerMetaData(lsListenerIndex);
-                saveLSPackageIndexInBallerinaUserHome(lsListenerIndex);
+                saveLSPackageIndexInBallerinaUserHome(payload);
             } catch (Exception ignore) {
             }
         }
     }
 
-    private void saveLSPackageIndexInBallerinaUserHome(LSListenerIndex lsListenerIndex) {
+    private void saveLSPackageIndexInBallerinaUserHome(String payload) {
         try (Writer myWriter = new FileWriter(BALLERINA_USER_HOME_INDEX.toFile(), StandardCharsets.UTF_8)) {
-            myWriter.write(new Gson().toJson(lsListenerIndex));
+            myWriter.write(payload);
         } catch (IOException ignored) {
         }
     }

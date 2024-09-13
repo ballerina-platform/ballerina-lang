@@ -1467,7 +1467,7 @@ public class CentralAPIClient {
      * @param ballerinaVersion Ballerina version.
      * @return JSON element containing the LS package index.
      */
-    public JsonElement getLSPackageIndex(String ballerinaVersion) throws CentralClientException {
+    public String getLSPackageIndex(String ballerinaVersion) throws CentralClientException {
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = new OkHttpClient.Builder()
                 .followRedirects(false)
@@ -1495,11 +1495,11 @@ public class CentralAPIClient {
                 MediaType contentType = body.get().contentType();
                 if (contentType != null && isApplicationJsonContentType(contentType.toString()) &&
                         response.code() == HttpsURLConnection.HTTP_OK) {
-                    return new Gson().toJsonTree(body.get().string());
+                    return body.get().string();
                 }
             }
             handleResponseErrors(response, ERR_CANNOT_SEARCH);
-            return new JsonObject();
+            return null;
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_SEARCH + "'. Reason: " + e.getMessage());
         } finally {

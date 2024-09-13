@@ -94,12 +94,11 @@ public class CentralPackageDescriptorLoader {
         return response.checksum;
     }
 
-    public LSPackageLoader.LSListenerIndex getLSPackageIndex() throws Exception {
+    public String getLSPackageIndex() throws Exception {
         Settings settings = RepoUtils.readSettings();
         CentralAPIClient centralAPIClient = new CentralAPIClient(RepoUtils.getDocGenRepoURL(),
                 ProjectUtils.initializeProxy(settings.getProxy()), ProjectUtils.getAccessTokenOfCLI(settings));
-        JsonElement checksumResponse = centralAPIClient.getLSPackageIndex(RepoUtils.getBallerinaVersion());
-        return new Gson().fromJson(checksumResponse.getAsString(), LSPackageLoader.LSListenerIndex.class);
+        return centralAPIClient.getLSPackageIndex(RepoUtils.getBallerinaVersion());
     }
 
     public record ChecksumResponse(String checksum) {
