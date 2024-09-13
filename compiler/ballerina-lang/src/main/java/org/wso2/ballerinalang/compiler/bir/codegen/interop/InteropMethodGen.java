@@ -377,9 +377,9 @@ public class InteropMethodGen {
         BIRBasicBlock thenBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, initMethodGen);
         BIRBasicBlock retBB = new BIRBasicBlock(getNextDesugarBBId(initMethodGen));
         thenBB.terminator = new BIRTerminator.GOTO(birFunc.pos, retBB);
+        BIROperand retRef = new BIROperand(birFunc.localVars.getFirst());
 
         if (JvmCodeGenUtil.getImpliedType(retType).tag != TypeTags.NIL) {
-            BIROperand retRef = new BIROperand(birFunc.localVars.getFirst());
             if (JType.J_VOID != jMethodRetType) {
                 BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(jMethodRetType, new Name("$_ret_jobject_var_$"),
                         null, VarKind.LOCAL);
@@ -392,19 +392,17 @@ public class InteropMethodGen {
                 jToBCast.targetType = retType;
                 thenBB.instructions.add(jToBCast);
             }
-
-            BIRBasicBlock catchBB = new BIRBasicBlock(getNextDesugarBBId(initMethodGen));
-            JErrorEntry ee = new JErrorEntry(beginBB, thenBB, retRef, catchBB);
-            for (Class<?> exception : birFunc.jMethod.getExceptionTypes()) {
-                BIRTerminator.Return exceptionRet = new BIRTerminator.Return(birFunc.pos);
-                CatchIns catchIns = new CatchIns();
-                catchIns.errorClass = exception.getName().replace(".", "/");
-                catchIns.term = exceptionRet;
-                ee.catchIns.add(catchIns);
-            }
-
-            birFunc.errorTable.add(ee);
         }
+        BIRBasicBlock catchBB = new BIRBasicBlock(getNextDesugarBBId(initMethodGen));
+        JErrorEntry ee = new JErrorEntry(beginBB, thenBB, retRef, catchBB);
+        for (Class<?> exception : birFunc.jMethod.getExceptionTypes()) {
+            BIRTerminator.Return exceptionRet = new BIRTerminator.Return(birFunc.pos);
+            CatchIns catchIns = new CatchIns();
+            catchIns.errorClass = exception.getName().replace(".", "/");
+            catchIns.term = exceptionRet;
+            ee.catchIns.add(catchIns);
+        }
+        birFunc.errorTable.add(ee);
 
         // We may be able to use the same instruction rather than two, check later
         if (jMethod.kind == JMethodKind.CONSTRUCTOR) {
