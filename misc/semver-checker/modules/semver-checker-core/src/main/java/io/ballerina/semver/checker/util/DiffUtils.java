@@ -139,10 +139,10 @@ public class DiffUtils {
                 .append(getDiffSign(diff))
                 .append(" ");
 
-        if ((diff instanceof NodeDiff) && ((NodeDiff<?>) diff).getMessage().isPresent()) {
-            sb.append(((NodeDiff<?>) diff).getMessage().get());
-        } else if ((diff instanceof NodeListDiff) && ((NodeListDiff<?>) diff).getMessage().isPresent()) {
-            sb.append(((NodeListDiff<?>) diff).getMessage().get());
+        if ((diff instanceof NodeDiff<?> nodeDiff) && nodeDiff.getMessage().isPresent()) {
+            sb.append(nodeDiff.getMessage().get());
+        } else if ((diff instanceof NodeListDiff<?> nodeListDiff) && nodeListDiff.getMessage().isPresent()) {
+            sb.append(nodeListDiff.getMessage().get());
         } else {
             sb.append(diff.getKind() != null && diff.getKind() != DiffKind.UNKNOWN ? diff.getKind().toString() :
                             getDiffTypeName(diff))
@@ -261,24 +261,24 @@ public class DiffUtils {
     }
 
     private static String getDiffName(Diff diff) {
-        if (diff instanceof PackageDiff) {
-            return getPackageName((PackageDiff) diff);
-        } else if (diff instanceof ModuleDiff) {
-            return getModuleName((ModuleDiff) diff);
-        } else if (diff instanceof FunctionDiff) {
-            return getFunctionName((FunctionDiff) diff);
-        } else if (diff instanceof ServiceDiff) {
-            return getServiceName((ServiceDiff) diff);
-        } else if (diff instanceof ModuleVarDiff) {
-            return getModuleVariableName((ModuleVarDiff) diff);
-        } else if (diff instanceof ModuleConstantDiff) {
-            return getModuleConstantName((ModuleConstantDiff) diff);
-        } else if (diff instanceof ClassDiff) {
-            return getModuleClassName((ClassDiff) diff);
-        } else if (diff instanceof TypeDefinitionDiff) {
-            return getModuleTypeDefName((TypeDefinitionDiff) diff);
-        } else if (diff instanceof EnumDiff) {
-            return getModuleEnumName((EnumDiff) diff);
+        if (diff instanceof PackageDiff packageDiff) {
+            return getPackageName(packageDiff);
+        } else if (diff instanceof ModuleDiff moduleDiff) {
+            return getModuleName(moduleDiff);
+        } else if (diff instanceof FunctionDiff funcDiff) {
+            return getFunctionName(funcDiff);
+        } else if (diff instanceof ServiceDiff serviceDiff) {
+            return getServiceName(serviceDiff);
+        } else if (diff instanceof ModuleVarDiff moduleVarDiff) {
+            return getModuleVariableName(moduleVarDiff);
+        } else if (diff instanceof ModuleConstantDiff moduleConstantDiff) {
+            return getModuleConstantName(moduleConstantDiff);
+        } else if (diff instanceof ClassDiff classDiff) {
+            return getModuleClassName(classDiff);
+        } else if (diff instanceof TypeDefinitionDiff typeDefDiff) {
+            return getModuleTypeDefName(typeDefDiff);
+        } else if (diff instanceof EnumDiff enumDiff) {
+            return getModuleEnumName(enumDiff);
         } else {
             return UNKNOWN;
         }
@@ -302,8 +302,7 @@ public class DiffUtils {
             return "type definition";
         } else if (diff instanceof EnumDiff) {
             return "enum declaration";
-        } else if (diff instanceof FunctionDiff) {
-            FunctionDiff functionDiff = (FunctionDiff) diff;
+        } else if (diff instanceof FunctionDiff functionDiff) {
             if (functionDiff.isResource()) {
                 return "resource function";
             } else if (functionDiff.isRemote()) {
@@ -337,8 +336,7 @@ public class DiffUtils {
             return " ".repeat(6);
         } else if (diff instanceof ObjectFieldDiff) {
             return " ".repeat(6);
-        } else if (diff instanceof FunctionDiff) {
-            FunctionDiff functionDiff = (FunctionDiff) diff;
+        } else if (diff instanceof FunctionDiff functionDiff) {
             if (functionDiff.isResource()) {
                 return " ".repeat(6);
             } else if (functionDiff.isRemote()) {

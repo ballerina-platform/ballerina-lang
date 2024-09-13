@@ -311,7 +311,8 @@ public class FileUtils {
                     Files.write(path, content.getBytes(StandardCharsets.UTF_8));
                 }
             } catch (IOException e) {
-                throw new RuntimeException("Error while replacing template name in module import statements: " + path, e);
+                throw new RuntimeException(
+                        "Error while replacing template name in module import statements: " + path, e);
             }
         }
     }

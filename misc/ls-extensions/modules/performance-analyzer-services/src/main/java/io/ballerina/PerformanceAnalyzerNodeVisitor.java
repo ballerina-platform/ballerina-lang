@@ -241,9 +241,8 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
             ifElseStatementNode.elseBody().ifPresent(elseBody -> elseBody.accept(returnFinder));
         }
         Node ifBodyNodeNextNode = ifBodyNode.getNextNode();
-        if ((ifBodyNodeNextNode instanceof IfStatementNode) && returnFinder.isHasReturn()
+        if ((ifBodyNodeNextNode instanceof IfStatementNode ifBodyNextNode) && returnFinder.isHasReturn()
                 && returnFinder.isHasNestedIfElse() && withinRange) {
-            IfStatementNode ifBodyNextNode = (IfStatementNode) ifBodyNodeNextNode;
             ReturningIfStatementNode returningIfStatementNode =
                     new ReturningIfStatementNode(ifBodyNextNode.getIfBody(), ifBodyNextNode.getElseBody(), true);
             ifStatementNode.setIfBody(returningIfStatementNode);

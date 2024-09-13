@@ -130,8 +130,8 @@ public class XmlText extends XmlNonElementItem {
         if (o instanceof XmlText rhsXMLText) {
             return this.getTextValue().equals(rhsXMLText.getTextValue());
         }
-        return this.getType() == PredefinedTypes.TYPE_XML_NEVER && (o instanceof XmlSequence) &&
-                ((XmlSequence) o).getChildrenList().isEmpty();
+        return this.getType() == PredefinedTypes.TYPE_XML_NEVER && (o instanceof XmlSequence xmlSequence) &&
+                xmlSequence.getChildrenList().isEmpty();
     }
 
     @Override

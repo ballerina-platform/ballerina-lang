@@ -28,6 +28,8 @@ import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -82,10 +84,12 @@ public class LauncherUtils {
 
     public static BLauncherException createLauncherException(String errorPrefix, Throwable cause) {
         String message;
-        if (cause instanceof BError) {
-            message = ((BError) cause).getPrintableStackTrace();
+        if (cause instanceof BError bError) {
+            message = bError.getPrintableStackTrace();
         } else {
-            message = cause.toString();
+            StringWriter sw = new StringWriter();
+            cause.printStackTrace(new PrintWriter(sw));
+            message = sw.toString();
         }
         BLauncherException launcherException = new BLauncherException();
         launcherException.addMessage("error: " + errorPrefix + message);

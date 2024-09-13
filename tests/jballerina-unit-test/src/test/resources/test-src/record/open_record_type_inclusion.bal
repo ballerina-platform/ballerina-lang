@@ -289,9 +289,158 @@ function testDefaultValuesOfRecordFieldsWithTypeInclusion() {
     assertEquality(30, info1.age);
 }
 
+type Inner record {|
+    int foo;
+|};
+
+type Outer record {|
+    Inner inner?;
+|};
+
+isolated int count = 0;
+
+isolated function getDefaultInner() returns Inner {
+    lock {
+        count += 1;
+    }
+    return {foo: 10};
+}
+
+type OuterXBase record {
+    Inner inner = getDefaultInner();
+};
+
+type OuterX record {|
+    *OuterXBase;
+|};
+
+type OuterXOpenRecord record {|
+    *OuterXBase;
+    Inner...;
+|};
+
+type InnerOpenRec record {|
+    Inner...;
+|};
+
+type OuterXAlsoClosed record {|
+    *OuterXBase;
+    never...;
+|};
+
+type EffectivelyCloseRecord record {|
+    *OuterXBase;
+    record {|
+        never bar;
+    |}...;
+|};
+
+isolated function testDefaultValueFromInclusion() {
+    Outer o = {};
+    OuterX ox = {...o};
+    assertEquality(ox.inner.foo, 10);
+    lock {
+        assertEquality(1, count);
+    }
+    Outer o1 = {inner: {foo: 20}};
+    OuterX ox1 = {...o1};
+    assertEquality(20, ox1.inner.foo);
+    lock {
+        assertEquality(1, count);
+    }
+    map<Inner> innerMap = {};
+    OuterX ox2 = {...innerMap};
+    assertEquality(10, ox2.inner.foo);
+    lock {
+        assertEquality(2, count);
+    }
+
+    map<Inner> innerMap1 = {inner: {foo: 20}};
+    OuterX ox3 = {...innerMap1};
+    assertEquality(20, ox3.inner.foo);
+    lock {
+        assertEquality(2, count);
+    }
+
+    InnerOpenRec innerMap2 = {"inner": {foo: 20}};
+
+    OuterX ox4 = {...innerMap2};
+    assertEquality(20, ox4.inner.foo);
+    lock {
+        assertEquality(2, count);
+    }
+
+    OuterXOpenRecord ox5 = {...innerMap2};
+    assertEquality(20, ox5.inner.foo);
+    lock {
+        assertEquality(2, count);
+    }
+
+    OuterXOpenRecord ox6 = {...o};
+    assertEquality(10, ox6.inner.foo);
+    lock {
+        assertEquality(3, count);
+    }
+
+    OuterXAlsoClosed oxx = {...o};
+    assertEquality(oxx.inner.foo, 10);
+    lock {
+        assertEquality(4, count);
+    }
+    OuterXAlsoClosed oxx1 = {...o1};
+    assertEquality(20, oxx1.inner.foo);
+    lock {
+        assertEquality(4, count);
+    }
+
+    OuterX ox7 = {};
+    assertEquality(ox7.inner.foo, 10);
+    lock {
+        assertEquality(5, count);
+    }
+
+    OuterX ox8 = {inner: {foo: 20}};
+    assertEquality(ox8.inner.foo, 20);
+    lock {
+        assertEquality(5, count);
+    }
+
+    EffectivelyCloseRecord ecr = {...o};
+    assertEquality(ecr.inner.foo, 10);
+    lock {
+        assertEquality(6, count);
+    }
+
+    EffectivelyCloseRecord ecr1 = {...o1};
+    assertEquality(ecr1.inner.foo, 20);
+    lock {
+        assertEquality(6, count);
+    }
+}
+
+type Data record {
+    string id = fn();
+    string name;
+};
+
+type OpenData record {|
+    string name;
+    string...;
+|};
+
+isolated function fn() returns string {
+    panic error("shouldn't be called");
+}
+
+public function testSpreadOverrideDefault() {
+    OpenData or = {name: "May", "id": "A1234"};
+    Data emp = {...or};
+    assertEquality("A1234", emp.id);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
-function assertEquality(any|error expected, any|error actual) {
+isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
     }

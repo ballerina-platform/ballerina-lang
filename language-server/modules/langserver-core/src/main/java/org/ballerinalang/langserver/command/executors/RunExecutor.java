@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 
 /**
  * Command executor for running a Ballerina file. Each project at most has a single instance running at a time.
- * See {@link org.ballerinalang.langserver.command.executors.StopExecutor} for stopping a running instance.
+ * See {@link StopExecutor} for stopping a running instance.
  *
  * @since 2201.6.0
  */

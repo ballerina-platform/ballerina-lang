@@ -651,13 +651,11 @@ class BIRTestUtils {
         assertFlags(typeInfo.typeFlag(), expectedValue.flags);
         KaitaiStruct typeStructure = typeInfo.typeStructure();
 
-        if (typeStructure instanceof Bir.TypeObjectOrService) {
-            Bir.TypeObjectOrService objectOrService = (Bir.TypeObjectOrService) typeStructure;
+        if (typeStructure instanceof Bir.TypeObjectOrService objectOrService) {
             BTypeIdSet expTypeIdSet = ((BObjectType) expectedValue.tsymbol.type).typeIdSet;
             Bir.TypeId actualTypeIdSet = objectOrService.typeIds();
             assertDistinctTypeIds(expTypeIdSet, actualTypeIdSet, constantPoolEntry._parent());
-        } else if (typeStructure instanceof Bir.TypeError) {
-            Bir.TypeError errorType = (Bir.TypeError) typeStructure;
+        } else if (typeStructure instanceof Bir.TypeError errorType) {
             BTypeIdSet expTypeIdSet = ((BErrorType) expectedValue.tsymbol.type).typeIdSet;
             Bir.TypeId actualTypeIdSet = errorType.typeIds();
             assertDistinctTypeIds(expTypeIdSet, actualTypeIdSet, constantPoolEntry._parent());
@@ -670,14 +668,12 @@ class BIRTestUtils {
         Assert.assertEquals(actualTypeIdSet.secondaryTypeIdCount(), expTypeIdSet.getSecondary().size());
 
         ArrayList<Bir.TypeIdSet> primaryTypeId = actualTypeIdSet.primaryTypeId();
-        for (int i = 0; i < primaryTypeId.size(); i++) {
-            Bir.TypeIdSet typeId = primaryTypeId.get(i);
+        for (Bir.TypeIdSet typeId : primaryTypeId) {
             Assert.assertTrue(containsTypeId(typeId, expTypeIdSet.getPrimary(), constantPoolSet));
         }
 
         ArrayList<Bir.TypeIdSet> secondaryTypeId = actualTypeIdSet.secondaryTypeId();
-        for (int i = 0; i < secondaryTypeId.size(); i++) {
-            Bir.TypeIdSet typeId = secondaryTypeId.get(i);
+        for (Bir.TypeIdSet typeId : secondaryTypeId) {
             Assert.assertTrue(containsTypeId(typeId, expTypeIdSet.getSecondary(), constantPoolSet));
         }
     }

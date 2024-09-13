@@ -191,9 +191,9 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         } else if (node.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qnRefNode = (QualifiedNameReferenceNode) node;
             return Optional.of(qnRefNode.modulePrefix().text() + ":" + qnRefNode.identifier().text());
-        } else if (node instanceof BuiltinSimpleNameReferenceNode) {
+        } else if (node instanceof BuiltinSimpleNameReferenceNode refNode) {
             // This case occurs with constant declarations with types
-            return Optional.of(((BuiltinSimpleNameReferenceNode) node).name().text());
+            return Optional.of(refNode.name().text());
         }
         return Optional.empty();
     }

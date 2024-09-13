@@ -360,8 +360,8 @@ public class TypeChecker {
             return TYPE_STRING;
         } else if (value instanceof Boolean) {
             return TYPE_BOOLEAN;
-        } else if (value instanceof BObject) {
-            return ((BObject) value).getOriginalType();
+        } else if (value instanceof BObject bObject) {
+            return bObject.getOriginalType();
         }
 
         return ((BValue) value).getType();
@@ -469,8 +469,8 @@ public class TypeChecker {
                 return lhsType.getPackage().equals(rhsType.getPackage()) &&
                         lhsType.getName().equals(rhsType.getName()) && rhsType.equals(lhsType);
             default:
-                if (lhsValue instanceof RegExpValue && rhsValue instanceof RegExpValue) {
-                    return ((RegExpValue) lhsValue).equals(rhsValue, new HashSet<>());
+                if (lhsValue instanceof RegExpValue lhsRegExpValue && rhsValue instanceof RegExpValue) {
+                    return lhsRegExpValue.equals(rhsValue, new HashSet<>());
                 }
                 return false;
         }
@@ -525,8 +525,8 @@ public class TypeChecker {
         if (isSimpleBasicType(type)) {
             return new TypedescValueImpl(new BFiniteType(value.toString(), Set.of(value), 0));
         }
-        if (value instanceof BRefValue) {
-            return (TypedescValue) ((BRefValue) value).getTypedesc();
+        if (value instanceof BRefValue bRefValue) {
+            return (TypedescValue) bRefValue.getTypedesc();
         }
         return new TypedescValueImpl(type);
     }
@@ -540,10 +540,10 @@ public class TypeChecker {
      */
     public static Object getAnnotValue(TypedescValue typedescValue, BString annotTag) {
         Type describingType = typedescValue.getDescribingType();
-        if (!(describingType instanceof BAnnotatableType)) {
+        if (!(describingType instanceof BAnnotatableType annotatableType)) {
             return null;
         }
-        return ((BAnnotatableType) describingType).getAnnotation(annotTag);
+        return annotatableType.getAnnotation(annotTag);
     }
 
     /**
@@ -2540,10 +2540,10 @@ public class TypeChecker {
 
     static boolean isCharLiteralValue(Object object) {
         String value;
-        if (object instanceof BString) {
-            value = ((BString) object).getValue();
-        } else if (object instanceof String) {
-            value = (String) object;
+        if (object instanceof BString bString) {
+            value = bString.getValue();
+        } else if (object instanceof String s) {
+            value = s;
         } else {
             return false;
         }
@@ -2552,11 +2552,10 @@ public class TypeChecker {
 
     private static boolean checkIsLikeArrayType(Object sourceValue, BArrayType targetType,
                                                 List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        if (!(sourceValue instanceof ArrayValue)) {
+        if (!(sourceValue instanceof ArrayValue source)) {
             return false;
         }
 
-        ArrayValue source = (ArrayValue) sourceValue;
         Type targetTypeElementType = targetType.getElementType();
         if (source.getType().getTag() == TypeTags.ARRAY_TAG) {
             Type sourceElementType = ((BArrayType) source.getType()).getElementType();
@@ -2606,11 +2605,11 @@ public class TypeChecker {
 
     private static boolean checkIsLikeMapType(Object sourceValue, BMapType targetType,
                                               List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        if (!(sourceValue instanceof MapValueImpl)) {
+        if (!(sourceValue instanceof MapValueImpl sourceMapValue)) {
             return false;
         }
 
-        for (Object mapEntry : ((MapValueImpl) sourceValue).values()) {
+        for (Object mapEntry : sourceMapValue.values()) {
             if (!checkIsLikeType(null, mapEntry, targetType.getConstrainedType(), unresolvedValues,
                     allowNumericConversion, null)) {
                 return false;
@@ -2620,11 +2619,11 @@ public class TypeChecker {
     }
 
     private static boolean checkIsLikeStreamType(Object sourceValue, BStreamType targetType) {
-        if (!(sourceValue instanceof StreamValue)) {
+        if (!(sourceValue instanceof StreamValue streamValue)) {
             return false;
         }
 
-        BStreamType streamType = (BStreamType) ((StreamValue) sourceValue).getType();
+        BStreamType streamType = (BStreamType) streamValue.getType();
 
         return streamType.getConstrainedType() == targetType.getConstrainedType();
     }
@@ -2687,7 +2686,7 @@ public class TypeChecker {
     private static boolean checkIsLikeRecordType(Object sourceValue, BRecordType targetType,
                                                  List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
                                                  String varName, List<String> errors) {
-        if (!(sourceValue instanceof MapValueImpl)) {
+        if (!(sourceValue instanceof MapValueImpl sourceMapValue)) {
             return false;
         }
 
@@ -2710,7 +2709,7 @@ public class TypeChecker {
             String fieldNameLong = TypeConverter.getLongFieldName(varName, fieldName);
             Field targetField = targetType.getFields().get(fieldName);
 
-            if (!(((MapValueImpl) sourceValue).containsKey(StringUtils.fromString(fieldName))) &&
+            if (!(sourceMapValue.containsKey(StringUtils.fromString(fieldName))) &&
                     !SymbolFlags.isFlagOn(targetField.getFlags(), SymbolFlags.OPTIONAL)) {
                 addErrorMessage((errors == null) ? 0 : errors.size(), "missing required field '" + fieldNameLong +
                         "' of type '" + targetField.getFieldType().toString() + "' in record '" + targetType + "'",
@@ -2722,7 +2721,7 @@ public class TypeChecker {
             }
         }
 
-        for (Object object : ((MapValueImpl) sourceValue).entrySet()) {
+        for (Object object : sourceMapValue.entrySet()) {
             Map.Entry valueEntry = (Map.Entry) object;
             String fieldName = valueEntry.getKey().toString();
             String fieldNameLong = TypeConverter.getLongFieldName(varName, fieldName);
@@ -2767,10 +2766,9 @@ public class TypeChecker {
 
     private static boolean checkIsLikeTableType(Object sourceValue, BTableType targetType,
                                                 List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        if (!(sourceValue instanceof TableValueImpl)) {
+        if (!(sourceValue instanceof TableValueImpl tableValue)) {
             return false;
         }
-        TableValueImpl tableValue = (TableValueImpl) sourceValue;
         BTableType sourceType = (BTableType) getImpliedType(tableValue.getType());
         if (targetType.getKeyType() != null && sourceType.getFieldNames().length == 0) {
             return false;
@@ -3008,8 +3006,8 @@ public class TypeChecker {
                         ((BTypeReferenceType) lhsValType).getReferredType(), rhsValType);
             case TypeTags.SERVICE_TAG:
             default:
-                if (lhsValue instanceof RegExpValue) {
-                    return ((RegExpValue) lhsValue).equals(rhsValue, checkedValues);
+                if (lhsValue instanceof RegExpValue lhsRegExpValue) {
+                    return lhsRegExpValue.equals(rhsValue, checkedValues);
                 }
                 return false;
         }

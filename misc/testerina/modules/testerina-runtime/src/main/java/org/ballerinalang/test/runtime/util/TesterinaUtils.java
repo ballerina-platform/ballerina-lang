@@ -130,9 +130,9 @@ public class TesterinaUtils {
     private static void startSuite(Class<?> initClazz, String[] args) {
         // Call test module main
         Object response = runTestModuleMain(initClazz, args, String[].class);
-        if (response instanceof Throwable) {
+        if (response instanceof Throwable throwable) {
             throw new BallerinaTestException("dependant module execution for test suite failed due to " +
-                    RuntimeUtils.formatErrorMessage((Throwable) response), (Throwable) response);
+                    RuntimeUtils.formatErrorMessage(throwable), throwable);
         }
     }
 
@@ -328,8 +328,7 @@ public class TesterinaUtils {
         }
     }
 
-    public static List<org.ballerinalang.test.runtime.entity.Test> getSingleExecutionTestsOld(
-            List<org.ballerinalang.test.runtime.entity.Test> currentTests, List<String> functions) {
+    public static List<Test> getSingleExecutionTestsOld(List<Test> currentTests, List<String> functions) {
         return Collections.emptyList();
     }
 

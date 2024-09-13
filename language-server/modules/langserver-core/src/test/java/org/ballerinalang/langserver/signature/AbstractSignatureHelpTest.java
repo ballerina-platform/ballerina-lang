@@ -49,8 +49,6 @@ public abstract class AbstractSignatureHelpTest {
 
     private Endpoint serviceEndpoint;
 
-    private JsonParser parser = new JsonParser();
-
     private Path testRoot = new File(getClass().getClassLoader().getResource("signature").getFile()).toPath();
 
     private static final Logger log = LoggerFactory.getLogger(AbstractSignatureHelpTest.class);
@@ -70,7 +68,7 @@ public abstract class AbstractSignatureHelpTest {
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
         expected.remove("id");
         String response = this.getSignatureResponse(configJsonObject, sourcePath).replace("\\r\\n", "\\n");
-        JsonObject responseJson = parser.parse(response).getAsJsonObject();
+        JsonObject responseJson = JsonParser.parseString(response).getAsJsonObject();
         responseJson.remove("id");
         boolean result = expected.equals(responseJson);
         if (!result) {

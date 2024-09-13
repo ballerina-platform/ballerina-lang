@@ -20,6 +20,7 @@ package io.ballerina.shell.utils;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
@@ -85,8 +86,7 @@ public class StringUtils {
      * @param diagnostic   Diagnostic to show.
      * @return The string with position highlighted.
      */
-    public static String highlightDiagnostic(TextDocument textDocument,
-                                             io.ballerina.tools.diagnostics.Diagnostic diagnostic) {
+    public static String highlightDiagnostic(TextDocument textDocument, Diagnostic diagnostic) {
         LineRange lineRange = diagnostic.location().lineRange();
         LinePosition startLine = lineRange.startLine();
         LinePosition endLine = lineRange.endLine();
@@ -159,8 +159,8 @@ public class StringUtils {
      * @return Converted string.
      */
     public static String getErrorStringValue(Throwable error) {
-        if (error instanceof BError) {
-            return ((BError) error).getErrorMessage() + " " + ((BError) error).getDetails();
+        if (error instanceof BError bError) {
+            return bError.getErrorMessage() + " " + bError.getDetails();
         }
         return error.getMessage();
     }

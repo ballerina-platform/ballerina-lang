@@ -84,8 +84,8 @@ public class ErrorUtils {
     }
 
     public static Object handleResourceError(Object returnValue) {
-        if (returnValue instanceof BError) {
-            throw (BError) returnValue;
+        if (returnValue instanceof BError error) {
+            throw error;
         }
         return returnValue;
     }

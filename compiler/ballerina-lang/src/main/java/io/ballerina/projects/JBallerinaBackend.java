@@ -79,7 +79,6 @@ import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getConflictingResourcesMsg;
-import static io.ballerina.projects.util.ProjectUtils.getResourcesPath;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 
@@ -163,6 +162,9 @@ public class JBallerinaBackend extends CompilerBackend {
         // collect compilation diagnostics
         List<Diagnostic> moduleDiagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
+            if (shrink) {
+                ModuleContext.shrinkDocuments(moduleContext);
+            }
             if (moduleContext.moduleId().packageId().equals(packageContext.packageId())) {
                 if (packageCompilation.diagnosticResult().hasErrors()) {
                     for (Diagnostic diagnostic : moduleContext.diagnostics()) {
@@ -185,9 +187,6 @@ public class JBallerinaBackend extends CompilerBackend {
                 }
             }
 
-            if (shrink) {
-                ModuleContext.shrinkDocuments(moduleContext);
-            }
             if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
                 moduleContext.cleanBLangPackage();
             }
@@ -724,7 +723,6 @@ public class JBallerinaBackend extends CompilerBackend {
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
                     "-H:Path=" + executableFilePath.getParent(),
-                    "-H:IncludeResources=" + getResourcesPath(),
                     "--no-fallback"));
         }
 

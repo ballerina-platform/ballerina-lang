@@ -241,7 +241,7 @@ public class DocumentationGenerator {
         if (metadata != null && !metadata.annotations().isEmpty()) {
             docStart = PositionUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
-        io.ballerina.compiler.syntax.tree.Node typeDesc = typeDefNode.typeDescriptor();
+        Node typeDesc = typeDefNode.typeDescriptor();
         String desc = String.format("Description.%n");
         LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
         switch (typeDesc.kind()) {
@@ -312,7 +312,7 @@ public class DocumentationGenerator {
         boolean hasDeprecated = false;
         if (metadata != null && !metadata.annotations().isEmpty()) {
             for (AnnotationNode annotationNode : metadata.annotations()) {
-                io.ballerina.compiler.syntax.tree.Node annotReference = annotationNode.annotReference();
+                Node annotReference = annotationNode.annotReference();
                 if (annotReference.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
                         "deprecated".equals(((SimpleNameReferenceNode) annotReference).name().text())) {
                     hasDeprecated = true;
@@ -325,11 +325,11 @@ public class DocumentationGenerator {
         // Resource function path parameters
         if (!resourceNodes.isEmpty()) {
             resourceNodes.forEach(param-> {
-                if (param instanceof ResourcePathParameterNode) {
+                if (param instanceof ResourcePathParameterNode resourcePathParameterNode) {
                     Optional<Token> paramName = Optional.empty();
                     if (param.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM
                             || param.kind() == SyntaxKind.RESOURCE_PATH_REST_PARAM) {
-                        paramName = Optional.ofNullable(((ResourcePathParameterNode) param).paramName().orElse(null));
+                        paramName = Optional.ofNullable(resourcePathParameterNode.paramName().orElse(null));
                     }
                     paramName.ifPresent(token -> parameters.put(token.text(), "parameter description"));
                 } 

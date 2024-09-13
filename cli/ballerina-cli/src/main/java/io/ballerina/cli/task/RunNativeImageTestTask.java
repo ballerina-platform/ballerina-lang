@@ -65,7 +65,6 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TESTS_CACHE_DIR_NAME;
-import static io.ballerina.projects.util.ProjectUtils.getResourcesPath;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.CACHE_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTERINA_TEST_SUITE;
@@ -284,7 +283,7 @@ public class RunNativeImageTestTask implements Task {
                     }
                 } catch (IOException e) {
                     TestUtils.cleanTempCache(project, cachesRoot);
-                    throw createLauncherException("error occurred while running tests", e);
+                    throw createLauncherException("error occurred while running tests: ", e);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -356,9 +355,8 @@ public class RunNativeImageTestTask implements Task {
         nativeArgs.addAll(Lists.of("-cp", classPath));
 
         if (currentPackage.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            String[] splittedArray = currentPackage.project().sourceRoot().toString().
-                    replace(ProjectConstants.BLANG_SOURCE_EXT, "").split("/");
-            packageName = splittedArray[splittedArray.length - 1];
+            packageName = currentPackage.project().sourceRoot().getFileName().toString()
+                            .replace(ProjectConstants.BLANG_SOURCE_EXT, "");
             validateResourcesWithinJar(testSuiteMap, packageName);
         } else if (testSuiteMap.size() == 1) {
             packageName = (testSuiteMap.values().toArray(new TestSuite[0])[0]).getPackageID();
@@ -369,9 +367,6 @@ public class RunNativeImageTestTask implements Task {
         nativeArgs.add("-H:Name=" + NativeUtils.addQuotationMarkToString(packageName));
         nativeArgs.add("-H:Path=" + NativeUtils.convertWinPathToUnixFormat(NativeUtils
                 .addQuotationMarkToString(nativeTargetPath.toString())));
-
-        // Add resources
-        nativeArgs.add("-H:IncludeResources=" + getResourcesPath());
 
         // native-image configs
         nativeArgs.add("-H:ReflectionConfigurationFiles=" + NativeUtils

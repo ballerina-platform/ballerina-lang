@@ -138,10 +138,10 @@ public class Generator {
                     if (classDefinition.visibilityQualifier().isPresent() && classDefinition.visibilityQualifier().get()
                             .kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
                         BClass cls = getClassModel((ClassDefinitionNode) node, semanticModel, module);
-                        if (cls instanceof Client) {
-                            module.clients.add((Client) cls);
-                        } else if (cls instanceof Listener) {
-                            module.listeners.add((Listener) cls);
+                        if (cls instanceof Client client) {
+                            module.clients.add(client);
+                        } else if (cls instanceof Listener listener) {
+                            module.listeners.add(listener);
                         } else {
                             module.classes.add(cls);
                         }
@@ -632,8 +632,7 @@ public class Generator {
                 optionalMetadataNode, semanticModel, module);
 
         for (Node member : typeDescriptorNode.members()) {
-            if (member instanceof MethodDeclarationNode) {
-                MethodDeclarationNode methodNode = (MethodDeclarationNode) member;
+            if (member instanceof MethodDeclarationNode methodNode) {
                 if (containsToken(methodNode.qualifierList(), SyntaxKind.PUBLIC_KEYWORD) ||
                         containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD) ||
                         containsToken(methodNode.qualifierList(), SyntaxKind.RESOURCE_KEYWORD)) {
@@ -682,8 +681,8 @@ public class Generator {
                 }
             } else if (member instanceof TypeReferenceNode) {
                 Type originType = Type.fromNode(member, semanticModel, module);
-                if (originType instanceof ObjectType) {
-                    includedFunctions.addAll(mapFunctionTypesToFunctions(((ObjectType) originType).functionTypes,
+                if (originType instanceof ObjectType objectType) {
+                    includedFunctions.addAll(mapFunctionTypesToFunctions(objectType.functionTypes,
                             originType));
                 }
             }
@@ -797,8 +796,7 @@ public class Generator {
         List<DefaultableVariable> variables = new ArrayList<>();
         for (int i = 0; i < nodeList.size(); i++) {
             Node node = nodeList.get(i);
-            if (node instanceof RecordFieldWithDefaultValueNode) {
-                RecordFieldWithDefaultValueNode recordField = (RecordFieldWithDefaultValueNode) node;
+            if (node instanceof RecordFieldWithDefaultValueNode recordField) {
                 String name = recordField.fieldName().text();
                 String doc = getDocFromMetadata(recordField.metadata());
                 if (doc.isEmpty()) {
@@ -813,8 +811,7 @@ public class Generator {
                     defaultableVariable.isReadOnly = true;
                 }
                 variables.add(defaultableVariable);
-            } else if (node instanceof RecordFieldNode) {
-                RecordFieldNode recordField = (RecordFieldNode) node;
+            } else if (node instanceof RecordFieldNode recordField) {
                 String name = recordField.fieldName().text();
                 String doc = getDocFromMetadata(recordField.metadata());
                 if (doc.isEmpty()) {
@@ -838,8 +835,7 @@ public class Generator {
                 } else if (!originType.memberTypes.isEmpty()) {
                     variables.add(new DefaultableVariable(originType));
                 }
-            } else if (node instanceof ObjectFieldNode) {
-                ObjectFieldNode objectField = (ObjectFieldNode) node;
+            } else if (node instanceof ObjectFieldNode objectField) {
                 if (objectField.visibilityQualifier().isPresent() && objectField.visibilityQualifier().get().kind()
                         .equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     String name = objectField.fieldName().text();
@@ -859,15 +855,13 @@ public class Generator {
                             extractAnnotationAttachmentsFromMetadataNode(semanticModel, objectField.metadata()));
                     variables.add(defaultableVariable);
                 }
-            } else if (node instanceof RequiredParameterNode) {
-                RequiredParameterNode requiredParameter = (RequiredParameterNode) node;
+            } else if (node instanceof RequiredParameterNode requiredParameter) {
                 String paramName = requiredParameter.paramName().isPresent() ?
                         requiredParameter.paramName().get().text() : "";
                 Type type = Type.fromNode(requiredParameter.typeName(), semanticModel, module);
                 variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
                         optionalMetadataNode), isDeprecated(requiredParameter.annotations()), type, ""));
-            } else if (node instanceof DefaultableParameterNode) {
-                DefaultableParameterNode defaultableParameter = (DefaultableParameterNode) node;
+            } else if (node instanceof DefaultableParameterNode defaultableParameter) {
                 String paramName = defaultableParameter.paramName().isPresent() ?
                         defaultableParameter.paramName().get().text() : "";
                 Type type = Type.fromNode(defaultableParameter.typeName(), semanticModel, module);
@@ -876,8 +870,7 @@ public class Generator {
                         type, defaultableParameter.expression().toString(),
                         extractAnnotationAttachmentsFromAnnotations(semanticModel,
                                 defaultableParameter.annotations())));
-            } else if (node instanceof RestParameterNode) {
-                RestParameterNode restParameter = (RestParameterNode) node;
+            } else if (node instanceof RestParameterNode restParameter) {
                 String paramName = restParameter.paramName().isPresent() ?
                         restParameter.paramName().get().text() : "";
                 Type type = new Type(paramName);
@@ -885,8 +878,7 @@ public class Generator {
                 type.elementType = Type.fromNode(restParameter.typeName(), semanticModel, module);
                 variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
                         optionalMetadataNode), false, type, ""));
-            } else if (node instanceof IncludedRecordParameterNode) {
-                IncludedRecordParameterNode includedRecord = (IncludedRecordParameterNode) node;
+            } else if (node instanceof IncludedRecordParameterNode includedRecord) {
                 String paramName = includedRecord.paramName().isPresent() ?
                         includedRecord.paramName().get().text() : "";
                 Type type = Type.fromNode(includedRecord.typeName(), semanticModel, module);
@@ -971,16 +963,15 @@ public class Generator {
                 (MarkdownDocumentationNode) optionalMetadataNode.get().documentationString().get() : null;
         if (docLines != null) {
             for (Node docLine : docLines.documentationLines()) {
-                if (docLine instanceof MarkdownDocumentationLineNode) {
-                    String docLineString = getDocLineString(((MarkdownDocumentationLineNode) docLine).
-                            documentElements());
+                if (docLine instanceof MarkdownDocumentationLineNode markdownDocLine) {
+                    String docLineString = getDocLineString(markdownDocLine.documentElements());
                     if (docLineString.startsWith(DOC_HEADER_PREFIX)) {
                         break;
                     }
-                    doc.append(!((MarkdownDocumentationLineNode) docLine).documentElements().isEmpty() ?
-                            getDocLineString(((MarkdownDocumentationLineNode) docLine).documentElements()) : "\n");
-                } else if (docLine instanceof MarkdownCodeBlockNode) {
-                    doc.append(getDocCodeBlockString((MarkdownCodeBlockNode) docLine));
+                    doc.append(!markdownDocLine.documentElements().isEmpty() ?
+                            getDocLineString(markdownDocLine.documentElements()) : "\n");
+                } else if (docLine instanceof MarkdownCodeBlockNode markdownCodeBlock) {
+                    doc.append(getDocCodeBlockString(markdownCodeBlock));
                 } else {
                     break;
                 }
@@ -1001,18 +992,16 @@ public class Generator {
         if (docLines != null) {
             boolean lookForMoreLines = false;
             for (Node docLine : docLines.documentationLines()) {
-                if (docLine instanceof MarkdownParameterDocumentationLineNode) {
-                    if (((MarkdownParameterDocumentationLineNode) docLine).parameterName().text()
+                if (docLine instanceof MarkdownParameterDocumentationLineNode markdownParamDocLine) {
+                    if (markdownParamDocLine.parameterName().text()
                             .equals(parameterName)) {
-                        parameterDoc.append(getDocLineString(((MarkdownParameterDocumentationLineNode) docLine)
-                                .documentElements()));
+                        parameterDoc.append(getDocLineString(markdownParamDocLine.documentElements()));
                         lookForMoreLines = true;
                     } else {
                         lookForMoreLines = false;
                     }
-                } else if (lookForMoreLines && docLine instanceof MarkdownDocumentationLineNode) {
-                    String docLineString = getDocLineString(((MarkdownDocumentationLineNode) docLine)
-                            .documentElements());
+                } else if (lookForMoreLines && docLine instanceof MarkdownDocumentationLineNode markdownDocLine) {
+                    String docLineString = getDocLineString(markdownDocLine.documentElements());
                     if (!docLineString.isEmpty()) {
                         parameterDoc.append(docLineString);
                     } else {
@@ -1037,9 +1026,8 @@ public class Generator {
             StringBuilder sectionDoc = new StringBuilder();
             boolean lookForMoreLines = false;
             for (Node docLine : docLines.documentationLines()) {
-                if (docLine instanceof MarkdownDocumentationLineNode) {
-                    String docLineString = getDocLineString(((MarkdownDocumentationLineNode) docLine)
-                            .documentElements());
+                if (docLine instanceof MarkdownDocumentationLineNode markdownDocLine) {
+                    String docLineString = getDocLineString(markdownDocLine.documentElements());
                     if (!docLineString.isEmpty()) {
                         if (docLineString.startsWith(DOC_HEADER_PREFIX)) {
                             sectionDoc = new StringBuilder();

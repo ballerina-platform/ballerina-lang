@@ -19,9 +19,11 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -44,8 +46,7 @@ public class RunCommandTest extends BaseCommandTest {
     private Path testResources;
     private Path testDistCacheDirectory;
     private ProjectEnvironmentBuilder projectEnvironmentBuilder;
-    static Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-            "log_creator_combined_plugin/compiler-plugin.txt");
+    static Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
 
     @BeforeSuite
     public void setupSuite() throws IOException {
@@ -297,8 +298,7 @@ public class RunCommandTest extends BaseCommandTest {
     @Test(description = "Run a ballerina project with the engagement of all type of compiler plugins",
             dataProvider = "optimizeDependencyCompilation")
     public void testRunBalProjectWithAllCompilerPlugins(Boolean optimizeDependencyCompilation) throws IOException {
-        Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-                "log_creator_combined_plugin/compiler-plugin.txt");
+        Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
         Files.createDirectories(logFile.getParent());
         Files.writeString(logFile, "");
         Path compilerPluginPath = Paths.get("./src/test/resources/test-resources").resolve("compiler-plugins");
@@ -362,8 +362,8 @@ public class RunCommandTest extends BaseCommandTest {
         Path projectPath = dumpGraphResourcePath.resolve("package_a");
         System.setProperty("user.dir", projectPath.toString());
 
-        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-        System.setOut(new java.io.PrintStream(out));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(out));
 
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
         new CommandLine(runCommand).parseArgs("--dump-graph");
