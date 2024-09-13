@@ -84,7 +84,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     implementation 'io.netty:netty-buffer'
-    implementation 'org.slf4j:slf4j-jdk14'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl'
     implementation 'com.google.code.findbugs:jsr305'
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j'
     implementation 'com.h2database:h2'

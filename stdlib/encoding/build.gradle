@@ -27,7 +27,7 @@ dependencies {
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-java')
 
-    testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile 'org.apache.logging.log4j:log4j-slf4j-impl'
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(':ballerina-test-utils')

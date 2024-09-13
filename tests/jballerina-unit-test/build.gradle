@@ -49,7 +49,7 @@ dependencies {
     implementation 'org.testng:testng'
     testCompile 'org.awaitility:awaitility'
     testCompile 'com.zaxxer:HikariCP'
-    testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile 'org.apache.logging.log4j:log4j-slf4j-impl'
     testCompile 'org.hsqldb:hsqldb'
     testCompile 'org.mockito:mockito-all'
     testCompile 'io.netty:netty-transport'
