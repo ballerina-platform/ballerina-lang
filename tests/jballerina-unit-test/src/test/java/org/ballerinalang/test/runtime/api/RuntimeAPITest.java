@@ -66,13 +66,18 @@ public class RuntimeAPITest {
     public void testRecordNoStrandDefaultValue() {
         CompileResult strandResult = BCompileUtil.compile("test-src/runtime/api/no_strand");
         Package currentPackage = strandResult.project().currentPackage();
-        final BalRuntime runtime = new BalRuntime(new Module(currentPackage.packageOrg().value(),
-                currentPackage.packageName().value(), currentPackage.packageVersion().toString()));
+        Module module = new Module(currentPackage.packageOrg().value(), currentPackage.packageName().value(), "1");
+        final BalRuntime runtime = new BalRuntime(module);
         AtomicReference<Throwable> exceptionRef = new AtomicReference<>();
-        Thread thread1 = Thread.ofVirtual().unstarted(() -> BRunUtil.call(strandResult, "main"));
+        Thread thread1 = Thread.ofVirtual().unstarted(() -> {
+            try {
+                BRunUtil.invoke(strandResult,"main");
+            } catch (Throwable e) {
+                exceptionRef.set(e);
+            }});
         Thread thread2 = Thread.ofVirtual().unstarted(() -> {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(2000);
                 BMap<BString, Object> recordValue = ValueCreator.createRecordValue(new Module("testorg",
                         "no_strand", "1"), "MutualSslHandshake");
                 Assert.assertEquals(recordValue.getType().getName(), "MutualSslHandshake");
