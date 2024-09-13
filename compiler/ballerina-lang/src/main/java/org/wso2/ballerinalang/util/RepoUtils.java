@@ -61,9 +61,9 @@ public class RepoUtils {
     private static final String PRODUCTION_GRAPHQL_URL = "https://api.central.ballerina.io/2.0/graphql";
     private static final String STAGING_GRAPHQL_URL = "https://api.staging-central.ballerina.io/2.0/graphql";
     private static final String DEV_GRAPHQL_URL = "https://api.dev-central.ballerina.io/2.0/graphql";
-    private static final String DOC_GEN_PRODUCTION_URL = "https://localhost:4040/docs";
-    private static final String DOC_GEN_STAGING_URL = "https://localhost:4040/docs";
-    private static final String DOC_GEN_DEV_URL = "https://localhost:4040/docs";
+    private static final String DOC_GEN_PRODUCTION_URL = "https://api.central.ballerina.io/2.0/docs";
+    private static final String DOC_GEN_STAGING_URL = "https://api.staging-central.ballerina.io/2.0/docs";
+    private static final String DOC_GEN_DEV_URL = "https://api.dev-central.ballerina.io/2.0/docs";
 
     private static final String BALLERINA_ORG = "ballerina";
     private static final String BALLERINAX_ORG = "ballerinax";

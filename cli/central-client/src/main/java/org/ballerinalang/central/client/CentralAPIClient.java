@@ -125,10 +125,9 @@ public class CentralAPIClient {
     private static final String RESOLVE_MODULES = "resolve-modules";
     private static final String DEPRECATE = "deprecate";
     private static final String UN_DEPRECATE = "undeprecate";
-    private static final String DOCS = "docs";
     private static final String LS_INDEX = "ls-index";
     private static final String CHECKSUM = "checksum";
-    private static final String BAL_VERSION = "bal_version";
+    private static final String BAL_VERSION = "balVersion";
     private static final String PACKAGE_PATH_PREFIX = SEPARATOR + PACKAGES + SEPARATOR;
     private static final String TOOL_PATH_PREFIX = SEPARATOR + TOOLS + SEPARATOR;
     private static final String CONNECTOR_PATH_PREFIX = SEPARATOR + CONNECTORS + SEPARATOR;
@@ -1429,7 +1428,7 @@ public class CentralAPIClient {
                 .build();
 
         try {
-            String resourceUrl = this.baseUrl + SEPARATOR + DOCS + SEPARATOR + LS_INDEX + SEPARATOR + CHECKSUM;
+            String resourceUrl = this.baseUrl + SEPARATOR + LS_INDEX + SEPARATOR + CHECKSUM;
             HttpUrl.Builder httpUrl = Objects.requireNonNull(HttpUrl.parse(resourceUrl).newBuilder());
             httpUrl.addQueryParameter(BAL_VERSION, ballerinaVersion);
             Request request = getNewRequest(ANY_PLATFORM, ballerinaVersion)
@@ -1480,7 +1479,7 @@ public class CentralAPIClient {
                 .build();
 
         try {
-            String resourceUrl = this.baseUrl + SEPARATOR + DOCS + SEPARATOR + LS_INDEX;
+            String resourceUrl = this.baseUrl + SEPARATOR + LS_INDEX;
             HttpUrl.Builder httpUrl = Objects.requireNonNull(HttpUrl.parse(resourceUrl).newBuilder());
             httpUrl.addQueryParameter(BAL_VERSION, ballerinaVersion);
             Request request = getNewRequest(ANY_PLATFORM, ballerinaVersion)
