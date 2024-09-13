@@ -52,7 +52,7 @@ public class QueryWithClosuresTest {
                 "testClosuresInQueryInLet",
                 "testClosuresInNestedQueryInSelect",
                 "testClosuresInNestedQueryInSelect2",
-//                "testClosureInQueryActionInDo2" #39760
+                "testClosureInQueryActionInDo2",
                 "testClosureInQueryActionInDo3",
                 "testClosureInQueryActionInDo4",
                 "testClosureInQueryActionInDo5",
