@@ -74,6 +74,7 @@ dependencies {
     // Third party jars
     // config
     dist 'org.apache.logging.log4j:log4j-slf4j-impl:2.12.4'
+    dist 'org.apache.logging.log4j:log4j-1.2-api:2.2'
     dist 'org.slf4j:slf4j-api:1.7.22'
     dist 'com.moandjiezana.toml:toml4j:0.7.2'
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
