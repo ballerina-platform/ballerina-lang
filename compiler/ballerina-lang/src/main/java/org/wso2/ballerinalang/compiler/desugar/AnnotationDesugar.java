@@ -220,7 +220,7 @@ public class AnnotationDesugar {
             }
 
             SymbolEnv classEnv = SymbolEnv.createClassEnv(classDef, scope, env);
-            BLangLambdaFunction lambdaFunction = defineAnnotations(pos, classDef, pkgNode, classEnv, pkgID,
+            BLangLambdaFunction lambdaFunction = defineAnnotations(classDef, pkgNode, classEnv, pkgID,
                     owner);
             if (lambdaFunction != null) {
                 BType type = classDef.getBType();
@@ -379,27 +379,28 @@ public class AnnotationDesugar {
         return String.format("%d", Objects.hash(serviceName, moduleId, lineRange));
     }
 
-    private BLangLambdaFunction defineAnnotations(Location pos, BLangClassDefinition classDef, BLangPackage pkgNode,
+    private BLangLambdaFunction defineAnnotations(BLangClassDefinition classDef, BLangPackage pkgNode,
                                                   SymbolEnv env, PackageID pkgID, BSymbol owner) {
         BLangFunction function = null;
         BLangRecordLiteral mapLiteral = null;
         boolean isLocalObjectCtor = classDef.flagSet.contains(Flag.OBJECT_CTOR);
         if (!classDef.annAttachments.isEmpty()) {
-            function = defineFunction(pos, pkgID, owner);
-            mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType);
-            addAnnotsToLiteral(classDef.annAttachments, mapLiteral, pos, env, isLocalObjectCtor);
+            Location annotPos = classDef.annAttachments.get(0).pos;
+            function = defineFunction(annotPos, pkgID, owner);
+            mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(annotPos, symTable.mapType);
+            addAnnotsToLiteral(classDef.annAttachments, mapLiteral, annotPos, env, isLocalObjectCtor);
         }
 
         for (BLangSimpleVariable field : classDef.fields) {
             BLangLambdaFunction paramAnnotLambda =
-                    defineAnnotations(field.annAttachments, pos, pkgNode, env, pkgID, owner, isLocalObjectCtor);
+                    defineAnnotations(field.annAttachments, pkgNode, env, pkgID, owner, isLocalObjectCtor);
             if (paramAnnotLambda == null) {
                 continue;
             }
 
             if (function == null) {
-                function = defineFunction(pos, pkgID, owner);
-                mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType);
+                function = defineFunction(paramAnnotLambda.pos, pkgID, owner);
+                mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(paramAnnotLambda.pos, symTable.mapType);
             }
 
             String fieldName = FIELD + DOT + field.name.value;
@@ -473,7 +474,7 @@ public class AnnotationDesugar {
                     || typeNode.getKind() == NodeKind.TUPLE_TYPE_NODE) {
                 lambdaFunction = defineAnnotations(typeDef, pkgNode, typeEnv, pkgID, owner);
             } else {
-                lambdaFunction = defineAnnotations(typeDef, typeDef.pos, pkgNode, typeEnv, pkgID, owner);
+                lambdaFunction = defineAnnotations(getAnnotationList(typeDef), pkgNode, env, pkgID, owner, false);
             }
 
             if (lambdaFunction != null) {
@@ -562,11 +563,6 @@ public class AnnotationDesugar {
         }
     }
 
-    private BLangLambdaFunction defineAnnotations(AnnotatableNode node, Location location,
-                                                  BLangPackage pkgNode, SymbolEnv env, PackageID pkgID, BSymbol owner) {
-        return defineAnnotations(getAnnotationList(node), location, pkgNode, env, pkgID, owner, false);
-    }
-
     private List<BLangAnnotationAttachment> getAnnotationList(AnnotatableNode node) {
         return node.getAnnotationAttachments().stream()
                 .map(annotAttachment -> (BLangAnnotationAttachment) annotAttachment)
@@ -574,7 +570,6 @@ public class AnnotationDesugar {
     }
 
     private BLangLambdaFunction defineAnnotations(List<BLangAnnotationAttachment> annAttachments,
-                                                  Location location,
                                                   BLangPackage pkgNode,
                                                   SymbolEnv env,
                                                   PackageID pkgID,
@@ -583,10 +578,11 @@ public class AnnotationDesugar {
             return null;
         }
 
-        BLangFunction function = defineFunction(location, pkgID, owner);
+        Location pos = annAttachments.get(0).pos;
+        BLangFunction function = defineFunction(pos, pkgID, owner);
         BLangRecordLiteral mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(function, function.symbol.scope, env);
-        addAnnotsToLiteral(annAttachments, mapLiteral, location, funcEnv, isLocalObjectCtor);
+        addAnnotsToLiteral(annAttachments, mapLiteral, pos, funcEnv, isLocalObjectCtor);
 
         if (mapLiteral.fields.isEmpty()) {
             return null;
@@ -601,7 +597,7 @@ public class AnnotationDesugar {
         BLangRecordLiteral mapLiteral = null;
 
         if (!typeDef.annAttachments.isEmpty()) {
-            function = defineFunction(typeDef.pos, pkgID, owner);
+            function = defineFunction(typeDef.annAttachments.get(0).pos, pkgID, owner);
             mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
             addAnnotsToLiteral(typeDef.annAttachments, mapLiteral, typeDef.pos, env, false);
         }
@@ -612,11 +608,11 @@ public class AnnotationDesugar {
             fields = ((BLangStructureTypeNode) typeDef.typeNode).fields;
         }
         for (BLangSimpleVariable field : fields) {
-            BLangLambdaFunction paramAnnotLambda = defineAnnotations(field.annAttachments, field.pos, pkgNode, env,
+            BLangLambdaFunction paramAnnotLambda = defineAnnotations(field.annAttachments, pkgNode, env,
                                                                      pkgID, owner, false);
             if (paramAnnotLambda != null) {
                 if (function == null) {
-                    function = defineFunction(typeDef.pos, pkgID, owner);
+                    function = defineFunction(paramAnnotLambda.pos, pkgID, owner);
                     mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
                 }
 
@@ -641,7 +637,7 @@ public class AnnotationDesugar {
         boolean annotFunctionDefined = false;
 
         for (BLangSimpleVariable field : fields) {
-            BLangLambdaFunction fieldAnnotLambda = defineAnnotations(field.annAttachments, field.pos, pkgNode, env,
+            BLangLambdaFunction fieldAnnotLambda = defineAnnotations(field.annAttachments, pkgNode, env,
                                                                      pkgID, owner, false);
             if (fieldAnnotLambda != null) {
                 BInvokableSymbol invokableSymbol =
@@ -649,7 +645,7 @@ public class AnnotationDesugar {
                                                               owner.getKind() == SymbolKind.PACKAGE);
                 env.scope.define(invokableSymbol.name, invokableSymbol);
                 if (!annotFunctionDefined) {
-                    function = defineFunction(pos, pkgID, owner);
+                    function = defineFunction(fieldAnnotLambda.pos, pkgID, owner);
                     mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
                     annotFunctionDefined = true;
                 }
@@ -675,18 +671,18 @@ public class AnnotationDesugar {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(bLangFunction, bLangFunction.symbol.scope, env);
 
         if (!bLangFunction.annAttachments.isEmpty()) {
-            function = defineFunction(bLangFunction.pos, pkgID, owner);
+            function = defineFunction(bLangFunction.annAttachments.get(0).pos, pkgID, owner);
             mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
             addAnnotsToLiteral(bLangFunction.annAttachments, mapLiteral, bLangFunction.pos, funcEnv, false);
             annotFunctionDefined = true;
         }
 
         for (BLangSimpleVariable param : getParams(bLangFunction)) {
-            BLangLambdaFunction paramAnnotLambda = defineAnnotations(param.annAttachments, param.pos, pkgNode, funcEnv,
+            BLangLambdaFunction paramAnnotLambda = defineAnnotations(param.annAttachments, pkgNode, funcEnv,
                                                                      pkgID, owner, false);
             if (paramAnnotLambda != null) {
                 if (!annotFunctionDefined) {
-                    function = defineFunction(bLangFunction.pos, pkgID, owner);
+                    function = defineFunction(paramAnnotLambda.pos, pkgID, owner);
                     mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
                     annotFunctionDefined = true;
                 }
@@ -698,12 +694,12 @@ public class AnnotationDesugar {
 
         if (!bLangFunction.returnTypeAnnAttachments.isEmpty()) {
             if (!annotFunctionDefined) {
-                function = defineFunction(bLangFunction.pos, pkgID, owner);
+                function = defineFunction(bLangFunction.returnTypeAnnAttachments.get(0).pos, pkgID, owner);
                 mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
                 annotFunctionDefined = true;
             }
 
-            BLangFunction retFunction = defineFunction(bLangFunction.pos, pkgID, owner);
+            BLangFunction retFunction = defineFunction(function.pos, pkgID, owner);
             BLangRecordLiteral retMapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
             addAnnotsToLiteral(bLangFunction.returnTypeAnnAttachments, retMapLiteral, bLangFunction.pos, funcEnv,
                                false);
@@ -870,7 +866,7 @@ public class AnnotationDesugar {
                 // };
                 // // Adds
                 // { ..., v1: true, ... }
-                addTrueAnnot(attachments.get(annotationSymbol).get(0), mapLiteral, isLocalObjectCtor);
+                addTrueAnnot(attachments.get(annotationSymbol).get(0), mapLiteral);
             } else if (Types.getImpliedType(attachedType).tag != TypeTags.ARRAY) {
                 // annotation FooRecord v1 on type; OR annotation map<anydata> v1 on type;
                 // @v1 {
@@ -881,7 +877,7 @@ public class AnnotationDesugar {
                 // };
                 // // Adds
                 // { ..., v1: { value: 1 }, ... }
-                addSingleAnnot(attachments.get(annotationSymbol).get(0), mapLiteral, isLocalObjectCtor);
+                addSingleAnnot(attachments.get(annotationSymbol).get(0), mapLiteral);
             } else {
                 // annotation FooRecord[] v1 on type; OR annotation map<anydata>[] v1 on type;
                 // @v1 {
@@ -932,8 +928,7 @@ public class AnnotationDesugar {
         return annotationMap;
     }
 
-    private void addTrueAnnot(BLangAnnotationAttachment attachment, BLangRecordLiteral recordLiteral,
-                              boolean isLocalObjectCtor) {
+    private void addTrueAnnot(BLangAnnotationAttachment attachment, BLangRecordLiteral recordLiteral) {
         // Handle scenarios where type is a subtype of `true` explicitly or implicitly (by omission).
         // add { ..., v1: true, ... }
         BLangExpression expression = ASTBuilderUtil.wrapToConversionExpr(symTable.trueType,
@@ -944,8 +939,7 @@ public class AnnotationDesugar {
         addAnnotValueToLiteral(recordLiteral, attachment.annotationSymbol.bvmAlias(), expression, attachment.pos);
     }
 
-    private void addSingleAnnot(BLangAnnotationAttachment attachment, BLangRecordLiteral recordLiteral,
-                                boolean isLocalObjectCtor) {
+    private void addSingleAnnot(BLangAnnotationAttachment attachment, BLangRecordLiteral recordLiteral) {
         // Handle scenarios where type is a subtype of `map<any|error>` or `record{any|error...;}`.
         // create: add { ..., v1: { value: 1 } ... } or { ..., v1: C1 ... } where C1 is a constant reference
         addAnnotValueToLiteral(recordLiteral, attachment.annotationSymbol.bvmAlias(), attachment.expr, attachment.pos);
