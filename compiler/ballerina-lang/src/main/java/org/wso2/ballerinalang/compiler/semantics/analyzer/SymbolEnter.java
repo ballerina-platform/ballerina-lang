@@ -1439,20 +1439,18 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isTypeConstructorAvailable(NodeKind unresolvedType) {
-        switch (unresolvedType) {
-            case OBJECT_TYPE:
-            case RECORD_TYPE:
-            case CONSTRAINED_TYPE:
-            case ARRAY_TYPE:
-            case TUPLE_TYPE_NODE:
-            case TABLE_TYPE:
-            case ERROR_TYPE:
-            case FUNCTION_TYPE:
-            case STREAM_TYPE:
-                return true;
-            default:
-                return false;
-        }
+        return switch (unresolvedType) {
+            case OBJECT_TYPE,
+                 RECORD_TYPE,
+                 CONSTRAINED_TYPE,
+                 ARRAY_TYPE,
+                 TUPLE_TYPE_NODE,
+                 TABLE_TYPE,
+                 ERROR_TYPE,
+                 FUNCTION_TYPE,
+                 STREAM_TYPE -> true;
+            default -> false;
+        };
     }
 
     private void checkErrorsOfUserDefinedType(SymbolEnv env, BLangNode unresolvedType,
@@ -1886,19 +1884,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         BTypeSymbol typeDefSymbol;
         BType newTypeNode;
 
-        switch (typeDef.typeNode.getKind()) {
-            case TUPLE_TYPE_NODE:
+        typeDefSymbol = switch (typeDef.typeNode.getKind()) {
+            case TUPLE_TYPE_NODE -> {
                 newTypeNode = new BTupleType(null, new ArrayList<>(), true);
-                typeDefSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(typeDef.flagSet),
+                yield Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(typeDef.flagSet),
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
-                break;
-            default:
+            }
+            default -> {
                 newTypeNode = BUnionType.create(null, new LinkedHashSet<>(), true);
-                typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
+                yield Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
-        }
+            }
+        };
         typeDef.symbol = typeDefSymbol;
         defineTypeInMainScope(typeDefSymbol, typeDef, env);
         newTypeNode.tsymbol = typeDefSymbol;

@@ -236,31 +236,21 @@ public final class DiffUtils {
      * @param diff diff type
      */
     private static String getDiffSign(Diff diff) {
-        switch (diff.getType()) {
-            case NEW:
-                return "[++]";
-            case REMOVED:
-                return "[--]";
-            case MODIFIED:
-                return "[+-]";
-            case UNKNOWN:
-            default:
-                return "[??]";
-        }
+        return switch (diff.getType()) {
+            case NEW -> "[++]";
+            case REMOVED -> "[--]";
+            case MODIFIED -> "[+-]";
+            default -> "[??]";
+        };
     }
 
     private static String getDiffVerb(Diff diff) {
-        switch (diff.getType()) {
-            case NEW:
-                return "added";
-            case REMOVED:
-                return "removed";
-            case MODIFIED:
-                return "modified";
-            case UNKNOWN:
-            default:
-                return "?";
-        }
+        return switch (diff.getType()) {
+            case NEW -> "added";
+            case REMOVED -> "removed";
+            case MODIFIED -> "modified";
+            default -> "?";
+        };
     }
 
     private static String getDiffName(Diff diff) {

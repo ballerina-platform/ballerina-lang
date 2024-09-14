@@ -293,18 +293,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             return putValue(key, value);
         }
 
-        String errMessage = "";
-        switch (getImpliedType(getType()).getTag()) {
-            case TypeTags.RECORD_TYPE_TAG:
-                errMessage = "Invalid update of record field: ";
-                break;
-            case TypeTags.MAP_TAG:
-                errMessage = "Invalid map insertion: ";
-                break;
-        }
+        String errMessage = switch (getImpliedType(getType()).getTag()) {
+            case TypeTags.RECORD_TYPE_TAG -> "Invalid update of record field: ";
+            case TypeTags.MAP_TAG -> "Invalid map insertion: ";
+            default -> "";
+        };
         throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                       StringUtils
-                                                .fromString(errMessage).concat(ErrorHelper.getErrorMessage(
+                                       StringUtils.fromString(errMessage).concat(ErrorHelper.getErrorMessage(
                                                   INVALID_READONLY_VALUE_UPDATE)));
     }
 

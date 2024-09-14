@@ -55,15 +55,12 @@ public final class PackageUtils {
     public static Package loadPackage(Path filePath) throws SemverToolException {
         try {
             Project project = PackageUtils.loadProject(filePath);
-            switch (project.kind()) {
-                case BUILD_PROJECT:
-                case BALA_PROJECT:
-                    return project.currentPackage();
-                case SINGLE_FILE_PROJECT:
-                    throw new SemverToolException("semver checker tool is not applicable for single file projects.");
-                default:
-                    throw new SemverToolException("semver checker tool is not applicable for " + project.kind().name());
-            }
+            return switch (project.kind()) {
+                case BUILD_PROJECT,
+                     BALA_PROJECT -> project.currentPackage();
+                case SINGLE_FILE_PROJECT -> throw new SemverToolException(
+                        "semver checker tool is not applicable for single file projects.");
+            };
         } catch (ProjectException e) {
             throw new SemverToolException(String.format("failed to load Ballerina package at: '%s'%sreason: %s",
                     filePath.toAbsolutePath(), System.lineSeparator(), e.getMessage()));

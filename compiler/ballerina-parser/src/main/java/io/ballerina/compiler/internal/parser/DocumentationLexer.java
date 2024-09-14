@@ -63,46 +63,34 @@ public class DocumentationLexer extends AbstractLexer {
      */
     @Override
     public STToken nextToken() {
-        STToken token;
-        switch (this.mode) {
-            case DOC_LINE_START_HASH:
+        STToken token = switch (this.mode) {
+            case DOC_LINE_START_HASH -> {
                 processLeadingTrivia();
-                token = readDocLineStartHashToken();
-                break;
-            case DOC_LINE_DIFFERENTIATOR:
+                yield readDocLineStartHashToken();
+            }
+            case DOC_LINE_DIFFERENTIATOR -> {
                 processLeadingTrivia();
-                token = readDocLineDifferentiatorToken();
-                break;
-            case DOC_INTERNAL:
-                token = readDocInternalToken();
-                break;
-            case DOC_PARAMETER:
+                yield readDocLineDifferentiatorToken();
+            }
+            case DOC_INTERNAL -> readDocInternalToken();
+            case DOC_PARAMETER -> {
                 processLeadingTrivia();
-                token = readDocParameterToken();
-                break;
-            case DOC_REFERENCE_TYPE:
+                yield readDocParameterToken();
+            }
+            case DOC_REFERENCE_TYPE -> {
                 processLeadingTrivia();
-                token = readDocReferenceTypeToken();
-                break;
-            case DOC_SINGLE_BACKTICK_CONTENT:
-                token = readSingleBacktickContentToken();
-                break;
-            case DOC_DOUBLE_BACKTICK_CONTENT:
-                token = readCodeContent(2);
-                break;
-            case DOC_TRIPLE_BACKTICK_CONTENT:
-                token = readCodeContent(3);
-                break;
-            case DOC_CODE_REF_END:
-                token = readCodeReferenceEndToken();
-                break;
-            case DOC_CODE_LINE_START_HASH:
+                yield readDocReferenceTypeToken();
+            }
+            case DOC_SINGLE_BACKTICK_CONTENT -> readSingleBacktickContentToken();
+            case DOC_DOUBLE_BACKTICK_CONTENT -> readCodeContent(2);
+            case DOC_TRIPLE_BACKTICK_CONTENT -> readCodeContent(3);
+            case DOC_CODE_REF_END -> readCodeReferenceEndToken();
+            case DOC_CODE_LINE_START_HASH -> {
                 processLeadingTrivia();
-                token = readCodeLineStartHashToken();
-                break;
-            default:
-                token = null;
-        }
+                yield readCodeLineStartHashToken();
+            }
+            default -> null;
+        };
 
         // Can we improve this logic by creating the token with diagnostics then and there?
         return cloneWithDiagnostics(token);
@@ -134,13 +122,10 @@ public class DocumentationLexer extends AbstractLexer {
      * Check whether a given char is a possible identifier start.
      */
     private boolean isPossibleIdentifierStart(int startChar) {
-        switch (startChar) {
-            case LexerTerminals.SINGLE_QUOTE:
-            case LexerTerminals.BACKSLASH:
-                return true;
-            default:
-                return isIdentifierInitialChar(startChar);
-        }
+        return switch (startChar) {
+            case LexerTerminals.SINGLE_QUOTE, LexerTerminals.BACKSLASH -> true;
+            default -> isIdentifierInitialChar(startChar);
+        };
     }
 
     /**
@@ -753,29 +738,21 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken processReferenceType() {
         String tokenText = getLexeme();
-        switch (tokenText) {
-            case LexerTerminals.TYPE:
-                return getDocSyntaxToken(SyntaxKind.TYPE_DOC_REFERENCE_TOKEN);
-            case LexerTerminals.SERVICE:
-                return getDocSyntaxToken(SyntaxKind.SERVICE_DOC_REFERENCE_TOKEN);
-            case LexerTerminals.VARIABLE:
-                return getDocSyntaxToken(SyntaxKind.VARIABLE_DOC_REFERENCE_TOKEN);
-            case LexerTerminals.VAR:
-                return getDocSyntaxToken(SyntaxKind.VAR_DOC_REFERENCE_TOKEN);
-            case LexerTerminals.ANNOTATION:
-                return getDocSyntaxToken(SyntaxKind.ANNOTATION_DOC_REFERENCE_TOKEN);
-            case LexerTerminals.MODULE:
-                return getDocSyntaxToken(SyntaxKind.MODULE_DOC_REFERENCE_TOKEN);
-            case LexerTerminals.FUNCTION:
-                return getDocSyntaxToken(SyntaxKind.FUNCTION_DOC_REFERENCE_TOKEN);
-            case LexerTerminals.PARAMETER:
-                return getDocSyntaxToken(SyntaxKind.PARAMETER_DOC_REFERENCE_TOKEN);
-            case LexerTerminals.CONST:
-                return getDocSyntaxToken(SyntaxKind.CONST_DOC_REFERENCE_TOKEN);
-            default:
+        return switch (tokenText) {
+            case LexerTerminals.TYPE -> getDocSyntaxToken(SyntaxKind.TYPE_DOC_REFERENCE_TOKEN);
+            case LexerTerminals.SERVICE -> getDocSyntaxToken(SyntaxKind.SERVICE_DOC_REFERENCE_TOKEN);
+            case LexerTerminals.VARIABLE -> getDocSyntaxToken(SyntaxKind.VARIABLE_DOC_REFERENCE_TOKEN);
+            case LexerTerminals.VAR -> getDocSyntaxToken(SyntaxKind.VAR_DOC_REFERENCE_TOKEN);
+            case LexerTerminals.ANNOTATION -> getDocSyntaxToken(SyntaxKind.ANNOTATION_DOC_REFERENCE_TOKEN);
+            case LexerTerminals.MODULE -> getDocSyntaxToken(SyntaxKind.MODULE_DOC_REFERENCE_TOKEN);
+            case LexerTerminals.FUNCTION -> getDocSyntaxToken(SyntaxKind.FUNCTION_DOC_REFERENCE_TOKEN);
+            case LexerTerminals.PARAMETER -> getDocSyntaxToken(SyntaxKind.PARAMETER_DOC_REFERENCE_TOKEN);
+            case LexerTerminals.CONST -> getDocSyntaxToken(SyntaxKind.CONST_DOC_REFERENCE_TOKEN);
+            default -> {
                 assert false : "Invalid reference type";
-                return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
-        }
+                yield getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
+            }
+        };
     }
 
     /*

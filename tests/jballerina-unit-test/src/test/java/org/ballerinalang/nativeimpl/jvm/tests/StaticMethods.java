@@ -161,33 +161,23 @@ public final class StaticMethods {
     }
 
     public static Object acceptIntUnionReturn(int flag) {
-        switch (flag) {
-            case 1:
-                return 25;
-            case 2:
-                return StringUtils.fromString("sample value return");
-            case 3:
-                return 54.88;
-            case 4:
-                return null;
-            case 5:
-                return ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-            default:
-                return true;
-        }
+        return switch (flag) {
+            case 1 -> 25;
+            case 2 -> StringUtils.fromString("sample value return");
+            case 3 -> 54.88;
+            case 4 -> null;
+            case 5 -> ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
+            default -> true;
+        };
     }
 
     public static Object acceptIntAnyReturn(int flag) {
-        switch (flag) {
-            case 1:
-                return 25;
-            case 2:
-                return "sample value return";
-            case 3:
-                return 54.88;
-            default:
-                return true;
-        }
+        return switch (flag) {
+            case 1 -> 25;
+            case 2 -> "sample value return";
+            case 3 -> 54.88;
+            default -> true;
+        };
     }
 
     public static Object acceptNothingInvalidAnydataReturn() {
@@ -343,16 +333,12 @@ public final class StaticMethods {
 
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
             throws JavaInteropTestCheckedException {
-        switch (flag) {
-            case 1:
-                return 25;
-            case 2:
-                return "sample value return";
-            case 3:
-                return 54.88;
-            default:
-                return true;
-        }
+        return switch (flag) {
+            case 1 -> 25;
+            case 2 -> "sample value return";
+            case 3 -> 54.88;
+            default -> true;
+        };
     }
 
     public static ObjectValue acceptObjectAndObjectReturnWhichThrowsCheckedException(ObjectValue p, int newVal)
@@ -605,17 +591,14 @@ public final class StaticMethods {
     public static Object acceptAndReturnReadOnly(Object value) {
         Type type = TypeUtils.getImpliedType(TypeChecker.getType(value));
 
-        switch (type.getTag()) {
-            case TypeTags.INT_TAG:
-                return 100L;
-            case TypeTags.ARRAY_TAG:
-            case TypeTags.OBJECT_TYPE_TAG:
-                return value;
-            case TypeTags.RECORD_TYPE_TAG:
-            case TypeTags.MAP_TAG:
-                return ((MapValue) value).get(StringUtils.fromString("first"));
-        }
-        return StringUtils.fromString("other");
+        return switch (type.getTag()) {
+            case TypeTags.INT_TAG -> 100L;
+            case TypeTags.ARRAY_TAG,
+                 TypeTags.OBJECT_TYPE_TAG -> value;
+            case TypeTags.RECORD_TYPE_TAG,
+                 TypeTags.MAP_TAG -> ((MapValue) value).get(StringUtils.fromString("first"));
+            default -> StringUtils.fromString("other");
+        };
     }
 
     public static void getNilAsReadOnly() {

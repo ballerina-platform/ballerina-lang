@@ -66,16 +66,11 @@ public final class Map {
         GetFunction getFn;
 
         Type arrType = TypeUtils.getImpliedType(arr.getType());
-        switch (arrType.getTag()) {
-            case TypeTags.ARRAY_TAG:
-                getFn = BArray::get;
-                break;
-            case TypeTags.TUPLE_TAG:
-                getFn = BArray::getRefValue;
-                break;
-            default:
-                throw createOpNotSupportedError(arrType, "map()");
-        }
+        getFn = switch (arrType.getTag()) {
+            case TypeTags.ARRAY_TAG -> BArray::get;
+            case TypeTags.TUPLE_TAG -> BArray::getRefValue;
+            default -> throw createOpNotSupportedError(arrType, "map()");
+        };
         AtomicInteger index = new AtomicInteger(-1);
         AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                 () -> new Object[]{getFn.get(arr, index.incrementAndGet()), true},

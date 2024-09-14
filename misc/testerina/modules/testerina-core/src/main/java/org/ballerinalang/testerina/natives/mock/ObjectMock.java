@@ -845,16 +845,13 @@ public final class ObjectMock {
     private static boolean isValidReturnValue(Object returnVal, MethodType attachedFunction) {
         Type functionReturnType = TypeUtils.getImpliedType(
                 attachedFunction.getType().getReturnParameterType());
-        switch (functionReturnType.getTag()) {
-            case TypeTags.UNION_TAG:
-                return validateUnionValue(returnVal, (UnionType) functionReturnType);
-            case TypeTags.STREAM_TAG:
-                return validateStreamValue(returnVal, (StreamType) functionReturnType);
-            case TypeTags.PARAMETERIZED_TYPE_TAG:
-                return validateParameterizedValue(returnVal, (ParameterizedType) functionReturnType);
-            default:
-                return TypeChecker.checkIsType(returnVal, functionReturnType);
-        }
+        return switch (functionReturnType.getTag()) {
+            case TypeTags.UNION_TAG -> validateUnionValue(returnVal, (UnionType) functionReturnType);
+            case TypeTags.STREAM_TAG -> validateStreamValue(returnVal, (StreamType) functionReturnType);
+            case TypeTags.PARAMETERIZED_TYPE_TAG ->
+                    validateParameterizedValue(returnVal, (ParameterizedType) functionReturnType);
+            default -> TypeChecker.checkIsType(returnVal, functionReturnType);
+        };
     }
 
     /**

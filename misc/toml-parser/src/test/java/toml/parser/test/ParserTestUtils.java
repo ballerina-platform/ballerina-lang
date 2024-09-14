@@ -328,33 +328,26 @@ public final class ParserTestUtils {
     }
 
     public static boolean isTrivia(SyntaxKind syntaxKind) {
-        switch (syntaxKind) {
-            case WHITESPACE_MINUTIAE:
-            case END_OF_LINE_MINUTIAE:
-            case COMMENT_MINUTIAE:
-            case INVALID_NODE_MINUTIAE:
-                return true;
-            default:
-                return false;
-        }
+        return switch (syntaxKind) {
+            case WHITESPACE_MINUTIAE, END_OF_LINE_MINUTIAE, COMMENT_MINUTIAE, INVALID_NODE_MINUTIAE -> true;
+            default -> false;
+        };
     }
 
     public static String getTokenText(STToken token) {
-        switch (token.kind) {
-            case IDENTIFIER_LITERAL:
+        return switch (token.kind) {
+            case IDENTIFIER_LITERAL -> {
                 String text = ((STIdentifierToken) token).text;
-                return cleanupText(text);
-            case STRING_LITERAL:
-            case DECIMAL_INT_TOKEN:
-            case DECIMAL_FLOAT_TOKEN:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-                return token.text();
-            case INVALID_TOKEN:
-                return token.text();
-            default:
-                return token.kind.toString();
-        }
+                yield cleanupText(text);
+            }
+            case STRING_LITERAL,
+                 DECIMAL_INT_TOKEN,
+                 DECIMAL_FLOAT_TOKEN,
+                 TRUE_KEYWORD,
+                 FALSE_KEYWORD -> token.text();
+            case INVALID_TOKEN -> token.text();
+            default -> token.kind.toString();
+        };
     }
 
     private static String cleanupText(String text) {
@@ -396,123 +389,66 @@ public final class ParserTestUtils {
     }
 
     private static SyntaxKind getNodeKind(String kind) {
-        switch (kind) {
-            case "INLINE_TABLE":
-                return SyntaxKind.INLINE_TABLE;
-            case "NEW_LINE":
-                return SyntaxKind.NEWLINE;
-            case "TRUE_KEYWORD":
-                return SyntaxKind.TRUE_KEYWORD;
-            case "FALSE_KEYWORD":
-                return SyntaxKind.FALSE_KEYWORD;
-            case "OPEN_BRACE_TOKEN":
-                return SyntaxKind.OPEN_BRACE_TOKEN;
-            case "CLOSE_BRACE_TOKEN":
-                return SyntaxKind.CLOSE_BRACE_TOKEN;
-            case "OPEN_BRACKET_TOKEN":
-                return SyntaxKind.OPEN_BRACKET_TOKEN;
-            case "CLOSE_BRACKET_TOKEN":
-                return SyntaxKind.CLOSE_BRACKET_TOKEN;
-            case "DOT_TOKEN":
-                return SyntaxKind.DOT_TOKEN;
-            case "COMMA_TOKEN":
-                return SyntaxKind.COMMA_TOKEN;
-            case "HASH_TOKEN":
-                return SyntaxKind.HASH_TOKEN;
-            case "DOUBLE_QUOTE_TOKEN":
-                return SyntaxKind.DOUBLE_QUOTE_TOKEN;
-            case "SINGLE_QUOTE_TOKEN":
-                return SyntaxKind.SINGLE_QUOTE_TOKEN;
-            case "TRIPLE_DOUBLE_QUOTE_TOKEN":
-                return SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN;
-            case "TRIPLE_SINGLE_QUOTE_TOKEN":
-                return SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN;
-            case "EQUAL_TOKEN":
-                return SyntaxKind.EQUAL_TOKEN;
-            case "PLUS_TOKEN":
-                return SyntaxKind.PLUS_TOKEN;
-            case "MINUS_TOKEN":
-                return SyntaxKind.MINUS_TOKEN;
-            case "STRING_LITERAL_TOKEN":
-                return SyntaxKind.STRING_LITERAL_TOKEN;
-            case "IDENTIFIER_LITERAL":
-                return SyntaxKind.IDENTIFIER_LITERAL;
-            case "STRING_LITERAL":
-                return SyntaxKind.STRING_LITERAL;
-            case "LITERAL_STRING":
-                return SyntaxKind.LITERAL_STRING;
-            case "WHITESPACE_MINUTIAE":
-                return SyntaxKind.WHITESPACE_MINUTIAE;
-            case "END_OF_LINE_MINUTIAE":
-                return SyntaxKind.END_OF_LINE_MINUTIAE;
-            case "COMMENT_MINUTIAE":
-                return SyntaxKind.COMMENT_MINUTIAE;
-            case "INVALID_NODE_MINUTIAE":
-                return SyntaxKind.INVALID_NODE_MINUTIAE;
-            case "INVALID_TOKEN":
-                return SyntaxKind.INVALID_TOKEN;
-            case "INVALID_TOKEN_MINUTIAE_NODE":
-                return SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE;
-            case "MARKDOWN_DOCUMENTATION_LINE":
-                return SyntaxKind.MARKDOWN_DOCUMENTATION_LINE;
-            case "TABLE":
-                return SyntaxKind.TABLE;
-            case "KEY_VALUE":
-                return SyntaxKind.KEY_VALUE;
-            case "TABLE_ARRAY":
-                return SyntaxKind.TABLE_ARRAY;
-            case "KEY":
-                return SyntaxKind.KEY;
-            case "DEC_INT":
-                return SyntaxKind.DEC_INT;
-            case "HEX_INT":
-                return SyntaxKind.HEX_INT;
-            case "OCT_INT":
-                return SyntaxKind.OCT_INT;
-            case "BINARY_INT":
-                return SyntaxKind.BINARY_INT;
-            case "FLOAT":
-                return SyntaxKind.FLOAT;
-            case "INF_TOKEN":
-                return SyntaxKind.INF_TOKEN;
-            case "NAN_TOKEN":
-                return SyntaxKind.NAN_TOKEN;
-            case "ML_STRING_LITERAL":
-                return SyntaxKind.ML_STRING_LITERAL;
-            case "DECIMAL_INT_TOKEN":
-                return SyntaxKind.DECIMAL_INT_TOKEN;
-            case "DECIMAL_FLOAT_TOKEN":
-                return SyntaxKind.DECIMAL_FLOAT_TOKEN;
-            case "HEX_INTEGER_LITERAL_TOKEN":
-                return SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
-            case "OCTAL_INTEGER_LITERAL_TOKEN":
-                return SyntaxKind.OCTAL_INTEGER_LITERAL_TOKEN;
-            case "BINARY_INTEGER_LITERAL_TOKEN":
-                return SyntaxKind.BINARY_INTEGER_LITERAL_TOKEN;
-            case "BOOLEAN":
-                return SyntaxKind.BOOLEAN;
-            case "OFFSET_DATE_TIME":
-                return SyntaxKind.OFFSET_DATE_TIME;
-            case "LOCAL_DATE_TIME":
-                return SyntaxKind.LOCAL_DATE_TIME;
-            case "LOCAL_DATE":
-                return SyntaxKind.LOCAL_DATE;
-            case "LOCAL_TIME":
-                return SyntaxKind.LOCAL_TIME;
-            case "ARRAY":
-                return SyntaxKind.ARRAY;
-            case "INVALID":
-                return SyntaxKind.INVALID;
-            case "MODULE_PART":
-                return SyntaxKind.MODULE_PART;
-            case "EOF_TOKEN":
-                return SyntaxKind.EOF_TOKEN;
-            case "LIST":
-                return SyntaxKind.LIST;
-            case "NONE":
-                return SyntaxKind.NONE;
-        }
-        return null;
+        return switch (kind) {
+            case "INLINE_TABLE" -> SyntaxKind.INLINE_TABLE;
+            case "NEW_LINE" -> SyntaxKind.NEWLINE;
+            case "TRUE_KEYWORD" -> SyntaxKind.TRUE_KEYWORD;
+            case "FALSE_KEYWORD" -> SyntaxKind.FALSE_KEYWORD;
+            case "OPEN_BRACE_TOKEN" -> SyntaxKind.OPEN_BRACE_TOKEN;
+            case "CLOSE_BRACE_TOKEN" -> SyntaxKind.CLOSE_BRACE_TOKEN;
+            case "OPEN_BRACKET_TOKEN" -> SyntaxKind.OPEN_BRACKET_TOKEN;
+            case "CLOSE_BRACKET_TOKEN" -> SyntaxKind.CLOSE_BRACKET_TOKEN;
+            case "DOT_TOKEN" -> SyntaxKind.DOT_TOKEN;
+            case "COMMA_TOKEN" -> SyntaxKind.COMMA_TOKEN;
+            case "HASH_TOKEN" -> SyntaxKind.HASH_TOKEN;
+            case "DOUBLE_QUOTE_TOKEN" -> SyntaxKind.DOUBLE_QUOTE_TOKEN;
+            case "SINGLE_QUOTE_TOKEN" -> SyntaxKind.SINGLE_QUOTE_TOKEN;
+            case "TRIPLE_DOUBLE_QUOTE_TOKEN" -> SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN;
+            case "TRIPLE_SINGLE_QUOTE_TOKEN" -> SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN;
+            case "EQUAL_TOKEN" -> SyntaxKind.EQUAL_TOKEN;
+            case "PLUS_TOKEN" -> SyntaxKind.PLUS_TOKEN;
+            case "MINUS_TOKEN" -> SyntaxKind.MINUS_TOKEN;
+            case "STRING_LITERAL_TOKEN" -> SyntaxKind.STRING_LITERAL_TOKEN;
+            case "IDENTIFIER_LITERAL" -> SyntaxKind.IDENTIFIER_LITERAL;
+            case "STRING_LITERAL" -> SyntaxKind.STRING_LITERAL;
+            case "LITERAL_STRING" -> SyntaxKind.LITERAL_STRING;
+            case "WHITESPACE_MINUTIAE" -> SyntaxKind.WHITESPACE_MINUTIAE;
+            case "END_OF_LINE_MINUTIAE" -> SyntaxKind.END_OF_LINE_MINUTIAE;
+            case "COMMENT_MINUTIAE" -> SyntaxKind.COMMENT_MINUTIAE;
+            case "INVALID_NODE_MINUTIAE" -> SyntaxKind.INVALID_NODE_MINUTIAE;
+            case "INVALID_TOKEN" -> SyntaxKind.INVALID_TOKEN;
+            case "INVALID_TOKEN_MINUTIAE_NODE" -> SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE;
+            case "MARKDOWN_DOCUMENTATION_LINE" -> SyntaxKind.MARKDOWN_DOCUMENTATION_LINE;
+            case "TABLE" -> SyntaxKind.TABLE;
+            case "KEY_VALUE" -> SyntaxKind.KEY_VALUE;
+            case "TABLE_ARRAY" -> SyntaxKind.TABLE_ARRAY;
+            case "KEY" -> SyntaxKind.KEY;
+            case "DEC_INT" -> SyntaxKind.DEC_INT;
+            case "HEX_INT" -> SyntaxKind.HEX_INT;
+            case "OCT_INT" -> SyntaxKind.OCT_INT;
+            case "BINARY_INT" -> SyntaxKind.BINARY_INT;
+            case "FLOAT" -> SyntaxKind.FLOAT;
+            case "INF_TOKEN" -> SyntaxKind.INF_TOKEN;
+            case "NAN_TOKEN" -> SyntaxKind.NAN_TOKEN;
+            case "ML_STRING_LITERAL" -> SyntaxKind.ML_STRING_LITERAL;
+            case "DECIMAL_INT_TOKEN" -> SyntaxKind.DECIMAL_INT_TOKEN;
+            case "DECIMAL_FLOAT_TOKEN" -> SyntaxKind.DECIMAL_FLOAT_TOKEN;
+            case "HEX_INTEGER_LITERAL_TOKEN" -> SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
+            case "OCTAL_INTEGER_LITERAL_TOKEN" -> SyntaxKind.OCTAL_INTEGER_LITERAL_TOKEN;
+            case "BINARY_INTEGER_LITERAL_TOKEN" -> SyntaxKind.BINARY_INTEGER_LITERAL_TOKEN;
+            case "BOOLEAN" -> SyntaxKind.BOOLEAN;
+            case "OFFSET_DATE_TIME" -> SyntaxKind.OFFSET_DATE_TIME;
+            case "LOCAL_DATE_TIME" -> SyntaxKind.LOCAL_DATE_TIME;
+            case "LOCAL_DATE" -> SyntaxKind.LOCAL_DATE;
+            case "LOCAL_TIME" -> SyntaxKind.LOCAL_TIME;
+            case "ARRAY" -> SyntaxKind.ARRAY;
+            case "INVALID" -> SyntaxKind.INVALID;
+            case "MODULE_PART" -> SyntaxKind.MODULE_PART;
+            case "EOF_TOKEN" -> SyntaxKind.EOF_TOKEN;
+            case "LIST" -> SyntaxKind.LIST;
+            case "NONE" -> SyntaxKind.NONE;
+            default -> null;
+        };
     }
 
     public static void assertLineRange(LineRange lineRange, int startLine, int startOffset, int endLine,

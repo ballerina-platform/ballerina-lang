@@ -105,62 +105,47 @@ public final class DocumentationGenerator {
      */
     public static Optional<DocAttachmentInfo> getDocumentationEditForNode(NonTerminalNode node,
                                                                           SyntaxTree syntaxTree) {
-        switch (node.kind()) {
-            case FUNCTION_DEFINITION:
-            case RESOURCE_ACCESSOR_DEFINITION:
-            case OBJECT_METHOD_DEFINITION: {
-                return Optional.of(generateFunctionDocumentation((FunctionDefinitionNode) node, syntaxTree));
-            }
-            case METHOD_DECLARATION: {
-                return Optional.of(generateMethodDocumentation((MethodDeclarationNode) node, syntaxTree));
-            }
-            case SERVICE_DECLARATION: {
-                return Optional.of(generateServiceDocumentation((ServiceDeclarationNode) node, syntaxTree));
-            }
-            case TYPE_DEFINITION: {
-                return Optional.of(generateRecordOrObjectDocumentation((TypeDefinitionNode) node, syntaxTree));
-            }
-            case CLASS_DEFINITION: {
-                return Optional.of(generateClassDocumentation((ClassDefinitionNode) node, syntaxTree));
-            }
-            case CONST_DECLARATION: {
-                return Optional.of(generateModuleMemberDocumentation((ConstantDeclarationNode) node, syntaxTree));
-            }
-            case ENUM_DECLARATION: {
-                return Optional.of(generateModuleMemberDocumentation((EnumDeclarationNode) node, syntaxTree));
-            }
-            case MODULE_VAR_DECL: {
-                return Optional.of(generateModuleMemberDocumentation((ModuleVariableDeclarationNode) node, syntaxTree));
-            }
-            case ANNOTATION_DECLARATION: {
-                return Optional.of(generateAnnotationDocumentation((AnnotationDeclarationNode) node, syntaxTree));
-            }
-            default:
-                break;
-        }
-        return Optional.empty();
+        return switch (node.kind()) {
+            case FUNCTION_DEFINITION,
+                 RESOURCE_ACCESSOR_DEFINITION,
+                 OBJECT_METHOD_DEFINITION ->
+                    Optional.of(generateFunctionDocumentation((FunctionDefinitionNode) node, syntaxTree));
+            case METHOD_DECLARATION ->
+                    Optional.of(generateMethodDocumentation((MethodDeclarationNode) node, syntaxTree));
+            case SERVICE_DECLARATION ->
+                    Optional.of(generateServiceDocumentation((ServiceDeclarationNode) node, syntaxTree));
+            case TYPE_DEFINITION ->
+                    Optional.of(generateRecordOrObjectDocumentation((TypeDefinitionNode) node, syntaxTree));
+            case CLASS_DEFINITION -> Optional.of(generateClassDocumentation((ClassDefinitionNode) node, syntaxTree));
+            case CONST_DECLARATION ->
+                    Optional.of(generateModuleMemberDocumentation((ConstantDeclarationNode) node, syntaxTree));
+            case ENUM_DECLARATION ->
+                    Optional.of(generateModuleMemberDocumentation((EnumDeclarationNode) node, syntaxTree));
+            case MODULE_VAR_DECL ->
+                    Optional.of(generateModuleMemberDocumentation((ModuleVariableDeclarationNode) node, syntaxTree));
+            case ANNOTATION_DECLARATION ->
+                    Optional.of(generateAnnotationDocumentation((AnnotationDeclarationNode) node, syntaxTree));
+            default -> Optional.empty();
+        };
     }
 
     public static Optional<Symbol> getDocumentableSymbol(NonTerminalNode node, SemanticModel semanticModel) {
-        switch (node.kind()) {
-            case FUNCTION_DEFINITION:
-            case OBJECT_METHOD_DEFINITION:
-            case RESOURCE_ACCESSOR_DEFINITION:
-            case METHOD_DECLARATION:
-            case SERVICE_DECLARATION:    
-//            case SERVICE_DECLARATION: {
-//                ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) node;
-//                return semanticModel.symbol(fileName, serviceDeclrNode.typeDescriptor().map(s->s.lineRange()
-//                .startLine()).);
-//            }
-            case TYPE_DEFINITION:
-            case ANNOTATION_DECLARATION:
-            case CLASS_DEFINITION:
-                return semanticModel.symbol(node);
-            default:
-                break;
-        }
-        return Optional.empty();
+        return switch (node.kind()) {
+            case FUNCTION_DEFINITION,
+                 OBJECT_METHOD_DEFINITION,
+                 RESOURCE_ACCESSOR_DEFINITION,
+                 METHOD_DECLARATION,
+                 SERVICE_DECLARATION,
+ //              SERVICE_DECLARATION -> {
+ //                  ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) node;
+ //                  yield semanticModel.symbol(fileName, serviceDeclrNode.typeDescriptor().map(s->s.lineRange()
+ //                  .startLine()).);
+ //              }
+                 TYPE_DEFINITION,
+                 ANNOTATION_DECLARATION,
+                 CLASS_DEFINITION -> semanticModel.symbol(node);
+            default -> Optional.empty();
+        };
     }
 
     /**

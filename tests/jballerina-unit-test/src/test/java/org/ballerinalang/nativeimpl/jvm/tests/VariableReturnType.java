@@ -298,13 +298,11 @@ public final class VariableReturnType {
     public static Object get(ObjectValue objectValue, BTypedesc td) {
         Type describingType = td.getDescribingType();
 
-        switch (describingType.getTag()) {
-            case INT_TAG:
-                return objectValue.getIntValue(StringUtils.fromString("a"));
-            case STRING_TAG:
-                return objectValue.getStringValue(StringUtils.fromString("b"));
-        }
-        return objectValue.get(StringUtils.fromString("c"));
+        return switch (describingType.getTag()) {
+            case INT_TAG -> objectValue.getIntValue(StringUtils.fromString("a"));
+            case STRING_TAG -> objectValue.getStringValue(StringUtils.fromString("b"));
+            default -> objectValue.get(StringUtils.fromString("c"));
+        };
     }
 
     public static Object getIntFieldOrDefault(ObjectValue objectValue, BTypedesc td) {

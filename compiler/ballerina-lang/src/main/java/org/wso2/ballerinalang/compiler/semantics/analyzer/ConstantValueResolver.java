@@ -544,17 +544,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BType constSymbolValType = value.type;
         int constSymbolValTypeTag = Types.getImpliedType(constSymbolValType).tag;
 
-        switch (constSymbolValTypeTag) {
-            case TypeTags.INT:
-                result = calculateNegationForInt(value);
-                break;
-            case TypeTags.FLOAT:
-                result = calculateNegationForFloat(value);
-                break;
-            case TypeTags.DECIMAL:
-                result = calculateNegationForDecimal(value);
-                break;
-        }
+        result = switch (constSymbolValTypeTag) {
+            case TypeTags.INT -> calculateNegationForInt(value);
+            case TypeTags.FLOAT -> calculateNegationForFloat(value);
+            case TypeTags.DECIMAL -> calculateNegationForDecimal(value);
+            default -> result;
+        };
 
         return new BLangConstantValue(result, constSymbolValType);
     }
@@ -697,14 +692,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private boolean isListOrMapping(int tag) {
-        switch (tag) {
-            case TypeTags.RECORD:
-            case TypeTags.MAP:
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE:
-                return true;
-        }
-        return false;
+        return switch (tag) {
+            case TypeTags.RECORD, TypeTags.MAP, TypeTags.ARRAY, TypeTags.TUPLE -> true;
+            default -> false;
+        };
     }
 
     private BFiniteType createFiniteType(BConstantSymbol constantSymbol, BLangExpression expr) {
@@ -726,35 +717,39 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
         type = Types.getImpliedType(type);
 
-        switch (type.tag) {
-            case TypeTags.INT:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
+        return switch (type.tag) {
+            case TypeTags.INT,
+                 TypeTags.FLOAT,
+                 TypeTags.DECIMAL -> {
                 BLangNumericLiteral numericLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
-                return createFiniteType(constantSymbol, updateLiteral(numericLiteral, value, type, pos));
-            case TypeTags.BYTE:
+                yield createFiniteType(constantSymbol, updateLiteral(numericLiteral, value, type, pos));
+            }
+            case TypeTags.BYTE -> {
                 BLangNumericLiteral byteLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
-                return createFiniteType(constantSymbol, updateLiteral(byteLiteral, value, symTable.intType, pos));
-            case TypeTags.STRING:
-            case TypeTags.NIL:
-            case TypeTags.BOOLEAN:
+                yield createFiniteType(constantSymbol, updateLiteral(byteLiteral, value, symTable.intType, pos));
+            }
+            case TypeTags.STRING,
+                 TypeTags.NIL,
+                 TypeTags.BOOLEAN -> {
                 BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                return createFiniteType(constantSymbol, updateLiteral(literal, value, type, pos));
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
+                yield createFiniteType(constantSymbol, updateLiteral(literal, value, type, pos));
+            }
+            case TypeTags.MAP,
+                 TypeTags.RECORD -> {
                 if (value != null) {
-                    return createRecordType(expr, constantSymbol, value, pos, env);
+                    yield createRecordType(expr, constantSymbol, value, pos, env);
                 }
-                return null;
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE:
+                yield null;
+            }
+            case TypeTags.ARRAY,
+                 TypeTags.TUPLE -> {
                 if (value != null) {
-                    return createTupleType(expr, constantSymbol, pos, value, env);
+                    yield createTupleType(expr, constantSymbol, pos, value, env);
                 }
-                return null;
-            default:
-                return null;
-        }
+                yield null;
+            }
+            default -> null;
+        };
     }
 
     private BLangLiteral updateLiteral(BLangLiteral literal, Object value, BType type, Location pos) {

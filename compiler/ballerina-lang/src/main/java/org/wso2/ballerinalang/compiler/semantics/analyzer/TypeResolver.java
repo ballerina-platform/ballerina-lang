@@ -594,15 +594,10 @@ public class TypeResolver {
     }
 
     private boolean isNotRestrictedCyclicTypeNode(BLangType typeNode) {
-        switch (typeNode.getKind()) {
-            case USER_DEFINED_TYPE:
-            case ARRAY_TYPE:
-            case CONSTRAINED_TYPE:
-            case INTERSECTION_TYPE_NODE:
-                return false;
-            default:
-                return true;
-        }
+        return switch (typeNode.getKind()) {
+            case USER_DEFINED_TYPE, ARRAY_TYPE, CONSTRAINED_TYPE, INTERSECTION_TYPE_NODE -> false;
+            default -> true;
+        };
     }
 
     private void logInvalidCyclicReferenceError(String currentDefnName, Location pos) {
@@ -702,56 +697,25 @@ public class TypeResolver {
         data.typeDefinition = defn;
         data.depth = depth;
 
-        BType resultType;
-        switch (td.getKind()) {
-            case VALUE_TYPE:
-                resultType = resolveTypeDesc((BLangValueType) td, symEnv);
-                break;
-            case CONSTRAINED_TYPE: // map<?> and typedesc<?>
-                resultType = resolveTypeDesc((BLangConstrainedType) td, data);
-                break;
-            case ARRAY_TYPE:
-                resultType = resolveTypeDesc(((BLangArrayType) td), data);
-                break;
-            case TUPLE_TYPE_NODE:
-                resultType = resolveTypeDesc((BLangTupleTypeNode) td, data);
-                break;
-            case RECORD_TYPE:
-                resultType = resolveTypeDesc((BLangRecordTypeNode) td, data);
-                break;
-            case OBJECT_TYPE:
-                resultType = resolveTypeDesc((BLangObjectTypeNode) td, data);
-                break;
-            case FUNCTION_TYPE:
-                resultType = resolveTypeDesc((BLangFunctionTypeNode) td, data);
-                break;
-            case ERROR_TYPE:
-                resultType = resolveTypeDesc((BLangErrorType) td, data);
-                break;
-            case UNION_TYPE_NODE:
-                resultType = resolveTypeDesc((BLangUnionTypeNode) td, data);
-                break;
-            case INTERSECTION_TYPE_NODE:
-                resultType = resolveTypeDesc((BLangIntersectionTypeNode) td, data, anonymous);
-                break;
-            case USER_DEFINED_TYPE:
-                resultType = resolveTypeDesc((BLangUserDefinedType) td, data);
-                break;
-            case BUILT_IN_REF_TYPE:
-                resultType = resolveTypeDesc((BLangBuiltInRefTypeNode) td, symEnv);
-                break;
-            case FINITE_TYPE_NODE:
-                resultType = resolveSingletonType((BLangFiniteTypeNode) td, symEnv);
-                break;
-            case TABLE_TYPE:
-                resultType = resolveTypeDesc((BLangTableTypeNode) td, data);
-                break;
-            case STREAM_TYPE:
-                resultType = resolveTypeDesc((BLangStreamType) td, data);
-                break;
-            default:
-                throw new AssertionError("Invalid type");
-        }
+        BType resultType = switch (td.getKind()) {
+            case VALUE_TYPE -> resolveTypeDesc((BLangValueType) td, symEnv);
+            // map<?> and typedesc<?>
+            case CONSTRAINED_TYPE -> resolveTypeDesc((BLangConstrainedType) td, data);
+            case ARRAY_TYPE -> resolveTypeDesc(((BLangArrayType) td), data);
+            case TUPLE_TYPE_NODE -> resolveTypeDesc((BLangTupleTypeNode) td, data);
+            case RECORD_TYPE -> resolveTypeDesc((BLangRecordTypeNode) td, data);
+            case OBJECT_TYPE -> resolveTypeDesc((BLangObjectTypeNode) td, data);
+            case FUNCTION_TYPE -> resolveTypeDesc((BLangFunctionTypeNode) td, data);
+            case ERROR_TYPE -> resolveTypeDesc((BLangErrorType) td, data);
+            case UNION_TYPE_NODE -> resolveTypeDesc((BLangUnionTypeNode) td, data);
+            case INTERSECTION_TYPE_NODE -> resolveTypeDesc((BLangIntersectionTypeNode) td, data, anonymous);
+            case USER_DEFINED_TYPE -> resolveTypeDesc((BLangUserDefinedType) td, data);
+            case BUILT_IN_REF_TYPE -> resolveTypeDesc((BLangBuiltInRefTypeNode) td, symEnv);
+            case FINITE_TYPE_NODE -> resolveSingletonType((BLangFiniteTypeNode) td, symEnv);
+            case TABLE_TYPE -> resolveTypeDesc((BLangTableTypeNode) td, data);
+            case STREAM_TYPE -> resolveTypeDesc((BLangStreamType) td, data);
+            default -> throw new AssertionError("Invalid type");
+        };
 
         BType refType = Types.getImpliedType(resultType);
         if (refType != symTable.noType) {
@@ -782,17 +746,13 @@ public class TypeResolver {
         currentDepth = data.depth;
         TypeKind typeKind = ((BLangBuiltInRefTypeNode) td.getType()).getTypeKind();
 
-        switch (typeKind) {
-            case MAP:
-                return resolveMapTypeDesc(td, data);
-            case XML:
-                return resolveXmlTypeDesc(td, data);
-            case FUTURE:
-                return resolveFutureTypeDesc(td, data);
-            case TYPEDESC:
-                return resolveTypedescTypeDesc(td, data);
-        }
-        throw new IllegalStateException("unknown constrained type found: " + typeKind);
+        return switch (typeKind) {
+            case MAP -> resolveMapTypeDesc(td, data);
+            case XML -> resolveXmlTypeDesc(td, data);
+            case FUTURE -> resolveFutureTypeDesc(td, data);
+            case TYPEDESC -> resolveTypedescTypeDesc(td, data);
+            default -> throw new IllegalStateException("unknown constrained type found: " + typeKind);
+        };
     }
 
     private BType resolveTypedescTypeDesc(BLangConstrainedType td, ResolverData data) {

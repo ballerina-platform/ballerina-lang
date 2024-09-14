@@ -92,75 +92,57 @@ public final class TypeTags {
     public static boolean isIntegerTypeTag(int tag) {
 
         // TODO : Fix byte type. Ideally, byte belongs to here. But we have modeled it differently.
-        switch (tag) {
-            case INT:
-            case SIGNED32_INT:
-            case SIGNED16_INT:
-            case SIGNED8_INT:
-            case UNSIGNED32_INT:
-            case UNSIGNED16_INT:
-            case UNSIGNED8_INT:
-                return true;
-        }
-        return false;
+        return switch (tag) {
+            case INT,
+                 SIGNED32_INT,
+                 SIGNED16_INT,
+                 SIGNED8_INT,
+                 UNSIGNED32_INT,
+                 UNSIGNED16_INT,
+                 UNSIGNED8_INT -> true;
+            default -> false;
+        };
     }
 
     public static boolean isSignedIntegerTypeTag(int tag) {
 
-        switch (tag) {
-            case INT:
-            case SIGNED32_INT:
-            case SIGNED16_INT:
-            case SIGNED8_INT:
-                return true;
-        }
-        return false;
+        return switch (tag) {
+            case INT, SIGNED32_INT, SIGNED16_INT, SIGNED8_INT -> true;
+            default -> false;
+        };
     }
 
     public static boolean isXMLTypeTag(int tag) {
-        switch (tag) {
-            case XML:
-            case XML_ELEMENT:
-            case XML_PI:
-            case XML_COMMENT:
-            case XML_TEXT:
-                return true;
-        }
-        return false;
+        return switch (tag) {
+            case XML, XML_ELEMENT, XML_PI, XML_COMMENT, XML_TEXT -> true;
+            default -> false;
+        };
     }
 
     public static boolean isXMLNonSequenceType(int tag) {
-        switch (tag) {
-            case XML_ELEMENT:
-            case XML_PI:
-            case XML_COMMENT:
-            case XML_TEXT:
-                return true;
-        }
-        return false;
+        return switch (tag) {
+            case XML_ELEMENT, XML_PI, XML_COMMENT, XML_TEXT -> true;
+            default -> false;
+        };
     }
 
     public static boolean isStringTypeTag(int tag) {
 
-        switch (tag) {
-            case STRING:
-            case CHAR_STRING:
-                return true;
-        }
-        return false;
+        return switch (tag) {
+            case STRING, CHAR_STRING -> true;
+            default -> false;
+        };
     }
 
     public static boolean isSimpleBasicType(int tag) {
-        switch (tag) {
-            case TypeTags.BYTE:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.BOOLEAN:
-            case TypeTags.NIL:
-                return true;
-            default:
-                return (TypeTags.isIntegerTypeTag(tag)) || (TypeTags.isStringTypeTag(tag));
-        }
+        return switch (tag) {
+            case TypeTags.BYTE,
+                 TypeTags.FLOAT,
+                 TypeTags.DECIMAL,
+                 TypeTags.BOOLEAN,
+                 TypeTags.NIL -> true;
+            default -> (TypeTags.isIntegerTypeTag(tag)) || (TypeTags.isStringTypeTag(tag));
+        };
     }
 
 }

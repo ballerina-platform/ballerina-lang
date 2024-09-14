@@ -78,18 +78,13 @@ public final class Transactions {
         }
 
         public static TransactionStatus getConst(int statusValue) {
-            switch (statusValue) {
-                case 0:
-                    return BLOCK_END;
-                case 1:
-                    return END;
-                case -1:
-                    return FAILED;
-                case -2:
-                    return ABORTED;
-                default:
-                    throw new IllegalArgumentException();
-            }
+            return switch (statusValue) {
+                case 0 -> BLOCK_END;
+                case 1 -> END;
+                case -1 -> FAILED;
+                case -2 -> ABORTED;
+                default -> throw new IllegalArgumentException();
+            };
         }
     }
 }

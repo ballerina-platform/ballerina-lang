@@ -79,20 +79,10 @@ public final class ConditionalExprResolver {
      * @return <code>true</code> if modulePrefixIdentifier text is Valid Simple NameRef
      */
     private static boolean isValidSimpleNameRef(STToken modulePrefixIdentifier) {
-        switch (modulePrefixIdentifier.text()) {
-            case ERROR:
-            case FUTURE:
-            case MAP:
-            case OBJECT:
-            case STREAM:
-            case TABLE:
-            case TRANSACTION:
-            case TYPEDESC:
-            case XML:
-                return false;
-            default:
-                return true;
-        }
+        return switch (modulePrefixIdentifier.text()) {
+            case ERROR, FUTURE, MAP, OBJECT, STREAM, TABLE, TRANSACTION, TYPEDESC, XML -> false;
+            default -> true;
+        };
     }
 
     /**

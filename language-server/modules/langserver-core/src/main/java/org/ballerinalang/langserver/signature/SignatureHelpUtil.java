@@ -327,37 +327,29 @@ public final class SignatureHelpUtil {
     }
 
     private static Optional<? extends TypeSymbol> getTypeDesc(SignatureContext ctx, ExpressionNode expr) {
-        switch (expr.kind()) {
-            case SIMPLE_NAME_REFERENCE:
-                /*
-                Captures the following
-                (1) fieldName
-                 */
-                return getTypeDescForNameRef(ctx, (SimpleNameReferenceNode) expr);
-            case FUNCTION_CALL:
-                /*
-                Captures the following
-                (1) functionName()
-                 */
-                return getTypeDescForFunctionCall(ctx, (FunctionCallExpressionNode) expr);
-            case METHOD_CALL: {
-                /*
-                Address the following
-                (1) test.testMethod()
-                 */
-                return getTypeDescForMethodCall(ctx, (MethodCallExpressionNode) expr);
-            }
-            case FIELD_ACCESS: {
-                /*
-                Address the following
-                (1) test1.test2
-                 */
-                return getTypeDescForFieldAccess(ctx, (FieldAccessExpressionNode) expr);
-            }
-
-            default:
-                return Optional.empty();
-        }
+        return switch (expr.kind()) {
+            /*
+            Captures the following
+            (1) fieldName
+             */
+            case SIMPLE_NAME_REFERENCE -> getTypeDescForNameRef(ctx, (SimpleNameReferenceNode) expr);
+            /*
+            Captures the following
+            (1) functionName()
+             */
+            case FUNCTION_CALL -> getTypeDescForFunctionCall(ctx, (FunctionCallExpressionNode) expr);
+            /*
+            Address the following
+            (1) test.testMethod()
+             */
+            case METHOD_CALL -> getTypeDescForMethodCall(ctx, (MethodCallExpressionNode) expr);
+            /*
+            Address the following
+            (1) test1.test2
+             */
+            case FIELD_ACCESS -> getTypeDescForFieldAccess(ctx, (FieldAccessExpressionNode) expr);
+            default -> Optional.empty();
+        };
     }
 
     private static Optional<? extends TypeSymbol> getTypeDescForFieldAccess(
@@ -371,16 +363,17 @@ public final class SignatureHelpUtil {
         }
 
         TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor.get());
-        switch (rawType.typeKind()) {
-            case OBJECT:
+        return switch (rawType.typeKind()) {
+            case OBJECT -> {
                 ObjectFieldSymbol objField = ((ObjectTypeSymbol) rawType).fieldDescriptors().get(fieldName);
-                return objField != null ? Optional.of(objField.typeDescriptor()) : Optional.empty();
-            case RECORD:
+                yield objField != null ? Optional.of(objField.typeDescriptor()) : Optional.empty();
+            }
+            case RECORD -> {
                 RecordFieldSymbol recField = ((RecordTypeSymbol) rawType).fieldDescriptors().get(fieldName);
-                return recField != null ? Optional.of(recField.typeDescriptor()) : Optional.empty();
-            default:
-                return Optional.empty();
-        }
+                yield recField != null ? Optional.of(recField.typeDescriptor()) : Optional.empty();
+            }
+            default -> Optional.empty();
+        };
     }
 
     private static Optional<? extends TypeSymbol> getTypeDescForNameRef(SignatureContext context,

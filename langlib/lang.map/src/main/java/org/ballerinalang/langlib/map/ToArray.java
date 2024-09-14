@@ -53,17 +53,11 @@ public final class ToArray {
 
     public static BArray toArray(BMap<?, ?> m) {
         Type mapType = TypeUtils.getImpliedType(m.getType());
-        Type arrElemType;
-        switch (mapType.getTag()) {
-            case TypeTags.MAP_TAG:
-                arrElemType = ((MapType) mapType).getConstrainedType();
-                break;
-            case TypeTags.RECORD_TYPE_TAG:
-                arrElemType = MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
-                break;
-            default:
-                throw createOpNotSupportedError(mapType, "toArray()");
-        }
+        Type arrElemType = switch (mapType.getTag()) {
+            case TypeTags.MAP_TAG -> ((MapType) mapType).getConstrainedType();
+            case TypeTags.RECORD_TYPE_TAG -> MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
+            default -> throw createOpNotSupportedError(mapType, "toArray()");
+        };
 
         Collection values = m.values();
         int size = values.size();

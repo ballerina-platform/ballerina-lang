@@ -95,15 +95,11 @@ public final class TomlSyntaxTreeUtil {
      * @return {@link String} default value.
      */
     public static String getDefaultValueForType(ValueType type) {
-        switch (type) {
-            case NUMBER:
-                return "0";
-            case BOOLEAN:
-                return "false";
-            case STRING:
-            default:
-                return "";
-        }
+        return switch (type) {
+            case NUMBER -> "0";
+            case BOOLEAN -> "false";
+            default -> "";
+        };
     }
 
 }

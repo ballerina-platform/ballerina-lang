@@ -308,14 +308,11 @@ public final class ValueComparisonUtils {
     }
 
     private static boolean checkDecimalGreaterThan(DecimalValue lhsValue, DecimalValue rhsValue) {
-        switch (lhsValue.valueKind) {
-            case ZERO:
-            case OTHER:
-                return (isDecimalRealNumber(rhsValue) &&
-                        lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) > 0);
-            default:
-                return false;
-        }
+        return switch (lhsValue.valueKind) {
+            case ZERO,
+                 OTHER -> (isDecimalRealNumber(rhsValue) &&
+                    lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) > 0);
+        };
     }
 
     private static boolean isDecimalRealNumber(DecimalValue decimalValue) {

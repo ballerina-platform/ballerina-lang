@@ -287,23 +287,21 @@ public class BasicSnippetFactory extends SnippetFactory {
     }
 
     private boolean isSupportedAction(SyntaxKind nodeKind) {
-        switch (nodeKind) {
-            case REMOTE_METHOD_CALL_ACTION:
-            case BRACED_ACTION:
-            case CHECK_ACTION:
-            case START_ACTION:
-            case TRAP_ACTION:
-            case FLUSH_ACTION:
-            case ASYNC_SEND_ACTION:
-            case SYNC_SEND_ACTION:
-            case RECEIVE_ACTION:
-            case WAIT_ACTION:
-            case QUERY_ACTION:
-            case COMMIT_ACTION:
-            case CLIENT_RESOURCE_ACCESS_ACTION:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nodeKind) {
+            case REMOTE_METHOD_CALL_ACTION,
+                 BRACED_ACTION,
+                 CHECK_ACTION,
+                 START_ACTION,
+                 TRAP_ACTION,
+                 FLUSH_ACTION,
+                 ASYNC_SEND_ACTION,
+                 SYNC_SEND_ACTION,
+                 RECEIVE_ACTION,
+                 WAIT_ACTION,
+                 QUERY_ACTION,
+                 COMMIT_ACTION,
+                 CLIENT_RESOURCE_ACCESS_ACTION -> true;
+            default -> false;
+        };
     }
 }

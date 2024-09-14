@@ -149,104 +149,42 @@ public final class Formatter {
     public static String formatExpression(String text) throws FormatterException {
         FormattingTreeModifier treeModifier = new FormattingTreeModifier(FormattingOptions.builder().build(), null);
         ExpressionNode parsedNode = NodeParser.parseExpression(text);
-        ExpressionNode formattedNode;
-        switch (parsedNode.kind()) {
-            case ANNOT_ACCESS:
-                formattedNode = treeModifier.transform((AnnotAccessExpressionNode) parsedNode);
-                break;
-            case BINARY_EXPRESSION:
-                formattedNode = treeModifier.transform((BinaryExpressionNode) parsedNode);
-                break;
-            case BRACED_EXPRESSION:
-                formattedNode = treeModifier.transform((BracedExpressionNode) parsedNode);
-                break;
-            case CHECK_EXPRESSION:
-                formattedNode = treeModifier.transform((CheckExpressionNode) parsedNode);
-                break;
-            case CONDITIONAL_EXPRESSION:
-                formattedNode = treeModifier.transform((ConditionalExpressionNode) parsedNode);
-                break;
-            case ERROR_CONSTRUCTOR:
-                formattedNode = treeModifier.transform((ErrorConstructorExpressionNode) parsedNode);
-                break;
-            case EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION:
-                formattedNode = treeModifier.transform((ExplicitAnonymousFunctionExpressionNode) parsedNode);
-                break;
-            case EXPLICIT_NEW_EXPRESSION:
-                formattedNode = treeModifier.transform((ExplicitNewExpressionNode) parsedNode);
-                break;
-            case FIELD_ACCESS:
-                formattedNode = treeModifier.transform((FieldAccessExpressionNode) parsedNode);
-                break;
-            case FUNCTION_CALL:
-                formattedNode = treeModifier.transform((FunctionCallExpressionNode) parsedNode);
-                break;
-            case IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION:
-                formattedNode = treeModifier.transform((ImplicitAnonymousFunctionExpressionNode) parsedNode);
-                break;
-            case IMPLICIT_NEW_EXPRESSION:
-                formattedNode = treeModifier.transform((ImplicitNewExpressionNode) parsedNode);
-                break;
-            case INDEXED_EXPRESSION:
-                formattedNode = treeModifier.transform((IndexedExpressionNode) parsedNode);
-                break;
-            case LET_EXPRESSION:
-                formattedNode = treeModifier.transform((LetExpressionNode) parsedNode);
-                break;
-            case LIST_CONSTRUCTOR:
-                formattedNode = treeModifier.transform((ListConstructorExpressionNode) parsedNode);
-                break;
-            case MAPPING_CONSTRUCTOR:
-                formattedNode = treeModifier.transform((MappingConstructorExpressionNode) parsedNode);
-                break;
-            case METHOD_CALL:
-                formattedNode = treeModifier.transform((MethodCallExpressionNode) parsedNode);
-                break;
-            case OBJECT_CONSTRUCTOR:
-                formattedNode = treeModifier.transform((ObjectConstructorExpressionNode) parsedNode);
-                break;
-            case OPTIONAL_FIELD_ACCESS:
-                formattedNode = treeModifier.transform((OptionalFieldAccessExpressionNode) parsedNode);
-                break;
-            case QUERY_EXPRESSION:
-                formattedNode = treeModifier.transform((QueryExpressionNode) parsedNode);
-                break;
-            case REQUIRED_EXPRESSION:
-                formattedNode = treeModifier.transform((RequiredExpressionNode) parsedNode);
-                break;
-            case TABLE_CONSTRUCTOR:
-                formattedNode = treeModifier.transform((TableConstructorExpressionNode) parsedNode);
-                break;
-            case RAW_TEMPLATE_EXPRESSION:
-                formattedNode = treeModifier.transform((TemplateExpressionNode) parsedNode);
-                break;
-            case TRANSACTIONAL_EXPRESSION:
-                formattedNode = treeModifier.transform((TransactionalExpressionNode) parsedNode);
-                break;
-            case TRAP_EXPRESSION:
-                formattedNode = treeModifier.transform((TrapExpressionNode) parsedNode);
-                break;
-            case TYPE_CAST_EXPRESSION:
-                formattedNode = treeModifier.transform((TypeCastExpressionNode) parsedNode);
-                break;
-            case TYPE_TEST_EXPRESSION:
-                formattedNode = treeModifier.transform((TypeTestExpressionNode) parsedNode);
-                break;
-            case TYPEOF_EXPRESSION:
-                formattedNode = treeModifier.transform((TypeofExpressionNode) parsedNode);
-                break;
-            case UNARY_EXPRESSION:
-                formattedNode = treeModifier.transform((UnaryExpressionNode) parsedNode);
-                break;
-            case XML_FILTER_EXPRESSION:
-                formattedNode = treeModifier.transform((XMLFilterExpressionNode) parsedNode);
-                break;
-            case XML_STEP_EXPRESSION:
-                formattedNode = treeModifier.transform((XMLStepExpressionNode) parsedNode);
-                break;
-            default:
-                throw new FormatterException("Unsupported expression type: " + parsedNode.kind());
-        }
+        ExpressionNode formattedNode = switch (parsedNode.kind()) {
+            case ANNOT_ACCESS -> treeModifier.transform((AnnotAccessExpressionNode) parsedNode);
+            case BINARY_EXPRESSION -> treeModifier.transform((BinaryExpressionNode) parsedNode);
+            case BRACED_EXPRESSION -> treeModifier.transform((BracedExpressionNode) parsedNode);
+            case CHECK_EXPRESSION -> treeModifier.transform((CheckExpressionNode) parsedNode);
+            case CONDITIONAL_EXPRESSION -> treeModifier.transform((ConditionalExpressionNode) parsedNode);
+            case ERROR_CONSTRUCTOR -> treeModifier.transform((ErrorConstructorExpressionNode) parsedNode);
+            case EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION ->
+                    treeModifier.transform((ExplicitAnonymousFunctionExpressionNode) parsedNode);
+            case EXPLICIT_NEW_EXPRESSION -> treeModifier.transform((ExplicitNewExpressionNode) parsedNode);
+            case FIELD_ACCESS -> treeModifier.transform((FieldAccessExpressionNode) parsedNode);
+            case FUNCTION_CALL -> treeModifier.transform((FunctionCallExpressionNode) parsedNode);
+            case IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION ->
+                    treeModifier.transform((ImplicitAnonymousFunctionExpressionNode) parsedNode);
+            case IMPLICIT_NEW_EXPRESSION -> treeModifier.transform((ImplicitNewExpressionNode) parsedNode);
+            case INDEXED_EXPRESSION -> treeModifier.transform((IndexedExpressionNode) parsedNode);
+            case LET_EXPRESSION -> treeModifier.transform((LetExpressionNode) parsedNode);
+            case LIST_CONSTRUCTOR -> treeModifier.transform((ListConstructorExpressionNode) parsedNode);
+            case MAPPING_CONSTRUCTOR -> treeModifier.transform((MappingConstructorExpressionNode) parsedNode);
+            case METHOD_CALL -> treeModifier.transform((MethodCallExpressionNode) parsedNode);
+            case OBJECT_CONSTRUCTOR -> treeModifier.transform((ObjectConstructorExpressionNode) parsedNode);
+            case OPTIONAL_FIELD_ACCESS -> treeModifier.transform((OptionalFieldAccessExpressionNode) parsedNode);
+            case QUERY_EXPRESSION -> treeModifier.transform((QueryExpressionNode) parsedNode);
+            case REQUIRED_EXPRESSION -> treeModifier.transform((RequiredExpressionNode) parsedNode);
+            case TABLE_CONSTRUCTOR -> treeModifier.transform((TableConstructorExpressionNode) parsedNode);
+            case RAW_TEMPLATE_EXPRESSION -> treeModifier.transform((TemplateExpressionNode) parsedNode);
+            case TRANSACTIONAL_EXPRESSION -> treeModifier.transform((TransactionalExpressionNode) parsedNode);
+            case TRAP_EXPRESSION -> treeModifier.transform((TrapExpressionNode) parsedNode);
+            case TYPE_CAST_EXPRESSION -> treeModifier.transform((TypeCastExpressionNode) parsedNode);
+            case TYPE_TEST_EXPRESSION -> treeModifier.transform((TypeTestExpressionNode) parsedNode);
+            case TYPEOF_EXPRESSION -> treeModifier.transform((TypeofExpressionNode) parsedNode);
+            case UNARY_EXPRESSION -> treeModifier.transform((UnaryExpressionNode) parsedNode);
+            case XML_FILTER_EXPRESSION -> treeModifier.transform((XMLFilterExpressionNode) parsedNode);
+            case XML_STEP_EXPRESSION -> treeModifier.transform((XMLStepExpressionNode) parsedNode);
+            default -> throw new FormatterException("Unsupported expression type: " + parsedNode.kind());
+        };
 
         return formattedNode.toSourceCode().strip();
     }
