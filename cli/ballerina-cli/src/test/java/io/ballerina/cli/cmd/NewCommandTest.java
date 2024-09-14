@@ -69,6 +69,7 @@ public class NewCommandTest extends BaseCommandTest {
         };
     }
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();

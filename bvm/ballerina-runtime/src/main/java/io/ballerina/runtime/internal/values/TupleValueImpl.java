@@ -426,10 +426,12 @@ public class TupleValueImpl extends AbstractArrayValue {
         return shift(index, "shift");
     }
 
+    @Override
     public Object pop(long index) {
         return shift(index, "pop");
     }
 
+    @Override
     public Object remove(long index) {
         return shift(index, "remove");
     }

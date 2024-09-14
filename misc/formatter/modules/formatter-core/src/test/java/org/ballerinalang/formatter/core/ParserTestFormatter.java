@@ -34,6 +34,7 @@ import java.util.stream.Stream;
  */
 public class ParserTestFormatter extends FormatterTest {
 
+    @Override
     @Test(dataProvider = "test-file-provider")
     public void test(String fileName, String path) throws IOException {
         super.testParserResources(path);

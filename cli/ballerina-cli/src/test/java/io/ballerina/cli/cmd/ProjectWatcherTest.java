@@ -33,6 +33,7 @@ public class ProjectWatcherTest extends BaseCommandTest {
     private Thread watcherThread;
     private AtomicReference<ProjectWatcher> watcher;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -302,6 +303,7 @@ public class ProjectWatcherTest extends BaseCommandTest {
         Assert.assertEquals(actualOutput, expectedOutput);
     }
 
+    @Override
     @AfterMethod
     public void afterMethod() {
         try {

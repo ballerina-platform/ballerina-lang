@@ -90,6 +90,7 @@ public class BStringToStringTest extends BStringTestCommons {
         return new String[]{"testFutureValueToString", "testFutureValueToStringWithNilReturn"};
     }
 
+    @Override
     @AfterClass
     public void tearDown() {
         result = null;

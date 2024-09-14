@@ -111,6 +111,7 @@ public class TypeByAccessExprTest extends TypeByNodeTest {
         };
     }
 
+    @Override
     void verifyAssertCount() {
         assertEquals(getAssertCount(), 7);
     }
