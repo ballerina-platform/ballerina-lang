@@ -15,12 +15,12 @@
  */
 package org.ballerinalang.langserver.inlayhint;
 
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import org.ballerinalang.langserver.AbstractLSTest;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.util.FileUtils;
@@ -38,7 +38,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -72,13 +71,11 @@ public class InlayHintTest extends AbstractLSTest {
         inlayHintParams.setTextDocument(textDocumentIdentifier);
         Range range = testConfig.range;
 
-        Type collectionType = new TypeToken<List<InlayHint>>() {
-        }.getType();
         String response = getResponse(sourcePath.toString(), range, sourcePath.toString());
         JsonObject json = JsonParser.parseString(response).getAsJsonObject();
 
         JsonArray resultList = json.getAsJsonArray("result");
-        List<InlayHint> responseItemList = gson.fromJson(resultList, collectionType);
+        List<InlayHint> responseItemList = gson.fromJson(resultList, new TypeToken<>() { });
 
         if (responseItemList.size() != testConfig.getResult().size()) {
 //            updateConfig(configPath, testConfig, responseItemList);

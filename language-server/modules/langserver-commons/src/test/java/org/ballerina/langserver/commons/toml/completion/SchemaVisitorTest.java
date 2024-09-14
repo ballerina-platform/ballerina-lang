@@ -31,7 +31,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
@@ -55,9 +54,7 @@ public class SchemaVisitorTest {
                 .resolve("schema_visitor").resolve("schema").resolve(schemaFile).toString());
 
         Gson gson = new Gson();
-        Type collectionType = new TypeToken<Map<String, Map<String, CompletionItem>>>() {
-        }.getType();
-        Map<String, Map<String, CompletionItem>> expectedMap = gson.fromJson(expected, collectionType);
+        Map<String, Map<String, CompletionItem>> expectedMap = gson.fromJson(expected, new TypeToken<>() { });
 
         Schema validationSchema = Schema.from(schemaString);
         TomlSchemaVisitor visitor = new TomlSchemaVisitor();
