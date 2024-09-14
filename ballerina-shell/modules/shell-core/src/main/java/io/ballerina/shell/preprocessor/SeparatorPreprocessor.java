@@ -20,10 +20,11 @@ package io.ballerina.shell.preprocessor;
 
 import io.ballerina.shell.exceptions.PreprocessorException;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * Preprocessor to split the input into several statements
@@ -51,7 +52,7 @@ public class SeparatorPreprocessor extends Preprocessor {
         List<String> snippets = new ArrayList<>();
         StringBuilder builder = new StringBuilder();
 
-        Stack<Character> brackets = new Stack<>();
+        Deque<Character> brackets = new ArrayDeque<>();
 
         boolean isInBacktickLiteral = false;
         boolean isInQuoteLiteral = false;
