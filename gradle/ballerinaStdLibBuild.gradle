@@ -69,21 +69,40 @@ dependencies {
     distributionBala project(path: ':ballerina-lang:regexp', configuration: 'distributionBala')
 }
 
+@CacheableTask
 class BallerinaLangLibBuildTask extends JavaExec {
-    @Internal def projectDir = ''
-    @Internal def distCache = ''
+    @Internal def projectDir = project.layout.buildDirectory.dir("ballerina-src")
+    @Internal def distCache = project.layout.buildDirectory
     @Internal def pkgName = project.name
     @Internal def skipBootstrap = 'false'
+    @Internal def outputJarFileName = ''
+
+    @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
+    def srcDir = project.files("src/main/ballerina")
+
+    @OutputFile
+    def zipFile = projectDir.map{ it.file("target/" + project.projectDir.name + ".zip") }
+
+    @OutputFile
+    def jarFile = projectDir.map{ it.file("target/" + outputJarFileName + ".jar") }
+
+    @Override @Internal
+    List<CommandLineArgumentProvider> getJvmArgumentProviders() {
+        return super.getJvmArgumentProviders()
+    }
 
     BallerinaLangLibBuildTask() {
-        setMain('org.ballerinalang.stdlib.utils.BuildLangLib')
+        setMainClass('org.ballerinalang.stdlib.utils.BuildLangLib')
+        standardOutput = System.out
+        errorOutput = System.err
     }
 
     @Override
     void exec() {
         def args = []
-        args << projectDir
-        args << distCache
+        args << projectDir.get().toString()
+        args << distCache.get().toString()
         args << pkgName
         args << skipBootstrap
 
@@ -161,11 +180,8 @@ tasks.register('copyBallerinaProject', Copy) {
 }
 
 tasks.register('ballerinaLangLibBuild', BallerinaLangLibBuildTask) {
-    standardOutput = System.out
-    errorOutput = System.err
-    projectDir = project.buildDir.toString() + "/ballerina-src" // + modName
-    distCache = project.buildDir.toString()
-    classpath = project.configurations.balaCreat
+    classpath = files(project.configurations.balaCreat, jar.archiveFile)
+    outputJarFileName = jarFileName
     skipBootstrap = 'true'
     minHeapSize = "512m"
     maxHeapSize = "2048m"
@@ -174,11 +190,6 @@ tasks.register('ballerinaLangLibBuild', BallerinaLangLibBuildTask) {
     dependsOn copyBallerinaProject
     dependsOn createDistributionCache
     dependsOn jar
-    inputs.files("src/main/ballerina")
-    outputs.file("$buildDir/ballerina-src/target/" + modName + ".zip")
-    outputs.file("$buildDir/ballerina-src/target/${jarFileName}.jar")
-    outputs.cacheIf { true }
-    classpath += files(jar.archivePath)
 }
 
 artifacts {
