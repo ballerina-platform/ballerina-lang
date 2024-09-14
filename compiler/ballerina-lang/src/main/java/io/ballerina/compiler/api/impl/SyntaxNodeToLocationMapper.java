@@ -187,10 +187,10 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
 
     @Override
     public Optional<Location> transform(ClientResourceAccessActionNode clientResourceAccessActionNode) {
-        if (clientResourceAccessActionNode.methodName().isEmpty()) {
-            return Optional.of(clientResourceAccessActionNode.slashToken().location());
-        }
-        return Optional.of(clientResourceAccessActionNode.methodName().get().location());
+    return clientResourceAccessActionNode.methodName()
+        .map(MethodName::location)
+        .orElseGet(() -> clientResourceAccessActionNode.slashToken().location());
+
     }
 
     @Override
