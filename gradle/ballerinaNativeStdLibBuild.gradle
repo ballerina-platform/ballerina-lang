@@ -80,7 +80,7 @@ class BallerinaLangLibBuildTask extends JavaExec {
     def srcDir = project.files("src/main/ballerina")
 
     @OutputFile
-    def zipFile = projectDir.map{ it.file("target/" + project.projectDir.name + ".zip") }
+    def zipFile = projectDir.map{ it.file("target/" + project.ext.modName + ".zip") }
 
     @OutputFile
     def jarFile = projectDir.map{ it.file("target/" + outputJarFileName + ".jar") }
