@@ -30,7 +30,8 @@ import io.ballerina.runtime.internal.errors.ErrorReasons;
  *
  * @since 1.0.0
  */
-public class JavaUtils {
+public final class JavaUtils {
+
     private static final String booleanTypeName = "boolean";
     private static final String byteTypeName = "byte";
     private static final String shortTypeName = "short";
@@ -41,6 +42,9 @@ public class JavaUtils {
     private static final String doubleTypeName = "double";
     private static final Module JAVA_PACKAGE_ID = new Module(RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX, "java",
                                                              "0.9.0");
+
+    private JavaUtils() {
+    }
 
     /**
      * Returns the Java Class object associated with the class or interface with the given string name.

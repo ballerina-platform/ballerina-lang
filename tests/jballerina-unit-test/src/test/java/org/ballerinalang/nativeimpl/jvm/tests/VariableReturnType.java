@@ -75,7 +75,7 @@ import static io.ballerina.runtime.api.TypeTags.XML_ELEMENT_TAG;
  *
  * @since 2.0.0-preview1
  */
-public class VariableReturnType {
+public final class VariableReturnType {
 
     private static final BString NAME = new BmpStringValue("name");
     private static final BString AGE = new BmpStringValue("age");
@@ -84,6 +84,9 @@ public class VariableReturnType {
     private static final BString JOHN_DOE = new BmpStringValue("John Doe");
     private static final BString JANE_DOE = new BmpStringValue("Jane Doe");
     private static final BString SOFTWARE_ENGINEER = new BmpStringValue("Software Engineer");
+
+    private VariableReturnType() {
+    }
 
     public static Object echo(BValue value, BTypedesc td) {
         return value;

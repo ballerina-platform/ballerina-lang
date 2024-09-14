@@ -22,7 +22,7 @@ package io.ballerina.runtime.api;
  *
  * @since 0.995.0
  */
-public class TypeTags {
+public final class TypeTags {
 
     public static final int INT_TAG = 1;
     public static final int BYTE_TAG = INT_TAG + 1;
@@ -87,6 +87,9 @@ public class TypeTags {
     public static final int TYPE_REFERENCED_TYPE_TAG = PARAMETERIZED_TYPE_TAG + 1;
 
     public static final int REG_EXP_TYPE_TAG = TYPE_REFERENCED_TYPE_TAG + 1;
+
+    private TypeTags() {
+    }
 
     public static boolean isIntegerTypeTag(int tag) {
 

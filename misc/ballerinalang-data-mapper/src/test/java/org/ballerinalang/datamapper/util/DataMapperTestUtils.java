@@ -42,12 +42,15 @@ import java.util.stream.Collectors;
 /**
  * Common utils that are reused within data-mapper test suits.
  */
-public class DataMapperTestUtils {
+public final class DataMapperTestUtils {
 
     private static Path sourcesPath = new File(DataMapperTestUtils.class.getClassLoader().getResource("codeaction")
             .getFile()).toPath();
     private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
     private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager(serverContext);
+
+    private DataMapperTestUtils() {
+    }
 
 
     /**

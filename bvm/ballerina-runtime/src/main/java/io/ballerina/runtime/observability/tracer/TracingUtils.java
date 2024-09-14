@@ -34,7 +34,7 @@ import static io.ballerina.runtime.observability.tracer.TraceConstants.TAG_KEY_S
 /**
  * Util class to hold tracing specific util methods.
  */
-public class TracingUtils {
+public final class TracingUtils {
 
     private TracingUtils() {
     }

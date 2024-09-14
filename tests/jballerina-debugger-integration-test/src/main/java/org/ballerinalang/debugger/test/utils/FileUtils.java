@@ -29,13 +29,16 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Util class for file operations.
  */
-public class FileUtils {
+public final class FileUtils {
 
     static final String URI_SCHEME_BALA = "bala";
     static final String URI_SCHEME_FILE = "file";
     static final String URI_SEPARATOR = "/";
     static final String FILE_SEPARATOR = File.separator;
     static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
+
+    private FileUtils() {
+    }
 
     /**
      * Recursively copy a directory from a source to destination.

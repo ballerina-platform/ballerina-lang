@@ -26,7 +26,7 @@ import org.ballerinalang.langserver.commons.toml.visitor.ValueType;
  *
  * @since 2.0.0
  */
-public class TomlSyntaxTreeUtil {
+public final class TomlSyntaxTreeUtil {
 
     //Toml node types.
     public static final String NUMBER = "Number";

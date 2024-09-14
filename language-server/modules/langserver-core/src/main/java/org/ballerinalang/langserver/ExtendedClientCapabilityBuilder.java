@@ -30,7 +30,8 @@ import java.util.ServiceLoader;
  *
  * @since 2.0.0
  */
-public class ExtendedClientCapabilityBuilder {
+public final class ExtendedClientCapabilityBuilder {
+
     private static List<BallerinaClientCapabilitySetter<? extends BallerinaClientCapability>> capabilitySetters;
 
     private ExtendedClientCapabilityBuilder() {

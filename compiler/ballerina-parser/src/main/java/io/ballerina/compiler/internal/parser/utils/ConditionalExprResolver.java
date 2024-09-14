@@ -32,7 +32,8 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
  *
  * @since 2.0.0
  */
-public class ConditionalExprResolver {
+public final class ConditionalExprResolver {
+
     private static final String BOOLEAN = "boolean";
     private static final String DECIMAL = "decimal";
     private static final String FLOAT = "float";

@@ -57,7 +57,7 @@ import javax.annotation.Nonnull;
  *
  * @since 2.0.0
  */
-public class SymbolUtil {
+public final class SymbolUtil {
 
     public static final String SELF_KW = "self";
     

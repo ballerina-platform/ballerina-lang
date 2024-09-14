@@ -35,12 +35,16 @@ import java.util.regex.Pattern;
  *
  * @since 2.0.0
  */
-public class StringUtils {
+public final class StringUtils {
+
     private static final int MAX_VAR_STRING_LENGTH = 78;
     private static final String QUOTE = "'";
     private static final String SPACE = " ";
     private static final String CARET = "^";
     private static final String DASH = "-";
+
+    private StringUtils() {
+    }
 
     /**
      * Creates an quoted identifier to use for variable names.

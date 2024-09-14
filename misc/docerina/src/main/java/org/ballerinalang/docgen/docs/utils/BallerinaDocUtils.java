@@ -36,11 +36,14 @@ import java.util.zip.ZipOutputStream;
 /**
  * Util methods used for doc generation.
  */
-public class BallerinaDocUtils {
+public final class BallerinaDocUtils {
 
     private static final boolean debugEnabled = "true".equals(System.getProperty(
             BallerinaDocConstants.ENABLE_DEBUG_LOGS));
     private static final PrintStream out = System.out;
+
+    private BallerinaDocUtils() {
+    }
 
     public static void packageToZipFile(String sourceDirPath, String zipFilePath) throws IOException {
         Path p = Files.createFile(Paths.get(zipFilePath));

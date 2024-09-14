@@ -29,7 +29,10 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class FoldingRangeProvider {
+public final class FoldingRangeProvider {
+
+    private FoldingRangeProvider() {
+    }
 
     /**
      * Returns the list of folding ranges for the given syntax tree.

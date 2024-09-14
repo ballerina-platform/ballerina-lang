@@ -32,12 +32,15 @@ import java.nio.file.Paths;
  *
  * @since 2.0.0
  */
-public class FileUtils {
+public final class FileUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
 
     public static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
     public static final Path BUILD_DIR = Paths.get("build/").toAbsolutePath();
+
+    private FileUtils() {
+    }
 
     /**
      * Get the file content.

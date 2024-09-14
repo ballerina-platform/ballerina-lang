@@ -57,11 +57,14 @@ import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
  *
  * @since 2.0.0
  */
-public class BuildLangLib {
+public final class BuildLangLib {
 
     static Path projectDir;
     static Path distCache;
     static boolean skipBootstrap = false;
+
+    private BuildLangLib() {
+    }
 
 
     public static void main(String[] args) throws IOException {

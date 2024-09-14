@@ -14,7 +14,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class BallerinaToDependancyToml {
+public final class BallerinaToDependancyToml {
+
+    private BallerinaToDependancyToml() {
+    }
 
     public static void main(String... args) throws IOException {
         if (args.length == 0) {

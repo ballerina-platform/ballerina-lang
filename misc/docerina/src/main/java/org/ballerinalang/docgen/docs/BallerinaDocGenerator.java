@@ -84,7 +84,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 /**
  * Main class to generate a ballerina documentation.
  */
-public class BallerinaDocGenerator {
+public final class BallerinaDocGenerator {
 
     private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
     private static PrintStream out = System.out;
@@ -108,6 +108,9 @@ public class BallerinaDocGenerator {
 
     private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
             .excludeFieldsWithoutExposeAnnotation().create();
+
+    private BallerinaDocGenerator() {
+    }
 
     /**
      * API to merge multiple api docs.

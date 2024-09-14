@@ -53,7 +53,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTERINA_M
 /**
  * Utility methods.
  */
-public class TesterinaUtils {
+public final class TesterinaUtils {
 
     private static final PrintStream errStream = System.err;
 
@@ -64,6 +64,9 @@ public class TesterinaUtils {
     private static final String INIT_FUNCTION_SUFFIX = "..<init>";
     private static final String START_FUNCTION_SUFFIX = ".<start>";
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
+
+    private TesterinaUtils() {
+    }
 
     /**
      * Cleans up any remaining testerina metadata.

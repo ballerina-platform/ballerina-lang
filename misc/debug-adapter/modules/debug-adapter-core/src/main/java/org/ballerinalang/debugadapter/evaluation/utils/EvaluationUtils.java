@@ -74,7 +74,7 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
  *
  * @since 2.0.0
  */
-public class EvaluationUtils {
+public final class EvaluationUtils {
 
     // Debugger runtime helper classes
     private static final String DEBUGGER_HELPER_PREFIX = "ballerina.debugger_helpers.1.";

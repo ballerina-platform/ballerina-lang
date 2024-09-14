@@ -66,7 +66,7 @@ import static org.ballerinalang.langserver.commons.completion.LSCompletionItem.C
  *
  * @since 2.0.0
  */
-public class SortingUtil {
+public final class SortingUtil {
 
     private static final int RANK_UPPER_BOUNDARY = 64;
 

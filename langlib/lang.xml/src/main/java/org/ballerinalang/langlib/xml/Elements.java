@@ -38,9 +38,12 @@ import java.util.List;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class Elements {
+public final class Elements {
 
     private static final String OPERATION = "get elements from xml";
+
+    private Elements() {
+    }
 
     public static BXml elements(BXml xml, Object name) {
         try {

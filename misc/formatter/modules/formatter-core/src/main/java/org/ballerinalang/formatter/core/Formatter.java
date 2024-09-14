@@ -58,7 +58,10 @@ import org.ballerinalang.formatter.core.options.FormattingOptions;
 /**
  * Class that exposes the formatting APIs.
  */
-public class Formatter {
+public final class Formatter {
+
+    private Formatter() {
+    }
 
     /**
      * Formats the provided source string and returns back the formatted source string.

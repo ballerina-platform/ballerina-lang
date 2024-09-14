@@ -94,7 +94,7 @@ import static io.ballerina.runtime.internal.values.DecimalValue.isDecimalWithinI
  *
  * @since 0.995.0
  */
-public class TypeConverter {
+public final class TypeConverter {
 
     private static final String NAN = "NaN";
     private static final String POSITIVE_INFINITY = "Infinity";
@@ -527,7 +527,7 @@ public class TypeConverter {
         return returnVal;
     }
 
-    protected static String getShortSourceValue(Object sourceValue) {
+    static String getShortSourceValue(Object sourceValue) {
         if (sourceValue == null) {
             return "()";
         }
@@ -541,7 +541,7 @@ public class TypeConverter {
         return sourceValueName;
     }
 
-    protected static String getLongFieldName(String varName, String fieldName) {
+    static String getLongFieldName(String varName, String fieldName) {
         if (varName == null) {
             return fieldName;
         } else {

@@ -71,7 +71,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class JsonInternalUtils {
+public final class JsonInternalUtils {
 
     public static final String OBJECT = "object";
     public static final String ARRAY = "array";

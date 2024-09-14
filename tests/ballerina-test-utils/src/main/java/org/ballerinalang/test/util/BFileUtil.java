@@ -42,9 +42,12 @@ import java.util.stream.Stream;
  *
  * @since 0.975.0
  */
-public class BFileUtil {
+public final class BFileUtil {
 
     private static final String IGNORE = ".gitignore";
+
+    private BFileUtil() {
+    }
 
     /**
      * Copy a file or directory to a target location.

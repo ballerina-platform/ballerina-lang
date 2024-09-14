@@ -53,7 +53,7 @@ import java.util.function.Supplier;
 /**
  * Util functions for async invocations.
  */
-public class AsyncUtils {
+public final class AsyncUtils {
 
     /**
      * Block the current strand to execute asynchronously.

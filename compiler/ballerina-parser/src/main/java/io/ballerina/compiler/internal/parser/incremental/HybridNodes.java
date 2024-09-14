@@ -31,7 +31,10 @@ import java.util.Deque;
  *
  * @since 1.3.0
  */
-class HybridNodes {
+final class HybridNodes {
+
+    private HybridNodes() {
+    }
 
     /**
      * Returns the next node based on the previous node's state and the given kind.

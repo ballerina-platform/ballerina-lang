@@ -37,7 +37,10 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFie
  * Extern function to remove element from the map.
  * ballerina.model.map:remove(string)
  */
-public class Remove {
+public final class Remove {
+
+    private Remove() {
+    }
 
     public static Object remove(BMap<?, ?> m, BString k) {
         Type type = TypeUtils.getImpliedType(m.getType());

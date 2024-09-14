@@ -30,7 +30,11 @@ import java.util.logging.Logger;
 /**
  * Entry point of the stdio launcher.
  */
-public class Main {
+public final class Main {
+
+    private Main() {
+    }
+
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         LogManager.getLogManager().reset();
         Logger globalLogger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);

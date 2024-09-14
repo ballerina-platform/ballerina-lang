@@ -100,7 +100,7 @@ import java.util.stream.Collectors;
 /**
  * Generates the Page bClasses for bal packages.
  */
-public class Generator {
+public final class Generator {
 
     private static final String EMPTY_STRING = "";
     private static final String RETURN_PARAM_NAME = "return";
@@ -111,6 +111,9 @@ public class Generator {
     public static final String LISTENER_IMMEDIATE_STOP_METHOD_NAME = "immediateStop";
     public static final String LISTENER_GRACEFUL_STOP_METHOD_NAME = "gracefulStop";
     public static final String DOC_HEADER_PREFIX = "# ";
+
+    private Generator() {
+    }
 
     /**
      * Generate/Set the module constructs model(docerina model) when the syntax tree for the module is given.

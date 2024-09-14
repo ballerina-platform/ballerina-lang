@@ -96,7 +96,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATO
  *
  * @since 1.0.1
  */
-public class CodeActionUtil {
+public final class CodeActionUtil {
 
     private CodeActionUtil() {
     }

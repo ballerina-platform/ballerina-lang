@@ -32,7 +32,10 @@ import io.ballerina.runtime.api.values.BDecimal;
 //        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
 //        isPublic = true
 //)
-public class Abs {
+public final class Abs {
+
+    private Abs() {
+    }
 
     public static BDecimal abs(BDecimal n) {
         return ValueCreator.createDecimalValue(n.value().abs());
