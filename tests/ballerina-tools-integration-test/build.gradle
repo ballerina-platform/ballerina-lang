@@ -33,7 +33,7 @@ dependencies {
     implementation project(':ballerina-packerina')
     implementation project(':ballerina-tool')   
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
-    implementation 'org.apache.logging.log4j:log4j-slf4j-impl'
+    implementation 'org.slf4j:slf4j-jdk14'
 
     testCompile 'org.awaitility:awaitility'
     testCompile 'commons-io:commons-io'

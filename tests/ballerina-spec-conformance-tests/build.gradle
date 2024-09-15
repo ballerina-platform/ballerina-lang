@@ -29,7 +29,7 @@ dependencies {
     testCompile'org.testng:testng'
     testCompile 'com.h2database:h2'
     testCompile 'org.slf4j:slf4j-api'
-    testCompile 'org.apache.logging.log4j:log4j-slf4j-impl'
+    testCompile 'org.slf4j:slf4j-jdk14'
 
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')

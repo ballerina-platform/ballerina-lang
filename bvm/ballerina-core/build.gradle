@@ -52,7 +52,7 @@ dependencies {
     implementation 'io.opentracing:opentracing-util'
     implementation 'org.awaitility:awaitility'
     implementation 'com.zaxxer:HikariCP'
-    implementation 'org.apache.logging.log4j:log4j-slf4j-impl'
+    implementation 'org.slf4j:slf4j-jdk14'
     implementation 'commons-codec:commons-codec'
 }
 

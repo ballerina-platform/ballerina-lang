@@ -31,7 +31,7 @@ dependencies {
     balo project(path: ':ballerina-bootstrapper', configuration: 'pack1')
 
     testCompile 'org.testng:testng'
-    testCompile 'org.apache.logging.log4j:log4j-slf4j-impl'
+    testCompile 'org.slf4j:slf4j-jdk14'
 }
 
 description = 'Ballerina - BIR Model'

@@ -40,7 +40,7 @@ dependencies {
     
     testCompile project(':language-server:language-server-compiler')
     testCompile 'org.testng:testng'
-    testCompile 'org.apache.logging.log4j:log4j-slf4j-impl'
+    testCompile 'org.slf4j:slf4j-jdk14'
 }
 
 description = 'Ballerina - OpenApi Tooling - Ballerina To OpenApi'

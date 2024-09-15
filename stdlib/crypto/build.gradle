@@ -36,7 +36,7 @@ dependencies {
     implementation project(':ballerina-java')
 
     testCompile 'org.testng:testng'
-    testCompile 'org.apache.logging.log4j:log4j-slf4j-impl'
+    testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'commons-codec:commons-codec'
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')

@@ -67,7 +67,7 @@ shadowJar {
         exclude(dependency('org.wso2.eclipse.osgi:org.eclipse.osgi.services'))
         exclude(dependency('org.slf4j:slf4j-log4j12'))
         exclude(dependency('org.slf4j:slf4j-simple'))
-        exclude(dependency('org.apache.logging.log4j:log4j-slf4j-impl'))
+        exclude(dependency('org.slf4j:slf4j-jdk14'))
         exclude(dependency('io.netty:netty-common'))
         exclude(dependency('io.netty:netty-buffer'))
         exclude(dependency('io.netty:netty-transport'))

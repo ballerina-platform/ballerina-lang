@@ -54,7 +54,7 @@ dependencies {
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-file')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile 'org.apache.logging.log4j:log4j-slf4j-impl'
+    testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.testng:testng'
 }
 

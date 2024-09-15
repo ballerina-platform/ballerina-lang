@@ -51,7 +51,7 @@ dependencies {
     testRuntime project(':ballerina-lang:bool')
     testRuntime project(':ballerina-runtime')
     testRuntime project(':ballerina-lang:internal')
-    testRuntime 'org.apache.logging.log4j:log4j-slf4j-impl'
+    testRuntime 'org.slf4j:slf4j-jdk14'
 
     baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
