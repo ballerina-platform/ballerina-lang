@@ -36,5 +36,7 @@ public interface TypeWithShape {
 
     Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object);
 
+    Optional<SemType> acceptedTypeOf(Context cx);
+
     boolean couldInherentTypeBeDifferent();
 }

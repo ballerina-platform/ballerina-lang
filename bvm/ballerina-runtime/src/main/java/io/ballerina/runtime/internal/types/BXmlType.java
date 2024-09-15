@@ -207,6 +207,11 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         return readonlyShapeOf(object).map(semType -> Core.intersect(semType, Builder.readonlyType()));
     }
 
+    @Override
+    public Optional<SemType> acceptedTypeOf(Context cx) {
+        return Optional.of(getSemType());
+    }
+
     private Optional<SemType> readonlyShapeOf(Object object) {
         if (object instanceof XmlSequence xmlSequence) {
             // We represent xml<never> as an empty sequence

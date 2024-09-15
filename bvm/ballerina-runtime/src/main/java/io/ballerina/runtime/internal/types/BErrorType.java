@@ -157,7 +157,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
             distinctIdSupplier = new DistinctIdSupplier(TypeChecker.context().env, getTypeIdSet());
         }
         // Should we actually pass the readonly shape supplier here?
-        return BMapType.readonlyShape(cx, shapeSupplier, errorDetails)
+        return BMapType.shapeOfInner(cx, shapeSupplier, errorDetails)
                 .map(ErrorUtils::errorDetail)
                 .map(err -> distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct)
                         .reduce(err, Core::intersect));
@@ -170,7 +170,12 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
         if (!(details instanceof MapValueImpl<?, ?> errorDetails)) {
             return Optional.empty();
         }
-        return BMapType.readonlyShape(cx, shapeSupplierFn, errorDetails).map(ErrorUtils::errorDetail);
+        return BMapType.shapeOfInner(cx, shapeSupplierFn, errorDetails).map(ErrorUtils::errorDetail);
+    }
+
+    @Override
+    public Optional<SemType> acceptedTypeOf(Context cx) {
+        return Optional.of(getSemType());
     }
 
     @Override

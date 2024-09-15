@@ -252,7 +252,8 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         });
         List<Member> members = Stream.concat(fieldStream, methodStream).toList();
         ObjectQualifiers qualifiers = getQualifiers(td);
-        return od.define(env, qualifiers, members);
+        return od.define(env, qualifiers, members, qualifiers.readonly() ? CELL_MUT_NONE :
+                CELL_MUT_LIMITED);
     }
 
     private ObjectQualifiers getQualifiers(BLangObjectTypeNode td) {

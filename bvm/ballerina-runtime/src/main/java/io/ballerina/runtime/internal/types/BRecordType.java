@@ -34,6 +34,7 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
@@ -54,10 +55,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 import static io.ballerina.runtime.api.types.semtype.Builder.neverType;
-import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
 
 /**
  * {@code BRecordType} represents a user defined record type in Ballerina.
@@ -73,7 +75,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
     private MappingDefinition defn;
-    private final Env env = Env.getInstance();
+    private MappingDefinition acceptedTypeDefn;
     private byte couldInhereTypeBeDifferentCache = 0;
 
     private final Map<String, BFunctionPointer<Object, ?>> defaultValues = new LinkedHashMap<>();
@@ -249,17 +251,27 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
 
     @Override
     public SemType createSemType() {
+        Env env = Env.getInstance();
         if (defn != null) {
             return defn.getSemType(env);
         }
         MappingDefinition md = new MappingDefinition();
         defn = md;
+        return createSemTypeInner(md, env, mut(), SemType::tryInto);
+    }
+
+    private CellMutability mut() {
+        return isReadOnly() ? CELL_MUT_NONE : CellMutability.CELL_MUT_LIMITED;
+    }
+
+    private SemType createSemTypeInner(MappingDefinition md, Env env, CellMutability mut,
+                                       Function<Type, SemType> semTypeFunction) {
         Field[] fields = getFields().values().toArray(Field[]::new);
         MappingDefinition.Field[] mappingFields = new MappingDefinition.Field[fields.length];
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
             boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
-            SemType fieldType = tryInto(field.getFieldType());
+            SemType fieldType = semTypeFunction.apply(field.getFieldType());
             if (!isOptional && Core.isNever(fieldType)) {
                 return neverType();
             }
@@ -270,9 +282,8 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
             mappingFields[i] = new MappingDefinition.Field(field.getFieldName(), fieldType,
                     isReadonly, isOptional);
         }
-        CellMutability mut = isReadOnly() ? CELL_MUT_NONE : CellMutability.CELL_MUT_LIMITED;
         SemType rest;
-        rest = restFieldType != null ? tryInto(restFieldType) : neverType();
+        rest = restFieldType != null ? semTypeFunction.apply(restFieldType) : neverType();
         return md.defineMappingTypeWrapped(env, mappingFields, rest, mut);
     }
 
@@ -297,13 +308,15 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         return Optional.of(semTypePart);
     }
 
-    private SemType shapeOfInner(Context cx, ShapeSupplier shapeSupplier, MapValueImpl<?, ?> value, boolean readonly) {
+    private SemType shapeOfInner(Context cx, ShapeSupplier shapeSupplier, MapValueImpl<?, ?> value,
+                                 boolean takeFieldShape) {
+        Env env = cx.env;
         int nFields = value.size();
         List<MappingDefinition.Field> fields = new ArrayList<>(nFields);
         Map.Entry<?, ?>[] entries = value.entrySet().toArray(Map.Entry[]::new);
         Set<String> handledFields = new HashSet<>(nFields);
         MappingDefinition md;
-        if (readonly) {
+        if (takeFieldShape) {
             MappingDefinition readonlyShapeDefinition = value.getReadonlyShapeDefinition();
             if (readonlyShapeDefinition != null) {
                 return readonlyShapeDefinition.getSemType(env);
@@ -321,7 +334,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
             boolean readonlyField = fieldIsReadonly(fieldName);
             boolean optionalField = fieldIsOptional(fieldName);
             Optional<SemType> fieldType;
-            if (readonly || readonlyField) {
+            if (takeFieldShape || readonlyField) {
                 optionalField = false;
                 fieldType = shapeSupplier.get(cx, fieldValue);
             } else {
@@ -331,7 +344,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
             fields.add(new MappingDefinition.Field(fieldName, fieldType.get(), readonlyField,
                     optionalField));
         }
-        if (!readonly) {
+        if (!takeFieldShape) {
             for (var field : getFields().values()) {
                 String name = field.getFieldName();
                 if (handledFields.contains(name)) {
@@ -350,12 +363,13 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         }
         SemType semTypePart;
         MappingDefinition.Field[] fieldsArray = fields.toArray(MappingDefinition.Field[]::new);
-        if (readonly) {
-            semTypePart = md.defineMappingTypeWrapped(env, fieldsArray, neverType(), CELL_MUT_NONE);
+        SemType rest;
+        if (takeFieldShape) {
+            rest = Builder.neverType();
         } else {
-            SemType rest = restFieldType != null ? SemType.tryInto(restFieldType) : neverType();
-            semTypePart = md.defineMappingTypeWrapped(env, fieldsArray, rest, CELL_MUT_LIMITED);
+            rest = restFieldType != null ? SemType.tryInto(restFieldType) : neverType();
         }
+        semTypePart = md.defineMappingTypeWrapped(env, fieldsArray, rest, mut());
         value.resetReadonlyShapeDefinition();
         return semTypePart;
     }
@@ -380,6 +394,18 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     @Override
     public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         return Optional.of(shapeOfInner(cx, shapeSupplier, (MapValueImpl<?, ?>) object, true));
+    }
+
+    @Override
+    public synchronized Optional<SemType> acceptedTypeOf(Context cx) {
+        Env env = cx.env;
+        if (acceptedTypeDefn != null) {
+            return Optional.of(acceptedTypeDefn.getSemType(env));
+        }
+        MappingDefinition md = new MappingDefinition();
+        acceptedTypeDefn = md;
+        return Optional.of(createSemTypeInner(md, env, CELL_MUT_UNLIMITED,
+                (type) -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow()));
     }
 
     private Type fieldType(String fieldName) {

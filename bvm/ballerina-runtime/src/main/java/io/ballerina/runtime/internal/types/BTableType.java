@@ -216,6 +216,12 @@ public class BTableType extends BType implements TableType, TypeWithShape {
         return Optional.of(valueShape(cx, shapeSupplierFn, (BTable<?, ?>) object));
     }
 
+    @Override
+    public Optional<SemType> acceptedTypeOf(Context cx) {
+        // TODO: this is not correct but can we actually match tables?
+        return Optional.of(getSemType());
+    }
+
     private SemType valueShape(Context cx, ShapeSupplier shapeSupplier, BTable<?, ?> table) {
         SemType constraintType = Builder.neverType();
         for (var value : table.values()) {
