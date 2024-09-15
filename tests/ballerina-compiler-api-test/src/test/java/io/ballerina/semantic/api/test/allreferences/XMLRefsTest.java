@@ -39,13 +39,15 @@ public class XMLRefsTest extends FindAllReferencesTest {
                                 location(21, 24, 27),
                                 location(26, 17, 20),
                                 location(27, 17, 20),
-                                location(29, 16, 19))
+                                location(29, 16, 19),
+                                location(34, 23, 26))
                 },
                 {23, 25, location(19, 37, 40),
                         List.of(location(19, 37, 40),
                                 location(23, 25, 28),
                                 location(27, 23, 26),
-                                location(28, 17, 20))
+                                location(28, 17, 20),
+                                location(32, 20, 23))
                 },
         };
     }

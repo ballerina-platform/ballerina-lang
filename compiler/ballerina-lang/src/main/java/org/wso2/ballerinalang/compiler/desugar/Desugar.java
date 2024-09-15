@@ -6644,6 +6644,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Handle element name access.
+        // Accessing field name using the "_" has been disallowed in the compile time.
         if (fieldName.equals("_")) {
             return createLanglibXMLInvocation(fieldAccessExpr.pos, XML_INTERNAL_GET_ELEMENT_NAME_NIL_LIFTING,
                     fieldAccessExpr.expr, Collections.emptyList(), Collections.emptyList());
@@ -10629,15 +10630,15 @@ public class Desugar extends BLangNodeVisitor {
     private void createMapFunctionForStepExpr(BLangXMLNavigationAccess xmlNavigation,
                                               List<BLangXMLStepExtend> extensions) {
         Location pos = xmlNavigation.pos;
-        ArrayList<BLangExpression> args = new ArrayList<>();
-        ArrayList<BLangExpression> filters = expandFilters(xmlNavigation.filters);
+        List<BLangExpression> args;
+        List<BLangExpression> filters = expandFilters(xmlNavigation.filters);
 
         // xml/**/<elemName>
         if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.DESCENDANTS) {
-            args.add(createArrowFunctionForNavigation(pos, extensions, XML_GET_DESCENDANTS, filters));
+            args = List.of(createArrowFunctionForNavigation(pos, extensions, XML_GET_DESCENDANTS, filters));
         } else {
             // xml/*
-            args.add(createArrowFunctionForNavigation(pos, extensions, XML_INTERNAL_CHILDREN, filters));
+            args = List.of(createArrowFunctionForNavigation(pos, extensions, XML_INTERNAL_CHILDREN, filters));
         }
 
         BLangInvocation elements =

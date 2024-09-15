@@ -29,6 +29,7 @@ import java.util.StringJoiner;
 
 /**
  * Represents xml step extension consisting of filters.
+ * Example: {@code x/*.<filter1|filter2>, x/<name>.<filter1|filter2>}
  *
  * @since 2201.10.0
  */

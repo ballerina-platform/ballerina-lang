@@ -105,6 +105,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -1100,6 +1102,18 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     public void visit(BLangExtendedXMLNavigationAccess extendedXMLNavigationAccess) {
         extendedXMLNavigationAccess.stepExpr = rewriteExpr(extendedXMLNavigationAccess.stepExpr);
         result = extendedXMLNavigationAccess;
+    }
+
+    @Override
+    public void visit(BLangXMLIndexedStepExtend xmlIndexedStepExtend) {
+        xmlIndexedStepExtend.indexExpr = rewriteExpr(xmlIndexedStepExtend.indexExpr);
+        result = xmlIndexedStepExtend;
+    }
+
+    @Override
+    public void visit(BLangXMLMethodCallStepExtend xmlMethodCallStepExtend) {
+        xmlMethodCallStepExtend.invocation = rewriteExpr(xmlMethodCallStepExtend.invocation);
+        result = xmlMethodCallStepExtend;
     }
     
     @Override

@@ -7097,7 +7097,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     XMLStepMethodCallExtendNode xmlStepMethodCallExtendNode = (XMLStepMethodCallExtendNode) node;
                     SimpleNameReferenceNode methodName = xmlStepMethodCallExtendNode.methodName();
                     BLangInvocation bLangInvocation = createBLangInvocation(methodName,
-                            xmlStepMethodCallExtendNode.parenthesizedArgList().arguments(), methodName.location(),
+                            xmlStepMethodCallExtendNode.parenthesizedArgList().arguments(), pos,
                             false);
                     bLangInvocation.expr = curExpr == null ? expr : curExpr;
                     curExpr = new BLangXMLMethodCallStepExtend(pos, bLangInvocation);

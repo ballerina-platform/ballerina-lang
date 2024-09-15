@@ -296,8 +296,13 @@ public class XMLAccessTest {
 
     @DataProvider
     private Object[] xmlStepExtension() {
-        return new Object[]{"testXmlIndexedStepExtend", "testXmlFilterStepExtend", "testXmlIndexedAndFilterStepExtend",
-                "testXmlMethodCallStepExtend", "testXmlMethodCallIndexedAndFilterStepExtend"};
+        return new Object[]{
+                "testXmlIndexedStepExtend",
+                "testXmlFilterStepExtend",
+                "testXmlIndexedAndFilterStepExtend",
+                "testXmlMethodCallStepExtend",
+                "testXmlMethodCallIndexedAndFilterStepExtend"
+        };
     }
 
     @Test
@@ -311,20 +316,20 @@ public class XMLAccessTest {
         BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'j'", 8, 18);
         BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 17,
                 18);
-        BAssertUtil.validateError(navigationNegative, i++, "too many arguments in call to 'get()'", 18, 14);
+        BAssertUtil.validateError(navigationNegative, i++, "too many arguments in call to 'get()'", 18, 13);
         BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 19,
                 18);
         BAssertUtil.validateError(navigationNegative, i++, "undefined function 'foo' in type 'xml'", 21, 14);
-        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'xml', found 'int'", 22, 14);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'xml', found 'int'", 22, 13);
         BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 23,
                 23);
-        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'xml', found 'int'", 25, 23);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'xml', found 'int'", 25, 22);
         BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'r'", 29, 23);
         BAssertUtil.validateError(navigationNegative, i++,
                 "incompatible types: expected 'boolean', found 'xml:Element'", 31, 31);
         BAssertUtil.validateError(navigationNegative, i++,
                 "incompatible types: expected 'xml:ProcessingInstruction', found 'xml:Element'", 33, 60);
-        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'xml', found '()'", 34, 19);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'xml', found '()'", 34, 18);
         BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'r'", 36, 26);
         BAssertUtil.validateError(navigationNegative, i++,
                 "incompatible types: expected 'boolean', found 'xml:Element'", 38, 34);
