@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.ErrorUtils;
 import io.ballerina.runtime.internal.types.semtype.ObjectDefinition;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.function.Function;
 
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 
@@ -227,10 +229,14 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
 
     @Override
     public SemType createSemType() {
+        return createSemTypeInner(SemType::tryInto);
+    }
+
+    private SemType createSemTypeInner(Function<Type, SemType> semTypeFunction) {
         if (constituentTypes.isEmpty()) {
             return Builder.neverType();
         }
-        SemType result = constituentTypes.stream().map(SemType::tryInto).reduce(Core::intersect).orElseThrow();
+        SemType result = constituentTypes.stream().map(semTypeFunction).reduce(Core::intersect).orElseThrow();
         // TODO:refactor this
         if (Core.isSubtypeSimple(result, Builder.errorType())) {
             BErrorType effectiveErrorType = (BErrorType) getImpliedType(effectiveType);
@@ -253,6 +259,11 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
             return typeWithShape.shapeOf(cx, shapeSupplierFn, object);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<SemType> acceptedTypeOf(Context cx) {
+        return Optional.of(createSemTypeInner(type -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow()));
     }
 
     @Override

@@ -13,6 +13,13 @@ public class ShapeAnalyzer {
     private ShapeAnalyzer() {
     }
 
+    public static Optional<SemType> acceptedTypeOf(Context cx, Type typeDesc) {
+        if (typeDesc instanceof TypeWithShape typeWithShape) {
+            return typeWithShape.acceptedTypeOf(cx);
+        }
+        return Optional.of(SemType.tryInto(typeDesc));
+    }
+
     public static Optional<SemType> shapeOf(Context cx, Object object) {
         if (object == null) {
             return Optional.of(Builder.nilType());

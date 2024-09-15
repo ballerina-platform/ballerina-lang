@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
@@ -38,6 +39,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
 
 /**
  * {@code BMapType} represents a type of a map in Ballerina.
@@ -58,7 +60,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
     private MappingDefinition defn;
-    private final Env env = Env.getInstance();
+    private MappingDefinition acceptedTypeDefn;
 
     public BMapType(Type constraint) {
         this(constraint, false);
@@ -183,12 +185,15 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
 
     @Override
     public SemType createSemType() {
+        Env env = Env.getInstance();
         if (defn != null) {
             return defn.getSemType(env);
         }
         MappingDefinition md = new MappingDefinition();
         defn = md;
-        return getSemTypePart(md, tryInto(getConstrainedType()));
+        CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE :
+                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+        return createSemTypeInner(env, md, tryInto(getConstrainedType()), mut);
     }
 
     @Override
@@ -208,7 +213,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
             return Optional.of(cachedShape);
         }
 
-        return readonlyShape(cx, shapeSupplier, value);
+        return shapeOfInner(cx, shapeSupplier, value);
     }
 
     @Override
@@ -218,10 +223,22 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
 
     @Override
     public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
-        return readonlyShape(cx, shapeSupplierFn, (MapValueImpl<?, ?>) object);
+        return shapeOfInner(cx, shapeSupplierFn, (MapValueImpl<?, ?>) object);
     }
 
-    static Optional<SemType> readonlyShape(Context cx, ShapeSupplier shapeSupplier, MapValueImpl<?, ?> value) {
+    @Override
+    public synchronized Optional<SemType> acceptedTypeOf(Context cx) {
+        Env env = cx.env;
+        if (acceptedTypeDefn != null) {
+            return Optional.of(acceptedTypeDefn.getSemType(env));
+        }
+        MappingDefinition md = new MappingDefinition();
+        acceptedTypeDefn = md;
+        SemType elementType = ShapeAnalyzer.acceptedTypeOf(cx, getConstrainedType()).orElseThrow();
+        return Optional.of(createSemTypeInner(env, md, elementType, CELL_MUT_UNLIMITED));
+    }
+
+    static Optional<SemType> shapeOfInner(Context cx, ShapeSupplier shapeSupplier, MapValueImpl<?, ?> value) {
         MappingDefinition readonlyShapeDefinition = value.getReadonlyShapeDefinition();
         if (readonlyShapeDefinition != null) {
             return Optional.of(readonlyShapeDefinition.getSemType(cx.env));
@@ -236,15 +253,16 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
             SemType fieldType = valueType.orElseThrow();
             fields[i] = new MappingDefinition.Field(entries[i].getKey().toString(), fieldType, true, false);
         }
-        SemType semType = md.defineMappingTypeWrapped(cx.env, fields, Builder.neverType(), CELL_MUT_NONE);
+        CellAtomicType.CellMutability mut = value.getType().isReadOnly() ? CELL_MUT_NONE :
+                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+        SemType semType = md.defineMappingTypeWrapped(cx.env, fields, Builder.neverType(), mut);
         value.cacheShape(semType);
         value.resetReadonlyShapeDefinition();
         return Optional.of(semType);
     }
 
-    private SemType getSemTypePart(MappingDefinition defn, SemType restType) {
-        CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
-                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+    private SemType createSemTypeInner(Env env, MappingDefinition defn, SemType restType,
+                                       CellAtomicType.CellMutability mut) {
         return defn.defineMappingTypeWrapped(env, EMPTY_FIELD_ARR, restType, mut);
     }
 

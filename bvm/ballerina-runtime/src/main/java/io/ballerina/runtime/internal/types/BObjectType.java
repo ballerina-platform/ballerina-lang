@@ -36,6 +36,7 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -62,6 +63,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.Function;
 
 import static io.ballerina.runtime.api.TypeTags.SERVICE_TAG;
 
@@ -84,7 +86,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     private String cachedToString;
     private boolean resolving;
     private ObjectDefinition defn;
-    private final Env env = Env.getInstance();
+    private ObjectDefinition acceptedTypeDefn;
     private DistinctIdSupplier distinctIdSupplier;
 
     /**
@@ -275,12 +277,23 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     }
 
     @Override
-    public synchronized SemType createSemType() {
+    public SemType createSemType() {
+        Env env = Env.getInstance();
         if (distinctIdSupplier == null) {
             distinctIdSupplier = new DistinctIdSupplier(env, typeIdSet);
         }
-        return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct)
-                .reduce(semTypeInner(), Core::intersect);
+        CellAtomicType.CellMutability mut =
+                SymbolFlags.isFlagOn(getFlags(), SymbolFlags.READONLY) ? CellAtomicType.CellMutability.CELL_MUT_NONE :
+                        CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+        SemType innerType;
+        if (defn != null) {
+            innerType = defn.getSemType(env);
+        } else {
+            ObjectDefinition od = new ObjectDefinition();
+            defn = od;
+            innerType = semTypeInner(od, mut, SemType::tryInto);
+        }
+        return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(innerType, Core::intersect);
     }
 
     private static boolean skipField(Set<String> seen, String name) {
@@ -290,12 +303,9 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
         return !seen.add(name);
     }
 
-    private SemType semTypeInner() {
-        if (defn != null) {
-            return defn.getSemType(env);
-        }
-        ObjectDefinition od = new ObjectDefinition();
-        defn = od;
+    private SemType semTypeInner(ObjectDefinition od, CellAtomicType.CellMutability mut,
+                                 Function<Type, SemType> semTypeSupplier) {
+        Env env = Env.getInstance();
         ObjectQualifiers qualifiers = getObjectQualifiers();
         List<Member> members = new ArrayList<>();
         Set<String> seen = new HashSet<>();
@@ -307,7 +317,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             Field field = entry.getValue();
             boolean isPublic = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.PUBLIC);
             boolean isImmutable = qualifiers.readonly() | SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
-            members.add(new Member(name, tryInto(field.getFieldType()), Member.Kind.Field,
+            members.add(new Member(name, semTypeSupplier.apply(field.getFieldType()), Member.Kind.Field,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, isImmutable));
         }
         for (MethodData method : allMethods()) {
@@ -319,7 +329,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             members.add(new Member(name, method.semType(), Member.Kind.Method,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, true));
         }
-        return od.define(env, qualifiers, members);
+        return od.define(env, qualifiers, members, mut);
     }
 
     private ObjectQualifiers getObjectQualifiers() {
@@ -347,7 +357,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             return Optional.of(cachedShape);
         }
         if (distinctIdSupplier == null) {
-            distinctIdSupplier = new DistinctIdSupplier(env, typeIdSet);
+            distinctIdSupplier = new DistinctIdSupplier(cx.env, typeIdSet);
         }
         SemType shape = distinctIdSupplier.get().stream().map(ObjectDefinition::distinct)
                 .reduce(valueShape(cx, shapeSupplier, abstractObjectValue), Core::intersect);
@@ -358,6 +368,25 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     @Override
     public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
         return Optional.of(valueShape(cx, shapeSupplierFn, (AbstractObjectValue) object));
+    }
+
+    @Override
+    public synchronized Optional<SemType> acceptedTypeOf(Context cx) {
+        Env env = Env.getInstance();
+        if (distinctIdSupplier == null) {
+            distinctIdSupplier = new DistinctIdSupplier(env, typeIdSet);
+        }
+        CellAtomicType.CellMutability mut = CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
+        SemType innerType;
+        if (acceptedTypeDefn != null) {
+            innerType = acceptedTypeDefn.getSemType(env);
+        } else {
+            ObjectDefinition od = new ObjectDefinition();
+            acceptedTypeDefn = od;
+            innerType = semTypeInner(od, mut, (type -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow()));
+        }
+        return Optional.of(
+                distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(innerType, Core::intersect));
     }
 
     @Override
@@ -401,7 +430,9 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             members.add(new Member(name, method.semType(), Member.Kind.Method,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, true));
         }
-        return od.define(env, qualifiers, members);
+        return od.define(cx.env, qualifiers, members,
+                qualifiers.readonly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
+                        CellAtomicType.CellMutability.CELL_MUT_LIMITED);
     }
 
     private static SemType fieldShape(Context cx, ShapeSupplier shapeSupplier, Field field,
