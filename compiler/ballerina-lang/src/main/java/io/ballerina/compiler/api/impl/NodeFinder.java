@@ -1304,6 +1304,7 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangXMLFilterStepExtend xmlFilterStepExtend) {
         lookupNodes(xmlFilterStepExtend.filters);
+        setEnclosingNode(xmlFilterStepExtend, xmlFilterStepExtend.pos);
     }
 
     @Override

@@ -102,6 +102,23 @@ public class SymbolsInXMLNavigationExprsTest {
         };
     }
 
+    @Test(dataProvider = "StepExprWithExtensionPosProvider")
+    public void testXmlStepExprWithExtension(int line, int col, SymbolKind kind, String name) {
+        assertSymbol(line, col, kind, name);
+    }
+
+    @DataProvider(name = "StepExprWithExtensionPosProvider")
+    public Object[][] getStepExprWithExtensionPos() {
+        return new Object[][]{
+                {49, 13, VARIABLE, "x1"},
+                {49, 18, FUNCTION, "get"},
+                {49, 22, VARIABLE, "indx"},
+                {50, 23, XMLNS, "ns"},
+                {51, 31, null, null},
+                {51, 37, VARIABLE, "indx"}
+        };
+    }
+
     // utils
 
     private void assertSymbol(int line, int col, SymbolKind kind, String name) {

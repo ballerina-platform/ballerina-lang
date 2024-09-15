@@ -371,3 +371,10 @@ function testRegexp() {
 function name() {
     _ = xml ``;
 }
+
+function testXMLStepExprWithExtension() {
+    xml x = xml `<root><parent><child>1</child></parent><parent>0</parent></root>`;
+    xml x2 = x/*[0];
+    x2 = x/*.get(0);
+    x2 = x/*[1].first().<child>;
+}

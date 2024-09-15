@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.StringJoiner;
 
 /**
- *  Represents xml step expression with extensions.
+ * Represents xml step expression with extensions.
+ * Example: {@code x/*.<name>[index], x/<name>.get(0)}
  *
  * @since 2201.10.0
  */

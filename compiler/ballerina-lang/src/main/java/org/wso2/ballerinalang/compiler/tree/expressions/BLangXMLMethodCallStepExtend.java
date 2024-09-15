@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * Represents method calls on xml step expression extension.
+ * Example: {@code x/<name>.get(0), x/*.get(0)}
  *
  * @since 2201.10.0
  */
