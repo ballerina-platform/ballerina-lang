@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
@@ -36,7 +37,9 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import java.util.Optional;
 
 import static io.ballerina.runtime.api.types.semtype.Builder.neverType;
+import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
 
 /**
  * {@code BArrayType} represents a type of an arrays in Ballerina.
@@ -63,7 +66,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     private IntersectionType intersectionType = null;
     private int typeFlags;
     private ListDefinition defn;
-    private final Env env = Env.getInstance();
+    private ListDefinition acceptedTypeDefn;
     public BArrayType(Type elementType) {
         this(elementType, false);
     }
@@ -223,17 +226,19 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
 
     @Override
     public SemType createSemType() {
+        Env env = Env.getInstance();
         if (defn != null) {
             return defn.getSemType(env);
         }
         ListDefinition ld = new ListDefinition();
         defn = ld;
-        return getSemTypePart(ld, isReadOnly(), size, tryInto(getElementType()));
+        CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
+                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+        return getSemTypePart(env, ld, size, tryInto(getElementType()), mut);
     }
 
-    private SemType getSemTypePart(ListDefinition defn, boolean isReadOnly, int size, SemType elementType) {
-        CellAtomicType.CellMutability mut = isReadOnly ? CellAtomicType.CellMutability.CELL_MUT_NONE :
-                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+    private SemType getSemTypePart(Env env, ListDefinition defn, int size, SemType elementType,
+                                   CellAtomicType.CellMutability mut) {
         if (size == -1) {
             return defn.defineListTypeWrapped(env, EMPTY_SEMTYPE_ARR, 0, elementType, mut);
         } else {
@@ -258,7 +263,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         if (cachedShape != null) {
             return Optional.of(cachedShape);
         }
-        SemType semType = readonlyShape(cx, shapeSupplier, value);
+        SemType semType = shapeOfInner(cx, shapeSupplier, value);
         value.cacheShape(semType);
         return Optional.of(semType);
     }
@@ -270,10 +275,22 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
 
     @Override
     public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
-        return Optional.of(readonlyShape(cx, shapeSupplier, (AbstractArrayValue) object));
+        return Optional.of(shapeOfInner(cx, shapeSupplier, (AbstractArrayValue) object));
     }
 
-    private SemType readonlyShape(Context cx, ShapeSupplier shapeSupplier, AbstractArrayValue value) {
+    @Override
+    public synchronized Optional<SemType> acceptedTypeOf(Context cx) {
+        Env env = cx.env;
+        if (acceptedTypeDefn != null) {
+            return Optional.of(acceptedTypeDefn.getSemType(cx.env));
+        }
+        ListDefinition ld = new ListDefinition();
+        acceptedTypeDefn = ld;
+        SemType elementType = ShapeAnalyzer.acceptedTypeOf(cx, getElementType()).orElseThrow();
+        return Optional.of(getSemTypePart(env, ld, size, elementType, CELL_MUT_UNLIMITED));
+    }
+
+    private SemType shapeOfInner(Context cx, ShapeSupplier shapeSupplier, AbstractArrayValue value) {
         ListDefinition readonlyShapeDefinition = value.getReadonlyShapeDefinition();
         if (readonlyShapeDefinition != null) {
             return readonlyShapeDefinition.getSemType(cx.env);
@@ -287,7 +304,8 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
             assert memberType.isPresent();
             memberTypes[i] = memberType.get();
         }
-        SemType semType = ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, neverType(), CELL_MUT_NONE);
+        CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE : CELL_MUT_LIMITED;
+        SemType semType = ld.defineListTypeWrapped(cx.env, memberTypes, memberTypes.length, neverType(), mut);
         value.resetReadonlyShapeDefinition();
         return semType;
     }

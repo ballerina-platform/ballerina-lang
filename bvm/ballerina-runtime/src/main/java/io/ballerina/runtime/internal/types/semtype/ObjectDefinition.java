@@ -46,9 +46,7 @@ public class ObjectDefinition implements Definition {
         return objectContaining(mappingDefinition.getSemType(env));
     }
 
-    public SemType define(Env env, ObjectQualifiers qualifiers, List<Member> members) {
-        CellAtomicType.CellMutability mut = qualifiers.readonly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
-                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+    public SemType define(Env env, ObjectQualifiers qualifiers, List<Member> members, CellAtomicType.CellMutability mut) {
         Stream<MappingDefinition.Field> memberStream = members.stream()
                 .map(member -> memberField(env, member, qualifiers.readonly()));
         Stream<MappingDefinition.Field> qualifierStream = Stream.of(qualifiers.field(env));

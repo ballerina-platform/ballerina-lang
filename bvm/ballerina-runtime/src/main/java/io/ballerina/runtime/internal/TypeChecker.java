@@ -321,7 +321,7 @@ public final class TypeChecker {
         Optional<SemType> readonlyShape = ShapeAnalyzer.shapeOf(cx, sourceValue);
         assert readonlyShape.isPresent();
         SemType shape = readonlyShape.get();
-        SemType targetSemType = SemType.tryInto(targetType);
+        SemType targetSemType = ShapeAnalyzer.acceptedTypeOf(cx, targetType).orElseThrow();
         if (Core.isSubType(cx, shape, NUMERIC_TYPE) && allowNumericConversion) {
             targetSemType = appendNumericConversionTypes(targetSemType);
         }

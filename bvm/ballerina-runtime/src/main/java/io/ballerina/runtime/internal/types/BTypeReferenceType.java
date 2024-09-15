@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -159,5 +160,14 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
             return typeWithShape.shapeOf(cx, shapeSupplierFn, object);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<SemType> acceptedTypeOf(Context cx) {
+        Type referredType = getReferredType();
+        if (referredType instanceof TypeWithShape typeWithShape) {
+            return typeWithShape.acceptedTypeOf(cx);
+        }
+        return ShapeAnalyzer.acceptedTypeOf(cx, referredType);
     }
 }
