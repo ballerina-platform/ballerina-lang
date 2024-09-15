@@ -63,7 +63,7 @@ configurations {
         exclude group: 'org.apache.servicemix.bundles', module: 'org.apache.servicemix.bundles.commons-beanutils'
         exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
         exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-log4j2'
-        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl'
     }
 }
 

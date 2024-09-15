@@ -190,7 +190,7 @@ publishing {
 }
 
 configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
