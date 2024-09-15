@@ -54,7 +54,7 @@ dependencies {
     
     testCompile 'org.testng:testng'
     testCompile project(':language-server:language-server-compiler')
-    testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile 'org.apache.logging.log4j:log4j-slf4j-impl'
 
 }
 

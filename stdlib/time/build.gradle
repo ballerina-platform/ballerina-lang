@@ -34,7 +34,7 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-runtime-api')
     testCompile 'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile 'org.apache.logging.log4j:log4j-slf4j-impl'
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-core')

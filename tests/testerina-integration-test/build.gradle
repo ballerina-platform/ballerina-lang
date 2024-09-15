@@ -28,7 +28,7 @@ configurations {
 dependencies {
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
     testCompile 'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile 'org.apache.logging.log4j:log4j-slf4j-impl'
     implementation 'info.picocli:picocli'
 
     implementation project(path: ':ballerina-test-utils')
