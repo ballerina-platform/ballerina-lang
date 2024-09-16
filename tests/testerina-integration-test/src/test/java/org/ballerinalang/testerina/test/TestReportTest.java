@@ -317,10 +317,10 @@ public class TestReportTest extends BaseTestCase {
             } else if ("foo.annot".equals(moduleObj.get("name").getAsString())) {
                 JsonObject fileObj = (JsonObject) moduleObj.get("sourceFiles").getAsJsonArray().get(0);
                 Assert.assertEquals("main.bal", fileObj.get("name").getAsString());
-                Assert.assertEquals(parser.parse(Arrays.toString(annotMainCovered)),
-                        parser.parse(fileObj.get("coveredLines").getAsJsonArray().toString()));
-                Assert.assertEquals(parser.parse(Arrays.toString(annotMainMissed)),
-                        parser.parse(fileObj.get("missedLines").getAsJsonArray().toString()));
+                Assert.assertEquals(JsonParser.parseString(Arrays.toString(annotMainCovered)),
+                        JsonParser.parseString(fileObj.get("coveredLines").getAsJsonArray().toString()));
+                Assert.assertEquals(JsonParser.parseString(Arrays.toString(annotMainMissed)),
+                        JsonParser.parseString(fileObj.get("missedLines").getAsJsonArray().toString()));
                 Assert.assertEquals(annotMainPercentage, fileObj.get("coveragePercentage").getAsFloat());
 
                 // Verify coverage of module
@@ -451,10 +451,10 @@ public class TestReportTest extends BaseTestCase {
             } else if ("foo.annot".equals(moduleObj.get("name").getAsString())) {
                 JsonObject fileObj = (JsonObject) moduleObj.get("sourceFiles").getAsJsonArray().get(0);
                 Assert.assertEquals("main.bal", fileObj.get("name").getAsString());
-                Assert.assertEquals(parser.parse(Arrays.toString(annotMainCovered)),
-                        parser.parse(fileObj.get("coveredLines").getAsJsonArray().toString()));
-                Assert.assertEquals(parser.parse(Arrays.toString(annotMainMissed)),
-                        parser.parse(fileObj.get("missedLines").getAsJsonArray().toString()));
+                Assert.assertEquals(JsonParser.parseString(Arrays.toString(annotMainCovered)),
+                        JsonParser.parseString(fileObj.get("coveredLines").getAsJsonArray().toString()));
+                Assert.assertEquals(JsonParser.parseString(Arrays.toString(annotMainMissed)),
+                        JsonParser.parseString(fileObj.get("missedLines").getAsJsonArray().toString()));
                 Assert.assertEquals(annotMainPercentage, fileObj.get("coveragePercentage").getAsFloat());
 
                 // Verify coverage of module
