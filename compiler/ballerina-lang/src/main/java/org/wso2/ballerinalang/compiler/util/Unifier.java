@@ -986,7 +986,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         for (BType inferableType : inferableTypes) {
             for (BType expectedType : expectedTypes) {
-                if (Types.getImpliedType(inferableType).tag == Types.getImpliedType(expectedType).tag) {
+                expectedType = Types.getImpliedType(expectedType);
+                if (Types.getImpliedType(inferableType).tag == expectedType.tag) {
                     matchedTypes.add(expectedType);
                 }
             }
