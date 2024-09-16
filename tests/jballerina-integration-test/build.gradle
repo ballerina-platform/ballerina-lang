@@ -194,9 +194,6 @@ description = 'Ballerina - Integration Test'
 
 configurations.all {
     resolutionStrategy.preferProjectModules()
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
 task copyToLib(type: Copy) {
