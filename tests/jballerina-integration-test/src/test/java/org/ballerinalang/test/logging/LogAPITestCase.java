@@ -58,6 +58,7 @@ public class LogAPITestCase extends BaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{"mainmod"}, new HashMap<>(),
                                                            projectDirPath, true);
         String[] logLines = output.split("\n");
+        printLogLines(logLines);
         assertEquals(logLines.length, 13);
 
         validateLogLevel(logLines[9], "INFO", "[logorg/foo]", "Logging from inside `foo` module");
@@ -140,6 +141,7 @@ public class LogAPITestCase extends BaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
 
+        printLogLines(logLines);
         assertEquals(logLines.length, 9);
 
         console.println(logLines[4]);
@@ -165,6 +167,7 @@ public class LogAPITestCase extends BaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
 
+        printLogLines(logLines);
         assertEquals(logLines.length, 10);
 
         console.println(logLines[4]);
