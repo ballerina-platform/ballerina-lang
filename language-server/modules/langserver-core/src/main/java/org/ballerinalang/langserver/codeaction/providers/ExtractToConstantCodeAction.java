@@ -108,6 +108,9 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         }
 
         Optional<TypeSymbol> typeSymbol = semanticModel.get().typeOf(node);
+//        There are cases of type references in the `lang` library modules like `string:Char`, where string
+//        type constants are not accepted. Since the compiler does not yet support adding `string:Char` as a type
+//        descriptor, code actions for these cases are ignored.
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR
                 || typeSymbol.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
             return Collections.emptyList();
