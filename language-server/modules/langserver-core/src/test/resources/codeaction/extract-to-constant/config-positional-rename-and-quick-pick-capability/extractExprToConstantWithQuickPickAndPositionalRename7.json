@@ -27,7 +27,7 @@
                     "character": 0
                   }
                 },
-                "newText": "const CONST = 3.14;\n"
+                "newText": "const float CONST = 3.14;\n"
               },
               {
                 "range": {
@@ -55,7 +55,7 @@
                     "character": 0
                   }
                 },
-                "newText": "const CONST = 3.14 * 3;\n"
+                "newText": "const float CONST = 3.14 * 3;\n"
               },
               {
                 "range": {
@@ -83,7 +83,7 @@
                     "character": 0
                   }
                 },
-                "newText": "const CONST = 3.14 * 3 * 4;\n"
+                "newText": "const float CONST = 3.14 * 3 * 4;\n"
               },
               {
                 "range": {

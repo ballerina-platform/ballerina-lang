@@ -15,7 +15,10 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
@@ -65,6 +68,8 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
     public static final String NAME = "extract to constant";
     private static final String CONSTANT_NAME_PREFIX = "CONST";
     private static final String EXTRACT_COMMAND = "ballerina.action.extract";
+    private static final List<TypeDescKind> EXPLICIT_TYPES =
+            List.of(TypeDescKind.DECIMAL, TypeDescKind.FLOAT, TypeDescKind.BYTE);
 
     @Override
     public List<SyntaxKind> getSyntaxKinds() {
@@ -97,12 +102,23 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         }
 
         String constName = getConstantName(context);
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Optional<TypeSymbol> typeSymbol = semanticModel.get().typeOf(node);
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR
+                || typeSymbol.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            return Collections.emptyList();
+        }
+
         ConstantData constantData = getConstantData(context);
         Position constDeclPosition = constantData.getPosition();
         boolean addNewLineAtStart = constantData.isAddNewLineAtStart();
 
-        List<TextEdit> textEdits = getTextEdits(node, constName, constDeclPosition,
-                addNewLineAtStart);
+        List<TextEdit> textEdits =
+                getTextEdits(node, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart);
 
         // Check if the selection is a range or a position, and whether quick picks are supported by the client
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
@@ -127,9 +143,8 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         }
 
         LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
-        nodeList.forEach(extractableNode ->
-            textEditMap.put(extractableNode.toSourceCode().strip(),
-                    getTextEdits(extractableNode, constName, constDeclPosition, addNewLineAtStart)));
+        nodeList.forEach(extractableNode -> textEditMap.put(extractableNode.toSourceCode().strip(),
+                getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart)));
 
         if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
             LinkedHashMap<String, Position> renamePositionMap = new LinkedHashMap<>();
@@ -179,15 +194,21 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         return NAME;
     }
 
-    private List<TextEdit> getTextEdits(Node node, String constName, Position constDeclPos,
+    private List<TextEdit> getTextEdits(Node node, TypeSymbol typeSymbol, String constName, Position constDeclPos,
                                         boolean newLineAtStart) {
+        String typeName = "";
+        int index = EXPLICIT_TYPES.indexOf(typeSymbol.typeKind());
+        if (index != -1) {
+            typeName = EXPLICIT_TYPES.get(index).getName() + " ";
+        }
+
         String value = node.toSourceCode().strip();
         LineRange replaceRange = node.lineRange();
         String constDeclStr = "";
         if (newLineAtStart) {
             constDeclStr += String.format("%n");
         }
-        constDeclStr = String.format(constDeclStr + "const %s = %s;%n", constName, value);
+        constDeclStr = String.format(constDeclStr + "const %s%s = %s;%n", typeName, constName, value);
 
         TextEdit constDeclEdit = new TextEdit(new Range(constDeclPos, constDeclPos), constDeclStr);
         TextEdit replaceEdit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
