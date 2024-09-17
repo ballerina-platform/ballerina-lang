@@ -5971,11 +5971,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         bLangXMLQName.namespaceURI = bLangXMLQName.nsSymbol.namespaceURI;
     }
 
-    private BSymbol findXMLNamespaceFromPackageConst(String localname, String prefix,
-                                                     BPackageSymbol pkgSymbol, Location pos, AnalyzerData data) {
-        // Resolve a const from module scope.
+    private BConstantSymbol getSymbolOfXmlQualifiedName(String localname, String prefix, BPackageSymbol pkgSymbol,
+                                                        Location pos, AnalyzerData data) {
         BSymbol constSymbol =
-                symResolver.lookupPossibleMemberSymbol(pkgSymbol.scope, names.fromString(localname), SymTag.CONSTANT);
+                symResolver.lookupPossibleMemberSymbol(pkgSymbol.scope, Names.fromString(localname), SymTag.CONSTANT);
         if (constSymbol == symTable.notFoundSymbol) {
             if (!missingNodesHelper.isMissingNode(prefix) && !missingNodesHelper.isMissingNode(localname)) {
                 dlog.error(pos, DiagnosticErrorCode.UNDEFINED_CONSTANT_SYMBOL, prefix + ":" + localname);
@@ -5995,9 +5994,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return null;
         }
 
-        if (!PackageID.isLangLibPackageID(pkgSymbol.pkgID)) {
-            pkgSymbol.isUsed = true;
-            return constantSymbol;
+        pkgSymbol.isUsed = true;
+        return constantSymbol;
+    }
+
+    private BSymbol findXMLNamespaceFromPackageConst(String localname, String prefix,
+                                                     BPackageSymbol pkgSymbol, Location pos, AnalyzerData data) {
+        BConstantSymbol constantSymbol = getSymbolOfXmlQualifiedName(localname, prefix, pkgSymbol, pos, data);
+        if (constantSymbol == null) {
+            return null;
         }
         // If resolve const contain a string in {namespace url}local form extract namespace uri and local part.
         String constVal = (String) constantSymbol.value.value;
@@ -6008,7 +6013,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             String nsURI = constVal.substring(s + 1, e);
             String local = constVal.substring(e);
             return new BXMLNSSymbol(Names.fromString(local), nsURI, constantSymbol.pkgID, constantSymbol.owner, pos,
-                                    SOURCE);
+                    SOURCE);
         }
 
         // Resolved const string is not in valid format.
@@ -8644,9 +8649,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             dlog.error(prefixedFieldAccess.prefix.pos, DiagnosticErrorCode.CANNOT_FIND_XML_NAMESPACE,
                     prefixedFieldAccess.prefix);
         } else if (nsSymbol.getKind() == SymbolKind.PACKAGE) {
-            prefixedFieldAccess.symbol = findXMLNamespaceFromPackageConst(
-                    prefixedFieldAccess.field.value, prefixedFieldAccess.prefix.value,
-                    (BPackageSymbol) nsSymbol, fieldAccessExpr.pos, data);
+            prefixedFieldAccess.symbol =
+                    getSymbolOfXmlQualifiedName(prefixedFieldAccess.field.value, prefixedFieldAccess.prefix.value,
+                            (BPackageSymbol) nsSymbol, fieldAccessExpr.field.pos, data);
         } else {
             prefixedFieldAccess.symbol = nsSymbol;
         }

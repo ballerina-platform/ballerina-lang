@@ -32,7 +32,7 @@ import static org.testng.Assert.assertEquals;
 /**
  * Tests for xml attribute access using module constants.
  *
- * @since 2201.9.0
+ * @since 2201.11.0
  */
 public class XMLAttrAccessWithModulePrefixTest {
 
@@ -63,13 +63,13 @@ public class XMLAttrAccessWithModulePrefixTest {
         CompileResult negative =
                 BCompileUtil.compile("test-src/bala/test_bala/types/xml_attribute_access_negative.bal");
         int i = 0;
-        validateError(negative, i++, "attempt to refer to non-accessible symbol 'XMLD'", 24, 22);
-        validateError(negative, i++, "undefined constant symbol 'foo:XMLE'", 25, 22);
-        validateError(negative, i++, "undefined constant symbol 'foo:XMLG'", 26, 22);
+        validateError(negative, i++, "attempt to refer to non-accessible symbol 'XMLD'", 24, 24);
+        validateError(negative, i++, "undefined constant symbol 'foo:XMLE'", 25, 24);
+        validateError(negative, i++, "undefined constant symbol 'foo:XMLG'", 26, 24);
         validateError(negative, i++, "cannot find the prefix 'bar'", 27, 24);
-        validateError(negative, i++, "attempt to refer to non-accessible symbol 'XMLD'", 33, 23);
-        validateError(negative, i++, "undefined constant symbol 'foo:XMLE'", 34, 23);
-        validateError(negative, i++, "undefined constant symbol 'foo:XMLG'", 35, 23);
+        validateError(negative, i++, "attempt to refer to non-accessible symbol 'XMLD'", 33, 26);
+        validateError(negative, i++, "undefined constant symbol 'foo:XMLE'", 34, 26);
+        validateError(negative, i++, "undefined constant symbol 'foo:XMLG'", 35, 26);
         validateError(negative, i++, "cannot find the prefix 'bar'", 36, 26);
         assertEquals(negative.getErrorCount(), i);
     }
