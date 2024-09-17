@@ -1,7 +1,7 @@
 {
   "position": {
     "line": 5,
-    "character": 24
+    "character": 21
   },
   "source": "extractToConstantWithAmbiguousType.bal",
   "expected": [
@@ -20,17 +20,17 @@
               "character": 0
             }
           },
-          "newText": "const Char CONST = \"h\";\n"
+          "newText": "const decimal CONST = 1.32;\n"
         },
         {
           "range": {
             "start": {
               "line": 5,
-              "character": 23
+              "character": 19
             },
             "end": {
               "line": 5,
-              "character": 26
+              "character": 23
             }
           },
           "newText": "CONST"
@@ -43,7 +43,7 @@
           "extractToConstantWithAmbiguousType.bal",
           {
             "line": 6,
-            "character": 23
+            "character": 19
           }
         ]
       },
