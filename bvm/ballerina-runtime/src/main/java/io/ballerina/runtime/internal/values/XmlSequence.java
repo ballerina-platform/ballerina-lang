@@ -641,14 +641,14 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             if (value.getNodeType() == XmlNodeType.TEXT) {
                 isPreviousValueText = true;
                 text.append(value.getTextValue());
-            } else {
-                if (isPreviousValueText) {
-                    members.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
-                    isPreviousValueText = false;
-                    text.setLength(0);
-                }
-                members.add(value);
+                continue;
             }
+            if (isPreviousValueText) {
+                members.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
+                isPreviousValueText = false;
+                text.setLength(0);
+            }
+            members.add(value);
         }
         if (!text.isEmpty()) {
             members.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
@@ -699,7 +699,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         if (o instanceof XmlSequence rhsXMLSequence) {
             return isXMLSequenceChildrenEqual(this.getChildrenList(), rhsXMLSequence.getChildrenList());
         }
-        if (this.isSingleton() && (o instanceof XmlItem || o instanceof XmlText)) {
+        if (this.isSingleton() && (o instanceof XmlValue)) {
             return isEqual(this.getChildrenList().get(0), o);
         }
         return this.getChildrenList().isEmpty() && TypeUtils.getType(o) == PredefinedTypes.TYPE_XML_NEVER;

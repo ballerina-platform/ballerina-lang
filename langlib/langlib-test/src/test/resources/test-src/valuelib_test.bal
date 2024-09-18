@@ -4796,7 +4796,7 @@ function testXMLSequenceWithOneTextElement() {
     xml text2 = xml:map(xml:elements(text1), y => y.getChildren());
     var item = text2.cloneWithType(xml:Text);
     assertTrue(item is xml:Text);
-    assertTrue(item == xml `abcdef`);
+    assertEquality(xml `abcdef`, item);
 }
 
 public type KeyVals record {|

@@ -145,8 +145,9 @@ public class XmlText extends XmlNonElementItem {
     }
 
     private boolean isXmlSequenceWithSingletonTextValue(Object o) {
-        return ((o instanceof XmlSequence)
-                && ((XmlSequence) o).isSingleton()
-                && ((XmlSequence) o).getItem(0).getNodeType() == XmlNodeType.TEXT);
+        if (!(o instanceof XmlSequence sequence)) {
+            return false;
+        }
+        return sequence.isSingleton() && sequence.getItem(0).getNodeType() == XmlNodeType.TEXT;
     }
 }

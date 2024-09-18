@@ -93,9 +93,8 @@ function testIntToByteExplicitCast(int b) returns byte|error {
 function testXMLSequenceWithOneTextMember() {
     xml text1 = xml `<a>abc</a><b>def</b>`;
     xml text2 = xml:map(xml:elements(text1), y => y.getChildren());
-    xml:Text t1 =  <xml:Text>text2;
-    xml:Text text3 = <xml:Text>xml`abcdef`;
-    assertEquality(text3 == t1, true);
+    xml:Text text3 = xml `abcdef`;
+    assertEquality(text2 == text3, true);
 }
 
 function testByteArray() returns byte[] {
