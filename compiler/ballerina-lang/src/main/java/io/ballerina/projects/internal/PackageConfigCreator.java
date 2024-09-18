@@ -38,11 +38,14 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +53,10 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class PackageConfigCreator {
+public final class PackageConfigCreator {
+
+    private PackageConfigCreator() {
+    }
 
     public static PackageConfig createBuildProjectConfig(Path projectDirPath, boolean disableSyntaxTree) {
         ProjectFiles.validateBuildProjectDirPath(projectDirPath);
@@ -161,11 +167,18 @@ public class PackageConfigCreator {
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig packageMd = packageData.packageMd()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
-
+        List<ResourceConfig> resources = new ArrayList<>();
+        List<ResourceConfig> testResources = new ArrayList<>();
+        if (!packageData.resources().isEmpty()) {
+            resources = getResourceConfigs(packageData.resources(), packageData.packagePath());
+        }
+        if (!packageData.testResources().isEmpty()) {
+            testResources = getResourceConfigs(packageData.testResources(), packageData.packagePath());
+        }
         return PackageConfig
                 .from(packageId, packageData.packagePath(), packageManifest, dependencyManifest, ballerinaToml,
                         dependenciesToml, cloudToml, compilerPluginToml, balToolToml, packageMd, moduleConfigs,
-                        packageDependencyGraph, disableSyntaxTree);
+                        packageDependencyGraph, disableSyntaxTree, resources, testResources);
     }
     public static PackageConfig createPackageConfig(PackageData packageData,
                                                     PackageManifest packageManifest,
@@ -220,23 +233,19 @@ public class PackageConfigCreator {
         DocumentConfig moduleMd = moduleData.moduleMd()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
 
-        List<ResourceConfig> resources = getResourceConfigs(
-                moduleId, moduleData.resources(), moduleData.moduleDirectoryPath());
-        List<ResourceConfig> testResources = getResourceConfigs(
-                moduleId, moduleData.testResources(), moduleData.moduleDirectoryPath()
-                        .resolve(ProjectConstants.TEST_DIR_NAME));
-        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies, resources,
-                testResources);
+        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies);
     }
 
-    private static List<ResourceConfig> getResourceConfigs(ModuleId moduleId, List<Path> resources, Path modulePath) {
-        return resources.stream().map(resource ->
-                createResourceConfig(resource, modulePath, moduleId)).collect(Collectors.toList());
+    private static List<ResourceConfig> getResourceConfigs(List<Path> resources, Path packagePath) {
+        // TODO: no need Remove duplicate paths before processing
+        Set<Path> distinctResources = new HashSet<>(resources);
+        return distinctResources.stream().map(
+                distinctResource -> createResourceConfig(distinctResource, packagePath)).collect(Collectors.toList());
     }
 
-    private static ResourceConfig createResourceConfig(Path path, Path modulePath, ModuleId moduleId) {
-        final DocumentId documentId = DocumentId.create(path.toString(), moduleId);
-        return ProvidedResourceConfig.from(documentId, path, modulePath);
+    private static ResourceConfig createResourceConfig(Path path, Path packagePath) {
+        final DocumentId documentId = DocumentId.create(path.toString(), null);
+        return ProvidedResourceConfig.from(documentId, path, packagePath);
     }
 
     private static List<DocumentConfig> getDocumentConfigs(ModuleId moduleId, List<DocumentData> documentData) {

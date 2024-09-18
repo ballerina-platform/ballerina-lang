@@ -21,6 +21,7 @@ package io.ballerina.cli.cmd;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
@@ -94,6 +95,7 @@ import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static java.lang.Runtime.getRuntime;
+import static java.nio.file.Files.write;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 import static org.wso2.ballerinalang.util.RepoUtils.readSettings;
 
@@ -102,7 +104,8 @@ import static org.wso2.ballerinalang.util.RepoUtils.readSettings;
  *
  * @since 2.0.0
  */
-public class CommandUtil {
+public final class CommandUtil {
+
     public static final String ORG_NAME = "ORG_NAME";
     public static final String PKG_NAME = "PKG_NAME";
     public static final String DIST_VERSION = "DIST_VERSION";
@@ -123,6 +126,9 @@ public class CommandUtil {
     private static Path homeCache;
     private static boolean exitWhenFinish;
     private static String platform;
+
+    private CommandUtil() {
+    }
 
     static void setPrintStream(PrintStream errStream) {
         CommandUtil.errStream = errStream;
@@ -870,21 +876,22 @@ public class CommandUtil {
     public static List<String> getTemplates() {
         try {
             Path templateDir = getTemplatePath();
-            Stream<Path> walk = Files.walk(templateDir, 1);
+            try (Stream<Path> walk = Files.walk(templateDir, 1)) {
 
-            List<String> templates = walk.filter(Files::isDirectory)
+                List<String> templates = walk.filter(Files::isDirectory)
                     .filter(directory -> !templateDir.equals(directory))
                     .map(directory -> directory.getFileName())
                     .filter(Objects::nonNull)
                     .map(Path::toString)
                     .collect(Collectors.toList());
 
-            if (null != jarFs) {
-                return templates.stream().map(t -> t
-                        .replace(jarFs.getSeparator(), ""))
+                if (null != jarFs) {
+                    return templates.stream().map(t -> t
+                            .replace(jarFs.getSeparator(), ""))
                         .collect(Collectors.toList());
-            } else {
-                return templates;
+                } else {
+                    return templates;
+                }
             }
 
         } catch (IOException | URISyntaxException e) {
@@ -966,9 +973,9 @@ public class CommandUtil {
 
         Files.writeString(ballerinaToml, defaultManifest);
 
-        // Create README.md
-        String readmeMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + ProjectConstants.README_MD_FILE_NAME);
-        Files.writeString(path.resolve(ProjectConstants.README_MD_FILE_NAME), readmeMd);
+        // Create Package.md
+        String packageMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/Package.md");
+        write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME), packageMd.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -998,7 +1005,7 @@ public class CommandUtil {
         Files.writeString(balToolToml, balToolManifest);
     }
 
-    protected static PackageVersion findLatest(List<PackageVersion> packageVersions) {
+    private static PackageVersion findLatest(List<PackageVersion> packageVersions) {
         if (packageVersions.isEmpty()) {
             return null;
         }
@@ -1009,7 +1016,7 @@ public class CommandUtil {
         return latestVersion;
     }
 
-    protected static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
+    private static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
         SemanticVersion semVer1 = v1.value();
         SemanticVersion semVer2 = v2.value();
         boolean isV1PreReleaseVersion = semVer1.isPreReleaseVersion();
@@ -1033,7 +1040,7 @@ public class CommandUtil {
         return pathToVersions(versions);
     }
 
-    protected static List<PackageVersion> pathToVersions(List<Path> versions) {
+    private static List<PackageVersion> pathToVersions(List<Path> versions) {
         List<PackageVersion> availableVersions = new ArrayList<>();
         versions.stream().map(path -> Optional.ofNullable(path)
                 .map(Path::getFileName)
@@ -1082,8 +1089,10 @@ public class CommandUtil {
     public static String checkTemplateFilesExists(String template, Path packagePath) throws URISyntaxException,
             IOException {
         Path templateDir = getTemplatePath().resolve(template);
-        Stream<Path> paths = Files.list(templateDir);
-        List<Path> templateFilePathList = paths.toList();
+        List<Path> templateFilePathList;
+        try (Stream<Path> paths = Files.list(templateDir)) {
+            templateFilePathList = paths.toList();
+        }
         StringBuilder existingFiles = new StringBuilder();
         for (Path path : templateFilePathList) {
             Optional<String> fileNameOptional = Optional.ofNullable(path.getFileName()).map(Path::toString);
@@ -1150,12 +1159,14 @@ public class CommandUtil {
      * @param orgName org name of the dependent package
      * @param packageName name of the dependent package
      * @param version version of the dependent package
+     * @param buildOptions build options {sticky, offline}
      * @return true if the dependent package compilation has errors
      */
-    static boolean pullDependencyPackages(String orgName, String packageName, String version) {
+    static boolean pullDependencyPackages(String orgName, String packageName, String version,
+                                          BuildOptions buildOptions, String repository) {
         Path ballerinaUserHomeDirPath = ProjectUtils.createAndGetHomeReposPath();
         Path centralRepositoryDirPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
-                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
+                .resolve(repository);
         Path balaDirPath = centralRepositoryDirPath.resolve(ProjectConstants.BALA_DIR_NAME);
         Path balaPath = ProjectUtils.getPackagePath(balaDirPath, orgName, packageName, version);
         String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
@@ -1164,7 +1175,7 @@ public class CommandUtil {
 
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(new FileSystemCache.FileSystemCacheFactory(cacheDir));
-        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath, buildOptions);
 
         // Delete package cache if available
         Path packageCacheDir = cacheDir.resolve(orgName).resolve(packageName).resolve(version);

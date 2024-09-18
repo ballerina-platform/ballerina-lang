@@ -57,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
@@ -80,6 +81,7 @@ public class TestCommandTest extends BaseCommandTest {
     private Path testDistCacheDirectory;
     ProjectEnvironmentBuilder projectEnvironmentBuilder;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -99,13 +101,13 @@ public class TestCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Test a valid ballerina file")
-    public void testTestBalFile() {
+    @Test(description = "Test a valid ballerina file", dataProvider = "optimizeDependencyCompilation")
+    public void testTestBalFile(Boolean optimizeDependencyCompilation) {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
 
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         // set valid source root
-        TestCommand testCommand = new TestCommand(validBalFilePath, false);
+        TestCommand testCommand = new TestCommand(validBalFilePath, false, optimizeDependencyCompilation);
         // name of the file as argument
         new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
         testCommand.execute();
@@ -140,7 +142,6 @@ public class TestCommandTest extends BaseCommandTest {
         // valid source root path
         Path validBalFilePath = this.testResources.resolve("valid-non-bal-file").resolve("xyz.bal");
         TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false);
-        // non existing bal file
         new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
         testCommand.execute();
         String buildLog = readOutput(true);
@@ -154,7 +155,6 @@ public class TestCommandTest extends BaseCommandTest {
         // valid source root path
         Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error").resolve("sample_tests.bal");
         TestCommand testCommand = new TestCommand(balFilePath, printStream, printStream, false);
-        // non existing bal file
         new CommandLine(testCommand).parseArgs(balFilePath.toString());
         try {
             testCommand.execute();
@@ -168,7 +168,6 @@ public class TestCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
         new CommandLine(testCommand).parseArgs();
         testCommand.execute();
         String buildLog = readOutput(true);
@@ -180,7 +179,6 @@ public class TestCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validMultiModuleProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
         new CommandLine(testCommand).parseArgs();
         testCommand.execute();
     }
@@ -189,7 +187,6 @@ public class TestCommandTest extends BaseCommandTest {
     public void testTestBalProjectFromADifferentDirectory() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         TestCommand buildCommand = new TestCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
         new CommandLine(buildCommand).parseArgs(projectPath.toString());
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -251,11 +248,13 @@ public class TestCommandTest extends BaseCommandTest {
                 .resolve("foo-winery-0.1.0-testable.jar").toFile().exists());
     }
 
-    @Test(description = "Test a ballerina project with an invalid argument for --coverage-format")
-    public void testUnsupportedCoverageFormat() throws IOException {
+    @Test(description = "Test a ballerina project with an invalid argument for --coverage-format",
+            dataProvider = "optimizeDependencyCompilation")
+    public void testUnsupportedCoverageFormat(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         TestCommand testCommand = new TestCommand(
-                projectPath, printStream, printStream, false, false, true, "html");
+                projectPath, printStream, printStream, false, false, true, "html",
+                optimizeDependencyCompilation);
 
         new CommandLine(testCommand).parseArgs();
         testCommand.execute();
@@ -288,11 +287,11 @@ public class TestCommandTest extends BaseCommandTest {
                 ".json")));
     }
 
-    @Test(description = "Test a ballerina project with --test-report")
-    public void testTestWithReport() {
+    @Test(description = "Test a ballerina project with --test-report", dataProvider = "optimizeDependencyCompilation")
+    public void testTestWithReport(Boolean optimizeDependencyCompilation) {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         TestCommand testCommand = new TestCommand(
-                projectPath, printStream, printStream, false, true, false, null);
+                projectPath, printStream, printStream, false, true, false, null, optimizeDependencyCompilation);
         new CommandLine(testCommand).parseArgs();
         try (MockedStatic<TestUtils> testUtilsMockedStatic = Mockito.mockStatic(
                 TestUtils.class, Mockito.CALLS_REAL_METHODS)) {
@@ -514,7 +513,7 @@ public class TestCommandTest extends BaseCommandTest {
         Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
         Assert.assertTrue(Files.exists(mainArgsFile));
         //should exist only one testable jar
-        try (var testableJars = Files.list(testableJar.getParent())) {
+        try (Stream<Path> testableJars = Files.list(testableJar.getParent())) {
             Assert.assertEquals(testableJars.filter(path -> path.toString().endsWith(".jar"))
                                     .map(Path::toFile).toList().size(), 1);
         }
@@ -577,7 +576,7 @@ public class TestCommandTest extends BaseCommandTest {
         Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
         Assert.assertTrue(Files.exists(mainArgsFile));
         //should exist only one testable jar
-        try (var testableJars = Files.list(testableJar.getParent())) {
+        try (Stream<Path> testableJars = Files.list(testableJar.getParent())) {
             Assert.assertEquals(testableJars.filter(path -> path.toString().endsWith(".jar"))
                                     .map(Path::toFile).toList().size(), 1);
         }
@@ -599,9 +598,9 @@ public class TestCommandTest extends BaseCommandTest {
         Path mainArgsFile = targetDir.resolve("bin").resolve("tests").resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
         Assert.assertTrue(Files.exists(mainArgsFile));
         //should exist only one testable jar
-        try (var files = Files.list(mainArgsFile.getParent())) {
+        try (Stream<Path> files = Files.list(mainArgsFile.getParent())) {
             List<File> testableJars = files.filter(path -> path.toString().endsWith(".jar"))
-                            .map(Path::toFile).toList();
+                    .map(Path::toFile).toList();
             Assert.assertEquals(testableJars.size(), 2);   //2 because default module and 1 sub module
             List<String> jarFileNames = Arrays.asList("projectWithMocks-testable.jar",
                     "projectWithMocks.mod1-testable.jar");
@@ -627,7 +626,7 @@ public class TestCommandTest extends BaseCommandTest {
         mainArgs.set(TesterinaConstants.RunTimeArgs.TEST_SUITE_JSON_PATH, TestUtils.getJsonFilePathInFatJar("/"));
         mainArgs.set(TesterinaConstants.RunTimeArgs.TARGET_DIR, projectPath.resolve("target").toString());
 
-        try (var files = Files.list(mainArgsFile.getParent())) {
+        try (Stream<Path> files = Files.list(mainArgsFile.getParent())) {
             List<Path> testableJars = files.filter(path -> path.toString().endsWith(".jar")).toList();
             for (Path testableJar : testableJars) {
                 List<String> pbArgs = new ArrayList<>(TestUtils.getInitialCmdArgs(null, null));

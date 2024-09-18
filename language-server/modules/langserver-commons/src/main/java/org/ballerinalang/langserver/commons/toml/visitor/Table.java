@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.commons.toml.visitor;
 
 /**
- * Represents Toml Table node in {@link org.ballerinalang.langserver.commons.toml.visitor.TomlSchemaVisitor}.
+ * Represents Toml Table node in {@link TomlSchemaVisitor}.
  *
  * @since 2.0.0
  */

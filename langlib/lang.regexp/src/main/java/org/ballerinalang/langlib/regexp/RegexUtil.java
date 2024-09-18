@@ -43,13 +43,18 @@ import java.util.regex.PatternSyntaxException;
  *
  * @since 2201.3.0
  */
-public class RegexUtil {
+public final class RegexUtil {
+
     static final BTupleType SPAN_AS_TUPLE_TYPE = new BTupleType(List.of(PredefinedTypes.TYPE_INT,
             PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
 
     static final BArrayType GROUPS_AS_SPAN_ARRAY_TYPE = new BArrayType(SPAN_AS_TUPLE_TYPE);
 
     static final BArrayType GROUPS_ARRAY_TYPE = new BArrayType(GROUPS_AS_SPAN_ARRAY_TYPE);
+
+    private RegexUtil() {
+    }
+
     static Matcher getMatcher(BRegexpValue regexpVal, BString inputStr) {
         try {
             return getMatcher(regexpVal, inputStr.getValue());
@@ -60,8 +65,8 @@ public class RegexUtil {
     }
 
     static int[] getSurrogatePositions(BString str) {
-        if (str instanceof NonBmpStringValue) {
-            return ((NonBmpStringValue) str).getSurrogates();
+        if (str instanceof NonBmpStringValue nonBmpStringValue) {
+            return nonBmpStringValue.getSurrogates();
         }
         return new int[0];
     }
@@ -147,7 +152,7 @@ public class RegexUtil {
         return value.length();
     }
 
-    protected static void checkIndexWithinRange(BString str, long startIndex) {
+    static void checkIndexWithinRange(BString str, long startIndex) {
         if (startIndex != (int) startIndex) {
             throw ErrorHelper.getRuntimeException(ErrorReasons.REGEXP_OPERATION_ERROR,
                     ErrorCodes.INDEX_NUMBER_TOO_LARGE, startIndex);

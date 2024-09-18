@@ -29,6 +29,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.DataProvider;
 import org.wso2.ballerinalang.util.Lists;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -39,6 +40,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
@@ -78,6 +80,11 @@ public class BaseTest {
         replaceDistributionVersionOfDependenciesToml(packageBPath, "**INSERT_DISTRIBUTION_VERSION_HERE**");
     }
 
+    @DataProvider(name = "optimizeDependencyCompilation")
+    public Object [] [] provideOptimizeDependencyCompilation() {
+        return new Object [][] {{ false }, { true }};
+    }
+
     protected void cacheDependencyToLocalRepo(Path dependency) throws IOException {
         BuildProject dependencyProject = TestUtils.loadBuildProject(dependency);
         PackageCompilation compilation = dependencyProject.currentPackage().getCompilation();
@@ -91,7 +98,10 @@ public class BaseTest {
                     .resolve("samjs").resolve("package_c").resolve("0.1.0").resolve("any");
             Files.createDirectories(localRepoBalaCache);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, localRepoBalaCache);
-            Path balaPath = Files.list(localRepoBalaCache).findAny().orElseThrow();
+            Path balaPath;
+            try (Stream<Path> paths = Files.list(localRepoBalaCache)) {
+                balaPath = paths.findAny().orElseThrow();
+            }
             ProjectUtils.extractBala(balaPath, localRepoBalaCache);
             try {
                 Files.delete(balaPath);
@@ -136,7 +146,10 @@ public class BaseTest {
         }
         Files.createDirectories(centralRepoBalaCache);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, centralRepoBalaCache);
-        Path balaPath = Files.list(centralRepoBalaCache).findAny().orElseThrow();
+        Path balaPath;
+        try (Stream<Path> paths = Files.list(centralRepoBalaCache)) {
+            balaPath = paths.findAny().orElseThrow();
+        }
         ProjectUtils.extractBala(balaPath, centralRepoBalaCache);
         try {
             Files.delete(balaPath);

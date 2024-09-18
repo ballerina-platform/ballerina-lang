@@ -153,7 +153,8 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
 /**
  * The common functions used in CodeGen.
  */
-public class JvmCodeGenUtil {
+public final class JvmCodeGenUtil {
+
     public static final Unifier UNIFIER = new Unifier();
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";
@@ -198,8 +199,14 @@ public class JvmCodeGenUtil {
         return name.replace(WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
     }
 
-    public static String rewriteVirtualCallTypeName(String value) {
-        return Utils.encodeFunctionIdentifier(cleanupObjectTypeName(value));
+    public static String rewriteVirtualCallTypeName(String value, BType objectType) {
+        objectType = getImpliedType(objectType);
+        // The call name will be in the format of`objectTypeName.funcName` for attached functions of imported modules.
+        // Therefore, We need to remove the type name.
+        if (!objectType.tsymbol.name.value.isEmpty() && value.startsWith(objectType.tsymbol.name.value)) {
+            value = value.replace(objectType.tsymbol.name.value + ".", "").trim();
+        }
+        return Utils.encodeFunctionIdentifier(value);
     }
 
     public static boolean isModuleInitializerMethod(String methodName) {
@@ -423,22 +430,6 @@ public class JvmCodeGenUtil {
         };
     }
 
-    static String cleanupObjectTypeName(String typeName) {
-        int index = typeName.lastIndexOf("."); // Internal type names can contain dots hence use the `lastIndexOf`
-        int typeNameLength = typeName.length();
-        if (index > 1 && typeName.charAt(index - 1) == '\\') { // Methods can contain escaped characters
-            return typeName;
-        } else if (index > 0 && index != typeNameLength - 1) { // Resource method name can contain . at the end 
-            return typeName.substring(index + 1);
-        } else if (index > 0) {
-            // We will reach here for resource methods eg: (MyClient8.$get$.)
-            index = typeName.substring(0, typeNameLength - 1).lastIndexOf("."); // Index of the . before the last .
-            return typeName.substring(index + 1);
-        }
-        
-        return typeName;
-    }
-
     public static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels,
                                           int invocationVarIndex) {
         mv.visitIntInsn(BIPUSH, channels.size());
@@ -569,10 +560,10 @@ public class JvmCodeGenUtil {
         mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    protected static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,
-                                                   int yieldLocationVarIndex, Location terminatorPos,
-                                                   String fullyQualifiedFuncName, String yieldStatus,
-                                                   int yieldStatusVarIndex) {
+    static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,
+                                         int yieldLocationVarIndex, Location terminatorPos,
+                                         String fullyQualifiedFuncName, String yieldStatus,
+                                         int yieldStatusVarIndex) {
         Label yieldLocationLabel = new Label();
         mv.visitJumpInsn(IFEQ, yieldLocationLabel);
 

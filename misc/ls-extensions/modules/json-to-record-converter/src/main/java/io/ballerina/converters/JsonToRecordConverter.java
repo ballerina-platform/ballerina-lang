@@ -73,7 +73,7 @@ import static io.ballerina.converters.util.ConverterUtils.extractReferenceType;
  *
  * @since 2.0.0
  */
-public class JsonToRecordConverter {
+public final class JsonToRecordConverter {
 
     private JsonToRecordConverter() {
         // not called
@@ -227,8 +227,7 @@ public class JsonToRecordConverter {
                     typeDefinitionNodes.put(key, typeDefinitionNode);
                 }
             } else if (schemaType.equals("array")) {
-                if (schemaValue instanceof ArraySchema) {
-                    ArraySchema arraySchema = (ArraySchema) schemaValue;
+                if (schemaValue instanceof ArraySchema arraySchema) {
                     Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
                     Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
                     IdentifierToken fieldName =
@@ -325,8 +324,7 @@ public class JsonToRecordConverter {
                 String type = convertOpenAPITypeToBallerina(schemaType.trim());
                 Token typeName = AbstractNodeFactory.createIdentifierToken(type);
                 return createBuiltinSimpleNameReferenceNode(null, typeName);
-            } else if (schemaType.equals("array") && schema instanceof ArraySchema) {
-                final ArraySchema arraySchema = (ArraySchema) schema;
+            } else if (schemaType.equals("array") && schema instanceof ArraySchema arraySchema) {
 
                 if (arraySchema.getItems() != null) {
                     Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);

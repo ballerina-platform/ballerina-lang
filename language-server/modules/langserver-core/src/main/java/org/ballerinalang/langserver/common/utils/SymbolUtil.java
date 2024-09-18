@@ -57,7 +57,7 @@ import javax.annotation.Nonnull;
  *
  * @since 2.0.0
  */
-public class SymbolUtil {
+public final class SymbolUtil {
 
     public static final String SELF_KW = "self";
     
@@ -220,34 +220,22 @@ public class SymbolUtil {
         if (symbol == null) {
             return Optional.empty();
         }
-        switch (symbol.kind()) {
-            case TYPE_DEFINITION:
-                return Optional.ofNullable(((TypeDefinitionSymbol) symbol).typeDescriptor());
-            case VARIABLE:
-                return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor());
-            case PARAMETER:
-                return Optional.ofNullable(((ParameterSymbol) symbol).typeDescriptor());
-            case ANNOTATION:
-                return ((AnnotationSymbol) symbol).typeDescriptor();
-            case FUNCTION:
-            case METHOD:
-                return Optional.ofNullable(((FunctionSymbol) symbol).typeDescriptor());
-            case CONSTANT:
-            case ENUM_MEMBER:
-                return Optional.ofNullable(((ConstantSymbol) symbol).typeDescriptor());
-            case CLASS:
-                return Optional.of((ClassSymbol) symbol);
-            case RECORD_FIELD:
-                return Optional.ofNullable(((RecordFieldSymbol) symbol).typeDescriptor());
-            case OBJECT_FIELD:
-                return Optional.of(((ObjectFieldSymbol) symbol).typeDescriptor());
-            case CLASS_FIELD:
-                return Optional.of(((ClassFieldSymbol) symbol).typeDescriptor());
-            case TYPE:
-                return Optional.of((TypeSymbol) symbol);
-            default:
-                return Optional.empty();
-        }
+        return switch (symbol.kind()) {
+            case TYPE_DEFINITION -> Optional.ofNullable(((TypeDefinitionSymbol) symbol).typeDescriptor());
+            case VARIABLE -> Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor());
+            case PARAMETER -> Optional.ofNullable(((ParameterSymbol) symbol).typeDescriptor());
+            case ANNOTATION -> ((AnnotationSymbol) symbol).typeDescriptor();
+            case FUNCTION,
+                 METHOD -> Optional.ofNullable(((FunctionSymbol) symbol).typeDescriptor());
+            case CONSTANT,
+                 ENUM_MEMBER -> Optional.ofNullable(((ConstantSymbol) symbol).typeDescriptor());
+            case CLASS -> Optional.of((ClassSymbol) symbol);
+            case RECORD_FIELD -> Optional.ofNullable(((RecordFieldSymbol) symbol).typeDescriptor());
+            case OBJECT_FIELD -> Optional.of(((ObjectFieldSymbol) symbol).typeDescriptor());
+            case CLASS_FIELD -> Optional.of(((ClassFieldSymbol) symbol).typeDescriptor());
+            case TYPE -> Optional.of((TypeSymbol) symbol);
+            default -> Optional.empty();
+        };
     }
 
     /**

@@ -75,7 +75,9 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,7 +85,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Stack;
 import java.util.function.BiFunction;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
@@ -111,7 +112,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
     private HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
     private HashMap<BSymbol, BLangTypeDefinition> createdTypeDefinitions = new HashMap<>();
-    private Stack<String> anonTypeNameSuffixes = new Stack<>();
+    private Deque<String> anonTypeNameSuffixes = new ArrayDeque<>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -543,17 +544,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BType constSymbolValType = value.type;
         int constSymbolValTypeTag = Types.getImpliedType(constSymbolValType).tag;
 
-        switch (constSymbolValTypeTag) {
-            case TypeTags.INT:
-                result = calculateNegationForInt(value);
-                break;
-            case TypeTags.FLOAT:
-                result = calculateNegationForFloat(value);
-                break;
-            case TypeTags.DECIMAL:
-                result = calculateNegationForDecimal(value);
-                break;
-        }
+        result = switch (constSymbolValTypeTag) {
+            case TypeTags.INT -> calculateNegationForInt(value);
+            case TypeTags.FLOAT -> calculateNegationForFloat(value);
+            case TypeTags.DECIMAL -> calculateNegationForDecimal(value);
+            default -> result;
+        };
 
         return new BLangConstantValue(result, constSymbolValType);
     }
@@ -576,12 +572,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
                                                                 BConstantSymbol constantSymbol, SymbolEnv env) {
-        return constructBLangConstantValueWithExactType(expression, constantSymbol, env, new Stack<>(), false);
+        return constructBLangConstantValueWithExactType(expression, constantSymbol, env, new ArrayDeque<>(), false);
     }
 
     BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
                                                                 BConstantSymbol constantSymbol, SymbolEnv env,
-                                                                Stack<String> anonTypeNameSuffixes,
+                                                                Deque<String> anonTypeNameSuffixes,
                                                                 boolean isSourceOnlyAnon) {
         this.currentConstSymbol = constantSymbol;
         BLangConstantValue value = constructBLangConstantValue(expression);
@@ -696,14 +692,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private boolean isListOrMapping(int tag) {
-        switch (tag) {
-            case TypeTags.RECORD:
-            case TypeTags.MAP:
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE:
-                return true;
-        }
-        return false;
+        return switch (tag) {
+            case TypeTags.RECORD, TypeTags.MAP, TypeTags.ARRAY, TypeTags.TUPLE -> true;
+            default -> false;
+        };
     }
 
     private BFiniteType createFiniteType(BConstantSymbol constantSymbol, BLangExpression expr) {
@@ -725,35 +717,39 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
         type = Types.getImpliedType(type);
 
-        switch (type.tag) {
-            case TypeTags.INT:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
+        return switch (type.tag) {
+            case TypeTags.INT,
+                 TypeTags.FLOAT,
+                 TypeTags.DECIMAL -> {
                 BLangNumericLiteral numericLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
-                return createFiniteType(constantSymbol, updateLiteral(numericLiteral, value, type, pos));
-            case TypeTags.BYTE:
+                yield createFiniteType(constantSymbol, updateLiteral(numericLiteral, value, type, pos));
+            }
+            case TypeTags.BYTE -> {
                 BLangNumericLiteral byteLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
-                return createFiniteType(constantSymbol, updateLiteral(byteLiteral, value, symTable.intType, pos));
-            case TypeTags.STRING:
-            case TypeTags.NIL:
-            case TypeTags.BOOLEAN:
+                yield createFiniteType(constantSymbol, updateLiteral(byteLiteral, value, symTable.intType, pos));
+            }
+            case TypeTags.STRING,
+                 TypeTags.NIL,
+                 TypeTags.BOOLEAN -> {
                 BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                return createFiniteType(constantSymbol, updateLiteral(literal, value, type, pos));
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
+                yield createFiniteType(constantSymbol, updateLiteral(literal, value, type, pos));
+            }
+            case TypeTags.MAP,
+                 TypeTags.RECORD -> {
                 if (value != null) {
-                    return createRecordType(expr, constantSymbol, value, pos, env);
+                    yield createRecordType(expr, constantSymbol, value, pos, env);
                 }
-                return null;
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE:
+                yield null;
+            }
+            case TypeTags.ARRAY,
+                 TypeTags.TUPLE -> {
                 if (value != null) {
-                    return createTupleType(expr, constantSymbol, pos, value, env);
+                    yield createTupleType(expr, constantSymbol, pos, value, env);
                 }
-                return null;
-            default:
-                return null;
-        }
+                yield null;
+            }
+            default -> null;
+        };
     }
 
     private BLangLiteral updateLiteral(BLangLiteral literal, Object value, BType type, Location pos) {
@@ -872,11 +868,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BTypeSymbol structureSymbol = recordType.tsymbol;
         for (BField field : recordType.fields.values()) {
             field.type = ImmutableTypeCloner.getImmutableType(pos, types, field.type, env,
-                    pkgID, env.scope.owner, symTable, anonymousModelHelper, names,
+                    env.enclPkg.packageID, env.scope.owner, symTable, anonymousModelHelper, names,
                     new HashSet<>());
             Name fieldName = field.symbol.name;
             field.symbol = new BVarSymbol(field.symbol.flags | Flags.READONLY, fieldName,
-                    pkgID, field.type, structureSymbol, pos, SOURCE);
+                    env.enclPkg.packageID, field.type, structureSymbol, pos, SOURCE);
             structureSymbol.scope.define(fieldName, field.symbol);
         }
     }

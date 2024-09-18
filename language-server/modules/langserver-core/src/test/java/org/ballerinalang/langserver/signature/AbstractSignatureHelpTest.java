@@ -36,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Test class for Signature help.
@@ -47,8 +48,6 @@ public abstract class AbstractSignatureHelpTest {
     private final String configDir = "config";
 
     private Endpoint serviceEndpoint;
-
-    private JsonParser parser = new JsonParser();
 
     private Path testRoot = new File(getClass().getClassLoader().getResource("signature").getFile()).toPath();
 
@@ -69,7 +68,7 @@ public abstract class AbstractSignatureHelpTest {
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
         expected.remove("id");
         String response = this.getSignatureResponse(configJsonObject, sourcePath).replace("\\r\\n", "\\n");
-        JsonObject responseJson = parser.parse(response).getAsJsonObject();
+        JsonObject responseJson = JsonParser.parseString(response).getAsJsonObject();
         responseJson.remove("id");
         boolean result = expected.equals(responseJson);
         if (!result) {
@@ -103,9 +102,9 @@ public abstract class AbstractSignatureHelpTest {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
-        try {
-            return Files.walk(this.testRoot.resolve(this.getTestResourceDir()).resolve(this.configDir))
-                    .filter(path -> {
+        try (Stream<Path> configPaths = Files.walk(
+                this.testRoot.resolve(this.getTestResourceDir()).resolve(this.configDir))) {
+            return configPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".json")
                                 && !skippedTests.contains(file.getName());

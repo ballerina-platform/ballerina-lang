@@ -32,7 +32,10 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //        returnType = {@ReturnType(type = TypeKind.INT)},
 //        isPublic = true
 //)
-public class Length {
+public final class Length {
+
+    private Length() {
+    }
 
     public static long length(BTable tbl) {
         return tbl.size();

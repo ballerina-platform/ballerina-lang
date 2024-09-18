@@ -51,6 +51,7 @@ public class ToolCommandTest extends BaseCommandTest {
 
     private Path testResources;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();

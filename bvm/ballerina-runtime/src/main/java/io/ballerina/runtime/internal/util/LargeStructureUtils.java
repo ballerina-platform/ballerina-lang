@@ -30,7 +30,7 @@ import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
  *
  * @since 2201.8.0
  */
-public class LargeStructureUtils {
+public final class LargeStructureUtils {
 
     private LargeStructureUtils() {}
 

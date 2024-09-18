@@ -705,4 +705,15 @@ public class BMainInstance implements BMain {
         writer.flush();
         writer.close();
     }
+
+    public void compilePackageAndPushToLocal(String packagPath, String balaFileName) throws BallerinaTestException {
+        LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
+                                                "'local' repository.");
+        this.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher}, packagPath);
+        buildLeecher.waitForText(5000);
+        this.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
+                packagPath);
+        pushLeecher.waitForText(5000);
+    }
 }

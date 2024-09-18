@@ -66,7 +66,7 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.internal.values to io.ballerina.testerina.core, io.ballerina.testerina.runtime,
             io.ballerina.lang.xml, org.ballerinalang.debugadapter.runtime, io.ballerina.lang.query,
             io.ballerina.lang.function, io.ballerina.lang.regexp, io.ballerina.lang.value, io.ballerina.lang.internal,
-            io.ballerina.runtime.profiler;
+            io.ballerina.lang.array, io.ballerina.runtime.profiler;
     exports io.ballerina.runtime.internal.configurable to io.ballerina.lang.internal;
     exports io.ballerina.runtime.internal.types to io.ballerina.lang.typedesc, io.ballerina.testerina.runtime,
             org.ballerinalang.debugadapter.runtime, io.ballerina.lang.function, io.ballerina.lang.regexp, io.ballerina.testerina.core,

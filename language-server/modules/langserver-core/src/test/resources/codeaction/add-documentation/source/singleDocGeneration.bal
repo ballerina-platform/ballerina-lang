@@ -94,3 +94,32 @@ enum Color {
     GREEN,
     BLUE
 }
+
+type Number int|float;
+
+type IntMap map<int>;
+
+type StringStream stream<string>;
+
+type Nil ();
+
+type IntArray int[];
+
+type Pi 3.14285714286d;
+
+type ReadonlyInt readonly & int;
+
+type MyInt 12;
+type MyInt2 MyInt;
+
+type MyXMLComment xml:Comment;
+type MyXMLElement xml:Element;
+type MyXMLText xml:Text;
+type MyXMLProcessingInstruction xml:ProcessingInstruction;
+
+type MyTypeDesc typedesc<int>;
+
+type MyDistinctError distinct error;
+
+type MyOptionalInt int?;
+type MyInt3 (int);

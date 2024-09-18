@@ -31,7 +31,7 @@ import java.util.StringJoiner;
  *
  * @since 2201.2.0
  */
-public class ProjectUtils {
+public final class ProjectUtils {
 
     public static final String BAL_TOML_FILE_NAME = "Ballerina.toml";
     public static final String BAL_FILE_EXT = ".bal";
@@ -41,6 +41,9 @@ public class ProjectUtils {
     private static final String PACKAGE_ORG = "semver_validator";
     private static final String PACKAGE_NAME = "test_package";
     private static final String PACKAGE_VERSION = "1.0.0";
+
+    private ProjectUtils() {
+    }
 
     public static BuildProject createProject(String mainBalContent) throws Exception {
         // Creates a new directory in the default temporary file directory.

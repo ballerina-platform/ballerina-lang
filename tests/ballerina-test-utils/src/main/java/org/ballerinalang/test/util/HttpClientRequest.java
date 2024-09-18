@@ -41,9 +41,13 @@ import java.util.Map;
 /**
  * This class can be used to send http request.
  */
-public class HttpClientRequest {
+public final class HttpClientRequest {
+
     private static final Logger LOG = LoggerFactory.getLogger(HttpClientRequest.class);
     private static final int DEFAULT_READ_TIMEOUT = 30000;
+
+    private HttpClientRequest() {
+    }
 
     /**
      * Sends an HTTP GET request to a url.
@@ -116,13 +120,10 @@ public class HttpClientRequest {
         try {
             urlConnection = getURLConnection(endpoint);
             setHeadersAndMethod(urlConnection, headers, TestConstant.HTTP_METHOD_POST);
-            OutputStream out = urlConnection.getOutputStream();
-            try {
+            try (OutputStream out = urlConnection.getOutputStream()) {
                 Writer writer = new OutputStreamWriter(out, TestConstant.CHARSET_NAME);
                 writer.write(postBody);
                 writer.close();
-            } finally {
-                out.close();
             }
             return buildResponse(urlConnection);
         } finally {

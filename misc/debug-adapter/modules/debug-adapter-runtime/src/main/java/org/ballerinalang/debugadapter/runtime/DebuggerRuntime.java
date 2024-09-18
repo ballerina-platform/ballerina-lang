@@ -85,7 +85,7 @@ import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
  * @since 2.0.0
  */
 @SuppressWarnings("unused")
-public class DebuggerRuntime {
+public final class DebuggerRuntime {
 
     private static final String EVALUATOR_STRAND_NAME = "evaluator-strand";
     private static final String XML_STEP_SEPARATOR = "/";
@@ -262,8 +262,8 @@ public class DebuggerRuntime {
                     "found '" + typedescValue.toString() + "'."));
         }
         Type type = ((TypedescValue) typedescValue).getDescribingType();
-        if (type instanceof BAnnotatableType) {
-            return ((BAnnotatableType) type).getAnnotations().entrySet()
+        if (type instanceof BAnnotatableType bAnnotatableType) {
+            return bAnnotatableType.getAnnotations().entrySet()
                     .stream()
                     .filter(annotationEntry -> annotationEntry.getKey().getValue().endsWith(annotationName))
                     .findFirst()
@@ -295,8 +295,8 @@ public class DebuggerRuntime {
             return "int";
         } else if (value instanceof Float || value instanceof Double) {
             return "float";
-        } else if (value instanceof BValue) {
-            return ((BValue) value).getType().getName();
+        } else if (value instanceof BValue bValue) {
+            return bValue.getType().getName();
         } else {
             return "unknown";
         }
@@ -439,8 +439,8 @@ public class DebuggerRuntime {
      * @param args        Arguments to provide.
      * @return The result of the invocation.
      */
-    protected static Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
-                                                 Class<?>[] argTypes, Object[] args) throws Exception {
+    private static Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
+                                               Class<?>[] argTypes, Object[] args) throws Exception {
         Class<?> clazz = classLoader.loadClass(className);
         Method method = clazz.getDeclaredMethod(methodName, argTypes);
         return method.invoke(null, args);

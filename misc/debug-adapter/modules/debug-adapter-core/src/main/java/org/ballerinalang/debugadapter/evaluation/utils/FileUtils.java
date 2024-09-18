@@ -30,7 +30,10 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationException.crea
  *
  * @since 2.0.0
  */
-public class FileUtils {
+public final class FileUtils {
+
+    private FileUtils() {
+    }
 
     /**
      * Helper method to write a string source to a file.

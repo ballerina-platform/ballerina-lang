@@ -38,19 +38,24 @@ import static io.ballerina.cli.cmd.Constants.HELP_COMMAND;
 import static io.ballerina.cli.cmd.Constants.HELP_OPTION;
 import static io.ballerina.cli.cmd.Constants.HELP_SHORT_OPTION;
 import static io.ballerina.cli.cmd.Constants.VERSION_COMMAND;
+import static io.ballerina.cli.launcher.LauncherUtils.prepareCompilerErrorMessage;
 
 /**
  * This class executes a Ballerina program.
  *
  * @since 0.8.0
  */
-public class Main {
+public final class Main {
+
     private static final String UNMATCHED_ARGUMENT_PREFIX = "Unmatched argument";
     private static final String MISSING_REQUIRED_PARAMETER_PREFIX = "Missing required parameter";
     private static final String COMPILATION_ERROR_MESSAGE = "compilation contains errors";
 
     private static final PrintStream errStream = System.err;
     private static final PrintStream outStream = System.out;
+
+    private Main() {
+    }
 
     public static void main(String... args) {
         try {
@@ -206,10 +211,6 @@ public class Main {
         } else {
             throw LauncherUtils.createUsageExceptionWithHelp("home info not available");
         }
-    }
-
-    private static String prepareCompilerErrorMessage(String message) {
-        return "error: " + LauncherUtils.makeFirstLetterLowerCase(message);
     }
 
     private static String getFirstUnknownArg(String errorMessage) {

@@ -252,8 +252,10 @@ import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -263,7 +265,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Stack;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -340,6 +341,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private void analyzeTopLevelNodes(BLangPackage pkgNode, AnalyzerData data) {
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
+
+        // topLevelNodes are modified while iterating over them
+        // noinspection ForLoopReplaceableByForEach
         for (int i = 0; i < topLevelNodes.size(); i++) {
             analyzeNode((BLangNode) topLevelNodes.get(i), data);
         }
@@ -497,6 +501,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private void visitFunction(BLangFunction funcNode, AnalyzerData data) {
+        boolean failureHandled = data.failureHandled;
+        data.failureHandled = false;
         data.env = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, data.env);
         data.returnWithinTransactionCheckStack.push(true);
         data.returnTypes.push(new LinkedHashSet<>());
@@ -512,8 +518,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (funcNode.body != null) {
 
             DefaultValueState prevDefaultValueState = data.defaultValueState;
-            if (prevDefaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
-                    prevDefaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+            if (inDefaultValue(prevDefaultValueState)) {
                 data.defaultValueState = DefaultValueState.FUNCTION_IN_DEFAULT_VALUE;
             }
             analyzeNode(funcNode.body, data);
@@ -523,6 +528,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.returnTypes.pop();
         data.returnWithinTransactionCheckStack.pop();
         data.transactionalFuncCheckStack.pop();
+        data.failureHandled = failureHandled;
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
@@ -644,12 +650,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
-        if (!data.transactionalFuncCheckStack.empty() && data.transactionalFuncCheckStack.peek()) {
+        if (!data.transactionalFuncCheckStack.isEmpty() && data.transactionalFuncCheckStack.peek()) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
         if (!data.withinTransactionScope || !data.commitRollbackAllowed ||
-                (!data.loopWithinTransactionCheckStack.empty() && data.loopWithinTransactionCheckStack.peek())) {
+                (!data.loopWithinTransactionCheckStack.isEmpty() && data.loopWithinTransactionCheckStack.peek())) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_NOT_ALLOWED);
             return;
         }
@@ -873,29 +879,22 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return false;
         }
 
-        switch (firstPatternKind) {
-            case WILDCARD_MATCH_PATTERN:
-            case REST_MATCH_PATTERN:
-                return true;
-            case CONST_MATCH_PATTERN:
-                return checkSimilarConstMatchPattern((BLangConstPattern) firstPattern,
-                        (BLangConstPattern) secondPattern);
-            case VAR_BINDING_PATTERN_MATCH_PATTERN:
-                return checkSimilarBindingPatterns(
-                        ((BLangVarBindingPatternMatchPattern) firstPattern).getBindingPattern(),
-                        ((BLangVarBindingPatternMatchPattern) secondPattern).getBindingPattern());
-            case LIST_MATCH_PATTERN:
-                return checkSimilarListMatchPattern((BLangListMatchPattern) firstPattern,
-                        (BLangListMatchPattern) secondPattern);
-            case MAPPING_MATCH_PATTERN:
-                return checkSimilarMappingMatchPattern((BLangMappingMatchPattern) firstPattern,
-                        (BLangMappingMatchPattern) secondPattern);
-            case ERROR_MATCH_PATTERN:
-                return checkSimilarErrorMatchPattern((BLangErrorMatchPattern) firstPattern,
-                        (BLangErrorMatchPattern) secondPattern);
-            default:
-                return false;
-        }
+        return switch (firstPatternKind) {
+            case WILDCARD_MATCH_PATTERN,
+                 REST_MATCH_PATTERN -> true;
+            case CONST_MATCH_PATTERN -> checkSimilarConstMatchPattern((BLangConstPattern) firstPattern,
+                    (BLangConstPattern) secondPattern);
+            case VAR_BINDING_PATTERN_MATCH_PATTERN -> checkSimilarBindingPatterns(
+                    ((BLangVarBindingPatternMatchPattern) firstPattern).getBindingPattern(),
+                    ((BLangVarBindingPatternMatchPattern) secondPattern).getBindingPattern());
+            case LIST_MATCH_PATTERN -> checkSimilarListMatchPattern((BLangListMatchPattern) firstPattern,
+                    (BLangListMatchPattern) secondPattern);
+            case MAPPING_MATCH_PATTERN -> checkSimilarMappingMatchPattern((BLangMappingMatchPattern) firstPattern,
+                    (BLangMappingMatchPattern) secondPattern);
+            case ERROR_MATCH_PATTERN -> checkSimilarErrorMatchPattern((BLangErrorMatchPattern) firstPattern,
+                    (BLangErrorMatchPattern) secondPattern);
+            default -> false;
+        };
     }
 
     private boolean checkEmptyListOrMapMatchWithVarBindingPatternMatch(BLangMatchPattern firstPattern,
@@ -1157,23 +1156,20 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return false;
         }
 
-        switch (firstBindingPatternKind) {
-            case WILDCARD_BINDING_PATTERN:
-            case REST_BINDING_PATTERN:
-            case CAPTURE_BINDING_PATTERN:
-                return true;
-            case LIST_BINDING_PATTERN:
-                return checkSimilarListBindingPatterns((BLangListBindingPattern) firstBidingPattern,
-                        (BLangListBindingPattern) secondBindingPattern);
-            case MAPPING_BINDING_PATTERN:
-                return checkSimilarMappingBindingPattern((BLangMappingBindingPattern) firstBidingPattern,
-                        (BLangMappingBindingPattern) secondBindingPattern);
-            case ERROR_BINDING_PATTERN:
-                return checkSimilarErrorBindingPatterns((BLangErrorBindingPattern) firstBidingPattern,
-                        (BLangErrorBindingPattern) secondBindingPattern);
-            default:
-                return false;
-        }
+        return switch (firstBindingPatternKind) {
+            case WILDCARD_BINDING_PATTERN,
+                 REST_BINDING_PATTERN,
+                 CAPTURE_BINDING_PATTERN -> true;
+            case LIST_BINDING_PATTERN -> checkSimilarListBindingPatterns((BLangListBindingPattern) firstBidingPattern,
+                    (BLangListBindingPattern) secondBindingPattern);
+            case MAPPING_BINDING_PATTERN ->
+                    checkSimilarMappingBindingPattern((BLangMappingBindingPattern) firstBidingPattern,
+                            (BLangMappingBindingPattern) secondBindingPattern);
+            case ERROR_BINDING_PATTERN ->
+                    checkSimilarErrorBindingPatterns((BLangErrorBindingPattern) firstBidingPattern,
+                            (BLangErrorBindingPattern) secondBindingPattern);
+            default -> false;
+        };
     }
 
     private boolean checkSimilarMappingBindingPattern(BLangMappingBindingPattern firstMappingBindingPattern,
@@ -1430,27 +1426,27 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private boolean isConstMatchPatternExist(BLangMatchPattern matchPattern) {
-        switch (matchPattern.getKind()) {
-            case CONST_MATCH_PATTERN:
-                return true;
-            case LIST_MATCH_PATTERN:
+        return switch (matchPattern.getKind()) {
+            case CONST_MATCH_PATTERN -> true;
+            case LIST_MATCH_PATTERN -> {
                 for (BLangMatchPattern memberMatchPattern : ((BLangListMatchPattern) matchPattern).matchPatterns) {
                     if (isConstMatchPatternExist(memberMatchPattern)) {
-                        return true;
+                        yield true;
                     }
                 }
-                return false;
-            case MAPPING_MATCH_PATTERN:
+                yield false;
+            }
+            case MAPPING_MATCH_PATTERN -> {
                 for (BLangFieldMatchPattern fieldMatchPattern :
                         ((BLangMappingMatchPattern) matchPattern).fieldMatchPatterns) {
                     if (isConstMatchPatternExist(fieldMatchPattern.matchPattern)) {
-                        return true;
+                        yield true;
                     }
                 }
-                return false;
-            default:
-                return false;
-        }
+                yield false;
+            }
+            default -> false;
+        };
     }
 
     @Override
@@ -1704,7 +1700,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         analyzeTypeNode(varNode.typeNode, data);
 
+        DefaultValueState prevDefaultValueState = data.defaultValueState;
+        if (varNode.flagSet.contains(Flag.DEFAULTABLE_PARAM)) {
+            data.defaultValueState = DefaultValueState.PARAMETER_DEFAULT;
+        }
         analyzeExpr(varNode.expr, data);
+        data.defaultValueState = prevDefaultValueState;
 
         if (Objects.isNull(varNode.symbol)) {
             return;
@@ -1745,17 +1746,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private boolean isValidContextForInferredArray(BLangNode node) {
-        switch (node.getKind()) {
-            case PACKAGE:
-            case EXPR_FUNCTION_BODY:
-            case BLOCK_FUNCTION_BODY:
-            case BLOCK:
-                return true;
-            case VARIABLE_DEF:
-                return isValidContextForInferredArray(node.parent);
-            default:
-                return false;
-        }
+        return switch (node.getKind()) {
+            case PACKAGE,
+                 EXPR_FUNCTION_BODY,
+                 BLOCK_FUNCTION_BODY,
+                 BLOCK -> true;
+            case VARIABLE_DEF -> isValidContextForInferredArray(node.parent);
+            default -> false;
+        };
     }
 
     private boolean isValidVariableForInferredArray(BLangNode node) {
@@ -2899,7 +2897,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         // 1) flush w1 -> Wait till all the asynchronous sends to worker w1 is completed
         // 2) flush -> Wait till all asynchronous sends to all workers are completed
         BLangIdentifier flushWrkIdentifier = workerFlushExpr.workerIdentifier;
-        Stack<WorkerActionSystem> workerActionSystems = data.workerActionSystemStack;
+        Deque<WorkerActionSystem> workerActionSystems = data.workerActionSystemStack;
         WorkerActionSystem currentWrkerAction = workerActionSystems.peek();
         List<BLangWorkerAsyncSendExpr> sendStmts = getAsyncSendStmtsOfWorker(currentWrkerAction);
         if (flushWrkIdentifier != null) {
@@ -3110,8 +3108,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangArrowFunction bLangArrowFunction, AnalyzerData data) {
 
         DefaultValueState prevDefaultValueState = data.defaultValueState;
-        if (prevDefaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
-                prevDefaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+        if (inDefaultValue(prevDefaultValueState)) {
             data.defaultValueState = DefaultValueState.FUNCTION_IN_DEFAULT_VALUE;
         }
         analyzeExpr(bLangArrowFunction.body.expr, data);
@@ -3295,43 +3292,49 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.failVisited = true;
         analyzeExpr(checkedExpr.expr, data);
 
+        DefaultValueState defaultValueState = data.defaultValueState;
+        if (defaultValueState == DefaultValueState.PARAMETER_DEFAULT) {
+            dlog.error(checkedExpr.pos, DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_PARAMETER_DEFAULT);
+            return;
+        }
+
+        if (defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT) {
+            dlog.error(checkedExpr.pos,
+                       DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION);
+            return;
+        }
+
+        if (defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+            BAttachedFunction initializerFunc =
+                    ((BObjectTypeSymbol) getEnclosingClass(data.env).getBType().tsymbol).initializerFunc;
+
+            if (initializerFunc == null) {
+                dlog.error(checkedExpr.pos,
+                        DiagnosticErrorCode
+                                .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_IN_OBJECT_WITH_NO_INIT_METHOD);
+                return;
+            }
+
+            BType exprErrorTypes = types.getErrorTypes(checkedExpr.expr.getBType());
+            if (exprErrorTypes == symTable.semanticError) {
+                return;
+            }
+
+            BType initMethodReturnType = initializerFunc.type.retType;
+            if (!types.isAssignable(exprErrorTypes, initMethodReturnType)) {
+                dlog.error(checkedExpr.pos, DiagnosticErrorCode
+                        .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_WITH_INIT_METHOD_RETURN_TYPE_MISMATCH,
+                        initMethodReturnType, exprErrorTypes);
+            }
+            return;
+        }
+
         if (data.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
             // Check at module level.
             return;
         }
 
         BLangInvokableNode enclInvokable = data.env.enclInvokable;
-
-        List<BType> equivalentErrorTypeList = checkedExpr.equivalentErrorTypeList;
-        if (equivalentErrorTypeList != null && !equivalentErrorTypeList.isEmpty()) {
-            if (data.defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT) {
-                dlog.error(checkedExpr.pos,
-                           DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION);
-                return;
-            }
-
-            if (data.defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
-                BAttachedFunction initializerFunc =
-                        ((BObjectTypeSymbol) getEnclosingClass(data.env).getBType().tsymbol).initializerFunc;
-
-                if (initializerFunc == null) {
-                    dlog.error(checkedExpr.pos,
-                            DiagnosticErrorCode
-                                    .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_IN_OBJECT_WITH_NO_INIT_METHOD);
-                    return;
-                }
-
-                BType exprErrorTypes = types.getErrorTypes(checkedExpr.expr.getBType());
-                BType initMethodReturnType = initializerFunc.type.retType;
-                if (!types.isAssignable(exprErrorTypes, initMethodReturnType)) {
-                    dlog.error(checkedExpr.pos, DiagnosticErrorCode
-                            .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_WITH_INIT_METHOD_RETURN_TYPE_MISMATCH,
-                            initMethodReturnType, exprErrorTypes);
-                }
-                return;
-            }
-        }
-
         if (enclInvokable == null) {
             return;
         }
@@ -3672,8 +3675,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private <E extends BLangExpression> void analyzeExprs(List<E> nodeList, AnalyzerData data) {
-        for (int i = 0; i < nodeList.size(); i++) {
-            analyzeExpr(nodeList.get(i), data);
+        for (E e : nodeList) {
+            analyzeExpr(e, data);
         }
     }
 
@@ -3838,8 +3841,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             Set<String> waitingOnWorkerSet = new HashSet<>();
             for (BLangNode action : worker.actions) {
                 if (isWaitAction(action)) {
-                    if (action instanceof BLangWaitForAllExpr) {
-                        BLangWaitForAllExpr waitForAllExpr = (BLangWaitForAllExpr) action;
+                    if (action instanceof BLangWaitForAllExpr waitForAllExpr) {
                         for (BLangWaitForAllExpr.BLangWaitKeyValue keyValuePair : waitForAllExpr.keyValuePairs) {
                             BSymbol workerSymbol = getWorkerSymbol(keyValuePair);
                             if (workerSymbol != null) {
@@ -3879,9 +3881,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private void handleWaitAction(WorkerActionSystem workerActionSystem, BLangNode currentAction,
                                   WorkerActionStateMachine worker, AnalyzerData data) {
-        if (currentAction instanceof BLangWaitForAllExpr) {
+        if (currentAction instanceof BLangWaitForAllExpr waitForAllExpr) {
             boolean allWorkersAreDone = true;
-            BLangWaitForAllExpr waitForAllExpr = (BLangWaitForAllExpr) currentAction;
             for (BLangWaitForAllExpr.BLangWaitKeyValue keyValuePair : waitForAllExpr.keyValuePairs) {
                 BSymbol workerSymbol = getWorkerSymbol(keyValuePair);
                 if (isWorkerSymbol(workerSymbol)) {
@@ -4159,7 +4160,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         public final List<BLangAlternateWorkerReceive> alternateWorkerReceives = new ArrayList<>();
         public List<WorkerActionStateMachine> finshedWorkers = new ArrayList<>();
-        private Stack<WorkerActionStateMachine> workerActionStateMachines = new Stack<>();
+        private Deque<WorkerActionStateMachine> workerActionStateMachines = new ArrayDeque<>();
         private Map<BLangNode, SymbolEnv> workerInteractionEnvironments = new IdentityHashMap<>();
         private Map<String, Integer> workerEventIndexMap = new HashMap<>();
         private boolean hasErrors = false;
@@ -4388,8 +4389,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return null;
     }
 
+    private boolean inDefaultValue(DefaultValueState prevDefaultValueState) {
+        return prevDefaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
+                prevDefaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER ||
+                prevDefaultValueState == DefaultValueState.PARAMETER_DEFAULT;
+    }
+
     private enum DefaultValueState {
         NOT_IN_DEFAULT_VALUE,
+        PARAMETER_DEFAULT,
         RECORD_FIELD_DEFAULT,
         OBJECT_FIELD_INITIALIZER,
         FUNCTION_IN_DEFAULT_VALUE
@@ -4407,7 +4415,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         // Fields related to worker system
         boolean inInternallyDefinedBlockStmt;
         int workerSystemMovementSequence;
-        Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
+        Deque<WorkerActionSystem> workerActionSystemStack = new ArrayDeque<>();
         Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
         // Field related to transactions
         int transactionCount;
@@ -4417,9 +4425,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean commitRollbackAllowed;
         int commitCountWithinBlock;
         int rollbackCountWithinBlock;
-        Stack<Boolean> loopWithinTransactionCheckStack = new Stack<>();
-        Stack<Boolean> returnWithinTransactionCheckStack = new Stack<>();
-        Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
+        Deque<Boolean> loopWithinTransactionCheckStack = new ArrayDeque<>();
+        Deque<Boolean> returnWithinTransactionCheckStack = new ArrayDeque<>();
+        Deque<Boolean> transactionalFuncCheckStack = new ArrayDeque<>();
         // Fields related to lock
         boolean withinLockBlock;
         // Common fields
@@ -4428,7 +4436,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean queryToTableWithKey;
         boolean withinQuery;
         Types.QueryConstructType queryConstructType;
-        Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
+        Deque<LinkedHashSet<BType>> returnTypes = new ArrayDeque<>();
         DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;
     }
 }

@@ -85,6 +85,8 @@ public class Module extends ModuleMetaData {
     @Expose
     public List<BType> xmlTypes = new ArrayList<>();
     @Expose
+    public List<BType> booleanTypes = new ArrayList<>();
+    @Expose
     public List<Enum> enums = new ArrayList<>();
     @Expose
     public List<DefaultableVariable> variables = new ArrayList<>();

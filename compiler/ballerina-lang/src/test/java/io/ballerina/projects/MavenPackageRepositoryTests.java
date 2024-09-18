@@ -38,6 +38,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Test maven package repository.
@@ -47,7 +48,7 @@ import java.util.Optional;
 public class MavenPackageRepositoryTests {
 
 
-    class MockMavenPackageRepository extends MavenPackageRepository {
+    private static class MockMavenPackageRepository extends MavenPackageRepository {
 
         public MockMavenPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion) {
             super(environment, cacheDirectory, distributionVersion, null, null);
@@ -241,10 +242,11 @@ public class MavenPackageRepositoryTests {
                 resolve("local-custom-repo")
                 .resolve("bala").resolve("luheerathan").resolve("pact");
         if (Files.exists(destinationFolderPath)) {
-            Files.walk(destinationFolderPath)
-                    .sorted(Comparator.reverseOrder())
+            try (Stream<Path> paths = Files.walk(destinationFolderPath)) {
+                paths.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .forEach(File::delete);
+            }
         }
     }
 }

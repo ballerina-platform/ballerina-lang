@@ -21,6 +21,7 @@ package io.ballerina.cli.cmd;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
@@ -29,6 +30,7 @@ import io.ballerina.projects.internal.model.Proxy;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -53,6 +55,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BALA_EXTENSION;
+import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
 import static io.ballerina.projects.util.ProjectConstants.PLATFORM;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -72,6 +75,7 @@ public class PullCommand implements BLauncherCmd {
     private static final String USAGE_TEXT =
             "bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}";
 
+    private final PrintStream outStream;
     private final PrintStream errStream;
     private final boolean exitWhenFinish;
 
@@ -87,14 +91,23 @@ public class PullCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--repository")
     private String repositoryName;
 
+    @CommandLine.Option(names = "--sticky", hidden = true, defaultValue = "true")
+    private boolean sticky;
+
+    @CommandLine.Option(names = "--offline", hidden = true)
+    private boolean offline;
+
     public PullCommand() {
+        this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;
     }
 
     public PullCommand(PrintStream errStream, boolean exitWhenFinish) {
+        this.outStream = errStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
+        this.repositoryName = null;
     }
 
     @Override
@@ -132,7 +145,7 @@ public class PullCommand implements BLauncherCmd {
         // Get org name
         String[] moduleInfo = resourceName.split("/");
         if (moduleInfo.length != 2) {
-            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
+            CommandUtil.printError(errStream, "invalid package. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -149,7 +162,7 @@ public class PullCommand implements BLauncherCmd {
             packageName = moduleNameAndVersion;
             version = Names.EMPTY.getValue();
         } else {
-            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
+            CommandUtil.printError(errStream, "invalid package. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -186,13 +199,77 @@ public class PullCommand implements BLauncherCmd {
             settings = Settings.from();
         }
 
+        if (repositoryName == null) {
+            repositoryName = ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
+            version = pullFromCentral(settings, orgName, packageName, version);
+        } else if (!LOCAL_REPOSITORY_NAME.equals(repositoryName)) {
+            pullFromMavenRepo(settings, orgName, packageName, version);
+        }
+
+        if (!resolveDependencies(orgName, packageName, version)) {
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
+
+    }
+
+    private String pullFromCentral(Settings settings, String orgName, String packageName, String version) {
+        Path packagePathInBalaCache = ProjectUtils.createAndGetHomeReposPath()
+                .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                .resolve(ProjectConstants.BALA_DIR_NAME)
+                .resolve(orgName).resolve(packageName);
+
+        if (!version.equals(Names.EMPTY.getValue()) && Files.exists(packagePathInBalaCache.resolve(version))) {
+            outStream.println("Package already exists.\n");
+        }
+        // create directory path in bala cache
+        try {
+            createDirectories(packagePathInBalaCache);
+        } catch (IOException e) {
+            CommandUtil.exitError(this.exitWhenFinish);
+            throw createLauncherException(
+                    "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
+        }
+
+        CommandUtil.setPrintStream(errStream);
+        String supportedPlatform = Arrays.stream(JvmTarget.values())
+                .map(JvmTarget::code)
+                .collect(Collectors.joining(","));
+        CentralAPIClient client;
+        try {
+            client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                    initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                    settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                    settings.getCentral().getConnectTimeout(),
+                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                    settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
+            client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
+                    RepoUtils.getBallerinaVersion(), false);
+            if (version.equals(Names.EMPTY.getValue())) {
+                List<String> versions = client.getPackageVersions(orgName, packageName, supportedPlatform,
+                        RepoUtils.getBallerinaVersion());
+                version = CommandUtil.getLatestVersion(versions);
+            }
+        } catch (PackageAlreadyExistsException e) {
+            outStream.println("Package already exists.\n");
+            version = e.version();
+        } catch (CentralClientException e) {
+            errStream.println("package not found: " + orgName + "/" + packageName);
+            CommandUtil.exitError(this.exitWhenFinish);
+        }
+        return version;
+    }
+
+    private void pullFromMavenRepo(Settings settings, String orgName, String packageName, String version) {
         Repository targetRepository = null;
-        if (repositoryName != null) {
-            for (Repository repository : settings.getRepositories()) {
-                if (repositoryName.equals(repository.id())) {
-                    targetRepository = repository;
-                    break;
-                }
+        for (Repository repository : settings.getRepositories()) {
+            if (repositoryName.equals(repository.id())) {
+                targetRepository = repository;
+                break;
             }
         }
 
@@ -218,7 +295,8 @@ public class PullCommand implements BLauncherCmd {
             Path mavenBalaCachePath = RepoUtils.createAndGetHomeReposPath()
                     .resolve(ProjectConstants.REPOSITORIES_DIR)
                     .resolve(targetRepository.id())
-                    .resolve(ProjectConstants.BALA_DIR_NAME);
+                    .resolve(ProjectConstants.BALA_DIR_NAME)
+                    .resolve(orgName).resolve(packageName).resolve(version);
 
             try {
                 Path tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());
@@ -233,10 +311,8 @@ public class PullCommand implements BLauncherCmd {
                 try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
                     JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
                     String platform = resultObj.get(PLATFORM).getAsString();
-                    Path actualBalaPath = mavenBalaCachePath.resolve(orgName).resolve(packageName)
-                            .resolve(version).resolve(platform);
-                    org.apache.commons.io.FileUtils.copyDirectory(temporaryExtractionPath.toFile(),
-                            actualBalaPath.toFile());
+                    Path actualBalaPath = mavenBalaCachePath.resolve(platform);
+                    FileUtils.copyDirectory(temporaryExtractionPath.toFile(), actualBalaPath.toFile());
                 }
             } catch (MavenResolverClientException e) {
                 errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
@@ -247,56 +323,24 @@ public class PullCommand implements BLauncherCmd {
             }
             PrintStream out = System.out;
             out.println("Successfully pulled the package from the custom repository.");
-            return;
         }
+    }
 
-        Path packagePathInBalaCache = ProjectUtils.createAndGetHomeReposPath()
-                .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME)
-                .resolve(orgName).resolve(packageName);
-        // create directory path in bala cache
-        try {
-            createDirectories(packagePathInBalaCache);
-        } catch (IOException e) {
-            CommandUtil.exitError(this.exitWhenFinish);
-            throw createLauncherException(
-                    "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
-        }
-
+    private boolean resolveDependencies(String orgName, String packageName, String version) {
         CommandUtil.setPrintStream(errStream);
-        String supportedPlatform = Arrays.stream(JvmTarget.values())
-                .map(JvmTarget::code)
-                .collect(Collectors.joining(","));
         try {
-            CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                    initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                    settings.getProxy().password(), getAccessTokenOfCLI(settings),
-                    settings.getCentral().getConnectTimeout(),
-                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                    settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
-            client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
-                    RepoUtils.getBallerinaVersion(), false);
-            if (version.equals(Names.EMPTY.getValue())) {
-                List<String> versions = client.getPackageVersions(orgName, packageName, supportedPlatform,
-                        RepoUtils.getBallerinaVersion());
-                version = CommandUtil.getLatestVersion(versions);
-            }
-            boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(orgName, packageName, version);
+            BuildOptions buildOptions = BuildOptions.builder().setSticky(sticky).setOffline(offline).build();
+            boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(
+                    orgName, packageName, version, buildOptions, repositoryName);
             if (hasCompilationErrors) {
                 CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
+                return false;
             }
-        } catch (PackageAlreadyExistsException e) {
-            errStream.println(e.getMessage());
-            CommandUtil.exitError(this.exitWhenFinish);
-        } catch (CentralClientException e) {
-            errStream.println("package not found: " + orgName + "/" + packageName);
-            CommandUtil.exitError(this.exitWhenFinish);
+        } catch (ProjectException e) {
+            CommandUtil.printError(this.errStream,
+                    "error occurred while resolving dependencies, reason: " + e.getMessage(), null, false);
         }
-        if (this.exitWhenFinish) {
-            Runtime.getRuntime().exit(0);
-        }
+        return true;
     }
 
     @Override

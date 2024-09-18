@@ -59,10 +59,13 @@ import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
  *
  * @since 2.0.0
  */
-public class FileUtils {
+public final class FileUtils {
 
     private static final String PNG_HEX_HEADER = "89504E470D0A1A0A";
     private static final PathMatcher FILE_MATCHER = FileSystems.getDefault().getPathMatcher("glob:**/Ballerina.toml");
+
+    private FileUtils() {
+    }
 
     /**
      * Get the name of the without the extension.
@@ -169,8 +172,10 @@ public class FileUtils {
         }
 
         if (Files.isDirectory(path)) {
-            for (Path dir : Files.list(path).toList()) {
-                deletePath(dir);
+            try (Stream<Path> paths = Files.list(path)) {
+                for (Path dir : paths.toList()) {
+                    deletePath(dir);
+                }
             }
         }
 
@@ -309,7 +314,8 @@ public class FileUtils {
                     Files.write(path, content.getBytes(StandardCharsets.UTF_8));
                 }
             } catch (IOException e) {
-                throw new RuntimeException("Error while replacing template name in module import statements: " + path, e);
+                throw new RuntimeException(
+                        "Error while replacing template name in module import statements: " + path, e);
             }
         }
     }

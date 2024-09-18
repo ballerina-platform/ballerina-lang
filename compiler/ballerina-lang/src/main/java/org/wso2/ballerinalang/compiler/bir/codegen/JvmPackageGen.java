@@ -28,7 +28,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.exceptions.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
@@ -371,7 +370,7 @@ public class JvmPackageGen {
         return null;
     }
 
-    private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries, String moduleInitClass,
+    private void generateModuleClasses(BIRPackage module, JarEntries jarEntries, String moduleInitClass,
                                        String typesClass, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                                        JvmConstantsGen jvmConstantsGen, Map<String, JavaClass> jvmClassMapping,
                                        boolean serviceEPAvailable, BIRFunction mainFunc, BIRFunction testExecuteFunc,
@@ -408,6 +407,7 @@ public class JvmPackageGen {
 
                 generateLockForVariable(cw);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, typesClass);
+                initMethodGen.generateModuleStop(cw, moduleInitClass, asyncDataCollector, jvmConstantsGen);
                 ModuleStopMethodGen stopMethodGen = new ModuleStopMethodGen(jvmTypeGen, jvmConstantsGen);
                 stopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, asyncDataCollector,
                         immediateImports);
@@ -711,9 +711,10 @@ public class JvmPackageGen {
         String typesClass = getModuleLevelClassName(module.packageID, MODULE_TYPES_CLASS_NAME);
         Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, true);
 
-        // use a map to store class byte values
-        final Map<String, byte[]> jarEntries = new HashMap<>();
-
+        CompiledJarFile compiledJarFile = new CompiledJarFile(
+                getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."));
+        // use a ByteArrayOutputStream to store class byte values
+        final JarEntries jarEntries = compiledJarFile.jarEntries;
         // desugar parameter initialization
         injectDefaultParamInits(module, initMethodGen);
         injectDefaultParamInitsToAttachedFuncs(module, initMethodGen);
@@ -743,8 +744,8 @@ public class JvmPackageGen {
                                              typeHashVisitor, jarEntries, symbolTable);
 
         // generate the shutdown listener class.
-        new ShutDownListenerGen(jvmConstantsGen).generateShutdownSignalListener(moduleInitClass, jarEntries,
-                asyncDataCollector);
+        new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries
+        );
 
         removeSourceAnnotationTypeDefs(module.typeDefs);
         // desugar the record init function
@@ -772,7 +773,7 @@ public class JvmPackageGen {
         // clear class name mappings
         clearPackageGenInfo();
 
-        return new CompiledJarFile(getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."), jarEntries);
+        return compiledJarFile;
     }
 
     private void removeSourceAnnotationTypeDefs(List<BIRTypeDefinition> typeDefs) {

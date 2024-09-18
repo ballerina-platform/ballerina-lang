@@ -187,8 +187,10 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -199,7 +201,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -357,24 +358,24 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
-        return checkExpr(expr, env, symTable.noType, new Stack<>());
+        return checkExpr(expr, env, symTable.noType, new ArrayDeque<>());
     }
 
-    public BType checkExpr(BLangExpression expr, SymbolEnv env, Stack<SymbolEnv> prevEnvs,
+    public BType checkExpr(BLangExpression expr, SymbolEnv env, Deque<SymbolEnv> prevEnvs,
                            Types.CommonAnalyzerData commonAnalyzerData) {
         return checkExpr(expr, env, symTable.noType, prevEnvs, commonAnalyzerData);
     }
 
-    public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, Stack<SymbolEnv> prevEnvs) {
+    public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, Deque<SymbolEnv> prevEnvs) {
         final AnalyzerData data = new AnalyzerData();
         data.env = env;
         data.prevEnvs = prevEnvs;
-        data.commonAnalyzerData.queryFinalClauses = new Stack<>();
-        data.commonAnalyzerData.queryEnvs = new Stack<>();
+        data.commonAnalyzerData.queryFinalClauses = new ArrayDeque<>();
+        data.commonAnalyzerData.queryEnvs = new ArrayDeque<>();
         return checkExpr(expr, env, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data);
     }
 
-    public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, Stack<SymbolEnv> prevEnvs,
+    public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, Deque<SymbolEnv> prevEnvs,
                            Types.CommonAnalyzerData commonAnalyzerData) {
         final AnalyzerData data = new AnalyzerData();
         data.env = env;
@@ -639,8 +640,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         expectedType);
                 return symTable.semanticError;
             }
-            if (literalValue instanceof Double) {
-                literalExpr.value = ((Double) literalValue).doubleValue();
+            if (literalValue instanceof Double doubleValue) {
+                literalExpr.value = doubleValue.doubleValue();
             } else {
                 literalExpr.value = ((Long) literalValue).doubleValue();
             }
@@ -1033,7 +1034,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BType getIntLiteralType(BType expType, Object literalValue, AnalyzerData data) {
         // The literalValue will be a string if it is not within the bounds of what is supported by Java Long,
         // indicating that it is an overflown Ballerina int
-        if (!(literalValue instanceof Long)) {
+        if (!(literalValue instanceof Long longValue)) {
             data.resultType = symTable.semanticError;
             return symTable.semanticError;
         }
@@ -1041,37 +1042,37 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.INT:
                 return symTable.intType;
             case TypeTags.BYTE:
-                if (types.isByteLiteralValue((Long) literalValue)) {
+                if (types.isByteLiteralValue(longValue)) {
                     return symTable.byteType;
                 }
                 break;
             case TypeTags.SIGNED32_INT:
-                if (types.isSigned32LiteralValue((Long) literalValue)) {
+                if (types.isSigned32LiteralValue(longValue)) {
                     return symTable.signed32IntType;
                 }
                 break;
             case TypeTags.SIGNED16_INT:
-                if (types.isSigned16LiteralValue((Long) literalValue)) {
+                if (types.isSigned16LiteralValue(longValue)) {
                     return symTable.signed16IntType;
                 }
                 break;
             case TypeTags.SIGNED8_INT:
-                if (types.isSigned8LiteralValue((Long) literalValue)) {
+                if (types.isSigned8LiteralValue(longValue)) {
                     return symTable.signed8IntType;
                 }
                 break;
             case TypeTags.UNSIGNED32_INT:
-                if (types.isUnsigned32LiteralValue((Long) literalValue)) {
+                if (types.isUnsigned32LiteralValue(longValue)) {
                     return symTable.unsigned32IntType;
                 }
                 break;
             case TypeTags.UNSIGNED16_INT:
-                if (types.isUnsigned16LiteralValue((Long) literalValue)) {
+                if (types.isUnsigned16LiteralValue(longValue)) {
                     return symTable.unsigned16IntType;
                 }
                 break;
             case TypeTags.UNSIGNED8_INT:
-                if (types.isUnsigned8LiteralValue((Long) literalValue)) {
+                if (types.isUnsigned8LiteralValue(longValue)) {
                     return symTable.unsigned8IntType;
                 }
                 break;
@@ -1951,26 +1952,22 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BType getListConstructorCompatibleNonUnionType(BType type, AnalyzerData data) {
         BType referredType = Types.getImpliedType(type);
-        switch (referredType.tag) {
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE:
-            case TypeTags.READONLY:
-            case TypeTags.TYPEDESC:
-                return type;
-            case TypeTags.JSON:
-                return !Symbols.isFlagOn(referredType.flags, Flags.READONLY) ? symTable.arrayJsonType :
-                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayJsonType,
-                                data.env, symTable, anonymousModelHelper, names);
-            case TypeTags.ANYDATA:
-                return !Symbols.isFlagOn(referredType.flags, Flags.READONLY) ? symTable.arrayAnydataType :
-                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAnydataType,
-                                data.env, symTable, anonymousModelHelper, names);
-            case TypeTags.ANY:
-                return !Symbols.isFlagOn(referredType.flags, Flags.READONLY) ? symTable.arrayAllType :
-                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAllType, data.env,
-                                                                      symTable, anonymousModelHelper, names);
-        }
-        return symTable.semanticError;
+        return switch (referredType.tag) {
+            case TypeTags.ARRAY,
+                 TypeTags.TUPLE,
+                 TypeTags.READONLY,
+                 TypeTags.TYPEDESC -> type;
+            case TypeTags.JSON -> !Symbols.isFlagOn(referredType.flags, Flags.READONLY) ? symTable.arrayJsonType :
+                    ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayJsonType,
+                            data.env, symTable, anonymousModelHelper, names);
+            case TypeTags.ANYDATA -> !Symbols.isFlagOn(referredType.flags, Flags.READONLY) ? symTable.arrayAnydataType :
+                    ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAnydataType,
+                            data.env, symTable, anonymousModelHelper, names);
+            case TypeTags.ANY -> !Symbols.isFlagOn(referredType.flags, Flags.READONLY) ? symTable.arrayAllType :
+                    ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAllType, data.env,
+                            symTable, anonymousModelHelper, names);
+            default -> symTable.semanticError;
+        };
     }
 
     private BType checkArrayType(BLangListConstructorExpr listConstructor, BArrayType arrayType, AnalyzerData data) {
@@ -3292,8 +3289,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                            SOURCE);
 
         if (restParam == null) {
-            bRecordType.sealed = true;
-            bRecordType.restFieldType = symTable.noType;
+            bRecordType.restFieldType = symTable.anyOrErrorType;
         } else if (restParam.getBType() == symTable.semanticError) {
             bRecordType.restFieldType = symTable.mapType;
         } else {
@@ -3537,9 +3533,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         // First analyze the accessible expression.
         BLangExpression containerExpression = fieldAccessExpr.expr;
 
-        if (containerExpression instanceof BLangValueExpression) {
-            ((BLangValueExpression) containerExpression).isLValue = fieldAccessExpr.isLValue;
-            ((BLangValueExpression) containerExpression).isCompoundAssignmentLValue =
+        if (containerExpression instanceof BLangValueExpression valueExpression) {
+            valueExpression.isLValue = fieldAccessExpr.isLValue;
+            valueExpression.isCompoundAssignmentLValue =
                     fieldAccessExpr.isCompoundAssignmentLValue;
         }
 
@@ -3672,9 +3668,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return;
         }
 
-        if (containerExpression instanceof BLangValueExpression) {
-            ((BLangValueExpression) containerExpression).isLValue = indexBasedAccessExpr.isLValue;
-            ((BLangValueExpression) containerExpression).isCompoundAssignmentLValue =
+        if (containerExpression instanceof BLangValueExpression valueExpression) {
+            valueExpression.isLValue = indexBasedAccessExpr.isLValue;
+            valueExpression.isCompoundAssignmentLValue =
                     indexBasedAccessExpr.isCompoundAssignmentLValue;
         }
 
@@ -5367,6 +5363,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 if (leftConstituent != null && rightConstituent != null) {
                     actualType = new BXMLType(BUnionType.create(null, leftConstituent, rightConstituent), null);
                     break;
+                } else if (leftConstituent != null || rightConstituent != null) {
+                    if (leftConstituent != null && types.isAssignable(rhsType, symTable.stringType)) {
+                        actualType = getXmlStringBinaryOpResultType(lhsType, leftConstituent, data.env, binaryExpr.pos);
+                        break;
+                    } else if (rightConstituent != null && types.isAssignable(lhsType, symTable.stringType)) {
+                        actualType =
+                                getXmlStringBinaryOpResultType(rhsType, rightConstituent, data.env, binaryExpr.pos);
+                        break;
+                    }
                 }
                 // Fall through
             default:
@@ -5418,6 +5423,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         data.resultType = types.checkType(binaryExpr, actualType, data.expType);
+    }
+
+    private BType getXmlStringBinaryOpResultType(BType opType, BType constituentType, SymbolEnv env, Location pos) {
+        if (types.isAssignable(symTable.xmlTextType, constituentType)) {
+            return opType;
+        }
+
+        BTypeSymbol typeSymbol =
+                Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0, Names.EMPTY, env.enclPkg.symbol.pkgID, null,
+                        env.scope.owner, pos, VIRTUAL);
+        BType type = new BXMLType(BUnionType.create(typeSymbol, constituentType, symTable.xmlTextType), null);
+        typeSymbol.type = type;
+        return type;
     }
 
     public boolean isOptionalFloatOrDecimal(BType expectedType) {
@@ -6080,17 +6098,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     public BType getXMLSequenceType(BType xmlSubType) {
-        switch (Types.getImpliedType(xmlSubType).tag) {
-            case TypeTags.XML_ELEMENT:
-                return new BXMLType(symTable.xmlElementType,  null);
-            case TypeTags.XML_COMMENT:
-                return new BXMLType(symTable.xmlCommentType,  null);
-            case TypeTags.XML_PI:
-                return new BXMLType(symTable.xmlPIType,  null);
-            default:
-                // Since 'xml:Text is same as xml<'xml:Text>
-                return symTable.xmlTextType;
-        }
+        return switch (Types.getImpliedType(xmlSubType).tag) {
+            case TypeTags.XML_ELEMENT -> new BXMLType(symTable.xmlElementType, null);
+            case TypeTags.XML_COMMENT -> new BXMLType(symTable.xmlCommentType, null);
+            case TypeTags.XML_PI -> new BXMLType(symTable.xmlPIType, null);
+            // Since 'xml:Text is same as xml<'xml:Text>
+            default -> symTable.xmlTextType;
+        };
     }
 
     @Override
@@ -6499,7 +6513,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             errorTypes.add(exprType);
         }
 
-        if (operatorKind == OperatorKind.CHECK && !data.commonAnalyzerData.errorTypes.empty()) {
+        if (operatorKind == OperatorKind.CHECK && !data.commonAnalyzerData.errorTypes.isEmpty()) {
             data.commonAnalyzerData.errorTypes.peek().add(types.getErrorTypes(checkedExpr.expr.getBType()));
         }
 
@@ -6634,19 +6648,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     // Private methods
 
     private boolean isValidVariableReference(BLangExpression varRef) {
-        switch (varRef.getKind()) {
-            case SIMPLE_VARIABLE_REF:
-            case RECORD_VARIABLE_REF:
-            case TUPLE_VARIABLE_REF:
-            case ERROR_VARIABLE_REF:
-            case FIELD_BASED_ACCESS_EXPR:
-            case INDEX_BASED_ACCESS_EXPR:
-            case XML_ATTRIBUTE_ACCESS_EXPR:
-                return true;
-            default:
+        return switch (varRef.getKind()) {
+            case SIMPLE_VARIABLE_REF,
+                 RECORD_VARIABLE_REF,
+                 TUPLE_VARIABLE_REF,
+                 ERROR_VARIABLE_REF,
+                 FIELD_BASED_ACCESS_EXPR,
+                 INDEX_BASED_ACCESS_EXPR,
+                 XML_ATTRIBUTE_ACCESS_EXPR -> true;
+            default -> {
                 dlog.error(varRef.pos, DiagnosticErrorCode.INVALID_RECORD_BINDING_PATTERN, varRef.getBType());
-                return false;
-        }
+                yield false;
+            }
+        };
     }
 
     private BType getEffectiveReadOnlyType(Location pos, BType type, AnalyzerData data) {
@@ -7735,25 +7749,21 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private boolean requireTypeInference(BLangExpression expr, boolean inferTypeForNumericLiteral) {
 
-        switch (expr.getKind()) {
-            case GROUP_EXPR:
-                return requireTypeInference(((BLangGroupExpr) expr).expression, inferTypeForNumericLiteral);
-            case ARROW_EXPR:
-            case LIST_CONSTRUCTOR_EXPR:
-            case RECORD_LITERAL_EXPR:
-            case OBJECT_CTOR_EXPRESSION:
-            case RAW_TEMPLATE_LITERAL:
-            case TABLE_CONSTRUCTOR_EXPR:
-            case TYPE_INIT_EXPR:
-            case ERROR_CONSTRUCTOR_EXPRESSION:
-                return true;
-            case ELVIS_EXPR:
-            case TERNARY_EXPR:
-            case NUMERIC_LITERAL:
-                return inferTypeForNumericLiteral;
-            default:
-                return false;
-        }
+        return switch (expr.getKind()) {
+            case GROUP_EXPR -> requireTypeInference(((BLangGroupExpr) expr).expression, inferTypeForNumericLiteral);
+            case ARROW_EXPR,
+                 LIST_CONSTRUCTOR_EXPR,
+                 RECORD_LITERAL_EXPR,
+                 OBJECT_CTOR_EXPRESSION,
+                 RAW_TEMPLATE_LITERAL,
+                 TABLE_CONSTRUCTOR_EXPR,
+                 TYPE_INIT_EXPR,
+                 ERROR_CONSTRUCTOR_EXPRESSION -> true;
+            case ELVIS_EXPR,
+                 TERNARY_EXPR,
+                 NUMERIC_LITERAL -> inferTypeForNumericLiteral;
+            default -> false;
+        };
     }
 
     private boolean isNotObjectConstructorWithObjectSuperTypeInTypeCastExpr(BLangExpression expression,
@@ -8644,6 +8654,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return symTable.jsonType;
             case TypeTags.XML:
             case TypeTags.XML_ELEMENT:
+            case TypeTags.XML_COMMENT:
+            case TypeTags.XML_PI:
+            case TypeTags.XML_TEXT:
                 return symTable.stringType;
             case TypeTags.MAP:
                 return ((BMapType) exprType).constraint;
@@ -8738,7 +8751,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return false;
         }
 
-        if (type.tag == TypeTags.XML) {
+        if (types.isAssignable(bType, symTable.xmlType)) {
             return true;
         }
 
@@ -8919,31 +8932,30 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private Long getConstIndex(BLangExpression indexExpr) {
-        switch (indexExpr.getKind()) {
-            case GROUP_EXPR:
+        return switch (indexExpr.getKind()) {
+            case GROUP_EXPR -> {
                 BLangGroupExpr groupExpr = (BLangGroupExpr) indexExpr;
-                return getConstIndex(groupExpr.expression);
-            case NUMERIC_LITERAL:
-                return (Long) ((BLangLiteral) indexExpr).value;
-            case UNARY_EXPR:
+                yield getConstIndex(groupExpr.expression);
+            }
+            case NUMERIC_LITERAL -> (Long) ((BLangLiteral) indexExpr).value;
+            case UNARY_EXPR -> {
                 BLangNumericLiteral numericLiteral =
                         Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) indexExpr);
-                return (Long) numericLiteral.value;
-            default:
-                return (Long) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
-        }
+                yield (Long) numericLiteral.value;
+            }
+            default -> (Long) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
+        };
     }
 
     private String getConstFieldName(BLangExpression indexExpr) {
-        switch (indexExpr.getKind()) {
-            case GROUP_EXPR:
+        return switch (indexExpr.getKind()) {
+            case GROUP_EXPR -> {
                 BLangGroupExpr groupExpr = (BLangGroupExpr) indexExpr;
-                return getConstFieldName(groupExpr.expression);
-            case LITERAL:
-                return (String) ((BLangLiteral) indexExpr).value;
-            default:
-                return (String) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
-        }
+                yield getConstFieldName(groupExpr.expression);
+            }
+            case LITERAL -> (String) ((BLangLiteral) indexExpr).value;
+            default -> (String) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
+        };
     }
 
     private BType checkArrayIndexBasedAccess(BLangIndexBasedAccess indexBasedAccess, BType indexExprType,
@@ -9858,7 +9870,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public static class AnalyzerData {
         public SymbolEnv env;
         boolean isTypeChecked;
-        Stack<SymbolEnv> prevEnvs;
+        Deque<SymbolEnv> prevEnvs;
         Types.CommonAnalyzerData commonAnalyzerData = new Types.CommonAnalyzerData();
         DiagnosticCode diagCode;
         BType expType;

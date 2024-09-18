@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class GraphUtils {
+public final class GraphUtils {
 
     private GraphUtils() {
     }

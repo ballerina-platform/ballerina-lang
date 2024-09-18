@@ -40,7 +40,11 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
 //        returnType = {@ReturnType(type = TypeKind.UNION)},
 //        isPublic = true
 //)
-public class LastIndexOf {
+public final class LastIndexOf {
+
+    private LastIndexOf() {
+    }
+
     public static Object lastIndexOf(BString value, BString subString, long startIndex) {
         StringUtils.checkForNull(value, subString);
         if (startIndex > Integer.MAX_VALUE) {

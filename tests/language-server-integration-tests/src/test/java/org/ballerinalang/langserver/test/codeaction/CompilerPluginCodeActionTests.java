@@ -34,6 +34,7 @@ public class CompilerPluginCodeActionTests extends AbstractCodeActionTest {
         BCompileUtil.compileAndCacheBala("compiler_plugin_tests/package_comp_plugin_with_codeactions");
     }
 
+    @Override
     @Test(dataProvider = "codeaction-data-provider")
     public void test(String config) throws IOException, WorkspaceDocumentException {
         super.test(config);

@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -52,7 +53,7 @@ import java.util.function.Supplier;
 /**
  * Util functions for async invocations.
  */
-public class AsyncUtils {
+public final class AsyncUtils {
 
     /**
      * Block the current strand to execute asynchronously.
@@ -312,7 +313,7 @@ public class AsyncUtils {
         parent.scheduler.unblockStrand(parent);
     }
 
-    private static class Unblocker implements java.util.function.BiConsumer<Object, Throwable> {
+    private static class Unblocker implements BiConsumer<Object, Throwable> {
 
         private final Strand strand;
 

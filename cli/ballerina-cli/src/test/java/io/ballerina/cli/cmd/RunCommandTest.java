@@ -19,9 +19,11 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -44,8 +46,7 @@ public class RunCommandTest extends BaseCommandTest {
     private Path testResources;
     private Path testDistCacheDirectory;
     private ProjectEnvironmentBuilder projectEnvironmentBuilder;
-    static Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-            "log_creator_combined_plugin/compiler-plugin.txt");
+    static Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
 
     @BeforeSuite
     public void setupSuite() throws IOException {
@@ -53,6 +54,7 @@ public class RunCommandTest extends BaseCommandTest {
         Files.writeString(logFile, "");
     }
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -72,14 +74,14 @@ public class RunCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Run a valid ballerina file")
-    public void testRunValidBalFile() throws IOException {
+    @Test(description = "Run a valid ballerina file", dataProvider = "optimizeDependencyCompilation")
+    public void testRunValidBalFile(Boolean optimizeDependencyCompilation) throws IOException {
         Path validBalFilePath = this.testResources.resolve("valid-run-bal-file").resolve("file_create.bal");
 
         System.setProperty("user.dir", this.testResources.resolve("valid-run-bal-file").toString());
         Path tempFile = this.testResources.resolve("valid-run-bal-file").resolve("temp.txt");
         // set valid source root
-        RunCommand runCommand = new RunCommand(validBalFilePath, printStream, false);
+        RunCommand runCommand = new RunCommand(validBalFilePath, printStream, false, optimizeDependencyCompilation);
         // name of the file as argument
         new CommandLine(runCommand).setEndOfOptionsDelimiter("").setUnmatchedOptionsArePositionalParams(true)
                 .parseArgs(validBalFilePath.toString(), "--", tempFile.toString());
@@ -100,13 +102,11 @@ public class RunCommandTest extends BaseCommandTest {
         // valid source root path
         Path validBalFilePath = this.testResources.resolve("valid-run-bal-file").resolve("xyz.bal");
         RunCommand runCommand = new RunCommand(validBalFilePath, printStream, false);
-        // non existing bal file
         new CommandLine(runCommand).parseArgs(validBalFilePath.toString());
         runCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replace("\r", "")
                 .contains("The file does not exist: " + validBalFilePath));
-
     }
 
     @Test(description = "Run bal file containing syntax error")
@@ -114,7 +114,6 @@ public class RunCommandTest extends BaseCommandTest {
         // valid source root path
         Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error").resolve("hello_world.bal");
         RunCommand runCommand = new RunCommand(balFilePath, printStream, false);
-        // non existing bal file
         new CommandLine(runCommand).parseArgs(balFilePath.toString());
         try {
             runCommand.execute();
@@ -128,7 +127,6 @@ public class RunCommandTest extends BaseCommandTest {
         // valid source root path
         Path balFilePath = this.testResources.resolve("bal-project-with-syntax-error");
         RunCommand runCommand = new RunCommand(balFilePath, printStream, false);
-        // non existing bal file
         new CommandLine(runCommand).parseArgs(balFilePath.toString());
         try {
             runCommand.execute();
@@ -155,14 +153,15 @@ public class RunCommandTest extends BaseCommandTest {
         Files.delete(tempFile);
     }
 
-    @Test(description = "Run a valid ballerina project from the project directory")
-    public void testRunValidBalProjectFromProjectDir() throws IOException {
+    @Test(description = "Run a valid ballerina project from the project directory",
+            dataProvider = "optimizeDependencyCompilation")
+    public void testRunValidBalProjectFromProjectDir(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("validRunProject");
         Path tempFile = projectPath.resolve("temp.txt");
 
         System.setProperty("user.dir", this.testResources.resolve("validRunProject").toString());
         // set valid source root
-        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false, optimizeDependencyCompilation);
         // name of the file as argument
         new CommandLine(runCommand).setEndOfOptionsDelimiter("").setUnmatchedOptionsArePositionalParams(true)
                 .parseArgs("--", tempFile.toString());
@@ -174,11 +173,11 @@ public class RunCommandTest extends BaseCommandTest {
         Files.delete(tempFile);
     }
 
-    @Test(description = "Run a project with a build tool execution")
-    public void testRunProjectWithBuildTool() throws IOException {
+    @Test(description = "Run a project with a build tool execution", dataProvider = "optimizeDependencyCompilation")
+    public void testRunProjectWithBuildTool(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("proper-build-tool");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false, optimizeDependencyCompilation);
         new CommandLine(runCommand).parseArgs();
         runCommand.execute();
         String buildLog = readOutput(true);
@@ -204,11 +203,12 @@ public class RunCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Run a valid ballerina file that has an import having platform libs")
-    public void testRunProjectContainingImportsWithPlatformLibs() {
+    @Test(description = "Run a valid ballerina file that has an import having platform libs",
+            dataProvider = "optimizeDependencyCompilation")
+    public void testRunProjectContainingImportsWithPlatformLibs(Boolean optimizeDependencyCompilation) {
         Path projectPath = this.testResources.resolve("validRunProjectImportsWithPlatformLibs");
         // set valid source root
-        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false, optimizeDependencyCompilation);
         // name of the file as argument
         new CommandLine(runCommand).parseArgs(projectPath.toString());
 
@@ -296,10 +296,10 @@ public class RunCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Run a ballerina project with the engagement of all type of compiler plugins")
-    public void testRunBalProjectWithAllCompilerPlugins() throws IOException {
-        Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-                "log_creator_combined_plugin/compiler-plugin.txt");
+    @Test(description = "Run a ballerina project with the engagement of all type of compiler plugins",
+            dataProvider = "optimizeDependencyCompilation")
+    public void testRunBalProjectWithAllCompilerPlugins(Boolean optimizeDependencyCompilation) throws IOException {
+        Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
         Files.createDirectories(logFile.getParent());
         Files.writeString(logFile, "");
         Path compilerPluginPath = Paths.get("./src/test/resources/test-resources").resolve("compiler-plugins");
@@ -312,7 +312,7 @@ public class RunCommandTest extends BaseCommandTest {
 
         Path projectPath = this.testResources.resolve("compiler-plugins").resolve("log_creator_combined_plugin");
         System.setProperty("user.dir", projectPath.toString());
-        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false, optimizeDependencyCompilation);
         new CommandLine(runCommand).parseArgs();
         runCommand.execute();
         String logFileContent =  Files.readString(logFile);
@@ -363,8 +363,8 @@ public class RunCommandTest extends BaseCommandTest {
         Path projectPath = dumpGraphResourcePath.resolve("package_a");
         System.setProperty("user.dir", projectPath.toString());
 
-        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-        System.setOut(new java.io.PrintStream(out));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(out));
 
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
         new CommandLine(runCommand).parseArgs("--dump-graph");

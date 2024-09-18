@@ -153,8 +153,8 @@ public class JvmValueGen {
     private static void desugarObjectMethods(List<BIRFunction> attachedFuncs, InitMethodGen initMethodGen) {
         for (BIRNode.BIRFunction birFunc : attachedFuncs) {
             if (JvmCodeGenUtil.isExternFunc(birFunc)) {
-                if (birFunc instanceof JMethodBIRFunction) {
-                    desugarInteropFuncs((JMethodBIRFunction) birFunc, initMethodGen);
+                if (birFunc instanceof JMethodBIRFunction jMethodBIRFunction) {
+                    desugarInteropFuncs(jMethodBIRFunction, initMethodGen);
                     initMethodGen.resetIds();
                 } else if (!(birFunc instanceof JFieldBIRFunction)) {
                     initMethodGen.resetIds();
@@ -182,7 +182,7 @@ public class JvmValueGen {
         return (field.symbol.flags & BAL_OPTIONAL) == BAL_OPTIONAL;
     }
 
-    void generateValueClasses(Map<String, byte[]> jarEntries, JvmConstantsGen jvmConstantsGen, JvmTypeGen jvmTypeGen,
+    void generateValueClasses(JarEntries jarEntries, JvmConstantsGen jvmConstantsGen, JvmTypeGen jvmTypeGen,
                               AsyncDataCollector asyncDataCollector) {
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.forEach(optionalTypeDef -> {
@@ -455,7 +455,7 @@ public class JvmValueGen {
 
     private void createObjectValueClasses(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef,
                                           JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
-                                          Map<String, byte[]> jarEntries) {
+                                          JarEntries jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.lineRange().fileName(), null);
 
@@ -514,7 +514,7 @@ public class JvmValueGen {
                                                      JvmConstantsGen jvmConstantsGen,
                                                      AsyncDataCollector asyncDataCollector,
                                                      BIRNode.BIRTypeDefinition typeDef,
-                                                     Map<String, byte[]> jarEntries) {
+                                                     JarEntries jarEntries) {
         int splitClassNum = 1;
         ClassWriter splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
         splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);

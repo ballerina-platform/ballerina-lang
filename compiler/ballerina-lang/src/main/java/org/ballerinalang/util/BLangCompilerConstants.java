@@ -23,7 +23,7 @@ package org.ballerinalang.util;
  *
  * @since 1.1.0
  */
-public class BLangCompilerConstants {
+public final class BLangCompilerConstants {
 
     public static final String ITERABLE_COLLECTION_ITERATOR_FUNC = "iterator";
     public static final String RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC = "shouldRetry";

@@ -54,6 +54,7 @@ public class BreakpointVerificationTest extends BaseTestCase {
     private static final int DOCUMENTATION_START = MATCH_STMT_START + 8;
     private static final int WORKER_DCLN_START = DOCUMENTATION_START + 10;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "breakpoint-verification-tests";
@@ -147,6 +148,7 @@ public class BreakpointVerificationTest extends BaseTestCase {
         }
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

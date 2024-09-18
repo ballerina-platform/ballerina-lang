@@ -49,6 +49,7 @@ public class BindgenCommandTest extends BindgenCommandBaseTest {
     private Path testResources;
     private String newLine = System.lineSeparator();
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -324,6 +325,7 @@ public class BindgenCommandTest extends BindgenCommandBaseTest {
                                                   "\tjava.lang.Object"));
     }
 
+    @Override
     @AfterClass
     public void cleanup() throws IOException {
         super.cleanup();

@@ -30,7 +30,8 @@ import java.util.ServiceLoader;
  *
  * @since 2.0.0
  */
-public class ExtendedClientCapabilityBuilder {
+public final class ExtendedClientCapabilityBuilder {
+
     private static List<BallerinaClientCapabilitySetter<? extends BallerinaClientCapability>> capabilitySetters;
 
     private ExtendedClientCapabilityBuilder() {
@@ -56,10 +57,9 @@ public class ExtendedClientCapabilityBuilder {
         List<BallerinaClientCapability> clientCapabilities = new ArrayList<>();
 
         for (Object config : configs) {
-            if (!(config instanceof JsonObject)) {
+            if (!(config instanceof JsonObject jConfig)) {
                 continue;
             }
-            JsonObject jConfig = (JsonObject) config;
             String capabilityName = jConfig.get("name").getAsString();
             Optional<BallerinaClientCapabilitySetter<? extends BallerinaClientCapability>> setter =
                     capabilitySetters.stream()

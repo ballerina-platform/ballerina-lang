@@ -38,6 +38,7 @@ public class DebugTerminationTest extends BaseTestCase {
     DebugTestRunner debugTestRunner;
     private boolean isTerminationFound;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "debug-termination-tests";
@@ -97,6 +98,7 @@ public class DebugTerminationTest extends BaseTestCase {
         Assert.assertTrue(isTerminationFound);
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

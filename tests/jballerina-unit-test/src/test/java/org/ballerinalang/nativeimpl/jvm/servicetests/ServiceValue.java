@@ -50,12 +50,16 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class ServiceValue {
+public final class ServiceValue {
+
     private static BObject service;
     private static BObject listener;
     private static boolean started;
     private static String[] names;
     private static MapValue annotationMap; // captured at attach method
+
+    private ServiceValue() {
+    }
 
     public static BFuture callMethod(Environment env, BObject l, BString name) {
 
@@ -163,7 +167,7 @@ public class ServiceValue {
         return null;
     }
 
-    private static String generateMethodName(BString methodName, ArrayValue path) {
+    public static String generateMethodName(BString methodName, ArrayValue path) {
         StringBuilder funcName = new StringBuilder();
         funcName.append("$").append(methodName.getValue());
         for (int i = 0; i < path.size(); i++) {

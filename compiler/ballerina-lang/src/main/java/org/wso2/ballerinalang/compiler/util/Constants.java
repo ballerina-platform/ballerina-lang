@@ -24,7 +24,7 @@ package org.wso2.ballerinalang.compiler.util;
  *
  * since 0.980.0
  */
-public class Constants {
+public final class Constants {
 
     private Constants() {
     }

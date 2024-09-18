@@ -29,11 +29,17 @@ public interface Repository {
      * Get the list of runtime artifacts.
      * @return List of artifacts that contains information about the active services and listeners.
      */
-    public List<Artifact> getArtifacts();
+    List<Artifact> getArtifacts();
 
     /**
      * Get the current Ballerina node.
      * @return Ballerina node.
      */
-    public Node getNode();
+    Node getNode();
+
+    /**
+     * Get whether remote management is enabled.
+     * @return True if remote management is enabled, false otherwise.
+     */
+    boolean isRemoteManagementEnabled();
 }

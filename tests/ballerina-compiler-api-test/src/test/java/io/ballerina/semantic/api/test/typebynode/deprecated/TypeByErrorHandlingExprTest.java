@@ -70,6 +70,7 @@ public class TypeByErrorHandlingExprTest extends TypeByNodeTest {
         };
     }
 
+    @Override
     void verifyAssertCount() {
         assertEquals(getAssertCount(), 3);
     }

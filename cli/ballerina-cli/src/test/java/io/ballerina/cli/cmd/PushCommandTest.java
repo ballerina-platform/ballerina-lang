@@ -62,6 +62,7 @@ public class PushCommandTest extends BaseCommandTest {
     private static final String POM_EXTENSION = ".pom";
     private Path testResources;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -383,7 +384,7 @@ public class PushCommandTest extends BaseCommandTest {
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
 
         // Push
-        String expected = "README.md is missing in bala file";
+        String expected = "Package.md is missing in bala file";
 
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
         new CommandLine(pushCommand).parseArgs();

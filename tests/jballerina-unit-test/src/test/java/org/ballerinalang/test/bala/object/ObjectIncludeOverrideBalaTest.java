@@ -85,7 +85,7 @@ public class ObjectIncludeOverrideBalaTest {
     }
 
     @Test
-    public void testIsolationNegative() {
+    public void testInclusionNegative() {
         CompileResult negativeRes =
                 BCompileUtil.compile("test-src/bala/test_bala/object/test_object_type_inclusion_negative.bal");
         int index = 0;
@@ -93,21 +93,23 @@ public class ObjectIncludeOverrideBalaTest {
         validateError(negativeRes, index++, "mismatched visibility qualifiers for field 'salary' " +
                         "with object type inclusion", 23, 5);
         validateError(negativeRes, index++, "mismatched function signatures: expected 'public function " +
-                "getBonus(float ratio, int months) returns float', found 'function getBonus(float ratio, " +
-                "int months) returns float'", 25, 5);
+                "getBonus(float, int) returns float', found 'function getBonus(float, " +
+                "int) returns float'", 25, 5);
         validateError(negativeRes, index++, "mismatched visibility qualifiers for field 'salary' " +
                 "with object type inclusion", 34, 5);
         validateError(negativeRes, index++, "mismatched function signatures: expected 'public function " +
-                "getBonus(float ratio, int months) returns float', found 'private function " +
-                "getBonus(float ratio, int months) returns float'", 36, 5);
+                "getBonus(float, int) returns float', found 'private function " +
+                "getBonus(float, int) returns float'", 36, 5);
         validateError(negativeRes, index++, "incompatible type reference 'foo:Employee4': " +
                 "a referenced type across modules cannot have non-public fields or methods", 42, 6);
         validateError(negativeRes, index++, "incompatible type reference 'foo:Employee5': " +
                 "a referenced type across modules cannot have non-public fields or methods", 48, 6);
-        validateError(negativeRes, index++, "mismatched function signatures: expected 'public function " +
-                "execute(string aVar, int bVar)', found 'public function execute(int aVar, int bVar)'", 58, 5);
-        validateError(negativeRes, index++, "mismatched function signatures: expected 'public function " +
-                "execute(string aVar, int bVar)', found 'public function execute(string cVar, int dVar)'", 65, 5);
+        validateError(negativeRes, index++, "mismatched function signatures: expected 'remote function " +
+                "execute(string, int)', found 'remote function execute(int, int)'", 58, 5);
+        validateError(negativeRes, index++, "mismatched function signatures: expected 'remote function " +
+                "execute(string, int)', found 'remote function execute(string, int, int)'", 65, 5);
+        validateError(negativeRes, index++, "mismatched function signatures: expected 'remote function " +
+                "execute(string, int)', found 'public function execute(string, int)'", 72, 5);
         assertEquals(negativeRes.getErrorCount(), index);
     }
 

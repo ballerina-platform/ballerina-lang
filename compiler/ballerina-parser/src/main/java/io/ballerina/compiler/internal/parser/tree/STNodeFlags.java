@@ -22,9 +22,13 @@ package io.ballerina.compiler.internal.parser.tree;
  *
  * @since 2.0.0
  */
-public class STNodeFlags {
+public final class STNodeFlags {
+
     public static final byte HAS_DIAGNOSTIC = 1 << 0x1;
     public static final byte IS_MISSING = 1 << 0x2;
+
+    private STNodeFlags() {
+    }
 
     /**
      * Checks whether the given flag is set in the given flags.

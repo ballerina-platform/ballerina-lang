@@ -35,7 +35,7 @@ import io.ballerina.runtime.api.values.BValue;
  *
  * @since 1.2.0
  */
-public class GetElementType {
+public final class GetElementType {
 
     private GetElementType() {
     }
@@ -47,18 +47,14 @@ public class GetElementType {
 
     private static BTypedesc getElementTypeDescValue(Type type) {
         type = TypeUtils.getImpliedType(type);
-        switch (type.getTag()) {
-            case TypeTags.ARRAY_TAG:
-                return ValueCreator.createTypedescValue(((ArrayType) type).getElementType());
-            case TypeTags.TUPLE_TAG:
-                return ValueCreator.createTypedescValue(
-                        TypeCreator.createUnionType(((TupleType) type).getTupleTypes()));
-            case TypeTags.FINITE_TYPE_TAG:
-                // this is reached only for immutable values
-                return getElementTypeDescValue(
-                        ((BValue) (((FiniteType) type).getValueSpace().iterator().next())).getType());
-            default:
-                return ValueCreator.createTypedescValue(((StreamType) type).getConstrainedType());
-        }
+        return switch (type.getTag()) {
+            case TypeTags.ARRAY_TAG -> ValueCreator.createTypedescValue(((ArrayType) type).getElementType());
+            case TypeTags.TUPLE_TAG -> ValueCreator.createTypedescValue(
+                    TypeCreator.createUnionType(((TupleType) type).getTupleTypes()));
+            // this is reached only for immutable values
+            case TypeTags.FINITE_TYPE_TAG -> getElementTypeDescValue(
+                    ((BValue) (((FiniteType) type).getValueSpace().iterator().next())).getType());
+            default -> ValueCreator.createTypedescValue(((StreamType) type).getConstrainedType());
+        };
     }
 }

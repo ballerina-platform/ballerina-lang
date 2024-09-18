@@ -52,7 +52,6 @@ public class ReferencesTest {
     protected Path configRoot;
     protected Path sourceRoot;
     protected Gson gson = new Gson();
-    protected JsonParser parser = new JsonParser();
     protected Endpoint serviceEndpoint;
     private static final Logger log = LoggerFactory.getLogger(ReferencesTest.class);
 
@@ -75,7 +74,7 @@ public class ReferencesTest {
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         JsonArray expected = configObject.getAsJsonArray("result");
-        JsonArray actual = parser.parse(actualStr).getAsJsonObject().get("result").getAsJsonArray();
+        JsonArray actual = JsonParser.parseString(actualStr).getAsJsonObject().get("result").getAsJsonArray();
         this.alterExpectedUri(expected, sourceRoot);
         this.alterActualUri(actual);
         
@@ -94,7 +93,7 @@ public class ReferencesTest {
         String actualStr = getReferencesResponseWithinStdLib(sourcePath, position);
 
         JsonArray expected = configObject.getAsJsonArray("result");
-        JsonArray actual = parser.parse(actualStr).getAsJsonObject().get("result").getAsJsonArray();
+        JsonArray actual = JsonParser.parseString(actualStr).getAsJsonObject().get("result").getAsJsonArray();
         this.alterExpectedUri(expected, ballerinaHome);
         this.alterActualStdLibUri(actual);
 
@@ -124,6 +123,7 @@ public class ReferencesTest {
                 //  being set to lang.annotations.
                 {"ref_package_alias_config1.json"},
                 {"ref_retry_spec_config1.json"},
+                {"init_function_references.json"},
         };
     }
 

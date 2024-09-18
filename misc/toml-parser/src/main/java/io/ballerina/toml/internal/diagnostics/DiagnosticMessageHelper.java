@@ -28,7 +28,8 @@ import java.util.ResourceBundle;
  *
  * @since 2.0.0
  */
-public class DiagnosticMessageHelper {
+public final class DiagnosticMessageHelper {
+
     private static final ResourceBundle messages = ResourceBundle.getBundle(
             "toml_diagnostic_message", Locale.getDefault());
 

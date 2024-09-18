@@ -47,7 +47,7 @@ import static io.ballerina.runtime.api.utils.StringUtils.fromString;
  *
  * @since 2201.6.0
  */
-public class StringUtils {
+public final class StringUtils {
 
     public static final String STR_CYCLE = "...";
     public static final String TO_STRING = "toString";

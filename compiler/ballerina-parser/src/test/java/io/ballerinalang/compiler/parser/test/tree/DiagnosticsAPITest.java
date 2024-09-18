@@ -116,6 +116,7 @@ public class DiagnosticsAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertFalse(lineRangeList.isEmpty());
     }
 
+    @Override
     protected SyntaxTree parseFile(String sourceFileName) {
         return super.parseFile(Paths.get("diagnostics").resolve(sourceFileName));
     }

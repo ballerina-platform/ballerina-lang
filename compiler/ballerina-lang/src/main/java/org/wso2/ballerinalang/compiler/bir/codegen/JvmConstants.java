@@ -29,7 +29,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
  *
  * @since 1.2.0
  */
-public class JvmConstants {
+public final class JvmConstants {
 
     // jvm values public API classes
     public static final String B_XML_QNAME = "io/ballerina/runtime/api/values/BXmlQName";
@@ -322,6 +322,7 @@ public class JvmConstants {
     public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
+    public static final String CURRENT_MODULE_STOP = "$currentModuleStop";
     public static final String MODULE_INIT_METHOD = "$moduleInit";
     public static final String MODULE_START_METHOD = "$moduleStart";
     public static final String MODULE_STOP_METHOD = "$moduleStop";

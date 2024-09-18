@@ -38,6 +38,7 @@ public class BStringAnnotationTest extends BStringTestCommons {
         testAndAssert("testAnnotation", 8);
     }
 
+    @Override
     @AfterClass
     public void tearDown() {
         result = null;

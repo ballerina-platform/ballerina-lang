@@ -36,7 +36,7 @@ import java.util.ResourceBundle;
  *
  * @since 2201.7.0
  */
-public class ErrorHelper {
+public final class ErrorHelper {
 
     private static final ResourceBundle messageBundle = ResourceBundle.getBundle("MessagesBundle", Locale.getDefault());
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
@@ -97,10 +97,10 @@ public class ErrorHelper {
     }
 
     private static boolean isBErrorWithMessageDetail(Throwable e) {
-        if (!(e instanceof BError)) {
+        if (!(e instanceof BError error)) {
             return false;
         }
-        return hasMessageDetail((BError) e);
+        return hasMessageDetail(error);
     }
 
     public static boolean hasMessageDetail(BError bError) {

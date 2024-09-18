@@ -28,8 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 
@@ -38,7 +37,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOU
  *
  * @since 0.965.0
  */
-public class ProjectDirs {
+public final class ProjectDirs {
 
     private static PathMatcher sourceFileMatcher = FileSystems.getDefault().getPathMatcher(
             "glob:*" + BLANG_SOURCE_EXT);
@@ -48,6 +47,9 @@ public class ProjectDirs {
 
     private static PathMatcher testResourceFileMatcher = FileSystems.getDefault().getPathMatcher(
             "glob:../src/*/tests/resources/**" + BLANG_SOURCE_EXT);
+
+    private ProjectDirs() {
+    }
 
     public static boolean isSourceFile(Path path) {
         return !Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS) && sourceFileMatcher.matches(path);
@@ -80,13 +82,13 @@ public class ProjectDirs {
      * @return true if source files exists else false
      */
     public static boolean containsSourceFiles(Path pkgPath) throws BLangCompilerException {
-        List<Path> sourceFiles = new ArrayList<>();
-        try {
-            sourceFiles = Files.find(pkgPath, Integer.MAX_VALUE, (path, attrs) ->
-                    path.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)).toList();
+        try (Stream<Path> paths = Files.find(pkgPath, Integer.MAX_VALUE, (path, attrs) ->
+                            path.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT))) {
+            return paths.findAny().isPresent();
         } catch (IOException ignored) {
             // Here we are trying to check if there are source files inside the package to be compiled. If an error
-            // occurs when trying to visit the files inside the package then we simply return the empty list created.
+            // occurs when trying to visit the files inside the package then we simply return false.
+            return false;
         } catch (UncheckedIOException e) {
             // Files#find returns an UncheckedIOException instead of an AccessDeniedException when there is a file to
             // which user doesn't have required permission.
@@ -97,7 +99,6 @@ public class ProjectDirs {
                 throw e;
             }
         }
-        return !sourceFiles.isEmpty();
     }
 
     /**

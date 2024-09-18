@@ -47,9 +47,12 @@ import java.util.Set;
  *
  * @since 2201.1.0
  */
-public class Enums {
+public final class Enums {
 
     private static final Module enumModule = new Module("testorg", "values.enum", "1");
+
+    private Enums() {
+    }
 
     public static BArray createEnumArray(BString enumName) {
         List<Type> memberTypes = new ArrayList<>(2);

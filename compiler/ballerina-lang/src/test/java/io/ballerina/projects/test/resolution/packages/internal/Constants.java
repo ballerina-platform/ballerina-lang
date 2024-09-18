@@ -22,7 +22,7 @@ package io.ballerina.projects.test.resolution.packages.internal;
  *
  * @since 2.0.0
  */
-public class Constants {
+public final class Constants {
 
     public static final String APP_FILE_NAME = "app.dot";
     public static final String REPO_DIR_NAME = "repositories";

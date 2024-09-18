@@ -1,0 +1,50 @@
+{
+  "position": {
+    "line": 15,
+    "character": 28
+  },
+  "source": "clone_value16.bal",
+  "description": "Clone a value in a class",
+  "expected": [
+    {
+      "title": "Clone the value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 28
+            },
+            "end": {
+              "line": 15,
+              "character": 28
+            }
+          },
+          "newText": ".clone()"
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Clone as a readonly value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 28
+            },
+            "end": {
+              "line": 15,
+              "character": 28
+            }
+          },
+          "newText": ".cloneReadOnly()"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

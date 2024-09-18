@@ -437,9 +437,7 @@ class AIDataMapperCodeActionUtil {
             rightRecordJSON.addProperty(TYPE, "object");
             rightRecordJSON.add(PROPERTIES, rightSchema);
 
-            Map<String, Object> rightSchemaMap = new Gson().fromJson(rightSchema,
-                    new TypeToken<HashMap<String, Object>>() {
-                    }.getType());
+            Map<String, Object> rightSchemaMap = new Gson().fromJson(rightSchema, new TypeToken<>() { });
             this.isOptionalMap.clear();
             generateOptionalMap(rightSchemaMap, foundTypeRight);
 
@@ -452,9 +450,7 @@ class AIDataMapperCodeActionUtil {
             leftRecordJSON.addProperty(TYPE, "object");
             leftRecordJSON.add(PROPERTIES, leftSchema);
 
-            Map<String, Object> leftSchemaMap = new Gson().fromJson(leftSchema,
-                    new TypeToken<HashMap<String, Object>>() {
-                    }.getType());
+            Map<String, Object> leftSchemaMap = new Gson().fromJson(leftSchema, new TypeToken<>() { });
             this.leftFieldMap.clear();
             getLeftFields(leftSchemaMap, "");
         }
@@ -757,8 +753,7 @@ class AIDataMapperCodeActionUtil {
                     throw new IOException("Error: AI service error");
                 }
             }
-            JsonParser parser = new JsonParser();
-            return parser.parse(response.getData()).getAsJsonObject().get("answer").toString();
+            return JsonParser.parseString(response.getData()).getAsJsonObject().get("answer").toString();
         } catch (IOException e) {
             throw new IOException("Error connecting the AI service" + e.getMessage(), e);
         }
@@ -876,9 +871,8 @@ class AIDataMapperCodeActionUtil {
         //To generate the default values
         try {
             Map<String, Object> responseMap = new Gson().fromJson(
-                    new JsonParser().parse(mappingFromServer).getAsJsonObject(),
-                    new TypeToken<HashMap<String, Object>>() {
-                    }.getType());
+                    JsonParser.parseString(mappingFromServer).getAsJsonObject(),
+                    new TypeToken<>() { });
             getResponseKeys(responseMap, "");
             HashSet<String> unionKeys = new HashSet<>(this.responseFieldMap.keySet());
             unionKeys.addAll(this.leftFieldMap.keySet());
