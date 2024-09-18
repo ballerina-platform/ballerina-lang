@@ -70,7 +70,7 @@ public final class BFutureSubType extends SubType implements DelegatedSubType {
     @Override
     public boolean isEmpty(Context cx) {
         return cx.memoSubtypeIsEmpty(cx.mappingMemo,
-                (context, bdd) -> bddEvery(context, bdd, null, null, BMappingSubType::mappingFormulaIsEmpty), inner);
+                (context, bdd) -> bddEvery(context, bdd, BMappingSubType::mappingFormulaIsEmpty), inner);
     }
 
     @Override

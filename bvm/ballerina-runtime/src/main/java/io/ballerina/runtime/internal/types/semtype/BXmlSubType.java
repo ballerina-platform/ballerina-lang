@@ -85,7 +85,7 @@ public class BXmlSubType extends SubType implements DelegatedSubType {
     }
 
     private boolean xmlBddEmpty(Context cx) {
-        return Bdd.bddEvery(cx, inner, null, null, BXmlSubType::xmlFormulaIsEmpty);
+        return Bdd.bddEvery(cx, inner, BXmlSubType::xmlFormulaIsEmpty);
     }
 
     private static boolean xmlFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {

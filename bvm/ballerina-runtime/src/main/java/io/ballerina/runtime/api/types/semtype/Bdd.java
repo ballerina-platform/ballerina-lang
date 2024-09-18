@@ -220,7 +220,11 @@ public abstract sealed class Bdd extends SubType implements SubTypeData permits 
         throw new IllegalStateException("Bdd don't support data");
     }
 
-    public static boolean bddEvery(Context cx, Bdd b, Conjunction pos, Conjunction neg, BddPredicate predicate) {
+    public static boolean bddEvery(Context cx, Bdd b, BddPredicate predicate) {
+        return bddEvery(cx, b, null, null, predicate);
+    }
+
+    private static boolean bddEvery(Context cx, Bdd b, Conjunction pos, Conjunction neg, BddPredicate predicate) {
         if (b instanceof BddAllOrNothing allOrNothing) {
             return allOrNothing == BddAllOrNothing.NOTHING || predicate.apply(cx, pos, neg);
         }

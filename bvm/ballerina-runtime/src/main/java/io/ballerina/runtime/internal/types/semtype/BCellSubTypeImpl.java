@@ -71,7 +71,7 @@ final class BCellSubTypeImpl extends BCellSubType implements DelegatedSubType {
 
     @Override
     public boolean isEmpty(Context cx) {
-        return Bdd.bddEvery(cx, inner, null, null, BCellSubTypeImpl::cellFormulaIsEmpty);
+        return Bdd.bddEvery(cx, inner, BCellSubTypeImpl::cellFormulaIsEmpty);
     }
 
     @Override

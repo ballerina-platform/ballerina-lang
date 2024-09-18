@@ -97,7 +97,7 @@ public class BListSubType extends SubType implements DelegatedSubType {
     @Override
     public boolean isEmpty(Context cx) {
         return cx.memoSubtypeIsEmpty(cx.listMemo,
-                (context, bdd) -> bddEvery(context, bdd, null, null, BListSubType::listFormulaIsEmpty), inner);
+                (context, bdd) -> bddEvery(context, bdd, BListSubType::listFormulaIsEmpty), inner);
     }
 
     static boolean listFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {

@@ -77,7 +77,7 @@ public final class BTableSubType extends SubType implements DelegatedSubType {
         // as `(any|error)[]` rather than `[(map<any|error>)[], any|error, any|error]`.
         b = b.posMaybeEmpty() ? (Bdd) b.intersect(Builder.listSubtypeThreeElement()) : b;
         return cx.memoSubtypeIsEmpty(cx.listMemo,
-                (context, bdd) -> bddEvery(context, bdd, null, null, BListSubType::listFormulaIsEmpty), b);
+                (context, bdd) -> bddEvery(context, bdd, BListSubType::listFormulaIsEmpty), b);
     }
 
     @Override
