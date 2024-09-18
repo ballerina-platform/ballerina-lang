@@ -24,7 +24,10 @@ import io.ballerina.runtime.api.values.BDecimal;
  *
  * @since 2201.6.0
  */
-public class Avg {
+public final class Avg {
+
+    private Avg() {
+    }
 
     public static BDecimal avg(long n, long[] ns) {
         BDecimal sum = BDecimal.valueOf(n);

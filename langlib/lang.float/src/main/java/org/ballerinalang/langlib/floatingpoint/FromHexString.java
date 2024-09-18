@@ -34,7 +34,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 1.0
  */
-public class FromHexString {
+public final class FromHexString {
 
     private static final Pattern HEX_FLOAT_LITERAL = Pattern.compile("[-+]?0[xX][\\dA-Fa-f.pP\\-+]+");
 
@@ -54,15 +54,10 @@ public class FromHexString {
     }
 
     private static boolean isValidHexString(String hexValue) {
-        switch (hexValue) {
-            case "+infinity":
-            case "-infinity":
-            case "infinity":
-            case "nan":
-                return true;
-            default:
-                return HEX_FLOAT_LITERAL.matcher(hexValue).matches();
-        }
+        return switch (hexValue) {
+            case "+infinity", "-infinity", "infinity", "nan" -> true;
+            default -> HEX_FLOAT_LITERAL.matcher(hexValue).matches();
+        };
     }
 
     private static BError getNumberFormatError(String message) {

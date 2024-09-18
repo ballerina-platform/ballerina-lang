@@ -31,16 +31,19 @@ import java.util.List;
  * 
  * @since 0.92
  */
-public class SelectDescendants {
+public final class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
+
+    private SelectDescendants() {
+    }
 
     public static BXml selectDescendants(BXml xml, BString[] qnames) {
         try {
             List<String> qnameList = new ArrayList<>();
             int size = qnames.length;
-            for (int i = 0; i < size; i++) {
-                String strQname = qnames[i].getValue();
+            for (BString qname : qnames) {
+                String strQname = qname.getValue();
                 // remove empty namespace in expanded form i.e `{}local => local`
                 if (strQname.lastIndexOf('}') == 1) {
                     strQname = strQname.substring(2);

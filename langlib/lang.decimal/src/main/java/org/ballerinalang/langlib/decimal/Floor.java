@@ -34,7 +34,10 @@ import java.math.RoundingMode;
 //        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
 //        isPublic = true
 //)
-public class Floor {
+public final class Floor {
+
+    private Floor() {
+    }
 
     public static BDecimal floor(BDecimal x) {
         return ValueCreator.createDecimalValue(x.value().setScale(0, RoundingMode.FLOOR));

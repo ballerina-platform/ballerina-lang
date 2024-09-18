@@ -43,10 +43,13 @@ import static org.ballerinalang.langlib.table.utils.Constants.TABLE_VERSION;
 //        returnType = {@ReturnType(type = TypeKind.ANY)},
 //        isPublic = true
 //)
-public class Reduce {
+public final class Reduce {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "reduce");
+
+    private Reduce() {
+    }
 
     public static Object reduce(BTable tbl, BFunctionPointer<Object, Object> func, Object initial) {
         int size = tbl.values().size();

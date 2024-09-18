@@ -423,74 +423,46 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
      */
     @Override
     protected SyntaxKind getExpectedTokenKind(ParserRuleContext ctx) {
-        switch (ctx) {
-            case TOML_TABLE:
-                return SyntaxKind.TABLE;
-            case TOML_TABLE_ARRAY:
-                return SyntaxKind.TABLE_ARRAY;
-            case KEY_VALUE_PAIR:
-                return SyntaxKind.KEY_VALUE;
-            case ASSIGN_OP:
-                return SyntaxKind.EQUAL_TOKEN;
-            case IDENTIFIER_LITERAL:
-                return SyntaxKind.IDENTIFIER_LITERAL;
-            case EOF:
-                return SyntaxKind.EOF_TOKEN;
-            case COMMA:
-                return SyntaxKind.COMMA_TOKEN;
-            case STRING_START:
-            case STRING_END:
-                return SyntaxKind.DOUBLE_QUOTE_TOKEN;
-            case LITERAL_STRING_START:
-            case LITERAL_STRING_END:
-                return SyntaxKind.SINGLE_QUOTE_TOKEN;
-            case MULTILINE_STRING_START:
-            case MULTILINE_STRING_END:
-                return SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN;
-            case MULTILINE_LITERAL_STRING_START:
-            case MULTILINE_LITERAL_STRING_END:
-                return SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN;
-            case STRING_BODY:
-            case LITERAL_STRING_BODY:
-            case MULTILINE_STRING_BODY:
-            case MULTILINE_LITERAL_STRING_BODY:
-                return SyntaxKind.IDENTIFIER_LITERAL;
-            case INLINE_TABLE_START:
-                return SyntaxKind.OPEN_BRACE_TOKEN;
-            case ARRAY_VALUE_LIST_START:
-            case TABLE_START:
-                return SyntaxKind.OPEN_BRACKET_TOKEN;
-            case ARRAY_VALUE_LIST_END:
-            case TABLE_END:
-                return SyntaxKind.CLOSE_BRACKET_TOKEN;
-            case INLINE_TABLE_END:
-                return SyntaxKind.CLOSE_BRACE_TOKEN;
-            case DECIMAL_INTEGER_LITERAL:
-                return SyntaxKind.DECIMAL_INT_TOKEN;
-            case HEX_INTEGER_LITERAL:
-                return SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
-            case OCTAL_INTEGER_LITERAL:
-                return SyntaxKind.OCTAL_INTEGER_LITERAL_TOKEN;
-            case BINARY_INTEGER_LITERAL:
-                return SyntaxKind.BINARY_INTEGER_LITERAL_TOKEN;
-            case DECIMAL_FLOATING_POINT_LITERAL:
-                return SyntaxKind.DECIMAL_FLOAT_TOKEN;
-            case BOOLEAN_LITERAL:
-                return SyntaxKind.FALSE_KEYWORD;
-            case NEWLINE:
-                return SyntaxKind.NEWLINE;
-            case DOT:
-                return SyntaxKind.DOT_TOKEN;
-            case ARRAY_TABLE_FIRST_END:
-            case ARRAY_TABLE_SECOND_END:
-                return SyntaxKind.CLOSE_BRACKET_TOKEN;
-            case ARRAY_TABLE_FIRST_START:
-            case ARRAY_TABLE_SECOND_START:
-                return SyntaxKind.OPEN_BRACKET_TOKEN;
-            case SIGN_TOKEN:
-                return SyntaxKind.PLUS_TOKEN;
-            default:
-                return SyntaxKind.NONE;
-        }
+        return switch (ctx) {
+            case TOML_TABLE -> SyntaxKind.TABLE;
+            case TOML_TABLE_ARRAY -> SyntaxKind.TABLE_ARRAY;
+            case KEY_VALUE_PAIR -> SyntaxKind.KEY_VALUE;
+            case ASSIGN_OP -> SyntaxKind.EQUAL_TOKEN;
+            case IDENTIFIER_LITERAL -> SyntaxKind.IDENTIFIER_LITERAL;
+            case EOF -> SyntaxKind.EOF_TOKEN;
+            case COMMA -> SyntaxKind.COMMA_TOKEN;
+            case STRING_START,
+                 STRING_END -> SyntaxKind.DOUBLE_QUOTE_TOKEN;
+            case LITERAL_STRING_START,
+                 LITERAL_STRING_END -> SyntaxKind.SINGLE_QUOTE_TOKEN;
+            case MULTILINE_STRING_START,
+                 MULTILINE_STRING_END -> SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN;
+            case MULTILINE_LITERAL_STRING_START,
+                 MULTILINE_LITERAL_STRING_END -> SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN;
+            case STRING_BODY,
+                 LITERAL_STRING_BODY,
+                 MULTILINE_STRING_BODY,
+                 MULTILINE_LITERAL_STRING_BODY -> SyntaxKind.IDENTIFIER_LITERAL;
+            case INLINE_TABLE_START -> SyntaxKind.OPEN_BRACE_TOKEN;
+            case ARRAY_VALUE_LIST_START,
+                 TABLE_START -> SyntaxKind.OPEN_BRACKET_TOKEN;
+            case ARRAY_VALUE_LIST_END,
+                 TABLE_END -> SyntaxKind.CLOSE_BRACKET_TOKEN;
+            case INLINE_TABLE_END -> SyntaxKind.CLOSE_BRACE_TOKEN;
+            case DECIMAL_INTEGER_LITERAL -> SyntaxKind.DECIMAL_INT_TOKEN;
+            case HEX_INTEGER_LITERAL -> SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
+            case OCTAL_INTEGER_LITERAL -> SyntaxKind.OCTAL_INTEGER_LITERAL_TOKEN;
+            case BINARY_INTEGER_LITERAL -> SyntaxKind.BINARY_INTEGER_LITERAL_TOKEN;
+            case DECIMAL_FLOATING_POINT_LITERAL -> SyntaxKind.DECIMAL_FLOAT_TOKEN;
+            case BOOLEAN_LITERAL -> SyntaxKind.FALSE_KEYWORD;
+            case NEWLINE -> SyntaxKind.NEWLINE;
+            case DOT -> SyntaxKind.DOT_TOKEN;
+            case ARRAY_TABLE_FIRST_END,
+                 ARRAY_TABLE_SECOND_END -> SyntaxKind.CLOSE_BRACKET_TOKEN;
+            case ARRAY_TABLE_FIRST_START,
+                 ARRAY_TABLE_SECOND_START -> SyntaxKind.OPEN_BRACKET_TOKEN;
+            case SIGN_TOKEN -> SyntaxKind.PLUS_TOKEN;
+            default -> SyntaxKind.NONE;
+        };
     }
 }

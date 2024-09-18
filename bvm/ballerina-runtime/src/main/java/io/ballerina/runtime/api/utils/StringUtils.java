@@ -57,7 +57,7 @@ import static io.ballerina.runtime.internal.util.StringUtils.parseExpressionStri
  * 
  * @since 0.95.3
  */
-public class StringUtils {
+public final class StringUtils {
 
     /**
      * Convert input stream to String.
@@ -237,20 +237,19 @@ public class StringUtils {
         Object jsonValue = JsonUtils.convertToJson(value);
 
         Type type = TypeUtils.getImpliedType(TypeChecker.getType(jsonValue));
-        switch (type.getTag()) {
-            case TypeTags.NULL_TAG:
-                return "null";
-            case TypeTags.STRING_TAG:
-                return stringToJson((BString) jsonValue);
-            case TypeTags.MAP_TAG:
+        return switch (type.getTag()) {
+            case TypeTags.NULL_TAG -> "null";
+            case TypeTags.STRING_TAG -> stringToJson((BString) jsonValue);
+            case TypeTags.MAP_TAG -> {
                 MapValueImpl mapValue = (MapValueImpl) jsonValue;
-                return mapValue.getJSONString();
-            case TypeTags.ARRAY_TAG:
+                yield mapValue.getJSONString();
+            }
+            case TypeTags.ARRAY_TAG -> {
                 ArrayValue arrayValue = (ArrayValue) jsonValue;
-                return arrayValue.getJSONString();
-            default:
-                return String.valueOf(jsonValue);
-        }
+                yield arrayValue.getJSONString();
+            }
+            default -> String.valueOf(jsonValue);
+        };
     }
 
     private static String stringToJson(BString value) {

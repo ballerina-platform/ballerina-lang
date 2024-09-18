@@ -89,7 +89,8 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTABLE;
  *
  * @since 2.3.0
  */
-public class NativeUtils {
+public final class NativeUtils {
+
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String TEST_EXEC_FUNCTION = "__execute__";
     public static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
@@ -108,6 +109,9 @@ public class NativeUtils {
             "io.ballerina.runtime.api.values.BString",
             "io.ballerina.runtime.api.values.BString"
     });
+
+    private NativeUtils() {
+    }
 
     //Add dynamically loading classes and methods to reflection config
     public static void createReflectConfig(Path nativeConfigPath, Package currentPackage,
@@ -169,9 +173,7 @@ public class NativeUtils {
             if (mockedFunctionClassFile.isFile()) {
                 BufferedReader br = Files.newBufferedReader(mockedFunctionClassPath, StandardCharsets.UTF_8);
                 Gson gsonRead = new Gson();
-                Map<String, String[]> testFileMockedFunctionMapping = gsonRead.fromJson(br,
-                        new TypeToken<Map<String, String[]>>() {
-                        }.getType());
+                Map<String, String[]> testFileMockedFunctionMapping = gsonRead.fromJson(br, new TypeToken<>() { });
                 if (!testFileMockedFunctionMapping.isEmpty()) {
                     ReflectConfigClass originalTestFileRefConfClz;
                     for (Map.Entry<String, String[]> testFileMockedFunctionMappingEntry :
@@ -191,12 +193,12 @@ public class NativeUtils {
                         }
                         HashSet<String> methodSet = getMethodSet(qualifiedTestClass);
                         originalTestFileRefConfClz = new ReflectConfigClass(qualifiedTestClassName);
-                        for (int i = 0; i < mockedFunctions.length; i++) {
-                            if (!methodSet.contains(mockedFunctions[i])) {
+                        for (String mockedFunction : mockedFunctions) {
+                            if (!methodSet.contains(mockedFunction)) {
                                 continue;
                             }
                             originalTestFileRefConfClz.addReflectConfigClassMethod(
-                                    new ReflectConfigClassMethod(mockedFunctions[i]));
+                                    new ReflectConfigClassMethod(mockedFunction));
                             originalTestFileRefConfClz.setUnsafeAllocated(true);
                             originalTestFileRefConfClz.setAllDeclaredFields(true);
                             originalTestFileRefConfClz.setQueryAllDeclaredMethods(true);

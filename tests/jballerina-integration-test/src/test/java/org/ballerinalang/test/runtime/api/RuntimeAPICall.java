@@ -31,7 +31,10 @@ import static org.ballerinalang.test.runtime.api.RuntimeAPITestUtils.blockAndInv
  *
  * @since 2201.9.0
  */
-public class RuntimeAPICall {
+public final class RuntimeAPICall {
+
+    private RuntimeAPICall() {
+    }
 
     public static void main(String[] args) {
         Module module = new Module("testorg", "function_invocation", "1");

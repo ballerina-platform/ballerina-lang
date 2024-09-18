@@ -83,7 +83,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class Values {
+public final class Values {
 
     private static final Module objectModule = new Module("testorg", "values.objects", "1");
     private static final Module recordModule = new Module("testorg", "values.records", "1");
@@ -92,6 +92,9 @@ public class Values {
     private static final BString intAnnotation = StringUtils.fromString("testorg/types.typeref:1:Int");
     private static final BError constraintError =
             ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+
+    private Values() {
+    }
 
     public static BMap<BString, Object> getRecord(BString recordName) {
         HashMap<String, Object> address = new HashMap<>();
@@ -550,8 +553,8 @@ public class Values {
         return StringUtils.fromString("balNode-" + node.nodeId);
     }
 
-    public static void validateIsRemoteEnabled(Environment env) {
+    public static void validateIsRemoteManagementEnabled(Environment env) {
         Repository repository = env.getRepository();
-        Assert.assertTrue(repository.isRemoteEnabled());
+        Assert.assertTrue(repository.isRemoteManagementEnabled());
     }
 }

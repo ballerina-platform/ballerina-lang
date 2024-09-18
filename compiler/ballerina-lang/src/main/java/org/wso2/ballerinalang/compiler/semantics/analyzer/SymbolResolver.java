@@ -121,8 +121,10 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1881,18 +1883,14 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 types.setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
                 types.setImplicitCastExpr(binaryExpr.lhsExpr, lhsType, symTable.anyType);
 
-                switch (opKind) {
-                    case REF_EQUAL:
-                        // if one is a value type, consider === the same as ==
-                        return createEqualityOperator(OperatorKind.EQUAL, symTable.anyType,
-                                symTable.anyType);
-                    case REF_NOT_EQUAL:
-                        // if one is a value type, consider !== the same as !=
-                        return createEqualityOperator(OperatorKind.NOT_EQUAL, symTable.anyType,
-                                                      symTable.anyType);
-                    default:
-                        return createEqualityOperator(opKind, symTable.anyType, symTable.anyType);
-                }
+                return switch (opKind) {
+                    // if one is a value type, consider === the same as ==
+                    case REF_EQUAL -> createEqualityOperator(OperatorKind.EQUAL, symTable.anyType, symTable.anyType);
+                    // if one is a value type, consider !== the same as !=
+                    case REF_NOT_EQUAL -> createEqualityOperator(OperatorKind.NOT_EQUAL, symTable.anyType,
+                            symTable.anyType);
+                    default -> createEqualityOperator(opKind, symTable.anyType, symTable.anyType);
+                };
             }
         }
         return symTable.notFoundSymbol;
@@ -1916,15 +1914,13 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     return createShiftOperator(opKind, lhsType, rhsType);
                 case BITWISE_RIGHT_SHIFT:
                 case BITWISE_UNSIGNED_RIGHT_SHIFT:
-                    switch (Types.getImpliedType(lhsType).tag) {
-                        case TypeTags.UNSIGNED32_INT:
-                        case TypeTags.UNSIGNED16_INT:
-                        case TypeTags.UNSIGNED8_INT:
-                        case TypeTags.BYTE:
-                            return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
-                        default:
-                            return createShiftOperator(opKind, lhsType, rhsType);
-                    }
+                    return switch (Types.getImpliedType(lhsType).tag) {
+                        case TypeTags.UNSIGNED32_INT,
+                             TypeTags.UNSIGNED16_INT,
+                             TypeTags.UNSIGNED8_INT,
+                             TypeTags.BYTE -> createBinaryOperator(opKind, lhsType, rhsType, lhsType);
+                        default -> createShiftOperator(opKind, lhsType, rhsType);
+                    };
             }
         }
         return symTable.notFoundSymbol;
@@ -1990,16 +1986,13 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     private boolean isIntFloatingPointMultiplication(OperatorKind opKind, BType lhsCompatibleType,
                                                      BType rhsCompatibleType) {
-        switch (opKind) {
-            case MUL:
-                return lhsCompatibleType.tag == TypeTags.INT && isFloatingPointType(rhsCompatibleType) ||
-                        rhsCompatibleType.tag == TypeTags.INT && isFloatingPointType(lhsCompatibleType);
-            case DIV:
-            case MOD:
-                return isFloatingPointType(lhsCompatibleType) && rhsCompatibleType.tag == TypeTags.INT;
-            default:
-                return false;
-        }
+        return switch (opKind) {
+            case MUL -> lhsCompatibleType.tag == TypeTags.INT && isFloatingPointType(rhsCompatibleType) ||
+                    rhsCompatibleType.tag == TypeTags.INT && isFloatingPointType(lhsCompatibleType);
+            case DIV,
+                 MOD -> isFloatingPointType(lhsCompatibleType) && rhsCompatibleType.tag == TypeTags.INT;
+            default -> false;
+        };
     }
 
     private boolean isFloatingPointType(BType type) {
@@ -2102,16 +2095,12 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
 
         if (validOrderedTypesExist) {
-            switch (opKind) {
-                case LESS_THAN:
-                    return createBinaryComparisonOperator(OperatorKind.LESS_THAN, lhsType, rhsType);
-                case LESS_EQUAL:
-                    return createBinaryComparisonOperator(OperatorKind.LESS_EQUAL, lhsType, rhsType);
-                case GREATER_THAN:
-                    return createBinaryComparisonOperator(OperatorKind.GREATER_THAN, lhsType, rhsType);
-                default:
-                    return createBinaryComparisonOperator(OperatorKind.GREATER_EQUAL, lhsType, rhsType);
-            }
+            return switch (opKind) {
+                case LESS_THAN -> createBinaryComparisonOperator(OperatorKind.LESS_THAN, lhsType, rhsType);
+                case LESS_EQUAL -> createBinaryComparisonOperator(OperatorKind.LESS_EQUAL, lhsType, rhsType);
+                case GREATER_THAN -> createBinaryComparisonOperator(OperatorKind.GREATER_THAN, lhsType, rhsType);
+                default -> createBinaryComparisonOperator(OperatorKind.GREATER_EQUAL, lhsType, rhsType);
+            };
         }
         return symTable.notFoundSymbol;
     }
@@ -2512,11 +2501,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     public void populateAnnotationAttachmentSymbol(BLangAnnotationAttachment annotationAttachment, SymbolEnv env,
                                                    ConstantValueResolver constantValueResolver) {
-        populateAnnotationAttachmentSymbol(annotationAttachment, env, constantValueResolver, new Stack<>());
+        populateAnnotationAttachmentSymbol(annotationAttachment, env, constantValueResolver, new ArrayDeque<>());
     }
     public void populateAnnotationAttachmentSymbol(BLangAnnotationAttachment annotationAttachment, SymbolEnv env,
                                                    ConstantValueResolver constantValueResolver,
-                                                   Stack<String> anonTypeNameSuffixes) {
+                                                   Deque<String> anonTypeNameSuffixes) {
         BAnnotationSymbol annotationSymbol = annotationAttachment.annotationSymbol;
 
         if (annotationSymbol == null) {
@@ -2648,14 +2637,10 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     }
 
     public boolean isReAtomNode(NodeKind kind) {
-        switch (kind) {
-            case REG_EXP_ATOM_CHAR_ESCAPE:
-            case REG_EXP_CHARACTER_CLASS:
-            case REG_EXP_CAPTURING_GROUP:
-                return true;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case REG_EXP_ATOM_CHAR_ESCAPE, REG_EXP_CHARACTER_CLASS, REG_EXP_CAPTURING_GROUP -> true;
+            default -> false;
+        };
     }
 
     private boolean isDistinctXMLNSSymbol(BXMLNSSymbol symbol, BXMLNSSymbol foundSym) {

@@ -123,8 +123,8 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
 
     private boolean isValidFieldNameList(List<String> fieldNames, TypeSymbol rowType) {
         // check if a key field name exist in the rowType's record fields as a readonly field.
-        if (rowType instanceof RecordTypeSymbol) {
-            Map<String, RecordFieldSymbol> fieldDescriptors = ((RecordTypeSymbol) rowType).fieldDescriptors();
+        if (rowType instanceof RecordTypeSymbol recordTypeSymbol) {
+            Map<String, RecordFieldSymbol> fieldDescriptors = recordTypeSymbol.fieldDescriptors();
             for (String fieldName : fieldNames) {
                 if (!fieldDescriptors.containsKey(fieldName)) {
                     return false;
@@ -144,8 +144,8 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
 
     private boolean isReadOnlyField(RecordFieldSymbol recordField) {
         TypeSymbol typeDescriptor = recordField.typeDescriptor();
-        if (typeDescriptor instanceof AbstractTypeSymbol) {
-            BType bType = ((AbstractTypeSymbol) typeDescriptor).getBType();
+        if (typeDescriptor instanceof AbstractTypeSymbol abstractTypeSymbol) {
+            BType bType = abstractTypeSymbol.getBType();
 
             return Symbols.isFlagOn(bType.flags, Flags.READONLY);
         }
@@ -192,16 +192,16 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
 
     private boolean isValidKeyConstraintType(TypeSymbol fieldType, TypeSymbol keyType) {
         if ((fieldType.typeKind() == keyType.typeKind() || keyType.subtypeOf(fieldType))
-                && fieldType instanceof AbstractTypeSymbol) {
-            return Symbols.isFlagOn(((AbstractTypeSymbol) fieldType).getBType().flags, Flags.READONLY);
+                && fieldType instanceof AbstractTypeSymbol abstractTypeSymbol) {
+            return Symbols.isFlagOn(abstractTypeSymbol.getBType().flags, Flags.READONLY);
         }
 
         return false;
     }
 
     private BType getKeyBType(TypeSymbol typeSymbol) {
-        if (typeSymbol instanceof AbstractTypeSymbol) {
-            return ((AbstractTypeSymbol) typeSymbol).getBType();
+        if (typeSymbol instanceof AbstractTypeSymbol abstractTypeSymbol) {
+            return abstractTypeSymbol.getBType();
         }
 
         throw new IllegalArgumentException("Invalid key type parameter provided");
@@ -214,12 +214,11 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
 
         BType rowBType = getBType(rowType);
         if (types.isAssignable(rowBType, symTable.mapType)) {
-            if (rowBType instanceof BRecordType) {
-                if (isKeyless || isValidRowRecordType((BRecordType) rowBType)) {
+            if (rowBType instanceof BRecordType bRecordType) {
+                if (isKeyless || isValidRowRecordType(bRecordType)) {
                     return rowBType;
                 }
-            } else if (rowBType instanceof BMapType) {
-                BMapType rowMapType = (BMapType) rowBType;
+            } else if (rowBType instanceof BMapType rowMapType) {
                 BType mapTypeConstraint = rowMapType.getConstraint();
                 if (types.isAssignable(mapTypeConstraint, symTable.pureType)) {
                     return rowBType;
@@ -245,9 +244,9 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
 
     private BType getBType(TypeSymbol typeSymbol) {
         if (typeSymbol != null) {
-            if (typeSymbol instanceof AbstractTypeSymbol
+            if (typeSymbol instanceof AbstractTypeSymbol abstractTypeSymbol
                     && typeSymbol.subtypeOf(typesFactory.getTypeDescriptor(symTable.anyType))) {
-                return ((AbstractTypeSymbol) typeSymbol).getBType();
+                return abstractTypeSymbol.getBType();
             }
 
             throw new IllegalArgumentException("Invalid type parameter provided");

@@ -28,7 +28,10 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
  *
  * @since 2201.9.0
  */
-public class CommonUtils {
+public final class CommonUtils {
+
+    private CommonUtils() {
+    }
 
     /**
      * Get the current time in milliseconds.
@@ -62,11 +65,11 @@ public class CommonUtils {
             return true;
         }
 
-        if (!(type instanceof UnionType)) {
+        if (!(type instanceof UnionType unionType)) {
             return false;
         }
 
-        for (Type memberType : ((UnionType) type).getMemberTypes()) {
+        for (Type memberType : unionType.getMemberTypes()) {
             if (!isSubTypeOfReadOnly(memberType)) {
                 return false;
             }

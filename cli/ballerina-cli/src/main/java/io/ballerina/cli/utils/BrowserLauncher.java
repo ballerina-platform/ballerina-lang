@@ -22,7 +22,7 @@ import java.io.IOException;
  *
  * @since 2.0.0
  */
-class BrowserLauncher {
+final class BrowserLauncher {
 
     private BrowserLauncher() {
     }

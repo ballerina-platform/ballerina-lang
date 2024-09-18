@@ -32,7 +32,10 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "vals", type = TypeKind.ANYDATA)},
 //        isPublic = true
 //)
-public class Put {
+public final class Put {
+
+    private Put() {
+    }
 
     public static void put(BTable tbl, BMap val) {
         tbl.put(val);

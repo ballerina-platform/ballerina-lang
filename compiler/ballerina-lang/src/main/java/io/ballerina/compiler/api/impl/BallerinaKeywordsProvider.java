@@ -27,11 +27,15 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class BallerinaKeywordsProvider {
+public final class BallerinaKeywordsProvider {
+
     public static final List<String> BALLERINA_KEYWORDS;
 
     static {
         BALLERINA_KEYWORDS = getBallerinaKeywords();
+    }
+
+    private BallerinaKeywordsProvider() {
     }
 
     private static List<String> getBallerinaKeywords() {

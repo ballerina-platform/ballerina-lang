@@ -166,10 +166,15 @@ function testClosureInQueryActionInDo2() {
     do {
         from var k in 5 ... 7
         do {
-            var x = from var i in 1 ... 2 select (from var t in 3 ... 4 where t == k select t);
+            var x = from var i in 1 ... 2
+                select (from var t in 5 ... 7
+                    where t == k
+                    select t);
+            arr.push(...x[0]);
+            arr.push(...x[1]);
         };
     };
-    assertEquality([6, 7, 8, 7, 8, 9, 8, 9, 10, 9, 10, 11, 10, 11, 12], arr);
+    assertEquality([5, 5, 6, 6, 7, 7, 5, 5, 6, 6, 7, 7, 5, 5, 6, 6, 7, 7, 5, 5, 6, 6, 7, 7, 5, 5, 6, 6, 7, 7], arr);
 }
 
 class EvenNumberGenerator {

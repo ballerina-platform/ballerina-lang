@@ -54,7 +54,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CL
  * @since 0.995.0
  */
 
-public class RuntimeUtils {
+public final class RuntimeUtils {
 
     private static final String CRASH_LOGGER = "b7a.log.crash";
     private static final PrintStream errStream = System.err;
@@ -130,8 +130,8 @@ public class RuntimeUtils {
     }
 
     public static void handleBErrorAndExit(Throwable throwable) {
-        if (throwable instanceof ErrorValue) {
-            printToConsole((ErrorValue) throwable);
+        if (throwable instanceof ErrorValue errorValue) {
+            printToConsole(errorValue);
         }
         Runtime.getRuntime().exit(1);
     }
@@ -142,8 +142,8 @@ public class RuntimeUtils {
     }
 
     public static void handleAllRuntimeErrors(Throwable throwable) {
-        if (throwable instanceof ErrorValue) {
-            printToConsole((ErrorValue) throwable);
+        if (throwable instanceof ErrorValue errorValue) {
+            printToConsole(errorValue);
         } else {
             logBadSad(throwable);
         }

@@ -49,10 +49,10 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
 
     @Override
     public Optional<MapperObject> transformSyntaxNode(Node node) {
-        if (!(node instanceof NonTerminalNode)) {
+        if (!(node instanceof NonTerminalNode nonTerminalNode)) {
             return Optional.empty();
         }
-        ((NonTerminalNode) node).children().forEach(child -> {
+        nonTerminalNode.children().forEach(child -> {
             Optional<MapperObject> mapperObject = child.apply(this);
             if (mapperObject != null) {
                 mapperObject.ifPresent(this.module::addDataObject);

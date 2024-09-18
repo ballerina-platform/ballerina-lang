@@ -149,11 +149,10 @@ public class BallerinaSymbol implements Symbol {
             return true;
         }
 
-        if (!(obj instanceof Symbol)) {
+        if (!(obj instanceof Symbol symbol)) {
             return false;
         }
 
-        Symbol symbol = (Symbol) obj;
         return nameEquals(symbol.getName().orElse(null))
                 && isSameModule(this.getModule(), symbol.getModule())
                 && isSameLocation(this.getLocation(), symbol.getLocation())

@@ -35,6 +35,7 @@ import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExcep
  */
 public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTest {
 
+    @Override
     @BeforeClass(alwaysRun = true)
     public void setup() throws BallerinaTestException {
         prepareForEvaluation();
@@ -508,6 +509,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
                 String.format(REMOTE_METHOD_NOT_FOUND.getString(), "undefinedFunction", "Child"));
     }
 
+    @Override
     @AfterClass(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

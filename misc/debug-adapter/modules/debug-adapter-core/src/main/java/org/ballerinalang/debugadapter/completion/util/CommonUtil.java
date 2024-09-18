@@ -65,7 +65,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
  *
  * @since 2201.1.0
  */
-public class CommonUtil {
+public final class CommonUtil {
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
 

@@ -81,6 +81,7 @@ public class StringValueBasicsTest extends BStringTestCommons {
         testAndAssert("anydataToStringCast", 6);
     }
 
+    @Override
     @AfterClass
     public void tearDown() {
         result = null;

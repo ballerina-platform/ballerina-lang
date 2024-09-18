@@ -40,7 +40,10 @@ import java.util.Collection;
 //        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},
 //        isPublic = true
 //)
-public class ToArray {
+public final class ToArray {
+
+    private ToArray() {
+    }
 
     public static BArray toArray(BTable tbl) {
         Type constrainedType = ((TableType) TypeUtils.getImpliedType(tbl.getType())).getConstrainedType();

@@ -69,7 +69,11 @@ import java.util.stream.Collectors;
  *
  * @since 2201.6.0
  */
-public class InlayHintProvider {
+public final class InlayHintProvider {
+
+    private InlayHintProvider() {
+    }
+
     public static List<InlayHint> getInlayHint(InlayHintContext context) {
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (!lsClientCapabilities.getInitializationOptions().isEnableInlayHints() ||

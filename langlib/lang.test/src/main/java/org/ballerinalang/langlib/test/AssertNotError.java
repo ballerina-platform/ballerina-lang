@@ -29,7 +29,11 @@ import io.ballerina.runtime.internal.TypeChecker;
  *
  * @since 1.3.0
  */
-public class AssertNotError {
+public final class AssertNotError {
+
+    private AssertNotError() {
+    }
+
     public static void assertNotError(Object value) {
         if (TypeUtils.getImpliedType(TypeChecker.getType(value)).getTag() == TypeTags.ERROR_TAG) {
             throw ErrorCreator.createError(StringUtils.fromString("{ballerina/lang.test}AssertionError"),

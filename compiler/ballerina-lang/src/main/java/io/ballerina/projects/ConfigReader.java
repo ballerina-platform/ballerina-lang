@@ -57,7 +57,10 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class ConfigReader {
+public final class ConfigReader {
+
+    private ConfigReader() {
+    }
 
     /**
      * Retrieve all the configurable variables for a package.
@@ -137,7 +140,7 @@ public class ConfigReader {
                         dependency.descriptor().packageName().value().equals(packageName) &&
                         (moduleName == null
                                 ? dependency.descriptor().name().moduleNamePart() == null
-                                : dependency.descriptor().name().moduleNamePart().equals(moduleName))
+                                : moduleName.equals(dependency.descriptor().name().moduleNamePart()))
         );
     }
 
@@ -196,8 +199,7 @@ public class ConfigReader {
             // Filter configurable variables
             if (symbol != null && symbol.tag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags,
                     Flags.CONFIGURABLE)) {
-                if (symbol instanceof BVarSymbol) {
-                    BVarSymbol varSymbol = (BVarSymbol) symbol;
+                if (symbol instanceof BVarSymbol varSymbol) {
                     if ((validConfigs != null && validConfigs.contains(varSymbol)) || validConfigs == null) {
                         // Get description
                         String description = getDescriptionValue(varSymbol, module);
@@ -241,8 +243,9 @@ public class ConfigReader {
                     symbol = symbol.type.tsymbol;
                 }
                 if (symbol != null && symbol.tag == SymTag.VARIABLE
-                        && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE) && symbol instanceof BVarSymbol) {
-                    configVars.add((BVarSymbol) symbol);
+                        && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE) &&
+                        symbol instanceof BVarSymbol bVarSymbol) {
+                    configVars.add(bVarSymbol);
                 }
             }
         }

@@ -122,16 +122,11 @@ public class SymbolEquivalenceTest {
     public void testTypedescriptors(List<LinePosition> positions) {
         List<TypeSymbol> types = positions.stream()
                 .map(pos -> typesModel.symbol(typesSrcFile, pos).get())
-                .map(s -> {
-                    switch (s.kind()) {
-                        case RECORD_FIELD:
-                            return ((RecordFieldSymbol) s).typeDescriptor();
-                        case PARAMETER:
-                            return ((ParameterSymbol) s).typeDescriptor();
-                        case VARIABLE:
-                            return ((VariableSymbol) s).typeDescriptor();
-                    }
-                    throw new AssertionError("Unexpected symbol kind: " + s.kind());
+                .map(s -> switch (s.kind()) {
+                    case RECORD_FIELD -> ((RecordFieldSymbol) s).typeDescriptor();
+                    case PARAMETER -> ((ParameterSymbol) s).typeDescriptor();
+                    case VARIABLE -> ((VariableSymbol) s).typeDescriptor();
+                    default -> throw new AssertionError("Unexpected symbol kind: " + s.kind());
                 })
                 .collect(Collectors.toList());
         assertTypeSymbols(types);

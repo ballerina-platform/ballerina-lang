@@ -67,7 +67,7 @@ public class ObservabilityDesugar {
             importDcl.alias = ASTBuilderUtil.createIdentifier(pkgNode.pos, "_");
             importDcl.version = ASTBuilderUtil.createIdentifier(pkgNode.pos, "");
             importDcl.symbol = packageCache.getSymbol(PackageID.OBSERVE_INTERNAL);
-            pkgNode.imports.add(importDcl);
+            pkgNode.imports.add(0, importDcl);
             pkgNode.symbol.imports.add(importDcl.symbol);
         }
     }

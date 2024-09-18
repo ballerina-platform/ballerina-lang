@@ -52,7 +52,7 @@ import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encod
 /**
  * Package Utils.
  */
-public class PackageUtils {
+public final class PackageUtils {
 
     public static final String BAL_FILE_EXT = ".bal";
     public static final String BAL_TOML_FILE_NAME = "Ballerina.toml";
@@ -66,6 +66,9 @@ public class PackageUtils {
     private static final String URI_SCHEME_BALA = "bala";
 
     private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
+
+    private PackageUtils() {
+    }
 
     /**
      * Returns the corresponding debug source path based on the given stack frame location.

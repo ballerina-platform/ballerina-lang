@@ -44,13 +44,16 @@ import java.util.List;
  *
  * @since 2201.5.0
  */
-public class RegexpCompletionProvider {
+public final class RegexpCompletionProvider {
 
     private static final List<String> WORD_SEPARATOR_ARRAY = Arrays.asList("`", "~", "!", "@", "#", "$", "%", "^", "&",
             "*", "(", ")", "-", "=", "+", "[", "{", "]", "}", "\\", "|", ";", ":", "'", "\"", ",", ".", "<", ">", "/",
             "?");
 
     private static final HashSet<String> RE_FLAGS = new HashSet<>(Arrays.asList("i", "m", "s", "x"));
+
+    private RegexpCompletionProvider() {
+    }
 
     public static List<LSCompletionItem> getRegexCompletions(NonTerminalNode nodeAtCursor,
                                                              BallerinaCompletionContext ctx) {

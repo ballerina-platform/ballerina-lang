@@ -29,13 +29,14 @@ package org.ballerinalang.langlib.integer;
 //        returnType = {@ReturnType(type = TypeKind.INT)},
 //        isPublic = true
 //)
-public class Min {
+public final class Min {
+
+    private Min() {
+    }
 
     public static long min(long n, long[] ns) {
         long min = n;
-        int size = ns.length;
-        for (int i = 0; i < size; i++) {
-            long current = ns[i];
+        for (long current : ns) {
             min = current <= min ? current : min;
         }
         return min;

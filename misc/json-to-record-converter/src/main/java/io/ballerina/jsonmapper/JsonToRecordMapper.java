@@ -82,7 +82,7 @@ import static io.ballerina.jsonmapper.util.ListOperationUtils.intersection;
  *
  * @since 2201.2.0
  */
-public class JsonToRecordMapper {
+public final class JsonToRecordMapper {
 
     private JsonToRecordMapper() {}
 
