@@ -175,36 +175,21 @@ public class ServiceTemplateGenerator {
 
         String symbolReference;
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-        PackageID packageID = new PackageID(new Name(indexedListenerMetaData.lsModuleId().orgName()),
-                new Name(indexedListenerMetaData.lsModuleId().moduleName()),
-                new Name(indexedListenerMetaData.lsModuleId().version()));
+        LSModuleId lsModuleId = indexedListenerMetaData.lsModuleId();
+        PackageID packageID = new PackageID(new Name(lsModuleId.orgName()), new Name(lsModuleId.moduleName()),
+                new Name(lsModuleId.version()));
         ModuleID moduleID = new BallerinaModuleID(packageID);
         String modulePrefix = ModuleUtil.getModulePrefix(importsAcceptor, getCurrentModuleID(context),
                 moduleID, context);
-        Boolean shouldImport = !importsAcceptor.getNewImports().isEmpty();
+        boolean shouldImport = !importsAcceptor.getNewImports().isEmpty();
         String moduleAlias = modulePrefix.replace(":", "");
         String moduleName = ModuleUtil.escapeModuleName(moduleID.moduleName());
 
-        if (!moduleAlias.isEmpty()) {
-            symbolReference = modulePrefix + indexedListenerMetaData.listenerName;
-        } else {
-            symbolReference = indexedListenerMetaData.listenerName;
-        }
+        symbolReference  = !moduleAlias.isEmpty() ? modulePrefix + indexedListenerMetaData.listenerName :
+                indexedListenerMetaData.listenerName;
 
         String listenerInitialization = "new " + symbolReference + "(" +
                 indexedListenerMetaData.listenerInitArgs() + ")";
-//        List<String> methodSnippets = new ArrayList<>();
-//
-//        SnippetContext snippetContext = new SnippetContext(serviceSnippet.currentSnippetIndex - 1);
-//
-//        if (!serviceSnippet.unimplementedMethods.isEmpty()) {
-//            for (MethodSymbol methodSymbol : serviceSnippet.unimplementedMethods) {
-//                String functionSnippet =
-//                        generateMethodSnippet(importsAcceptor, methodSymbol, snippetContext, context);
-//                methodSnippets.add(functionSnippet);
-//            }
-//        }
-
 
         String snippet = SyntaxKind.SERVICE_KEYWORD.stringValue() + " ${1} " +
                 SyntaxKind.ON_KEYWORD.stringValue() + " " + listenerInitialization +
@@ -239,10 +224,6 @@ public class ServiceTemplateGenerator {
         String currentModuleName = currentModule.get().descriptor().name().toString();
         String currentVersion = currentModule.get().packageInstance().descriptor().version().value().toString();
         return CodeActionModuleId.from(currentOrg, currentModuleName, currentVersion);
-    }
-
-    public boolean initialized() {
-        return this.isInitialized;
     }
 
     public static Predicate<Symbol> listenerPredicate() {

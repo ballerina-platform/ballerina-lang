@@ -408,22 +408,18 @@ public class LSPackageLoader {
             LSListenerIndex lsListenerIndex;
             String userHomeIndexFileChecksum = getFileChecksum(BALLERINA_USER_HOME_INDEX.toString());
             String payload = "";
-            boolean indexUpdated = false;
             try {
                 String expectedCheckSum = this.centralPackageDescriptorLoader.getLSPackageIndexChecksum();
                 if (!userHomeIndexFileChecksum.equals(expectedCheckSum)) {
                     // Download the file from the central and load the listeners
                     payload = this.centralPackageDescriptorLoader.getLSPackageIndex();
                     lsListenerIndex = new Gson().fromJson(payload, LSListenerIndex.class);
-                    indexUpdated = true;
+                    saveLSPackageIndexInBallerinaUserHome(payload);
                 } else {
                     lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(BALLERINA_USER_HOME_INDEX),
                             LSListenerIndex.class);
                 }
                 cacheListenerMetaData(lsListenerIndex);
-                if (indexUpdated) {
-                    saveLSPackageIndexInBallerinaUserHome(payload);
-                }
                 return;
             } catch (Exception ignore) {
             }
