@@ -30,7 +30,7 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 1.0
  */
-public class Next {
+public final class Next {
 
     private Next() {
     }

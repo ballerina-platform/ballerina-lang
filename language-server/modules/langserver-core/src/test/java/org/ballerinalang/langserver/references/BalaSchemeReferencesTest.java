@@ -31,11 +31,13 @@ import java.net.URISyntaxException;
  */
 public class BalaSchemeReferencesTest extends ReferencesTest {
     
+    @Override
     @Test(description = "Test reference", dataProvider = "testDataProvider")
     public void test(String configPath) throws IOException {
         super.test(configPath);
     }
 
+    @Override
     @Test(dataProvider = "testReferencesWithinStdLibDataProvider")
     public void testReferencesWithinStdLib(String configPath) throws IOException, URISyntaxException {
         super.testReferencesWithinStdLib(configPath);

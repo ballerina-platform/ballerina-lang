@@ -107,8 +107,8 @@ public class PathConverter implements Converter<Path> {
     @Override
     public Stream<Path> expandBalWithTest(Path path) {
         if (Files.isDirectory(path)) {
-            try {
-                return Files.find(path, Integer.MAX_VALUE, this::isBalWithTest).sorted();
+            try (Stream<Path> paths = Files.find(path, Integer.MAX_VALUE, this::isBalWithTest)) {
+                return paths.sorted();
             } catch (IOException ignore) {
             }
         }

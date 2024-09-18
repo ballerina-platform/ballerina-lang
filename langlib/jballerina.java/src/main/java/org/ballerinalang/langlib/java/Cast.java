@@ -38,13 +38,16 @@ import static io.ballerina.runtime.api.creators.ValueCreator.createObjectValue;
  *
  * @since 1.2.5
  */
-public class Cast {
+public final class Cast {
 
     private static final String moduleName = "{ballerina/jballerina.java}";
     private static final String annotationName = "@java:Binding";
     private static final String annotationType = "ballerina/jballerina.java:0:Binding";
     private static final String classAttribute = "class";
     private static final String jObjField = "jObj";
+
+    private Cast() {
+    }
 
     public static Object cast(BObject value, BTypedesc castType) {
         BHandle handleObj;

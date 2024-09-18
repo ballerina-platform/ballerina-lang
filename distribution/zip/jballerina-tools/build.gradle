@@ -412,7 +412,7 @@ tasks.register('generateDocs', JavaExec) {
     outputs.dir("$buildDir/api-docs")
     outputs.cacheIf { true }
     systemProperty("ballerina.home", "$buildDir")
-    classpath = files(pathingJar.archivePath)
+    classpath = files(pathingJar.archiveFile)
     mainClass = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
     args("$buildDir/api-docs")
 }

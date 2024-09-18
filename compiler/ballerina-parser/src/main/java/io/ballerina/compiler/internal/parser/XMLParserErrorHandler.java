@@ -54,17 +54,15 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
 
     @Override
     protected boolean hasAlternativePaths(ParserRuleContext currentCtx) {
-        switch (currentCtx) {
-            case XML_CONTENT:
-            case XML_ATTRIBUTES:
-            case XML_START_OR_EMPTY_TAG_END:
-            case XML_ATTRIBUTE_VALUE_ITEM:
-            case XML_PI_TARGET_RHS:
-            case XML_OPTIONAL_CDATA_CONTENT:
-                return true;
-            default:
-                return false;
-        }
+        return switch (currentCtx) {
+            case XML_CONTENT,
+                 XML_ATTRIBUTES,
+                 XML_START_OR_EMPTY_TAG_END,
+                 XML_ATTRIBUTE_VALUE_ITEM,
+                 XML_PI_TARGET_RHS,
+                 XML_OPTIONAL_CDATA_CONTENT -> true;
+            default -> false;
+        };
     }
 
     @Override
@@ -167,29 +165,15 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
 
     private Result seekMatchInAlternativePaths(ParserRuleContext currentCtx, int lookahead, int currentDepth,
                                                int matchingRulesCount, boolean isEntryPoint) {
-        ParserRuleContext[] alternativeRules;
-        switch (currentCtx) {
-            case XML_CONTENT:
-                alternativeRules = XML_CONTENT;
-                break;
-            case XML_ATTRIBUTES:
-                alternativeRules = XML_ATTRIBUTES;
-                break;
-            case XML_START_OR_EMPTY_TAG_END:
-                alternativeRules = XML_START_OR_EMPTY_TAG_END;
-                break;
-            case XML_ATTRIBUTE_VALUE_ITEM:
-                alternativeRules = XML_ATTRIBUTE_VALUE_ITEM;
-                break;
-            case XML_PI_TARGET_RHS:
-                alternativeRules = XML_PI_TARGET_RHS;
-                break;
-            case XML_OPTIONAL_CDATA_CONTENT:
-                alternativeRules = XML_OPTIONAL_CDATA_CONTENT;
-                break;
-            default:
-                throw new IllegalStateException("seekMatchInExprRelatedAlternativePaths found: " + currentCtx);
-        }
+        ParserRuleContext[] alternativeRules = switch (currentCtx) {
+            case XML_CONTENT -> XML_CONTENT;
+            case XML_ATTRIBUTES -> XML_ATTRIBUTES;
+            case XML_START_OR_EMPTY_TAG_END -> XML_START_OR_EMPTY_TAG_END;
+            case XML_ATTRIBUTE_VALUE_ITEM -> XML_ATTRIBUTE_VALUE_ITEM;
+            case XML_PI_TARGET_RHS -> XML_PI_TARGET_RHS;
+            case XML_OPTIONAL_CDATA_CONTENT -> XML_OPTIONAL_CDATA_CONTENT;
+            default -> throw new IllegalStateException("seekMatchInExprRelatedAlternativePaths found: " + currentCtx);
+        };
 
         return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules, isEntryPoint);
     }
@@ -213,45 +197,35 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.LT_TOKEN;
             case LT_TOKEN:
                 ParserRuleContext parentCtx = getParentContext();
-                switch (parentCtx) {
-                    case XML_START_OR_EMPTY_TAG:
-                        return ParserRuleContext.XML_NAME;
-                    case XML_END_TAG:
-                        return ParserRuleContext.SLASH;
-                    default:
-                        throw new IllegalStateException(" < cannot exist in: " + parentCtx);
-                }
+                return switch (parentCtx) {
+                    case XML_START_OR_EMPTY_TAG -> ParserRuleContext.XML_NAME;
+                    case XML_END_TAG -> ParserRuleContext.SLASH;
+                    default -> throw new IllegalStateException(" < cannot exist in: " + parentCtx);
+                };
             case GT_TOKEN:
             case XML_PI_END:
                 endContext();
                 return ParserRuleContext.XML_CONTENT;
             case XML_NAME:
                 parentCtx = getParentContext();
-                switch (parentCtx) {
-                    case XML_START_OR_EMPTY_TAG:
-                        return ParserRuleContext.XML_ATTRIBUTES;
-                    case XML_END_TAG:
-                        return ParserRuleContext.GT_TOKEN;
-                    case XML_ATTRIBUTES:
-                        return ParserRuleContext.ASSIGN_OP;
-                    case XML_PI:
-                        return ParserRuleContext.XML_PI_TARGET_RHS;
-                    default:
-                        throw new IllegalStateException("XML name cannot exist in: " + parentCtx);
-                }
+                return switch (parentCtx) {
+                    case XML_START_OR_EMPTY_TAG -> ParserRuleContext.XML_ATTRIBUTES;
+                    case XML_END_TAG -> ParserRuleContext.GT_TOKEN;
+                    case XML_ATTRIBUTES -> ParserRuleContext.ASSIGN_OP;
+                    case XML_PI -> ParserRuleContext.XML_PI_TARGET_RHS;
+                    default -> throw new IllegalStateException("XML name cannot exist in: " + parentCtx);
+                };
             case SLASH:
                 parentCtx = getParentContext();
-                switch (parentCtx) {
-                    case XML_ATTRIBUTES:
+                return switch (parentCtx) {
+                    case XML_ATTRIBUTES -> {
                         endContext();
-                        return ParserRuleContext.GT_TOKEN;
-                    case XML_START_OR_EMPTY_TAG:
-                        return ParserRuleContext.GT_TOKEN;
-                    case XML_END_TAG:
-                        return ParserRuleContext.XML_NAME;
-                    default:
-                        throw new IllegalStateException("slash cannot exist in: " + parentCtx);
-                }
+                        yield ParserRuleContext.GT_TOKEN;
+                    }
+                    case XML_START_OR_EMPTY_TAG -> ParserRuleContext.GT_TOKEN;
+                    case XML_END_TAG -> ParserRuleContext.XML_NAME;
+                    default -> throw new IllegalStateException("slash cannot exist in: " + parentCtx);
+                };
             case ASSIGN_OP:
                 return ParserRuleContext.XML_QUOTE_START;
             case XML_ATTRIBUTE:
@@ -293,47 +267,30 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
 
     @Override
     protected SyntaxKind getExpectedTokenKind(ParserRuleContext context) {
-        switch (context) {
-            case LT_TOKEN:
-            case XML_START_OR_EMPTY_TAG:
-            case XML_END_TAG:
-                return SyntaxKind.LT_TOKEN;
-            case GT_TOKEN:
-                return SyntaxKind.GT_TOKEN;
-            case SLASH:
-                return SyntaxKind.SLASH_TOKEN;
-            case XML_KEYWORD:
-                return SyntaxKind.XML_KEYWORD;
-            case XML_NAME:
-                return SyntaxKind.IDENTIFIER_TOKEN;
-            case ASSIGN_OP:
-                return SyntaxKind.EQUAL_TOKEN;
-            case XML_START_OR_EMPTY_TAG_END:
-            case XML_ATTRIBUTES:
-                return SyntaxKind.GT_TOKEN;
-            case XML_CONTENT:
-            case XML_TEXT:
-                return SyntaxKind.BACKTICK_TOKEN;
-            case XML_COMMENT_START:
-                return SyntaxKind.XML_COMMENT_START_TOKEN;
-            case XML_COMMENT_CONTENT:
-                return SyntaxKind.XML_TEXT_CONTENT;
-            case XML_COMMENT_END:
-                return SyntaxKind.XML_COMMENT_END_TOKEN;
-            case XML_PI:
-            case XML_PI_START:
-                return SyntaxKind.XML_PI_START_TOKEN;
-            case XML_PI_END:
-                return SyntaxKind.XML_PI_END_TOKEN;
-            case XML_PI_DATA:
-                return SyntaxKind.XML_TEXT_CONTENT;
-            case XML_QUOTE_END:
-            case XML_QUOTE_START:
-                return SyntaxKind.DOUBLE_QUOTE_TOKEN;
-            case XML_CDATA_END:
-                return SyntaxKind.XML_CDATA_END_TOKEN;
-            default:
-                return SyntaxKind.NONE;
-        }
+        return switch (context) {
+            case LT_TOKEN,
+                 XML_START_OR_EMPTY_TAG,
+                 XML_END_TAG -> SyntaxKind.LT_TOKEN;
+            case GT_TOKEN -> SyntaxKind.GT_TOKEN;
+            case SLASH -> SyntaxKind.SLASH_TOKEN;
+            case XML_KEYWORD -> SyntaxKind.XML_KEYWORD;
+            case XML_NAME -> SyntaxKind.IDENTIFIER_TOKEN;
+            case ASSIGN_OP -> SyntaxKind.EQUAL_TOKEN;
+            case XML_START_OR_EMPTY_TAG_END,
+                 XML_ATTRIBUTES -> SyntaxKind.GT_TOKEN;
+            case XML_CONTENT,
+                 XML_TEXT -> SyntaxKind.BACKTICK_TOKEN;
+            case XML_COMMENT_START -> SyntaxKind.XML_COMMENT_START_TOKEN;
+            case XML_COMMENT_CONTENT -> SyntaxKind.XML_TEXT_CONTENT;
+            case XML_COMMENT_END -> SyntaxKind.XML_COMMENT_END_TOKEN;
+            case XML_PI,
+                 XML_PI_START -> SyntaxKind.XML_PI_START_TOKEN;
+            case XML_PI_END -> SyntaxKind.XML_PI_END_TOKEN;
+            case XML_PI_DATA -> SyntaxKind.XML_TEXT_CONTENT;
+            case XML_QUOTE_END,
+                 XML_QUOTE_START -> SyntaxKind.DOUBLE_QUOTE_TOKEN;
+            case XML_CDATA_END -> SyntaxKind.XML_CDATA_END_TOKEN;
+            default -> SyntaxKind.NONE;
+        };
     }
 }

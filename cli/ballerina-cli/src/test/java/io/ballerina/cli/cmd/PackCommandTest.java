@@ -45,6 +45,7 @@ public class PackCommandTest extends BaseCommandTest {
     private static final Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
             .toAbsolutePath();
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();

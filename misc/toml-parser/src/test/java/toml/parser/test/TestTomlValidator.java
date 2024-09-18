@@ -33,8 +33,12 @@ import java.nio.file.Paths;
  *
  * @since 2.0.0
  */
-public class TestTomlValidator {
+public final class TestTomlValidator {
+
     private static final PrintStream OUT = System.out;
+
+    private TestTomlValidator() {
+    }
 
     public static void main(String [] args) throws IOException {
         Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "sample-schema.json");

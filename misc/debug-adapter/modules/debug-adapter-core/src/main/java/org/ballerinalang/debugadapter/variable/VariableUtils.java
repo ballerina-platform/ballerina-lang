@@ -37,7 +37,7 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationException.crea
 /**
  * JDI-based debug variable implementation related utilities.
  */
-public class VariableUtils {
+public final class VariableUtils {
 
     public static final String FIELD_TYPE = "type";
     public static final String FIELD_TYPENAME = "typeName";
@@ -58,6 +58,9 @@ public class VariableUtils {
     public static final String INTERNAL_TYPE_PREFIX = "io.ballerina.runtime.internal.types.";
     public static final String INTERNAL_TYPE_REF_TYPE = "BTypeReferenceType";
     public static final String INTERNAL_TYPE_INTERSECTION_TYPE = "BIntersectionType";
+
+    private VariableUtils() {
+    }
 
     /**
      * Returns the corresponding ballerina variable type of a given ballerina backend jvm variable instance.
@@ -470,10 +473,10 @@ public class VariableUtils {
      */
     public static Value getChildVarByName(BVariable variable, String childVarName) throws DebugVariableException,
             EvaluationException {
-        if (variable instanceof IndexedCompoundVariable) {
-            return ((IndexedCompoundVariable) variable).getChildByName(childVarName);
-        } else if (variable instanceof NamedCompoundVariable) {
-            return ((NamedCompoundVariable) variable).getChildByName(childVarName);
+        if (variable instanceof IndexedCompoundVariable indexedCompoundVariable) {
+            return indexedCompoundVariable.getChildByName(childVarName);
+        } else if (variable instanceof NamedCompoundVariable namedCompoundVariable) {
+            return namedCompoundVariable.getChildByName(childVarName);
         } else {
             throw createEvaluationException("Field access is not allowed for Ballerina simple types.");
         }

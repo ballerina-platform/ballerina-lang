@@ -206,19 +206,11 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     
     private void createServiceFile(String interfaceName, List<String> implClasses) {
         Filer filer = this.processingEnv.getFiler();
-        Writer writer = null;
-        try {
-            writer = filer.createResource(StandardLocation.CLASS_OUTPUT, "", JAVA_SPI_SERVICES_BASE_PATH + 
-                    interfaceName).openWriter();
+        try (Writer writer = filer.createResource(StandardLocation.CLASS_OUTPUT, "", JAVA_SPI_SERVICES_BASE_PATH +
+            interfaceName).openWriter()) {
             writer.write(String.join("\n", implClasses));
         } catch (IOException e) {
             throw new RuntimeException("Error creating Java SPI services file: " + e.getMessage(), e);
-        } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException ignore) { }
-            }
         }
     }
     
@@ -262,7 +254,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     /**
      * @since 0.94
      */
-    private class NativeFunctionCodeDef implements NativeElementCodeDef {
+    private static class NativeFunctionCodeDef implements NativeElementCodeDef {
 
         public String org;
 
@@ -298,7 +290,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     /**
      * @since 0.94
      */
-    private class NativeActionCodeDef extends NativeFunctionCodeDef {
+    private static class NativeActionCodeDef extends NativeFunctionCodeDef {
         
         public String connectorName;
         

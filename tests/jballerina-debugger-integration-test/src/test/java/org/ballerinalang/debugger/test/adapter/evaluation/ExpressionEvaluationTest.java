@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
  */
 public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
+    @Override
     @BeforeClass(alwaysRun = true)
     public void setup() throws BallerinaTestException {
         prepareForEvaluation();
@@ -920,6 +921,7 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
                 "168", "int");
     }
 
+    @Override
     @AfterClass(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

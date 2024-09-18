@@ -75,7 +75,7 @@ import static io.ballerina.runtime.api.TypeTags.XML_ELEMENT_TAG;
  *
  * @since 2.0.0-preview1
  */
-public class VariableReturnType {
+public final class VariableReturnType {
 
     private static final BString NAME = new BmpStringValue("name");
     private static final BString AGE = new BmpStringValue("age");
@@ -84,6 +84,9 @@ public class VariableReturnType {
     private static final BString JOHN_DOE = new BmpStringValue("John Doe");
     private static final BString JANE_DOE = new BmpStringValue("Jane Doe");
     private static final BString SOFTWARE_ENGINEER = new BmpStringValue("Software Engineer");
+
+    private VariableReturnType() {
+    }
 
     public static Object echo(BValue value, BTypedesc td) {
         return value;
@@ -295,13 +298,11 @@ public class VariableReturnType {
     public static Object get(ObjectValue objectValue, BTypedesc td) {
         Type describingType = td.getDescribingType();
 
-        switch (describingType.getTag()) {
-            case INT_TAG:
-                return objectValue.getIntValue(StringUtils.fromString("a"));
-            case STRING_TAG:
-                return objectValue.getStringValue(StringUtils.fromString("b"));
-        }
-        return objectValue.get(StringUtils.fromString("c"));
+        return switch (describingType.getTag()) {
+            case INT_TAG -> objectValue.getIntValue(StringUtils.fromString("a"));
+            case STRING_TAG -> objectValue.getStringValue(StringUtils.fromString("b"));
+            default -> objectValue.get(StringUtils.fromString("c"));
+        };
     }
 
     public static Object getIntFieldOrDefault(ObjectValue objectValue, BTypedesc td) {

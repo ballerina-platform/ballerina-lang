@@ -46,7 +46,10 @@ import java.util.stream.Collectors;
  *
  * @since 2201.1.1
  */
-public class NameUtil {
+public final class NameUtil {
+
+    private NameUtil() {
+    }
 
     /**
      * Generates a random name.
@@ -87,18 +90,11 @@ public class NameUtil {
                 name = typeSymbol.getName().get();
             } else {
                 TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
-                switch (rawType.typeKind()) {
-                    case RECORD:
-                        name = "mappingResult";
-                        break;
-                    case TUPLE:
-                    case ARRAY:
-                        name = "listResult";
-                        break;
-                    default:
-                        name = rawType.typeKind().getName() + "Result";
-                        break;
-                }
+                name = switch (rawType.typeKind()) {
+                    case RECORD -> "mappingResult";
+                    case TUPLE, ARRAY -> "listResult";
+                    default -> rawType.typeKind().getName() + "Result";
+                };
             }
             return generateVariableName(1, name, names);
         } else {

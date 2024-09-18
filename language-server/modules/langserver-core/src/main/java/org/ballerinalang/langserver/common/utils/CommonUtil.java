@@ -86,7 +86,7 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.SLASH_KEYWORD
 /**
  * Common utils to be reused in language server implementation.
  */
-public class CommonUtil {
+public final class CommonUtil {
 
     public static final String MD_LINE_SEPARATOR = "  " + System.lineSeparator();
 

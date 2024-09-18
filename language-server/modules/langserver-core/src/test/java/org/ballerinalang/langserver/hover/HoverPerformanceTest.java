@@ -39,6 +39,7 @@ public class HoverPerformanceTest extends HoverProviderTest {
 
     private final List<Long> executionTimes = new ArrayList<>();
 
+    @Override
     @Test(description = "Test Hover provider", dataProvider = "hover-data-provider", enabled = false)
     public void testHover(String config) throws IOException {
         // We run the same test multiple times and take the average of them as the execution time. This is to

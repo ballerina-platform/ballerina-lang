@@ -36,6 +36,7 @@ import java.util.List;
 @Test
 public class FindModulePrefixRefsTest extends FindAllReferencesTest {
 
+    @Override
     @BeforeClass
     public void setup() {
         CompileResult compileResult = BCompileUtil.compileAndCacheBala("test-src/testproject");
@@ -46,6 +47,7 @@ public class FindModulePrefixRefsTest extends FindAllReferencesTest {
         super.setup();
     }
 
+    @Override
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{

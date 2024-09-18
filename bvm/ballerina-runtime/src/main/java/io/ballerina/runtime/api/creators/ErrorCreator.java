@@ -38,9 +38,12 @@ import io.ballerina.runtime.internal.values.ValueCreator;
  *
  * @since 2.0.0
  */
-public class ErrorCreator {
+public final class ErrorCreator {
 
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
+
+    private ErrorCreator() {
+    }
 
     /**
      * Create an error with given reason.
@@ -138,8 +141,8 @@ public class ErrorCreator {
      * @return new error
      */
     public static BError createError(Throwable error) {
-        if (error instanceof BError) {
-            return (BError) error;
+        if (error instanceof BError bError) {
+            return bError;
         }
         BError bError = createError(StringUtils.fromString(error.toString()));
         bError.setStackTrace(error.getStackTrace());

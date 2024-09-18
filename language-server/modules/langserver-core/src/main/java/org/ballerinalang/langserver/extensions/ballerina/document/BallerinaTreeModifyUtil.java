@@ -52,7 +52,7 @@ import java.util.regex.Matcher;
  *
  * @since 1.3.0
  */
-public class BallerinaTreeModifyUtil {
+public final class BallerinaTreeModifyUtil {
 
     private static final String DELETE = "delete";
     private static final String IMPORT = "import";

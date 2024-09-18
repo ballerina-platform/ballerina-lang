@@ -395,6 +395,30 @@ function testInclusionWithDifferentParamNames() {
     assertEquality(6, subClass.subtract(8, 2));
 }
 
+public type ClientObject client object {
+    isolated remote function execute(string aVar, int bVar) returns int|error;
+};
+
+client class ClientClass {
+    *ClientObject;
+    
+    isolated remote function execute(string aVar, int bVar) returns int|error {
+        return check int:fromString(aVar) + bVar;
+    }
+}
+
+function testInclusionWithRemoteMethods() {
+    ClientObject cOb = new ClientClass();
+    int|error r1 = cOb->execute("10", 5);
+    assertEquality(15, r1);
+
+    int|error r2 = cOb->execute("10s", 5);
+    assertEquality(true, r2 is error);
+    error err = <error> r2;
+    assertEquality("{ballerina/lang.int}NumberParsingError", err.message());
+    assertEquality("'string' value '10s' cannot be converted to 'int'", err.detail()["message"]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

@@ -35,6 +35,7 @@ public class DependencyEvaluationTest extends BaseTestCase {
 
     protected DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass(alwaysRun = true)
     public void setup() throws BallerinaTestException {
         String testProjectName = "evaluation-tests-2";
@@ -66,6 +67,7 @@ public class DependencyEvaluationTest extends BaseTestCase {
                 "select j select i", "int[3]", "array");
     }
 
+    @Override
     @AfterClass(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

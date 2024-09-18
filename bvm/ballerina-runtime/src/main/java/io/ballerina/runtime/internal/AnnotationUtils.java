@@ -39,7 +39,10 @@ import io.ballerina.runtime.internal.values.MapValue;
  *
  * @since 0.995.0
  */
-public class AnnotationUtils {
+public final class AnnotationUtils {
+
+    private AnnotationUtils() {
+    }
 
     /**
      * Method to retrieve annotations of the type from the global annotation map and set it to the type.
@@ -48,11 +51,9 @@ public class AnnotationUtils {
      * @param bType          The type for which annotations need to be set
      */
     public static void processAnnotations(MapValue globalAnnotMap, Type bType) {
-        if (!(bType instanceof BAnnotatableType)) {
+        if (!(bType instanceof BAnnotatableType type)) {
             return;
         }
-
-        BAnnotatableType type = (BAnnotatableType) bType;
 
         BString annotationKey = StringUtils.fromString(type.getAnnotationKey());
         if (globalAnnotMap.containsKey(annotationKey)) {
@@ -105,8 +106,7 @@ public class AnnotationUtils {
         for (MethodType attachedFunction : bType.getMethods()) {
             processObjectMethodLambdaAnnotation(globalAnnotMap, strand, attachedFunction);
         }
-        if (bType instanceof BServiceType) {
-            var serviceType = (BServiceType) bType;
+        if (bType instanceof BServiceType serviceType) {
             for (var resourceFunction : serviceType.getResourceMethods()) {
                 processObjectMethodLambdaAnnotation(globalAnnotMap, strand, resourceFunction);
             }

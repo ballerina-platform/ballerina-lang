@@ -42,6 +42,7 @@ public class DebugOutputTest extends BaseTestCase {
 
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "debug-output-tests";
@@ -92,6 +93,7 @@ public class DebugOutputTest extends BaseTestCase {
                 "'localhost:"));
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

@@ -39,7 +39,10 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyO
  *
  * @since 1.0
  */
-public class Sort {
+public final class Sort {
+
+    private Sort() {
+    }
 
     public static BArray sort(BArray arr, Object direction, Object func) {
         checkIsArrayOnlyOperation(TypeUtils.getImpliedType(arr.getType()), "sort()");

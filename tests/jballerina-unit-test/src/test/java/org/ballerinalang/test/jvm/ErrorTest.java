@@ -79,7 +79,7 @@ public class ErrorTest {
         BRunUtil.invoke(compileResult, "testSelfReferencingError");
     }
 
-    @Test(description = "Test runtime out of memory error", expectedExceptions = java.lang.RuntimeException.class,
+    @Test(description = "Test runtime out of memory error", expectedExceptions = RuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina}OutOfMemoryError \\{\"message\":\"Java heap " +
                     "space\"}.*")
     public void testRuntimeOOMError() {

@@ -36,6 +36,7 @@ public class BallerinaTestRemoteDebugTest extends BaseTestCase {
     private BMainInstance balClient;
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() throws BallerinaTestException {
         String testProjectName = "basic-project";
@@ -54,6 +55,7 @@ public class BallerinaTestRemoteDebugTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();
