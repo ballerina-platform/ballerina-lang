@@ -17,9 +17,6 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.internal.values.ValueCreator;
-
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * This class represents the Ballerina runtime that is created using a classloader for internal purposes.

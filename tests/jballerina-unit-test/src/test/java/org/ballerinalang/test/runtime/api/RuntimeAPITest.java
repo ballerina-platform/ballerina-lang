@@ -71,10 +71,11 @@ public class RuntimeAPITest {
         AtomicReference<Throwable> exceptionRef = new AtomicReference<>();
         Thread thread1 = Thread.ofVirtual().unstarted(() -> {
             try {
-                BRunUtil.invoke(strandResult,"main");
+                BRunUtil.invoke(strandResult, "main");
             } catch (Throwable e) {
                 exceptionRef.set(e);
-            }});
+            }
+        });
         Thread thread2 = Thread.ofVirtual().unstarted(() -> {
             try {
                 Thread.sleep(2000);

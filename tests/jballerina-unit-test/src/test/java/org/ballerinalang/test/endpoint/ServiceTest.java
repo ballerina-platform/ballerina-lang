@@ -23,7 +23,6 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.BRunUtil.ExitDetails;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
