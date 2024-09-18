@@ -597,7 +597,7 @@ public class TypesTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}JSONOperationError \\{\"message\":\"JSON value " +
                     "is not " +
                     "a mapping\"\\}\n" +
-                    "\tat types:testGetFromNull\\(types.bal:596\\)")
+                    "\tat types:testGetFromNull\\(types.bal:595\\)")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }
