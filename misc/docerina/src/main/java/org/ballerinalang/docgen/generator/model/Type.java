@@ -216,7 +216,7 @@ public class Type {
         } else if (node instanceof ArrayTypeDescriptorNode) {
             ArrayTypeDescriptorNode arrayTypeDescriptorNode = (ArrayTypeDescriptorNode) node;
             type.isArrayType = true;
-            type.arrayDimensions = 1;
+            type.arrayDimensions = arrayTypeDescriptorNode.dimensions().size();
             type.elementType = fromNode(arrayTypeDescriptorNode.memberTypeDesc(), semanticModel, module);
         } else if (node instanceof OptionalTypeDescriptorNode) {
             OptionalTypeDescriptorNode optionalTypeDescriptorNode = (OptionalTypeDescriptorNode) node;
