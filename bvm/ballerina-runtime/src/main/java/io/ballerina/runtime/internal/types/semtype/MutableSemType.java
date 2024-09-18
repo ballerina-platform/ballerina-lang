@@ -16,8 +16,9 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.api.types.semtype;
+package io.ballerina.runtime.internal.types.semtype;
 
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.BType;
 
 public sealed interface MutableSemType permits BType {
