@@ -203,7 +203,7 @@ public final class JvmCodeGenUtil {
         objectType = getImpliedType(objectType);
         String typeName = objectType.tsymbol.name.value;
         Name originalName = objectType.tsymbol.originalName;
-        if (!typeName.isEmpty() && value.startsWith(typeName)) {
+        if (value.startsWith(typeName)) {
             // The call name will be in the format of`objectTypeName.funcName` for attached functions of imported
             // modules. Therefore, We need to remove the type name.
             value = value.replace(typeName + ".", "").trim();
