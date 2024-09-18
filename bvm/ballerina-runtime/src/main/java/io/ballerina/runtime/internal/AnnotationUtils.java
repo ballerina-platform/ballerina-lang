@@ -108,7 +108,7 @@ public final class AnnotationUtils {
             processObjectMethodLambdaAnnotation(globalAnnotMap, strand, attachedFunction);
         }
         if (bType instanceof BServiceType serviceType) {
-            for (var resourceFunction : serviceType.getResourceMethods()) {
+            for (ResourceMethodType resourceFunction : serviceType.getResourceMethods()) {
                 processObjectMethodLambdaAnnotation(globalAnnotMap, strand, resourceFunction);
             }
         }

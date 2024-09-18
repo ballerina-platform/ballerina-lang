@@ -30,6 +30,8 @@ import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.RegExpValue;
 import io.ballerina.runtime.internal.values.TableValue;
 
+import java.util.Map;
+
 import static io.ballerina.runtime.internal.CycleUtils.Node;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR;
 
@@ -70,7 +72,7 @@ public final class TableUtils {
             Type refType = TypeUtils.getImpliedType(refValue.getType());
             if (refType.getTag() == TypeTags.MAP_TAG || refType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                 MapValue<?, ?> mapValue = (MapValue<?, ?>) refValue;
-                for (var entry : mapValue.entrySet()) {
+                for (Map.Entry<?, ?> entry : mapValue.entrySet()) {
                     result = 31 * result + hash(entry.getKey(), node) +
                             (entry.getValue() == null ? 0 : hash(entry.getValue(),
                                     node));

@@ -245,7 +245,7 @@ public final class PredefinedTypes {
         ArrayList<Type> members = new ArrayList<>();
         members.add(TYPE_XML);
         members.add(TYPE_READONLY);
-        var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
+        Module valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
         BUnionType cloneable = new BUnionType(TypeConstants.CLONEABLE_TNAME, valueModule, members, false);
         cloneable.isCyclic = true;
         MapType internalCloneableMap = new BMapType(TypeConstants.MAP_TNAME, cloneable, valueModule);
@@ -266,7 +266,7 @@ public final class PredefinedTypes {
         members.add(TYPE_BOOLEAN);
         members.add(TYPE_STRING);
         members.add(TYPE_DECIMAL);
-        var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
+        Module valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
         BUnionType jsonDecimal = new BUnionType(TypeConstants.JSON_DECIMAL_TNAME, valueModule, members, false);
         jsonDecimal.isCyclic = true;
         MapType internalJsonDecimalMap = new BMapType(TypeConstants.MAP_TNAME, jsonDecimal, valueModule);
@@ -282,7 +282,7 @@ public final class PredefinedTypes {
         members.add(TYPE_BOOLEAN);
         members.add(TYPE_STRING);
         members.add(TYPE_FLOAT);
-        var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
+        Module valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
         BUnionType jsonFloat = new BUnionType(TypeConstants.JSON_FLOAT_TNAME, valueModule, members, false);
         jsonFloat.isCyclic = true;
         MapType internalJsonFloatMap = new BMapType(TypeConstants.MAP_TNAME, jsonFloat, valueModule);

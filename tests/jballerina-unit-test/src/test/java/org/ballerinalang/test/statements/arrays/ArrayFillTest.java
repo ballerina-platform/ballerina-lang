@@ -202,8 +202,9 @@ public class ArrayFillTest {
 
     @Test
     public void testMapArrayFill() {
-        var emptyMap = ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANY));
-        var map = ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANY));
+        BMap<BString, Object> emptyMap =
+                ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANY));
+        BMap<BString, Object> map = ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANY));
         map.put(StringUtils.fromString("1"), 1);
         Object[] args = new Object[]{(index), map};
         Object returns = BRunUtil.invoke(compileResult, "testMapArrayFill", args);

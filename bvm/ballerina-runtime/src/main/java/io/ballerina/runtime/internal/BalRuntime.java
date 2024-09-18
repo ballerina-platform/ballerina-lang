@@ -224,7 +224,7 @@ public class BalRuntime extends Runtime {
             AsyncUtils.getArgsWithDefaultValues(scheduler, objectVal, methodName, new Callback() {
                 @Override
                 public void notifySuccess(Object result) {
-                    var func = getFunction((Object[]) result, objectVal, methodName);
+                    Function<Object[], Object> func = getFunction((Object[]) result, objectVal, methodName);
                     scheduler.schedule(new Object[1], func, future);
                 }
 
@@ -281,7 +281,7 @@ public class BalRuntime extends Runtime {
             AsyncUtils.getArgsWithDefaultValues(scheduler, objectVal, methodName, new Callback() {
                 @Override
                 public void notifySuccess(Object result) {
-                    var func = getFunction((Object[]) result, objectVal, methodName);
+                    Function<Object[], Object> func = getFunction((Object[]) result, objectVal, methodName);
                     if (isIsolated) {
                         scheduler.schedule(new Object[1], func, future);
                     } else {

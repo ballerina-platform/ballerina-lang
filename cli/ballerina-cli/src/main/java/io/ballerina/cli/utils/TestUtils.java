@@ -123,7 +123,7 @@ public final class TestUtils {
                     coverageModules.get(module.moduleName().toString()), exclusionClassList);
         }
         // Traverse coverage map and add module wise coverage to test report
-        for (var mapElement : moduleCoverageMap.entrySet()) {
+        for (Map.Entry<String, ModuleCoverage> mapElement : moduleCoverageMap.entrySet()) {
             String moduleName = mapElement.getKey();
             ModuleCoverage moduleCoverage = mapElement.getValue();
             testReport.addCoverage(moduleName, moduleCoverage);

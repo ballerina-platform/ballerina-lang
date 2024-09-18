@@ -53,7 +53,8 @@ public final class ErrorHelper {
         MappingInitialValueEntry[] initialValues = new MappingInitialValueEntry[1];
         initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD, StringUtils
                 .fromString(MessageFormat.format(messageBundle.getString(errorCodes.messageKey()), params)));
-        var errorDetail = new MapValueImpl<BString, Object>(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
+        MapValueImpl<BString, Object> errorDetail =
+                new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
         return ErrorCreator.createError(reason, errorDetail);
     }
 
