@@ -75,7 +75,7 @@ public class BStreamSubType extends SubType implements DelegatedSubType {
         // as `[any|error...]` rather than `[any|error, any|error]`.
         b = b.posMaybeEmpty() ? (Bdd) b.intersect(Builder.listSubtypeTwoElement()) : b;
         return cx.memoSubtypeIsEmpty(cx.listMemo,
-                (context, bdd) -> bddEvery(context, bdd, null, null, BListSubType::listFormulaIsEmpty), b);
+                (context, bdd) -> bddEvery(context, bdd, BListSubType::listFormulaIsEmpty), b);
     }
 
     @Override
