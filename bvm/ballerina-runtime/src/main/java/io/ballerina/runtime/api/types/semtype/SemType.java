@@ -2,6 +2,7 @@ package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.semtype.ImmutableSemType;
+import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 import io.ballerina.runtime.internal.types.semtype.SemTypeHelper;
 
 import java.util.Map;
