@@ -19,9 +19,6 @@ package org.ballerinalang.langserver;
 
 import com.google.gson.Gson;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageRepository;
@@ -29,8 +26,8 @@ import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
-import org.ballerinalang.langserver.extensions.ballerina.connector.CentralPackageListResult;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -44,6 +41,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +60,8 @@ public abstract class AbstractLSTest {
     private static final List<LSPackageLoader.ModuleInfo> LOCAL_PACKAGES = new ArrayList<>();
     private static final List<LSPackageLoader.ModuleInfo> CENTRAL_PACKAGES = new ArrayList<>();
     private static final List<LSPackageLoader.ModuleInfo> DISTRIBUTION_PACKAGES = new ArrayList<>();
+    private static final Map<String, List<ServiceTemplateGenerator.IndexedListenerMetaData>>
+            LISTENER_METADATA_MAP = new HashMap<>();
 
     private Endpoint serviceEndpoint;
 
@@ -84,6 +84,7 @@ public abstract class AbstractLSTest {
                     .toList());
             DISTRIBUTION_PACKAGES.addAll(mockDistRepoPackages(LSPackageLoader.getInstance(context)));
             mockCentralPackages();
+            mockLSListenerMetaDataMap();
         } catch (Exception e) {
             //ignore
         } finally {
@@ -94,14 +95,31 @@ public abstract class AbstractLSTest {
     private static void mockCentralPackages() {
         try {
             FileReader fileReader = new FileReader(FileUtils.RES_DIR.resolve("central/centralPackages.json").toFile());
-            List<org.ballerinalang.central.client.model.Package> packages =
-                    GSON.fromJson(fileReader, CentralPackageListResult.class).getPackages();
-            packages.forEach(packageInfo -> {
-                PackageOrg packageOrg = PackageOrg.from(packageInfo.getOrganization());
-                PackageName packageName = PackageName.from(packageInfo.getName());
-                PackageVersion packageVersion = PackageVersion.from(packageInfo.getVersion());
-                CENTRAL_PACKAGES.add(new LSPackageLoader.ModuleInfo(packageOrg, packageName, packageVersion, null));
-            });
+            List<LSPackageLoader.ModuleInfo> packages = GSON.fromJson(fileReader,
+                    CentralPackageDescriptorLoader.CentralPackageGraphQLResponse.class).data().packages().packages();
+            CENTRAL_PACKAGES.addAll(packages);
+        } catch (Exception e) {
+            //ignore
+        }
+    }
+
+    private static void mockLSListenerMetaDataMap() {
+        try {
+            FileReader fileReader = new FileReader(
+                    FileUtils.RES_DIR.resolve("ls_package_index/LS-INDEX-2201.10.0.json").toFile());
+            LSPackageLoader.LSListenerIndex lsListenerIndex = GSON.fromJson(fileReader,
+                    LSPackageLoader.LSListenerIndex.class);
+
+            for (LSPackageLoader.LSPackage lsPackage : lsListenerIndex.ballerina()) {
+                String qulName = lsPackage.orgName() + ":" + lsPackage.module();
+                LISTENER_METADATA_MAP.put(qulName,
+                        ServiceTemplateGenerator.generateIndexedListenerMetaData(lsPackage));
+            }
+            for (LSPackageLoader.LSPackage lsPackage : lsListenerIndex.ballerinax()) {
+                String qulName = lsPackage.orgName() + ":" + lsPackage.module();
+                LISTENER_METADATA_MAP.put(qulName,
+                        ServiceTemplateGenerator.generateIndexedListenerMetaData(lsPackage));
+            }
         } catch (Exception e) {
             //ignore
         }
@@ -134,6 +152,7 @@ public abstract class AbstractLSTest {
         Mockito.when(this.lsPackageLoader.getLocalRepoModules()).thenReturn(LOCAL_PACKAGES);
         Mockito.when(this.lsPackageLoader.getCentralPackages()).thenReturn(CENTRAL_PACKAGES);
         Mockito.when(this.lsPackageLoader.getDistributionRepoModules()).thenReturn(DISTRIBUTION_PACKAGES);
+        Mockito.when(this.lsPackageLoader.getCachedListenerMetaData()).thenReturn(LISTENER_METADATA_MAP);
         Mockito.when(this.lsPackageLoader.checkAndResolvePackagesFromRepository(Mockito.any(), Mockito.any(),
                 Mockito.any())).thenCallRealMethod();
         Mockito.doNothing().when(this.lsPackageLoader).loadModules(Mockito.any());

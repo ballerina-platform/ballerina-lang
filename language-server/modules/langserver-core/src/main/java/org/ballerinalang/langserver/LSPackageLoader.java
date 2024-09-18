@@ -15,13 +15,14 @@
  */
 package org.ballerinalang.langserver;
 
+import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PackageDependencyScope;
-import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
@@ -30,8 +31,6 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageRepository;
-import io.ballerina.projects.environment.ResolutionOptions;
-import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
@@ -47,8 +46,16 @@ import org.eclipse.lsp4j.WorkDoneProgressEnd;
 import org.eclipse.lsp4j.WorkDoneProgressReport;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -70,12 +77,23 @@ public class LSPackageLoader {
 
     public static final LanguageServerContext.Key<LSPackageLoader> LS_PACKAGE_LOADER_KEY =
             new LanguageServerContext.Key<>();
+    private static final Path BALLERINA_USER_HOME_INDEX = Path.of(System.getProperty("user.home"))
+            .resolve(".ballerina")
+            .resolve(".config")
+            .resolve("ls-index-" + RepoUtils.getBallerinaVersion() + ".json");
+
+    private static final Path BALLERINA_HOME_INDEX = Path.of(System.getProperty("ballerina.home"))
+            .resolve("resources")
+            .resolve("ls-index")
+            .resolve("ls-index-" + RepoUtils.getBallerinaVersion() + ".json");
 
     private List<ModuleInfo> distRepoPackages = new ArrayList<>();
     private final List<ModuleInfo> remoteRepoPackages = new ArrayList<>();
     private final List<ModuleInfo> localRepoPackages = new ArrayList<>();
     private List<ModuleInfo> centralPackages = new ArrayList<>();
     private final LSClientLogger clientLogger;
+    private Map<String, List<ServiceTemplateGenerator.IndexedListenerMetaData>>
+            cachedListenerMetaData = new HashMap<>();
 
     ExtendedLanguageClient languageClient;
 
@@ -150,7 +168,7 @@ public class LSPackageLoader {
                 this.localRepoPackages.addAll(checkAndResolvePackagesFromRepository(localRepository,
                         Collections.emptyList(), distRepoModuleIdentifiers));
 
-                //Load modules from remote repo
+//                Load modules from remote repo
                 PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
                 Set<String> loadedModules = new HashSet<>();
                 loadedModules.addAll(distRepoModuleIdentifiers);
@@ -168,6 +186,11 @@ public class LSPackageLoader {
                 repoPackages.addAll(this.getLocalRepoModules());
                 repoPackages.stream().filter(packageInfo -> !packagesList.containsKey(packageInfo.packageIdentifier()))
                         .forEach(packageInfo -> packagesList.put(packageInfo.packageIdentifier(), packageInfo));
+                try {
+                    this.loadListeners();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }).thenRunAsync(() -> {
                 WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
                 workDoneProgressCreateParams.setToken(taskId);
@@ -263,16 +286,16 @@ public class LSPackageLoader {
                     packageInstance.packageVersion(), packageInstance.project().sourceRoot());
             moduleInfo.setModuleFromCurrentPackage(true);
             Optional<Module> currentModule = ctx.currentModule();
-            String packageName = moduleInfo.packageName().value();
+            String packageName = moduleInfo.packageName();
             String moduleName = module.descriptor().name().moduleNamePart();
             String qualifiedModName = packageName + Names.DOT + moduleName;
             if (currentModule.isEmpty() || module.isDefaultModule() || module.equals(currentModule.get()) ||
                     ModuleUtil.matchingImportedModule(ctx, "", qualifiedModName).isPresent()) {
                 return;
             } else {
-                moduleInfo.packageName = PackageName.from(packageName + "." + moduleName);
+                moduleInfo.packageName = packageName + "." + moduleName;
             }
-            packagesList.put(moduleInfo.packageName.value(), moduleInfo);
+            packagesList.put(moduleInfo.packageName, moduleInfo);
         });
         return new ArrayList<>(packagesList.values());
     }
@@ -314,20 +337,7 @@ public class LSPackageLoader {
                 if (loadedPackages.contains(packageIdentifier)) {
                     return;
                 }
-                PackageVersion pkgVersion = PackageVersion.from(version);
-
-                try {
-                    PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
-                    ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
-
-                    Optional<Package> repoPackage = repository.getPackage(request,
-                            ResolutionOptions.builder().setOffline(true).build());
-                    repoPackage.ifPresent(pkg -> packages.add(new ModuleInfo(pkg)));
-                } catch (Throwable e) {
-                    clientLogger.logTrace("Failed to resolve package "
-                            + packageOrg + (!packageOrg.value().isEmpty() ? "/" : "" 
-                            + packageName + ":" + pkgVersion));
-                }
+                packages.add(new ModuleInfo(key, nameComponent, version));
             });
 
         });
@@ -350,35 +360,175 @@ public class LSPackageLoader {
         return moduleInfos;
     }
 
+    public record LSListenerIndex(List<LSPackage> ballerina, List<LSPackage> ballerinax) {
+    }
+
+    public record LSPackage(@SerializedName(value = "organization") String orgName,
+                            @SerializedName(value = "name") String module, String version, List<LSListener> listeners) {
+    }
+
+    public record LSListener(String name, List<Parameter> parameters, List<Record> records) {
+    }
+
+    public record Parameter(String name, String type, String category) {
+    }
+
+    public record Record(String name, List<Field> fields) {
+    }
+
+    public record Field(String name, String type, String category) {
+    }
+
+    public Map<String, List<ServiceTemplateGenerator.IndexedListenerMetaData>> getCachedListenerMetaData() {
+        return cachedListenerMetaData;
+    }
+
+    private static String getFileChecksum(String filePath) throws Exception {
+        FileInputStream fileInputStream = new FileInputStream(filePath);
+
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+        byte[] buffer = new byte[1024];
+
+        int n = 0;
+        while ((n = fileInputStream.read(buffer)) != -1) {
+            messageDigest.update(buffer, 0, n);
+        }
+
+        byte[] checksumBytes = messageDigest.digest();
+        StringBuilder checksum = new StringBuilder();
+        for (byte b : checksumBytes) {
+            checksum.append(String.format("%02x", b & 0xff));
+        }
+        return checksum.toString();
+    }
+
+    private void loadListeners() throws Exception {
+        // Read the listener file from the ballerina user home
+        if (Files.exists(BALLERINA_USER_HOME_INDEX)) {
+            LSListenerIndex lsListenerIndex;
+            String userHomeIndexFileChecksum = getFileChecksum(BALLERINA_USER_HOME_INDEX.toString());
+            String payload = "";
+            try {
+                String expectedCheckSum = this.centralPackageDescriptorLoader.getLSPackageIndexChecksum();
+                if (!userHomeIndexFileChecksum.equals(expectedCheckSum)) {
+                    // Download the file from the central and load the listeners
+                    payload = this.centralPackageDescriptorLoader.getLSPackageIndex();
+                    lsListenerIndex = new Gson().fromJson(payload, LSListenerIndex.class);
+                    saveLSPackageIndexInBallerinaUserHome(payload);
+                } else {
+                    lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(BALLERINA_USER_HOME_INDEX),
+                            LSListenerIndex.class);
+                }
+                cacheListenerMetaData(lsListenerIndex);
+                return;
+            } catch (Exception ignore) {
+            }
+        }
+        if (Files.exists(BALLERINA_HOME_INDEX)) {
+            LSListenerIndex lsListenerIndex;
+            String payload = "";
+            String ballerinaHomeIndexFileChecksum = getFileChecksum(BALLERINA_HOME_INDEX.toString());
+            try {
+                String expectedCheckSum = this.centralPackageDescriptorLoader.getLSPackageIndexChecksum();
+                if (!ballerinaHomeIndexFileChecksum.equals(expectedCheckSum)) {
+                    // Download the file from the central and load the listeners
+                    payload = this.centralPackageDescriptorLoader.getLSPackageIndex();
+                    lsListenerIndex = new Gson().fromJson(payload, LSListenerIndex.class);
+                } else {
+                    lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(BALLERINA_HOME_INDEX),
+                            LSListenerIndex.class);
+                }
+                cacheListenerMetaData(lsListenerIndex);
+                saveLSPackageIndexInBallerinaUserHome(payload);
+            } catch (Exception ignore) {
+                lsListenerIndex = new Gson().fromJson(Files.newBufferedReader(BALLERINA_HOME_INDEX),
+                        LSListenerIndex.class);
+                cacheListenerMetaData(lsListenerIndex);
+                saveLSPackageIndexInBallerinaUserHome(payload);
+            }
+        } else {
+            try {
+                String payload = this.centralPackageDescriptorLoader.getLSPackageIndex();
+                LSListenerIndex lsListenerIndex = new Gson().fromJson(payload, LSListenerIndex.class);
+                cacheListenerMetaData(lsListenerIndex);
+                saveLSPackageIndexInBallerinaUserHome(payload);
+            } catch (Exception ignore) {
+            }
+        }
+    }
+
+    private void saveLSPackageIndexInBallerinaUserHome(String payload) {
+        try (Writer myWriter = new FileWriter(BALLERINA_USER_HOME_INDEX.toFile(), StandardCharsets.UTF_8)) {
+            myWriter.write(payload);
+        } catch (IOException ignored) {
+        }
+    }
+
+    private void cacheListenerMetaData(LSListenerIndex lsListenerIndex) {
+        this.cachedListenerMetaData = new HashMap<>();
+        for (LSPackage lsPackage : lsListenerIndex.ballerina()) {
+            String qulName = lsPackage.orgName() + ":" + lsPackage.module();
+            this.cachedListenerMetaData.put(qulName,
+                    ServiceTemplateGenerator.generateIndexedListenerMetaData(lsPackage));
+
+        }
+        for (LSPackage lsPackage : lsListenerIndex.ballerinax()) {
+            String qulName = lsPackage.orgName() + ":" + lsPackage.module();
+            this.cachedListenerMetaData.put(qulName,
+                    ServiceTemplateGenerator.generateIndexedListenerMetaData(lsPackage));
+        }
+    }
+
     /**
      * A light-weight package information holder.
      */
     public static class ModuleInfo {
 
-        private PackageOrg packageOrg;
-        private PackageName packageName;
-        private PackageVersion packageVersion;
-        private Path sourceRoot;
+        private static final String JSON_PROPERTY_ORGANIZATION = "organization";
+        @SerializedName(JSON_PROPERTY_ORGANIZATION)
+        private final String packageOrg;
 
-        private String moduleIdentifier;
+        private static final String JSON_PROPERTY_NAME = "name";
+        @SerializedName(JSON_PROPERTY_NAME)
+        private String packageName;
 
+        private static final String JSON_PROPERTY_VERSION = "version";
+        @SerializedName(JSON_PROPERTY_VERSION)
+        private final String packageVersion;
+
+        @Expose(deserialize = false)
+        private final Path sourceRoot;
+
+        @Expose(deserialize = false)
+        private final String moduleIdentifier;
+
+        @Expose(deserialize = false)
         private boolean isModuleFromCurrentPackage = false;
 
+        @Expose(deserialize = false)
         private final List<ServiceTemplateGenerator.ListenerMetaData> listenerMetaData = new ArrayList<>();
 
-        public ModuleInfo(PackageOrg packageOrg, PackageName packageName, PackageVersion version, Path path) {
+        public ModuleInfo(String packageOrg, String packageName, String packageVersion) {
             this.packageOrg = packageOrg;
             this.packageName = packageName;
-            this.packageVersion = version;
+            this.packageVersion = packageVersion;
+            this.sourceRoot = null;
+            this.moduleIdentifier = packageOrg + "/" + packageName;
+        }
+
+        public ModuleInfo(PackageOrg packageOrg, PackageName packageName, PackageVersion version, Path path) {
+            this.packageOrg = packageOrg.value();
+            this.packageName = packageName.value();
+            this.packageVersion = version.value().toString();
             this.sourceRoot = path;
             this.moduleIdentifier = packageOrg.toString().isEmpty() ? packageName.toString() :
-                    packageOrg + "/" + packageName.toString();
+                    packageOrg + "/" + packageName;
         }
 
         public ModuleInfo(Package pkg) {
-            this.packageOrg = pkg.packageOrg();
-            this.packageName = pkg.packageName();
-            this.packageVersion = pkg.packageVersion();
+            this.packageOrg = pkg.packageOrg().value();
+            this.packageName = pkg.packageName().value();
+            this.packageVersion = pkg.packageVersion().value().toString();
             this.sourceRoot = pkg.project().sourceRoot();
             this.moduleIdentifier = packageOrg.toString() + "/" + packageName.toString();
             addServiceTemplateMetaData();
@@ -400,15 +550,15 @@ public class LSPackageLoader {
             isModuleFromCurrentPackage = moduleFromCurrentPackage;
         }
 
-        public PackageName packageName() {
+        public String packageName() {
             return packageName;
         }
 
-        public PackageOrg packageOrg() {
+        public String packageOrg() {
             return packageOrg;
         }
 
-        public PackageVersion packageVersion() {
+        public String packageVersion() {
             return packageVersion;
         }
 
@@ -421,7 +571,7 @@ public class LSPackageLoader {
         }
 
         private void addServiceTemplateMetaData() {
-            String orgName = ModuleUtil.escapeModuleName(this.packageOrg().value());
+            String orgName = ModuleUtil.escapeModuleName(this.packageOrg());
             Project project = ProjectLoader.loadProject(this.sourceRoot());
             //May take some time as we are compiling projects.
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();

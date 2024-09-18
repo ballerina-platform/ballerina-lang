@@ -74,9 +74,9 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         List<String> pkgNameLabels = new ArrayList<>();
 
         moduleList.forEach(ballerinaPackage -> {
-            String packageName = ballerinaPackage.packageName().value();
+            String packageName = ballerinaPackage.packageName();
             String insertText;
-            if (orgName.equals(ballerinaPackage.packageOrg().value()) && !pkgNameLabels.contains(packageName)
+            if (orgName.equals(ballerinaPackage.packageOrg()) && !pkgNameLabels.contains(packageName)
                     && ModuleUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
                 if (orgName.equals(Names.BALLERINA_ORG.value)
                         && packageName.startsWith(Names.LANG.value + ".")) {

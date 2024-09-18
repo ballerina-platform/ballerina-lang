@@ -519,40 +519,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service on lang.test:MockListener",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "AC",
-      "filterText": "service_lang_test_MockListener",
-      "insertText": "service ${1} on new test:MockListener(${2:0}) {\n    ${3}\n}\n",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
-      "label": "service on module1:Listener",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "AC",
-      "filterText": "service_module1_Listener",
-      "insertText": "service ${1} on new module1:Listener(${2:0}) {\n    ${3}\n}\n",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "test/project1",
       "kind": "Module",
       "detail": "Module",
@@ -882,6 +848,846 @@
       "sortText": "CA",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service on trigger.twilio:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_trigger_twilio_Listener",
+      "insertText": "service ${1} on new twilio:Listener() {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/trigger.twilio;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on health.fhirr4:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_health_fhirr4_Listener",
+      "insertText": "service ${1} on new fhirr4:Listener(${2:0}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/health.fhirr4;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on java.jms:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_java_jms_Listener",
+      "insertText": "service ${1} on new jms:Listener() {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/java.jms;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on trigger.google.sheets:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_trigger_google_sheets_Listener",
+      "insertText": "service ${1} on new sheets:Listener(${2:{spreadsheetId: \"\"}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/trigger.google.sheets;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on websocket:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_websocket_Listener",
+      "insertText": "service ${1} on new websocket:Listener(${2:0}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/websocket;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on http:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_http_Listener",
+      "insertText": "service ${1} on new http:Listener(${2:0}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on asb:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_asb_Listener",
+      "insertText": "service ${1} on new asb:Listener() {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/asb;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on nats:JetStreamListener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_nats_JetStreamListener",
+      "insertText": "service ${1} on new nats:JetStreamListener() {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/nats;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on nats:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_nats_Listener",
+      "insertText": "service ${1} on new nats:Listener(${2:\"\"}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/nats;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on trigger.google.mail:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_trigger_google_mail_Listener",
+      "insertText": "service ${1} on new mail:Listener(${2:{clientId: \"\", clientSecret: \"\", refreshUrl: \"\", refreshToken: \"\", project: \"\", callbackURL: \"\"}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/trigger.google.mail;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on mqtt:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_mqtt_Listener",
+      "insertText": "service ${1} on new mqtt:Listener(${2:\"\"},${2:\"\"},${2:\"\"}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/mqtt;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on trigger.github:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_trigger_github_Listener",
+      "insertText": "service ${1} on new github:Listener() {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/trigger.github;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on ftp:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_ftp_Listener",
+      "insertText": "service ${1} on new ftp:Listener(${2:{}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/ftp;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on trigger.hubspot:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_trigger_hubspot_Listener",
+      "insertText": "service ${1} on new hubspot:Listener(${2:{clientSecret: \"\", callbackURL: \"\"}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/trigger.hubspot;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on trigger.shopify:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_trigger_shopify_Listener",
+      "insertText": "service ${1} on new shopify:Listener(${2:{apiSecretKey: \"\"}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/trigger.shopify;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on file:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_file_Listener",
+      "insertText": "service ${1} on new file:Listener(${2:{path: \"\"}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/file;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on tcp:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_tcp_Listener",
+      "insertText": "service ${1} on new tcp:Listener(${2:0}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/tcp;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on trigger.aayu.mftg.as2:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_trigger_aayu_mftg_as2_Listener",
+      "insertText": "service ${1} on new as2:Listener() {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/trigger.aayu.mftg.as2;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on trigger.asb:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_trigger_asb_Listener",
+      "insertText": "service ${1} on new asb:Listener(${2:{connectionString: \"\"}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/trigger.asb;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on graphql:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_graphql_Listener",
+      "insertText": "service ${1} on new graphql:Listener(${2:0}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/graphql;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on trigger.quickbooks:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_trigger_quickbooks_Listener",
+      "insertText": "service ${1} on new quickbooks:Listener(${2:{verificationToken: \"\"}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/trigger.quickbooks;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on websub:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_websub_Listener",
+      "insertText": "service ${1} on new websub:Listener(${2:0}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/websub;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on email:ImapListener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_email_ImapListener",
+      "insertText": "service ${1} on new email:ImapListener(${2:{host: \"\", username: \"\", password: \"\"}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/email;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on email:PopListener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_email_PopListener",
+      "insertText": "service ${1} on new email:PopListener(${2:{host: \"\", username: \"\", password: \"\"}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/email;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on trigger.slack:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_trigger_slack_Listener",
+      "insertText": "service ${1} on new slack:Listener(${2:{verificationToken: \"\"}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/trigger.slack;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on trigger.asgardeo:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_trigger_asgardeo_Listener",
+      "insertText": "service ${1} on new asgardeo:Listener(${2:{clientId: \"\", clientSecret: \"\", organization: \"\", tokenEndpointHost: \"\", callbackURL: \"\", hubURL: \"\", keyServiceURL: \"\"}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/trigger.asgardeo;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on trigger.google.calendar:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_trigger_google_calendar_Listener",
+      "insertText": "service ${1} on new calendar:Listener(${2:{calendarId: \"\", callbackURL: \"\", clientId: \"\", clientSecret: \"\", refreshUrl: \"\", refreshToken: \"\"}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/trigger.google.calendar;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on trigger.google.drive:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_trigger_google_drive_Listener",
+      "insertText": "service ${1} on new drive:Listener(${2:{clientId: \"\", clientSecret: \"\", refreshUrl: \"\", refreshToken: \"\", callbackURL: \"\"}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/trigger.google.drive;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on sap.jco:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_sap_jco_Listener",
+      "insertText": "service ${1} on new jco:Listener(${2:{gwhost: \"\", gwserv: \"\", progid: \"\"}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/sap.jco;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on websubhub:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_websubhub_Listener",
+      "insertText": "service ${1} on new websubhub:Listener(${2:0}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/websubhub;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on rabbitmq:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_rabbitmq_Listener",
+      "insertText": "service ${1} on new rabbitmq:Listener(${2:\"\"},${2:0}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/rabbitmq;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on grpc:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_grpc_Listener",
+      "insertText": "service ${1} on new grpc:Listener(${2:0}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/grpc;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on trigger.salesforce:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_trigger_salesforce_Listener",
+      "insertText": "service ${1} on new salesforce:Listener(${2:{username: \"\", password: \"\", channelName: \"\"}}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/trigger.salesforce;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on kafka:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_kafka_Listener",
+      "insertText": "service ${1} on new kafka:Listener(${2:\"\"}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/kafka;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on udp:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_udp_Listener",
+      "insertText": "service ${1} on new udp:Listener(${2:0}) {\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/udp;\n"
+        }
+      ]
     }
   ]
 }

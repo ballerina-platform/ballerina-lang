@@ -133,8 +133,8 @@ public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeAc
         List<ModuleInfo> modules = lsPackageLoader.getLocalRepoModules();
         List<PackageVersion> versions = new ArrayList<>();
         for (ModuleInfo mod : modules) {
-            if (mod.packageOrg().value().equals(orgName) && mod.packageName().value().equals(pkgName)) {
-                versions.add(mod.packageVersion());
+            if (mod.packageOrg().equals(orgName) && mod.packageName().equals(pkgName)) {
+                versions.add(PackageVersion.from(mod.packageVersion()));
             }
         }
         return versions;

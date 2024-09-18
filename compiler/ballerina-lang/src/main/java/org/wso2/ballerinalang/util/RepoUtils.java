@@ -59,6 +59,12 @@ public final class RepoUtils {
     private static final String PRODUCTION_URL = "https://api.central.ballerina.io/2.0/registry";
     private static final String STAGING_URL = "https://api.staging-central.ballerina.io/2.0/registry";
     private static final String DEV_URL = "https://api.dev-central.ballerina.io/2.0/registry";
+    private static final String PRODUCTION_GRAPHQL_URL = "https://api.central.ballerina.io/2.0/graphql";
+    private static final String STAGING_GRAPHQL_URL = "https://api.staging-central.ballerina.io/2.0/graphql";
+    private static final String DEV_GRAPHQL_URL = "https://api.dev-central.ballerina.io/2.0/graphql";
+    private static final String DOC_GEN_PRODUCTION_URL = "https://api.central.ballerina.io/2.0/docs";
+    private static final String DOC_GEN_STAGING_URL = "https://api.staging-central.ballerina.io/2.0/docs";
+    private static final String DOC_GEN_DEV_URL = "https://api.dev-central.ballerina.io/2.0/docs";
 
     private static final String BALLERINA_ORG = "ballerina";
     private static final String BALLERINAX_ORG = "ballerinax";
@@ -145,6 +151,19 @@ public final class RepoUtils {
         }
     }
 
+    /**
+     * Get the remote doc gen URL.
+     *
+     * @return URL of the remote doc get url
+     */
+    public static String getDocGenRepoURL() {
+        if (SET_BALLERINA_STAGE_CENTRAL) {
+            return DOC_GEN_STAGING_URL;
+        } else if (SET_BALLERINA_DEV_CENTRAL) {
+            return DOC_GEN_DEV_URL;
+        }
+        return DOC_GEN_PRODUCTION_URL;
+    }
 
     /**
      * Get the remote repo URL.
@@ -158,6 +177,20 @@ public final class RepoUtils {
             return DEV_URL;
         }
         return PRODUCTION_URL;
+    }
+
+    /**
+     * Get the graphQL remote repo URL.
+     *
+     * @return URL of the remote repository
+     */
+    public static String getRemoteRepoGraphQLURL() {
+        if (SET_BALLERINA_STAGE_CENTRAL) {
+            return STAGING_GRAPHQL_URL;
+        } else if (SET_BALLERINA_DEV_CENTRAL) {
+            return DEV_GRAPHQL_URL;
+        }
+        return PRODUCTION_GRAPHQL_URL;
     }
 
     /**

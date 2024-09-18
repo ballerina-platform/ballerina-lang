@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.completions.providers.context.util;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
@@ -54,13 +55,16 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ServiceTemplateCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextEdit;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -154,19 +158,61 @@ public class ServiceTemplateGenerator {
                 clientLogger.logError(LSContextOperation.TXT_COMPLETION, msg, throwable, null, (Position) null);
             }
         });
-        List<LSPackageLoader.ModuleInfo> visibleModules =
-                LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
-        visibleModules.forEach(moduleInfo -> {
 
-            if (processedModuleList.contains(moduleInfo.getModuleIdentifier())
-                    || moduleInfo.isModuleFromCurrentPackage()) {
-                return;
-            }
-            moduleInfo.getListenerMetaData().forEach(listenerMetaData ->
-                completionItems.add(generateServiceSnippet(listenerMetaData, ctx)));
-            processedModuleList.add(moduleInfo.getModuleIdentifier());
+        Map<String, List<IndexedListenerMetaData>> cachedListenerMetaData =
+                LSPackageLoader.getInstance(ctx.languageServercontext()).getCachedListenerMetaData();
+
+        cachedListenerMetaData.values().forEach(list -> {
+            list.forEach(listenerMetaData -> {
+                completionItems.add(generateServiceSnippetIndexedListener(listenerMetaData, ctx));
+            });
         });
         return completionItems;
+    }
+
+    private LSCompletionItem generateServiceSnippetIndexedListener(IndexedListenerMetaData indexedListenerMetaData,
+                                                    BallerinaCompletionContext context) {
+
+        String symbolReference;
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        LSModuleId lsModuleId = indexedListenerMetaData.lsModuleId();
+        PackageID packageID = new PackageID(new Name(lsModuleId.orgName()), new Name(lsModuleId.moduleName()),
+                new Name(lsModuleId.version()));
+        ModuleID moduleID = new BallerinaModuleID(packageID);
+        String modulePrefix = ModuleUtil.getModulePrefix(importsAcceptor, getCurrentModuleID(context),
+                moduleID, context);
+        boolean shouldImport = !importsAcceptor.getNewImports().isEmpty();
+        String moduleAlias = modulePrefix.replace(":", "");
+        String moduleName = ModuleUtil.escapeModuleName(moduleID.moduleName());
+
+        symbolReference  = !moduleAlias.isEmpty() ? modulePrefix + indexedListenerMetaData.listenerName :
+                indexedListenerMetaData.listenerName;
+
+        String listenerInitialization = "new " + symbolReference + "(" +
+                indexedListenerMetaData.listenerInitArgs() + ")";
+
+        String snippet = SyntaxKind.SERVICE_KEYWORD.stringValue() + " ${1} " +
+                SyntaxKind.ON_KEYWORD.stringValue() + " " + listenerInitialization +
+                " {" + CommonUtil.LINE_SEPARATOR + CommonUtil.LINE_SEPARATOR + "}" +
+                CommonUtil.LINE_SEPARATOR;
+
+        String label;
+        String filterText;
+        String detail = ItemResolverConstants.SNIPPET_TYPE;
+
+        label = shouldImport ? "service on " + moduleName + ":" +
+                indexedListenerMetaData.listenerName : "service on " + symbolReference;
+        filterText = moduleAlias.isEmpty() ? ItemResolverConstants.SERVICE :
+                String.join("_", Arrays.asList(ItemResolverConstants.SERVICE, moduleName));
+        if (!shouldImport && !moduleAlias.equals(moduleName) && !moduleAlias.isEmpty()) {
+            filterText += "_" + moduleAlias;
+        }
+        filterText += "_" + indexedListenerMetaData.listenerName;
+        List<TextEdit> additionalTextEdits = new ArrayList<>(importsAcceptor.getNewImportTextEdits());
+        return new StaticCompletionItem(context, ServiceTemplateCompletionItemBuilder.build(snippet, label, detail,
+                filterText.replace(".", "_"), additionalTextEdits),
+                StaticCompletionItem.Kind.SERVICE_TEMPLATE);
+
     }
 
     private ModuleID getCurrentModuleID(CompletionContext ctx) {
@@ -178,10 +224,6 @@ public class ServiceTemplateGenerator {
         String currentModuleName = currentModule.get().descriptor().name().toString();
         String currentVersion = currentModule.get().packageInstance().descriptor().version().value().toString();
         return CodeActionModuleId.from(currentOrg, currentModuleName, currentVersion);
-    }
-
-    public boolean initialized() {
-        return this.isInitialized;
     }
 
     public static Predicate<Symbol> listenerPredicate() {
@@ -385,5 +427,70 @@ public class ServiceTemplateGenerator {
             this.currentSnippetIndex = currentSnippetIndex;
             this.moduleID = moduleID;
         }
+    }
+
+
+    public static List<IndexedListenerMetaData> generateIndexedListenerMetaData(LSPackageLoader.LSPackage lsPackage) {
+        LSModuleId lsModuleId = new LSModuleId(lsPackage.orgName(), lsPackage.module(), lsPackage.version());
+        List<IndexedListenerMetaData> indexedListenerMetaData = new ArrayList<>();
+        lsPackage.listeners().forEach(listener -> {
+            indexedListenerMetaData.add(generateServiceSnippetMetaData(listener, listener.records(), lsModuleId));
+        });
+        return indexedListenerMetaData;
+    }
+
+    private static IndexedListenerMetaData generateServiceSnippetMetaData(LSPackageLoader.LSListener listener,
+                                                                          List<LSPackageLoader.Record> records,
+                                                                          LSModuleId lsModuleId) {
+        //Snippet index 1 is provided for attachment point in service definition.
+        int snippetIndex = 2;
+        List<String> args = new ArrayList<>();
+        for (LSPackageLoader.Parameter parameter: listener.parameters()) {
+            args.add("${" + snippetIndex + ":" + defaultValueGenerator(parameter, records) + "}");
+        }
+        return new IndexedListenerMetaData(String.join(",", args), listener.name(), lsModuleId);
+    }
+
+    public record LSModuleId(String orgName, String moduleName, String version) {
+    }
+
+    public record IndexedListenerMetaData(String listenerInitArgs, String listenerName, LSModuleId lsModuleId) {
+    }
+
+    public static String defaultValueGenerator(LSPackageLoader.Parameter parameter,
+                                               List<LSPackageLoader.Record> records) {
+        return switch (parameter.category()) {
+            case "builtin" -> generateBuiltinDefaultValue(parameter.type());
+            case "records" -> generateRecordDefaultValue(parameter.type(), records);
+            default -> "";
+        };
+    }
+
+    private static String generateRecordDefaultValue(String type, List<LSPackageLoader.Record> records) {
+        if (records == null) {
+            return "{}";
+        }
+        for (LSPackageLoader.Record record: records) {
+            if (record.name().equals(type)) {
+                List<String> args = new ArrayList<>();
+                for (LSPackageLoader.Field field: record.fields()) {
+                    args.add(field.name() + ": " + defaultValueGenerator(
+                            new LSPackageLoader.Parameter(field.name(), field.type(), field.category()), records));
+                }
+                return "{" + String.join(", ", args) + "}";
+            }
+        }
+        return "{}";
+    }
+
+    public static String generateBuiltinDefaultValue(String type) {
+        return switch (type) {
+            case "int" -> "0";
+            case "string" -> "\"\"";
+            case "boolean" -> "false";
+            case "float", "decimal" -> "0.0";
+            case "nil" -> "()";
+            default -> "";
+        };
     }
 }
