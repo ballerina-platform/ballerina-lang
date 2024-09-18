@@ -74,7 +74,7 @@ public class BFunctionSubType extends SubType implements DelegatedSubType {
     @Override
     public boolean isEmpty(Context cx) {
         return cx.memoSubtypeIsEmpty(cx.functionMemo,
-                (context, bdd) -> bddEvery(context, bdd, null, null, BFunctionSubType::functionFormulaIsEmpty), inner);
+                (context, bdd) -> bddEvery(context, bdd, BFunctionSubType::functionFormulaIsEmpty), inner);
     }
 
     private static boolean functionFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {

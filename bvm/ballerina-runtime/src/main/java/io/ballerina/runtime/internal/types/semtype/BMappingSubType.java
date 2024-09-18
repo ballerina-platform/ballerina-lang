@@ -83,7 +83,7 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
     @Override
     public boolean isEmpty(Context cx) {
         return cx.memoSubtypeIsEmpty(cx.mappingMemo,
-                (context, bdd) -> bddEvery(context, bdd, null, null, BMappingSubType::mappingFormulaIsEmpty), inner);
+                (context, bdd) -> bddEvery(context, bdd, BMappingSubType::mappingFormulaIsEmpty), inner);
     }
 
     static boolean mappingFormulaIsEmpty(Context cx, Conjunction posList, Conjunction negList) {
