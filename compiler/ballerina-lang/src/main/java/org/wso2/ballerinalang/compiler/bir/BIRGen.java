@@ -1693,8 +1693,8 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = toVarRef;
     }
 
-    private boolean isInSamePackage(BSymbol objectTypeSymbol, PackageID packageID) {
-        return objectTypeSymbol.pkgID.equals(packageID);
+    private boolean isInSamePackage(BSymbol symbol, PackageID packageID) {
+        return symbol.pkgID.equals(packageID);
     }
 
     @Override
@@ -2425,7 +2425,8 @@ public class BIRGen extends BLangNodeVisitor {
 
     private BIRVariableDcl findInPackageScope(BType type) {
         BTypeSymbol typeSymbol = type.tsymbol;
-        if (typeSymbol != null && isDifferentPackage(type)) {
+        if (typeSymbol != null && typeSymbol.owner.tag == SymTag.PACKAGE &&
+                !isInSamePackage(typeSymbol, env.enclPkg.packageID)) {
             BPackageSymbol packageSymbol = (BPackageSymbol) typeSymbol.owner;
             Scope.ScopeEntry scopeEntry =
                     packageSymbol.scope.lookup(new Name(getTypedescFieldName(typeSymbol.name.value)));
@@ -2437,10 +2438,6 @@ public class BIRGen extends BLangNodeVisitor {
         return null;
     }
 
-    private boolean isDifferentPackage(BType type) {
-        return type.tsymbol.owner.tag == SymTag.PACKAGE && !type.tsymbol.pkgID.equals(env.enclPkg.packageID);
-    }
-
     private BLangPackageVarRef createPackageVarRef(BSymbol symbol) {
         BLangPackageVarRef packageVarRef = new BLangPackageVarRef((BVarSymbol) symbol);
         packageVarRef.pos = symbol.pos;
@@ -2450,7 +2447,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     private BIRVariableDcl findInLocalSymbolVarMap(BType type, Map<BSymbol, BIRVariableDcl> varMap) {
         for (Map.Entry<BSymbol, BIRVariableDcl> entry : varMap.entrySet()) {
-            if (isTypeDescSymbol(entry.getKey(), Types.getImpliedType(type))) {
+            if (isMatchingTypeDescSymbol(entry.getKey(), Types.getImpliedType(type))) {
                 return varMap.get(entry.getKey());
             }
         }
@@ -2459,14 +2456,19 @@ public class BIRGen extends BLangNodeVisitor {
 
     private BIRVariableDcl findInGlobalSymbolVarMap(BType type, Map<BSymbol, BIRGlobalVariableDcl> varMap) {
         for (Map.Entry<BSymbol, BIRGlobalVariableDcl> entry : varMap.entrySet()) {
-            if (isTypeDescSymbol(entry.getKey(), Types.getImpliedType(type))) {
-                return varMap.get(entry.getKey());
+            BSymbol varSymbol = entry.getKey();
+            if (isMatchingTypeDescSymbol(varSymbol, Types.getImpliedType(type))) {
+                BIRGlobalVariableDcl globalVarDcl =  varMap.get(varSymbol);
+                if (!isInSamePackage(varSymbol, env.enclPkg.packageID) || env.enclPkg.packageID.isTestPkg) {
+                    this.env.enclPkg.importedGlobalVarsDummyVarDcls.add(globalVarDcl);
+                }
+                return globalVarDcl;
             }
         }
         return null;
     }
 
-    private boolean isTypeDescSymbol(BSymbol symbol, BType targetType) {
+    private boolean isMatchingTypeDescSymbol(BSymbol symbol, BType targetType) {
         return symbol.type.tag == TypeTags.TYPEDESC && ((BTypedescType) symbol.type).constraint == targetType;
     }
 
