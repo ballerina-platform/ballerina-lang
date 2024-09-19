@@ -41,33 +41,33 @@ public class XMLAttributeAccessTest {
         lexCompileRes = BCompileUtil.compile("test-src/types/xml/xml-attribute-access-lax-behavior.bal");
     }
 
-    @Test(enabled = false) // disabling until providing semantic support for step extension
+    @Test
     public void testBasicAttributeAccessSyntax() {
         BRunUtil.invoke(compileResult, "getElementAttrBasic");
     }
 
-    @Test(enabled = false) // disabling until providing semantic support for step extension
+    @Test
     public void testBasicOptionalAttributeAccessSyntax() {
         BRunUtil.invoke(compileResult, "getOptionalElementAttrBasic");
     }
 
-    @Test(enabled = false) // disabling until providing semantic support for step extension
+    @Test
     public void testUserDefinedAttributeAccessSyntax() {
         BRunUtil.invoke(compileResult, "getUserDefinedTypeElementAttrBasic");
     }
 
-    @Test(enabled = false) // disabling until providing semantic support for step extension
+    @Test
     public void testUserDefinedOptionalAttributeAccessSyntax() {
         BRunUtil.invoke(compileResult, "getUserDefinedTypeOptionalElementAttrBasic");
     }
 
-    @Test(enabled = false) // disabling until providing semantic support for step extension
+    @Test
     public void testAttributeAccessSyntaxWithNS() {
         Object result = BRunUtil.invoke(compileResult, "getElementAttrWithNSPrefix");
         Assert.assertEquals(result.toString(), "attr-with-ns-val");
     }
 
-    @Test(enabled = false) // disabling until providing semantic support for step extension
+    @Test
     public void testGetAttrOfASequence() {
         Object result = BRunUtil.invoke(compileResult, "getAttrOfASequence");
         Assert.assertEquals(result.toString(),
@@ -159,19 +159,24 @@ public class XMLAttributeAccessTest {
         Assert.assertTrue((Boolean) result.get(3));
     }
 
-    @Test(enabled = false) // disabling until providing semantic support for step extension
+    @Test
     public void testXMLAfterRemoveAttribute() {
         BRunUtil.invoke(compileResult, "testXMLAfterRemoveAttribute");
     }
 
-    @Test(enabled = false) // disabling until providing semantic support for step extension
+    @Test
     public void testXMLIndexedOptionalAttributeAccess() {
         BRunUtil.invoke(compileResult, "testXMLIndexedOptionalAttributeAccess");
     }
 
-    @Test(enabled = false) // disabling until providing semantic support for step extension
+    @Test
     public void testErrorsOnXMLIndexedOptionalAttributeAccess() {
         BRunUtil.invoke(compileResult, "testErrorsOnXMLIndexedOptionalAttributeAccess");
+    }
+
+    @Test
+    public void testXMLIndexedOptionalAttributeAccessWithNS() {
+        BRunUtil.invoke(compileResult, "testXMLIndexedOptionalAttributeAccessWithNS");
     }
 
     @Test
