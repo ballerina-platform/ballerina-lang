@@ -66,7 +66,9 @@ public abstract class NamedCompoundVariable extends BCompoundVariable {
 
         if (!namedChildVariables.containsKey(name)) {
             for (Map.Entry<String, Value> childVariable : namedChildVariables.entrySet()) {
-                String escaped = childVariable.getKey().replaceAll("\\$0092(\\$0092)?", "$1");
+                String unicodeOfSlash = "&0092";
+                String escaped = childVariable.getKey()
+                        .replaceAll(String.format("\\%s(\\%s)?", unicodeOfSlash, unicodeOfSlash), "$1");
                 if (escaped.equals(name)) {
                     return childVariable.getValue();
                 }

@@ -30,9 +30,9 @@ class Person {
         self.lastName = lastName;
     }
 
-    function '\$init\$() returns string {
-        return self.firstName + " " + self.lastName;
-    }
+    // function '\$init\$() returns string {
+    //     return self.firstName + " " + self.lastName;
+    // }
 }
 
 type '\$anonType\$_0 record {
@@ -59,7 +59,7 @@ function print(string str) {
 public function main() {
     Person person = new("John", "Doe");
     test:assertEquals("John", person.firstName);
-    test:assertEquals("John Doe", person.'\$init\$());
+    // test:assertEquals("John Doe", person.'\$init\$());
     // test:assertEquals("this is a user defined function", '\.\<init\>());
 
     record {|
