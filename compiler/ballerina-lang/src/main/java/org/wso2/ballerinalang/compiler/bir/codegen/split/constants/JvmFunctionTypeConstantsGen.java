@@ -48,7 +48,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELDS_PER_SPLIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FUNCTION_TYPE_FIELDS_PER_SPLIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 
 /**
@@ -102,21 +102,21 @@ public class JvmFunctionTypeConstantsGen {
         int methodCount = 0;
 
         for (BIRNode.BIRFunction function : functions) {
-            if (functionTypeCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
+            if (functionTypeCount % MAX_FUNCTION_TYPE_FIELDS_PER_SPLIT_METHOD == 0) {
                 mv = cw.visitMethod(ACC_STATIC, B_FUNCTION_TYPE_INIT_METHOD_PREFIX + methodCount++, "()V", null, null);
             }
             jvmTypeGen.loadInvokableType(mv, function.type);
             mv.visitFieldInsn(Opcodes.PUTSTATIC, functionTypeConstantClass, getFunctionTypeVar(function.name.value),
                     JvmSignatures.GET_FUNCTION_TYPE);
             functionTypeCount++;
-            if (functionTypeCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
+            if (functionTypeCount % MAX_FUNCTION_TYPE_FIELDS_PER_SPLIT_METHOD == 0) {
                 mv.visitInsn(RETURN);
                 mv.visitMaxs(0, 0);
                 mv.visitEnd();
             }
         }
         // Visit the previously started function init method if not ended.
-        if (functionTypeCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
+        if (functionTypeCount % MAX_FUNCTION_TYPE_FIELDS_PER_SPLIT_METHOD != 0) {
             mv.visitInsn(RETURN);
             mv.visitMaxs(0, 0);
             mv.visitEnd();
@@ -125,7 +125,7 @@ public class JvmFunctionTypeConstantsGen {
 
     private void generateStaticInitializer(ClassWriter cw) {
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);
-        int methodIndex = (functions.size() - 1) / MAX_FIELDS_PER_SPLIT_METHOD;
+        int methodIndex = (functions.size() - 1) / MAX_FUNCTION_TYPE_FIELDS_PER_SPLIT_METHOD;
         for (int i = 0; i <= methodIndex; i++) {
             mv.visitMethodInsn(INVOKESTATIC, functionTypeConstantClass, B_FUNCTION_TYPE_INIT_METHOD_PREFIX + i, "()V"
                     , false);

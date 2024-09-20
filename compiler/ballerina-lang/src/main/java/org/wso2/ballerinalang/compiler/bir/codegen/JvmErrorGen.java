@@ -121,13 +121,18 @@ public class JvmErrorGen {
                 this.mv.visitJumpInsn(GOTO, jumpLabel);
             }
             Label otherErrorLabel = new Label();
+            Label sOErrorlabel = new Label();
+            this.mv.visitTryCatchBlock(startLabel, endLabel, sOErrorlabel, STACK_OVERFLOW_ERROR);
             this.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, THROWABLE);
-
+            this.mv.visitLabel(sOErrorlabel);
+            this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, TRAP_ERROR_METHOD, CREATE_ERROR_FROM_THROWABLE,
+                    false);
+            this.mv.visitInsn(ATHROW);
+            this.mv.visitJumpInsn(GOTO, jumpLabel);
             this.mv.visitLabel(otherErrorLabel);
             this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, CREATE_INTEROP_ERROR_METHOD,
                     CREATE_ERROR_FROM_THROWABLE, false);
             this.mv.visitInsn(ATHROW);
-            this.mv.visitJumpInsn(GOTO, jumpLabel);
             this.mv.visitLabel(jumpLabel);
             return;
         }
