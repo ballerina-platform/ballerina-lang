@@ -25,7 +25,6 @@ configurations {
 dependencies {
     implementation "org.ow2.asm:asm:${project.ow2AsmVersion}"
     implementation "org.ow2.asm:asm-commons:${project.ow2AsmCommonsVersion}"
-    implementation "com.google.code.gson:gson:${project.gsonVersion}"
     implementation "commons-io:commons-io:${project.commonsIoVersion}"
     implementation project(':identifier-util')
     implementation project(':ballerina-runtime')
