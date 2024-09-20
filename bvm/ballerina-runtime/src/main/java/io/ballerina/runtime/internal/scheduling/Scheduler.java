@@ -76,7 +76,7 @@ public class Scheduler {
     }
     public Object call(Module module, String functionName, Strand parentStrand, Object... args) {
         parentStrand.resume();
-        getValueCreatorAndFunctionType result = getGetValueCreatorAndFunctionType(module, functionName);
+        ValueCreatorAndFunctionType result = getGetValueCreatorAndFunctionType(module, functionName);
         Object[] argsWithDefaultValues = getArgsWithDefaultValues(result.valueCreator(), result.functionType(),
                 parentStrand, args);
         return result.valueCreator().call(parentStrand, functionName, argsWithDefaultValues);
@@ -312,7 +312,7 @@ public class Scheduler {
         return future;
     }
 
-    private getValueCreatorAndFunctionType getGetValueCreatorAndFunctionType(Module module, String functionName) {
+    private ValueCreatorAndFunctionType getGetValueCreatorAndFunctionType(Module module, String functionName) {
 
         ValueCreator valueCreator;
         FunctionType functionType;
@@ -325,10 +325,10 @@ public class Scheduler {
                     module.getName(), module.getMajorVersion(), true));
             functionType = valueCreator.getFunctionType(functionName);
         }
-        return new getValueCreatorAndFunctionType(valueCreator, functionType);
+        return new ValueCreatorAndFunctionType(valueCreator, functionType);
     }
 
-    private record getValueCreatorAndFunctionType(ValueCreator valueCreator, FunctionType functionType) {
+    private record ValueCreatorAndFunctionType(ValueCreator valueCreator, FunctionType functionType) {
 
     }
 
