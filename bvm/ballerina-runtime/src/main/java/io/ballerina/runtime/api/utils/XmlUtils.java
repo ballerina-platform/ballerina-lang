@@ -95,8 +95,8 @@ public final class XmlUtils {
      * @param table {@link BTable} to convert
      * @return converted {@link BXml}
      */
-    public static BXml parse(BTable table) {
-        return XmlFactory.tableToXML((TableValueImpl) table);
+    public static BXml parse(BTable<?, ?> table) {
+        return XmlFactory.tableToXML((TableValueImpl<?, ?>) table);
     }
 
     /**

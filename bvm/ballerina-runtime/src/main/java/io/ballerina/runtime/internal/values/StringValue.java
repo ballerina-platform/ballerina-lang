@@ -55,7 +55,7 @@ public abstract class StringValue implements BString, SimpleValue {
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<String> getIterator() {
         return new CharIterator(this);
     }
 

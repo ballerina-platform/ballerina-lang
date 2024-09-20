@@ -37,7 +37,7 @@ public final class GetIterator {
     private GetIterator() {
     }
 
-    public static BIterator iterator(BTable tbl) {
+    public static BIterator<?> iterator(BTable<?, ?> tbl) {
         return tbl.getIterator();
     }
 }

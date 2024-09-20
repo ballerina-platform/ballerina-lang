@@ -58,7 +58,7 @@ public final class ReadonlyArrayCreator {
         return ValueCreator.createReadonlyArrayValue(numbers);
     }
 
-    public static BArray createArrayOfMaps(BMap map) {
+    public static BArray createArrayOfMaps(BMap<?, ?> map) {
         return ValueCreator.createArrayValue(TypeCreator.createArrayType(map.getType(), 0, true));
     }
 }

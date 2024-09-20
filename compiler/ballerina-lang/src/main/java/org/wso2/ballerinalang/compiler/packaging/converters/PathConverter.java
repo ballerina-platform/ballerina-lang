@@ -122,7 +122,7 @@ public class PathConverter implements Converter<Path> {
                 List<Path> excludePaths = new ArrayList<>();
                 excludePaths.add(Paths.get(ProjectDirConstants.TEST_DIR_NAME));
                 excludePaths.add(Paths.get(ProjectDirConstants.RESOURCE_DIR_NAME));
-                FilterSearch filterSearch = new FilterSearch(excludePaths);
+                FilterSearch<Object> filterSearch = new FilterSearch<>(excludePaths);
                 Files.walkFileTree(path, filterSearch);
                 return filterSearch.getPathList().stream().sorted();
             } catch (IOException ignore) {

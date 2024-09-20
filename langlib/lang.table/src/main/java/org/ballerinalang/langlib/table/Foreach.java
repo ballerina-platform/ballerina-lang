@@ -48,7 +48,7 @@ public final class Foreach {
     private Foreach() {
     }
 
-    public static void forEach(BTable tbl, BFunctionPointer<Object, Object> func) {
+    public static void forEach(BTable<?, ?> tbl, BFunctionPointer<Object[], Object> func) {
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         Object[] values = tbl.values().toArray();

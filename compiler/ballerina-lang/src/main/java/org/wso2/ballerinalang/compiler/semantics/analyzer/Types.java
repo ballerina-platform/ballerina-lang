@@ -3651,7 +3651,7 @@ public class Types {
         }
 
         // check if all the value types are assignable between two unions
-        var sourceIterator = sourceTypes.iterator();
+        Iterator<BType> sourceIterator = sourceTypes.iterator();
         while (sourceIterator.hasNext()) {
             BType sMember = sourceIterator.next();
             if (sMember.tag == TypeTags.NEVER) {
@@ -3696,7 +3696,7 @@ public class Types {
             }
 
             boolean sourceTypeIsNotAssignableToAnyTargetType = true;
-            var targetIterator = targetTypes.iterator();
+            Iterator<BType> targetIterator = targetTypes.iterator();
             while (targetIterator.hasNext()) {
                 BType t = targetIterator.next();
                 if (isAssignable(sMember, t, unresolvedTypes)) {
@@ -3716,7 +3716,7 @@ public class Types {
         while (sourceIterator.hasNext()) {
             BType sourceMember = sourceIterator.next();
             boolean sourceTypeIsNotAssignableToAnyTargetType = true;
-            var targetIterator = targetTypes.iterator();
+            Iterator<BType> targetIterator = targetTypes.iterator();
 
             boolean selfReferencedSource = (sourceMember != source) &&
                     isSelfReferencedStructuredType(source, sourceMember);
@@ -3799,7 +3799,7 @@ public class Types {
                                                     LinkedHashSet<BType> readOnlyMemTypes) {
         boolean sameMember = originalMemberType == immutableMemberType;
         if (originalMemberType.tag == TypeTags.ARRAY) {
-            var arrayType = (BArrayType) originalMemberType;
+            BArrayType arrayType = (BArrayType) originalMemberType;
             if (origUnionType == arrayType.eType) {
                 if (sameMember) {
                     BArrayType newArrayType = new BArrayType(newImmutableUnion, arrayType.tsymbol, arrayType.size,
@@ -3811,7 +3811,7 @@ public class Types {
                 }
             }
         } else if (originalMemberType.tag == TypeTags.MAP) {
-            var mapType = (BMapType) originalMemberType;
+            BMapType mapType = (BMapType) originalMemberType;
             if (origUnionType == mapType.constraint) {
                 if (sameMember) {
                     BMapType newMapType = new BMapType(mapType.tag, newImmutableUnion, mapType.tsymbol, mapType.flags);
@@ -3822,7 +3822,7 @@ public class Types {
                 }
             }
         } else if (originalMemberType.tag == TypeTags.TABLE) {
-            var tableType = (BTableType) originalMemberType;
+            BTableType tableType = (BTableType) originalMemberType;
             if (origUnionType == tableType.constraint) {
                 if (sameMember) {
                     BTableType newTableType = new BTableType(tableType.tag, newImmutableUnion, tableType.tsymbol,
@@ -3835,10 +3835,10 @@ public class Types {
                 return;
             }
 
-            var immutableConstraint = ((BTableType) immutableMemberType).constraint;
+            BType immutableConstraint = ((BTableType) immutableMemberType).constraint;
             if (tableType.constraint.tag == TypeTags.MAP) {
                 sameMember = tableType.constraint == immutableConstraint;
-                var mapType = (BMapType) tableType.constraint;
+                BMapType mapType = (BMapType) tableType.constraint;
                 if (origUnionType == mapType.constraint) {
                     if (sameMember) {
                         BMapType newMapType = new BMapType(mapType.tag, newImmutableUnion, mapType.tsymbol,
@@ -6171,12 +6171,12 @@ public class Types {
         if (type.getValueSpace().size() == 1) { // For singleton types, that value is the implicit initial value
             return true;
         }
-        Iterator iterator = type.getValueSpace().iterator();
-        BLangExpression firstElement = (BLangExpression) iterator.next();
+        Iterator<BLangExpression> iterator = type.getValueSpace().iterator();
+        BLangExpression firstElement = iterator.next();
         boolean defaultFillValuePresent = isImplicitDefaultValue(firstElement);
 
         while (iterator.hasNext()) {
-            BLangExpression value = (BLangExpression) iterator.next();
+            BLangExpression value = iterator.next();
             if (!isSameBasicType(value.getBType(), firstElement.getBType())) {
                 return false;
             }
@@ -7180,9 +7180,9 @@ public class Types {
 
     public boolean isCloneableType(BUnionType type) {
         LinkedHashSet<BType> cloneableMemberTypes = symTable.cloneableType.getMemberTypes();
-        Iterator memItr = type.getMemberTypes().iterator();
+        Iterator<BType> memItr = type.getMemberTypes().iterator();
         for (BType memberType : cloneableMemberTypes) {
-            if (!memItr.hasNext() || memberType.tag != ((BType) memItr.next()).tag) {
+            if (!memItr.hasNext() || memberType.tag != memItr.next().tag) {
                 return false;
             }
         }

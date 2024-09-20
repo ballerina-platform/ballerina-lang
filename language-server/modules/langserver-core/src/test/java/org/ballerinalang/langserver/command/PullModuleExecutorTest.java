@@ -123,7 +123,7 @@ public class PullModuleExecutorTest {
     }
 
     private JsonObject getCommandResponse(List<Object> args, String command) {
-        List argsList = argsToJson(args);
+        List<Object> argsList = argsToJson(args);
         ExecuteCommandParams params = new ExecuteCommandParams(command, argsList);
         String response = TestUtil.getExecuteCommandResponse(params, this.serviceEndpoint)
                 .replace("\\r\\n", "\\n");
@@ -132,10 +132,10 @@ public class PullModuleExecutorTest {
         return responseJson;
     }
 
-    private List argsToJson(List<Object> args) {
-        List<JsonObject> jsonArgs = new ArrayList<>();
+    private List<Object> argsToJson(List<Object> args) {
+        List<Object> jsonArgs = new ArrayList<>();
         for (Object arg : args) {
-            jsonArgs.add((JsonObject) gson.toJsonTree(arg));
+            jsonArgs.add(gson.toJsonTree(arg));
         }
         return jsonArgs;
     }

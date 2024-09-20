@@ -45,10 +45,10 @@ public final class ToArray {
     private ToArray() {
     }
 
-    public static BArray toArray(BTable tbl) {
+    public static BArray toArray(BTable<?, ?> tbl) {
         Type constrainedType = ((TableType) TypeUtils.getImpliedType(tbl.getType())).getConstrainedType();
 
-        Collection values = tbl.values();
+        Collection<?> values = tbl.values();
         //Basic constrain types not applicable for table type
         return ValueCreator.createArrayValue(values.toArray(), TypeCreator.createArrayType(constrainedType));
     }

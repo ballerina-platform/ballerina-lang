@@ -44,7 +44,7 @@ public class RuntimeRegistry {
 
     private final Scheduler scheduler;
     private final Set<BObject> listenerSet = ConcurrentHashMap.newKeySet();
-    private final Deque<BFunctionPointer<?, ?>> stopHandlerStack = new ConcurrentLinkedDeque<>();
+    private final Deque<BFunctionPointer<Object[], ?>> stopHandlerStack = new ConcurrentLinkedDeque<>();
 
     private static final PrintStream outStream = System.err;
 
@@ -64,7 +64,7 @@ public class RuntimeRegistry {
         }
     }
 
-    public synchronized void registerStopHandler(BFunctionPointer<?, ?> stopHandler) {
+    public synchronized void registerStopHandler(BFunctionPointer<Object[], ?> stopHandler) {
         stopHandlerStack.push(stopHandler);
     }
 
@@ -79,7 +79,7 @@ public class RuntimeRegistry {
         if (iterator.hasNext()) {
             ListenerCallback callback = new ListenerCallback(strand, scheduler, iterator);
             BObject listener = iterator.next();
-            Function<?, ?> func = o ->  listener.call((Strand) ((Object[]) o)[0], "gracefulStop");
+            Function<Object[], ?> func = o ->  listener.call((Strand) (o)[0], "gracefulStop");
             scheduler.schedule(new Object[1], func, null, callback, null, null,
                     null, strand.getMetadata());
         } else {
@@ -91,7 +91,7 @@ public class RuntimeRegistry {
         if (stopHandlerStack.isEmpty()) {
             return;
         }
-        BFunctionPointer<?, ?> bFunctionPointer = stopHandlerStack.pop();
+        BFunctionPointer<Object[], ?> bFunctionPointer = stopHandlerStack.pop();
         StopHandlerCallback callback = new StopHandlerCallback(strand, scheduler);
         final FutureValue future = scheduler.createFuture(strand, callback, null,
                 ((BFunctionType) TypeUtils.getImpliedType(bFunctionPointer.getType())).retType, null,

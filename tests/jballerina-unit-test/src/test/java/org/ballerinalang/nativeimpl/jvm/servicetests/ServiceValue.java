@@ -56,7 +56,7 @@ public final class ServiceValue {
     private static BObject listener;
     private static boolean started;
     private static String[] names;
-    private static MapValue annotationMap; // captured at attach method
+    private static MapValue<?, ?> annotationMap; // captured at attach method
 
     private ServiceValue() {
     }
@@ -122,7 +122,7 @@ public final class ServiceValue {
             Field annotations = BAnnotatableType.class.getDeclaredField("annotations");
             annotations.setAccessible(true);
             Object annotationMap = annotations.get(serviceType);
-            ServiceValue.annotationMap = (MapValue) annotationMap;
+            ServiceValue.annotationMap = (MapValue<?, ?>) annotationMap;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new AssertionError();
         }
@@ -145,7 +145,7 @@ public final class ServiceValue {
         ServiceValue.listener = null;
         ServiceValue.started = false;
         ServiceValue.names = new String[0];
-        ServiceValue.annotationMap = new MapValueImpl();
+        ServiceValue.annotationMap = new MapValueImpl<>();
     }
 
     public static BObject getListener() {
@@ -180,7 +180,7 @@ public final class ServiceValue {
         return new ArrayValueImpl(names, false);
     }
 
-    public static BMap getAnnotationsAtServiceAttach() {
+    public static BMap<?, ?> getAnnotationsAtServiceAttach() {
         return ServiceValue.annotationMap;
     }
 

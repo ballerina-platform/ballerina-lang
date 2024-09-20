@@ -78,7 +78,7 @@ public final class ErrorUtils {
         } else {
             initialValues = new MappingInitialValueEntry[0];
         }
-        BMap<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
+        BMap<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
 
         return (ErrorValue) createError(StringUtils.fromString(e.getClass().getName()), detailMap);
     }

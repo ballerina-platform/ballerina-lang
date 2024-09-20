@@ -417,7 +417,7 @@ public final class TypeConverter {
     private static boolean isConvertibleToRecordType(Object sourceValue, BRecordType targetType, String varName,
                                                      Set<TypeValuePair> unresolvedValues,
                                                      List<String> errors, boolean allowNumericConversion) {
-        if (!(sourceValue instanceof MapValueImpl sourceMapValueImpl)) {
+        if (!(sourceValue instanceof MapValueImpl<?, ?> sourceMapValueImpl)) {
             return false;
         }
 
@@ -435,7 +435,7 @@ public final class TypeConverter {
             targetFieldTypes.put(field.getKey(), field.getValue().getFieldType());
         }
 
-        for (Map.Entry targetTypeEntry : targetFieldTypes.entrySet()) {
+        for (Map.Entry<String, Type> targetTypeEntry : targetFieldTypes.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
             String fieldNameLong = getLongFieldName(varName, fieldName);
 
@@ -453,8 +453,7 @@ public final class TypeConverter {
             }
         }
 
-        for (Object object : sourceMapValueImpl.entrySet()) {
-            Map.Entry valueEntry = (Map.Entry) object;
+        for (Map.Entry<?, ?> valueEntry : sourceMapValueImpl.entrySet()) {
             String fieldName = valueEntry.getKey().toString();
             String fieldNameLong = getLongFieldName(varName, fieldName);
             int initialErrorCount = errors.size();
@@ -585,8 +584,7 @@ public final class TypeConverter {
         }
 
         boolean returnVal = true;
-        for (Object object : ((MapValueImpl) sourceValue).entrySet()) {
-            Map.Entry valueEntry = (Map.Entry) object;
+        for (Map.Entry<?, ?> valueEntry : ((MapValueImpl<?, ?>) sourceValue).entrySet()) {
             String fieldNameLong = getLongFieldName(varName, valueEntry.getKey().toString());
             int initialErrorCount = errors.size();
             if (getConvertibleType(valueEntry.getValue(), targetType.getConstrainedType(), fieldNameLong,

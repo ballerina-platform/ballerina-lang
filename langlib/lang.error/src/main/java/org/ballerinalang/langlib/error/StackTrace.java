@@ -182,7 +182,7 @@ public final class StackTrace {
         }
 
         @Override
-        public BMap getMapValue(BString fieldName) {
+        public BMap<BString, ? extends Object> getMapValue(BString fieldName) {
             return null;
         }
 

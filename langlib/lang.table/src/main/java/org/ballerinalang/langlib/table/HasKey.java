@@ -38,7 +38,7 @@ public final class HasKey {
     }
 
     @Deprecated
-    public static boolean hasKey(BTable tbl, Object key) {
+    public static boolean hasKey(BTable<?, ?> tbl, Object key) {
         return tbl.containsKey(key);
     }
 }

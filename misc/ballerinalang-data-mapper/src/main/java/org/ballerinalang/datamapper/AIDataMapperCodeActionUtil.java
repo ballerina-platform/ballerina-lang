@@ -480,14 +480,14 @@ class AIDataMapperCodeActionUtil {
     private void generateOptionalMap(Map<String, Object> rightSchemaMap, String foundTypeRight) {
         for (Map.Entry<String, Object> field : rightSchemaMap.entrySet()) {
             StringBuilder optionalKey = new StringBuilder(foundTypeRight.toLowerCase());
-            if (!(((Map) field.getValue()).containsKey(OPTIONAL))) {
+            if (!(((Map<?, ?>) field.getValue()).containsKey(OPTIONAL))) {
                 optionalKey.append(".").append(field.getKey());
-                generateOptionalMap((Map<String, Object>) ((Map) field.getValue()).get(PROPERTIES),
+                generateOptionalMap((Map<String, Object>) ((Map<?, ?>) field.getValue()).get(PROPERTIES),
                         optionalKey.toString());
-            } else if ((boolean) ((Map) field.getValue()).get(OPTIONAL) |
+            } else if ((boolean) ((Map<?, ?>) field.getValue()).get(OPTIONAL) |
                     (checkForOptionalRecordField(optionalKey.toString()) > 0)) {
                 optionalKey.append(".").append(field.getKey());
-                this.isOptionalMap.put(optionalKey.toString(), ((Map) field.getValue()).get(SIGNATURE).
+                this.isOptionalMap.put(optionalKey.toString(), ((Map<?, ?>) field.getValue()).get(SIGNATURE).
                         toString());
             }
         }
@@ -509,14 +509,14 @@ class AIDataMapperCodeActionUtil {
             if (!fieldName.isEmpty()) {
                 fieldKey.append(fieldName).append(".");
             }
-            if (!(((Map) field.getValue()).containsKey(READONLY))) {
+            if (!(((Map<?, ?>) field.getValue()).containsKey(READONLY))) {
                 fieldKey.append(field.getKey());
-                getLeftFields((Map<String, Object>) ((Map) field.getValue()).get(PROPERTIES),
+                getLeftFields((Map<String, Object>) ((Map<?, ?>) field.getValue()).get(PROPERTIES),
                         fieldKey.toString());
             } else {
                 fieldKey.append(field.getKey());
-                this.leftFieldMap.put(fieldKey.toString(), ((Map) field.getValue()).get(TYPE).toString());
-                if ((((Map) field.getValue()).get(READONLY)).toString().contains("true")) {
+                this.leftFieldMap.put(fieldKey.toString(), ((Map<?, ?>) field.getValue()).get(TYPE).toString());
+                if ((((Map<?, ?>) field.getValue()).get(READONLY)).toString().contains("true")) {
                     this.leftReadOnlyFields.add(field.getKey());
                 }
             }
@@ -530,9 +530,9 @@ class AIDataMapperCodeActionUtil {
      * @param schemaFields {@link List<RecordFieldSymbol>}
      */
     private void getSpreadFieldDetails(String key, Collection<RecordFieldSymbol> schemaFields) {
-        Iterator iterator = schemaFields.iterator();
+        Iterator<RecordFieldSymbol> iterator = schemaFields.iterator();
         while (iterator.hasNext()) {
-            RecordFieldSymbol attribute = (RecordFieldSymbol) iterator.next();
+            RecordFieldSymbol attribute = iterator.next();
             TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
 
             if (!key.isEmpty()) {
@@ -573,12 +573,12 @@ class AIDataMapperCodeActionUtil {
     private void getResponseKeys(Map<String, Object> leftSchemaMap, String keyName) {
         for (Map.Entry<String, Object> field : leftSchemaMap.entrySet()) {
             StringBuilder fieldKey = new StringBuilder();
-            Map treeMap = null;
+            Map<?, ?> treeMap = null;
             if (!keyName.isEmpty()) {
                 fieldKey.append(keyName).append(".");
             }
             try {
-                treeMap = (Map) field.getValue();
+                treeMap = (Map<?, ?>) field.getValue();
             } catch (Exception e) {
                 //ignore
             }

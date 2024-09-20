@@ -85,7 +85,7 @@ public class RefTypeTests {
         Object returns = BRunUtil.invoke(result, "interopWithRefTypesAndMapReturn");
 
         Assert.assertTrue(returns instanceof BMap);
-        BMap bMap = (BMap) returns;
+        BMap<?, ?> bMap = (BMap<?, ?>) returns;
         Assert.assertEquals(bMap.toString(), "{\"a\":object Person,\"b\":[5,\"hello\",object Person]," +
                 "\"c\":{\"name\":\"sameera\"},\"e\":object Person,\"f\":83,\"g\":{\"name\":\"sample\"}}");
     }
@@ -306,7 +306,7 @@ public class RefTypeTests {
         Assert.assertTrue(returns instanceof HandleValue);
         HandleValue handle = (HandleValue) returns;
         Assert.assertTrue(handle.getValue() instanceof Map);
-        Map map = (Map) handle.getValue();
+        Map<?, ?> map = (Map<?, ?>) handle.getValue();
         Assert.assertEquals(map.size(), 1);
         Assert.assertEquals(map.get("name"), "John");
     }
@@ -392,12 +392,12 @@ public class RefTypeTests {
         return x;
     }
 
-    public static int useFunctionPointer(FPValue fp) {
+    public static int useFunctionPointer(FPValue<Object[], Long> fp) {
         return ((Long) fp.call(new Object[]{Scheduler.getStrand(), 3, 4})).intValue();
     }
 
-    public static FPValue getFunctionPointer(Object fp) {
-        return (FPValue) fp;
+    public static FPValue<?, ?> getFunctionPointer(Object fp) {
+        return (FPValue<?, ?>) fp;
     }
 
     public static BString useTypeDesc(TypedescValue type) {

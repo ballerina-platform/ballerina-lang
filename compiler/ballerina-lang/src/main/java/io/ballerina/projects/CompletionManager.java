@@ -54,11 +54,13 @@ public class CompletionManager {
     private CompletionManager(List<CompilerPluginContextIml> compilerPluginContexts) {
         completionProviders = new HashMap<>();
         compilerPluginContexts.forEach(compilerPluginContextIml -> {
-            for (CompletionProvider<Node> completionProvider : compilerPluginContextIml.completionProviders()) {
+            for (CompletionProvider<? extends Node> completionProvider :
+                    compilerPluginContextIml.completionProviders()) {
                 for (Class<?> attachmentPoint : completionProvider.getSupportedNodes()) {
                     List<CompletionProviderDescriptor> completionProviderList =
                             completionProviders.computeIfAbsent(attachmentPoint, k -> new ArrayList<>());
-                    completionProviderList.add(new CompletionProviderDescriptor(completionProvider,
+                    completionProviderList.add(new CompletionProviderDescriptor(
+                            (CompletionProvider<Node>) completionProvider,
                             compilerPluginContextIml.compilerPluginInfo()));
                 }
             }
@@ -204,7 +206,7 @@ public class CompletionManager {
         private final CompletionProvider<Node> completionProvider;
         private final CompilerPluginInfo compilerPluginInfo;
 
-        public CompletionProviderDescriptor(CompletionProvider completionProvider,
+        public CompletionProviderDescriptor(CompletionProvider<Node> completionProvider,
                                             CompilerPluginInfo compilerPluginInfo) {
             this.completionProvider = completionProvider;
             this.compilerPluginInfo = compilerPluginInfo;

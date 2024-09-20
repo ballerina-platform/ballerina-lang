@@ -37,6 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 
@@ -126,7 +127,7 @@ public abstract class BaseCommandTest {
         Path balaDestPath = centralRepoPath.resolve(org).resolve(name).resolve(version).resolve(platform);
         Files.createDirectories(balaDestPath);
 
-        try (var files = Files.walk(balaProjectDirectory)) {
+        try (Stream<Path> files = Files.walk(balaProjectDirectory)) {
             files.forEach(a -> {
                 Path b = Paths.get(String.valueOf(balaDestPath),
                         a.toString().substring(balaProjectDirectory.toString().length()));

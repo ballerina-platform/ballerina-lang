@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.ValueComparisonUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 
@@ -112,7 +113,7 @@ public final class Sort {
 
             } catch (BError error) {
                 throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
-                        (BMap) error.getDetails());
+                        (BMap<BString, Object>) error.getDetails());
             }
         }
     }

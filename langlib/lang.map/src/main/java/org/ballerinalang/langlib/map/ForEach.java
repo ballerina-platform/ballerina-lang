@@ -43,7 +43,7 @@ public final class ForEach {
     private ForEach() {
     }
 
-    public static void forEach(BMap<?, ?> m, BFunctionPointer<Object, Object> func) {
+    public static void forEach(BMap<?, ?> m, BFunctionPointer<Object[], Object> func) {
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         Object[] keys = m.getKeys();

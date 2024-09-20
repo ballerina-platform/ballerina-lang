@@ -36,7 +36,7 @@ public final class RemoveAll {
     private RemoveAll() {
     }
 
-    public static void removeAll(BTable tbl) {
+    public static void removeAll(BTable<?, ?> tbl) {
         try {
             tbl.clear();
         } catch (BError e) {

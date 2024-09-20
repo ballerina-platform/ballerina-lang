@@ -51,7 +51,7 @@ public final class ForEach {
     private ForEach() {
     }
 
-    public static void forEach(BArray arr, BFunctionPointer<Object, Object> func) {
+    public static void forEach(BArray arr, BFunctionPointer<Object[], Object> func) {
         int size = arr.size();
         Type arrType = arr.getType();
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");

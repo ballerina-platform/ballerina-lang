@@ -37,7 +37,7 @@ public final class Remove {
     private Remove() {
     }
 
-    public static BMap remove(BTable tbl, Object key) {
-        return (BMap) tbl.removeOrThrow(key);
+    public static BMap<?, ?> remove(BTable<?, ?> tbl, Object key) {
+        return (BMap<?, ?>) tbl.removeOrThrow(key);
     }
 }

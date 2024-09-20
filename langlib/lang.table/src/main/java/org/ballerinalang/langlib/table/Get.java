@@ -37,7 +37,7 @@ public final class Get {
     private Get() {
     }
 
-    public static BMap get(BTable tbl, Object key) {
-        return (BMap) tbl.getOrThrow(key);
+    public static BMap<?, ?> get(BTable<?, ?> tbl, Object key) {
+        return (BMap<?, ?>) tbl.getOrThrow(key);
     }
 }

@@ -213,7 +213,7 @@ public class NativeConversionTest {
     public void testAnyRecordToAnydataMap() {
         Object returns = BRunUtil.invoke(compileResult, "testAnyRecordToAnydataMap");
         Assert.assertTrue(returns instanceof BMap);
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("name")).toString(), "Waruna");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("name")).toString(), "Waruna");
     }
 
     @Test(description = "Test converting a map to json")

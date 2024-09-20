@@ -37,7 +37,7 @@ public final class GetIterator {
     private GetIterator() {
     }
 
-    public static BIterator iterator(BArray arr) {
+    public static BIterator<?> iterator(BArray arr) {
         return arr.getIterator();
     }
 }

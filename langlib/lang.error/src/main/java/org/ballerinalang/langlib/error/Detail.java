@@ -35,7 +35,7 @@ public final class Detail {
     private Detail() {
     }
 
-    public static BMap detail(BError value) {
-        return (BMap) value.getDetails();
+    public static BMap<?, ?> detail(BError value) {
+        return (BMap<?, ?>) value.getDetails();
     }
 }

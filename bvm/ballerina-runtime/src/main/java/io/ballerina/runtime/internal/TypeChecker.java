@@ -1174,7 +1174,7 @@ public final class TypeChecker {
         Type constraintType = sourceType.getConstrainedType();
 
         for (Field field : targetType.getFields().values()) {
-            var flags = field.getFlags();
+            long flags = field.getFlags();
             if (!SymbolFlags.isFlagOn(flags, SymbolFlags.OPTIONAL)) {
                 return false;
             }
@@ -1894,7 +1894,7 @@ public final class TypeChecker {
         }
 
         if (sourceType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            var flags = ((BObjectType) sourceType).flags;
+            long flags = ((BObjectType) sourceType).flags;
             return (flags & SymbolFlags.SERVICE) == SymbolFlags.SERVICE;
         }
 

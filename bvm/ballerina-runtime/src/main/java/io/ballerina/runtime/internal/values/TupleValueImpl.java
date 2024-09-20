@@ -630,7 +630,7 @@ public class TupleValueImpl extends AbstractArrayValue {
      * {@inheritDoc}
      */
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<Object> getIterator() {
         return new ArrayIterator(this);
     }
 

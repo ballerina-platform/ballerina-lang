@@ -263,7 +263,7 @@ public final class ValueConverter {
                 BArray data = ValueCreator
                         .createArrayValue(tableValues, TypeCreator.createArrayType(tableType.getConstrainedType()));
                 BArray fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
-                return new TableValueImpl(targetRefType, (ArrayValue) data, (ArrayValue) fieldNames);
+                return new TableValueImpl<>(targetRefType, (ArrayValue) data, (ArrayValue) fieldNames);
             default:
                 break;
         }

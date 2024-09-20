@@ -43,7 +43,7 @@ public final class ForEach {
     private ForEach() {
     }
 
-    public static void forEach(BXml x, BFunctionPointer<Object, Object> func) {
+    public static void forEach(BXml x, BFunctionPointer<Object[], Object> func) {
         if (x.isSingleton()) {
             func.asyncCall(new Object[]{x, true}, METADATA);
             return;

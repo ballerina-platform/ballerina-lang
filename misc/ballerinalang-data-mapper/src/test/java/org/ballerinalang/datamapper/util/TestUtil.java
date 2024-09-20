@@ -91,7 +91,7 @@ public final class TestUtil {
                                                CodeActionContext context) {
         TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
         CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
-        CompletableFuture result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
+        CompletableFuture<?> result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
         return getResponseString(result);
     }
 
@@ -182,7 +182,7 @@ public final class TestUtil {
         return identifier;
     }
 
-    public static String getResponseString(CompletableFuture completableFuture) {
+    public static String getResponseString(CompletableFuture<?> completableFuture) {
         ResponseMessage jsonrpcResponse = new ResponseMessage();
         try {
             jsonrpcResponse.setId("324");

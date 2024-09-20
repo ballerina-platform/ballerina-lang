@@ -60,7 +60,7 @@ public final class Elements {
 
     private static BXml generateCodePointSequence(BXml value) {
         List<BXml> list = new ArrayList<>();
-        BIterator bIterator = value.getIterator();
+        BIterator<?> bIterator = value.getIterator();
         while (bIterator.hasNext()) {
             list.add((BXml) bIterator.next());
         }

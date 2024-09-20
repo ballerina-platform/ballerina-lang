@@ -52,8 +52,8 @@ public final class Next {
 
     //TODO: refactor hard coded values
     public static Object next(BObject t) {
-        BIterator tableIterator = (BIterator) t.getNativeData("&iterator&");
-        BTable table = (BTable) t.get(StringUtils.fromString("t"));
+        BIterator<?> tableIterator = (BIterator<?>) t.getNativeData("&iterator&");
+        BTable<?, ?> table = (BTable<?, ?>) t.get(StringUtils.fromString("t"));
         BArray keys = (BArray) t.get(StringUtils.fromString("keys"));
         long initialSize = (long) t.get(StringUtils.fromString("size"));
         if (tableIterator == null) {
@@ -76,7 +76,7 @@ public final class Next {
         return null;
     }
 
-    private static void handleMutation(BTable table, BArray keys,
+    private static void handleMutation(BTable<?, ?> table, BArray keys,
                                        List<Object> returnedKeys, long initialSize) {
         if (initialSize < table.size() ||
                 // Key-less situation, mutation can occur only by calling add() or removeAll()

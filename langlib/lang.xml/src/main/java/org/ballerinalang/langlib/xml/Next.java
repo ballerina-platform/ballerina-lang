@@ -45,7 +45,7 @@ public final class Next {
 
     //TODO: refactor hard coded values
     public static Object next(BObject m) {
-        BIterator xmlIterator = (BIterator) m.getNativeData("&iterator&");
+        BIterator<?> xmlIterator = (BIterator<?>) m.getNativeData("&iterator&");
         BXml bXml = (BXml) m.get(StringUtils.fromString("m"));
 
         if (xmlIterator == null) {
