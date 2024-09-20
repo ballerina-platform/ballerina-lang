@@ -1118,7 +1118,6 @@ public class BIRGen extends BLangNodeVisitor {
         birVarDcl.annotAttachments.addAll(getBIRAnnotAttachments(varNode.symbol.getAnnotations()));
 
         this.env.enclPkg.globalVars.add(birVarDcl);
-        this.env.symbolVarMap.put(varNode.symbol, birVarDcl);
 
         this.globalVarMap.put(varNode.symbol, birVarDcl);
         env.enclPkg.isListenerAvailable |= Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER);
@@ -1634,7 +1633,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
         setScopeAndEmit(createNewStructureInst(generateMappingConstructorEntries(astMapLiteralExpr.fields), toVarRef,
-                        Types.getImpliedType(type), astMapLiteralExpr.pos));
+                        type, astMapLiteralExpr.pos));
         this.env.targetOperand = toVarRef;
         this.env.isInArrayOrStructure--;
     }
@@ -1681,7 +1680,7 @@ public class BIRGen extends BLangNodeVisitor {
         BType objectType = getEffectiveObjectType(exprType);
         BTypeSymbol objectTypeSymbol = Types.getImpliedType(objectType).tsymbol;
         BIRNonTerminator.NewInstance instruction;
-        if (isInSamePackage(objectTypeSymbol, env.enclPkg.packageID)) {
+        if (isInSameModule(objectTypeSymbol, env.enclPkg.packageID)) {
             BIRTypeDefinition def = typeDefs.get(objectTypeSymbol);
             instruction = new BIRNonTerminator.NewInstance(connectorInitExpr.pos, def, toVarRef, objectType);
         } else {
@@ -1693,7 +1692,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = toVarRef;
     }
 
-    private boolean isInSamePackage(BSymbol symbol, PackageID packageID) {
+    private boolean isInSameModule(BSymbol symbol, PackageID packageID) {
         return symbol.pkgID.equals(packageID);
     }
 
@@ -1921,7 +1920,7 @@ public class BIRGen extends BLangNodeVisitor {
             this.globalVarMap.put(symbol, globalVarDcl);
         }
 
-        if (!isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID) ||
+        if (!isInSameModule(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID) ||
                 env.enclPkg.packageID.isTestPkg) {
             this.env.enclPkg.importedGlobalVarsDummyVarDcls.add(globalVarDcl);
         }
@@ -2426,7 +2425,7 @@ public class BIRGen extends BLangNodeVisitor {
     private BIRVariableDcl findInPackageScope(BType type) {
         BTypeSymbol typeSymbol = type.tsymbol;
         if (typeSymbol != null && typeSymbol.owner.tag == SymTag.PACKAGE &&
-                !isInSamePackage(typeSymbol, env.enclPkg.packageID)) {
+                !isInSameModule(typeSymbol, env.enclPkg.packageID)) {
             BPackageSymbol packageSymbol = (BPackageSymbol) typeSymbol.owner;
             Scope.ScopeEntry scopeEntry =
                     packageSymbol.scope.lookup(new Name(getTypedescFieldName(typeSymbol.name.value)));
@@ -2459,7 +2458,7 @@ public class BIRGen extends BLangNodeVisitor {
             BSymbol varSymbol = entry.getKey();
             if (isMatchingTypeDescSymbol(varSymbol, Types.getImpliedType(type))) {
                 BIRGlobalVariableDcl globalVarDcl =  varMap.get(varSymbol);
-                if (!isInSamePackage(varSymbol, env.enclPkg.packageID) || env.enclPkg.packageID.isTestPkg) {
+                if (!isInSameModule(varSymbol, env.enclPkg.packageID) || env.enclPkg.packageID.isTestPkg) {
                     this.env.enclPkg.importedGlobalVarsDummyVarDcls.add(globalVarDcl);
                 }
                 return globalVarDcl;
