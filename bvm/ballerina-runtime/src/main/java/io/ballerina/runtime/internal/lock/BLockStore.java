@@ -20,7 +20,6 @@ package io.ballerina.runtime.internal.lock;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.HashMap;
@@ -52,16 +51,8 @@ public class BLockStore {
     */
     @SuppressWarnings("unused")
     public void lock(Strand strand, String lockName) {
-        ReentrantLock balLock = getbalLock(lockName);
-        if (strand.isIsolated) {
-            balLock.lock();
-            strand.acquiredLockCount++;
-            return;
-        }
-        AsyncUtils.handleNonIsolatedStrand(strand, balLock::tryLock, () -> {
-            strand.acquiredLockCount++;
-            return null;
-        });
+        getLockFromMap(lockName).lock();
+        strand.acquiredLockCount++;
     }
 
     /*
@@ -69,7 +60,7 @@ public class BLockStore {
     */
     @SuppressWarnings("unused")
     public void unlock(Strand strand, String lockName) {
-        getbalLock(lockName).unlock();
+        getLockFromMap(lockName).unlock();
         strand.acquiredLockCount--;
     }
 
@@ -84,7 +75,7 @@ public class BLockStore {
         }
     }
 
-    private ReentrantLock getbalLock(String lockName) {
+    private ReentrantLock getLockFromMap(String lockName) {
         ReentrantLock lock;
         try {
             storeLock.readLock().lock();
@@ -92,7 +83,6 @@ public class BLockStore {
         } finally {
             storeLock.readLock().unlock();
         }
-
         if (lock != null) {
             return lock;
         }

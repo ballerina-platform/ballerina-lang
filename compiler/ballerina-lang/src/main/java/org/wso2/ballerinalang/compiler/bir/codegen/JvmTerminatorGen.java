@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JIConstructorCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCLICall;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCall;
-import org.wso2.ballerinalang.compiler.bir.codegen.model.JLock;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JTerminator;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JavaMethodCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
@@ -188,7 +187,6 @@ public class JvmTerminatorGen {
     private final JvmCastGen jvmCastGen;
     private final AsyncDataCollector asyncDataCollector;
     private final String strandMetadataClass;
-    private JLock currentLock;
 
     public JvmTerminatorGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, LabelGenerator labelGen,
                             JvmErrorGen errorGen, PackageID packageID, JvmInstructionGen jvmInstructionGen,
@@ -262,11 +260,11 @@ public class JvmTerminatorGen {
                 return;
             }
             case LOCK -> {
-                this.genLockTerm((BIRTerminator.Lock) terminator, localVarOffset);
+                this.genLockTerm((BIRTerminator.Lock) terminator, funcName, localVarOffset);
                 return;
             }
             case UNLOCK -> {
-                this.genUnlockTerm((BIRTerminator.Unlock) terminator, localVarOffset);
+                this.genUnlockTerm((BIRTerminator.Unlock) terminator, funcName, localVarOffset);
                 return;
             }
             case WK_SEND -> {
@@ -335,41 +333,26 @@ public class JvmTerminatorGen {
         }
     }
 
-    private void genLockTerm(BIRTerminator.Lock lockIns, int localVarOffset) {
-        JLock jLock = new JLock();
-        this.mv.visitTryCatchBlock(jLock.startLabel, jLock.endLabel, jLock.handlerLabel, null);
-        this.mv.visitLabel(jLock.startLabel);
+    private void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset) {
+        Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
         String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
         String lockName = GLOBAL_LOCK_NAME + lockIns.lockId;
         this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, GET_LOCK_STORE);
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         this.mv.visitLdcInsn(lockName);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "lock", PASS_STRAND_AND_LOCK_NAME, false);
-        this.currentLock = jLock;
+        this.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    private void genUnlockTerm(BIRTerminator.Unlock unlockIns, int localVarOffset) {
-        JLock jLock = this.currentLock;
-        this.mv.visitLabel(jLock.endLabel);
-        this.genUnLock(unlockIns, localVarOffset);
-        Label label = new Label();
-        this.mv.visitJumpInsn(GOTO, label);
-        this.mv.visitLabel(jLock.handlerLabel);
-        int throwableVarIndex = indexMap.addIfNotExists(THROWABLE_VAR, symbolTable.anyType);
-        this.mv.visitVarInsn(ASTORE, throwableVarIndex);
-        this.genUnLock(unlockIns, localVarOffset);
-        this.mv.visitVarInsn(ALOAD, throwableVarIndex);
-        this.mv.visitInsn(ATHROW);
-        this.mv.visitLabel(label);
-    }
-
-    private void genUnLock(BIRTerminator.Unlock unlockIns, int localVarOffset) {
+    private void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName, int localVarOffset) {
+        Label gotoLabel = this.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
         String lockName = GLOBAL_LOCK_NAME + unlockIns.relatedLock.lockId;
         String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
         this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, GET_LOCK_STORE);
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         this.mv.visitLdcInsn(lockName);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "unlock", PASS_STRAND_AND_LOCK_NAME, false);
+        this.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
     private void genCallTerm(BIRTerminator.Call callIns, int localVarOffset, String funcName) {
