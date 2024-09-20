@@ -61,7 +61,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Abstract test for code action related tests.
@@ -98,7 +97,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         Range finalRange = range;
         diags = diags.stream()
                 .filter(diag -> PositionUtil.isRangeWithinRange(finalRange, diag.getRange()))
-                .collect(Collectors.toList());
+                .toList();
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
         String res = getResponse(sourcePath, finalRange, codeActionContext);
@@ -298,7 +297,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         Range finalRange = range;
         diags = diags.stream()
                 .filter(diag -> PositionUtil.isRangeWithinRange(finalRange, diag.getRange()))
-                .collect(Collectors.toList());
+                .toList();
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
         String res = TestUtil.getCodeActionResponse(endpoint, sourcePath.toString(), finalRange, codeActionContext);

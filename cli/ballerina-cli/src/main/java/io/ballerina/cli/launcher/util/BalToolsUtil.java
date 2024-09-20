@@ -44,7 +44,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.cmd.Constants.ADD_COMMAND;
@@ -189,7 +188,7 @@ public final class BalToolsUtil {
                                             .resolve(TOOL).resolve(LIBS)
                         .toFile()))
                     .flatMap(List::stream)
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         Optional<BalToolsManifest.Tool> toolOpt = balToolsManifest.getActiveTool(commandName);
@@ -280,7 +279,7 @@ public final class BalToolsUtil {
                     } catch (ProjectException ignore) {
                         return false;
                     }
-                })).map(File::getName).collect(Collectors.toList());
+                })).map(File::getName).toList();
 
                 Optional<String> latestVersion = getLatestVersion(versions);
                 versions.stream().forEach(version -> {

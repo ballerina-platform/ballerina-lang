@@ -35,7 +35,6 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * This class is being used to build resource access completion item.
@@ -84,7 +83,7 @@ public final class ResourcePathCompletionItemBuilder {
             item.setFilterText(ResourcePathCompletionUtil
                     .getFilterTextForClientResourceAccessAction(resourceMethodSymbol, segments));
             return item;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     private static CompletionItem buildCompletionItem(ResourceMethodSymbol resourceMethodSymbol, 

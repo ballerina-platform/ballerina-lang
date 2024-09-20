@@ -135,7 +135,7 @@ public final class ConverterUtils {
                             .compareTo((arrayNode2).memberTypeDesc().toSourceCode()) :
                     getNumberOfDimensions(arrayNode1) - getNumberOfDimensions(arrayNode2);
         });
-        return Stream.concat(nonArrayNodes.stream(), arrayNodes.stream()).collect(Collectors.toList());
+        return Stream.concat(nonArrayNodes.stream(), arrayNodes.stream()).toList();
     }
 
     /**

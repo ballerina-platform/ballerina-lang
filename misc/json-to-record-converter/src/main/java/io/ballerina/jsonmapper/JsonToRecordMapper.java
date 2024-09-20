@@ -181,7 +181,7 @@ public final class JsonToRecordMapper {
                     Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
                     return NodeFactory.createTypeDefinitionNode(null, null, typeKeyWord, typeName,
                             entry.getValue(), semicolon);
-                }).collect(Collectors.toList());
+                }).toList();
 
         NodeList<ModuleMemberDeclarationNode> moduleMembers;
         if (isRecordTypeDesc) {

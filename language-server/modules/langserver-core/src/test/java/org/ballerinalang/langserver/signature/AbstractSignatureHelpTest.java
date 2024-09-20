@@ -80,7 +80,8 @@ public abstract class AbstractSignatureHelpTest {
 //            java.nio.file.Files.write(org.ballerinalang.langserver.util.FileUtils.RES_DIR.resolve(configJsonPath),
 //                                      obj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
-            Assert.fail("Failed Test for: " + configJsonPath);
+            Assert.fail("Failed Test for: " + configJsonPath + "\n Expected: " +
+                    expected + "\n Found: " + responseJson);
         }
     }
 

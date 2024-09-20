@@ -89,7 +89,7 @@ public class  DefaultPackageRepository extends AbstractPackageRepository {
         return pkgDescWrapper.modules().stream()
                 .map(modNameStr -> Utils.getModuleName(name, modNameStr))
                 .map(moduleName -> ModuleDescriptor.from(moduleName, pkgDesc))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

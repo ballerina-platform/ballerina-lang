@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Holds the set of utilities to get the qualified name reference associated Completion Items.
@@ -76,7 +75,7 @@ public final class QNameReferenceUtil {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
         return module.map(moduleSymbol -> moduleSymbol.allSymbols().stream()
                 .filter(predicate)
-                .collect(Collectors.toList()))
+                .toList())
                 .orElseGet(ArrayList::new);
     }
 
@@ -127,6 +126,6 @@ public final class QNameReferenceUtil {
                         || symbol.kind() == SymbolKind.TYPE_DEFINITION
                         || symbol.kind() == SymbolKind.CLASS
                         || symbol instanceof VariableSymbol)
-                .collect(Collectors.toList())).orElseGet(ArrayList::new);
+                .toList()).orElseGet(ArrayList::new);
     }
 }

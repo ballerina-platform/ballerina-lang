@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -90,7 +89,7 @@ public class PackageRepositoryBuilder {
         }
 
         try (Stream<Path> paths = Files.list(localRepoDirPath)) {
-            return buildLocalRepo(paths.collect(Collectors.toList()));
+            return buildLocalRepo(paths.toList());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -211,7 +210,7 @@ public class PackageRepositoryBuilder {
             return marker.entrySet().stream()
                     .filter(entry -> entry.getValue() == Boolean.FALSE)
                     .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
+                    .toList();
         }
     }
 }

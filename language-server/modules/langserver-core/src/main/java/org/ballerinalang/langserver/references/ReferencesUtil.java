@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.references;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.NodeLocation;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
@@ -61,7 +62,7 @@ public final class ReferencesUtil {
             List<Location> docReferences = new LinkedList<>();
             // Find references in documentation
             locations.forEach(location -> {
-                List<Location> refs = findReferencesInDocumentation(location, module, context, symbol.get());
+                List<NodeLocation> refs = findReferencesInDocumentation(location, module, context, symbol.get());
                 if (refs != null && !refs.isEmpty()) {
                     docReferences.addAll(refs);
                 }
@@ -93,10 +94,10 @@ public final class ReferencesUtil {
         return moduleLocationMap;
     }
     
-    private static List<Location> findReferencesInDocumentation(Location location, 
-                                                                Module module, 
-                                                                PositionedOperationContext context,
-                                                                Symbol symbol) {
+    private static List<NodeLocation> findReferencesInDocumentation(Location location,
+                                                                    Module module,
+                                                                    PositionedOperationContext context,
+                                                                    Symbol symbol) {
         Path filePath = PathUtil.getPathFromLocation(module, location);
         Range range = PositionUtil.getRangeFromLineRange(location.lineRange());
         Optional<NonTerminalNode> node = context.workspace().syntaxTree(filePath)

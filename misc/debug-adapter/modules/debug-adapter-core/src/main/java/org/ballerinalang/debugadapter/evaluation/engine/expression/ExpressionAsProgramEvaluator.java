@@ -510,7 +510,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             modifier = modifier.withModuleName(newModuleName);
 
             return modifier.apply();
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     private void processSnippetFunctionParameters() throws EvaluationException {

@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Creates a {@code PackageConfig} instance from the given {@code PackageData} instance.
@@ -146,14 +146,12 @@ public final class PackageConfigCreator {
         PackageName packageName = packageManifest.name();
         PackageId packageId = PackageId.create(packageName.value());
 
-        List<ModuleConfig> moduleConfigs = packageData.otherModules()
-                .stream()
-                .map(moduleData -> createModuleConfig(packageManifest.descriptor(), moduleData,
-                        packageId, moduleDependencyGraph))
-                .collect(Collectors.toList());
+        List<ModuleConfig> moduleConfigs = Stream.concat(packageData.otherModules().stream()
+                        .map(moduleData -> createModuleConfig(packageManifest.descriptor(), moduleData,
+                                packageId, moduleDependencyGraph)),
+                Stream.of(createDefaultModuleConfig(packageManifest.descriptor(),
+                        packageData.defaultModule(), packageId, moduleDependencyGraph))).toList();
 
-        moduleConfigs.add(createDefaultModuleConfig(packageManifest.descriptor(),
-                packageData.defaultModule(), packageId, moduleDependencyGraph));
 
         DocumentConfig ballerinaToml = packageData.ballerinaToml()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
@@ -240,7 +238,7 @@ public final class PackageConfigCreator {
         // TODO: no need Remove duplicate paths before processing
         Set<Path> distinctResources = new HashSet<>(resources);
         return distinctResources.stream().map(
-                distinctResource -> createResourceConfig(distinctResource, packagePath)).collect(Collectors.toList());
+                distinctResource -> createResourceConfig(distinctResource, packagePath)).toList();
     }
 
     private static ResourceConfig createResourceConfig(Path path, Path packagePath) {
@@ -253,7 +251,7 @@ public final class PackageConfigCreator {
                 .stream()
                 .sorted(Comparator.comparing(DocumentData::name))
                 .map(srcDoc -> createDocumentConfig(srcDoc, moduleId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     static DocumentConfig createDocumentConfig(DocumentData documentData, ModuleId moduleId) {

@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -43,7 +44,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ImplicitNewExpressionNode} context.
@@ -114,8 +114,8 @@ public class ImplicitNewExpressionNodeContext extends InvocationNodeContextProvi
             return this.getCompletionItemList(QNameRefCompletionUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
         }
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Node> arguments = node.parenthesizedArgList().isPresent() ?
-                node.parenthesizedArgList().get().arguments().stream().collect(Collectors.toList())
+        List<FunctionArgumentNode> arguments = node.parenthesizedArgList().isPresent() ?
+                node.parenthesizedArgList().get().arguments().stream().toList()
                 : Collections.emptyList();
         if (isNotInNamedArgOnlyContext(ctx, arguments)) {
             completionItems.addAll(this.expressionCompletions(ctx));

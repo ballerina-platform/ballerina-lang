@@ -321,7 +321,7 @@ public class CodeActionUtils {
                     // Get codeactions for the diagnostic
                     return codeActionManager.codeActions(context).getCodeActions().stream();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 }
 ```
@@ -387,7 +387,7 @@ public class CodeActionUtils {
         // JsonElements to objects via deserialization.
         List<CodeActionArgument> codeActionArguments = codeAction.getArguments().stream()
                 .map(arg -> CodeActionArgument.from(GSON.toJsonTree(arg)))
-                .collect(Collectors.toList());
+                .toList();
 
         CodeActionExecutionContext executionContext = CodeActionExecutionContextImpl.from(
                 filePath.toUri().toString(),

@@ -24,7 +24,6 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A utility to provide completions related to query expressions.
@@ -78,6 +77,6 @@ public final class QueryExpressionUtil {
         langLibMethods.addAll(types.TYPEDESC.langLibMethods());
         langLibMethods.addAll(types.XML.langLibMethods());
 
-        return langLibMethods.stream().distinct().collect(Collectors.toList());
+        return langLibMethods.stream().distinct().toList();
     }
 }

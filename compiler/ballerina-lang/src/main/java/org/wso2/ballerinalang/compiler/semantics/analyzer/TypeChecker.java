@@ -1676,15 +1676,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             switch (referredKeyTypeConstraint.tag) {
                 case TypeTags.TUPLE:
-                    for (BType type : ((BTupleType) referredKeyTypeConstraint).getTupleTypes()) {
-                        memberTypes.add(type);
-                    }
+                    memberTypes.addAll(((BTupleType) referredKeyTypeConstraint).getTupleTypes());
                     break;
                 case TypeTags.RECORD:
                     Map<String, BField> fieldList = ((BRecordType) referredKeyTypeConstraint).getFields();
-                    memberTypes = fieldList.entrySet().stream()
+                    memberTypes.addAll(fieldList.entrySet().stream()
                             .filter(e -> fieldNameList.contains(e.getKey())).map(entry -> entry.getValue().type)
-                            .collect(Collectors.toList());
+                            .toList());
                     if (memberTypes.isEmpty()) {
                         memberTypes.add(keyTypeConstraint);
                     }

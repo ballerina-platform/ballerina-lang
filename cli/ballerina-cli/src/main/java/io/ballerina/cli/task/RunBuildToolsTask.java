@@ -368,6 +368,6 @@ public class RunBuildToolsTask implements Task {
                         .resolve(TOOL).resolve(LIBS)
                         .toFile()))
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

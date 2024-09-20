@@ -42,7 +42,6 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link AnnotationNode} context.
@@ -95,7 +94,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION
                         && this.matchingAnnotation((AnnotationSymbol) symbol, annotationNode, attachedNode, ctx))
                 .map(symbol -> AnnotationUtil.getAnnotationItem((AnnotationSymbol) symbol, ctx))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<LSCompletionItem> getAnnotationsInModule(BallerinaCompletionContext context, String alias,
@@ -118,7 +117,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION
                         && this.matchingAnnotation((AnnotationSymbol) symbol, annotationNode, attachedNode, context))
                 .map(symbol -> AnnotationUtil.getAnnotationItem((AnnotationSymbol) symbol, context))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Node getAttached(AnnotationNode node) {
