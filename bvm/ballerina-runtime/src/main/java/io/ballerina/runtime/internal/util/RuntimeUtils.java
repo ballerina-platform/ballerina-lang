@@ -27,13 +27,13 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.io.PrintStream;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -76,6 +76,19 @@ public class RuntimeUtils {
         }
     }
 
+    public static boolean handleFutureAndReturnIsPanic(FutureValue future) {
+        try {
+            Object result =  getFutureValue(future);
+            if (result instanceof ErrorValue errorValue) {
+                errStream.println("error: " + errorValue.getPrintableError());
+            }
+        } catch (ErrorValue error) {
+            printToConsole(error);
+            return true;
+        }
+        return false;
+    }
+
     public static void handleFutureAndExit(FutureValue future) {
         try {
             handleErrorResult(getFutureValue(future));
@@ -100,7 +113,7 @@ public class RuntimeUtils {
     public static Object getFutureValue(FutureValue future) {
         try {
             return future.completableFuture.get();
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (Throwable e) {
             if (e.getCause() instanceof BError bError) {
                 throw bError;
             }

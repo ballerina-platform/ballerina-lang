@@ -30,19 +30,25 @@ import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BNever;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.ErrorUtils;
+import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BServiceType;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.FutureValue;
+import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
@@ -75,21 +81,27 @@ public class Scheduler {
     }
     public Object call(Module module, String functionName, Strand parentStrand, Object... args) {
         parentStrand.resume();
-        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
-                module.getName(), module.getMajorVersion(), module.isTestPkg()));
-        return valueCreator.call(parentStrand, functionName, args);
+        getValueCreatorAndFunctionType result = getGetValueCreatorAndFunctionType(module, functionName);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(result.valueCreator(), result.functionType(),
+                parentStrand, args);
+        return result.valueCreator().call(parentStrand, functionName, argsWithDefaultValues);
     }
 
     public Object call(BObject object, String methodName, Strand parentStrand, Object... args) {
         parentStrand.resume();
-        return ((ObjectValue) object).call(parentStrand, methodName, args);
+        ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
+        MethodType methodType = getObjectMethodType(methodName, objectType);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, parentStrand, args);
+        return ((ObjectValue) object).call(parentStrand, methodName, argsWithDefaultValues);
     }
 
     public Object call(FPValue fp, Strand parentStrand, Object... args) {
         parentStrand.resume();
         FunctionType functionType = (FunctionType) TypeUtils.getImpliedType(TypeUtils.getType(fp));
-        Object[] argsWithStrand = getArgsWithStrand(parentStrand,
-                getArgsWithDefaultValues(functionType, parentStrand, args));
+        Module module = functionType.getPackage();
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
+        Object[] argsWithStrand = getArgsWithStrand(parentStrand, getArgsWithDefaultValues(valueCreator, functionType
+                , parentStrand, args));
         return fp.function.apply(argsWithStrand);
     }
 
@@ -99,9 +111,11 @@ public class Scheduler {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
                 module.getName(), module.getMajorVersion(), module.isTestPkg()));
         FunctionType functionType = valueCreator.getFunctionType(functionName);
+        List<Object> argsList = new ArrayList<>();
+        processFunctionArguments(functionType, args, argsList);
         FutureValue future = createFuture(parentStrand, true, properties, functionType.getReturnType(), strandName,
                 metadata, null);
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(functionType, parentStrand, args);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(valueCreator, functionType, parentStrand, args);
         Thread.startVirtualThread(() -> {
             try {
                 strandHolder.get().strand = future.strand;
@@ -124,8 +138,10 @@ public class Scheduler {
         }
         FutureValue future = createFuture(parentStrand, true, properties, methodType.getReturnType(), strandName,
                 metadata, null);
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, parentStrand, args);
-
+        List<Object> argsList = new ArrayList<>();
+        this.processFunctionArguments(methodType, args, argsList);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, parentStrand,
+                argsList.toArray());
         Thread.startVirtualThread(() -> {
             try {
                 strandHolder.get().strand = future.strand;
@@ -141,10 +157,15 @@ public class Scheduler {
     public BFuture startIsolatedWorker(FPValue fp, String strandName, Strand parentStrand, StrandMetadata metadata,
                                        Map<String, Object> properties, Object... args) {
         BFunctionType functionType = (BFunctionType) fp.getType();
+        Module module = functionType.getPackage();
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
         strandName = getStrandName(strandName, fp.getName());
+        List<Object> argsList = new ArrayList<>();
+        this.processFunctionArguments(functionType, args, argsList);
         FutureValue future = createFuture(parentStrand, true, properties, functionType.getReturnType(), strandName,
                 metadata, null);
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(functionType, parentStrand, args);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(valueCreator, functionType, parentStrand,
+                argsList.toArray());
         Thread.startVirtualThread(() -> {
             try {
                 strandHolder.get().strand = future.strand;
@@ -173,6 +194,7 @@ public class Scheduler {
                 Object result = fp.function.apply(args);
                 future.completableFuture.complete(result);
             } catch (Throwable t) {
+                t.printStackTrace();
                 future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
             }
         }).setName(strandName);
@@ -184,12 +206,14 @@ public class Scheduler {
                                               String strandName, StrandMetadata metadata,
                                               Map<String, Object> properties, Object... args) {
         strandName = getStrandName(functionName, strandName);
-        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
-                module.getName(), module.getMajorVersion(), module.isTestPkg()));
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
         FunctionType functionType = valueCreator.getFunctionType(functionName);
+        List<Object> argsList = new ArrayList<>();
+        this.processFunctionArguments(functionType, args, argsList);
         FutureValue future = createFuture(parentStrand, false, properties, functionType.getReturnType(), strandName,
                 metadata, null);
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(functionType, parentStrand, args);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(valueCreator, functionType, parentStrand,
+                argsList.toArray());
         Thread.startVirtualThread(() -> {
             try {
                 future.strand.resume();
@@ -213,9 +237,12 @@ public class Scheduler {
         if (methodType == null) {
             throw ErrorCreator.createError(StringUtils.fromString("No such method: " + methodName));
         }
+        List<Object> argsList = new ArrayList<>();
+        this.processFunctionArguments(methodType, args, argsList);
         FutureValue future = createFuture(parentStrand, false, properties, methodType.getReturnType(),  strandName,
                 metadata, null);
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, parentStrand, args);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, parentStrand,
+                argsList.toArray());
         Thread.startVirtualThread(() -> {
             try {
                 future.strand.resume();
@@ -234,10 +261,15 @@ public class Scheduler {
     public BFuture startNonIsolatedWorker(FPValue fp, String strandName, Strand parentStrand, StrandMetadata metadata,
                                           Map<String, Object> properties, Object... args) {
         BFunctionType functionType = (BFunctionType) fp.getType();
+        Module module = functionType.getPackage();
         strandName = getStrandName(strandName, fp.getName());
         FutureValue future = createFuture(parentStrand, false, properties, functionType.getReturnType(), strandName,
                 metadata, null);
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(functionType, parentStrand, args);
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
+        List<Object> argsList = new ArrayList<>();
+        processFunctionArguments(functionType, args, argsList);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(valueCreator, functionType, parentStrand,
+                argsList.toArray());
         Thread.startVirtualThread(() -> {
             try {
                 future.strand.resume();
@@ -301,31 +333,71 @@ public class Scheduler {
         return future;
     }
 
+    private void processFunctionArguments(FunctionType functionType, Object[] args, List<Object> argsList) {
+        Parameter[] parameters = functionType.getParameters();
+        int numOfParams = parameters.length;
+        int numOfArgs = args.length;
+        for (int i = 0; i < numOfParams; i++) {
+            Parameter parameter = parameters[i];
+            if (i < numOfArgs) {
+                argsList.add(args[i]);
+            } else if (parameter.isDefault) {
+                argsList.add(BNever.getValue());
+            }
+        }
+        int numOfRestArgs = Math.max(numOfArgs - numOfParams, 0);
+        BArrayType restType = (BArrayType) functionType.getRestType();
+        if (restType != null) {
+            ListInitialValueEntry.ExpressionEntry[] initialValues =
+                    new ListInitialValueEntry.ExpressionEntry[numOfRestArgs];
+            for (int i = 0; i < numOfRestArgs; i++) {
+                Object arg = args[numOfArgs - numOfRestArgs + i];
+                initialValues[i] = new ListInitialValueEntry.ExpressionEntry(arg);
+            }
+            argsList.add(new ArrayValueImpl(restType, -1L, initialValues));
+        }
+    }
+
+    private getValueCreatorAndFunctionType getGetValueCreatorAndFunctionType(Module module, String functionName) {
+
+        ValueCreator valueCreator;
+        FunctionType functionType;
+        try {
+            valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
+                    module.getName(), module.getMajorVersion(), false));
+            functionType = valueCreator.getFunctionType(functionName);
+        } catch (BError error) {
+            valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
+                    module.getName(), module.getMajorVersion(), true));
+            functionType = valueCreator.getFunctionType(functionName);
+        }
+        return new getValueCreatorAndFunctionType(valueCreator, functionType);
+    }
+
+    private record getValueCreatorAndFunctionType(ValueCreator valueCreator, FunctionType functionType) {
+
+    }
+
     private Object[] getArgsWithDefaultValues(ObjectType objectType, MethodType methodType, Strand strand,
                                               Object... args) {
-        return getArgsWithDefaultValues(strand, args, methodType, objectType.getPackage());
+
+        Module module = objectType.getPackage();
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
+        return getArgsWithDefaultValues(valueCreator, methodType, strand, args);
     }
 
-    private Object[] getArgsWithDefaultValues(FunctionType functionType, Strand strand, Object... args) {
-        return getArgsWithDefaultValues(strand, args, functionType, functionType.getPackage());
-    }
-
-    private Object[] getArgsWithDefaultValues(Strand strand, Object[] args, FunctionType functionType,
-                                              Module module) {
+    private Object[] getArgsWithDefaultValues(ValueCreator valueCreator, FunctionType functionType, Strand strand,
+                                              Object... args) {
         Parameter[] parameters = functionType.getParameters();
         if (args.length == 0 && parameters.length == 0) {
             return new Object[]{};
         }
-        if (module == null) {
-            return args;
-        }
-        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module, false));
         int length = functionType.getRestType() == null ? parameters.length : parameters.length + 1;
         Object[] argsWithDefaultValues = new Object[length];
         System.arraycopy(args, 0, argsWithDefaultValues, 0, args.length);
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
-            if (args.length >= i && parameter.isDefault && args[i] == BNever.getValue()) {
+            if (parameter.isDefault && (args.length <= i || args[i] == BNever.getValue())) {
                 Object defaultValue = valueCreator.call(strand, parameter.defaultFunctionName, argsWithDefaultValues);
                 argsWithDefaultValues[i] = defaultValue;
             }

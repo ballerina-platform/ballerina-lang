@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.lock;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
+import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.HashMap;
@@ -37,7 +38,7 @@ public class BLockStore {
     /**
      * The map of locks inferred.
      */
-    private final Map<String, BLock> globalLockMap;
+    private final Map<String, ReentrantLock> globalLockMap;
 
     private final ReentrantReadWriteLock storeLock;
 
@@ -51,8 +52,16 @@ public class BLockStore {
     */
     @SuppressWarnings("unused")
     public void lock(Strand strand, String lockName) {
-        getLockFromMap(lockName).lock();
-        strand.acquiredLockCount++;
+        ReentrantLock balLock = getbalLock(lockName);
+        if (strand.isIsolated) {
+            balLock.lock();
+            strand.acquiredLockCount++;
+            return;
+        }
+        AsyncUtils.handleNonIsolatedStrand(strand, balLock::tryLock, () -> {
+            strand.acquiredLockCount++;
+            return null;
+        });
     }
 
     /*
@@ -60,7 +69,7 @@ public class BLockStore {
     */
     @SuppressWarnings("unused")
     public void unlock(Strand strand, String lockName) {
-        getLockFromMap(lockName).unlock();
+        getbalLock(lockName).unlock();
         strand.acquiredLockCount--;
     }
 
@@ -75,7 +84,7 @@ public class BLockStore {
         }
     }
 
-    private ReentrantLock getLockFromMap(String lockName) {
+    private ReentrantLock getbalLock(String lockName) {
         ReentrantLock lock;
         try {
             storeLock.readLock().lock();
@@ -93,9 +102,7 @@ public class BLockStore {
     private ReentrantLock addLockToMap(String lockName) {
         try {
             storeLock.writeLock().lock();
-            BLock lock = new BLock();
-            globalLockMap.put(lockName, lock);
-            return lock;
+            return globalLockMap.computeIfAbsent(lockName, k -> new ReentrantLock());
         } finally {
             storeLock.writeLock().unlock();
         }
