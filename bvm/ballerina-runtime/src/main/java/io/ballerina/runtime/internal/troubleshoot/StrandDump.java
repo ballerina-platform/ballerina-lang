@@ -41,24 +41,24 @@ import javax.management.MBeanServer;
  * @since 2201.2.0
  */
 public class StrandDump {
-    private static final String hotSpotBeanName = "com.sun.management:type=HotSpotDiagnostic";
-    private static volatile HotSpotDiagnosticMXBean hotSpotDiagnosticMXBean;
-    private static final String workingDir = System.getProperty("user.dir") + "/";
-    private static final String filename = "threadDump" + LocalDateTime.now();
-    private static final String virtualThreadIdentifier = "virtual";
-    private static final String isolatedWorkerIdentifier = "io.ballerina.runtime.internal.scheduling." +
+    private static final String HOT_SPOT_BEAN_NAME = "com.sun.management:type=HotSpotDiagnostic";
+    private static final String WORKING_DIR = System.getProperty("user.dir") + "/";
+    private static final String FILENAME = "threadDump" + LocalDateTime.now();
+    private static final String VIRTUAL_THREAD_IDENTIFIER = "virtual";
+    private static final String ISOLATED_WORKER_IDENTIFIER = "io.ballerina.runtime.internal.scheduling." +
             "Scheduler.lambda$startIsolatedWorker";
-    private static final String nonIsolatedWorkerIdentifier = "io.ballerina.runtime.internal.scheduling." +
+    private static final String NON_ISOLATED_WORKER_IDENTIFIER = "io.ballerina.runtime.internal.scheduling." +
             "Scheduler.lambda$startNonIsolatedWorker";
-    private static final String javaTracePattern = "java\\.|\\.java(?::\\d+)?";     // .java, java., .java:(any number)
-    private static final String balTracePattern = "\\.bal:\\d+";                      // .bal:(any number)
+    private static final String JAVA_TRACE_PATTERN = "java\\.|\\.java(?::\\d+)?";    // .java, java., .java:(any number)
+    private static final String BAL_TRACE_PATTERN = "\\.bal:\\d+";                  // .bal:(any number)
+    private static volatile HotSpotDiagnosticMXBean hotSpotDiagnosticMXBean;
 
     public static String getStrandDump() {
         String dump;
         try {
-            getStrandDump(workingDir + filename);
-            dump = new String(Files.readAllBytes(Paths.get(filename)));
-            File fileObj = new File(filename);
+            getStrandDump(WORKING_DIR + FILENAME);
+            dump = new String(Files.readAllBytes(Paths.get(FILENAME)));
+            File fileObj = new File(FILENAME);
             fileObj.delete();
         } catch (Exception e) {
             return "Error occurred during strand dump generation";
@@ -72,27 +72,27 @@ public class StrandDump {
         Set<Integer> isolatedWorkerList = new HashSet<>();
         Set<Integer> nonIsolatedWorkerList = new HashSet<>();
         ArrayList<ArrayList<String>> balTraces = new ArrayList<>();
-        Pattern javaPattern = Pattern.compile(javaTracePattern);
-        Pattern balPattern = Pattern.compile(balTracePattern);
+        Pattern javaPattern = Pattern.compile(JAVA_TRACE_PATTERN);
+        Pattern balPattern = Pattern.compile(BAL_TRACE_PATTERN);
         for (String item : dumpItems) {
             String[] lines = item.split("\\n");
             String[] subitems = lines[0].split("\" ");
             ArrayList<String> balTraceItems = new ArrayList<>();
             boolean balStrand = false;
-            if (subitems.length > 1 && subitems[1].equals(virtualThreadIdentifier)) {
-                balTraceItems.add("\tStrand " + lines[0].replace(virtualThreadIdentifier, ":") + "\n\t\tat");
+            if (subitems.length > 1 && subitems[1].equals(VIRTUAL_THREAD_IDENTIFIER)) {
+                balTraceItems.add("\tStrand " + lines[0].replace(VIRTUAL_THREAD_IDENTIFIER, ":") + "\n\t\tat");
                 String prefix = " ";
                 for (String line : lines) {
-                    if (!javaPattern.matcher(line).find() && !line.contains("\" " + virtualThreadIdentifier)) {
+                    if (!javaPattern.matcher(line).find() && !line.contains("\" " + VIRTUAL_THREAD_IDENTIFIER)) {
                         balTraceItems.add(prefix + line + "\n");
                         prefix = "\t\t   ";
                         if (balPattern.matcher(line).find()) {
                             balStrand = true;
                         }
                     } else {
-                        if (line.contains(isolatedWorkerIdentifier)) {
+                        if (line.contains(ISOLATED_WORKER_IDENTIFIER)) {
                             isolatedWorkerList.add(id);
-                        } else if (line.contains(nonIsolatedWorkerIdentifier)) {
+                        } else if (line.contains(NON_ISOLATED_WORKER_IDENTIFIER)) {
                             nonIsolatedWorkerList.add(id);
                         }
                     }
@@ -131,15 +131,13 @@ public class StrandDump {
 
     private static void getStrandDump(String fileName) throws IOException {
         if (hotSpotDiagnosticMXBean == null) {
-            synchronized (StrandDump.class) {
-                hotSpotDiagnosticMXBean = getHotSpotDiagnosticMXBean();
-            }
+            hotSpotDiagnosticMXBean = getHotSpotDiagnosticMXBean();
         }
         hotSpotDiagnosticMXBean.dumpThreads(fileName, HotSpotDiagnosticMXBean.ThreadDumpFormat.TEXT_PLAIN);
     }
 
     private static HotSpotDiagnosticMXBean getHotSpotDiagnosticMXBean() throws IOException {
         MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        return ManagementFactory.newPlatformMXBeanProxy(mBeanServer, hotSpotBeanName, HotSpotDiagnosticMXBean.class);
+        return ManagementFactory.newPlatformMXBeanProxy(mBeanServer, HOT_SPOT_BEAN_NAME, HotSpotDiagnosticMXBean.class);
     }
  }
