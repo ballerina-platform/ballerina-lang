@@ -30,7 +30,7 @@ dependencies {
     implementation project(':central-client')
     implementation project(':ballerina-tools-api')
     testImplementation libs.testng
-    implementation(libs.gson)
+    implementation libs.gson
 }
 
 description = 'Ballerina - Semver Checker Core'

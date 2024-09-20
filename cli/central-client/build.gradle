@@ -37,10 +37,10 @@ dependencies {
     implementation libs.findbugs.jsr305
     implementation libs.zafarkhaja.jsemver
     implementation libs.commons.io
-    implementation libs.okhttp
+    implementation libs.squareup.okhttp
     implementation libs.squareup.okio
 
-    testImplementation libs.okhttp.mockwebserver
+    testImplementation libs.squareup.mock.webserver
     testImplementation libs.mockito.core
     testImplementation libs.mockito.testng
     testImplementation libs.testng

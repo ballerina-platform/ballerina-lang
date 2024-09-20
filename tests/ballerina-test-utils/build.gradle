@@ -27,12 +27,12 @@ dependencies {
     implementation project(':ballerina-cli')
     implementation project(':identifier-util')
 
-    implementation 'org.javassist:javassist'
-    implementation 'io.netty:netty-codec-http'
+    implementation libs.javassist
+    implementation libs.netty.codec.http
     implementation libs.apache.commons.lang3
-    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
+    implementation libs.wso2.transport.http
     implementation libs.testng
-    implementation 'org.apache.ws.commons.axiom:axiom-c14n'
+    implementation libs.apache.commons.axiom.c14n
 }
 
 configurations {

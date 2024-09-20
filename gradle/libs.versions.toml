@@ -85,11 +85,13 @@ kaitaiStructRuntimeVersion="0.9"
 moandjiezanaToml4jVersion="0.7.2"
 mockitoCoreVersion="5.3.1"
 mockitoTestNGVersion="0.5.0"
-mockWebserverVersion="3.14.0"
 mustacheJavaCompilerVersion="0.8.9"
 mvel2Version="2.4.4.Final"
 nettyBufferVersion="4.1.100.Final"
+nettyCodecHttpVersion="4.1.45.Final"
+nettyCodecHttp2Version="4.1.45.Final"
 nettyCommonVersion="4.1.100.Final"
+nettyHandlerVersion="4.1.45.Final"
 nettyResolverVersion="4.1.100.Final"
 nettyTransportNativeEpollVersion="4.1.100.Final"
 nettyTransportNativeKqueueVersion="4.1.100.Final"
@@ -209,19 +211,19 @@ json-unit-json-path = { module = "net.javacrumbs.json-unit:json-unit-json-path",
 junit = { module = "junit:junit", version.ref = "junitVersion"}
 jvnet-mimepull = { module = "org.jvnet.mimepull:mimepull", version.ref = "jvnetMimepullVersion"}
 kaitai-struct-runtime = { module = "io.kaitai:kaitai-struct-runtime", version.ref = "kaitaiStructRuntimeVersion"}
-mock-webserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "mockWebserverVersion"}
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCoreVersion"}
 mockito-testng = { module = "org.mockito:mockito-testng", version.ref = "mockitoTestNGVersion"}
 mustache-java-compiler = { module = "com.github.spullara.mustache.java:compiler", version.ref = "mustacheJavaCompilerVersion"}
 mvel2 = { module = "org.mvel:mvel2", version.ref = "mvel2Version"}
 netty-buffer = { module = "io.netty:netty-buffer", version.ref = "nettyBufferVersion"}
+netty-codec-http = { module = "io.netty:netty-codec-http", version.ref = "nettyCodecHttpVersion"}
+netty-codec-http2 = { module = "io.netty:netty-codec-http2", version.ref = "nettyCodecHttp2Version"}
 netty-common = { module = "io.netty:netty-common", version.ref = "nettyCommonVersion"}
+netty-handler = { module = "io.netty:netty-handler", version.ref = "nettyHandlerVersion"}
 netty-resolver = { module = "io.netty:netty-resolver", version.ref = "nettyResolverVersion"}
 netty-transport = { module = "io.netty:netty-transport", version.ref = "nettyTransportVersion"}
 netty-transport-native-epoll = { module = "io.netty:netty-transport-native-epoll", version.ref = "nettyTransportNativeEpollVersion"}
 netty-transport-native-kqueue = { module = "io.netty:netty-transport-native-kqueue", version.ref = "nettyTransportNativeKqueueVersion"}
-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttpVersion"}
-okhttp-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttpVersion"}
 open-telemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "openTelemetryApiVersion"}
 open-telemetry-context = { module = "io.opentelemetry:opentelemetry-context", version.ref = "openTelemetryContextVersion"}
 open-telemetry-sdk-testing = { module = "io.opentelemetry:opentelemetry-sdk-testing", version.ref = "openTelemetrySdkTestingVersion"}
@@ -239,6 +241,8 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4jApiVersion"}
 slf4j-jdk14 = { module = "org.slf4j:slf4j-jdk14", version.ref = "slf4jJdk14Version"}
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4jSimpleVersion"}
 snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyamlVersion"}
+squareup-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttpVersion"}
+squareup-mock-webserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttpVersion"}
 squareup-okio = { module = "com.squareup.okio:okio", version.ref = "squareupOkioVersion"}
 swagger-models = { module = "io.swagger.core.v3:swagger-models", version.ref = "swaggerModelsVersion"}
 swagger-parser = { module = "io.swagger.parser.v3:swagger-parser", version.ref = "swaggerParserVersion"}

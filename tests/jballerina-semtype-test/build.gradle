@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    implementation 'org.slf4j:slf4j-api'
+    implementation libs.slf4j.api
     implementation project(':ballerina-lang')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-cli')

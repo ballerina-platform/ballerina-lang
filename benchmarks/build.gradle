@@ -21,7 +21,7 @@ plugins {
 
 dependencies {
 //    compile project(':ballerina')
-    implementation 'com.github.chewiebug:gcviewer'
+    implementation libs.chewiebug.gcviewer
 }
 
 description = 'Ballerina - Microbenchmarks'

@@ -33,7 +33,7 @@ dependencies {
     compileOnly project(':language-server:language-server-commons')
     compileOnly project(':ballerina-shell:shell-core')
     compileOnly project(':ballerina-shell:shell-cli')
-    compileOnly(libs.eclipse.lsp4j)
+    compileOnly libs.eclipse.lsp4j
     implementation libs.jackson.databind
 
     testImplementation libs.testng

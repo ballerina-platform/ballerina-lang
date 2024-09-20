@@ -30,14 +30,14 @@ dependencies {
     compileOnly project(':language-server:language-server-commons')
     compileOnly project(':central-client')
     compileOnly project(':ballerina-lang')
-    compileOnly ('org.eclipse.lsp4j:org.eclipse.lsp4j')
+    compileOnly libs.eclipse.lsp4j
     implementation libs.gson
 
     testImplementation libs.testng
     testImplementation project(':language-server:language-server-commons')
     testImplementation project(':language-server:language-server-core')
     testImplementation libs.gson
-    testImplementation('org.eclipse.lsp4j:org.eclipse.lsp4j')
+    testImplementation libs.eclipse.lsp4j
 }
 
 test {

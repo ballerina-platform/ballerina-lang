@@ -28,7 +28,7 @@ dependencies {
     testImplementation project(':testerina:testerina-core')
 
     testImplementation libs.testng
-    testImplementation 'org.slf4j:slf4j-api'
+    testImplementation libs.slf4j.api
     testImplementation libs.slf4j.jdk14
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 

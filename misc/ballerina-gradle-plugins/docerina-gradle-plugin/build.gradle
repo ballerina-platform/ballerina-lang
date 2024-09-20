@@ -20,14 +20,14 @@ plugins {
 }
 
 dependencies {
-   implementation 'org.apache.maven:maven-plugin-api'
-   implementation 'org.codehaus.plexus:plexus-utils'
+   implementation libs.apache.maven.plugin.api
+   implementation libs.codehaus.plexus.utils
    implementation libs.apache.commons.lang3
    implementation project(':ballerina-cli')
    implementation project(':ballerina-lang')
    implementation project(':docerina')
-   testImplementation 'junit:junit'
-   compileOnly 'org.apache.maven.plugin-tools:maven-plugin-annotations'
+   testImplementation libs.junit
+   compileOnly libs.apache.maven.plugin.annotations
 }
 
 checkstyleMain {

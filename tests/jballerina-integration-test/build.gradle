@@ -54,20 +54,20 @@ dependencies {
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation project(':ballerina-shell:shell-core')
     implementation project(':ballerina-shell:shell-cli')
-    implementation 'org.slf4j:slf4j-api'
+    implementation libs.slf4j.api
 
     balRuntime project(':ballerina-runtime')
     testRuntimeOnly project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
 
     testImplementation libs.slf4j.jdk14
-    testImplementation 'io.netty:netty-transport'
-    testImplementation 'io.netty:netty-codec-http'
-    testImplementation 'io.netty:netty-codec-http2'
-    testImplementation 'io.netty:netty-handler'
-    testImplementation 'org.yaml:snakeyaml'
-    testImplementation 'org.awaitility:awaitility'
-    testImplementation 'org.hsqldb:hsqldb'
-    testImplementation 'io.ballerina.messaging:broker-amqp'
+    testImplementation libs.netty.transport
+    testImplementation libs.netty.codec.http
+    testImplementation libs.netty.codec.http2
+    testImplementation libs.netty.handler
+    testImplementation libs.snakeyaml
+    testImplementation libs.awaitility
+    testImplementation libs.hsqldb
+    testImplementation libs.bal.messaging.broker.amqp
     testImplementation libs.apache.commons.text
     testImplementation libs.testng
 

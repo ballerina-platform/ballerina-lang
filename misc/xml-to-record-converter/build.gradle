@@ -31,7 +31,7 @@ dependencies {
     compileOnly project(':ballerina-lang')
     compileOnly project(':formatter:formatter-core')
     compileOnly project(':language-server:language-server-commons')
-    compileOnly(libs.eclipse.lsp4j)
+    compileOnly libs.eclipse.lsp4j
 
     implementation project(':ballerina-tools-api')
     implementation project(':identifier-util')
@@ -43,7 +43,7 @@ dependencies {
     testImplementation project(':formatter:formatter-core')
     testImplementation project(':language-server:language-server-core')
     testImplementation libs.java.tuples
-    testImplementation(libs.eclipse.lsp4j)
+    testImplementation libs.eclipse.lsp4j
 }
 
 test {

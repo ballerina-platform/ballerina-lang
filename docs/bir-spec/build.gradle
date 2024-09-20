@@ -18,7 +18,7 @@
  */
 
 plugins {
-    alias(libs.plugins.kaitai)
+    alias libs.plugins.kaitai
     id 'javaProject'
     id 'ballerinaLangLibLoad'
 }

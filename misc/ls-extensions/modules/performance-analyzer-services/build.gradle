@@ -37,16 +37,16 @@ dependencies {
         exclude group: "javax.validation", module: "validation-api"
         exclude group: 'com.google.guava', module: 'guava'
     }
-    compileOnly(libs.eclipse.lsp4j)
+    compileOnly libs.eclipse.lsp4j
 
     testImplementation libs.testng
     testImplementation project(':ballerina-parser')
     testImplementation project(':language-server:language-server-commons')
     testImplementation project(':language-server:language-server-core')
     testImplementation libs.gson
-    testImplementation(libs.eclipse.lsp4j)
-    testImplementation(libs.json.unit.assertj)
-    testImplementation(libs.json.unit.json.path)
+    testImplementation libs.eclipse.lsp4j
+    testImplementation libs.json.unit.assertj
+    testImplementation libs.json.unit.json.path
 
 }
 

@@ -1,12 +1,12 @@
 plugins {
     id 'base'
-    alias(libs.plugins.spotbugs)
-    alias(libs.plugins.dorongold.task.tree)
-    alias(libs.plugins.github.johnrengelman.shadow)
+    alias libs.plugins.spotbugs
+    alias libs.plugins.dorongold.task.tree
+    alias libs.plugins.github.johnrengelman.shadow
     id 'maven-publish'
-    alias(libs.plugins.researchgate.release)
+    alias libs.plugins.researchgate.release
     id 'jacoco'
-    alias(libs.plugins.sonarqube)
+    alias libs.plugins.sonarqube
     id 'repositories'
 }
 

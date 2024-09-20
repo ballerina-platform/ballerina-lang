@@ -26,7 +26,7 @@ description = 'Ballerina - Ballerina Shell Runtime Dependencies'
 group = 'io.ballerina'
 
 dependencies {
-    testImplementation(libs.testng)
+    testImplementation libs.testng
 }
 
 test {

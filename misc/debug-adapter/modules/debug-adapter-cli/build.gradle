@@ -24,8 +24,8 @@ dependencies {
     implementation libs.picocli
     implementation project(':ballerina-cli')
     implementation project(':debug-adapter:debug-adapter-core')
-    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j'
-    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc'
+    implementation libs.eclipse.lsp4j
+    implementation libs.eclipse.lsp4j.jsonrpc
 }
 
 description = 'Ballerina - Debug Adapter - Debug Adaptor CLI'

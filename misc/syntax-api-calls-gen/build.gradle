@@ -23,10 +23,10 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
 
-    implementation(libs.gson)
+    implementation libs.gson
 
-    testImplementation(libs.testng)
-    testImplementation(libs.openhft.compiler)
+    testImplementation libs.testng
+    testImplementation libs.openhft.compiler
 }
 
 test {

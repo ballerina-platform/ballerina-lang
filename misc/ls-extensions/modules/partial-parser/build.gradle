@@ -32,7 +32,7 @@ dependencies {
     compileOnly project(':diagram-util')
     compileOnly project(':formatter:formatter-core')
     compileOnly project(':language-server:language-server-commons')
-    compileOnly (libs.eclipse.lsp4j)
+    compileOnly libs.eclipse.lsp4j
 
     testImplementation libs.testng
     testImplementation project(':language-server:language-server-core')

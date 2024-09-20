@@ -27,7 +27,7 @@ configurations {
 }
 
 dependencies {
-    dist libs.okhttp
+    dist libs.squareup.okhttp
     dist libs.squareup.okio
     dist libs.jaeger.core
     dist libs.jaeger.thrift

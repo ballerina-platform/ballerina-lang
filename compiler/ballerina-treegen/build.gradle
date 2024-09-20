@@ -31,7 +31,7 @@ dependencies {
     implementation(libs.gson) {
         because("To read the json file that describes the syntax tree nodes")
     }
-    implementation('com.github.spullara.mustache.java:compiler') {
+    implementation(libs.mustache.java.compiler) {
         because("The templating library. The implementation of mustache.js for Java")
     }
 }

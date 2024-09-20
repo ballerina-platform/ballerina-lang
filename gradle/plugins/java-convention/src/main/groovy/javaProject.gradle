@@ -46,7 +46,7 @@ dependencies {
         implementation libs.guava
         implementation libs.toml4j
         implementation libs.javax.mail
-        implementation libs.okhttp.asProvider()
+        implementation libs.squareup.okhttp
         implementation libs.squareup.okio
         implementation libs.jaeger.core
         implementation libs.jaeger.thrift

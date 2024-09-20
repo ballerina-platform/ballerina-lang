@@ -14,8 +14,10 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/javaProject.gradle"
+
+plugins {
+    id 'javaProject'
+}
 
 configurations {
     ballerinaTools
@@ -34,8 +36,8 @@ dependencies {
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation libs.slf4j.jdk14
 
-    testImplementation 'org.awaitility:awaitility'
-    testImplementation 'commons-io:commons-io'
+    testImplementation libs.awaitility
+    testImplementation libs.commons.io
     testImplementation libs.testng
     ballerinaTools project(path: ':ballerina-tools', configuration: 'zip')
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')

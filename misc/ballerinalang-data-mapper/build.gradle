@@ -29,7 +29,7 @@ dependencies {
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-cli')
 
-    implementation(libs.eclipse.lsp4j)
+    implementation libs.eclipse.lsp4j
 
     implementation libs.jackson.databind
 

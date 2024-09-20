@@ -40,8 +40,8 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
-    implementation 'commons-io:commons-io'
-    implementation 'com.squareup.okhttp3:okhttp'
+    implementation libs.commons.io
+    implementation libs.squareup.okhttp
     implementation libs.gson
 
     distBal project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')

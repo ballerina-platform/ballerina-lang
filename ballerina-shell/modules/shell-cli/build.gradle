@@ -28,11 +28,11 @@ group = 'io.ballerina'
 dependencies {
     implementation project(":ballerina-shell:shell-core")
     implementation project(':ballerina-parser')
-    implementation(libs.jline)
+    implementation libs.jline
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tools-api')
 
-    testImplementation(libs.testng)
+    testImplementation libs.testng
     implementation libs.gson
 }
 

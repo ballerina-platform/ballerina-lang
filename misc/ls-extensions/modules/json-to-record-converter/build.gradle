@@ -42,13 +42,13 @@ dependencies {
     }
     implementation libs.gson
     implementation libs.guava // Required during runtime
-    compileOnly(libs.eclipse.lsp4j)
+    compileOnly libs.eclipse.lsp4j
 
     testImplementation libs.testng
     testImplementation project(':ballerina-parser')
     testImplementation project(':formatter:formatter-core')
     testImplementation project(':language-server:language-server-core')
-    testImplementation(libs.eclipse.lsp4j)
+    testImplementation libs.eclipse.lsp4j
 }
 
 test {

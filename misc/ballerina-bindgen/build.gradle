@@ -26,11 +26,11 @@ configurations {
 
 dependencies {
     implementation libs.picocli
-    implementation 'commons-io:commons-io'
-    implementation 'org.slf4j:slf4j-simple'
-    implementation 'com.github.jknack:handlebars'
+    implementation libs.commons.io
+    implementation libs.slf4j.simple
+    implementation libs.jknack.handlebars
     implementation libs.apache.commons.lang3
-    implementation 'org.apache.maven:maven-plugin-api'
+    implementation libs.apache.maven.plugin.api
     implementation project(':ballerina-cli')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')

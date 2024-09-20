@@ -26,7 +26,7 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
     implementation project(':toml-parser')
-    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j'
+    implementation libs.eclipse.lsp4j
     testImplementation libs.testng
 }
 
