@@ -271,6 +271,7 @@ public class JvmConstants {
     public static final String STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
     public static final String UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
     public static final String HANDLE_FUTURE_METHOD = "handleFuture";
+    public static final String HANDLE_FUTURE_AND_RETURN_IS_PANIC_METHOD = "handleFutureAndReturnIsPanic";
     public static final String HANDLE_FUTURE_AND_EXIT_METHOD = "handleFutureAndExit";
     public static final String HANDLE_THROWABLE_METHOD = "handleThrowable";
 
