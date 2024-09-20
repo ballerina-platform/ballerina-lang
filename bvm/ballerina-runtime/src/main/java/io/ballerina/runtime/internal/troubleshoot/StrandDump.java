@@ -18,13 +18,22 @@
 
 package io.ballerina.runtime.internal.troubleshoot;
 
-import io.ballerina.runtime.internal.scheduling.Strand;
+import com.sun.management.HotSpotDiagnosticMXBean;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import javax.management.MBeanServer;
+
 
 /**
  * Used to get the status of current Ballerina strands.
@@ -32,45 +41,103 @@ import java.util.Map;
  * @since 2201.2.0
  */
 public class StrandDump {
+    private static final String HOT_SPOT_BEAN_NAME = "com.sun.management:type=HotSpotDiagnostic";
+    private static final String WORKING_DIR = System.getProperty("user.dir") + "/";
+    private static final String FILENAME = "threadDump" + LocalDateTime.now();
+    private static final String VIRTUAL_THREAD_IDENTIFIER = "virtual";
+    private static final String ISOLATED_WORKER_IDENTIFIER = "io.ballerina.runtime.internal.scheduling." +
+            "Scheduler.lambda$startIsolatedWorker";
+    private static final String NON_ISOLATED_WORKER_IDENTIFIER = "io.ballerina.runtime.internal.scheduling." +
+            "Scheduler.lambda$startNonIsolatedWorker";
+    private static final String JAVA_TRACE_PATTERN = "java\\.|\\.java(?::\\d+)?";    // .java, java., .java:(any number)
+    private static final String BAL_TRACE_PATTERN = "\\.bal:\\d+";                  // .bal:(any number)
+    private static volatile HotSpotDiagnosticMXBean hotSpotDiagnosticMXBean;
 
     public static String getStrandDump() {
-        Map<Integer, Strand> availableStrands = new HashMap<>();
-        int createdStrandGroupCount = 0;
-        int createdStrandCount = 0;
-        int availableStrandCount = 0;
-        Map<Integer, List<String>> availableStrandGroups = new HashMap<>();
-
-        String strandDumpOutput = generateOutput(availableStrandGroups, availableStrandCount, createdStrandGroupCount,
-                createdStrandCount);
-        cleanUp(availableStrands, availableStrandGroups);
-        return strandDumpOutput;
+        String dump;
+        try {
+            getStrandDump(WORKING_DIR + FILENAME);
+            dump = new String(Files.readAllBytes(Paths.get(FILENAME)));
+            File fileObj = new File(FILENAME);
+            fileObj.delete();
+        } catch (Exception e) {
+            return "Error occurred during strand dump generation";
+        }
+        return generateOutput(dump);
     }
 
-    private static String generateOutput(Map<Integer, List<String>> availableStrandGroups, int availableStrandCount,
-                                         int createdStrandGroupCount, int createdStrandCount) {
+    private static String generateOutput(String dump) {
+        String[] dumpItems = dump.split("\\n\\n");
+        int id = 0;
+        Set<Integer> isolatedWorkerList = new HashSet<>();
+        Set<Integer> nonIsolatedWorkerList = new HashSet<>();
+        ArrayList<ArrayList<String>> balTraces = new ArrayList<>();
+        Pattern javaPattern = Pattern.compile(JAVA_TRACE_PATTERN);
+        Pattern balPattern = Pattern.compile(BAL_TRACE_PATTERN);
+        for (String item : dumpItems) {
+            String[] lines = item.split("\\n");
+            String[] subitems = lines[0].split("\" ");
+            ArrayList<String> balTraceItems = new ArrayList<>();
+            boolean balStrand = false;
+            if (subitems.length > 1 && subitems[1].equals(VIRTUAL_THREAD_IDENTIFIER)) {
+                balTraceItems.add("\tStrand " + lines[0].replace(VIRTUAL_THREAD_IDENTIFIER, ":") + "\n\t\tat");
+                String prefix = " ";
+                for (String line : lines) {
+                    if (!javaPattern.matcher(line).find() && !line.contains("\" " + VIRTUAL_THREAD_IDENTIFIER)) {
+                        balTraceItems.add(prefix + line + "\n");
+                        prefix = "\t\t   ";
+                        if (balPattern.matcher(line).find()) {
+                            balStrand = true;
+                        }
+                    } else {
+                        if (line.contains(ISOLATED_WORKER_IDENTIFIER)) {
+                            isolatedWorkerList.add(id);
+                        } else if (line.contains(NON_ISOLATED_WORKER_IDENTIFIER)) {
+                            nonIsolatedWorkerList.add(id);
+                        }
+                    }
+                }
+                if (balStrand) {
+                    balTraces.add(balTraceItems);
+                } else {
+                    isolatedWorkerList.remove(id);
+                    nonIsolatedWorkerList.remove(id);
+                }
+                id++;
+            }
+        }
         StringBuilder outputStr = new StringBuilder("Ballerina Strand Dump [");
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime localDateTime = LocalDateTime.now();
         outputStr.append(dateTimeFormatter.format(localDateTime));
-        outputStr.append("]\n===========================================\n\n");
-        outputStr.append("Total strand group count \t:\t").append(createdStrandGroupCount).append("\n");
-        outputStr.append("Total strand count       \t:\t").append(createdStrandCount).append("\n");
-        outputStr.append("Active strand group count\t:\t").append(availableStrandGroups.size()).append("\n");
-        outputStr.append("Active strand count      \t:\t").append(availableStrandCount).append("\n\n");
-        availableStrandGroups.forEach((strandGroupId, strandList) -> {
-            outputStr.append("group ").append(strandGroupId).append(" [").append(strandList.get(0)).append("]: [")
-                    .append(strandList.size() - 1).append("]\n");
-            strandList.subList(1, strandList.size()).forEach(outputStr::append);
-        });
-        outputStr.append("===========================================\n");
+        outputStr.append("]\n===============================================================\n\n");
+        outputStr.append("Total Strand count       \t\t\t:\t").append(balTraces.size()).append("\n\n");
+        outputStr.append("Total Isolated Worker count       \t\t:\t").append(isolatedWorkerList.size()).append("\n\n");
+        outputStr.append("Total Non Isolated Worker count       \t\t:\t").append(nonIsolatedWorkerList.size()).
+                append("\n\n");
+        outputStr.append("================================================================\n");
+        outputStr.append("\nIsolated Workers:\n\n");
+        for (int strandId: isolatedWorkerList) {
+            balTraces.get(strandId).forEach(outputStr::append);
+            outputStr.append("\n");
+        }
+        outputStr.append("Non Isolated Workers:\n\n");
+        for (int strandId: nonIsolatedWorkerList) {
+            balTraces.get(strandId).forEach(outputStr::append);
+            outputStr.append("\n");
+        }
         return outputStr.toString();
     }
 
-    private static void cleanUp(Map<Integer, Strand> availableStrands,
-                                Map<Integer, List<String>> availableStrandGroups) {
-        availableStrands.clear();
-        availableStrandGroups.clear();
+    private static void getStrandDump(String fileName) throws IOException {
+        if (hotSpotDiagnosticMXBean == null) {
+            hotSpotDiagnosticMXBean = getHotSpotDiagnosticMXBean();
+        }
+        hotSpotDiagnosticMXBean.dumpThreads(fileName, HotSpotDiagnosticMXBean.ThreadDumpFormat.TEXT_PLAIN);
     }
 
-    private StrandDump() {}
+    private static HotSpotDiagnosticMXBean getHotSpotDiagnosticMXBean() throws IOException {
+        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+        return ManagementFactory.newPlatformMXBeanProxy(mBeanServer, HOT_SPOT_BEAN_NAME, HotSpotDiagnosticMXBean.class);
+    }
  }

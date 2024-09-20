@@ -17,6 +17,7 @@ module io.ballerina.runtime {
     requires java.naming;
     requires io.ballerina.identifier;
     requires jdk.unsupported;
+    requires jdk.management;
 
     // API exports
     exports io.ballerina.runtime.api;
