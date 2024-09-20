@@ -211,7 +211,7 @@ public class WebServer {
                 //we respond first and execute the method.
                 final String content = "ok";
                 writeResponse(channelHandlerContext, HttpResponseStatus.OK, TYPE_PLAIN, content);
-                new Thread(() -> route.getHandler().handle()).start();
+                Thread.startVirtualThread(() -> route.getHandler().handle());
             } catch (final Exception ex) {
                 ex.printStackTrace();
                 writeInternalServerError(channelHandlerContext);

@@ -103,7 +103,8 @@ public class ProfileAnalyzer {
 
     private void addProfilerShutDownHook() {
         // add a shutdown hook to stop the profiler and parse the output when the program is closed
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+
+        Runtime.getRuntime().addShutdownHook(Thread.ofVirtual().unstarted(() -> {
             ProfileAnalyzer profiler = ProfileAnalyzer.getInstance();
             profiler.printProfilerOutput(profiler.getProfileStackString());
         }));

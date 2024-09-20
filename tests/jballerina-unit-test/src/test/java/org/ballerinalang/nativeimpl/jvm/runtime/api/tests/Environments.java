@@ -41,12 +41,11 @@ public class Environments {
                 new Parameter("p1", false, null, PredefinedTypes.TYPE_INT),
                 new Parameter("p2", false, null, PredefinedTypes.TYPE_STRING),
                 new Parameter("pn", false, null, PredefinedTypes.TYPE_BOOLEAN),
-                new Parameter("path", false, null,
-                        TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING))
+                new Parameter("path", false, null, TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING))
         };
         String expectedFunctionNamePrefix = "$get$greeting$";
         return assertFunctionNameAndPathParams(functionName, pathParameters, expectedPathParams,
-                expectedFunctionNamePrefix,1);
+                expectedFunctionNamePrefix, 1);
     }
 
     private static long assertFunctionNameAndPathParams(String functionName,

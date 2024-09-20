@@ -41,7 +41,6 @@ public class Strand {
     private final String name;
     private final StrandMetadata metadata;
     private static final AtomicInteger nextStrandId = new AtomicInteger(0);
-    private StrandState state = StrandState.RUNNABLE;
     private Map<String, Object> globalProps;
 
     public final boolean isIsolated;

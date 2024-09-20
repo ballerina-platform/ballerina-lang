@@ -73,7 +73,6 @@ public class Scheduler {
         }
         return daemonStrand;
     }
-
     public Object call(Module module, String functionName, Strand parentStrand, Object... args) {
         parentStrand.resume();
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
@@ -94,9 +93,8 @@ public class Scheduler {
         return fp.function.apply(argsWithStrand);
     }
 
-    public FutureValue startIsolatedWorker(String functionName, Module module, String strandName,
+    public FutureValue startIsolatedWorker(String functionName, Module module, Strand parentStrand, String strandName,
                                            StrandMetadata metadata, Map<String, Object> properties, Object... args) {
-        Strand parentStrand = getStrand();
         strandName = getStrandName(functionName, strandName);
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
                 module.getName(), module.getMajorVersion(), module.isTestPkg()));
@@ -116,9 +114,8 @@ public class Scheduler {
         return future;
     }
 
-    public FutureValue startIsolatedWorker(BObject object, String methodName, String strandName,
+    public FutureValue startIsolatedWorker(BObject object, String methodName, Strand parentStrand, String strandName,
                                            StrandMetadata metadata, Map<String, Object> properties, Object... args) {
-        Strand parentStrand = getStrand();
         strandName = getStrandName(object, methodName, strandName);
         ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
         MethodType methodType = getObjectMethodType(methodName, objectType);
@@ -141,9 +138,8 @@ public class Scheduler {
         return future;
     }
 
-    public BFuture startIsolatedWorker(FPValue fp, String strandName, StrandMetadata metadata,
+    public BFuture startIsolatedWorker(FPValue fp, String strandName, Strand parentStrand, StrandMetadata metadata,
                                        Map<String, Object> properties, Object... args) {
-        Strand parentStrand = getStrand();
         BFunctionType functionType = (BFunctionType) fp.getType();
         strandName = getStrandName(strandName, fp.getName());
         FutureValue future = createFuture(parentStrand, true, properties, functionType.getReturnType(), strandName,
@@ -184,9 +180,9 @@ public class Scheduler {
     }
 
 
-    public FutureValue startNonIsolatedWorker(String functionName, Module module, String strandName,
-                                              StrandMetadata metadata, Map<String, Object> properties, Object... args) {
-        Strand parentStrand = getStrand();
+    public FutureValue startNonIsolatedWorker(String functionName, Module module, Strand parentStrand,
+                                              String strandName, StrandMetadata metadata,
+                                              Map<String, Object> properties, Object... args) {
         strandName = getStrandName(functionName, strandName);
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
                 module.getName(), module.getMajorVersion(), module.isTestPkg()));
@@ -209,9 +205,8 @@ public class Scheduler {
         return future;
     }
 
-    public FutureValue startNonIsolatedWorker(BObject object, String methodName, String strandName,
+    public FutureValue startNonIsolatedWorker(BObject object, String methodName, Strand parentStrand, String strandName,
                                               StrandMetadata metadata, Map<String, Object> properties, Object... args) {
-        Strand parentStrand = getStrand();
         strandName = getStrandName(object, methodName, strandName);
         ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
         MethodType methodType = getObjectMethodType(methodName, objectType);
@@ -236,9 +231,8 @@ public class Scheduler {
         return future;
     }
 
-    public BFuture startNonIsolatedWorker(FPValue fp, String strandName, StrandMetadata metadata,
+    public BFuture startNonIsolatedWorker(FPValue fp, String strandName, Strand parentStrand, StrandMetadata metadata,
                                           Map<String, Object> properties, Object... args) {
-        Strand parentStrand = getStrand();
         BFunctionType functionType = (BFunctionType) fp.getType();
         strandName = getStrandName(strandName, fp.getName());
         FutureValue future = createFuture(parentStrand, false, properties, functionType.getReturnType(), strandName,

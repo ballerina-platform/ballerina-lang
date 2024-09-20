@@ -90,7 +90,6 @@ tasks.register('createBre', Copy) {
 test {
     // make sure ballerina zip is built before test run
     dependsOn ':jballerina-tools:build'
-    systemProperty 'enableJBallerinaTests', 'true'
 
     maxParallelForks = 1
     systemProperty 'basedir', "$buildDir"

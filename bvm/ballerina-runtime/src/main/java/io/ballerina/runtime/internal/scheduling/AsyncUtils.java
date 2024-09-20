@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.internal.scheduling;
 
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
@@ -30,6 +31,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -160,8 +162,11 @@ public class AsyncUtils {
     public static Object getFutureResult(CompletableFuture<?> completableFuture) throws BError {
         try {
             return completableFuture.get();
-        } catch (Throwable t) {
-            throw ErrorUtils.createErrorFromThrowable(t);
+        } catch (ExecutionException | InterruptedException e) {
+            if (e.getCause() instanceof BError bError) {
+                throw bError;
+            }
+            throw ErrorCreator.createError(e);
         }
     }
 

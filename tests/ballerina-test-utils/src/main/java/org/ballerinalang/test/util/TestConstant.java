@@ -17,29 +17,15 @@
 */
 package org.ballerinalang.test.util;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * Constants used in test cases.
  */
 public class TestConstant {
-    public static final String CONTENT_TYPE_JSON = "application/json";
-    public static final String CONTENT_TYPE_XML = "application/xml";
-    public static final String CONTENT_TYPE_TEXT_PLAIN = "text/plain";
-    public static final String CONTENT_TYPE_FORM_URL_ENCODED = "application/x-www-form-urlencoded";
-    public static final String CHARSET_NAME = "UTF-8";
+     public static final String CHARSET_NAME = "UTF-8";
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
     public static final String HTTP_METHOD_OPTIONS = "OPTIONS";
     public static final String HTTP_METHOD_HEAD = "HEAD";
-    public static final String ENCODING_GZIP = "gzip";
-    public static final String DEFLATE = "deflate";
-    public static final String IDENTITY = "identity";
-    public static final String ENABLE_JBALLERINA_TESTS = "enableJBallerinaTests";
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
     public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
-
-    //HTTP2 related Constants
-    public static final long HTTP2_RESPONSE_TIME_OUT = 10;
-    public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
 }
