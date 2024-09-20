@@ -79,6 +79,7 @@ public class BalRuntime extends Runtime {
             FutureValue future = scheduler.startIsolatedWorker("$moduleInit", rootModule, null, "$moduleInit", null,
                     null);
             Scheduler.daemonStrand = future.strand;
+            future.get();
             this.moduleInitialized = true;
         } catch (ClassNotFoundException e) {
             throw ErrorCreator.createError(StringUtils.fromString(String.format("module '%s' does not exist",
@@ -250,19 +251,19 @@ public class BalRuntime extends Runtime {
         }
     }
 
-    private void invokeModuleStop() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+    void invokeModuleStop() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
         Class<?> configClass = loadClass(MODULE_INIT_CLASS_NAME);
         Method method = configClass.getDeclaredMethod("$currentModuleStop", BalRuntime.class);
         method.invoke(null, this);
     }
 
-    private Class<?> loadClass(String className) throws ClassNotFoundException {
+    Class<?> loadClass(String className) throws ClassNotFoundException {
         String name = getFullQualifiedClassName(this.rootModule, className);
         return Class.forName(name);
     }
 
-    private static String getFullQualifiedClassName(Module module, String className) {
+    static String getFullQualifiedClassName(Module module, String className) {
         String orgName = module.getOrg();
         String packageName = module.getName();
         if (!DOT.equals(packageName)) {

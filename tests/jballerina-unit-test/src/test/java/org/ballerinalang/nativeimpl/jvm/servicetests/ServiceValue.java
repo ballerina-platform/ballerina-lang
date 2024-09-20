@@ -67,7 +67,7 @@ public class ServiceValue {
         for (int i = 0; i < arrayValue.size(); i++) {
             args[i] = arrayValue.get(i);
         }
-        return env.getRuntime().startIsolatedWorker(l, name.getValue(), null, null, null, new HashMap<>(), args);
+        return env.getRuntime().startIsolatedWorker(l, name.getValue(), null, null, new HashMap<>(), args);
     }
 
     public static BArray getParamNames(BObject o, BString methodName) {

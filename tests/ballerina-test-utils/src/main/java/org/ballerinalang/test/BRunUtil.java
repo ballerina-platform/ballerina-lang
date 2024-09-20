@@ -101,41 +101,26 @@ public class BRunUtil {
         Class<?>[] paramTypes = new Class<?>[args.length];
         for (int i = 0; i < args.length; i++) {
             Object arg = args[i];
-            if (arg == null) {
-                paramTypes[i] = null;
-            } else if (arg instanceof ObjectValue) {
-                paramTypes[i] = ObjectValue.class;
-            } else if (arg instanceof XmlValue) {
-                paramTypes[i] = XmlValue.class;
-            } else if (arg instanceof BmpStringValue) {
-                paramTypes[i] = BmpStringValue.class;
-            } else if (arg instanceof NonBmpStringValue) {
-                paramTypes[i] = NonBmpStringValue.class;
-            } else if (arg instanceof ArrayValue) {
-                paramTypes[i] = ArrayValue.class;
-            } else if (arg instanceof Integer) {
-                paramTypes[i] = Long.class;
-            } else if (arg instanceof Float) {
-                paramTypes[i] = Double.class;
-            } else if (arg instanceof Double) {
-                paramTypes[i] = Double.class;
-            } else if (arg instanceof Long) {
-                paramTypes[i] = Long.class;
-            } else if (arg instanceof Boolean) {
-                paramTypes[i] = Boolean.class;
-            } else if (arg instanceof MapValue) {
-                paramTypes[i] = MapValue.class;
-            } else if (arg instanceof ErrorValue) {
-                paramTypes[i] = ErrorValue.class;
-            } else if (arg instanceof DecimalValue) {
-                paramTypes[i] = DecimalValue.class;
-            } else if (arg instanceof HandleValue) {
-                paramTypes[i] = HandleValue.class;
-            } else if (arg instanceof Byte) {
-                paramTypes[i] = Integer.class;
-            } else {
-                // This is done temporarily, until blocks are added here for all possible cases.
-                throw new RuntimeException("unknown param type: " + arg.getClass());
+            switch (arg) {
+                case null -> paramTypes[i] = null;
+                case ObjectValue ignored -> paramTypes[i] = ObjectValue.class;
+                case XmlValue ignored -> paramTypes[i] = XmlValue.class;
+                case BmpStringValue ignored -> paramTypes[i] = BmpStringValue.class;
+                case NonBmpStringValue ignored -> paramTypes[i] = NonBmpStringValue.class;
+                case ArrayValue ignored1 -> paramTypes[i] = ArrayValue.class;
+                case Integer ignored -> paramTypes[i] = Long.class;
+                case Float ignored -> paramTypes[i] = Double.class;
+                case Double ignored -> paramTypes[i] = Double.class;
+                case Long ignored -> paramTypes[i] = Long.class;
+                case Boolean ignored -> paramTypes[i] = Boolean.class;
+                case MapValue<?, ?> ignored -> paramTypes[i] = MapValue.class;
+                case ErrorValue ignored -> paramTypes[i] = ErrorValue.class;
+                case DecimalValue ignored -> paramTypes[i] = DecimalValue.class;
+                case HandleValue ignored -> paramTypes[i] = HandleValue.class;
+                case Byte ignored -> paramTypes[i] = Integer.class;
+                default ->
+                    // This is done temporarily, until blocks are added here for all possible cases.
+                        throw new RuntimeException("unknown param type: " + arg.getClass());
             }
         }
         return paramTypes;
@@ -198,7 +183,7 @@ public class BRunUtil {
                                 "{ballerina}StackOverflow {\"message\":\"stack overflow\"}"));
                     }
                     throw ErrorCreator.createError(StringUtils.fromString("Error while invoking function '" +
-                            functionName + "'"), e);
+                            functionName + "'"), t);
                 }
             };
             BalRuntime runtime = new BalRuntime(new Module(packageManifest.org().toString(),
