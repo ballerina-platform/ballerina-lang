@@ -29,10 +29,15 @@ import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.BalRuntime;
+import io.ballerina.runtime.internal.ClassloaderRuntime;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.InvokerException;
@@ -50,12 +55,9 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -340,7 +342,10 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         Project project = getProject(context, templateName);
         PackageCompilation compilation = compile(project);
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
-        executeProject(jBallerinaBackend);
+        Package pkg = project.currentPackage();
+        io.ballerina.runtime.api.Module module = new io.ballerina.runtime.api.Module(pkg
+                .packageOrg().value(), pkg.packageName().value(), pkg.packageVersion().toString());
+        executeProject(jBallerinaBackend, module);
     }
 
     /**
@@ -349,9 +354,9 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * The process is run and the stdout is collected and printed.
      *
      * @param jBallerinaBackend Backed to use.
-     * @throws InvokerException If execution failed.
+     * @param module           Module to execute.
      */
-    protected void executeProject(JBallerinaBackend jBallerinaBackend) throws InvokerException {
+    protected void executeProject(JBallerinaBackend jBallerinaBackend, io.ballerina.runtime.api.Module module) {
         if (bufferFile == null) {
             throw new UnsupportedOperationException("Buffer file must be set before execution");
         }
@@ -364,21 +369,19 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
 
             JarResolver jarResolver = jBallerinaBackend.jarResolver();
             ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
-            // First run configure initialization
-            // TODO: (#28662) After configurables can be supported, change this to that file location
-            invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
-                    new Class[]{Map.class, String[].class, Path[].class, String.class},
-                    new Object[]{new HashMap<>(), new String[]{}, new Path[]{}, null});
+            BalRuntime runtime = new ClassloaderRuntime(module, classLoader);
             // Initialize the module
-            invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
+            runtime.init();
             // Start the module
-            invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_START_METHOD_NAME);
+            runtime.start();
             // Then call run method
-            Object failErrorMessage = invokeScheduledMethod(classLoader, mainMethodClassName, MODULE_RUN_METHOD_NAME);
-            if (failErrorMessage != null) {
-                errorStream.println("fail: " + failErrorMessage);
+            try {
+                runtime.call(module, MODULE_RUN_METHOD_NAME);
+                runtime.stop();
+            } catch (BError e) {
+                errorStream.println("fail: " + e.getMessage());
             }
-        } catch (InvokerPanicException panicError) {
+        } catch (Throwable panicError) {
             List<String> stacktrace = Arrays.stream(panicError.getCause().getStackTrace())
                     .filter(element -> !(element.toString().contains(MODULE_STATEMENT_METHOD_NAME) ||
                                         element.toString().contains(MODULE_RUN_METHOD_NAME)))
@@ -412,7 +415,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             Class<?> clazz = classLoader.loadClass(className);
             Method method = clazz.getDeclaredMethod(methodName, Strand.class);
             try {
-                return method.invoke(null, new Strand());
+                return method.invoke(null, Scheduler.getStrand());
             } catch (InvocationTargetException e) {
                 return e.getTargetException();
             } catch (IllegalAccessException e) {
