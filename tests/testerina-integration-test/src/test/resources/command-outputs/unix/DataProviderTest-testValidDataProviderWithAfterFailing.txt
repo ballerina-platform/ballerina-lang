@@ -18,7 +18,7 @@ Running Tests with Coverage
 			callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 28
 			callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
 			callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
-			callableName: __execute__ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 27
+			callableName: __execute__ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 27
 		
 		[pass] testDividingValuesWithAfterFailing#0
 		[pass] testDividingValuesWithAfterFailing#1
