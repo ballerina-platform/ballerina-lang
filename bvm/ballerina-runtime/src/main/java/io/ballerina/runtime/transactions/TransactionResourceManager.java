@@ -30,8 +30,6 @@ import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +43,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -86,7 +85,7 @@ public class TransactionResourceManager {
     private static final String ATOMIKOS_LOG_NAME_PROPERTY = "com.atomikos.icatch.log_base_name";
     private static final String ATOMIKOS_REGISTERED_PROPERTY = "com.atomikos.icatch.registered";
 
-    private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
+    private static final PrintStream outStream = System.out;
     private Map<String, List<BallerinaTransactionContext>> resourceRegistry;
     private Map<String, Transaction> trxRegistry;
     private Map<String, Xid> xidRegistry;
@@ -261,7 +260,7 @@ public class TransactionResourceManager {
                         xaResource.prepare(xid);
                     }
                 } catch (XAException e) {
-                    log.error("error at transaction prepare phase in transaction " + transactionId
+                    logError("error at transaction prepare phase in transaction " + transactionId
                             + ":" + e.getMessage(), e);
                     return false;
                 }
@@ -273,7 +272,7 @@ public class TransactionResourceManager {
             // resource participant reported failure.
             status = false;
         }
-        log.info(String.format("Transaction prepare (participants): %s", status ? "success" : "failed"));
+        outStream.printf("Transaction prepare (participants): %s%n", status ? "success" : "failed");
         return status;
     }
 
@@ -297,7 +296,7 @@ public class TransactionResourceManager {
                     }
                 } catch (SystemException | HeuristicMixedException | HeuristicRollbackException
                         | RollbackException e) {
-                    log.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
+                    logError("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
                     commitSuccess = false;
                 }
             }
@@ -316,7 +315,7 @@ public class TransactionResourceManager {
                         }
                     }
                 } catch (XAException e) {
-                    log.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
+                    logError("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
                     commitSuccess = false;
                 } finally {
                     ctx.close();
@@ -354,7 +353,7 @@ public class TransactionResourceManager {
                         trx.rollback();
                     }
                 } catch (SystemException e) {
-                    log.error("error when aborting transaction " + transactionId + ":" + e.getMessage(), e);
+                    logError("error when aborting transaction " + transactionId + ":" + e.getMessage(), e);
                     abortSuccess = false;
                 }
             }
@@ -373,7 +372,7 @@ public class TransactionResourceManager {
                         }
                     }
                 } catch (XAException e) {
-                    log.error("error when aborting the transaction " + transactionId + ":" + e.getMessage(), e);
+                    logError("error when aborting the transaction " + transactionId + ":" + e.getMessage(), e);
                     abortSuccess = false;
                 } finally {
                     ctx.close();
@@ -412,7 +411,7 @@ public class TransactionResourceManager {
                     trxRegistry.put(combinedId, trx);
                 }
             } catch (SystemException | NotSupportedException e) {
-                log.error("error in initiating transaction " + transactionId + ":" + e.getMessage(), e);
+                logError("error in initiating transaction " + transactionId + ":" + e.getMessage(), e);
             }
         } else {
             Xid xid = xidRegistry.get(combinedId);
@@ -423,7 +422,7 @@ public class TransactionResourceManager {
             try {
                 xaResource.start(xid, TMNOFLAGS);
             } catch (XAException e) {
-                log.error("error in starting XA transaction " + transactionId + ":" + e.getMessage(), e);
+                logError("error in starting XA transaction " + transactionId + ":" + e.getMessage(), e);
             }
         }
     }
@@ -556,7 +555,7 @@ public class TransactionResourceManager {
                                 trx.delistResource(xaResource, TMSUCCESS);
                             }
                         } catch (IllegalStateException | SystemException e) {
-                            log.error("error in ending the XA transaction " + transactionId
+                            logError("error in ending the XA transaction " + transactionId
                                     + ":" + e.getMessage(), e);
                         }
                     }
@@ -573,7 +572,7 @@ public class TransactionResourceManager {
                             xaResource.end(xid, abortOnly ? TMFAIL : TMSUCCESS);
                         }
                     } catch (XAException e) {
-                        log.error("error in ending XA transaction " + transactionId + ":" + e.getMessage(), e);
+                        logError("error in ending XA transaction " + transactionId + ":" + e.getMessage(), e);
                     }
                 }
             }
@@ -600,7 +599,7 @@ public class TransactionResourceManager {
     public void notifyResourceFailure(String gTransactionId) {
         failedResourceParticipantSet.add(gTransactionId);
         // The resource excepted (uncaught).
-        log.info("Trx infected callable unit excepted id : " + gTransactionId);
+        outStream.println("Trx infected callable unit excepted id : " + gTransactionId);
     }
 
     public void notifyLocalParticipantFailure(String gTransactionId, String blockId) {
@@ -617,5 +616,10 @@ public class TransactionResourceManager {
             }
             return null;
         }
+    }
+
+    private void logError(String message, Exception err) {
+        outStream.println(LocalDateTime.now() + "ERROR\t" + message + "\n");
+        err.printStackTrace();
     }
 }
