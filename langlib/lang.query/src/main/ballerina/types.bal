@@ -655,7 +655,7 @@ class _GroupByFunction {
                 _StreamFunction pf = <_StreamFunction>self.prevFunc;
                 _Frame? f = check pf.process();
                 while f is _Frame {
-                    anydata & readonly key = (check self.getKey(f)).cloneReadOnly();
+                    anydata & readonly groupingKey = (check self.getKey(f)).cloneReadOnly();
                     self.tbl.hasKey(key) ? self.tbl.get(key).frames.push(f) : self.tbl.add({groupingKey: key, frames: [f]});
                     f = check pf.process();
                 }
