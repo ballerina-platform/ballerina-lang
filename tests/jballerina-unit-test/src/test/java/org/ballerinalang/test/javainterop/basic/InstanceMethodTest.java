@@ -222,12 +222,13 @@ public class InstanceMethodTest {
         Assert.assertEquals(getType(returns).getName(), "error");
         Assert.assertEquals(((BError) returns).getMessage(),
                 "org.ballerinalang.nativeimpl.jvm.tests.JavaInteropTestCheckedException");
-        Assert.assertEquals(((BMap) ((BError) returns).getDetails()).get(StringUtils.fromString("message")).toString(),
+        Assert.assertEquals(((BMap<?, ?>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
+                        .toString(),
                 "Custom error");
-        BError cause = (BError) ((BMap) ((BError) returns).getDetails()).get(StringUtils.fromString("cause"));
+        BError cause = (BError) ((BMap<?, ?>) ((BError) returns).getDetails()).get(StringUtils.fromString("cause"));
         Assert.assertEquals(getType(cause).getName(), "error");
         Assert.assertEquals(cause.getMessage(), "java.lang.Throwable");
-        Assert.assertEquals(((BMap) cause.getDetails()).get(StringUtils.fromString("message")).toString(),
+        Assert.assertEquals(((BMap<?, ?>) cause.getDetails()).get(StringUtils.fromString("message")).toString(),
                 "Interop Throwable");
     }
 

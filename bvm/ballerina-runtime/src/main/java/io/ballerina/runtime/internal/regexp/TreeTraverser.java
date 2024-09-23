@@ -41,18 +41,14 @@ public class TreeTraverser {
     }
 
     public Token nextToken() {
-        switch (this.mode) {
-            case RE_DISJUNCTION:
-                return readTokenInReDisjunction();
-            case RE_UNICODE_PROP_ESCAPE:
-            case RE_UNICODE_GENERAL_CATEGORY_NAME:     
-                return readTokenInReUnicodePropertyEscape();
-            case RE_UNICODE_PROPERTY_VALUE:
-                return readTokenInReUnicodePropertyValue();
-            default:
-                // Should not reach here.
-                return null;
-        }
+        return switch (this.mode) {
+            case RE_DISJUNCTION -> readTokenInReDisjunction();
+            case RE_UNICODE_PROP_ESCAPE,
+                 RE_UNICODE_GENERAL_CATEGORY_NAME -> readTokenInReUnicodePropertyEscape();
+            case RE_UNICODE_PROPERTY_VALUE -> readTokenInReUnicodePropertyValue();
+            // Should not reach here.
+            default -> null;
+        };
     }
 
     /**
@@ -81,47 +77,31 @@ public class TreeTraverser {
         int nextChar = peek();
 
         this.reader.advance();
-        switch (nextChar) {
-            case Terminals.BITWISE_XOR:
-                return getRegExpToken(TokenKind.BITWISE_XOR_TOKEN);
-            case Terminals.DOLLAR:
-                return getRegExpToken(TokenKind.DOLLAR_TOKEN);
-            case Terminals.DOT:
-                return getRegExpToken(TokenKind.DOT_TOKEN);
-            case Terminals.ASTERISK:
-                return getRegExpToken(TokenKind.ASTERISK_TOKEN);
-            case Terminals.PLUS:
-                return getRegExpToken(TokenKind.PLUS_TOKEN);
-            case Terminals.QUESTION_MARK:
-                return getRegExpToken(TokenKind.QUESTION_MARK_TOKEN);
-            case Terminals.BACKSLASH:
-                return processEscape();
-            case Terminals.OPEN_BRACKET:
-                return getRegExpToken(TokenKind.OPEN_BRACKET_TOKEN);
-            case Terminals.CLOSE_BRACKET:
-                return getRegExpToken(TokenKind.CLOSE_BRACKET_TOKEN);
-            case Terminals.OPEN_BRACE:
-                return getRegExpToken(TokenKind.OPEN_BRACE_TOKEN);
-            case Terminals.CLOSE_BRACE:
-                return getRegExpToken(TokenKind.CLOSE_BRACE_TOKEN);
-            case Terminals.OPEN_PARENTHESIS:
-                return getRegExpToken(TokenKind.OPEN_PAREN_TOKEN);
-            case Terminals.CLOSE_PARENTHESIS:
-                return getRegExpToken(TokenKind.CLOSE_PAREN_TOKEN);
-            case Terminals.COMMA:
-                return getRegExpToken(TokenKind.COMMA_TOKEN);
-            case Terminals.MINUS:
-                return getRegExpToken(TokenKind.MINUS_TOKEN);
-            case Terminals.COLON:
-                return getRegExpToken(TokenKind.COLON_TOKEN);
-            case Terminals.PIPE:
-                return getRegExpToken(TokenKind.PIPE_TOKEN);
-            default:
+        return switch (nextChar) {
+            case Terminals.BITWISE_XOR -> getRegExpToken(TokenKind.BITWISE_XOR_TOKEN);
+            case Terminals.DOLLAR -> getRegExpToken(TokenKind.DOLLAR_TOKEN);
+            case Terminals.DOT -> getRegExpToken(TokenKind.DOT_TOKEN);
+            case Terminals.ASTERISK -> getRegExpToken(TokenKind.ASTERISK_TOKEN);
+            case Terminals.PLUS -> getRegExpToken(TokenKind.PLUS_TOKEN);
+            case Terminals.QUESTION_MARK -> getRegExpToken(TokenKind.QUESTION_MARK_TOKEN);
+            case Terminals.BACKSLASH -> processEscape();
+            case Terminals.OPEN_BRACKET -> getRegExpToken(TokenKind.OPEN_BRACKET_TOKEN);
+            case Terminals.CLOSE_BRACKET -> getRegExpToken(TokenKind.CLOSE_BRACKET_TOKEN);
+            case Terminals.OPEN_BRACE -> getRegExpToken(TokenKind.OPEN_BRACE_TOKEN);
+            case Terminals.CLOSE_BRACE -> getRegExpToken(TokenKind.CLOSE_BRACE_TOKEN);
+            case Terminals.OPEN_PARENTHESIS -> getRegExpToken(TokenKind.OPEN_PAREN_TOKEN);
+            case Terminals.CLOSE_PARENTHESIS -> getRegExpToken(TokenKind.CLOSE_PAREN_TOKEN);
+            case Terminals.COMMA -> getRegExpToken(TokenKind.COMMA_TOKEN);
+            case Terminals.MINUS -> getRegExpToken(TokenKind.MINUS_TOKEN);
+            case Terminals.COLON -> getRegExpToken(TokenKind.COLON_TOKEN);
+            case Terminals.PIPE -> getRegExpToken(TokenKind.PIPE_TOKEN);
+            default -> {
                 if (isDigit(nextChar)) {
-                    return getRegExpText(TokenKind.DIGIT);
+                    yield getRegExpText(TokenKind.DIGIT);
                 }
-                return getRegExpText(TokenKind.RE_LITERAL_CHAR);
-        }
+                yield getRegExpText(TokenKind.RE_LITERAL_CHAR);
+            }
+        };
     }
 
     /**
@@ -496,25 +476,10 @@ public class TreeTraverser {
      * @return <code>true</code>, if the character is ReSyntaxChar. <code>false</code> otherwise.
      */
     private static boolean isReSyntaxChar(int c) {
-        switch (c) {
-            case '^':
-            case '$':
-            case '\\':
-            case '.':
-            case '*':
-            case '+':
-            case '?':
-            case '(':
-            case ')':
-            case '[':
-            case ']':
-            case '{':
-            case '}':
-            case '|':
-                return true;
-            default:
-                return false;
-        }
+        return switch (c) {
+            case '^', '$', '\\', '.', '*', '+', '?', '(', ')', '[', ']', '{', '}', '|' -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -528,17 +493,10 @@ public class TreeTraverser {
      * @return <code>true</code>, if the character is ReSimpleCharClassCode. <code>false</code> otherwise.
      */
     private static boolean isReSimpleCharClassCode(int c) {
-        switch (c) {
-            case 'd':
-            case 'D':
-            case 's':
-            case 'S':
-            case 'w':
-            case 'W':
-                return true;
-            default:
-                return false;
-        }
+        return switch (c) {
+            case 'd', 'D', 's', 'S', 'w', 'W' -> true;
+            default -> false;
+        };
     }
 
     private static boolean isHexDigit(int c) {

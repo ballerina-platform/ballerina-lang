@@ -95,8 +95,8 @@ public class TransactionResourceManager {
     private Map<String, Transaction> trxRegistry;
     private Map<String, Xid> xidRegistry;
 
-    private Map<String, List<BFunctionPointer>> committedFuncRegistry;
-    private Map<String, List<BFunctionPointer>> abortedFuncRegistry;
+    private Map<String, List<BFunctionPointer<?, ?>>> committedFuncRegistry;
+    private Map<String, List<BFunctionPointer<?, ?>>> abortedFuncRegistry;
 
     private ConcurrentSkipListSet<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
     private ConcurrentSkipListSet<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
@@ -259,7 +259,7 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param fpValue   the function pointer for the committed function
      */
-    public void registerCommittedFunction(String transactionBlockId, BFunctionPointer fpValue) {
+    public void registerCommittedFunction(String transactionBlockId, BFunctionPointer<?, ?> fpValue) {
         if (fpValue != null) {
             committedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new ArrayList<>()).add(fpValue);
         }
@@ -271,7 +271,7 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param fpValue   the function pointer for the aborted function
      */
-    public void registerAbortedFunction(String transactionBlockId, BFunctionPointer fpValue) {
+    public void registerAbortedFunction(String transactionBlockId, BFunctionPointer<?, ?> fpValue) {
         if (fpValue != null) {
             abortedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new ArrayList<>()).add(fpValue);
         }
@@ -532,7 +532,7 @@ public class TransactionResourceManager {
      * @return Array of rollback handlers
      */
     public BArray getRegisteredRollbackHandlerList() {
-        List<BFunctionPointer> abortFunctions =
+        List<BFunctionPointer<?, ?>> abortFunctions =
                 abortedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
         if (abortFunctions != null && !abortFunctions.isEmpty()) {
             Collections.reverse(abortFunctions);
@@ -548,7 +548,7 @@ public class TransactionResourceManager {
      * @return Array of commit handlers
      */
     public BArray getRegisteredCommitHandlerList() {
-        List<BFunctionPointer> commitFunctions =
+        List<BFunctionPointer<?, ?>> commitFunctions =
                 committedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
         if (commitFunctions != null && !commitFunctions.isEmpty()) {
             Collections.reverse(commitFunctions);

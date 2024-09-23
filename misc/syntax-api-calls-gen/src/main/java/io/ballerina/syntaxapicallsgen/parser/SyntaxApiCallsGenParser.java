@@ -57,14 +57,11 @@ public abstract class SyntaxApiCallsGenParser {
      */
     public static SyntaxApiCallsGenParser fromConfig(SyntaxApiCallsGenConfig config) {
         long timeoutMs = config.parserTimeout();
-        switch (config.parser()) {
-            case EXPRESSION:
-                return new ExpressionParser(timeoutMs);
-            case STATEMENT:
-                return new StatementParser(timeoutMs);
-            default:
-                return new ModuleParser(timeoutMs);
-        }
+        return switch (config.parser()) {
+            case EXPRESSION -> new ExpressionParser(timeoutMs);
+            case STATEMENT -> new StatementParser(timeoutMs);
+            default -> new ModuleParser(timeoutMs);
+        };
     }
 
     /**
@@ -74,8 +71,7 @@ public abstract class SyntaxApiCallsGenParser {
      * @param diagnostic   Diagnostic to show.
      * @return The string with position highlighted.
      */
-    public static String highlightDiagnostic(TextDocument textDocument,
-                                             io.ballerina.tools.diagnostics.Diagnostic diagnostic) {
+    public static String highlightDiagnostic(TextDocument textDocument, Diagnostic diagnostic) {
         // Get the source code
         String space = " ";
         String sourceLine = textDocument.line(diagnostic.location().lineRange().startLine().line()).text();

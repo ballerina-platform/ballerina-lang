@@ -36,10 +36,13 @@ import java.sql.Statement;
 /**
  * Util class for SQL DB Tests.
  */
-public class SQLDBUtils {
+public final class SQLDBUtils {
 
     public static final String DB_DIRECTORY = System.getProperty("libdir") + File.separator + "tempdb" + File.separator;
     private static final Logger LOG = LoggerFactory.getLogger(SQLDBUtils.class);
+
+    private SQLDBUtils() {
+    }
 
     /**
      * Delete all the files and sub directories which matches given prefix in a given directory.
@@ -144,6 +147,7 @@ public class SQLDBUtils {
             initDatabase(jdbcUrl, username, password, databaseScript);
         }
 
+        @Override
         public void stop() {
             BFileUtil.deleteDirectory(new File(this.dbDirectory));
         }

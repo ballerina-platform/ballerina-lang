@@ -264,13 +264,14 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
@@ -296,8 +297,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private boolean inferredIsolated = true;
     private boolean inLockStatement = false;
     private boolean inIsolatedStartAction = false;
-    private final Stack<LockInfo> copyInLockInfoStack = new Stack<>();
-    private final Stack<Set<BSymbol>> isolatedLetVarStack = new Stack<>();
+    private final Deque<LockInfo> copyInLockInfoStack = new ArrayDeque<>();
+    private final Deque<Set<BSymbol>> isolatedLetVarStack = new ArrayDeque<>();
     private final Map<BSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
     private final Map<BLangArrowFunction, BInvokableSymbol> arrowFunctionTempSymbolMap = new HashMap<>();
 
@@ -1014,15 +1015,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (copyInLockInfoStack.empty()) {
+        if (copyInLockInfoStack.isEmpty()) {
             return;
         }
 
         BLangLock lastCheckedLockNode = lockNode;
 
-        for (int i = copyInLockInfoStack.size() - 1; i >= 0; i--) {
-            LockInfo prevCopyInLockInfo = copyInLockInfoStack.get(i);
-
+        for (LockInfo prevCopyInLockInfo : copyInLockInfoStack) {
             BLangLock outerLockNode = prevCopyInLockInfo.lockNode;
 
             if (!isEnclosedLockWithinSameFunction(lastCheckedLockNode, outerLockNode)) {
@@ -3115,28 +3114,26 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isDependentlyIsolatedExpressionKind(BLangExpression expression) {
-        switch (expression.getKind()) {
-            case LIST_CONSTRUCTOR_EXPR:
-            case TABLE_CONSTRUCTOR_EXPR:
-            case RECORD_LITERAL_EXPR:
-            case XML_COMMENT_LITERAL:
-            case XML_TEXT_LITERAL:
-            case XML_PI_LITERAL:
-            case XML_ELEMENT_LITERAL:
-            case XML_SEQUENCE_LITERAL:
-            case RAW_TEMPLATE_LITERAL:
-            case STRING_TEMPLATE_LITERAL:
-            case TYPE_CONVERSION_EXPR:
-            case CHECK_EXPR:
-            case CHECK_PANIC_EXPR:
-            case TRAP_EXPR:
-            case TERNARY_EXPR:
-            case ELVIS_EXPR:
-                return true;
-            case GROUP_EXPR:
-                return isDependentlyIsolatedExpressionKind(((BLangGroupExpr) expression).expression);
-        }
-        return false;
+        return switch (expression.getKind()) {
+            case LIST_CONSTRUCTOR_EXPR,
+                 TABLE_CONSTRUCTOR_EXPR,
+                 RECORD_LITERAL_EXPR,
+                 XML_COMMENT_LITERAL,
+                 XML_TEXT_LITERAL,
+                 XML_PI_LITERAL,
+                 XML_ELEMENT_LITERAL,
+                 XML_SEQUENCE_LITERAL,
+                 RAW_TEMPLATE_LITERAL,
+                 STRING_TEMPLATE_LITERAL,
+                 TYPE_CONVERSION_EXPR,
+                 CHECK_EXPR,
+                 CHECK_PANIC_EXPR,
+                 TRAP_EXPR,
+                 TERNARY_EXPR,
+                 ELVIS_EXPR -> true;
+            case GROUP_EXPR -> isDependentlyIsolatedExpressionKind(((BLangGroupExpr) expression).expression);
+            default -> false;
+        };
     }
 
     private boolean isCloneOrCloneReadOnlyInvocation(BLangInvocation invocation) {
@@ -3446,8 +3443,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         BSymbol originalSymbol = getOriginalSymbol(symbol);
 
-        for (int i = isolatedLetVarStack.size() - 1; i >= 0; i--) {
-            if (isolatedLetVarStack.get(i).contains(originalSymbol)) {
+        for (Set<BSymbol> bSymbols : isolatedLetVarStack) {
+            if (bSymbols.contains(originalSymbol)) {
                 return true;
             }
         }

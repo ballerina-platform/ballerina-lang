@@ -38,11 +38,15 @@ import io.ballerina.runtime.api.values.BObject;
 //        returnType = {@ReturnType(type = TypeKind.RECORD)},
 //        isPublic = true
 //)
-public class Next {
+public final class Next {
+
+    private Next() {
+    }
+
     //TODO: refactor hard coded values
     public static Object next(BObject m) {
-        BIterator mapIterator = (BIterator) m.getNativeData("&iterator&");
-        BMap bMap = (BMap) m.get(StringUtils.fromString("m"));
+        BIterator<?> mapIterator = (BIterator<?>) m.getNativeData("&iterator&");
+        BMap<?, ?> bMap = (BMap<?, ?>) m.get(StringUtils.fromString("m"));
         if (mapIterator == null) {
             mapIterator = bMap.getIterator();
             m.addNativeData("&iterator&", mapIterator);

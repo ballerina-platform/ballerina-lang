@@ -62,6 +62,7 @@ public class TypeByCallExprTest extends TypeByNodeTest {
         };
     }
 
+    @Override
     void verifyAssertCount() {
         assertEquals(getAssertCount(), 2);
     }

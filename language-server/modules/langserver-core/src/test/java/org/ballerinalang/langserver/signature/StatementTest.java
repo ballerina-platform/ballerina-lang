@@ -27,6 +27,7 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class StatementTest extends AbstractSignatureHelpTest {
+    @Override
     @Test(dataProvider = "signature-help-data-provider", description = "Test Signature Help for Statements")
     public void test(String config, String source)
             throws WorkspaceDocumentException, InterruptedException, IOException {

@@ -38,9 +38,12 @@ import io.ballerina.runtime.internal.values.ValueCreator;
  *
  * @since 2.0.0
  */
-public class ErrorCreator {
+public final class ErrorCreator {
 
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
+
+    private ErrorCreator() {
+    }
 
     /**
      * Create an error with given reason.
@@ -79,7 +82,7 @@ public class ErrorCreator {
         } else {
             initialValues = new MappingInitialValueEntry[0];
         }
-        MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
+        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
         return createError(message, detailMap);
     }
 
@@ -127,7 +130,7 @@ public class ErrorCreator {
         } else {
             initialValues = new MappingInitialValueEntry[0];
         }
-        MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
+        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
         return createError(type, message, null, detailMap);
     }
 

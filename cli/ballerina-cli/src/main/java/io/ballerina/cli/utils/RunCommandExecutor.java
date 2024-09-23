@@ -45,6 +45,7 @@ public class RunCommandExecutor extends Thread {
         this.runtimePanic = false;
     }
 
+    @Override
     public void run() {
         // We use the original runCommand instance with the watch field set to false. That will preserve all the
         // build options passed by the developer.

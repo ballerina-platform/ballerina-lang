@@ -30,9 +30,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,6 +41,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
@@ -106,8 +105,6 @@ public class TestUtils {
     public void testWriteBalaFile() throws IOException, CentralClientException {
         final String balaName = "sf-any.bala";
         Path balaFile = UTILS_TEST_RESOURCES.resolve(balaName);
-        File initialFile = new File(String.valueOf(balaFile));
-        InputStream targetStream = new FileInputStream(initialFile);
 
         Request mockRequest = new Request.Builder()
                 .get()
@@ -158,8 +155,6 @@ public class TestUtils {
     public void testCreateBalaInHomeRepo() throws IOException, CentralClientException {
         final String balaName = "sf-any.bala";
         Path balaFile = UTILS_TEST_RESOURCES.resolve(balaName);
-        File initialFile = new File(String.valueOf(balaFile));
-        InputStream targetStream = new FileInputStream(initialFile);
 
         Request mockRequest = new Request.Builder()
                 .get()
@@ -191,8 +186,6 @@ public class TestUtils {
     public void testCreateBalaInHomeRepoWhenBalaExists() throws IOException {
         final String balaName = "sf-any.bala";
         Path balaFile = UTILS_TEST_RESOURCES.resolve(balaName);
-        File initialFile = new File(String.valueOf(balaFile));
-        InputStream targetStream = new FileInputStream(initialFile);
 
         Request mockRequest = new Request.Builder()
                 .get()
@@ -235,9 +228,8 @@ public class TestUtils {
     }
 
     static void cleanDirectory(Path path) {
-        try {
-            Files.walk(path)
-                    .sorted(Comparator.reverseOrder())
+        try (Stream<Path> paths = Files.walk(path)) {
+            paths.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .filter(item -> !item.getPath().equals(path.toString()))
                     .forEach(File::delete);

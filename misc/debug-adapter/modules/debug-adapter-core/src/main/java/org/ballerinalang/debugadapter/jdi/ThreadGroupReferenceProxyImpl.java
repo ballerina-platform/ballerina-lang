@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Proxy implementation for JDI thread group.
@@ -77,12 +76,12 @@ public class ThreadGroupReferenceProxyImpl extends ObjectReferenceProxyImpl impl
 
     public List<ThreadReferenceProxyImpl> threads() {
         return getThreadGroupReference().threads().stream().map(getVirtualMachineProxy()::getThreadReferenceProxy)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<ThreadGroupReferenceProxyImpl> threadGroups() {
         return getThreadGroupReference().threadGroups().stream().map(getVirtualMachineProxy()
-                ::getThreadGroupReferenceProxy).collect(Collectors.toList());
+                ::getThreadGroupReferenceProxy).toList();
     }
 
     @Override

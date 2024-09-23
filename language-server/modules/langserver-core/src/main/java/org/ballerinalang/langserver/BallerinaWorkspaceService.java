@@ -41,7 +41,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * Workspace service implementation for Ballerina.
@@ -110,7 +109,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         return CompletableFuture.supplyAsync(() -> {
             List<CommandArgument> commandArguments = params.getArguments().stream()
                     .map(CommandArgument::from)
-                    .collect(Collectors.toList());
+                    .toList();
             ExecuteCommandContext context = ContextBuilder.buildExecuteCommandContext(this.workspaceManagerProxy.get(),
                     this.serverContext,
                     commandArguments,

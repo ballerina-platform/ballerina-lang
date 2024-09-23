@@ -39,7 +39,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This represents a general file system based {@link PackageRepository}.
@@ -136,7 +136,11 @@ public class GeneralFSPackageRepository implements PackageRepository {
                         return FileVisitResult.SKIP_SUBTREE;
                     }
                     List<Name> nameComps = new ArrayList<>();
-                    if (Files.list(dir).filter(f -> isBALFile(f)).count() > 0) {
+                    boolean balFilesExist;
+                    try (Stream<Path> paths = Files.list(dir)) {
+                        balFilesExist = paths.filter(f -> isBALFile(f)).count() > 0;
+                    }
+                    if (balFilesExist) {
                         int dirNameCount = dir.getNameCount();
                         if (dirNameCount > baseNameCount) {
                             dir.subpath(baseNameCount, dirNameCount).forEach(
@@ -233,8 +237,8 @@ public class GeneralFSPackageRepository implements PackageRepository {
         @Override
         public List<String> getEntryNames() {
             if (this.cachedEntryNames == null) {
-                try {
-                    List<Path> files = Files.walk(this.pkgPath, 1).filter(
+                try (Stream<Path> paths = Files.walk(this.pkgPath, 1)) {
+                    List<Path> files = paths.filter(
                             Files::isRegularFile).filter(e -> e.getFileName().toString().endsWith(BAL_SOURCE_EXT)).
                             toList();
                     this.cachedEntryNames = new ArrayList<>(files.size());
@@ -253,8 +257,8 @@ public class GeneralFSPackageRepository implements PackageRepository {
         }
 
         @Override
-        public List<CompilerInput> getPackageSourceEntries() {
-            return this.getEntryNames().stream().map(e -> new FSCompilerInput(e)).collect(Collectors.toList());
+        public List<FSCompilerInput> getPackageSourceEntries() {
+            return this.getEntryNames().stream().map(e -> new FSCompilerInput(e)).toList();
         }
 
         /**

@@ -1684,13 +1684,13 @@ class SymbolFinder extends BaseVisitor {
 
         // The assumption is that if it's moduled-qualified, it must be a public symbol.
         // Hence, the owner would be a package symbol.
-        if (resourceAccessInvocation.symbol != null &&
-                setEnclosingNode(resourceAccessInvocation.symbol.owner, resourceAccessInvocation.pkgAlias.pos)) {
+        BSymbol symbol = resourceAccessInvocation.symbol;
+        if (symbol != null && setEnclosingNode(symbol.owner, resourceAccessInvocation.pkgAlias.pos)) {
             return;
         }
 
         if (this.symbolAtCursor == null) {
-            setEnclosingNode(resourceAccessInvocation.symbol, resourceAccessInvocation.resourceAccessPathSegments.pos);
+            setEnclosingNode(symbol, resourceAccessInvocation.name.pos);
         }
     }
 

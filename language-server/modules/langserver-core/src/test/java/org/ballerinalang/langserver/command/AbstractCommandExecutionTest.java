@@ -48,8 +48,6 @@ public abstract class AbstractCommandExecutionTest {
 
     private final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
-    private final JsonParser parser = new JsonParser();
-
     private final Path resourcesPath = new File(getClass().getClassLoader().getResource("command").getFile()).toPath();
 
     private static final Logger log = LoggerFactory.getLogger(AbstractCommandExecutionTest.class);
@@ -114,19 +112,19 @@ public abstract class AbstractCommandExecutionTest {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
-    private List argsToJson(List<Object> args) {
-        List<JsonObject> jsonArgs = new ArrayList<>();
+    private List<Object> argsToJson(List<Object> args) {
+        List<Object> jsonArgs = new ArrayList<>();
         for (Object arg : args) {
-            jsonArgs.add((JsonObject) gson.toJsonTree(arg));
+            jsonArgs.add(gson.toJsonTree(arg));
         }
         return jsonArgs;
     }
 
     private JsonObject getCommandResponse(List<Object> args, String command) {
-        List argsList = argsToJson(args);
+        List<Object> argsList = argsToJson(args);
         ExecuteCommandParams params = new ExecuteCommandParams(command, argsList);
         String response = TestUtil.getExecuteCommandResponse(params, this.serviceEndpoint).replace("\\r\\n", "\\n");
-        JsonObject responseJson = parser.parse(response).getAsJsonObject();
+        JsonObject responseJson = JsonParser.parseString(response).getAsJsonObject();
         responseJson.remove("id");
         return responseJson;
     }

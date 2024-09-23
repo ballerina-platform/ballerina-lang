@@ -36,7 +36,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Test class to test module addition to Ballerina.toml.
@@ -45,6 +44,7 @@ import java.util.stream.Collectors;
  */
 public class AddModuleToBallerinaTomlCodeActionTest extends AbstractCodeActionTest {
     
+    @Override
     protected void setupLanguageServer(TestUtil.LanguageServerBuilder builder) {
         builder.withInitOption(InitializationOptions.KEY_POSITIONAL_RENAME_SUPPORT, true);
     }
@@ -62,7 +62,7 @@ public class AddModuleToBallerinaTomlCodeActionTest extends AbstractCodeActionTe
                     "x.y", "main.bal");
             List<LSPackageLoader.ModuleInfo> localPackages = getLocalPackages(localProjects,
                     languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.ModuleInfo::new)
-                    .collect(Collectors.toList());
+                    .toList();
             Mockito.when(getLSPackageLoader().getLocalRepoModules()).thenReturn(localPackages);
         } catch (Exception e) {
             //ignore

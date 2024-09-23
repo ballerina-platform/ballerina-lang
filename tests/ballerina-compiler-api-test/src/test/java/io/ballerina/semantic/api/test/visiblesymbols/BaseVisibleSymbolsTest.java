@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
@@ -91,7 +90,7 @@ public abstract class BaseVisibleSymbolsTest {
     }
 
     List<ExpectedSymbolInfo> concat(List<ExpectedSymbolInfo> list, ExpectedSymbolInfo... symbols) {
-        return Stream.concat(list.stream(), Stream.of(symbols)).collect(Collectors.toList());
+        return Stream.concat(list.stream(), Stream.of(symbols)).toList();
     }
 
     static class ExpectedSymbolInfo {

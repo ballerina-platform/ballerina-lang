@@ -42,7 +42,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  * @since 2.0.0
  */
 
-public class ErrorUtils {
+public final class ErrorUtils {
 
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
     private static final BString ERROR_CAUSE_FIELD = StringUtils.fromString("cause");
@@ -78,7 +78,7 @@ public class ErrorUtils {
         } else {
             initialValues = new MappingInitialValueEntry[0];
         }
-        BMap<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
+        BMap<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
 
         return (ErrorValue) createError(StringUtils.fromString(e.getClass().getName()), detailMap);
     }

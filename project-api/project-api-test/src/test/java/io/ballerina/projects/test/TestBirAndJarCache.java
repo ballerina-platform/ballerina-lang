@@ -88,23 +88,25 @@ public class TestBirAndJarCache {
         // numOfModules * 2 : This includes testable jars as well, including the resources.jar
         Assert.assertEquals(testCompilationCache.jarCachedCount, numOfModules + 1);
 
-        Stream<Path> pathStream = Files.find(cacheDirPath, 100,
+        try (Stream<Path> pathStream = Files.find(cacheDirPath, 100,
                 (path, fileAttributes) -> !Files.isDirectory(path) &&
                         (path.getFileName().toString().endsWith(".bir") ||
-                                path.getFileName().toString().endsWith(".jar")));
+                                path.getFileName().toString().endsWith(".jar")))) {
 
-        List<String> foundPaths = pathStream
-                .map(path -> path.getFileName().toString())
-                .toList();
-        for (ModuleId moduleId : currentPackage.moduleIds()) {
-            Module module = currentPackage.module(moduleId);
-            ModuleName moduleName = module.moduleName();
-            String jarName = getThinJarFileName(module.descriptor().org(),
-                                                moduleName.toString(),
-                                                module.descriptor().version());
-            Assert.assertTrue(foundPaths.contains(jarName + BLANG_COMPILED_JAR_EXT));
+            List<String> foundPaths = pathStream
+                    .map(path -> path.getFileName().toString())
+                    .toList();
+
+            for (ModuleId moduleId : currentPackage.moduleIds()) {
+                Module module = currentPackage.module(moduleId);
+                ModuleName moduleName = module.moduleName();
+                String jarName = getThinJarFileName(module.descriptor().org(),
+                                                    moduleName.toString(),
+                                                    module.descriptor().version());
+                Assert.assertTrue(foundPaths.contains(jarName + BLANG_COMPILED_JAR_EXT));
+            }
+            Assert.assertTrue(foundPaths.contains(RESOURCE_DIR_NAME + BLANG_COMPILED_JAR_EXT));
         }
-        Assert.assertTrue(foundPaths.contains(RESOURCE_DIR_NAME + BLANG_COMPILED_JAR_EXT));
     }
 
     @Test

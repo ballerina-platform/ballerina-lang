@@ -63,7 +63,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 2201.3.0
  */
-public class TesterinaCompilerPluginUtils {
+public final class TesterinaCompilerPluginUtils {
+
+    private TesterinaCompilerPluginUtils() {
+    }
 
     public static void addSetTestOptionsCall(List<StatementNode> statements) {
         // Add the statement, 'test:setTestOptions(<args[]>);'
@@ -336,7 +339,7 @@ public class TesterinaCompilerPluginUtils {
                 NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(argName)));
     }
 
-    public static void writeCacheMapAsJson(Map map, Path path, String fileName) {
+    public static void writeCacheMapAsJson(Map<?, ?> map, Path path, String fileName) {
         if (!Files.exists(path)) {
             try {
                 Files.createDirectories(path);

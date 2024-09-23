@@ -60,9 +60,12 @@ import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.getTypeName;
  *
  * @since 1.2.0
  */
-class TypeEmitter {
+final class TypeEmitter {
 
     static final Map<String, BType> B_TYPES = new HashMap<>();
+
+    private TypeEmitter() {
+    }
 
     static String emitType(BType bType, int tabs) {
 

@@ -55,24 +55,17 @@ public class PartialCoverageModifiedCounter implements ICounter {
 
     /**
      * As implemented in Jacoco API.
-     * org.jacoco.core.internal.analysis.CounterImpl#getValue(org.jacoco.core.analysis.ICounter.CounterValue)
+     * {@link org.jacoco.core.internal.analysis.CounterImpl#getValue(org.jacoco.core.analysis.ICounter.CounterValue)}
      */
     @Override
     public double getValue(CounterValue value) {
-        switch (value) {
-            case TOTALCOUNT:
-                return getTotalCount();
-            case MISSEDCOUNT:
-                return getMissedCount();
-            case COVEREDCOUNT:
-                return getCoveredCount();
-            case MISSEDRATIO:
-                return getMissedRatio();
-            case COVEREDRATIO:
-                return getCoveredRatio();
-            default:
-                throw new RuntimeException("No such CounterValue object");
-        }
+        return switch (value) {
+            case TOTALCOUNT -> getTotalCount();
+            case MISSEDCOUNT -> getMissedCount();
+            case COVEREDCOUNT -> getCoveredCount();
+            case MISSEDRATIO -> getMissedRatio();
+            case COVEREDRATIO -> getCoveredRatio();
+        };
     }
 
     @Override
@@ -101,7 +94,7 @@ public class PartialCoverageModifiedCounter implements ICounter {
     }
 
     /**
-     * As implemented in org.jacoco.core.internal.analysis.CounterImpl#getStatus().
+     * As implemented in {@link org.jacoco.core.internal.analysis.CounterImpl#getStatus()}.
      */
     @Override
     public int getStatus() {

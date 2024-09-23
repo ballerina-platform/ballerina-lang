@@ -45,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ListConstructorExpressionNode} context.
@@ -79,7 +78,7 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
         return completionItems;
     }
 
-    private List<LSCompletionItem> spreadOperatorCompletions(BallerinaCompletionContext context) {
+    private List<SpreadCompletionItem> spreadOperatorCompletions(BallerinaCompletionContext context) {
         Optional<SemanticModel> semanticModel = context.currentSemanticModel();
         Optional<Document> document = context.currentDocument();
         if (semanticModel.isEmpty() || document.isEmpty()) {
@@ -124,7 +123,7 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
                     CompletionItem completionItem =
                             SpreadCompletionItemBuilder.build(symbol, typeName, context);
                     return new SpreadCompletionItem(context, completionItem, symbol);
-                }).collect(Collectors.toList());
+                }).toList();
     }
 
     @Override

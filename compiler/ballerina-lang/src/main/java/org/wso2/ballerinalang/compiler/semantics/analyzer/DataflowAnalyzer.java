@@ -234,6 +234,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -241,7 +242,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -270,7 +270,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private Map<BSymbol, Set<BSymbol>> functionToDependency;
     private Map<BLangOnFailClause, Map<BSymbol, InitStatus>> possibleFailureUnInitVars;
-    private Stack<BLangOnFailClause> enclosingOnFailClause;
+    private Deque<BLangOnFailClause> enclosingOnFailClause;
     private boolean flowTerminated = false;
     private boolean possibleFailureReached = false;
     private boolean definiteFailureReached = false;
@@ -310,7 +310,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.globalNodeDependsOn = new LinkedHashMap<>();
         this.functionToDependency = new HashMap<>();
         this.possibleFailureUnInitVars = new LinkedHashMap<>();
-        this.enclosingOnFailClause = new Stack<>();
+        this.enclosingOnFailClause = new ArrayDeque<>();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
@@ -996,7 +996,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // Update the enclosing on-fail clause's possible failure uninitialized variables
         int enclosingOnFailSize = this.enclosingOnFailClause.size();
         if (enclosingOnFailSize > 1) {
-            BLangOnFailClause enclosingOnFail = this.enclosingOnFailClause.get(enclosingOnFailSize - 2);
+            Iterator<BLangOnFailClause> iterator = this.enclosingOnFailClause.iterator();
+            // get second top element
+            iterator.next();
+            BLangOnFailClause enclosingOnFail = iterator.next();
             this.possibleFailureUnInitVars.put(enclosingOnFail, possibleUninitializedVars);
         }
     }
@@ -1559,7 +1562,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 fieldMap.put(recordVarNameField.getVariableName().value, recordVarNameField);
             }
         }
-        return fieldNames.stream().map(fieldMap::get).collect(Collectors.toList());
+        return fieldNames.stream().map(fieldMap::get).toList();
     }
 
     private List<String> getFieldNames(BLangTableConstructorExpr constructorExpr) {
@@ -1574,7 +1577,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 !constructorExpr.tableKeySpecifier.fieldNameIdentifierList.isEmpty()) {
             BLangTableKeySpecifier tableKeySpecifier = constructorExpr.tableKeySpecifier;
             return tableKeySpecifier.fieldNameIdentifierList.stream().map(identifier ->
-                    ((BLangIdentifier) identifier).value).collect(Collectors.toList());
+                    ((BLangIdentifier) identifier).value).toList();
         } else {
             return new ArrayList<>();
         }

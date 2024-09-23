@@ -26,7 +26,10 @@ import io.ballerina.runtime.api.values.BStream;
  *
  * @since 1.2.0
  */
-public class GetIteratorObj {
+public final class GetIteratorObj {
+
+    private GetIteratorObj() {
+    }
 
     public static BObject getIteratorObj(BStream strm) {
         return strm.getIteratorObj();

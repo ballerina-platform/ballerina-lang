@@ -57,7 +57,10 @@ import java.util.List;
  *
  * @since 2201.4.0
  */
-public class TypeReference {
+public final class TypeReference {
+
+    private TypeReference() {
+    }
 
     public static Boolean validateGetDetailType(BTypedesc typedesc) {
         BErrorType errorType = (BErrorType) TypeUtils.getImpliedType(typedesc.getDescribingType());
@@ -140,7 +143,7 @@ public class TypeReference {
         return true;
     }
 
-    public static Boolean validateTableType(BTypedesc typedesc, TableValue tableValue) {
+    public static Boolean validateTableType(BTypedesc typedesc, TableValue<?, ?> tableValue) {
         BTableType tableType = (BTableType) TypeUtils.getImpliedType(typedesc.getDescribingType());
         if (tableType.getConstrainedType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
                 tableValue.getKeyType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
@@ -238,7 +241,7 @@ public class TypeReference {
         return true;
     }
 
-    public static Boolean validateBMap(BMap value1, BMap value2) {
+    public static Boolean validateBMap(BMap<?, ?> value1, BMap<?, ?> value2) {
         if (value1.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
                 value2.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw ErrorCreator.createError(StringUtils.fromString("BMap getType API provided a non type " +
@@ -255,7 +258,7 @@ public class TypeReference {
         return true;
     }
 
-    public static Boolean validateBFunctionPointer(BFunctionPointer value) {
+    public static Boolean validateBFunctionPointer(BFunctionPointer<?, ?> value) {
         if (value.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw  ErrorCreator.createError(StringUtils.fromString("Function Pointer getType API provided a non " +
                     "type reference type."));
@@ -283,7 +286,7 @@ public class TypeReference {
         return true;
     }
 
-    public static boolean validateTableKeys(BTable table) {
+    public static boolean validateTableKeys(BTable<?, ?> table) {
         if (table.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG || table.size() != 1 ||
                 table.getKeyType().getTag() != TypeTags.TUPLE_TAG) {
             throw ErrorCreator.createError(StringUtils.fromString("Table keys does not provide type-reference " +

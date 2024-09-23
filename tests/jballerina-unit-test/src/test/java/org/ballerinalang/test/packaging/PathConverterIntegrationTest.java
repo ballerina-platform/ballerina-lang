@@ -83,15 +83,16 @@ public class PathConverterIntegrationTest {
         Files.delete(tempFile);
         Files.delete(tempSemVerFile);
         Files.delete(tempNonSourceFile);
-        Files.walk(tempDirectory)
-             .sorted(Comparator.reverseOrder())
-             .filter(Files::isDirectory)
-             .forEach(path -> {
-                 try {
-                     Files.delete(path);
-                 } catch (IOException e) {
-                     Assert.fail(e.getMessage(), e);
-                 }
-             });
+        try (Stream<Path> paths = Files.walk(tempDirectory)) {
+            paths.sorted(Comparator.reverseOrder())
+                .filter(Files::isDirectory)
+                .forEach(path -> {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException e) {
+                        Assert.fail(e.getMessage(), e);
+                    }
+                });
+        }
     }
 }

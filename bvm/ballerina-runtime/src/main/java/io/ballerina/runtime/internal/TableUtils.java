@@ -41,7 +41,10 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.TABLE_KEY_CYCLIC
  * @since 1.3.0
  */
 
-public class TableUtils {
+public final class TableUtils {
+
+    private TableUtils() {
+    }
 
     /**
      * Generates a hash value which is same for the same shape.
@@ -68,16 +71,16 @@ public class TableUtils {
 
             Type refType = TypeUtils.getImpliedType(refValue.getType());
             if (refType.getTag() == TypeTags.MAP_TAG || refType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                MapValue mapValue = (MapValue) refValue;
-                for (Object entry : mapValue.entrySet()) {
-                    result = 31 * result + hash(((Map.Entry) entry).getKey(), node) +
-                            (((Map.Entry) entry).getValue() == null ? 0 : hash(((Map.Entry) entry).getValue(),
+                MapValue<?, ?> mapValue = (MapValue<?, ?>) refValue;
+                for (Map.Entry<?, ?> entry : mapValue.entrySet()) {
+                    result = 31 * result + hash(entry.getKey(), node) +
+                            (entry.getValue() == null ? 0 : hash(entry.getValue(),
                                     node));
                 }
                 return result;
             } else if (refType.getTag() == TypeTags.ARRAY_TAG || refType.getTag() == TypeTags.TUPLE_TAG) {
                 ArrayValue arrayValue = (ArrayValue) refValue;
-                IteratorValue arrayIterator = arrayValue.getIterator();
+                IteratorValue<?> arrayIterator = arrayValue.getIterator();
                 while (arrayIterator.hasNext()) {
                     result = 31 * result + hash(arrayIterator.next(), node);
                 }
@@ -88,8 +91,8 @@ public class TableUtils {
                     refType.getTag() == TypeTags.XMLNS_TAG) {
                 return (long) refValue.toString().hashCode();
             } else if (refType.getTag() == TypeTags.TABLE_TAG) {
-                TableValue tableValue = (TableValue) refValue;
-                IteratorValue tableIterator = tableValue.getIterator();
+                TableValue<?, ?> tableValue = (TableValue<?, ?>) refValue;
+                IteratorValue<?> tableIterator = tableValue.getIterator();
                 while (tableIterator.hasNext()) {
                     result = 31 * result + hash(tableIterator.next(), node);
                 }

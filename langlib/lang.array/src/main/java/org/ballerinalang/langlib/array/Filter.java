@@ -42,25 +42,19 @@ import static org.ballerinalang.langlib.array.utils.Constants.ARRAY_VERSION;
  *
  * @since 1.0
  */
-public class Filter {
+public final class Filter {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
                                                                       ARRAY_VERSION, "filter");
 
-    public static BArray filter(BArray arr, BFunctionPointer<Object, Boolean> func) {
+    public static BArray filter(BArray arr, BFunctionPointer<Object[], Boolean> func) {
         BArray newArr;
         Type arrType = TypeUtils.getImpliedType(arr.getType());
-        switch (arrType.getTag()) {
-            case TypeTags.ARRAY_TAG:
-                newArr = ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));
-                break;
-            case TypeTags.TUPLE_TAG:
-                newArr = ArrayUtils.createEmptyArrayFromTuple(arr);
-                break;
-            default:
-                throw createOpNotSupportedError(arrType, "filter()");
-
-        }
+        newArr = switch (arrType.getTag()) {
+            case TypeTags.ARRAY_TAG -> ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));
+            case TypeTags.TUPLE_TAG -> ArrayUtils.createEmptyArrayFromTuple(arr);
+            default -> throw createOpNotSupportedError(arrType, "filter()");
+        };
         int size = arr.size();
         AtomicInteger newArraySize = new AtomicInteger(-1);
         AtomicInteger index = new AtomicInteger(-1);

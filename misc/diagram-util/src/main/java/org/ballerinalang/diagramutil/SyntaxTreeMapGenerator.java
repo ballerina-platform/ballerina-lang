@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -619,7 +620,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 nodeJson.add(jsonName, moduleIdJson);
             } else if (prop instanceof TypeDescKind typeDescKind) {
                 nodeJson.addProperty(jsonName, typeDescKind.getName());
-            } else if (prop instanceof io.ballerina.compiler.api.symbols.SymbolKind symbolKind) {
+            } else if (prop instanceof SymbolKind symbolKind) {
                 nodeJson.addProperty(jsonName, symbolKind.name());
             } else if (prop instanceof String s) {
                 nodeJson.addProperty(jsonName, s);

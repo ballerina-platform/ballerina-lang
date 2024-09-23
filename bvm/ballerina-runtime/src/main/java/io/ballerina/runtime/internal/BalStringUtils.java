@@ -50,7 +50,8 @@ import static io.ballerina.runtime.internal.util.StringUtils.parseExpressionStri
  *
  * @since 2.0.0
  */
-public class BalStringUtils {
+public final class BalStringUtils {
+
     private static boolean hasCycles = false;
 
     private BalStringUtils() {}
@@ -146,7 +147,7 @@ public class BalStringUtils {
      */
     public static Object parseMapExpressionStringValue(String exprValue, BLink parent) {
         List<String> list = getElements(exprValue);
-        MapValueImpl eleMap = new MapValueImpl(new BMapType(TYPE_ANYDATA));
+        MapValueImpl<BString, Object> eleMap = new MapValueImpl<>(new BMapType(TYPE_ANYDATA));
         if (list.isEmpty()) {
             return eleMap;
         }
@@ -175,12 +176,12 @@ public class BalStringUtils {
         }
         if (typeSet.size() > 1) {
             BUnionType type = new BUnionType(new ArrayList<>(typeSet));
-            MapValueImpl result = new MapValueImpl(new BMapType(type));
+            MapValueImpl<BString, Object> result = new MapValueImpl<>(new BMapType(type));
             result.putAll(eleMap);
             return result;
         } else {
             Type type = typeSet.iterator().next();
-            MapValueImpl result = new MapValueImpl(new BMapType(type));
+            MapValueImpl<BString, Object> result = new MapValueImpl<>(new BMapType(type));
             result.putAll(eleMap);
             return result;
         }

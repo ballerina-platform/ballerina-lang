@@ -34,8 +34,9 @@ import java.util.Map;
  * </p>
  *  
  * @since 0.995.0
+ * @param <T> Type of the value returned by the iterator
  */
-public interface IteratorValue extends RefValue, BIterator {
+public interface IteratorValue<T> extends RefValue, BIterator<T> {
 
     BTypedesc TYPEDESC = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
 

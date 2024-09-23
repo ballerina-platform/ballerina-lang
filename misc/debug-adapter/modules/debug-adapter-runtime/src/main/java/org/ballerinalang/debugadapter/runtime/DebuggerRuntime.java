@@ -85,7 +85,7 @@ import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
  * @since 2.0.0
  */
 @SuppressWarnings("unused")
-public class DebuggerRuntime {
+public final class DebuggerRuntime {
 
     private static final String EVALUATOR_STRAND_NAME = "evaluator-strand";
     private static final String XML_STEP_SEPARATOR = "/";
@@ -113,7 +113,7 @@ public class DebuggerRuntime {
             final Object[] finalResult = new Object[1];
             final Object[] paramValues = args[0] instanceof Strand ? Arrays.copyOfRange(args, 1, args.length) : args;
 
-            Function<?, ?> func = o -> bObject.call((Strand) (((Object[]) o)[0]), methodName, paramValues);
+            Function<Object[], ?> func = o -> bObject.call((Strand) ((o)[0]), methodName, paramValues);
             Object resultFuture = scheduler.schedule(new Object[1], func, null, new Callback() {
                 @Override
                 public void notifySuccess(Object result) {
@@ -439,8 +439,8 @@ public class DebuggerRuntime {
      * @param args        Arguments to provide.
      * @return The result of the invocation.
      */
-    protected static Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
-                                                 Class<?>[] argTypes, Object[] args) throws Exception {
+    private static Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
+                                               Class<?>[] argTypes, Object[] args) throws Exception {
         Class<?> clazz = classLoader.loadClass(className);
         Method method = clazz.getDeclaredMethod(methodName, argTypes);
         return method.invoke(null, args);

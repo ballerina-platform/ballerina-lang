@@ -62,7 +62,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Symbol resolver for the field access expressions.
@@ -157,7 +156,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
             functionName = ((SimpleNameReferenceNode) nameRef).name().text();
             visibleEntries = context.visibleSymbols(context.getCursorPosition()).stream()
                     .filter(fSymbolPredicate.or(fPointerPredicate))
-                    .collect(Collectors.toList());
+                    .toList();
         } else {
             return Optional.empty();
         }

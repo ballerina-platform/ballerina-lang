@@ -40,12 +40,15 @@ import static org.ballerinalang.langlib.table.utils.Constants.TABLE_VERSION;
 //        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
 //        isPublic = true
 //)
-public class Foreach {
+public final class Foreach {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "forEach");
 
-    public static void forEach(BTable tbl, BFunctionPointer<Object, Object> func) {
+    private Foreach() {
+    }
+
+    public static void forEach(BTable<?, ?> tbl, BFunctionPointer<Object[], Object> func) {
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         Object[] values = tbl.values().toArray();

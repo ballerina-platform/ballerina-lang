@@ -78,29 +78,22 @@ public class HoverObjectResolver {
      * @return {@link Hover} hover object.
      */
     public Hover getHoverObjectForSymbol(Symbol symbol) {
-        switch (symbol.kind()) {
-            case FUNCTION:
-                return getHoverObjectForSymbol((FunctionSymbol) symbol);
-            case METHOD:
-                return getHoverObjectForSymbol((MethodSymbol) symbol);
-            case RESOURCE_METHOD:
-                return getHoverObjectForSymbol((ResourceMethodSymbol) symbol);
-            case TYPE_DEFINITION:
-                return getHoverObjectForSymbol((TypeDefinitionSymbol) symbol);
-            case CLASS:
-                return getHoverObjectForSymbol((ClassSymbol) symbol);
-            case VARIABLE:
-                return getHoverObjectForSymbol((VariableSymbol) symbol);
-            case PARAMETER:
-                return getHoverObjectForSymbol((ParameterSymbol) symbol);
-            case TYPE:
+        return switch (symbol.kind()) {
+            case FUNCTION -> getHoverObjectForSymbol((FunctionSymbol) symbol);
+            case METHOD -> getHoverObjectForSymbol((MethodSymbol) symbol);
+            case RESOURCE_METHOD -> getHoverObjectForSymbol((ResourceMethodSymbol) symbol);
+            case TYPE_DEFINITION -> getHoverObjectForSymbol((TypeDefinitionSymbol) symbol);
+            case CLASS -> getHoverObjectForSymbol((ClassSymbol) symbol);
+            case VARIABLE -> getHoverObjectForSymbol((VariableSymbol) symbol);
+            case PARAMETER -> getHoverObjectForSymbol((ParameterSymbol) symbol);
+            case TYPE -> {
                 if (symbol instanceof TypeReferenceTypeSymbol refTypeSymbol) {
-                    return getHoverObjectForSymbol(refTypeSymbol.definition());
+                    yield getHoverObjectForSymbol(refTypeSymbol.definition());
                 }
-                return HoverUtil.getHoverObject();
-            default:
-                return HoverUtil.getDescriptionOnlyHoverObject(symbol);
-        }
+                yield HoverUtil.getHoverObject();
+            }
+            default -> HoverUtil.getDescriptionOnlyHoverObject(symbol);
+        };
     }
 
     private Hover getHoverObjectForSymbol(VariableSymbol variableSymbol) {

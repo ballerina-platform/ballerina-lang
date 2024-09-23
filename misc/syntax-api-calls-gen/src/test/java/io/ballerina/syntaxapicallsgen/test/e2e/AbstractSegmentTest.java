@@ -131,9 +131,8 @@ public abstract class AbstractSegmentTest {
 
         @Override
         public TemplateCode run() {
-            try {
+            try (CachedCompiler compiler = new CachedCompiler(null, null)) {
                 ClassLoader classLoader = new SegmentClassLoader();
-                CachedCompiler compiler = new CachedCompiler(null, null);
                 Class<?> templateCodeImpl = compiler.loadFromJava(classLoader, TEMPLATE_PACKAGE_NAME, javaCode);
                 return (TemplateCode) templateCodeImpl.getDeclaredConstructor().newInstance();
             } catch (ReflectiveOperationException e) {

@@ -63,6 +63,7 @@ public class GraphCommandTest extends BaseCommandTest {
     private Path testDistCacheDirectory;
     private ProjectEnvironmentBuilder projectEnvironmentBuilder;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();

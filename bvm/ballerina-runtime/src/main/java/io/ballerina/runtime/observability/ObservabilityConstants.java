@@ -24,7 +24,7 @@ package io.ballerina.runtime.observability;
  * Open Tracing Specification.
  * </p>
  */
-public class ObservabilityConstants {
+public final class ObservabilityConstants {
 
     private ObservabilityConstants() {
     }
