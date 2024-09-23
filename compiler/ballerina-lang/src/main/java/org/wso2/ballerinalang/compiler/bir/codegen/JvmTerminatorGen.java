@@ -171,7 +171,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
  */
 public class JvmTerminatorGen {
 
-    public static final String THROWABLE_VAR = "$t";
     private final MethodVisitor mv;
     private final BIRVarToJVMIndexMap indexMap;
     private final LabelGenerator labelGen;
