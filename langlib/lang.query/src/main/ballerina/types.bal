@@ -652,17 +652,21 @@ class _GroupByFunction {
     public function process() returns _Frame|error? {
         lock {
             if (self.groupedStream is ()) {
-                _StreamFunction pf = <_StreamFunction>self.prevFunc;
+                _StreamFunction pf = check self.prevFunc.ensureType();
                 _Frame? f = check pf.process();
                 while f is _Frame {
                     anydata & readonly groupingKey = (check self.getKey(f)).cloneReadOnly();
-                    self.tbl.hasKey(key) ? self.tbl.get(key).frames.push(f) : self.tbl.add({groupingKey: key, frames: [f]});
+                    if self.tbl.hasKey(groupingKey) {
+                        self.tbl.get(groupingKey).frames.push(f);
+                    } else {
+                        self.tbl.add({groupingKey, frames: [f]});
+                    }
                     f = check pf.process();
                 }
                 self.groupedStream = self.convertToStream(self.tbl);
             }
 
-            stream<_Frame> s = <stream<_Frame>>self.groupedStream;
+            stream<_Frame> s = check self.groupedStream.ensureType();
             record {|_Frame value;|}|error? next = s.next();
             return next is record {|_Frame value;|} ? next.value : next;
         }
