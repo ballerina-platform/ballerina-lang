@@ -71,7 +71,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class JsonInternalUtils {
+public final class JsonInternalUtils {
 
     public static final String OBJECT = "object";
     public static final String ARRAY = "array";
@@ -392,24 +392,20 @@ public class JsonInternalUtils {
         }
 
         Type type = TypeUtils.getImpliedType(TypeChecker.getType(source));
-        switch (type.getTag()) {
-            case TypeTags.INT_TAG:
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
-            case TypeTags.STRING_TAG:
-            case TypeTags.BOOLEAN_TAG:
-            case TypeTags.JSON_TAG:
-                return source;
-            case TypeTags.NULL_TAG:
-                return null;
-            case TypeTags.MAP_TAG:
-            case TypeTags.OBJECT_TYPE_TAG:
-            case TypeTags.RECORD_TYPE_TAG:
-                return convertMapToJSON((MapValueImpl<BString, Object>) source, targetType);
-            default:
-                throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE,
-                                                               PredefinedTypes.TYPE_JSON, type);
-        }
+        return switch (type.getTag()) {
+            case TypeTags.INT_TAG,
+                 TypeTags.FLOAT_TAG,
+                 TypeTags.DECIMAL_TAG,
+                 TypeTags.STRING_TAG,
+                 TypeTags.BOOLEAN_TAG,
+                 TypeTags.JSON_TAG -> source;
+            case TypeTags.NULL_TAG -> null;
+            case TypeTags.MAP_TAG,
+                 TypeTags.OBJECT_TYPE_TAG,
+                 TypeTags.RECORD_TYPE_TAG -> convertMapToJSON((MapValueImpl<BString, Object>) source, targetType);
+            default -> throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE,
+                    PredefinedTypes.TYPE_JSON, type);
+        };
     }
 
     /**
@@ -467,7 +463,7 @@ public class JsonInternalUtils {
                                                 StringUtils.fromString("JSON Merge failed for key '" + key + "'"));
             initialValues[1] = new MappingInitialValueEntry.KeyValueEntry(TypeConstants.DETAIL_CAUSE,
                                                                           elementMergeNullableError);
-            MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL,
+            MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL,
                                                                         initialValues);
             return ErrorCreator.createError(ErrorReasons.MERGE_JSON_ERROR, detailMap);
         }
@@ -545,7 +541,7 @@ public class JsonInternalUtils {
      * @param table {@link BTable} to be converted
      * @return JSON representation of the provided table
      */
-    public static Object toJSON(BTable table) {
+    public static Object toJSON(BTable<?, ?> table) {
         TableJsonDataSource jsonDataSource = new TableJsonDataSource(table);
         return jsonDataSource.build();
     }

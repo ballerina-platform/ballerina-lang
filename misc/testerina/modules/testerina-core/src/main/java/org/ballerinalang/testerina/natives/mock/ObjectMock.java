@@ -54,7 +54,7 @@ import static io.ballerina.runtime.internal.TypeChecker.getType;
 /**
  * Class that contains inter-op function related to mocking.
  */
-public class ObjectMock {
+public final class ObjectMock {
 
     private ObjectMock() {
     }
@@ -232,7 +232,7 @@ public class ObjectMock {
      * @param pathParams path parameters map provided by the user
      * @return an optional error if a validation fails
      */
-    public static BError validatePathParams(BObject caseObj, BMap pathParams) {
+    public static BError validatePathParams(BObject caseObj, BMap<?, ?> pathParams) {
         String functionName = caseObj.getStringValue(StringUtils.fromString(MockConstants.FUNCTION_NAME)).toString();
         String[] pathSegments = functionName.split(MockConstants.PATH_SEPARATOR);
         for (int i = 0; i < pathSegments.length; i++) {
@@ -323,7 +323,7 @@ public class ObjectMock {
 
                 // validate if each argument is compatible with the type given in the function signature
                 int i = 0;
-                for (BIterator it = argsList.getIterator(); it.hasNext(); i++) {
+                for (BIterator<?> it = argsList.getIterator(); it.hasNext(); i++) {
                     Type paramType = TypeUtils.getImpliedType(attachedFunction.getType().getParameters()[i].type);
                     if (paramType instanceof UnionType unionType) {
                         Object arg = it.next();
@@ -398,7 +398,7 @@ public class ObjectMock {
 
                 // validate if each argument is compatible with the type given in the function signature
                 int counter = 0;
-                for (BIterator bIterator = argsList.getIterator(); bIterator.hasNext(); counter++) {
+                for (BIterator<?> bIterator = argsList.getIterator(); bIterator.hasNext(); counter++) {
                     String detail = "incorrect type of path provided for '" + pathParamPlaceHolder[counter] +
                                 "' to mock the function '" + functionName;
                     Type paramType = TypeUtils.getImpliedType(attachedFunction.getType().getParameters()[counter].type);
@@ -478,7 +478,7 @@ public class ObjectMock {
 
                 // validate if each argument is compatible with the type given in the function signature
                 int counter = 0;
-                for (BIterator bIterator = argsList.getIterator(); bIterator.hasNext(); counter++) {
+                for (BIterator<?> bIterator = argsList.getIterator(); bIterator.hasNext(); counter++) {
                     String detail = "incorrect type of argument provided at position '" + (counter + 1) + "' " +
                             "to mock the function '" + functionName;
                     Type paramType = TypeUtils.getImpliedType(attachedFunction.getType()
@@ -845,16 +845,13 @@ public class ObjectMock {
     private static boolean isValidReturnValue(Object returnVal, MethodType attachedFunction) {
         Type functionReturnType = TypeUtils.getImpliedType(
                 attachedFunction.getType().getReturnParameterType());
-        switch (functionReturnType.getTag()) {
-            case TypeTags.UNION_TAG:
-                return validateUnionValue(returnVal, (UnionType) functionReturnType);
-            case TypeTags.STREAM_TAG:
-                return validateStreamValue(returnVal, (StreamType) functionReturnType);
-            case TypeTags.PARAMETERIZED_TYPE_TAG:
-                return validateParameterizedValue(returnVal, (ParameterizedType) functionReturnType);
-            default:
-                return TypeChecker.checkIsType(returnVal, functionReturnType);
-        }
+        return switch (functionReturnType.getTag()) {
+            case TypeTags.UNION_TAG -> validateUnionValue(returnVal, (UnionType) functionReturnType);
+            case TypeTags.STREAM_TAG -> validateStreamValue(returnVal, (StreamType) functionReturnType);
+            case TypeTags.PARAMETERIZED_TYPE_TAG ->
+                    validateParameterizedValue(returnVal, (ParameterizedType) functionReturnType);
+            default -> TypeChecker.checkIsType(returnVal, functionReturnType);
+        };
     }
 
     /**

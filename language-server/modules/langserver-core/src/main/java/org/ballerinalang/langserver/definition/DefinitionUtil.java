@@ -43,7 +43,10 @@ import java.util.Optional;
  *
  * @since 1.2.0
  */
-public class DefinitionUtil {
+public final class DefinitionUtil {
+
+    private DefinitionUtil() {
+    }
 
     /**
      * Get the definition.

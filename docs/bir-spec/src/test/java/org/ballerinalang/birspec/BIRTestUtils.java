@@ -50,18 +50,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Utility methods to help with testing BIR model.
  */
-class BIRTestUtils {
+final class BIRTestUtils {
 
     private static final String TEST_RESOURCES_ROOT = "src/test/resources/test-src";
     private static final Path TEST_RESOURCES_ROOT_PATH = Paths.get(TEST_RESOURCES_ROOT);
 
     private static final String LANG_LIB_TEST_SRC_ROOT = "../../langlib/langlib-test/src/test/resources/test-src";
     private static final Path LANG_LIB_TEST_ROOT_PATH = Paths.get(LANG_LIB_TEST_SRC_ROOT);
+
+    private BIRTestUtils() {
+    }
 
     @DataProvider(name = "createTestSources")
     public static Object[][] createTestDataProvider() throws IOException {
@@ -79,11 +82,12 @@ class BIRTestUtils {
     }
 
     private static List<String> findBallerinaSourceFiles(Path testSourcesPath) throws IOException {
-        return Files.walk(testSourcesPath)
-                .filter(file -> Files.isRegularFile(file))
-                .map(file -> file.toAbsolutePath().normalize().toString())
-                .filter(file -> file.endsWith(".bal") && !file.contains("negative") && !file.contains("subtype"))
-                .collect(Collectors.toList());
+        try (Stream<Path> paths = Files.walk(testSourcesPath)) {
+            return paths.filter(file -> Files.isRegularFile(file))
+                    .map(file -> file.toAbsolutePath().normalize().toString())
+                    .filter(file -> file.endsWith(".bal") && !file.contains("negative") && !file.contains("subtype"))
+                    .toList();
+        }
     }
 
     static void validateBIRSpec(String testSource) {

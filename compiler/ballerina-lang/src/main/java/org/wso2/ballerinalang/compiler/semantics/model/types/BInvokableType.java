@@ -140,7 +140,7 @@ public class BInvokableType extends BType implements InvokableType {
     }
 
     private static String getBTypeListAsString(List<BType> typeNames) {
-        StringBuffer br = new StringBuffer();
+        StringBuilder br = new StringBuilder();
         int i = 0;
         for (BType type : typeNames) {
             br.append(type);

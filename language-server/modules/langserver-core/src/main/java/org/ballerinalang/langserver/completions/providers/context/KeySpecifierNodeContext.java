@@ -113,7 +113,7 @@ public class KeySpecifierNodeContext extends AbstractCompletionProvider<KeySpeci
                 .map(Map.Entry::getValue)
                 .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent())
                 .filter(recordFieldSymbol -> SyntaxInfo.isIdentifier(recordFieldSymbol.getName().get()))
-                .collect(Collectors.toList());
+                .toList();
 
         completionItems.addAll(this.getCompletionItemList(commonFields, context));
         return completionItems;

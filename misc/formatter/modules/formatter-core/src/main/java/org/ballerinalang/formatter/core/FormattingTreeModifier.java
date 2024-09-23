@@ -262,9 +262,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import static org.ballerinalang.formatter.core.FormatterUtils.getConstDefWidth;
 import static org.ballerinalang.formatter.core.FormatterUtils.isInlineRange;
 import static org.ballerinalang.formatter.core.FormatterUtils.openBraceTrailingNLs;
-import static org.ballerinalang.formatter.core.FormatterUtils.getConstDefWidth;
 import static org.ballerinalang.formatter.core.FormatterUtils.sortImportDeclarations;
 import static org.ballerinalang.formatter.core.FormatterUtils.swapLeadingMinutiae;
 
@@ -3973,21 +3973,15 @@ public class FormattingTreeModifier extends TreeModifier {
             return false;
         }
 
-        switch (node.kind()) {
-            case FUNCTION_DEFINITION:
-            case CLASS_DEFINITION:
-            case SERVICE_DECLARATION:
-            case TYPE_DEFINITION:
-            case ENUM_DECLARATION:
-            case ANNOTATION_DECLARATION:
-                return true;
-            case MODULE_VAR_DECL:
-            case MODULE_XML_NAMESPACE_DECLARATION:
-            case CONST_DECLARATION:
-            case LISTENER_DECLARATION:
-            default:
-                return false;
-        }
+        return switch (node.kind()) {
+            case FUNCTION_DEFINITION,
+                 CLASS_DEFINITION,
+                 SERVICE_DECLARATION,
+                 TYPE_DEFINITION,
+                 ENUM_DECLARATION,
+                 ANNOTATION_DECLARATION -> true;
+            default -> false;
+        };
     }
 
     private boolean isClassOrServiceMultiLineMember(Node node) {
@@ -3995,13 +3989,10 @@ public class FormattingTreeModifier extends TreeModifier {
             return false;
         }
 
-        switch (node.kind()) {
-            case OBJECT_METHOD_DEFINITION:
-            case RESOURCE_ACCESSOR_DEFINITION:
-                return true;
-            default:
-                return false;
-        }
+        return switch (node.kind()) {
+            case OBJECT_METHOD_DEFINITION, RESOURCE_ACCESSOR_DEFINITION -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -4849,14 +4840,10 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     private boolean isClosingTypeToken(Token token) {
-        switch (token.kind()) {
-            case CLOSE_BRACE_TOKEN:
-            case CLOSE_BRACE_PIPE_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (token.kind()) {
+            case CLOSE_BRACE_TOKEN, CLOSE_BRACE_PIPE_TOKEN, CLOSE_BRACKET_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**

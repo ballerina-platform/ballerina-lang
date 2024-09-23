@@ -28,9 +28,9 @@ import io.ballerina.runtime.api.values.BTypedesc;
  *
  * @since 2201.4.0
  */
-public class ClientAction {
+public final class ClientAction {
 
-    public ClientAction() {
+    private ClientAction() {
     }
 
     public static Object get(BString path, BTypedesc targetType) {

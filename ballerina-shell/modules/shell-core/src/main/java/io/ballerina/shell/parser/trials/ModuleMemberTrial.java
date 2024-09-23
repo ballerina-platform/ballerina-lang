@@ -62,12 +62,12 @@ public class ModuleMemberTrial extends TreeParserTrial {
         ModulePartNode node = tree.rootNode();
         NodeList<ModuleMemberDeclarationNode> members = node.members();
         Iterator<ImportDeclarationNode> importIterator = node.imports().iterator();
-        Iterator memberIterator = members.iterator();
+        Iterator<ModuleMemberDeclarationNode> memberIterator = members.iterator();
         while (importIterator.hasNext()) {
             nodes.add(importIterator.next());
         }
         while (memberIterator.hasNext()) {
-            ModuleMemberDeclarationNode dclnNode = (ModuleMemberDeclarationNode) memberIterator.next();
+            ModuleMemberDeclarationNode dclnNode = memberIterator.next();
             validateModuleDeclaration(dclnNode);
             nodes.add(dclnNode);
         }

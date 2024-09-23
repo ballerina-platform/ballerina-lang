@@ -24,10 +24,14 @@ import static org.wso2.ballerinalang.compiler.util.Names.ORG_NAME_SEPARATOR;
  *
  * @since 0.95.5
  */
-public class Transactions {
+public final class Transactions {
+
     public static final String TRANSACTION_ANNOTATION_NAME = "transactions" + ORG_NAME_SEPARATOR + "Participant";
     public static final String TRX_ONCOMMIT_FUNC = "oncommit";
     public static final String TRX_ONABORT_FUNC = "onabort";
+
+    private Transactions() {
+    }
 
     public static boolean isTransactionsAnnotation(String orgName, String pkgName) {
         StringBuilder pathBuilder = new StringBuilder();
@@ -74,18 +78,13 @@ public class Transactions {
         }
 
         public static TransactionStatus getConst(int statusValue) {
-            switch (statusValue) {
-                case 0:
-                    return BLOCK_END;
-                case 1:
-                    return END;
-                case -1:
-                    return FAILED;
-                case -2:
-                    return ABORTED;
-                default:
-                    throw new IllegalArgumentException();
-            }
+            return switch (statusValue) {
+                case 0 -> BLOCK_END;
+                case 1 -> END;
+                case -1 -> FAILED;
+                case -2 -> ABORTED;
+                default -> throw new IllegalArgumentException();
+            };
         }
     }
 }

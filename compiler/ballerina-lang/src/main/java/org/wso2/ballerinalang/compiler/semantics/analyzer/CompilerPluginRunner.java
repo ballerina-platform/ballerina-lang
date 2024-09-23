@@ -71,7 +71,6 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * Invoke {@link CompilerPlugin} plugins.
@@ -400,7 +399,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         }
 
         List<DefinitionID> definitions = Arrays.stream(supportedTypes)
-                .map(type -> new DefinitionID(type.packageName(), type.name())).collect(Collectors.toList());
+                .map(type -> new DefinitionID(type.packageName(), type.name())).toList();
         resourceTypeProcessorMap.put(plugin, definitions);
         serviceListenerMap.put(plugin, listenerType);
     }

@@ -31,7 +31,10 @@ import java.math.RoundingMode;
  *
  * @since 2201.1.0
  */
-public class ToFixedString {
+public final class ToFixedString {
+
+    private ToFixedString() {
+    }
 
     public static BString toFixedString(double x, Object fractionDigits) {
         // If `x` is NaN or infinite, the result will be the same as `value:toString`.

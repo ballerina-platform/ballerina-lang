@@ -132,7 +132,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.impl.PositionUtil.isPosWithinOpenCloseLineRanges;
 import static io.ballerina.compiler.api.impl.PositionUtil.isPosWithinRange;
@@ -1062,7 +1061,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         Optional<ModuleSymbol> module = searchModuleForAlias(alias);
         return module.map(moduleSymbol -> moduleSymbol.allSymbols().stream()
                         .filter(predicate)
-                        .collect(Collectors.toList()))
+                        .toList())
                 .orElseGet(ArrayList::new);
     }
 

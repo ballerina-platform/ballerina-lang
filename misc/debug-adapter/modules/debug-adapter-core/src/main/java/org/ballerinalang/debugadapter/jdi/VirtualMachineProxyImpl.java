@@ -701,6 +701,9 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
             }
         }
 
+        private JNITypeParserReflect() {
+        }
+
         static String typeNameToSignature(String name) {
             if (typeNameToSignatureMethod != null) {
                 try {
@@ -711,7 +714,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
             return null;
         }
 
-        private static Method getDeclaredMethod(Class<?> aClass, String name, Class... parameters) {
+        private static Method getDeclaredMethod(Class<?> aClass, String name, Class<?>... parameters) {
             try {
                 Method declaredMethod = aClass.getDeclaredMethod(name, parameters);
                 declaredMethod.setAccessible(true);

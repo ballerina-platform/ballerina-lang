@@ -29,7 +29,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link MappingMatchPatternNode} context.
@@ -67,7 +66,7 @@ public class MappingMatchPatternNodeContext extends MappingContextProvider<Mappi
                 .filter(field -> !field.isMissing() && field.kind() == SyntaxKind.FIELD_MATCH_PATTERN
                         && ((FieldMatchPatternNode) field).fieldNameNode().kind() == SyntaxKind.IDENTIFIER_TOKEN)
                 .map(field -> ((FieldMatchPatternNode) field).fieldNameNode().text())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

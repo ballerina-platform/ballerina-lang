@@ -47,9 +47,9 @@ public class XmlComment extends XmlNonElementItem {
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<XmlComment> getIterator() {
         XmlComment that = this;
-        return new IteratorValue() {
+        return new IteratorValue<>() {
             boolean read = false;
             @Override
             public boolean hasNext() {
@@ -57,7 +57,7 @@ public class XmlComment extends XmlNonElementItem {
             }
 
             @Override
-            public Object next() {
+            public XmlComment next() {
                 if (!read) {
                     this.read = true;
                     return that;

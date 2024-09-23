@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.stream.Collectors;
 
 /**
  * Represents the Code Action provider factory.
@@ -96,7 +95,7 @@ public class CodeActionProvidersHolder {
             return CodeActionProvidersHolder.rangeBasedProviders.get(nodeType).stream()
                     .filter(provider -> provider.isEnabled(ctx.languageServercontext()))
                     .sorted(Comparator.comparingInt(LSCodeActionProvider::priority))
-                    .collect(Collectors.toList());
+                    .toList();
         }
         return Collections.emptyList();
     }
@@ -110,7 +109,7 @@ public class CodeActionProvidersHolder {
         return CodeActionProvidersHolder.diagnosticsBasedProviders.stream()
                 .filter(provider -> provider.isEnabled(ctx.languageServercontext()))
                 .sorted(Comparator.comparingInt(LSCodeActionProvider::priority))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

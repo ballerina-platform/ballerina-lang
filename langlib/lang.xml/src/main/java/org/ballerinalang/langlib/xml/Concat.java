@@ -32,7 +32,10 @@ import java.util.List;
  *
  * @since 1.0
  */
-public class Concat {
+public final class Concat {
+
+    private Concat() {
+    }
 
     public static BXml concat(Object... arrayValue) {
         List<BXml> backingArray = new ArrayList<>();

@@ -26,7 +26,10 @@ import io.ballerina.runtime.internal.XmlFactory;
  *
  * @since 2.0.0
  */
-public class CreateText {
+public final class CreateText {
+
+    private CreateText() {
+    }
 
     public static BXml createText(BString string) {
         return XmlFactory.createXMLText(string);

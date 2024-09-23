@@ -61,7 +61,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.jar.JarOutputStream;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -89,7 +88,8 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTABLE;
  *
  * @since 2.3.0
  */
-public class NativeUtils {
+public final class NativeUtils {
+
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String TEST_EXEC_FUNCTION = "__execute__";
     public static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
@@ -108,6 +108,9 @@ public class NativeUtils {
             "io.ballerina.runtime.api.values.BString",
             "io.ballerina.runtime.api.values.BString"
     });
+
+    private NativeUtils() {
+    }
 
     //Add dynamically loading classes and methods to reflection config
     public static void createReflectConfig(Path nativeConfigPath, Package currentPackage,
@@ -169,9 +172,7 @@ public class NativeUtils {
             if (mockedFunctionClassFile.isFile()) {
                 BufferedReader br = Files.newBufferedReader(mockedFunctionClassPath, StandardCharsets.UTF_8);
                 Gson gsonRead = new Gson();
-                Map<String, String[]> testFileMockedFunctionMapping = gsonRead.fromJson(br,
-                        new TypeToken<Map<String, String[]>>() {
-                        }.getType());
+                Map<String, String[]> testFileMockedFunctionMapping = gsonRead.fromJson(br, new TypeToken<>() { });
                 if (!testFileMockedFunctionMapping.isEmpty()) {
                     ReflectConfigClass originalTestFileRefConfClz;
                     for (Map.Entry<String, String[]> testFileMockedFunctionMappingEntry :
@@ -601,9 +602,8 @@ public class NativeUtils {
             dependencies.addAll(testSuiteEntry.getValue().getTestExecutionDependencies());
 
         }
-        dependencies = dependencies.stream().distinct().collect(Collectors.toList());
-        dependencies = dependencies.stream().map((x) -> convertWinPathToUnixFormat(addQuotationMarkToString(x)))
-                .collect(Collectors.toList());
+        dependencies = dependencies.stream().distinct()
+                .map((x) -> convertWinPathToUnixFormat(addQuotationMarkToString(x))).toList();
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
         dependencies.forEach(classPath::add);

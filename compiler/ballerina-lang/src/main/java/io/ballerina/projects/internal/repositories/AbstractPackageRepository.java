@@ -35,7 +35,6 @@ import io.ballerina.projects.util.ProjectUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -149,15 +148,16 @@ public abstract class AbstractPackageRepository implements PackageRepository {
     private ImportModuleResponse getImportModuleResponse(ImportModuleRequest importModuleRequest,
                                                          PackageName packageName,
                                                          List<PackageVersion> packageVersions) {
-        Comparator<PackageVersion> comparator = (v1, v2) -> {
-
+        packageVersions.sort((v1, v2) -> {
+            if (v1.equals(v2)) {
+                return 0;
+            }
             PackageVersion latest = getLatest(v1, v2);
             if (v1 == latest) {
                 return -1;
             }
             return 1;
-        };
-        packageVersions.sort(comparator);
+        });
 
         for (PackageVersion packageVersion : packageVersions) {
             Collection<ModuleDescriptor> moduleDescriptors = getModules(

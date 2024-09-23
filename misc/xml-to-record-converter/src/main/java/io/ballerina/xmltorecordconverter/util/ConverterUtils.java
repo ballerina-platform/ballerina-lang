@@ -42,7 +42,7 @@ import static io.ballerina.identifier.Utils.unescapeUnicodeCodepoints;
  *
  * @since 2201.7.2
  */
-public class ConverterUtils {
+public final class ConverterUtils {
 
     private ConverterUtils() {}
 
@@ -135,7 +135,7 @@ public class ConverterUtils {
                             .compareTo((arrayNode2).memberTypeDesc().toSourceCode()) :
                     getNumberOfDimensions(arrayNode1) - getNumberOfDimensions(arrayNode2);
         });
-        return Stream.concat(nonArrayNodes.stream(), arrayNodes.stream()).collect(Collectors.toList());
+        return Stream.concat(nonArrayNodes.stream(), arrayNodes.stream()).toList();
     }
 
     /**

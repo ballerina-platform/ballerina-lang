@@ -32,7 +32,10 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 //        returnType = {@ReturnType(type = TypeKind.ANY)},
 //        isPublic = true
 //)
-public class Remove {
+public final class Remove {
+
+    private Remove() {
+    }
 
     public static Object remove(BArray arr, long i) {
         return ((ArrayValue) arr).remove(i);

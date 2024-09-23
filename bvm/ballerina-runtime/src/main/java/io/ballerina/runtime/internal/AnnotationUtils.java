@@ -39,7 +39,10 @@ import io.ballerina.runtime.internal.values.MapValue;
  *
  * @since 0.995.0
  */
-public class AnnotationUtils {
+public final class AnnotationUtils {
+
+    private AnnotationUtils() {
+    }
 
     /**
      * Method to retrieve annotations of the type from the global annotation map and set it to the type.
@@ -47,7 +50,7 @@ public class AnnotationUtils {
      * @param globalAnnotMap The global annotation map
      * @param bType          The type for which annotations need to be set
      */
-    public static void processAnnotations(MapValue globalAnnotMap, Type bType) {
+    public static void processAnnotations(MapValue<BString, Object> globalAnnotMap, Type bType) {
         if (!(bType instanceof BAnnotatableType type)) {
             return;
         }
@@ -91,32 +94,34 @@ public class AnnotationUtils {
         }
     }
 
-    public static void processObjectCtorAnnotations(BObjectType bType, MapValue globalAnnotMap, Strand strand) {
+    public static void processObjectCtorAnnotations(BObjectType bType,
+                                                    MapValue<BString, Object> globalAnnotMap, Strand strand) {
         BString annotationKey = StringUtils.fromString(bType.getAnnotationKey());
 
         if (globalAnnotMap.containsKey(annotationKey)) {
             Object annot = globalAnnotMap.get(annotationKey);
             // If annotations are already set via desugard service-decl, skip.
-            Object annotValue = ((FPValue) annot).call(new Object[]{strand});
+            Object annotValue = ((FPValue<Object[], ?>) annot).call(new Object[]{strand});
             bType.setAnnotations((MapValue<BString, Object>) annotValue);
         }
         for (MethodType attachedFunction : bType.getMethods()) {
             processObjectMethodLambdaAnnotation(globalAnnotMap, strand, attachedFunction);
         }
         if (bType instanceof BServiceType serviceType) {
-            for (var resourceFunction : serviceType.getResourceMethods()) {
+            for (ResourceMethodType resourceFunction : serviceType.getResourceMethods()) {
                 processObjectMethodLambdaAnnotation(globalAnnotMap, strand, resourceFunction);
             }
         }
     }
 
-    private static void processObjectMethodLambdaAnnotation(MapValue globalAnnotMap, Strand strand,
+    private static void processObjectMethodLambdaAnnotation(MapValue<BString, Object> globalAnnotMap, Strand strand,
                                                             MethodType attachedFunction) {
         BString annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
 
         if (globalAnnotMap.containsKey(annotationKey)) {
             ((BMethodType) attachedFunction)
-                    .setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(annotationKey))
+                    .setAnnotations(
+                            (MapValue<BString, Object>) ((FPValue<Object[], ?>) globalAnnotMap.get(annotationKey))
                             .call(new Object[]{strand}));
         }
     }
@@ -128,7 +133,8 @@ public class AnnotationUtils {
      * @param globalAnnotMap The global annotation map
      * @param name           The function name that acts as the annotation key
      */
-    public static void processFPValueAnnotations(FPValue fpValue, MapValue globalAnnotMap, String name) {
+    public static void processFPValueAnnotations(FPValue<?, ?> fpValue,
+                                                 MapValue<BString, Object> globalAnnotMap, String name) {
         BAnnotatableType type = (BAnnotatableType) fpValue.getType();
         BString nameKey = StringUtils.fromString(name);
         if (globalAnnotMap.containsKey(nameKey)) {
@@ -142,7 +148,7 @@ public class AnnotationUtils {
      * @param fpValue function pointer to be invoked
      * @return true if should run concurrently
      */
-    public static boolean isConcurrent(FPValue fpValue) {
+    public static boolean isConcurrent(FPValue<?, ?> fpValue) {
         return fpValue.isConcurrent;
     }
 
@@ -153,7 +159,7 @@ public class AnnotationUtils {
      * @param defaultName default strand name
      * @return annotated strand name
      */
-    public static String getStrandName(FPValue fpValue, String defaultName) {
+    public static String getStrandName(FPValue<?, ?> fpValue, String defaultName) {
         if (fpValue.strandName != null) {
             return fpValue.strandName;
         }

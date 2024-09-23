@@ -54,15 +54,15 @@ public class MethodsTestResource extends AbstractTestResource implements Interfa
         return new IOException();
     }
 
-    public Map returnInterface() {
-        return new HashMap();
+    public Map<?, ?> returnInterface() {
+        return new HashMap<>();
     }
 
     public Set<String> returnGenericObject() {
         return new HashSet<>();
     }
 
-    public AbstractSet returnAbstractObject() {
+    public AbstractSet<?> returnAbstractObject() {
         return new HashSet<>();
     }
 
@@ -73,7 +73,7 @@ public class MethodsTestResource extends AbstractTestResource implements Interfa
     public void errorParam(IOException x, String[] y) {
     }
 
-    public void interfaceParam(Map x, Object[] y, Object[] z) {
+    public void interfaceParam(Map<?, ?> x, Object[] y, Object[] z) {
     }
 
     public void unsupportedParam(Object[][] y) {
@@ -87,7 +87,7 @@ public class MethodsTestResource extends AbstractTestResource implements Interfa
         return x;
     }
 
-    public void abstractObjectParam(AbstractSet x, Object y, String z) {
+    public void abstractObjectParam(AbstractSet<?> x, Object y, String z) {
     }
 
     public System.Logger.Level enumParam(System.Logger.Level x) {
@@ -255,15 +255,15 @@ public class MethodsTestResource extends AbstractTestResource implements Interfa
         return new IOException();
     }
 
-    public static Map returnStaticInterface() {
-        return new HashMap();
+    public static Map<?, ?> returnStaticInterface() {
+        return new HashMap<>();
     }
 
     public static Set<String> returnStaticGenericObject() {
         return new HashSet<>();
     }
 
-    public static AbstractSet returnStaticAbstractObject() {
+    public static AbstractSet<?> returnStaticAbstractObject() {
         return new HashSet<>();
     }
 
@@ -271,14 +271,14 @@ public class MethodsTestResource extends AbstractTestResource implements Interfa
         return System.Logger.Level.INFO;
     }
 
-    public static void interfaceStaticParam(Map x, boolean[] y) {
+    public static void interfaceStaticParam(Map<?, ?> x, boolean[] y) {
     }
 
     public static Set<String> genericObjectStaticParam(Set<String> x) {
         return x;
     }
 
-    public static void abstractObjectStaticParam(AbstractSet x, int y, Object z) {
+    public static void abstractObjectStaticParam(AbstractSet<?> x, int y, Object z) {
     }
 
     public static System.Logger.Level enumStaticParam(System.Logger.Level x, Object[] y) {

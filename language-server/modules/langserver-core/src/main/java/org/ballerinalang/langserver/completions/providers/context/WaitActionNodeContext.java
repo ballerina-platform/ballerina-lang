@@ -41,7 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
@@ -119,7 +118,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
                 .filter(symbol -> (symbol instanceof VariableSymbol || symbol.kind() == PARAMETER ||
                         symbol.kind() == FUNCTION || symbol.kind() == WORKER)
                         && !symbol.getName().orElse("").equals(Names.ERROR.getValue()))
-                .collect(Collectors.toList());
+                .toList();
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         this.getAnonFunctionDefSnippet(context).ifPresent(completionItems::add);
         return completionItems;

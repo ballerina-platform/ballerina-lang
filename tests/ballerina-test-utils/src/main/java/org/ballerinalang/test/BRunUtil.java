@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
@@ -76,7 +77,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_MAJOR_VERSION;
  *
  * @since 2.0.0
  */
-public class BRunUtil {
+public final class BRunUtil {
 
     private static final Boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase(Locale.getDefault())
             .contains("win");
@@ -190,7 +191,7 @@ public class BRunUtil {
                     if (t instanceof BLangTestException) {
                         throw ErrorCreator.createError(StringUtils.fromString(t.getMessage()));
                     }
-                    if (t instanceof io.ballerina.runtime.api.values.BError bError) {
+                    if (t instanceof BError bError) {
                         throw ErrorCreator.createError(StringUtils.fromString(
                                 "error: " + bError.getPrintableStackTrace()));
                     }
@@ -384,7 +385,7 @@ public class BRunUtil {
 //        }
     }
 
-    private static void directRun(Class<?> initClazz, String functionName, Class[] paramTypes, Object[] args) {
+    private static void directRun(Class<?> initClazz, String functionName, Class<?>[] paramTypes, Object[] args) {
         String funcName = JvmCodeGenUtil.cleanupFunctionName(functionName);
         String errorMsg = "Failed to invoke the function '%s' due to %s";
         Object response;

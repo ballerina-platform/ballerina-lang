@@ -47,6 +47,7 @@ public class MavenSupportTest extends BindgenCommandBaseTest {
 
     private Path testResources;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -133,6 +134,7 @@ public class MavenSupportTest extends BindgenCommandBaseTest {
         return matchingFiles != null;
     }
 
+    @Override
     @AfterClass
     public void cleanup() throws IOException {
         super.cleanup();

@@ -38,6 +38,7 @@ public class AddCommandTest extends BaseCommandTest {
     private Path projectPath;
     private Path modulesPath;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();

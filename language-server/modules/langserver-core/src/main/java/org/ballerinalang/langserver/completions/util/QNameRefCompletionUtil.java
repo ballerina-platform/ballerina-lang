@@ -27,18 +27,18 @@ import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Holds the set of utilities to get the qualified name reference associated Completion Items.
  *
  * @since 2.0.0
  */
-public class QNameRefCompletionUtil {
+public final class QNameRefCompletionUtil {
+
     private QNameRefCompletionUtil() {
     }
 
@@ -70,7 +70,7 @@ public class QNameRefCompletionUtil {
                         || symbol.kind() == SymbolKind.TYPE_DEFINITION
                         || symbol.kind() == SymbolKind.CLASS
                         || symbol instanceof VariableSymbol)
-                .collect(Collectors.toList())).orElseGet(ArrayList::new);
+                .toList()).orElseGet(Collections::emptyList);
     }
 
     /**
@@ -109,8 +109,8 @@ public class QNameRefCompletionUtil {
                 QNameRefCompletionUtil.getAlias(qNameRef));
         return module.map(moduleSymbol -> moduleSymbol.allSymbols().stream()
                 .filter(predicate)
-                .collect(Collectors.toList()))
-                .orElseGet(ArrayList::new);
+                .toList())
+                .orElseGet(Collections::emptyList);
     }
 
     /**
@@ -126,8 +126,8 @@ public class QNameRefCompletionUtil {
                 QNameRefCompletionUtil.getAlias(qNameRef));
         return module.map(symbol -> symbol.allSymbols().stream()
                 .filter(CommonUtil.typesFilter())
-                .collect(Collectors.toList()))
-                .orElseGet(ArrayList::new);
+                .toList())
+                .orElseGet(Collections::emptyList);
     }
 
     /**

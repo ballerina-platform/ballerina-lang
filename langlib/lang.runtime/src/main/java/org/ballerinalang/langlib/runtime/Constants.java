@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.Module;
 /**
  * Runtime related constants.
  */
-public class Constants {
+public final class Constants {
 
     private static final String PACKAGE_NAME = "lang.runtime";
     public static final String CALL_STACK_ELEMENT = "CallStackElement";

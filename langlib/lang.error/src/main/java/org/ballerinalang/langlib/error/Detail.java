@@ -30,9 +30,12 @@ import io.ballerina.runtime.api.values.BMap;
 //        functionName = "detail",
 //        args = {@Argument(name = "value", type = TypeKind.ERROR)},
 //        returnType = {@ReturnType(type = TypeKind.ANYDATA)})
-public class Detail {
+public final class Detail {
 
-    public static BMap detail(BError value) {
-        return (BMap) value.getDetails();
+    private Detail() {
+    }
+
+    public static BMap<?, ?> detail(BError value) {
+        return (BMap<?, ?>) value.getDetails();
     }
 }

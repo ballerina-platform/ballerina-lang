@@ -153,7 +153,8 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
 /**
  * The common functions used in CodeGen.
  */
-public class JvmCodeGenUtil {
+public final class JvmCodeGenUtil {
+
     public static final Unifier UNIFIER = new Unifier();
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";
@@ -200,10 +201,16 @@ public class JvmCodeGenUtil {
 
     public static String rewriteVirtualCallTypeName(String value, BType objectType) {
         objectType = getImpliedType(objectType);
-        // The call name will be in the format of`objectTypeName.funcName` for attached functions of imported modules.
-        // Therefore, We need to remove the type name.
-        if (!objectType.tsymbol.name.value.isEmpty() && value.startsWith(objectType.tsymbol.name.value)) {
-            value = value.replace(objectType.tsymbol.name.value + ".", "").trim();
+        String typeName = objectType.tsymbol.name.value;
+        Name originalName = objectType.tsymbol.originalName;
+        if (value.startsWith(typeName)) {
+            // The call name will be in the format of`objectTypeName.funcName` for attached functions of imported
+            // modules. Therefore, We need to remove the type name.
+            value = value.replace(typeName + ".", "").trim();
+        } else if (originalName != null && value.startsWith(originalName.value)) {
+            // The call name will be in the format of`objectTypeOriginalName.funcName` for attached functions of
+            // object definitions. Therefore, We need to remove it.
+            value = value.replace(originalName + ".", "").trim();
         }
         return Utils.encodeFunctionIdentifier(value);
     }
@@ -559,10 +566,10 @@ public class JvmCodeGenUtil {
         mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    protected static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,
-                                                   int yieldLocationVarIndex, Location terminatorPos,
-                                                   String fullyQualifiedFuncName, String yieldStatus,
-                                                   int yieldStatusVarIndex) {
+    static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,
+                                         int yieldLocationVarIndex, Location terminatorPos,
+                                         String fullyQualifiedFuncName, String yieldStatus,
+                                         int yieldStatusVarIndex) {
         Label yieldLocationLabel = new Label();
         mv.visitJumpInsn(IFEQ, yieldLocationLabel);
 

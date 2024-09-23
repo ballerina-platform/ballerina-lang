@@ -35,12 +35,15 @@ import static org.ballerinalang.langlib.xml.utils.Constants.XML_VERSION;
  *
  * @since 1.0
  */
-public class ForEach {
+public final class ForEach {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                       XML_VERSION, "forEach");
 
-    public static void forEach(BXml x, BFunctionPointer<Object, Object> func) {
+    private ForEach() {
+    }
+
+    public static void forEach(BXml x, BFunctionPointer<Object[], Object> func) {
         if (x.isSingleton()) {
             func.asyncCall(new Object[]{x, true}, METADATA);
             return;

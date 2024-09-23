@@ -212,7 +212,7 @@ public class Type {
             type.category = "builtin";
         } else if (node instanceof ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
             type.isArrayType = true;
-            type.arrayDimensions = 1;
+            type.arrayDimensions = arrayTypeDescriptorNode.dimensions().size();
             type.elementType = fromNode(arrayTypeDescriptorNode.memberTypeDesc(), semanticModel, module);
         } else if (node instanceof OptionalTypeDescriptorNode optionalTypeDescriptorNode) {
             type = fromNode(optionalTypeDescriptorNode.typeDescriptor(), semanticModel, module);

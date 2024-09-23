@@ -62,6 +62,7 @@ public class PushCommandTest extends BaseCommandTest {
     private static final String POM_EXTENSION = ".pom";
     private Path testResources;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
