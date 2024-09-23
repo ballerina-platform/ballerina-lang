@@ -362,10 +362,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
 
         PrintStream errorStream = getErrorStream();
         try {
-            // Main method class name is file name without extension
-            String fileName = bufferFile.getName();
-            String mainMethodClassName = fileName.substring(0, fileName.length() - TEMP_FILE_SUFFIX.length());
-
             JarResolver jarResolver = jBallerinaBackend.jarResolver();
             ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
             BalRuntime runtime = new ClassloaderRuntime(module, classLoader);
