@@ -650,24 +650,26 @@ class _GroupByFunction {
     }
 
     public function process() returns _Frame|error? {
-        if (self.groupedStream is ()) {
-            _StreamFunction pf = <_StreamFunction>self.prevFunc;
-            _Frame? f = check pf.process();
-            while f is _Frame {
-                anydata & readonly key = (check self.getKey(f)).cloneReadOnly();
-                if self.tbl.hasKey(key) {
-                    self.tbl.get(key).frames.push(f);
-                } else {
-                    self.tbl.add({groupingKey: key, frames: [f]});
+        lock {
+            if (self.groupedStream is ()) {
+                _StreamFunction pf = <_StreamFunction>self.prevFunc;
+                _Frame? f = check pf.process();
+                while f is _Frame {
+                    anydata & readonly key = (check self.getKey(f)).cloneReadOnly();
+                    if self.tbl.hasKey(key) {
+                        self.tbl.get(key).frames.push(f);
+                    } else {
+                        self.tbl.add({groupingKey: key, frames: [f]});
+                    }
+                    f = check pf.process();
                 }
-                f = check pf.process();
+                self.groupedStream = self.convertToStream(self.tbl);
             }
-            self.groupedStream = self.convertToStream(self.tbl);
-        }
 
-        stream<_Frame> s = <stream<_Frame>>self.groupedStream;
-        record {|_Frame value;|}|error? next = s.next();
-        return next is record {|_Frame value;|} ? next.value : next;
+            stream<_Frame> s = <stream<_Frame>>self.groupedStream;
+            record {|_Frame value;|}|error? next = s.next();
+            return next is record {|_Frame value;|} ? next.value : next;
+        }
     }
 
     public function reset() {
