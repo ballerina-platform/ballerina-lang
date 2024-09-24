@@ -41,7 +41,6 @@ public abstract class WaitContext {
         this.contextLock = new ReentrantLock();
         this.waitCount = new AtomicInteger();
         this.intermediate = true;
-
     }
 
     void lock() {
