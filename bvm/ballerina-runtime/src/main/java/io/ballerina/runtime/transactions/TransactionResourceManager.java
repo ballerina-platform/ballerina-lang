@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -619,7 +620,6 @@ public class TransactionResourceManager {
     }
 
     private void logError(String message, Exception err) {
-        outStream.println(LocalDateTime.now() + "ERROR\t" + message + "\n");
-        err.printStackTrace();
+        outStream.println(LocalDateTime.now() + "ERROR\t" + message + "\n" + Arrays.toString(err.getStackTrace()));
     }
 }
