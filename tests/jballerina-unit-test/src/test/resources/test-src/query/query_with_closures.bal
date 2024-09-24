@@ -337,6 +337,103 @@ function testClosureInQueryActionInDo7() returns error? {
     }
 }
 
+class QueryArrowInit {
+    function () returns int[] f;
+
+    function init() {
+        int[] ys = [1, 2, 3, 4, 5, 6, 7];
+        self.f = () => from int y in ys
+            select y;
+    }
+}
+
+function testQueriesWithinArrowFunctionsAndWithLet() {
+    int[] ys = [1, 2, 3, 4, 5, 6, 7];
+    int[] xs = [8, 9, 10, 1, 2, 3, 4];
+    int x = 21;
+
+    function () returns int[] f1 = () => from var y in ys
+        select y;
+    assertEquality([1, 2, 3, 4, 5, 6, 7], f1());
+
+    function () returns int[] f2 = () => from var y in ys
+        select x + y;
+    assertEquality([22, 23, 24, 25, 26, 27, 28], f2());
+
+    function () returns function () returns int[] f3 = () => () => from var y in ys
+        select y + x;
+    function () returns int[] f4 = f3();
+    assertEquality([22, 23, 24, 25, 26, 27, 28], f4());
+
+    function () returns int[] f5 = () => from int y in ys
+        let int sum = y + x
+        where sum % 2 == 0
+        select sum + y + x;
+    assertEquality([44, 48, 52, 56], f5());
+
+    function () returns int[] f6 = () => let int two = 2, int one = 1 in from int y in ys
+            select y + one + two;
+    assertEquality([4, 5, 6, 7, 8, 9, 10], f6());
+
+    function () returns int[] f7 = let int two = 2, int one = 1 in () => from int y in ys
+            select y + one + two;
+    assertEquality([4, 5, 6, 7, 8, 9, 10], f7());
+
+    QueryArrowInit class1 = new QueryArrowInit();
+    assertEquality([1, 2, 3, 4, 5, 6, 7], class1.f());
+
+    int[] q1 = let int two = 2, int one = 1 in from int y in ys
+            select y + one + two;
+    assertEquality([4, 5, 6, 7, 8, 9, 10], q1);
+
+    record {|int r;|}[] q2 = let int two = 2, int one = 1 in from int y in ys
+            select {
+                r: y + one + two
+            };
+    assertEquality([{"r": 4}, {"r": 5}, {"r": 6}, {"r": 7}, {"r": 8}, {"r": 9}, {"r": 10}], q2);
+
+    record {|int r; int k; int j;|}[] q3 = let int two = 2, int one = 1 in from int y in ys
+            select {
+                r: y + one + two,
+                k: one,
+                j: y
+            };
+    assertEquality([
+                {"r": 4, "k": 1, "j": 1},
+                {"r": 5, "k": 1, "j": 2},
+                {"r": 6, "k": 1, "j": 3},
+                {"r": 7, "k": 1, "j": 4},
+                {"r": 8, "k": 1, "j": 5},
+                {"r": 9, "k": 1, "j": 6},
+                {"r": 10, "k": 1, "j": 7}
+            ], q3);
+
+    record {|int r; int k; function () returns int[] j;|}[] q4 = let int two = 2, int one = 1 in from int y in ys
+            where y % 2 == 0
+            select {
+                r: y + one + two,
+                k: one,
+                j: () => from int q in xs
+                    select one + q
+            };
+    var item = q4[0];
+    assertEquality(item.r, 5);
+    assertEquality(item.k, 1);
+    function () returns int[] f8 = item.j;
+    assertEquality(f8(), [9, 10, 11, 2, 3, 4, 5]);
+
+    // Uncomment once #43415 is fixed
+    // record {|function () returns int[] f; int r;|}[] q5 = from int y in ys
+    //     select {
+    //         r : y,
+    //         f: function() returns int[] {
+    //             return from int k in xs
+    //                 select k + y;
+    //         }
+    //     };
+    // function () returns int[] f9 = q5[0].f;
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata expected, anydata actual) {
