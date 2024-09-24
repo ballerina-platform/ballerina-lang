@@ -238,6 +238,7 @@ public class BIRGen extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     public static final String DEFAULT_WORKER_NAME = "function";
+    private static final String TYPEDESC = "$typedesc$";
     private BIRGenEnv env;
     private final Names names;
     private final SymbolTable symTable;
@@ -2446,7 +2447,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     private BIRVariableDcl findInLocalSymbolVarMap(BType type, Map<BSymbol, BIRVariableDcl> varMap) {
         for (Map.Entry<BSymbol, BIRVariableDcl> entry : varMap.entrySet()) {
-            if (isMatchingTypeDescSymbol(entry.getKey(), Types.getImpliedType(type))) {
+            if (isMatchingTypeDescSymbol(entry.getKey(), type)) {
                 return varMap.get(entry.getKey());
             }
         }
@@ -2456,7 +2457,7 @@ public class BIRGen extends BLangNodeVisitor {
     private BIRVariableDcl findInGlobalSymbolVarMap(BType type, Map<BSymbol, BIRGlobalVariableDcl> varMap) {
         for (Map.Entry<BSymbol, BIRGlobalVariableDcl> entry : varMap.entrySet()) {
             BSymbol varSymbol = entry.getKey();
-            if (isMatchingTypeDescSymbol(varSymbol, Types.getImpliedType(type))) {
+            if (isMatchingTypeDescSymbol(varSymbol, type)) {
                 BIRGlobalVariableDcl globalVarDcl =  varMap.get(varSymbol);
                 if (!isInSameModule(varSymbol, env.enclPkg.packageID) || env.enclPkg.packageID.isTestPkg) {
                     this.env.enclPkg.importedGlobalVarsDummyVarDcls.add(globalVarDcl);
@@ -2468,7 +2469,11 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private boolean isMatchingTypeDescSymbol(BSymbol symbol, BType targetType) {
-        return symbol.type.tag == TypeTags.TYPEDESC && ((BTypedescType) symbol.type).constraint == targetType;
+        // ATM there is no proper way to generate the full name of the target typedesc variable for the anonymous
+        // types because `tsymbol.name.value` is empty for those.
+        // Hence, we are using the TYPEDESC prefix to identify the typedesc variables and match tye constant type
+        return symbol.name.value.startsWith(TYPEDESC) &&
+                Types.getImpliedType(((BTypedescType) symbol.type).constraint) == Types.getImpliedType(targetType);
     }
 
     private void createNewTypedescInst(BType type, BType resolveType, Location position) {
@@ -2832,10 +2837,10 @@ public class BIRGen extends BLangNodeVisitor {
         } else {
             BIRNonTerminator.NewArray newArrayIns = new BIRNonTerminator.NewArray(listConstructorExpr.pos,
                     listConstructorExprType, toVarRef, sizeOp, initialValues);
-            BType elementType = Types.getImpliedType(((BArrayType) referredType).getElementType());
+            BType elementType = ((BArrayType) referredType).getElementType();
             // If the referredType is an array type and the element type is record type, then we need to set
             // the element type desc which will be used to initialize the `ArrayValueImpl`
-            if (elementType.tag == TypeTags.RECORD) {
+            if (Types.getImpliedType(elementType).tag == TypeTags.RECORD) {
                 BIRVariableDcl typedescVar = getTypedescVariable(elementType);
                 newArrayIns.elementTypedescOp = new BIROperand(typedescVar);
             }

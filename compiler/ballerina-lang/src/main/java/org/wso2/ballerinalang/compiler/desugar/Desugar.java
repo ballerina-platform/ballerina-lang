@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -856,7 +857,19 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void createTypedescVariableDef(BLangType typeNode) {
-        BType type = typeNode.getBType();
+        BType type = null;
+        BLangNode parentNode = typeNode.parent;
+        if (parentNode != null && parentNode.getKind() == NodeKind.TYPE_DEFINITION) {
+            // type should be the original user defined type if exists
+            BSymbol typeDefSymbol = ((BLangTypeDefinition) parentNode).symbol;
+            if (typeDefSymbol.kind == SymbolKind.TYPE_DEF && typeDefSymbol.origin != VIRTUAL) {
+                type = ((BTypeDefinitionSymbol)((BLangTypeDefinition) parentNode).symbol).referenceType;
+            }
+        }
+        if (type == null) {
+            type = typeNode.getBType();
+        }
+
         Name name = generateTypedescVariableName(type);
         Location pos = typeNode.pos;
         BType typedescType = new BTypedescType(type, symTable.typeDesc.tsymbol);
