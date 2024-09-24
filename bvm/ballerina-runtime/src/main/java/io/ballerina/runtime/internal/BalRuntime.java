@@ -72,15 +72,16 @@ public class BalRuntime extends Runtime {
     }
 
     @Override
-    public void init() {
+    public Object init() {
         handleAlreadyCalled(moduleInitialized, "init");
         try {
             this.invokeConfigInit();
             FutureValue future = scheduler.startIsolatedWorker("$moduleInit", rootModule, null, "$moduleInit", null,
                     null);
             Scheduler.daemonStrand = future.strand;
-            future.get();
+            Object result = future.get();
             this.moduleInitialized = true;
+            return result;
         } catch (ClassNotFoundException e) {
             throw ErrorCreator.createError(StringUtils.fromString(String.format("module '%s' does not exist",
                     rootModule)));
@@ -91,11 +92,12 @@ public class BalRuntime extends Runtime {
     }
 
     @Override
-    public void start() {
+    public Object start() {
         handleCallBeforeModuleInit("start");
         handleAlreadyCalled(moduleStarted, "start");
-        this.scheduler.call(rootModule, "$moduleStart", Scheduler.getStrand());
+        Object result = this.scheduler.call(rootModule, "$moduleStart", Scheduler.getStrand());
         this.moduleStarted = true;
+        return result;
     }
 
     @Override
@@ -251,11 +253,11 @@ public class BalRuntime extends Runtime {
         }
     }
 
-    void invokeModuleStop() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+    Object invokeModuleStop() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
         Class<?> configClass = loadClass(MODULE_INIT_CLASS_NAME);
         Method method = configClass.getDeclaredMethod("$currentModuleStop", BalRuntime.class);
-        method.invoke(null, this);
+        return method.invoke(null, this);
     }
 
     Class<?> loadClass(String className) throws ClassNotFoundException {

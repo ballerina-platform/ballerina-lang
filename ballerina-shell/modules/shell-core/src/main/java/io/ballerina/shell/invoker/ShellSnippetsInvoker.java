@@ -392,15 +392,20 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         Object result;
         try {
             // Initialize the module
-            runtime.init();
+            result = runtime.init();
+            if (result instanceof Throwable throwable) {
+                throw new InvokerPanicException(throwable);
+            }
             // Start the module
-            runtime.start();
+            result = runtime.start();
+            if (result instanceof Throwable throwable) {
+                throw new InvokerPanicException(throwable);
+            }
             // Then call run method
             result = runtime.call(module, MODULE_RUN_METHOD_NAME);
             if (result instanceof Throwable throwable) {
                 throw new InvokerPanicException(throwable);
             }
-            runtime.stop();
         } catch (Throwable throwable) {
             throw new InvokerPanicException(throwable);
         } finally {

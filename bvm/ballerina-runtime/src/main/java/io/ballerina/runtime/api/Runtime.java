@@ -46,12 +46,12 @@ public abstract class Runtime {
     /**
      * Performs the module initialization.
      */
-    public abstract void init();
+    public abstract Object init();
 
     /**
      * Starts the listening phase.
      */
-    public abstract void start();
+    public abstract Object start();
 
     /**
      * Gracefully shuts down the Ballerina runtime.
