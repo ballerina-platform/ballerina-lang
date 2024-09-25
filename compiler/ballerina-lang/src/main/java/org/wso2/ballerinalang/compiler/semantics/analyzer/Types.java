@@ -201,11 +201,6 @@ public class Types {
 
     public Types(CompilerContext context) {
         this(context, new Env());
-        // TODO: this is a temporary workaround.
-        // For each new Env we need to have a new allocatedIds map.
-        // Can't move this to Env init as it belongs to a separate module.
-        BObjectType.resetAllocatedIds();
-        BErrorType.resetAllocatedIds();
     }
 
     public Types(CompilerContext context, Env typeEnv) {

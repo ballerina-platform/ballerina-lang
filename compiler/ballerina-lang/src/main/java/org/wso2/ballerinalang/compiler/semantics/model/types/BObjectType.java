@@ -37,11 +37,13 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -248,26 +250,25 @@ public class BObjectType extends BStructureType implements ObjectType {
         return false;
     }
 
-    public static void resetAllocatedIds() {
-        DistinctIdSupplier.allocatedIds.clear();
-    }
-
     private final class DistinctIdSupplier implements Supplier<List<Integer>> {
 
         private List<Integer> ids = null;
-        private static final Map<BTypeIdSet.BTypeId, Integer> allocatedIds = new ConcurrentHashMap<>();
+        private static final Map<Env, Map<BTypeIdSet.BTypeId, Integer>> allocatedIds =
+                Collections.synchronizedMap(new WeakHashMap<>());
         private final Env env;
 
         private DistinctIdSupplier(Env env) {
             this.env = env;
+            allocatedIds.putIfAbsent(env, new ConcurrentHashMap<>());
         }
 
         public synchronized List<Integer> get() {
             if (ids != null) {
                 return ids;
             }
+            Map<BTypeIdSet.BTypeId, Integer> envAllocatedIds = allocatedIds.get(env);
             ids = typeIdSet.getAll().stream()
-                    .map(each -> allocatedIds.computeIfAbsent(each, (key) -> env.distinctAtomCountGetAndIncrement()))
+                    .map(each -> envAllocatedIds.computeIfAbsent(each, (key) -> env.distinctAtomCountGetAndIncrement()))
                     .toList();
             return ids;
         }
