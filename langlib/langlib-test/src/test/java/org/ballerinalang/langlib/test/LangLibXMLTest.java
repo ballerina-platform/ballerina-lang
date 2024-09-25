@@ -449,8 +449,8 @@ public class LangLibXMLTest {
                 25, 28);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:ProcessingInstruction>'," +
                 " found 'xml:Element'", 26, 42);
-        validateError(constraintNegative, i++, "incompatible types: expected 'xml:Comment', found 'xml<xml:Element>'",
-                29, 26);
+        validateError(constraintNegative, i++, "incompatible types: expected 'xml:Comment', " +
+                        "found '(xml:Element|xml<never>)'", 29, 26);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml:Comment'",
                 32, 41);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Comment>'," +
