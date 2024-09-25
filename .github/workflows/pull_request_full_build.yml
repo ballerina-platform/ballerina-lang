@@ -117,13 +117,6 @@ jobs:
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
           REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
 
-      - name: Upload heap dump
-        uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: heap-dump
-          path: ./**/java_pid*.hprof
-
   build-distribution:
     needs: build-lang
     name: Build Ballerina Distribution
