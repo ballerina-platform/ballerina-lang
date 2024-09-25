@@ -1,6 +1,6 @@
 Compiling source
 	intg_tests/object_mocking:0.0.0
-WARNING [modules/TestHttpClient/main.bal:(64:45,64:82)] this function should explicitly return a value
+WARNING [modules\TestHttpClient\main.bal:(64:45,64:82)] this function should explicitly return a value
 WARNING [main.bal:(53:5,53:47)] unused variable 'closeErr'
 
 Running Tests with Coverage

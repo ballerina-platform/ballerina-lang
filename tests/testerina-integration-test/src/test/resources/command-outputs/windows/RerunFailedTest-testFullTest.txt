@@ -44,6 +44,8 @@ Running Tests with Coverage
 				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
 				callableName: __execute__ moduleName: intg_tests.rerun_failed$test.0.tests.test_execute-generated_*****lineNumber: 11
 
+
+
 		2 passing
 		2 failing
 		0 skipped
