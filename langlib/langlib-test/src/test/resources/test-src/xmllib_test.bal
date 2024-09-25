@@ -1250,6 +1250,56 @@ function testXmlFilterValueAndErrorWithNonElementSingletonValues() {
             "incompatible types: 'lang.xml:Text' cannot be cast to 'lang.xml:Element'");
 }
 
+function testLangLibCallsWithUnions() {
+    xml<xml:Comment>|xml<xml:Element> s1 = <xml<xml:Element>> xml `<foo/><bar>val</bar>`;
+    int length = s1.length();
+    test:assertValueEqual(length, 2);
+    length = xml:length(s1);
+    test:assertValueEqual(length, 2);
+
+    xml<xml:Comment>|xml<xml:ProcessingInstruction> s2 = <xml<xml:Comment>> xml `<!--foo--><!--bar-->`;
+    object {
+        public isolated function next() returns record {|
+            xml:Comment|xml:ProcessingInstruction value;
+        |}?;
+    } iterator = s2.iterator();
+    test:assertValueEqual(iterator.next(), {value: xml `<!--foo-->`});
+    test:assertValueEqual(iterator.next(), {value: xml `<!--bar-->`});
+    test:assertValueEqual(iterator.next(), ());
+
+    xml:Comment|xml:Element get = s1.get(1);
+    test:assertValueEqual(get, xml `<bar>val</bar>`);
+    test:assertValueEqual(xml:get(s1, 1), xml `<bar>val</bar>`);
+
+    xml:Comment|xml:Element get2 = get.get(0);
+    test:assertValueEqual(get2, xml `<bar>val</bar>`);
+
+    get2 = xml:get(get, 0);
+    test:assertValueEqual(get2, xml `<bar>val</bar>`);
+
+    xml:Element|xml<never> v1 = xml `<baz/>`;
+    xml:Element get3 = v1.get(0);
+    test:assertValueEqual(get3, xml `<baz/>`);
+
+    var fn = function () {
+        xml:Element|xml<never> v = xml ``;
+        xml:Element _ = v.get(1);
+        panic error("expected the get call to panic");
+    };
+    error? fnRes = trap fn();
+    test:assertTrue(fnRes is error);
+    error err = <error> fnRes;
+    test:assertValueEqual(err.message(), "xml sequence index out of range. Length: '1' requested: '1'");
+
+    xml:Element|xml:Element v2 = xml `<books><book>Hamlet</book><book>Macbeth</book></books>`;
+    xml children = v2.getChildren();
+    test:assertValueEqual(children, xml `<book>Hamlet</book><book>Macbeth</book>`);
+
+    xml<xml:Comment>|xml<xml:Comment> s3 = <xml<xml:Comment>> xml `<!--foo--><!--bar-->`;
+    xml:Comment get4 = s3.get(0);
+    test:assertValueEqual(get4, xml `<!--foo-->`);
+}
+
 type Error error<record {string message;}>;
 
 function assertError(any|error value, string errorMessage, string expDetailMessage) {

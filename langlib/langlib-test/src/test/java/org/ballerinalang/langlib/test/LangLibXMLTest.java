@@ -368,6 +368,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testLangLibCallsWithUnions() {
+        BRunUtil.invoke(compileResult, "testLangLibCallsWithUnions");
+    }
+
+    @Test
     public void testNegativeCases() {
         negativeResult = BCompileUtil.compile("test-src/xmllib_test_negative.bal");
         int i = 0;
@@ -392,6 +397,28 @@ public class LangLibXMLTest {
                 97, 62);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found 'xml:Element'",
                 98, 41);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml', " +
+                "found '(xml<xml:Comment>|xml<xml:Element>|int)'", 103, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml', " +
+                "found '(xml<xml:Comment>|xml<xml:Element>|int)'", 104, 20);
+        validateError(negativeResult, i++, "incompatible types: expected 'object { " +
+                "public isolated function next () returns (" +
+                "record {| xml:Comment value; |}?); }', found 'object { " +
+                "public isolated function next () returns (" +
+                "record {| (xml:Comment|xml:ProcessingInstruction) value; |}?); }'", 111, 11);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml:Comment', " +
+                "found '(xml:Comment|xml:ProcessingInstruction)'", 113, 21);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml:ProcessingInstruction', " +
+                "found '(xml:Comment|xml:ProcessingInstruction)'", 114, 35);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml:Comment', " +
+                "found '(xml:Comment|xml:Element)'", 117, 21);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', " +
+                "found '(xml:Comment|xml:Element)'", 118, 21);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml<never>', " +
+                "found '(xml:Element|never)'", 121, 20);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml'", 124, 21);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml:ProcessingInstruction', " +
+                "found 'xml:Comment'", 127, 35);
         assertEquals(negativeResult.getErrorCount(), i);
     }
 
