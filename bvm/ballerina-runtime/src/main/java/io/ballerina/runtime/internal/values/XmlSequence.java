@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
+import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -70,8 +71,12 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         this.type = PredefinedTypes.TYPE_XML_NEVER;
     }
 
-    public XmlSequence(List<BXml> children) {
-        this.children = children;
+    public XmlSequence(List<BXml> values) {
+        if (values.isEmpty()) {
+            this.children = values;
+            return;
+        }
+        setSequenceMembersConcatenatingAdjacentTextItems(values);
     }
 
     public XmlSequence(BXml child) {
@@ -628,6 +633,29 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         };
     }
 
+    private void setSequenceMembersConcatenatingAdjacentTextItems(List<BXml> values) {
+        ArrayList<BXml> members = new ArrayList<>();
+        boolean isPreviousValueText = false;
+        StringBuilder text = new StringBuilder();
+        for (BXml value : values) {
+            if (value.getNodeType() == XmlNodeType.TEXT) {
+                isPreviousValueText = true;
+                text.append(value.getTextValue());
+                continue;
+            }
+            if (isPreviousValueText) {
+                members.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
+                isPreviousValueText = false;
+                text.setLength(0);
+            }
+            members.add(value);
+        }
+        if (!text.isEmpty()) {
+            members.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
+        }
+        this.children = members;
+    }
+
     private Type getSequenceType(Type tempExprType) {
         return switch (tempExprType.getTag()) {
             case TypeTags.XML_ELEMENT_TAG -> PredefinedTypes.TYPE_XML_ELEMENT_SEQUENCE;
@@ -671,9 +699,8 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         if (o instanceof XmlSequence rhsXMLSequence) {
             return isXMLSequenceChildrenEqual(this.getChildrenList(), rhsXMLSequence.getChildrenList());
         }
-        if (o instanceof XmlItem) {
-            return this.getChildrenList().size() == 1 &&
-                    isEqual(this.getChildrenList().get(0), o);
+        if (this.isSingleton() && (o instanceof XmlValue)) {
+            return isEqual(this.getChildrenList().get(0), o);
         }
         return this.getChildrenList().isEmpty() && TypeUtils.getType(o) == PredefinedTypes.TYPE_XML_NEVER;
     }
