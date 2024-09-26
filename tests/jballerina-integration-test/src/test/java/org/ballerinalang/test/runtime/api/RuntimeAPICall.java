@@ -42,7 +42,7 @@ public class RuntimeAPICall {
         out.println(result);
 
         BObject person = ValueCreator.createObjectValue(module, "Person", 1001, StringUtils.fromString("John Doe"));
-        result = balRuntime.call(person, "getNameWithTitle", StringUtils.fromString("Dr. "), false);
+        result = balRuntime.call(person, "getNameWithTitle", StringUtils.fromString("Dr. "));
         out.println(result);
         balRuntime.stop();
 

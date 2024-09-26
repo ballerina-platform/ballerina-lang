@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.runtime;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BDecimal;
@@ -33,7 +34,7 @@ public class Sleep {
 
     private static final BigDecimal LONG_MAX = new BigDecimal(Long.MAX_VALUE);
 
-    public static void sleep(BDecimal delaySeconds) {
+    public static void sleep(Environment env, BDecimal delaySeconds) {
         BigDecimal delayDecimal = delaySeconds.decimalValue();
         if (delayDecimal.compareTo(BigDecimal.ZERO) <= 0) {
             return;
@@ -45,6 +46,7 @@ public class Sleep {
         } else {
             delay = delayDecimal.longValue();
         }
+        env.markAsync();
         try {
             Thread.sleep(delay);
         } catch (InterruptedException e) {

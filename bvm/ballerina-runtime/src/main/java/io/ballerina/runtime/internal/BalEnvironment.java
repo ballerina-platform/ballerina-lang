@@ -81,8 +81,8 @@ public class BalEnvironment extends Environment {
 
     /**
      * Mark the current executing strand as async. Execution of Ballerina code after the current
-     * interop will stop until given BalFuture is completed. However the java thread will not be blocked
-     * and will be reused for running other Ballerina code in the meantime. Therefore callee of this method
+     * interop will stop until given BalFuture is completed. However, the java thread will not be blocked
+     * and will be reused for running other Ballerina code in the meantime. Therefore, callee of this method
      * must return as soon as possible to avoid starvation of ballerina code execution.WD
      */
     @Override
