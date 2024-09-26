@@ -51,8 +51,10 @@ public class BLockStore {
     */
     @SuppressWarnings("unused")
     public void lock(Strand strand, String lockName) {
+        strand.yield();
         getLockFromMap(lockName).lock();
         strand.acquiredLockCount++;
+        strand.resume();
     }
 
     /*

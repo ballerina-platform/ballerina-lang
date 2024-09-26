@@ -535,7 +535,6 @@ public class MethodGen {
             mv.visitLabel(bbEndLabel);
             BIRTerminator terminator = bb.terminator;
             processTerminator(mv, func, module, funcName, terminator);
-            JvmCodeGenUtil.genStrandAction(mv, terminator, localVarOffset, "yield");
             termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType,
                     channelMapVarIndex, sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar);
             lastScope = JvmCodeGenUtil.getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope,
@@ -543,7 +542,6 @@ public class MethodGen {
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen, channelMapVarIndex,
                     sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar, localVarOffset);
             BIRBasicBlock thenBB = terminator.thenBB;
-            JvmCodeGenUtil.genStrandAction(mv, terminator, localVarOffset, "resume");
             JvmCodeGenUtil.genGotoThenBB(mv, thenBB, labelGen, terminator, funcName);
         }
     }

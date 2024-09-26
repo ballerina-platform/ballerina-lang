@@ -35,8 +35,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.model.JTermKind;
-import org.wso2.ballerinalang.compiler.bir.codegen.model.JTerminator;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
@@ -501,32 +499,6 @@ public class JvmCodeGenUtil {
             visitedScopesSet.add(scope);
         }
         return lastScope;
-    }
-
-    public static void genStrandAction(MethodVisitor mv, BIRTerminator terminator, int localVarOffset,
-                                       String strandAction) {
-        switch (terminator.kind) {
-            case WK_RECEIVE, WK_ALT_RECEIVE, WK_MULTIPLE_RECEIVE, FLUSH, WAIT, WAIT_ALL:
-                genStrandAction(mv, localVarOffset, strandAction);
-                break;
-            case WK_SEND:
-                if (((BIRTerminator.WorkerSend) terminator).isSync) {
-                    genStrandAction(mv, localVarOffset, strandAction);
-                }
-                break;
-            case PLATFORM:
-                if (terminator instanceof JTerminator jTerminator &&
-                        jTerminator.jTermKind == JTermKind.JI_METHOD_CALL) {
-                    genStrandAction(mv, localVarOffset, strandAction);
-                }
-                break;
-            default:
-        }
-    }
-
-    private static void genStrandAction(MethodVisitor mv, int localVarOffset, String strandAction) {
-        mv.visitVarInsn(ALOAD, localVarOffset);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, strandAction, VOID_METHOD_DESC, false);
     }
 
     public static void genGotoThenBB(MethodVisitor mv, BIRNode.BIRBasicBlock thenBB, LabelGenerator labelGen,
