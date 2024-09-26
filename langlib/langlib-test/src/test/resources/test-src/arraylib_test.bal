@@ -1946,7 +1946,7 @@ function testSortNegative() {
         assertTrue(res is error);
         if(res is error) {
             assertValueEquality("{ballerina/lang.array}SortOperationError", res.message());
-            assertValueEquality("Valid key function required", <string> checkpanic res.detail()["message"]);
+            assertValueEquality("valid key function required", <string> checkpanic res.detail()["message"]);
         }
     }
 }

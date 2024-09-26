@@ -54,7 +54,7 @@ public class Sort {
         // Check if the array type is an Ordered type, otherwise a key function is mandatory
         if (!isOrderedType(arrType) && function == null) {
             throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
-                    StringUtils.fromString("Valid key function required"));
+                    StringUtils.fromString("valid key function required"));
         }
         Object[][] sortArr = new Object[arr.size()][2];
         Object[][] sortArrClone = new Object[arr.size()][2];

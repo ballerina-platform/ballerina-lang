@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * A utility class containing methods needed for the sort operation on tuples and arrays.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public class SortUtils {
 
