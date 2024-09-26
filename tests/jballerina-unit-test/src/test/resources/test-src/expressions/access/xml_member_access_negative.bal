@@ -76,3 +76,8 @@ function testXmlMemberAccessOnXmlUnionSequencesNegative() {
     xml<xml:Comment|xml:ProcessingInstruction|never> seq2 = xml `<?pi val?>`;
     xml:Comment|xml<never> _ = seq2[0];
 }
+
+function testXmlMemberAccessOnEmptySequenceTypeNegative() {
+    xml<never> seq = xml ``;
+    xml:Element _ = seq[0];
+}

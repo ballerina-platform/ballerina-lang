@@ -86,6 +86,7 @@ public class XmlMemberAccessTest {
                 "found '(xml:Element|xml:Comment|xml<never>)'", 74, 32);
         validateError(negativeResult, i++, "incompatible types: expected '(xml:Comment|xml<never>)', " +
                 "found '(xml:Comment|xml:ProcessingInstruction|never|xml<never>)'", 77, 32);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml<never>'", 82, 21);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -104,7 +105,8 @@ public class XmlMemberAccessTest {
                 { "testXmlMemberAccessOnXmlProcessingInstructionSequences" },
                 { "testXmlMemberAccessOnXmlSingletons" },
                 { "testXmlMemberAccessOnXmlUnions" },
-                { "testXmlMemberAccessOnXmlUnionSequences" }
+                { "testXmlMemberAccessOnXmlUnionSequences" },
+                { "testXmlMemberAccessOnEmptySequenceType" }
         };
     }
 }

@@ -197,6 +197,12 @@ function testXmlMemberAccessOnXmlUnionSequences() {
     assertTrue(seq2[1] is xml<never>);
 }
 
+function testXmlMemberAccessOnEmptySequenceType() {
+    xml<never> seq = xml ``;
+    xml<never> val = seq[0];
+    assertEquality(xml ``, val);
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }
