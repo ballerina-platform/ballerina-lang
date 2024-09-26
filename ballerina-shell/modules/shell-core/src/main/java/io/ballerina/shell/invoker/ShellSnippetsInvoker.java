@@ -37,8 +37,6 @@ import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.ClassloaderRuntime;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.exceptions.InvokerPanicException;
@@ -52,8 +50,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
@@ -356,30 +352,19 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @param jBallerinaBackend Backed to use.
      * @param module           Module to execute.
      */
-    protected void executeProject(JBallerinaBackend jBallerinaBackend, io.ballerina.runtime.api.Module module) {
+    protected void executeProject(JBallerinaBackend jBallerinaBackend, io.ballerina.runtime.api.Module module)
+            throws InvokerPanicException {
         if (bufferFile == null) {
             throw new UnsupportedOperationException("Buffer file must be set before execution");
         }
 
         PrintStream errorStream = getErrorStream();
         try {
-            // Main method class name is file name without extension
-            String fileName = bufferFile.getName();
-            String mainMethodClassName = fileName.substring(0, fileName.length() - TEMP_FILE_SUFFIX.length());
-
             JarResolver jarResolver = jBallerinaBackend.jarResolver();
             ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
-            BalRuntime runtime = new ClassloaderRuntime(module, classLoader);
-            // Initialize the module
-            runtime.init();
-            // Start the module
-            runtime.start();
-            // Then call run method
-            try {
-                runtime.call(module, MODULE_RUN_METHOD_NAME);
-                runtime.stop();
-            } catch (BError e) {
-                errorStream.println("fail: " + e.getMessage());
+            Object failErrorMessage = this.callRun(classLoader, module);
+            if (failErrorMessage != null) {
+                errorStream.println("fail: " + failErrorMessage);
             }
         } catch (Throwable panicError) {
             List<String> stacktrace = Arrays.stream(panicError.getCause().getStackTrace())
@@ -397,73 +382,40 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     /* Invocation methods */
 
     /**
-     * Invokes a method that is in the given class.
-     * The method must be a static method accepting only one parameter, a {@link Strand}.
+     * Invokes a run function.
      *
      * @param classLoader Class loader to find the class.
-     * @param className   Class name with the method.
-     * @param methodName  Method name to invoke.
-     * @return The result of the invocation.
-     * @throws InvokerException If invocation failed.
      */
-    protected Object invokeScheduledMethod(ClassLoader classLoader, String className, String methodName)
-            throws InvokerException {
+    protected Object callRun(ClassLoader classLoader, io.ballerina.runtime.api.Module module)
+            throws InvokerPanicException {
+        BalRuntime runtime = new ClassloaderRuntime(module, classLoader);
+        Object result;
         try {
-            addDebugDiagnostic(String.format("Running %s.%s on schedule", className, methodName));
-
-            // Get class and method references
-            Class<?> clazz = classLoader.loadClass(className);
-            Method method = clazz.getDeclaredMethod(methodName, Strand.class);
-            try {
-                return method.invoke(null, Scheduler.getStrand());
-            } catch (InvocationTargetException e) {
-                return e.getTargetException();
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Error while invoking function.", e);
+            // Initialize the module
+            result = runtime.init();
+            if (result instanceof Throwable throwable) {
+                throw new InvokerPanicException(throwable);
             }
-        } catch (ClassNotFoundException e) {
-            addErrorDiagnostic(className + " class not found: " + e.getMessage());
-            throw new InvokerException(e);
-        } catch (NoSuchMethodException e) {
-            addErrorDiagnostic(methodName + " method not found: " + e.getMessage());
-            throw new InvokerException(e);
+            // Start the module
+            result = runtime.start();
+            if (result instanceof Throwable throwable) {
+                throw new InvokerPanicException(throwable);
+            }
+            // Then call run method
+            result = runtime.call(module, MODULE_RUN_METHOD_NAME);
+            if (result instanceof Throwable throwable) {
+                throw new InvokerPanicException(throwable);
+            }
+        } catch (Throwable throwable) {
+            throw new InvokerPanicException(throwable);
+        } finally {
+            try {
+                runtime.stop();
+            } catch (BError ignored) {
+                // stop errors are ignored
+            }
         }
-    }
-
-    /**
-     * Invokes a method that is in the given class.
-     * This is directly invoked without scheduling.
-     * The method must be a static method accepting the given parameters.
-     *
-     * @param classLoader Class loader to find the class.
-     * @param className   Class name with the method.
-     * @param methodName  Method name to invoke.
-     * @param argTypes    Types of arguments.
-     * @param args        Arguments to provide.
-     * @return The result of the invocation.
-     * @throws InvokerException If invocation failed.
-     */
-    protected Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
-                                          Class<?>[] argTypes, Object[] args) throws InvokerException {
-        try {
-            // Get class and method references
-            addDebugDiagnostic(String.format("Running %s.%s directly", className, methodName));
-            Class<?> clazz = classLoader.loadClass(className);
-            Method method = clazz.getDeclaredMethod(methodName, argTypes);
-            return method.invoke(null, args);
-        } catch (ClassNotFoundException e) {
-            addErrorDiagnostic(className + " class not found: " + e.getMessage());
-            throw new InvokerException(e);
-        } catch (NoSuchMethodException e) {
-            addErrorDiagnostic(methodName + " method not found: " + e.getMessage());
-            throw new InvokerException(e);
-        } catch (IllegalAccessException e) {
-            addErrorDiagnostic(methodName + " illegal access: " + e.getMessage());
-            throw new InvokerException(e);
-        } catch (InvocationTargetException e) {
-            addErrorDiagnostic(methodName + " exception at target: " + e.getTargetException());
-            throw new InvokerException(e);
-        }
+        return result;
     }
 
     /* Util methods */

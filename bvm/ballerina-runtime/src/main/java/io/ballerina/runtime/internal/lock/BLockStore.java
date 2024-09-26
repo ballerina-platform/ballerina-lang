@@ -37,7 +37,7 @@ public class BLockStore {
     /**
      * The map of locks inferred.
      */
-    private final Map<String, BLock> globalLockMap;
+    private final Map<String, ReentrantLock> globalLockMap;
 
     private final ReentrantReadWriteLock storeLock;
 
@@ -83,7 +83,6 @@ public class BLockStore {
         } finally {
             storeLock.readLock().unlock();
         }
-
         if (lock != null) {
             return lock;
         }
@@ -93,9 +92,7 @@ public class BLockStore {
     private ReentrantLock addLockToMap(String lockName) {
         try {
             storeLock.writeLock().lock();
-            BLock lock = new BLock();
-            globalLockMap.put(lockName, lock);
-            return lock;
+            return globalLockMap.computeIfAbsent(lockName, k -> new ReentrantLock());
         } finally {
             storeLock.writeLock().unlock();
         }

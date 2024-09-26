@@ -277,6 +277,7 @@ public class JvmSignatures {
     public static final String HANDLE_FLUSH = "(L" + STRAND_CLASS + ";L" + WORKER_CHANNEL_MAP + ";[L" +
             STRING_VALUE + ";)" + "L" + OBJECT + ";";
     public static final String HANDLE_FUTURE = "(L" + FUTURE_VALUE + ";)V";
+    public static final String HANDLE_FUTURE_AND_RETURN_IS_PANIC = "(L" + FUTURE_VALUE + ";)Z";
     public static final String HANDLE_MAP_STORE = "(L" + MAP_VALUE + ";L" + B_STRING_VALUE + ";L" + OBJECT + ";)V";
     public static final String HANDLE_OBJECT_LONG_ARGS = "(" + GET_HANDLE_VALUE + GET_OBJECT + "J)V";
     public static final String HANDLE_TABLE_STORE = "(L" + TABLE_VALUE + ";L" + OBJECT + ";L" + OBJECT + ";)V";

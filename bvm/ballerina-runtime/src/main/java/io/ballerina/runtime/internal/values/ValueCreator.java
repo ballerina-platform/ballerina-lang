@@ -60,6 +60,10 @@ public abstract class ValueCreator {
         runtimeValueCreators.put(key, valueCreator);
     }
 
+    public static String getLookupKey(Module module) {
+        return getLookupKey(module.getOrg(), module.getName(), module.getMajorVersion(), module.isTestPkg());
+    }
+
     public static String getLookupKey(Module module, boolean isTestPkg) {
         return getLookupKey(module.getOrg(), module.getName(), module.getMajorVersion(), isTestPkg);
     }

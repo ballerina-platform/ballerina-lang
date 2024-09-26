@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -162,7 +161,7 @@ public class AsyncUtils {
     public static Object getFutureResult(CompletableFuture<?> completableFuture) throws BError {
         try {
             return completableFuture.get();
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (Throwable e) {
             if (e.getCause() instanceof BError bError) {
                 throw bError;
             }

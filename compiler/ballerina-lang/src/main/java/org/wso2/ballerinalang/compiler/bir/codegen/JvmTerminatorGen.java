@@ -333,7 +333,6 @@ public class JvmTerminatorGen {
     }
 
     private void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset) {
-
         Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
         String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
         String lockName = GLOBAL_LOCK_NAME + lockIns.lockId;
@@ -345,10 +344,7 @@ public class JvmTerminatorGen {
     }
 
     private void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName, int localVarOffset) {
-
         Label gotoLabel = this.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
-
-        // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
         String lockName = GLOBAL_LOCK_NAME + unlockIns.relatedLock.lockId;
         String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
         this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, GET_LOCK_STORE);

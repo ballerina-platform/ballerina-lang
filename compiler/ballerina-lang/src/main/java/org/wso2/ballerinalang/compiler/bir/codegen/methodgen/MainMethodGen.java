@@ -53,9 +53,11 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.ICONST_2;
+import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.LCONST_1;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
@@ -73,7 +75,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_M
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DAEMON_STRAND_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_AND_EXIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_AND_RETURN_IS_PANIC_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_THROWABLE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
@@ -95,6 +97,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_NON
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_ARGUMENTS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_CONFIG_ARGS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WAIT_ON_LISTENERS_METHOD_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_BALLERINA_INFO;
@@ -112,6 +115,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TEST_CONFIG_PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_FUTURE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_FUTURE_AND_RETURN_IS_PANIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CLI_SPEC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIG;
@@ -476,7 +480,7 @@ public class MainMethodGen {
         }
         mv.visitVarInsn(ASTORE, futureVarIndex);
         setDaemonStrand(mv, futureVarIndex);
-        handleFutureValue(mv, isTestable, futureVarIndex);
+        handleFutureValue(mv, initClass, isTestable, futureVarIndex);
     }
 
     private void setDaemonStrand(MethodVisitor mv, int futureVarIndex) {
@@ -485,10 +489,17 @@ public class MainMethodGen {
         mv.visitFieldInsn(PUTSTATIC, SCHEDULER, DAEMON_STRAND_NAME, GET_STRAND);
     }
 
-    private void handleFutureValue(MethodVisitor mv, boolean isTestFunction, int futureVarIndex) {
+    private void handleFutureValue(MethodVisitor mv, String initClass, boolean isTestFunction, int futureVarIndex) {
         mv.visitVarInsn(ALOAD, futureVarIndex);
         if (isTestFunction) {
-            mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_FUTURE_METHOD, HANDLE_FUTURE, false);
+            mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_FUTURE_AND_RETURN_IS_PANIC_METHOD,
+                    HANDLE_FUTURE_AND_RETURN_IS_PANIC, false);
+            Label ifLabel = new Label();
+            mv.visitJumpInsn(IFEQ, ifLabel);
+            mv.visitInsn(LCONST_1);
+            mv.visitFieldInsn(PUTSTATIC, initClass, TEST_EXECUTION_STATE, "J");
+            mv.visitLabel(ifLabel);
+
         } else {
             mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_FUTURE_AND_EXIT_METHOD, HANDLE_FUTURE, false);
         }

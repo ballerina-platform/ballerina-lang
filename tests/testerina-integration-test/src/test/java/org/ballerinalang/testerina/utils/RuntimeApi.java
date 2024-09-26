@@ -79,10 +79,10 @@ public class RuntimeApi {
     }
 
     public static BString callPlayWithArgs(Environment env, BObject object, BString bString) {
-        return (BString) env.getRuntime().call(object, "play", "play", bString);
+        return (BString) env.getRuntime().call(object, "play", bString);
     }
 
     public static BString callPlayWithoutArgs(Environment env, BObject object) {
-        return (BString) env.getRuntime().call(object, "play", "play");
+        return (BString) env.getRuntime().call(object, "play");
     }
 }
