@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -236,7 +235,7 @@ public class Profiler {
             final File userDirectory = new File(System.getProperty("user.dir")); // Get the user directory
             listAllFiles(userDirectory); // List all files in the user directory and its subdirectories
             // Get a list of the directories containing instrumented files
-            List<String> changedDirectories = instrumentedFiles.stream().distinct().collect(Collectors.toList());
+            List<String> changedDirectories = instrumentedFiles.stream().distinct().toList();
             loadDirectories(changedDirectories);
         } finally {
             for (String instrumentedFilePath : instrumentedPaths) {

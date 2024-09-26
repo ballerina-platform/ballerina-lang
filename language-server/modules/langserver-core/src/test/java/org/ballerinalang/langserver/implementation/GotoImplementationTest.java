@@ -42,7 +42,6 @@ import java.nio.file.Path;
 public class GotoImplementationTest {
     private Endpoint serviceEndpoint;
     private String configRoot = "implementation" + CommonUtil.FILE_SEPARATOR + "expected";
-    private JsonParser jsonParser = new JsonParser();
     private static final Logger log = LoggerFactory.getLogger(GotoImplementationTest.class);
 
     @BeforeClass
@@ -60,7 +59,7 @@ public class GotoImplementationTest {
             JsonObject position = configJsonObject.getAsJsonObject("position");
             Position cursor = new Position(position.get("line").getAsInt(), position.get("col").getAsInt());
             String response = TestUtil.getGotoImplementationResponse(serviceEndpoint, sourcePath.toString(), cursor);
-            JsonObject responseJson = jsonParser.parse(response).getAsJsonObject();
+            JsonObject responseJson = JsonParser.parseString(response).getAsJsonObject();
             responseJson.getAsJsonArray("result").forEach(jsonElement -> jsonElement.getAsJsonObject().remove("uri"));
             JsonObject expected = configJsonObject.getAsJsonObject("expected");
             Assert.assertEquals(expected, responseJson, "Test Failed for" + configPath);

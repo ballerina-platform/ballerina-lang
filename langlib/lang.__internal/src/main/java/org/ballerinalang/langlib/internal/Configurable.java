@@ -31,7 +31,7 @@ import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
  *
  * @since 2.0
  */
-public class Configurable {
+public final class Configurable {
 
     public static Object hasConfigurableValue(BString orgName, BString moduleName, BString versionNumber,
                                               BString configVarName, BTypedesc t) {

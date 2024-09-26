@@ -34,7 +34,7 @@ import java.io.Reader;
  *
  * @since 2.0.0
  */
-public class XmlUtils {
+public final class XmlUtils {
 
     private XmlUtils() {}
 
@@ -95,8 +95,8 @@ public class XmlUtils {
      * @param table {@link BTable} to convert
      * @return converted {@link BXml}
      */
-    public static BXml parse(BTable table) {
-        return XmlFactory.tableToXML((TableValueImpl) table);
+    public static BXml parse(BTable<?, ?> table) {
+        return XmlFactory.tableToXML((TableValueImpl<?, ?>) table);
     }
 
     /**

@@ -32,11 +32,13 @@ import java.nio.file.Paths;
  */
 public class ImportDeclarationsTest extends FormatterTest {
 
+    @Override
     @Test(dataProvider = "test-file-provider-custom")
     public void test(String source, String sourcePath) throws IOException {
         super.test(source, sourcePath);
     }
 
+    @Override
     @Test(dataProvider = "test-file-provider-custom")
     public void testWithCustomOptions(String source, String sourcePath, FormattingOptions formattingOptions)
             throws IOException {

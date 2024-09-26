@@ -92,9 +92,9 @@ public class XmlText extends XmlNonElementItem {
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<XmlText> getIterator() {
         XmlText that = this;
-        return new IteratorValue() {
+        return new IteratorValue<>() {
             boolean read = false;
             @Override
             public boolean hasNext() {
@@ -102,7 +102,7 @@ public class XmlText extends XmlNonElementItem {
             }
 
             @Override
-            public Object next() {
+            public XmlText next() {
                 if (!read) {
                     this.read = true;
                     return that;
@@ -127,11 +127,11 @@ public class XmlText extends XmlNonElementItem {
      */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        if (o instanceof XmlText rhsXMLText) {
-            return this.getTextValue().equals(rhsXMLText.getTextValue());
+        if ((o instanceof XmlText) || isXmlSequenceWithSingletonTextValue(o)) {
+            return this.getTextValue().equals(((XmlValue) o).getTextValue());
         }
-        return this.getType() == PredefinedTypes.TYPE_XML_NEVER && (o instanceof XmlSequence) &&
-                ((XmlSequence) o).getChildrenList().isEmpty();
+        return this.getType() == PredefinedTypes.TYPE_XML_NEVER && (o instanceof XmlSequence xmlSequence) &&
+                xmlSequence.getChildrenList().isEmpty();
     }
 
     @Override
@@ -142,5 +142,12 @@ public class XmlText extends XmlNonElementItem {
     @Override
     public Type getType() {
         return this.type;
+    }
+
+    private boolean isXmlSequenceWithSingletonTextValue(Object o) {
+        if (!(o instanceof XmlSequence sequence)) {
+            return false;
+        }
+        return sequence.isSingleton() && sequence.getItem(0).getNodeType() == XmlNodeType.TEXT;
     }
 }

@@ -22,7 +22,7 @@ package org.ballerinalang.central.client;
  *
  * @since 1.2.0
  */
-public class CentralClientConstants {
+public final class CentralClientConstants {
 
     private CentralClientConstants() {
     }

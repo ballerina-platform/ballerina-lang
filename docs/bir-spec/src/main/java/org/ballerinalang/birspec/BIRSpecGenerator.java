@@ -30,10 +30,13 @@ import java.nio.charset.StandardCharsets;
 /**
  * Generate BIR spec doc.
  */
-public class BIRSpecGenerator {
+public final class BIRSpecGenerator {
 
     private static final String BIR_SPEC_FILE = "/kaitai/bir.ksy";
     private static final Yaml yaml = new Yaml();
+
+    private BIRSpecGenerator() {
+    }
 
     public static void main(String[] args) throws IOException {
         try (PrintWriter out = new PrintWriter("../compiler/bir-spec.md")) {
@@ -57,13 +60,14 @@ public class BIRSpecGenerator {
     }
 
     private static String readResourceAsString(String uri) throws IOException {
-        InputStream inputStream = BIRSpecGenerator.class.getResourceAsStream(uri);
-        ByteArrayOutputStream result = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        int length;
-        while ((length = inputStream.read(buffer)) != -1) {
-            result.write(buffer, 0, length);
-        }
+        try (InputStream inputStream = BIRSpecGenerator.class.getResourceAsStream(uri)) {
+            ByteArrayOutputStream result = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) != -1) {
+                result.write(buffer, 0, length);
+            }
         return result.toString(StandardCharsets.UTF_8);
+        }
     }
 }

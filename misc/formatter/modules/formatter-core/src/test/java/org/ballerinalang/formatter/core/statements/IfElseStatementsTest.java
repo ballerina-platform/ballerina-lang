@@ -31,6 +31,7 @@ import java.util.List;
  */
 public class IfElseStatementsTest extends FormatterTest {
 
+    @Override
     @Test(dataProvider = "test-file-provider")
     public void test(String source, String sourcePath) throws IOException {
         super.test(source, sourcePath);
@@ -47,6 +48,7 @@ public class IfElseStatementsTest extends FormatterTest {
         return Paths.get("statements", "if-else").toString();
     }
 
+    @Override
     public List<String> skipList() {
         ArrayList<String> skip = new ArrayList<>();
         skip.add("if_else_statement_6.bal");

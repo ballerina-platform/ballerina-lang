@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
@@ -51,7 +52,7 @@ import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
  *
  * @since 2.0.0
  */
-public class BCompileUtil {
+public final class BCompileUtil {
 
     private static final Path testSourcesDirectory = Paths.get("src/test/resources").toAbsolutePath().normalize();
     private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath().normalize();
@@ -187,8 +188,8 @@ public class BCompileUtil {
                 currentPackage.packageName().toString(), currentPackage.packageVersion().toString(), repoPath);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaCachePath);
         Path balaFilePath;
-        try {
-            balaFilePath = Files.list(balaCachePath).filter(path ->
+        try (Stream<Path> paths = Files.list(balaCachePath)) {
+            balaFilePath = paths.filter(path ->
                     path.toString().endsWith(ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT)).findAny().orElseThrow();
             String platform = getPlatformFromBala(balaFilePath.getFileName().toString(),
                     currentPackage.packageName().toString(), currentPackage.packageVersion().toString());

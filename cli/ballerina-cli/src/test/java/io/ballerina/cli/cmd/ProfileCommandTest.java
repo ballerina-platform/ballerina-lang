@@ -32,7 +32,9 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -63,6 +65,7 @@ public class ProfileCommandTest extends BaseCommandTest {
         Files.writeString(logFile, "");
     }
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -84,8 +87,8 @@ public class ProfileCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("projectForProfile").resolve("package_a");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
-        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-        System.setOut(new java.io.PrintStream(out));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(out));
 
         ProfileCommand profileCommand = new ProfileCommand(projectPath, printStream, false);
         profileCommand.execute();
@@ -108,8 +111,8 @@ public class ProfileCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("projectForProfile").resolve("package_b");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
-        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-        System.setOut(new java.io.PrintStream(out));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(out));
 
         ProfileCommand profileCommand = new ProfileCommand(projectPath, printStream, false);
         profileCommand.execute();

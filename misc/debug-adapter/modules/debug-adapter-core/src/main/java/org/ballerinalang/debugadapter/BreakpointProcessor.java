@@ -335,8 +335,7 @@ public class BreakpointProcessor {
      */
     void printLogMessage(BreakpointEvent event, LogMessage logMessage, int lineNumber) {
         try {
-            if (logMessage instanceof TemplateLogMessage) {
-                TemplateLogMessage template = (TemplateLogMessage) logMessage;
+            if (logMessage instanceof TemplateLogMessage template) {
                 List<String> expressions = template.getExpressions();
                 List<String> evaluationResults = new ArrayList<>();
                 for (String expression : expressions) {

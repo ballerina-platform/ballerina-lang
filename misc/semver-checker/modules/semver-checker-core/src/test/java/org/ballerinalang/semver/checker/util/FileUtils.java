@@ -28,7 +28,10 @@ import java.nio.charset.Charset;
  *
  * @since 2201.2.0
  */
-public class FileUtils {
+public final class FileUtils {
+
+    private FileUtils() {
+    }
 
     /**
      * @param file    Name of the expected file

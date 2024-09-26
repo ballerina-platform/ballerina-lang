@@ -82,7 +82,7 @@ import static io.ballerina.jsonmapper.util.ListOperationUtils.intersection;
  *
  * @since 2201.2.0
  */
-public class JsonToRecordMapper {
+public final class JsonToRecordMapper {
 
     private JsonToRecordMapper() {}
 
@@ -181,7 +181,7 @@ public class JsonToRecordMapper {
                     Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
                     return NodeFactory.createTypeDefinitionNode(null, null, typeKeyWord, typeName,
                             entry.getValue(), semicolon);
-                }).collect(Collectors.toList());
+                }).toList();
 
         NodeList<ModuleMemberDeclarationNode> moduleMembers;
         if (isRecordTypeDesc) {

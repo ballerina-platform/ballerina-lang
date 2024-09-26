@@ -189,7 +189,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             if (symbol.kind() == FUNCTION || symbol.kind() == METHOD || symbol.kind() == RESOURCE_METHOD) {
                 FunctionSymbol functionSymbol = (FunctionSymbol) symbol;
                 if (functionSymbol.getName().isPresent() && !functionSymbol.getName().get().contains("$")) {
-                    completionItems.addAll(populateBallerinaFunctionCompletionItems((FunctionSymbol) symbol, ctx));
+                    completionItems.addAll(populateBallerinaFunctionCompletionItems(functionSymbol, ctx));
                 }
             } else if (symbol.kind() == SymbolKind.CONSTANT || symbol.kind() == SymbolKind.ENUM_MEMBER) {
                 CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol, ctx);
@@ -381,7 +381,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 List<String> pkgNameComps = Arrays.stream(name.split("\\."))
                         .map(ModuleUtil::escapeModuleName)
                         .map(CommonUtil::escapeReservedKeyword)
-                        .collect(Collectors.toList());
+                        .toList();
                 String label = pkg.packageOrg().value().isEmpty() ? String.join(".", pkgNameComps)
                         : CommonUtil.getPackageLabel(pkg);
                 String aliasComponent = pkgNameComps.get(pkgNameComps.size() - 1);
@@ -545,7 +545,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbolFilter)
                 .sorted(Comparator.comparing(symbol -> symbol.getName().get()))
-                .collect(Collectors.toList());
+                .toList();
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
         this.getAnonFunctionDefSnippet(context).ifPresent(completionItems::add);

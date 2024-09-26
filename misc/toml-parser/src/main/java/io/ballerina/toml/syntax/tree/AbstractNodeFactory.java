@@ -27,7 +27,6 @@ import io.ballerina.toml.internal.syntax.NodeListUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * A factory for creating nodes in the syntax tree.
@@ -143,7 +142,7 @@ public abstract class AbstractNodeFactory {
                 minutiaeNodes.stream()
                         .map(minutiae -> Objects.requireNonNull(minutiae, "minutiae should not be null"))
                         .map(Minutiae::internalNode)
-                        .collect(Collectors.toList())), 0);
+                        .toList()), 0);
     }
 
     public static Minutiae createCommentMinutiae(String text) {
@@ -188,7 +187,7 @@ public abstract class AbstractNodeFactory {
                 nodes.stream()
                         .map(node -> Objects.requireNonNull(node, "node should not be null"))
                         .map(Node::internalNode)
-                        .collect(Collectors.toList())).createUnlinkedFacade());
+                        .toList()).createUnlinkedFacade());
     }
 
     public static <T extends Node> SeparatedNodeList<T> createSeparatedNodeList(Node... nodes) {
@@ -206,7 +205,7 @@ public abstract class AbstractNodeFactory {
                 nodes.stream()
                         .map(node -> Objects.requireNonNull(node, "node should not be null"))
                         .map(Node::internalNode)
-                        .collect(Collectors.toList())).createUnlinkedFacade());
+                        .toList()).createUnlinkedFacade());
     }
 
     protected static STNode getOptionalSTNode(Node node) {

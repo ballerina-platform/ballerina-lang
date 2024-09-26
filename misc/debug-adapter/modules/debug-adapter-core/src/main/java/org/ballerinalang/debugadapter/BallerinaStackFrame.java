@@ -77,7 +77,7 @@ public class BallerinaStackFrame {
     /**
      * Returns a debugger adapter protocol compatible instance of this breakpoint.
      *
-     * @return as an instance of {@link org.eclipse.lsp4j.debug.StackFrame}
+     * @return as an instance of {@link StackFrame}
      */
     public Optional<StackFrame> getAsDAPStackFrame() {
         if (dapStackFrame != null) {

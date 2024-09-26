@@ -307,10 +307,12 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -321,7 +323,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -397,7 +398,7 @@ public class Desugar extends BLangNodeVisitor {
     private ClassClosureDesugar classClosureDesugar;
     private LargeMethodSplitter largeMethodSplitter;
 
-    public Stack<BLangLockStmt> enclLocks = new Stack<>();
+    public Deque<BLangLockStmt> enclLocks = new ArrayDeque<>();
     private BLangOnFailClause onFailClause;
     private boolean shouldReturnErrors;
     private int transactionBlockCount;
@@ -423,8 +424,8 @@ public class Desugar extends BLangNodeVisitor {
     private Set<BLangWorkerSendReceiveExpr.Channel> channelsWithinIfStmt = new LinkedHashSet<>();
 
     // Safe navigation related variables
-    private Stack<BLangMatchStatement> matchStmtStack = new Stack<>();
-    Stack<BLangExpression> accessExprStack = new Stack<>();
+    private Deque<BLangMatchStatement> matchStmtStack = new ArrayDeque<>();
+    Deque<BLangExpression> accessExprStack = new ArrayDeque<>();
     private BLangMatchClause successClause;
     private BLangAssignment safeNavigationAssignment;
     static boolean isJvmTarget = false;
@@ -978,8 +979,8 @@ public class Desugar extends BLangNodeVisitor {
                     List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
 
                     int statementSize = statements.size();
-                    for (int i = 0; i < statementSize; i++) {
-                        addToGlobalVariableList(statements.get(i), initFnBody, globalVar, desugaredGlobalVarList);
+                    for (BLangStatement bLangStatement : statements) {
+                        addToGlobalVariableList(bLangStatement, initFnBody, globalVar, desugaredGlobalVarList);
                     }
                     break;
                 case RECORD_VARIABLE:
@@ -1840,7 +1841,7 @@ public class Desugar extends BLangNodeVisitor {
 
             List<String> keysToRemove = parentRecordVariable.variableList.stream()
                     .map(var -> var.getKey().getValue())
-                    .collect(Collectors.toList());
+                    .toList();
 
             BLangSimpleVariable filteredDetail = generateRestFilter(variableReference, pos,
                     keysToRemove, restParamType, parentBlockStmt);
@@ -1947,7 +1948,7 @@ public class Desugar extends BLangNodeVisitor {
                     pos, detailTempVarDef.var.symbol);
             List<String> keysToRemove = parentErrorVariable.detail.stream()
                     .map(detail -> detail.key.getValue())
-                    .collect(Collectors.toList());
+                    .toList();
 
             BLangSimpleVariable filteredDetail = generateRestFilter(detailVarRef, parentErrorVariable.pos, keysToRemove,
                                                                     parentErrorVariable.restDetail.getBType(),
@@ -2119,7 +2120,7 @@ public class Desugar extends BLangNodeVisitor {
         functionSymbol.retType = function.returnTypeNode.getBType();
         functionSymbol.params = function.requiredParams.stream()
                 .map(param -> param.symbol)
-                .collect(Collectors.toList());
+                .toList();
         functionSymbol.scope = env.scope;
         functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()), constraint, null);
         function.symbol = functionSymbol;
@@ -2349,7 +2350,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                Location location) {
         List<String> fieldNamesToRemove = recordVariable.variableList.stream()
                 .map(var -> var.getKey().getValue())
-                .collect(Collectors.toList());
+                .toList();
         return createFuncToFilterOutRestParam(fieldNamesToRemove, location);
     }
 
@@ -2405,7 +2406,7 @@ public class Desugar extends BLangNodeVisitor {
         functionSymbol.retType = function.returnTypeNode.getBType();
         functionSymbol.params = function.requiredParams.stream()
                 .map(param -> param.symbol)
-                .collect(Collectors.toList());
+                .toList();
         functionSymbol.scope = env.scope;
         functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()),
                                                  getRestType(functionSymbol), symTable.booleanType, null);
@@ -2899,7 +2900,7 @@ public class Desugar extends BLangNodeVisitor {
 
             List<String> keysToRemove = parentRecordVarRef.recordRefFields.stream()
                     .map(field -> field.variableName.value)
-                    .collect(Collectors.toList());
+                    .toList();
 
             BLangSimpleVariable filteredDetail = generateRestFilter(variableReference, pos,
                     keysToRemove, restParamType, parentBlockStmt);
@@ -3717,26 +3718,24 @@ public class Desugar extends BLangNodeVisitor {
     private BLangExpression createConditionForMatchPattern(BLangMatchPattern matchPattern,
                                                            BLangSimpleVarRef matchExprVarRef) {
         NodeKind patternKind = matchPattern.getKind();
-        switch (patternKind) {
-            case WILDCARD_MATCH_PATTERN:
-                return createConditionForWildCardMatchPattern((BLangWildCardMatchPattern) matchPattern,
-                        matchExprVarRef);
-            case CONST_MATCH_PATTERN:
-                return createConditionForConstMatchPattern((BLangConstPattern) matchPattern, matchExprVarRef);
-            case VAR_BINDING_PATTERN_MATCH_PATTERN:
-                return createConditionForVarBindingPatternMatchPattern(
-                        (BLangVarBindingPatternMatchPattern) matchPattern, matchExprVarRef);
-            case LIST_MATCH_PATTERN:
-                return createConditionForListMatchPattern((BLangListMatchPattern) matchPattern, matchExprVarRef);
-            case MAPPING_MATCH_PATTERN:
-                return createConditionForMappingMatchPattern((BLangMappingMatchPattern) matchPattern, matchExprVarRef);
-            case ERROR_MATCH_PATTERN:
-                return createConditionForErrorMatchPattern((BLangErrorMatchPattern) matchPattern, matchExprVarRef);
-            default:
-                // If some patterns are not implemented, those should be detected before this phase
-                // TODO : Remove this after all patterns are implemented
-                return null;
-        }
+        return switch (patternKind) {
+            case WILDCARD_MATCH_PATTERN ->
+                    createConditionForWildCardMatchPattern((BLangWildCardMatchPattern) matchPattern,
+                            matchExprVarRef);
+            case CONST_MATCH_PATTERN ->
+                    createConditionForConstMatchPattern((BLangConstPattern) matchPattern, matchExprVarRef);
+            case VAR_BINDING_PATTERN_MATCH_PATTERN -> createConditionForVarBindingPatternMatchPattern(
+                    (BLangVarBindingPatternMatchPattern) matchPattern, matchExprVarRef);
+            case LIST_MATCH_PATTERN ->
+                    createConditionForListMatchPattern((BLangListMatchPattern) matchPattern, matchExprVarRef);
+            case MAPPING_MATCH_PATTERN ->
+                    createConditionForMappingMatchPattern((BLangMappingMatchPattern) matchPattern, matchExprVarRef);
+            case ERROR_MATCH_PATTERN ->
+                    createConditionForErrorMatchPattern((BLangErrorMatchPattern) matchPattern, matchExprVarRef);
+            // If some patterns are not implemented, those should be detected before this phase
+            // TODO : Remove this after all patterns are implemented
+            default -> null;
+        };
     }
 
     private BLangExpression createConditionForWildCardMatchPattern(BLangWildCardMatchPattern wildCardMatchPattern,
@@ -3864,23 +3863,22 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression createVarCheckCondition(BLangBindingPattern bindingPattern, BLangSimpleVarRef varRef) {
         NodeKind bindingPatternKind = bindingPattern.getKind();
-        switch (bindingPatternKind) {
-            case WILDCARD_BINDING_PATTERN:
-                return createConditionForWildCardBindingPattern((BLangWildCardBindingPattern) bindingPattern, varRef);
-            case CAPTURE_BINDING_PATTERN:
-                return createConditionForCaptureBindingPattern((BLangCaptureBindingPattern) bindingPattern, varRef);
-            case LIST_BINDING_PATTERN:
-                return createVarCheckConditionForListBindingPattern((BLangListBindingPattern) bindingPattern, varRef);
-            case MAPPING_BINDING_PATTERN:
-                return createVarCheckConditionForMappingBindingPattern((BLangMappingBindingPattern) bindingPattern,
-                        varRef);
-            case ERROR_BINDING_PATTERN:
-                return createConditionForErrorBindingPattern((BLangErrorBindingPattern) bindingPattern, varRef);
-            default:
-                // If some patterns are not implemented, those should be detected before this phase
-                // TODO : Remove this after all patterns are implemented
-                return null;
-        }
+        return switch (bindingPatternKind) {
+            case WILDCARD_BINDING_PATTERN ->
+                    createConditionForWildCardBindingPattern((BLangWildCardBindingPattern) bindingPattern, varRef);
+            case CAPTURE_BINDING_PATTERN ->
+                    createConditionForCaptureBindingPattern((BLangCaptureBindingPattern) bindingPattern, varRef);
+            case LIST_BINDING_PATTERN ->
+                    createVarCheckConditionForListBindingPattern((BLangListBindingPattern) bindingPattern, varRef);
+            case MAPPING_BINDING_PATTERN ->
+                    createVarCheckConditionForMappingBindingPattern((BLangMappingBindingPattern) bindingPattern,
+                            varRef);
+            case ERROR_BINDING_PATTERN ->
+                    createConditionForErrorBindingPattern((BLangErrorBindingPattern) bindingPattern, varRef);
+            // If some patterns are not implemented, those should be detected before this phase
+            // TODO : Remove this after all patterns are implemented
+            default -> null;
+        };
     }
 
     private BLangExpression createVarCheckConditionForListBindingPattern(BLangListBindingPattern listBindingPattern,
@@ -3955,26 +3953,25 @@ public class Desugar extends BLangNodeVisitor {
         BLangBindingPattern bindingPattern = varBindingPatternMatchPattern.getBindingPattern();
         Location pos = bindingPattern.pos;
 
-        switch (bindingPattern.getKind()) {
-            case WILDCARD_BINDING_PATTERN:
-                return createConditionForWildCardBindingPattern((BLangWildCardBindingPattern) bindingPattern,
-                        matchExprVarRef);
-            case CAPTURE_BINDING_PATTERN:
-                return createConditionForCaptureBindingPattern((BLangCaptureBindingPattern) bindingPattern,
-                        matchExprVarRef, pos);
-            case LIST_BINDING_PATTERN:
-                return createConditionForListBindingPattern((BLangListBindingPattern) bindingPattern, matchExprVarRef);
-            case MAPPING_BINDING_PATTERN:
-                return createConditionForMappingBindingPattern((BLangMappingBindingPattern) bindingPattern,
-                        matchExprVarRef);
-            case ERROR_BINDING_PATTERN:
-                return createConditionForErrorBindingPattern((BLangErrorBindingPattern) bindingPattern,
-                        matchExprVarRef);
-            default:
-                // If some patterns are not implemented, those should be detected before this phase
-                // TODO : Remove this after all patterns are implemented
-                return null;
-        }
+        return switch (bindingPattern.getKind()) {
+            case WILDCARD_BINDING_PATTERN ->
+                    createConditionForWildCardBindingPattern((BLangWildCardBindingPattern) bindingPattern,
+                            matchExprVarRef);
+            case CAPTURE_BINDING_PATTERN ->
+                    createConditionForCaptureBindingPattern((BLangCaptureBindingPattern) bindingPattern,
+                            matchExprVarRef, pos);
+            case LIST_BINDING_PATTERN ->
+                    createConditionForListBindingPattern((BLangListBindingPattern) bindingPattern, matchExprVarRef);
+            case MAPPING_BINDING_PATTERN ->
+                    createConditionForMappingBindingPattern((BLangMappingBindingPattern) bindingPattern,
+                            matchExprVarRef);
+            case ERROR_BINDING_PATTERN ->
+                    createConditionForErrorBindingPattern((BLangErrorBindingPattern) bindingPattern,
+                            matchExprVarRef);
+            // If some patterns are not implemented, those should be detected before this phase
+            // TODO : Remove this after all patterns are implemented
+            default -> null;
+        };
     }
 
     private BLangExpression createConditionForCaptureBindingPattern(BLangCaptureBindingPattern captureBindingPattern,
@@ -4374,8 +4371,8 @@ public class Desugar extends BLangNodeVisitor {
     private List<String> getKeysToRemove(BLangMappingBindingPattern mappingBindingPattern) {
         List<String> keysToRemove = new ArrayList<>();
         List<BLangFieldBindingPattern> fieldBindingPatterns = mappingBindingPattern.fieldBindingPatterns;
-        for (int i = 0; i < fieldBindingPatterns.size(); i++) {
-            keysToRemove.add(fieldBindingPatterns.get(i).fieldName.value);
+        for (BLangFieldBindingPattern fieldBindingPattern : fieldBindingPatterns) {
+            keysToRemove.add(fieldBindingPattern.fieldName.value);
         }
         return keysToRemove;
     }
@@ -4449,25 +4446,23 @@ public class Desugar extends BLangNodeVisitor {
     private BLangExpression createVarCheckCondition(BLangMatchPattern matchPattern, BLangSimpleVarRef varRef) {
 
         NodeKind patternKind = matchPattern.getKind();
-        switch (patternKind) {
-            case WILDCARD_MATCH_PATTERN:
-                return createConditionForWildCardMatchPattern((BLangWildCardMatchPattern) matchPattern, varRef);
-            case CONST_MATCH_PATTERN:
-                return createConditionForConstMatchPattern((BLangConstPattern) matchPattern, varRef);
-            case VAR_BINDING_PATTERN_MATCH_PATTERN:
-                return createVarCheckCondition(((BLangVarBindingPatternMatchPattern) matchPattern).getBindingPattern(),
-                        varRef);
-            case LIST_MATCH_PATTERN:
-                return createVarCheckConditionForListMatchPattern((BLangListMatchPattern) matchPattern, varRef);
-            case MAPPING_MATCH_PATTERN:
-                return createVarCheckConditionForMappingMatchPattern((BLangMappingMatchPattern) matchPattern, varRef);
-            case ERROR_MATCH_PATTERN:
-                return createConditionForErrorMatchPattern((BLangErrorMatchPattern) matchPattern, varRef);
-            default:
-                // If some patterns are not implemented, those should be detected before this phase
-                // TODO : Remove this after all patterns are implemented
-                return null;
-        }
+        return switch (patternKind) {
+            case WILDCARD_MATCH_PATTERN ->
+                    createConditionForWildCardMatchPattern((BLangWildCardMatchPattern) matchPattern, varRef);
+            case CONST_MATCH_PATTERN -> createConditionForConstMatchPattern((BLangConstPattern) matchPattern, varRef);
+            case VAR_BINDING_PATTERN_MATCH_PATTERN ->
+                    createVarCheckCondition(((BLangVarBindingPatternMatchPattern) matchPattern).getBindingPattern(),
+                            varRef);
+            case LIST_MATCH_PATTERN ->
+                    createVarCheckConditionForListMatchPattern((BLangListMatchPattern) matchPattern, varRef);
+            case MAPPING_MATCH_PATTERN ->
+                    createVarCheckConditionForMappingMatchPattern((BLangMappingMatchPattern) matchPattern, varRef);
+            case ERROR_MATCH_PATTERN ->
+                    createConditionForErrorMatchPattern((BLangErrorMatchPattern) matchPattern, varRef);
+            // If some patterns are not implemented, those should be detected before this phase
+            // TODO : Remove this after all patterns are implemented
+            default -> null;
+        };
     }
 
     private BLangExpression createVarCheckConditionForMappingBindingPattern(BLangMappingBindingPattern
@@ -6190,9 +6185,12 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void generateFieldsForUserUnspecifiedRecordFields(BLangRecordLiteral recordLiteral,
-                                                              List<RecordLiteralNode.RecordField> userSpecifiedFields) {
+                                                             List<RecordLiteralNode.RecordField> userSpecifiedFields) {
         BType type = Types.getImpliedType(recordLiteral.getBType());
-        if (type.getKind() != TypeKind.RECORD) {
+        // If we are spreading an open record at compile time we can't determine which fields may be missing. Instead,
+        // {@code MapValueImpl.populateInitialValues} should fill in any missing fields by calling the default
+        // closures.
+        if (type.getKind() != TypeKind.RECORD || isSpreadingAnOpenRecord(userSpecifiedFields)) {
             return;
         }
         List<String> fieldNames = getNamesOfUserSpecifiedRecordFields(userSpecifiedFields);
@@ -6200,6 +6198,23 @@ public class Desugar extends BLangNodeVisitor {
         BRecordType recordType = (BRecordType) type;
         boolean isReadonly = Symbols.isFlagOn(recordType.flags, Flags.READONLY);
         generateFieldsForUserUnspecifiedRecordFields(recordType, userSpecifiedFields, fieldNames, pos, isReadonly);
+    }
+
+    private boolean isSpreadingAnOpenRecord(List<RecordLiteralNode.RecordField> userSpecifiedFields) {
+        for (RecordLiteralNode.RecordField field : userSpecifiedFields) {
+            if (!(field instanceof BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField)) {
+                continue;
+            }
+            BType type = Types.getReferredType(spreadOperatorField.expr.getBType());
+            if (!(type instanceof BRecordType recordType)) {
+                return true;
+            }
+            if (recordType.restFieldType != null &&
+                    !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(recordType.restFieldType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void generateFieldsForUserUnspecifiedRecordFields(BRecordType recordType,
@@ -8134,13 +8149,13 @@ public class Desugar extends BLangNodeVisitor {
             varNode.symbol.kind = SymbolKind.FUNCTION;
             varNode.symbol.owner = invokableEnv.scope.owner;
             enclScope.define(varNode.symbol.name, varNode.symbol);
-        }).map(varNode -> varNode.symbol).collect(Collectors.toList());
+        }).map(varNode -> varNode.symbol).toList();
 
         funcSymbol.params = paramSymbols;
         funcSymbol.restParam = getRestSymbol(funcNode);
         funcSymbol.retType = funcNode.returnTypeNode.getBType();
         // Create function type.
-        List<BType> paramTypes = paramSymbols.stream().map(paramSym -> paramSym.type).collect(Collectors.toList());
+        List<BType> paramTypes = new ArrayList<>(paramSymbols.stream().map(paramSym -> paramSym.type).toList());
         funcNode.setBType(new BInvokableType(paramTypes, getRestType(funcSymbol), funcNode.returnTypeNode.getBType(),
                           funcSymbol.type.tsymbol));
 
@@ -8443,7 +8458,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
         workerFlushExpr.workerIdentifierList = workerFlushExpr.cachedWorkerSendStmts
-                .stream().map(send -> send.workerIdentifier).distinct().collect(Collectors.toList());
+                .stream().map(send -> send.workerIdentifier).distinct().toList();
         result = workerFlushExpr;
     }
 
@@ -8825,7 +8840,7 @@ public class Desugar extends BLangNodeVisitor {
         return nameBXMLNSSymbolMap.keySet().stream()
                 .map(key -> this.stmtsToBePropagatedToQuery.get(key))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -10055,13 +10070,13 @@ public class Desugar extends BLangNodeVisitor {
         handleSafeNavigation(blockStmt, accessExpr, accessExpr.getBType(), tempResultVar);
 
         // Create a statement-expression including the match statement
-        BLangMatchStatement matchStmt = this.matchStmtStack.firstElement();
+        BLangMatchStatement matchStmt = this.matchStmtStack.getLast();
         blockStmt.stmts.add(matchStmt);
         BLangStatementExpression stmtExpression = createStatementExpression(blockStmt, tempResultVarRef);
         stmtExpression.setBType(originalExprType);
         // Reset the variables
-        this.matchStmtStack = new Stack<>();
-        this.accessExprStack = new Stack<>();
+        this.matchStmtStack = new ArrayDeque<>();
+        this.accessExprStack = new ArrayDeque<>();
         this.successClause = null;
         this.safeNavigationAssignment = null;
         return stmtExpression;
@@ -10347,15 +10362,12 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangValueExpression cloneExpression(BLangExpression expr) {
-        switch (expr.getKind()) {
-            case SIMPLE_VARIABLE_REF:
-                return ASTBuilderUtil.createVariableRef(expr.pos, ((BLangSimpleVarRef) expr).symbol);
-            case FIELD_BASED_ACCESS_EXPR:
-            case INDEX_BASED_ACCESS_EXPR:
-                return cloneAccessExpr((BLangAccessExpression) expr);
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (expr.getKind()) {
+            case SIMPLE_VARIABLE_REF -> ASTBuilderUtil.createVariableRef(expr.pos, ((BLangSimpleVarRef) expr).symbol);
+            case FIELD_BASED_ACCESS_EXPR,
+                 INDEX_BASED_ACCESS_EXPR -> cloneAccessExpr((BLangAccessExpression) expr);
+            default -> throw new IllegalStateException();
+        };
     }
 
     private BLangAccessExpression cloneAccessExpr(BLangAccessExpression originalAccessExpr) {
@@ -10372,19 +10384,13 @@ public class Desugar extends BLangNodeVisitor {
         }
         varRef.setBType(types.getSafeType(originalAccessExpr.expr.getBType(), true, false));
 
-        BLangAccessExpression accessExpr;
-        switch (originalAccessExpr.getKind()) {
-            case FIELD_BASED_ACCESS_EXPR:
-                accessExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
-                        ((BLangFieldBasedAccess) originalAccessExpr).field);
-                break;
-            case INDEX_BASED_ACCESS_EXPR:
-                accessExpr = ASTBuilderUtil.createIndexAccessExpr(varRef,
-                        ((BLangIndexBasedAccess) originalAccessExpr).indexExpr);
-                break;
-            default:
-                throw new IllegalStateException();
-        }
+        BLangAccessExpression accessExpr = switch (originalAccessExpr.getKind()) {
+            case FIELD_BASED_ACCESS_EXPR -> ASTBuilderUtil.createFieldAccessExpr(varRef,
+                    ((BLangFieldBasedAccess) originalAccessExpr).field);
+            case INDEX_BASED_ACCESS_EXPR -> ASTBuilderUtil.createIndexAccessExpr(varRef,
+                    ((BLangIndexBasedAccess) originalAccessExpr).indexExpr);
+            default -> throw new IllegalStateException();
+        };
 
         accessExpr.originalType = originalAccessExpr.originalType;
         accessExpr.pos = originalAccessExpr.pos;
@@ -10509,18 +10515,15 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     protected boolean isMappingOrObjectConstructorOrObjInit(BLangExpression expression) {
-        switch (expression.getKind()) {
-            case TYPE_INIT_EXPR:
-            case RECORD_LITERAL_EXPR:
-            case OBJECT_CTOR_EXPRESSION:
-                return true;
-            case CHECK_EXPR:
-                return isMappingOrObjectConstructorOrObjInit(((BLangCheckedExpr) expression).expr);
-            case TYPE_CONVERSION_EXPR:
-                return isMappingOrObjectConstructorOrObjInit(((BLangTypeConversionExpr) expression).expr);
-            default:
-                return false;
-        }
+        return switch (expression.getKind()) {
+            case TYPE_INIT_EXPR,
+                 RECORD_LITERAL_EXPR,
+                 OBJECT_CTOR_EXPRESSION -> true;
+            case CHECK_EXPR -> isMappingOrObjectConstructorOrObjInit(((BLangCheckedExpr) expression).expr);
+            case TYPE_CONVERSION_EXPR ->
+                    isMappingOrObjectConstructorOrObjInit(((BLangTypeConversionExpr) expression).expr);
+            default -> false;
+        };
     }
 
     private BType getRestType(BInvokableSymbol invokableSymbol) {

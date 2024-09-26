@@ -270,23 +270,19 @@ public class TypeParamAnalyzer {
         BType referredType = Types.getImpliedType(type);
         int tag = referredType.tag;
         // Handle built-in types.
-        switch (tag) {
-            case TypeTags.INT:
-            case TypeTags.BYTE:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.STRING:
-            case TypeTags.BOOLEAN:
-                return new BType(tag, null, name, flags);
-            case TypeTags.ANY:
-                return new BAnyType(tag, null, name, flags);
-            case TypeTags.ANYDATA:
-                return createAnydataType((BUnionType) referredType, name, flags);
-            case TypeTags.READONLY:
-                return new BReadonlyType(tag, null, name, flags);
-        }
-        // For others, we will use TSymbol.
-        return type;
+        return switch (tag) {
+            case TypeTags.INT,
+                 TypeTags.BYTE,
+                 TypeTags.FLOAT,
+                 TypeTags.DECIMAL,
+                 TypeTags.STRING,
+                 TypeTags.BOOLEAN -> new BType(tag, null, name, flags);
+            case TypeTags.ANY -> new BAnyType(tag, null, name, flags);
+            case TypeTags.ANYDATA -> createAnydataType((BUnionType) referredType, name, flags);
+            case TypeTags.READONLY -> new BReadonlyType(tag, null, name, flags);
+            // For others, we will use TSymbol.
+            default -> type;
+        };
     }
 
     private BType createTypeParamType(BSymbol symbol, BType type, Name name, long flags) {
@@ -1112,8 +1108,7 @@ public class TypeParamAnalyzer {
 
     private BAttachedFunction duplicateAttachFunc(BAttachedFunction expFunc, BInvokableType matchType,
                                                   BInvokableSymbol invokableSymbol) {
-        if (expFunc instanceof BResourceFunction) {
-            BResourceFunction resourceFunction = (BResourceFunction) expFunc;
+        if (expFunc instanceof BResourceFunction resourceFunction) {
             BResourceFunction newResourceFunc = new BResourceFunction(resourceFunction.funcName, invokableSymbol,
                     matchType, resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
                     expFunc.pos);

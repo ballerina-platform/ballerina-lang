@@ -136,12 +136,14 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return {@link FutureValue} reference to the given function pointer invocation.
      */
-    public FutureValue scheduleFunction(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
+    public FutureValue scheduleFunction(Object[] params,
+                                        BFunctionPointer<Object[], Object> fp, Strand parent, Type returnType,
                                         String strandName, StrandMetadata metadata) {
         return schedule(params, fp.getFunction(), parent, null, null, returnType, strandName, metadata);
     }
 
-    public FutureValue scheduleFunction(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
+    public FutureValue scheduleFunction(Object[] params,
+                                        BFunctionPointer<Object[], Object> fp, Strand parent, Type returnType,
                                         String strandName, StrandMetadata metadata , Callback callback) {
         return schedule(params, fp.getFunction(), parent, callback, null, returnType, strandName, metadata);
     }
@@ -157,13 +159,14 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return {@link FutureValue} reference to the given function invocation.
      */
-    public FutureValue scheduleLocal(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
+    public FutureValue scheduleLocal(Object[] params, BFunctionPointer<Object[], ?> fp, Strand parent, Type returnType,
                                      String strandName, StrandMetadata metadata) {
         FutureValue future = createFuture(parent, null, null, returnType, strandName, metadata);
         return scheduleLocal(params, fp, parent, future);
     }
 
-    public FutureValue scheduleLocal(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, FutureValue future) {
+    public FutureValue scheduleLocal(Object[] params, BFunctionPointer<Object[], ?> fp,
+                                     Strand parent, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(fp.getFunction(), params, future);
         future.strand.schedulerItem = item;
@@ -173,14 +176,15 @@ public class Scheduler {
         return future;
     }
 
-    public FutureValue scheduleToObjectGroup(Object[] params, Function function, Strand parent,
+    public FutureValue scheduleToObjectGroup(Object[] params, Function<Object[], ?> function, Strand parent,
                                              Callback callback, Map<String, Object> properties, Type returnType,
                                              String strandName, StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
         return scheduleToObjectGroup(params, function, future);
     }
 
-    public FutureValue scheduleToObjectGroup(Object[] params, Function function, FutureValue future) {
+    public FutureValue scheduleToObjectGroup(Object[] params, Function<Object[], ?> function,
+                                             FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
@@ -204,7 +208,7 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return Reference to the scheduled task
      */
-    public FutureValue schedule(Object[] params, Function function, Strand parent, Callback callback,
+    public FutureValue schedule(Object[] params, Function<Object[], ?> function, Strand parent, Callback callback,
                                 Map<String, Object> properties, Type returnType, String strandName,
                                 StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
@@ -222,13 +226,13 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return Reference to the scheduled task
      */
-    public FutureValue schedule(Object[] params, Function function, Strand parent, Callback callback,
+    public FutureValue schedule(Object[] params, Function<Object[], ?> function, Strand parent, Callback callback,
                                 String strandName, StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, null, PredefinedTypes.TYPE_NULL, strandName, metadata);
         return schedule(params, function, future);
     }
 
-    public FutureValue schedule(Object[] params, Function function, FutureValue future) {
+    public FutureValue schedule(Object[] params, Function<Object[], ?> function, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
@@ -252,7 +256,7 @@ public class Scheduler {
      * @return Reference to the scheduled task
      */
     @Deprecated
-    public FutureValue schedule(Object[] params, Consumer consumer, Strand parent, Callback callback,
+    public FutureValue schedule(Object[] params, Consumer<Object[]> consumer, Strand parent, Callback callback,
                                 String strandName, StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, null, PredefinedTypes.TYPE_NULL, strandName, metadata);
         params[0] = future.strand;
@@ -335,7 +339,7 @@ public class Scheduler {
                 }
                 postProcess(item, result, panic);
                 group.lock();
-                if ((isItemsEmpty = group.items.empty())) {
+                if ((isItemsEmpty = group.items.isEmpty())) {
                     group.scheduled.set(false);
                 }
                 group.unlock();

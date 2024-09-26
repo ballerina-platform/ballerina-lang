@@ -50,18 +50,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Utility methods to help with testing BIR model.
  */
-class BIRTestUtils {
+final class BIRTestUtils {
 
     private static final String TEST_RESOURCES_ROOT = "src/test/resources/test-src";
     private static final Path TEST_RESOURCES_ROOT_PATH = Paths.get(TEST_RESOURCES_ROOT);
 
     private static final String LANG_LIB_TEST_SRC_ROOT = "../../langlib/langlib-test/src/test/resources/test-src";
     private static final Path LANG_LIB_TEST_ROOT_PATH = Paths.get(LANG_LIB_TEST_SRC_ROOT);
+
+    private BIRTestUtils() {
+    }
 
     @DataProvider(name = "createTestSources")
     public static Object[][] createTestDataProvider() throws IOException {
@@ -79,11 +82,12 @@ class BIRTestUtils {
     }
 
     private static List<String> findBallerinaSourceFiles(Path testSourcesPath) throws IOException {
-        return Files.walk(testSourcesPath)
-                .filter(file -> Files.isRegularFile(file))
-                .map(file -> file.toAbsolutePath().normalize().toString())
-                .filter(file -> file.endsWith(".bal") && !file.contains("negative") && !file.contains("subtype"))
-                .collect(Collectors.toList());
+        try (Stream<Path> paths = Files.walk(testSourcesPath)) {
+            return paths.filter(file -> Files.isRegularFile(file))
+                    .map(file -> file.toAbsolutePath().normalize().toString())
+                    .filter(file -> file.endsWith(".bal") && !file.contains("negative") && !file.contains("subtype"))
+                    .toList();
+        }
     }
 
     static void validateBIRSpec(String testSource) {
@@ -649,13 +653,11 @@ class BIRTestUtils {
         assertFlags(typeInfo.typeFlag(), expectedValue.flags);
         KaitaiStruct typeStructure = typeInfo.typeStructure();
 
-        if (typeStructure instanceof Bir.TypeObjectOrService) {
-            Bir.TypeObjectOrService objectOrService = (Bir.TypeObjectOrService) typeStructure;
+        if (typeStructure instanceof Bir.TypeObjectOrService objectOrService) {
             BTypeIdSet expTypeIdSet = ((BObjectType) expectedValue.tsymbol.type).typeIdSet;
             Bir.TypeId actualTypeIdSet = objectOrService.typeIds();
             assertDistinctTypeIds(expTypeIdSet, actualTypeIdSet, constantPoolEntry._parent());
-        } else if (typeStructure instanceof Bir.TypeError) {
-            Bir.TypeError errorType = (Bir.TypeError) typeStructure;
+        } else if (typeStructure instanceof Bir.TypeError errorType) {
             BTypeIdSet expTypeIdSet = ((BErrorType) expectedValue.tsymbol.type).typeIdSet;
             Bir.TypeId actualTypeIdSet = errorType.typeIds();
             assertDistinctTypeIds(expTypeIdSet, actualTypeIdSet, constantPoolEntry._parent());
@@ -668,14 +670,12 @@ class BIRTestUtils {
         Assert.assertEquals(actualTypeIdSet.secondaryTypeIdCount(), expTypeIdSet.getSecondary().size());
 
         ArrayList<Bir.TypeIdSet> primaryTypeId = actualTypeIdSet.primaryTypeId();
-        for (int i = 0; i < primaryTypeId.size(); i++) {
-            Bir.TypeIdSet typeId = primaryTypeId.get(i);
+        for (Bir.TypeIdSet typeId : primaryTypeId) {
             Assert.assertTrue(containsTypeId(typeId, expTypeIdSet.getPrimary(), constantPoolSet));
         }
 
         ArrayList<Bir.TypeIdSet> secondaryTypeId = actualTypeIdSet.secondaryTypeId();
-        for (int i = 0; i < secondaryTypeId.size(); i++) {
-            Bir.TypeIdSet typeId = secondaryTypeId.get(i);
+        for (Bir.TypeIdSet typeId : secondaryTypeId) {
             Assert.assertTrue(containsTypeId(typeId, expTypeIdSet.getSecondary(), constantPoolSet));
         }
     }

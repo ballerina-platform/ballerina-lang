@@ -37,7 +37,6 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
@@ -99,7 +98,7 @@ public class TestSourcesTest {
                     String moduleName = sym.getModule().get().id().moduleName();
                     return moduleName.equals("semapi.baz") || !moduleName.startsWith("lang.");
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         assertEquals(symbols.size(), expSymbols.size());
         assertList(symbols, expSymbols);

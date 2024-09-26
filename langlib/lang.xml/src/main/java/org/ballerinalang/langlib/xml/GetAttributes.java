@@ -35,7 +35,10 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
 //        returnType = {@ReturnType(type = TypeKind.MAP)},
 //        isPublic = true
 //)
-public class GetAttributes {
+public final class GetAttributes {
+
+    private GetAttributes() {
+    }
 
     @SuppressWarnings("unchecked")
     public static BMap<BString, BString> getAttributes(BXml xmlVal) {

@@ -67,7 +67,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Common utils that are reused within test suits.
  */
-public class TestUtil {
+public final class TestUtil {
 
     private static final String CODE_ACTION = "textDocument/codeAction";
 
@@ -91,7 +91,7 @@ public class TestUtil {
                                                CodeActionContext context) {
         TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
         CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
-        CompletableFuture result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
+        CompletableFuture<?> result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
         return getResponseString(result);
     }
 
@@ -182,7 +182,7 @@ public class TestUtil {
         return identifier;
     }
 
-    public static String getResponseString(CompletableFuture completableFuture) {
+    public static String getResponseString(CompletableFuture<?> completableFuture) {
         ResponseMessage jsonrpcResponse = new ResponseMessage();
         try {
             jsonrpcResponse.setId("324");

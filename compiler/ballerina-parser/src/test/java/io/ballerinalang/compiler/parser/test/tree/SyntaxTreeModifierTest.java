@@ -223,18 +223,13 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
 
             Token newOperator;
             Token oldOperator = binaryExprNode.operator();
-            switch (oldOperator.kind()) {
-                case PLUS_TOKEN:
-                    newOperator = NodeFactory.createToken(SyntaxKind.MINUS_TOKEN, oldOperator.leadingMinutiae(),
-                            oldOperator.trailingMinutiae());
-                    break;
-                case ASTERISK_TOKEN:
-                    newOperator = NodeFactory.createToken(SyntaxKind.SLASH_TOKEN, oldOperator.leadingMinutiae(),
-                            oldOperator.trailingMinutiae());
-                    break;
-                default:
-                    newOperator = oldOperator;
-            }
+            newOperator = switch (oldOperator.kind()) {
+                case PLUS_TOKEN -> NodeFactory.createToken(SyntaxKind.MINUS_TOKEN, oldOperator.leadingMinutiae(),
+                        oldOperator.trailingMinutiae());
+                case ASTERISK_TOKEN -> NodeFactory.createToken(SyntaxKind.SLASH_TOKEN, oldOperator.leadingMinutiae(),
+                        oldOperator.trailingMinutiae());
+                default -> oldOperator;
+            };
 
             return binaryExprNode.modify().withOperator(newOperator).withLhsExpr(newLHSExpr).withRhsExpr(newRHSExpr)
                     .apply();

@@ -44,6 +44,7 @@ public class BStringTableValueTest extends BStringTestCommons {
         testAndAssert("testTableWithArrayGeneration", 55);
     }
 
+    @Override
     @AfterClass
     public void tearDown() {
         result = null;

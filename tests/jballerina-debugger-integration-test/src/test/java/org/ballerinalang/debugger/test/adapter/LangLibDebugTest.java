@@ -43,6 +43,7 @@ public class LangLibDebugTest extends BaseTestCase {
 
     private DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "langlib-debug-tests";
@@ -103,6 +104,7 @@ public class LangLibDebugTest extends BaseTestCase {
         }
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

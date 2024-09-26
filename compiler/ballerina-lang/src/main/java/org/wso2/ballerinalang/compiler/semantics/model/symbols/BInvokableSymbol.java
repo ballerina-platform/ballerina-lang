@@ -93,8 +93,8 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
 
     @Override
     public BInvokableType getType() {
-        if (type instanceof BInvokableType) {
-            return (BInvokableType) type;
+        if (type instanceof BInvokableType bInvokableType) {
+            return bInvokableType;
         }
         // Should never come here, this is to please the spotbugs
         throw new BLangCompilerException("Invokable symbol with non invokable type : " + type);

@@ -57,7 +57,7 @@ public class ObjectFunctionsWithDefaultableArguments {
         Assert.assertEquals(bValueArray.getRefValue(2), 100L);
         Assert.assertEquals(bValueArray.getRefValue(3), 1.1);
 
-        BMap<String, Object> record = (BMap) bValueArray.getRefValue(4);
+        BMap<String, Object> record = (BMap<String, Object>) bValueArray.getRefValue(4);
         Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "default");
         Assert.assertEquals(record.get(StringUtils.fromString("b")), 50L);
         Assert.assertFalse((Boolean) record.get(StringUtils.fromString("c")));
@@ -73,7 +73,7 @@ public class ObjectFunctionsWithDefaultableArguments {
         Assert.assertEquals(bValueArray.getRefValue(2), 99L);
         Assert.assertEquals(bValueArray.getRefValue(3), 1.1);
 
-        record = (BMap) bValueArray.getRefValue(4);
+        record = (BMap<String, Object>) bValueArray.getRefValue(4);
         Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "given2");
         Assert.assertEquals(record.get(StringUtils.fromString("b")), 49L);
         Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
@@ -96,7 +96,7 @@ public class ObjectFunctionsWithDefaultableArguments {
         Assert.assertEquals(bValueArray.getRefValue(1).toString(), "defdefault");
         Assert.assertEquals(bValueArray.getRefValue(2), 101.1);
 
-        BMap<String, Object> record = (BMap) bValueArray.getRefValue(3);
+        BMap<String, Object> record = (BMap<String, Object>) bValueArray.getRefValue(3);
         Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "default2");
         Assert.assertEquals(record.get(StringUtils.fromString("b")), 150L);
         Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
@@ -107,7 +107,7 @@ public class ObjectFunctionsWithDefaultableArguments {
         Assert.assertEquals(bValueArray.getRefValue(1).toString(), "defdefault");
         Assert.assertEquals(bValueArray.getRefValue(2), 101.1);
 
-        record = (BMap) bValueArray.getRefValue(3);
+        record = (BMap<String, Object>) bValueArray.getRefValue(3);
         Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "given");
         Assert.assertEquals(record.get(StringUtils.fromString("b")), 49L);
         Assert.assertFalse((Boolean) record.get(StringUtils.fromString("c")));
@@ -125,7 +125,7 @@ public class ObjectFunctionsWithDefaultableArguments {
         Assert.assertEquals(bValueArray.getRefValue(0).toString(), "global");
         Assert.assertEquals(bValueArray.getRefValue(1), 200L);
 
-        BMap<String, Object> record = (BMap) bValueArray.getRefValue(2);
+        BMap<String, Object> record = (BMap<String, Object>) bValueArray.getRefValue(2);
         Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "default");
         Assert.assertEquals(record.get(StringUtils.fromString("b")), 50L);
         Assert.assertFalse((Boolean) record.get(StringUtils.fromString("c")));
@@ -135,7 +135,7 @@ public class ObjectFunctionsWithDefaultableArguments {
         Assert.assertEquals(bValueArray.getRefValue(0).toString(), "given");
         Assert.assertEquals(bValueArray.getRefValue(1), 200L);
 
-        record = (BMap) bValueArray.getRefValue(2);
+        record = (BMap<String, Object>) bValueArray.getRefValue(2);
         Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "given2");
         Assert.assertEquals(record.get(StringUtils.fromString("b")), 140L);
         Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
@@ -153,7 +153,7 @@ public class ObjectFunctionsWithDefaultableArguments {
         Assert.assertEquals(bValueArray.getRefValue(1).toString(), "defdefaultglobal");
         Assert.assertEquals(bValueArray.getRefValue(2), 101.1);
 
-        BMap<String, Object> record = (BMap) bValueArray.getRefValue(3);
+        BMap<String, Object> record = (BMap<String, Object>) bValueArray.getRefValue(3);
         Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "default2");
         Assert.assertEquals(record.get(StringUtils.fromString("b")), 150L);
         Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
@@ -164,7 +164,7 @@ public class ObjectFunctionsWithDefaultableArguments {
         Assert.assertEquals(bValueArray.getRefValue(1).toString(), "given");
         Assert.assertEquals(bValueArray.getRefValue(2), 101.1);
 
-        record = (BMap) bValueArray.getRefValue(3);
+        record = (BMap<String, Object>) bValueArray.getRefValue(3);
         Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "given2");
         Assert.assertEquals(record.get(StringUtils.fromString("b")), 140L);
         Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
@@ -181,7 +181,7 @@ public class ObjectFunctionsWithDefaultableArguments {
         Assert.assertEquals(bValueArray.getRefValue(0).toString(), "global");
         Assert.assertEquals(bValueArray.getRefValue(1), 200L);
 
-        BMap<String, Object> record = (BMap) bValueArray.getRefValue(2);
+        BMap<String, Object> record = (BMap<String, Object>) bValueArray.getRefValue(2);
         Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "default");
         Assert.assertEquals(record.get(StringUtils.fromString("b")), 50L);
         Assert.assertFalse((Boolean) record.get(StringUtils.fromString("c")));
@@ -191,7 +191,7 @@ public class ObjectFunctionsWithDefaultableArguments {
         Assert.assertEquals(bValueArray.getRefValue(0).toString(), "given");
         Assert.assertEquals(bValueArray.getRefValue(1), 200L);
 
-        record = (BMap) bValueArray.getRefValue(2);
+        record = (BMap<String, Object>) bValueArray.getRefValue(2);
         Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "given2");
         Assert.assertEquals(record.get(StringUtils.fromString("b")), 140L);
         Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
@@ -209,7 +209,7 @@ public class ObjectFunctionsWithDefaultableArguments {
         Assert.assertEquals(bValueArray.getRefValue(1).toString(), "defdefaultglobal");
         Assert.assertEquals(bValueArray.getRefValue(2), 101.1);
 
-        BMap<String, Object> record = (BMap) bValueArray.getRefValue(3);
+        BMap<String, Object> record = (BMap<String, Object>) bValueArray.getRefValue(3);
         Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "default2");
         Assert.assertEquals((record.get(StringUtils.fromString("b"))), 150L);
         Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
@@ -220,7 +220,7 @@ public class ObjectFunctionsWithDefaultableArguments {
         Assert.assertEquals(bValueArray.getRefValue(1).toString(), "given");
         Assert.assertEquals(bValueArray.getRefValue(2), 101.1);
 
-        record = (BMap) bValueArray.getRefValue(3);
+        record = (BMap<String, Object>) bValueArray.getRefValue(3);
         Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "given2");
         Assert.assertEquals(record.get(StringUtils.fromString("b")), 140L);
         Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
