@@ -17,9 +17,13 @@
  */
 package org.ballerinalang.test.runtime;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.runtime.api.utils.JsonUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.values.BmpStringValue;
 import org.ballerinalang.test.runtime.entity.MockFunctionReplaceVisitor;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
@@ -108,13 +112,12 @@ public class BTestMain {
                 } else {
                     br = Files.newBufferedReader(testSuiteJsonPath, StandardCharsets.UTF_8);
                 }
-                Gson gson = new Gson();
-                Map<String, TestSuite> testSuiteMap = gson.fromJson(br,
-                        new TypeToken<Map<String, TestSuite>>() { }.getType());
+                Object jsonObj = JsonUtils.parse(br, JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
+                BMap<BString, Object> testSuiteMap = (BMap<BString, Object>)jsonObj;
                 if (!testSuiteMap.isEmpty()) {
-                    for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
-                        String moduleName = entry.getKey();
-                        TestSuite testSuite = entry.getValue();
+                    for (Map.Entry<BString, Object> entry : testSuiteMap.entrySet()) {
+                        String moduleName = entry.getKey().toString();
+                        TestSuite testSuite = testSuiteGenerator((BMap<BString, Object>) entry.getValue());
                         String packageName = testSuite.getPackageName();
                         out.println("\n\t" + (moduleName.equals(packageName) ?
                                 (moduleName.equals(TesterinaConstants.DOT) ? testSuite.getSourceFileName() : moduleName)
@@ -176,9 +179,7 @@ public class BTestMain {
         }
         try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
             try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
-                Gson gson = new Gson();
-                String json = gson.toJson(moduleStatus);
-                writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                JsonUtils.serialize(JsonUtils.convertToJson(moduleStatus), writer);
             }
         }
     }
@@ -367,6 +368,36 @@ public class BTestMain {
 
     public static ClassLoader getClassLoader() {
         return classLoader;
+    }
+
+    private static TestSuite testSuiteGenerator(BMap<BString, Object> map) {
+        String packageName = map.get(StringUtils.fromString("packageName")).toString();
+        String orgName = map.get(StringUtils.fromString("orgName")).toString();
+        String version = map.get(StringUtils.fromString("version")).toString();
+        String sourceRootPath = map.get(StringUtils.fromString("sourceRootPath")).toString();
+        String packageId = map.get(StringUtils.fromString("packageId")).toString();
+        String testPackageId = map.get(StringUtils.fromString("testPackageId")).toString();
+        String executeFilePath = map.get(StringUtils.fromString("executeFilePath")).toString();
+        BMap<BString,?> mockFunctionNamesMap = (BMap<BString,?>)map.get(StringUtils.fromString("mockFunctionNamesMap"));
+        BMap<BString,?> testUtilityFunctions = (BMap<BString,?>)map.get(StringUtils.fromString("testUtilityFunctions"));
+        List<Object> testExecutionDependencies = Arrays.stream(
+                ((BArray)map.get(StringUtils.fromString("testExecutionDependencies"))).getValues()).toList();
+        TestSuite testSuite = new TestSuite(packageId, testPackageId, packageName,orgName, version,executeFilePath);
+        testSuite.setSourceRootPath(sourceRootPath);
+        for(BString key : mockFunctionNamesMap.getKeys()) {
+            testSuite.addMockFunction(key.toString(), mockFunctionNamesMap.get(key).toString());
+        }
+        for(BString key : testUtilityFunctions.getKeys()) {
+            testSuite.addTestUtilityFunction(key.toString(), testUtilityFunctions.get(key).toString());
+        }
+        List<Path> paths = new ArrayList<>();
+        for(Object item : testExecutionDependencies) {
+            if (item != null) {
+                paths.add(Paths.get(((BString)item).getValue()));
+            }
+        }
+        testSuite.addTestExecutionDependencies(paths);
+        return testSuite;
     }
 
 }
