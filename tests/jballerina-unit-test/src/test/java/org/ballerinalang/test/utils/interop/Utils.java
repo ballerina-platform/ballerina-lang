@@ -33,6 +33,7 @@ public class Utils {
 
     public static void sleep(Environment env, long delayMillis) {
         try {
+            env.markAsync();
             Thread.sleep(delayMillis);
         } catch (InterruptedException e) {
             throw ErrorCreator.createError(e);
