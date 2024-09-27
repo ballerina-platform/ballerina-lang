@@ -113,7 +113,7 @@ public class BTestMain {
                     br = Files.newBufferedReader(testSuiteJsonPath, StandardCharsets.UTF_8);
                 }
                 Object jsonObj = JsonUtils.parse(br, JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
-                BMap<BString, Object> testSuiteMap = (BMap<BString, Object>)jsonObj;
+                BMap<BString, Object> testSuiteMap = (BMap<BString, Object>) jsonObj;
                 if (!testSuiteMap.isEmpty()) {
                     for (Map.Entry<BString, Object> entry : testSuiteMap.entrySet()) {
                         String moduleName = entry.getKey().toString();
@@ -378,22 +378,27 @@ public class BTestMain {
         String packageId = map.get(StringUtils.fromString("packageId")).toString();
         String testPackageId = map.get(StringUtils.fromString("testPackageId")).toString();
         String executeFilePath = map.get(StringUtils.fromString("executeFilePath")).toString();
-        BMap<BString,?> mockFunctionNamesMap = (BMap<BString,?>)map.get(StringUtils.fromString("mockFunctionNamesMap"));
-        BMap<BString,?> testUtilityFunctions = (BMap<BString,?>)map.get(StringUtils.fromString("testUtilityFunctions"));
+        BMap<BString,?> mockFunctionNamesMap = (BMap<BString,?>) map.get(StringUtils.fromString("mockFunctionNamesMap"));
+        BMap<BString,?> testUtilityFunctions = (BMap<BString,?>) map.get(StringUtils.fromString("testUtilityFunctions"));
         List<Object> testExecutionDependencies = Arrays.stream(
-                ((BArray)map.get(StringUtils.fromString("testExecutionDependencies"))).getValues()).toList();
+                ((BArray) map.get(StringUtils.fromString("testExecutionDependencies"))).getValues()).toList();
+        String sourceFileName = null;
         TestSuite testSuite = new TestSuite(packageId, testPackageId, packageName,orgName, version,executeFilePath);
         testSuite.setSourceRootPath(sourceRootPath);
-        for(BString key : mockFunctionNamesMap.getKeys()) {
+        if (map.get(StringUtils.fromString("sourceFileName")) != null) {
+            sourceFileName = map.get(StringUtils.fromString("sourceFileName")).toString();
+        }
+        testSuite.setSourceFileName(sourceFileName);
+        for (BString key : mockFunctionNamesMap.getKeys()) {
             testSuite.addMockFunction(key.toString(), mockFunctionNamesMap.get(key).toString());
         }
-        for(BString key : testUtilityFunctions.getKeys()) {
+        for (BString key : testUtilityFunctions.getKeys()) {
             testSuite.addTestUtilityFunction(key.toString(), testUtilityFunctions.get(key).toString());
         }
         List<Path> paths = new ArrayList<>();
-        for(Object item : testExecutionDependencies) {
+        for (Object item : testExecutionDependencies) {
             if (item != null) {
-                paths.add(Paths.get(((BString)item).getValue()));
+                paths.add(Paths.get(((BString) item).getValue()));
             }
         }
         testSuite.addTestExecutionDependencies(paths);
