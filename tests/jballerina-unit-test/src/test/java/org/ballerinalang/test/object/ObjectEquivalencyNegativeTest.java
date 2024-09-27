@@ -31,32 +31,33 @@ public class ObjectEquivalencyNegativeTest {
     @Test(description = "Test equivalence of objects that are in the same package")
     public void testEquivalenceOfObjectsInSamePackage() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-equivalency-01-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 12);
-        BAssertUtil.validateError(compileResult, 0,
+        int i = 0;
+        BAssertUtil.validateError(compileResult, i++,
                                   "incompatible types: 'employee01' cannot be cast to 'person01'", 24, 18);
-        BAssertUtil.validateError(compileResult, 1,
+        BAssertUtil.validateError(compileResult, i++,
                                   "incompatible types: 'employee02' cannot be cast to 'person02'", 51, 18);
-        BAssertUtil.validateError(compileResult, 2,
+        BAssertUtil.validateError(compileResult, i++,
                 "incompatible types: 'employee04' cannot be cast to 'person04'", 108, 18);
-        BAssertUtil.validateError(compileResult, 3,
+        BAssertUtil.validateError(compileResult, i++,
                                   "incompatible types: 'employee05' cannot be cast to 'person05'", 145, 18);
-        BAssertUtil.validateError(compileResult, 4,
+        BAssertUtil.validateError(compileResult, i++,
                                   "incompatible types: 'employee06' cannot be cast to 'person06'", 175, 18);
-        BAssertUtil.validateError(compileResult, 5,
+        BAssertUtil.validateError(compileResult, i++,
                                   "incompatible types: 'employee08' cannot be cast to 'person08'", 284, 18);
-        BAssertUtil.validateError(compileResult, 6,
+        BAssertUtil.validateError(compileResult, i++,
                                   "incompatible types: 'employee09' cannot be cast to 'person09'", 341, 18);
-        BAssertUtil.validateError(compileResult, 7,
+        BAssertUtil.validateError(compileResult, i++,
                 "incompatible types: expected 'ObjWithRemoteMethod', found 'NonClientObj'", 460, 29);
-        BAssertUtil.validateError(compileResult, 8,
+        BAssertUtil.validateError(compileResult, i++,
                 "incompatible types: expected 'ObjWithRemoteMethod', found 'ClientObjWithoutRemoteMethod'", 465, 29);
-        BAssertUtil.validateError(compileResult, 9,
+        BAssertUtil.validateError(compileResult, i++,
                 "incompatible types: expected 'ObjWithOnlyRemoteMethod', " +
                         "found 'ClientObjWithoutRemoteMethod'", 470, 33);
-        BAssertUtil.validateError(compileResult, 10,
+        BAssertUtil.validateError(compileResult, i++,
                 "incompatible types: expected 'ObjWithOnlyRemoteMethod', found 'NonClientObj'", 475, 33);
-        BAssertUtil.validateError(compileResult, 11,
+        BAssertUtil.validateError(compileResult, i++,
                 "incompatible types: expected 'NonClientObj', found 'ObjWithRemoteMethod'", 480, 22);
+        Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 
     @Test(description = "Test equivalence of objects that are in the same package from a third package")

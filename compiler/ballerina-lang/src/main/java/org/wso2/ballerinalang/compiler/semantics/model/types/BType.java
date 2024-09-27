@@ -56,9 +56,7 @@ public class BType implements ValueType {
     public Name name;
     private long flags;
 
-    // SemType related properties
     protected SemType semType;
-    public boolean isBTypeComponentEmpty = false; // TODO: This is temporary workaround until we migrate all types
 
     public BType(int tag, BTypeSymbol tsymbol) {
         this(tag, tsymbol, Names.EMPTY, 0, null);
@@ -109,7 +107,7 @@ public class BType implements ValueType {
     }
 
     public boolean isNullable() {
-        return Core.containsNil(SemTypeHelper.semTypeComponent(this));
+        return Core.containsNil(SemTypeHelper.semType(this));
     }
 
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {

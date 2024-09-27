@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.ComplexSemType;
+import io.ballerina.types.Context;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
@@ -104,17 +105,27 @@ public final class SemTypeHelper {
         }
     }
 
-    public static SemType semTypeComponent(BType t) {
-        return semTypeComponent(t, false);
+    public static SemType semType(BType t) {
+        return semType(t, false);
     }
 
-    public static SemType semTypeComponent(BType t, boolean ignoreObjectTypeIds) {
+    public static boolean isSubtypeSimple(BType bt, BasicTypeBitSet bbs) {
+        SemType t = SemTypeHelper.semType(bt);
+        return SemTypes.isSubtypeSimple(t, bbs);
+    }
+
+    public static boolean isSubtype(Context context, BType bt, SemType st) {
+        SemType s = SemTypeHelper.semType(bt);
+        return SemTypes.isSubtype(context, s, st);
+    }
+
+    public static SemType semType(BType t, boolean ignoreObjectTypeIds) {
         if (t == null) { // TODO: may be able to fix after tackling bir recursion issue
             return PredefinedType.NEVER;
         }
 
         if (t.tag == TypeTags.TYPEREFDESC) {
-            return semTypeComponent(((BTypeReferenceType) t).referredType, ignoreObjectTypeIds);
+            return semType(((BTypeReferenceType) t).referredType, ignoreObjectTypeIds);
         }
 
         switch (t.tag) {
@@ -133,7 +144,13 @@ public final class SemTypeHelper {
             case TypeTags.STREAM:
             case TypeTags.ERROR:
             case TypeTags.TABLE:
+            case TypeTags.SEQUENCE:
+            case TypeTags.PARAMETERIZED_TYPE:
+            case TypeTags.NONE:
                 return t.semType();
+            case TypeTags.NULL_SET:
+            case TypeTags.SEMANTIC_ERROR:
+                return PredefinedType.NEVER;
             case TypeTags.UNION:
                 if (ignoreObjectTypeIds) {
                     return ((BUnionType) t).semTypeIgnoringTypeIds();
@@ -150,47 +167,6 @@ public final class SemTypeHelper {
                 }
                 return PredefinedType.NEVER;
         }
-    }
-
-    /**
-     * This method returns the same instance if the given type is not fully sem-type supported.
-     * Hence, should be called very carefully.
-     */
-    @Deprecated
-    public static BType bTypeComponent(BType t) {
-        if (t == null || isFullSemType(t.tag) || t.tag == TypeTags.NEVER) {
-            BType neverType = BType.createNeverType();
-            neverType.isBTypeComponentEmpty = true;
-            return neverType;
-        }
-
-        if (t.tag == TypeTags.TYPEREFDESC) {
-            return bTypeComponent(((BTypeReferenceType) t).referredType);
-        }
-
-        return t;
-    }
-
-    public static boolean includesNonSemTypes(BType t) {
-        if (t.tag == TypeTags.TYPEREFDESC) {
-            return includesNonSemTypes(((BTypeReferenceType) t).referredType);
-        }
-
-        if (isFullSemType(t.tag) || t.tag == TypeTags.JSON || t.tag == TypeTags.ANYDATA) {
-            return false;
-        }
-
-        if (t.tag == TypeTags.ANY || t.tag == TypeTags.READONLY) {
-            return true;
-        }
-
-        if (t.tag == TypeTags.UNION) { // TODO: Handle intersection?
-            BUnionType unionType = (BUnionType) t;
-            unionType.populateMemberSemTypesAndNonSemTypes(false);
-            return !unionType.memberNonSemTypes.isEmpty();
-        }
-
-        return true;
     }
 
     public static boolean isSimpleOrString(TypeKind kind) {

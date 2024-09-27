@@ -17,10 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Context;
+import io.ballerina.types.Core;
 import io.ballerina.types.Env;
-import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
-import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -30,6 +30,8 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.LinkedHashSet;
+
+import static io.ballerina.types.PredefinedType.VAL_READONLY;
 
 /**
  * {@code BAnydataType} represents the data types in Ballerina.
@@ -98,8 +100,10 @@ public class BAnydataType extends BUnionType {
 
     @Override
     public SemType semType() {
-        // Overrides here because SymbolResolver#bootstrapAnydataType() does not contain regexp as a member
-        // Cannot add to SymbolTable#defineAnydataCyclicTypeAndDependentTypes() either as it could clash with former
-        return SemTypes.union(super.semType(), PredefinedType.REGEXP);
+        SemType s = Core.createAnydata(Context.from(env));
+        if (Symbols.isFlagOn(getFlags(), Flags.READONLY)) {
+            return Core.intersect(s, VAL_READONLY);
+        }
+        return s;
     }
 }

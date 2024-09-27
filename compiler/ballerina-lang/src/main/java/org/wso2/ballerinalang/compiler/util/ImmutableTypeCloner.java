@@ -220,7 +220,7 @@ public class ImmutableTypeCloner {
             case TypeTags.XML_PI:
                 BXMLSubType origXmlSubType = (BXMLSubType) type;
 
-                SemType xmlRoSemType = intersect(origXmlSubType.semType(), PredefinedType.IMPLEMENTED_VAL_READONLY);
+                SemType xmlRoSemType = intersect(origXmlSubType.semType(), PredefinedType.VAL_READONLY);
                 // TODO: 4/28/20 Check tsymbol
                 BXMLSubType immutableXmlSubType =
                         new BXMLSubType(origXmlSubType.tag,

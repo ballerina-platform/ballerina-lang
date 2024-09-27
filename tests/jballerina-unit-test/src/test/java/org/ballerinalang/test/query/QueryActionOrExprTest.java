@@ -107,7 +107,6 @@ public class QueryActionOrExprTest {
         validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 42, 24);
         validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 51, 27);
         validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 61, 27);
-        validateError(negativeResult, i++, "incompatible types: expected 'other', found 'int'", 71, 18);
         validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 71, 27);
         validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 82, 27);
         validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 93, 27);
@@ -117,10 +116,7 @@ public class QueryActionOrExprTest {
         validateError(negativeResult, i++, "receive action not supported wth 'var' type", 168, 27);
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 279, 15);
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 291, 18);
-        validateError(negativeResult, i++, "order by not supported for complex type fields, order key should " +
-                "belong to a basic type", 291, 18);
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 303, 15);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'other'", 303, 15);
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 315, 23);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'other'", 316, 21);
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 320, 50);

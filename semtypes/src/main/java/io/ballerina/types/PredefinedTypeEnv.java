@@ -38,7 +38,6 @@ import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_OBJECT_QUALIFIER;
 import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_UNDEF;
 import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_VAL;
 import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_VAL_RO;
-import static io.ballerina.types.PredefinedType.IMPLEMENTED_VAL_READONLY;
 import static io.ballerina.types.PredefinedType.INNER;
 import static io.ballerina.types.PredefinedType.INNER_READONLY;
 import static io.ballerina.types.PredefinedType.MAPPING;
@@ -50,6 +49,7 @@ import static io.ballerina.types.PredefinedType.MAPPING_SEMTYPE_OBJECT_MEMBER_RO
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.UNDEF;
 import static io.ballerina.types.PredefinedType.VAL;
+import static io.ballerina.types.PredefinedType.VAL_READONLY;
 import static io.ballerina.types.SemTypes.stringConst;
 import static io.ballerina.types.TypeAtom.createTypeAtom;
 
@@ -352,7 +352,7 @@ public final class PredefinedTypeEnv {
     synchronized CellAtomicType cellAtomicValRO() {
         if (cellAtomicValRO == null) {
             cellAtomicValRO = CellAtomicType.from(
-                    IMPLEMENTED_VAL_READONLY, CellAtomicType.CellMutability.CELL_MUT_NONE
+                    VAL_READONLY, CellAtomicType.CellMutability.CELL_MUT_NONE
             );
             addInitializedCellAtom(cellAtomicValRO);
         }

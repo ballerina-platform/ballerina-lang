@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.types.ComplexSemType;
+import io.ballerina.types.Context;
+import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.subtypedata.BooleanSubtype;
@@ -35,8 +37,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -209,8 +210,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
  */
 public class JvmTypeGen {
 
-    private final IsPureTypeUniqueVisitor isPureTypeUniqueVisitor;
-    private final IsAnydataUniqueVisitor isAnydataUniqueVisitor;
     private final JvmConstantsGen jvmConstantsGen;
     private final TypeHashVisitor typeHashVisitor;
     private final SymbolTable symbolTable;
@@ -220,13 +219,12 @@ public class JvmTypeGen {
     private final String objectsClass;
     private final String errorsClass;
     private final String functionCallsClass;
+    private final Context semTypeCtx;
 
     public JvmTypeGen(JvmConstantsGen jvmConstantsGen, PackageID packageID, TypeHashVisitor typeHashVisitor,
                       SymbolTable symbolTable) {
         this.jvmConstantsGen = jvmConstantsGen;
         this.packageID = packageID;
-        isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
-        isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
         this.typeHashVisitor = typeHashVisitor;
         this.symbolTable = symbolTable;
         this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
@@ -234,6 +232,7 @@ public class JvmTypeGen {
         this.objectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CREATOR_CLASS_NAME);
         this.errorsClass = getModuleLevelClassName(packageID, MODULE_ERRORS_CREATOR_CLASS_NAME);
         this.functionCallsClass = getModuleLevelClassName(packageID, MODULE_FUNCTION_CALLS_CLASS_NAME);
+        this.semTypeCtx = Context.from(symbolTable.typeEnv());
     }
 
     /**
@@ -350,10 +349,10 @@ public class JvmTypeGen {
     }
 
     public int typeFlag(BType type) {
-        isAnydataUniqueVisitor.reset();
-        isPureTypeUniqueVisitor.reset();
-        return TypeFlags.asMask(type.isNullable(), isAnydataUniqueVisitor.visit(type),
-                isPureTypeUniqueVisitor.visit(type));
+        boolean isAnydata = SemTypeHelper.isSubtype(semTypeCtx, type, Core.createAnydata(semTypeCtx));
+        boolean isPureType = isAnydata || SemTypeHelper.isSubtype(semTypeCtx, type,
+                Core.union(Core.createAnydata(semTypeCtx), PredefinedType.ERROR));
+        return TypeFlags.asMask(type.isNullable(), isAnydata, isPureType);
     }
 
     // -------------------------------------------------------

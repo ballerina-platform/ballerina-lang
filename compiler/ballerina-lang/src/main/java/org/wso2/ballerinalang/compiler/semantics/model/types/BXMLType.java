@@ -92,6 +92,6 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
         }
 
         boolean readonly = Symbols.isFlagOn(this.getFlags(), Flags.READONLY);
-        return readonly ? SemTypes.intersect(PredefinedType.IMPLEMENTED_VAL_READONLY, s) : s;
+        return readonly ? SemTypes.intersect(PredefinedType.VAL_READONLY, s) : s;
     }
 }

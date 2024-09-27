@@ -20,6 +20,10 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
+import io.ballerina.types.Core;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
@@ -3037,21 +3041,31 @@ public class SymbolEnter extends BLangNodeVisitor {
         return recordSymbol;
     }
 
-    BType getRestParamType(BRecordType recordType)  {
+    BType getRestParamType(BRecordType recordType) {
         BType memberType;
         if (recordType.restFieldType != null) {
             memberType = recordType.restFieldType;
-        } else if (hasErrorTypedField(recordType)) {
-            memberType = hasOnlyPureTypedFields(recordType) ? symTable.pureType :
-                    BUnionType.create(symTable.typeEnv(), null, symTable.anyType, symTable.errorType);
+            BType referredMemberType = Types.getImpliedType(memberType);
+            if (referredMemberType.tag == TypeTags.RECORD) {
+                return getRestParamType((BRecordType) referredMemberType);
+            } else {
+                return memberType;
+            }
+        }
+
+        SemType s = SemTypeHelper.semType(recordType);
+        SemType anydata = types.anydata();
+        if (SemTypes.containsBasicType(s, PredefinedType.ERROR)) {
+            if (types.isSubtype(s, Core.union(anydata, PredefinedType.ERROR))) {
+                return symTable.pureType;
+            } else {
+                return BUnionType.create(symTable.typeEnv(), null, symTable.anyType, symTable.errorType);
+            }
+        } else if (types.isSubtype(s, anydata)) {
+            return symTable.anydataType;
         } else {
-            memberType = hasOnlyAnyDataTypedFields(recordType) ? symTable.anydataType : symTable.anyType;
+            return symTable.anyType;
         }
-        BType referredMemberType = Types.getImpliedType(memberType);
-        if (referredMemberType.tag == TypeTags.RECORD) {
-            memberType = getRestParamType((BRecordType) referredMemberType);
-        }
-        return memberType;
     }
 
     public BType getRestMatchPatternConstraintType(BRecordType recordType,
@@ -3165,43 +3179,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         unmaskedFlags.remove(Flag.REQUIRED);
         unmaskedFlags.add(Flag.OPTIONAL);
         return Flags.asMask(unmaskedFlags);
-    }
-
-    private boolean hasOnlyAnyDataTypedFields(BRecordType recordType) {
-        IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
-        return isAnydataUniqueVisitor.visit(recordType);
-    }
-
-    private boolean hasOnlyPureTypedFields(BRecordType recordType) {
-        IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
-        for (BField field : recordType.fields.values()) {
-            BType fieldType = field.type;
-            if (!isPureTypeUniqueVisitor.visit(fieldType)) {
-                return false;
-            }
-            isPureTypeUniqueVisitor.reset();
-        }
-        return recordType.sealed || isPureTypeUniqueVisitor.visit(recordType);
-    }
-
-    private boolean hasErrorTypedField(BRecordType recordType) {
-        for (BField field : recordType.fields.values()) {
-            BType type = field.type;
-            if (hasErrorType(type)) {
-                return true;
-            }
-        }
-        return hasErrorType(recordType.restFieldType);
-    }
-
-    private boolean hasErrorType(BType type) {
-        BType referredType = Types.getImpliedType(type);
-        int tag = referredType.tag;
-        if (tag != TypeTags.UNION) {
-            return tag == TypeTags.ERROR;
-        }
-
-        return ((BUnionType) referredType).getMemberTypes().stream().anyMatch(this::hasErrorType);
     }
 
     @Override

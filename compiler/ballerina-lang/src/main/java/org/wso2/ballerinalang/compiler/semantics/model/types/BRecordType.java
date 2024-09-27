@@ -18,13 +18,13 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import io.ballerina.types.CellAtomicType;
+import io.ballerina.types.Core;
 import io.ballerina.types.Env;
 import io.ballerina.types.SemType;
 import io.ballerina.types.definition.Field;
 import io.ballerina.types.definition.MappingDefinition;
 import org.ballerinalang.model.types.RecordType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -56,7 +56,6 @@ public class BRecordType extends BStructureType implements RecordType {
     public static final String READONLY = "readonly";
     public boolean sealed;
     public BType restFieldType;
-    public Boolean isAnyData = null;
 
     public BRecordType mutableType;
 
@@ -158,32 +157,35 @@ public class BRecordType extends BStructureType implements RecordType {
             return md.defineMappingTypeWrapped(env, List.of(), VAL);
         }
 
-        List<Field> semFields = new ArrayList<>(this.fields.size());
-        for (BField field : this.fields.values()) {
-            boolean optional = Symbols.isOptional(field.symbol);
-            BType bType = field.type;
-            SemType ty = bType.semType();
-            if (ty == null || NEVER.equals(ty) && SemTypeHelper.bTypeComponent(bType).isBTypeComponentEmpty) {
-                if (optional) {
-                    // ignore the field
-                    continue;
-                } else {
-                    // if there is a non-optional field with `never` type(BType Component + SemType Component),
-                    // it is not possible to create a value. Hence, the whole record type is considered as `never`.
-                    md.setSemTypeToNever();
-                    return NEVER;
-                }
-            }
-            Field semField = Field.from(field.name.value, ty, Symbols.isFlagOn(field.symbol.flags, Flags.READONLY),
-                    optional);
-            semFields.add(semField);
-        }
-
         SemType restFieldSemType;
         if (restFieldType == null || restFieldType instanceof BNoType || restFieldType.semType() == null) {
             restFieldSemType = NEVER;
         } else {
             restFieldSemType = restFieldType.semType();
+        }
+
+        List<Field> semFields = new ArrayList<>(this.fields.size());
+        for (BField field : this.fields.values()) {
+            boolean optional = Symbols.isOptional(field.symbol);
+            BType bType = field.type;
+            SemType ty = bType.semType();
+            if (ty == null || NEVER.equals(ty)) {
+                if (!optional) {
+                    // if there is a non-optional field with `never` type(BType Component + SemType Component),
+                    // it is not possible to create a value. Hence, the whole record type is considered as `never`.
+                    md.setSemTypeToNever();
+                    return NEVER;
+                }
+
+                if (Core.isNever(restFieldSemType)) {
+                    // record { never x?; never...;} is equivalent to record { never... }
+                    // ignore the field
+                    continue;
+                }
+            }
+            Field semField = Field.from(field.name.value, ty, Symbols.isFlagOn(field.symbol.flags, Flags.READONLY),
+                    optional);
+            semFields.add(semField);
         }
 
         boolean isReadonly = Symbols.isFlagOn(getFlags(), Flags.READONLY);

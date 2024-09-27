@@ -76,7 +76,7 @@ public class BTypedescType extends BBuiltInRefType implements ConstrainedType {
             return PredefinedType.TYPEDESC;
         }
 
-        SemType constraintSemtype = SemTypeHelper.semTypeComponent(constraint);
+        SemType constraintSemtype = SemTypeHelper.semType(constraint);
         return SemTypes.typedescContaining(env, constraintSemtype);
     }
 }

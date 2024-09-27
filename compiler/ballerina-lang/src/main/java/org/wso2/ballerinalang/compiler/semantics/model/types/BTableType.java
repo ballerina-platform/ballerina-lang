@@ -111,7 +111,7 @@ public class BTableType extends BType implements TableType {
     public SemType semType() {
         boolean readonly = Symbols.isFlagOn(this.getFlags(), Flags.READONLY);
         SemType s = semTypeInner();
-        return readonly ? SemTypes.intersect(PredefinedType.IMPLEMENTED_VAL_READONLY, s) : s;
+        return readonly ? SemTypes.intersect(PredefinedType.VAL_READONLY, s) : s;
     }
 
     private SemType semTypeInner() {
@@ -138,7 +138,8 @@ public class BTableType extends BType implements TableType {
             return SemTypes.tableContainingKeySpecifier(cx, tableConstraint, fieldNames);
         }
 
-        if (keyTypeConstraint != null && keyTypeConstraint.tag != TypeTags.NEVER &&
+        BType keyConstraintType = Types.getReferredType(keyTypeConstraint);
+        if (keyTypeConstraint != null && keyConstraintType.tag != TypeTags.NEVER &&
                 keyTypeConstraint.tag != TypeTags.SEMANTIC_ERROR) {
             SemType keyConstraint = keyTypeConstraint.semType();
             return SemTypes.tableContainingKeyConstraint(cx, tableConstraint, keyConstraint);

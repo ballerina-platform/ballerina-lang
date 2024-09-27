@@ -79,7 +79,7 @@ public class BFutureType extends BBuiltInRefType implements ConstrainedType {
             return PredefinedType.FUTURE;
         }
 
-        SemType constraintSemtype = SemTypeHelper.semTypeComponent(constraint);
+        SemType constraintSemtype = SemTypeHelper.semType(constraint);
         return SemTypes.futureContaining(env, constraintSemtype);
     }
 }

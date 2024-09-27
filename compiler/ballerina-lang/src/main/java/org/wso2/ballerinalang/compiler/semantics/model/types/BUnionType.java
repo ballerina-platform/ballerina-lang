@@ -53,10 +53,7 @@ public class BUnionType extends BType implements UnionType {
     private String cachedToString;
 
     protected LinkedHashSet<BType> memberTypes;
-
-    // Sem and Non-Sem Member Breakdown
     public LinkedHashSet<SemType> memberSemTypes;
-    public LinkedHashSet<BType> memberNonSemTypes;
 
     public Boolean isAnyData = null;
     public Boolean isPureType = null;
@@ -493,21 +490,19 @@ public class BUnionType extends BType implements UnionType {
         return false;
     }
 
-    public void populateMemberSemTypesAndNonSemTypes(boolean ignoreTypeIds) {
-        LinkedHashSet<BType> memberNonSemTypes = new LinkedHashSet<>();
+    public void populateMemberSemTypes(boolean ignoreTypeIds) {
         LinkedHashSet<SemType> memberSemTypes = new LinkedHashSet<>();
 
         for (BType memberType : this.memberTypes) {
-            populateMemberSemTypesAndNonSemTypes(memberType, memberSemTypes, memberNonSemTypes, ignoreTypeIds);
+            populateMemberSemTypes(memberType, memberSemTypes, ignoreTypeIds);
         }
 
-        this.memberNonSemTypes = memberNonSemTypes;
         this.memberSemTypes = memberSemTypes;
         this.semType = null; // reset cached sem-type if exists
     }
 
-    private void populateMemberSemTypesAndNonSemTypes(BType memberType, LinkedHashSet<SemType> memberSemTypes,
-                                                      LinkedHashSet<BType> memberNonSemTypes, boolean ignoreTypeIds) {
+    private void populateMemberSemTypes(BType memberType, LinkedHashSet<SemType> memberSemTypes,
+                                        boolean ignoreTypeIds) {
         memberType = getReferredType(memberType);
         if (memberType == null) { // TODO: handle cyclic types via BIR
             return;
@@ -515,31 +510,26 @@ public class BUnionType extends BType implements UnionType {
 
         if (memberType.tag == TypeTags.UNION) {
             BUnionType bUnionType = (BUnionType) memberType;
-            bUnionType.populateMemberSemTypesAndNonSemTypes(ignoreTypeIds);
+            bUnionType.populateMemberSemTypes(ignoreTypeIds);
             memberSemTypes.addAll(bUnionType.memberSemTypes);
-            memberNonSemTypes.addAll(bUnionType.memberNonSemTypes);
             return;
         }
 
-        SemType s = SemTypeHelper.semTypeComponent(memberType, ignoreTypeIds);
+        SemType s = SemTypeHelper.semType(memberType, ignoreTypeIds);
         if (!Core.isNever(s)) {
             memberSemTypes.add(s);
-        }
-
-        if (TypeTags.NEVER != SemTypeHelper.bTypeComponent(memberType).tag) {
-            memberNonSemTypes.add(memberType);
         }
     }
 
     public SemType semTypeIgnoringTypeIds() {
-        populateMemberSemTypesAndNonSemTypes(true);
+        populateMemberSemTypes(true);
         return computeResultantUnion(memberSemTypes);
     }
 
     @Override
     public SemType semType() {
         if (this.semType == null) {
-            populateMemberSemTypesAndNonSemTypes(false);
+            populateMemberSemTypes(false);
             this.semType = computeResultantUnion(memberSemTypes);
         }
         return this.semType;
