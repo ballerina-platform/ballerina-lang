@@ -22,7 +22,7 @@ import ballerina/lang.'xml as lang_xml;
 import ballerina/lang.'stream as lang_stream;
 import ballerina/lang.'table as lang_table;
 import ballerina/lang.'object as lang_object;
-import ballerina/lang.'function as lang_function;
+import ballerina/lang.'function;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
@@ -1054,14 +1054,14 @@ class _OrderTreeNode {
         return orderedFrames;
     }
 
-    # sorting is not supported for any[], therefore have to resolve runtime type and sort it.
+    # sorting is not supported for any[], thus use the `function:call` method call the sort operation.
     # + return - ordered array.
     function getSortedArray(any[] arr) returns any[] {
-        any|error res = lang_function:call(lang_array:sort, arr, self.nodesDirection);
+        any|error res = function:call(lang_array:sort, arr, self.nodesDirection);
         if res is any[] {
             return res;
         }
-        return arr;
+        panic error(string `Error while sorting the arr: ${arr.toBalString()}`);
     }
 
     # copy every element of source array into empty target array.
