@@ -90,6 +90,9 @@ public class ConstantPool {
 
     private void writeToStream(DataOutputStream stream) throws IOException {
         stream.writeInt(-1);
+
+        // cpEntries are modified while iterating over them
+        // noinspection ForLoopReplaceableByForEach
         for (int i = 0; i < cpEntries.size(); i++) {
             CPEntry cpEntry = cpEntries.get(i);
             stream.writeByte(cpEntry.entryType.value);

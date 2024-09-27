@@ -54,7 +54,10 @@ import static io.ballerina.runtime.api.values.BError.CALL_STACK_ELEMENT;
  *
  * @since 0.990.4
  */
-public class StackTrace {
+public final class StackTrace {
+
+    private StackTrace() {
+    }
 
     public static BObject stackTrace(BError value) {
 
@@ -179,7 +182,7 @@ public class StackTrace {
         }
 
         @Override
-        public BMap getMapValue(BString fieldName) {
+        public BMap<BString, ? extends Object> getMapValue(BString fieldName) {
             return null;
         }
 

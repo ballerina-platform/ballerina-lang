@@ -54,7 +54,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
 
@@ -108,7 +107,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
         BLangPackage parent = (BLangPackage) ((BLangSimpleVariable) simpleVariableNode).parent;
         String packageName = getPackageName(parent);
 
-        annotations = annotations.stream().distinct().collect(Collectors.toList());
+        annotations = annotations.stream().distinct().toList();
         // Iterate through all the annotations
         for (AnnotationAttachmentNode attachmentNode : annotations) {
             // Check if the package belongs to a single file project
@@ -173,7 +172,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
         BLangPackage parent = (BLangPackage) ((BLangFunction) functionNode).parent;
         String packageName = getPackageName(parent);
-        annotations = annotations.stream().distinct().collect(Collectors.toList());
+        annotations = annotations.stream().distinct().toList();
 
         // Iterate through all the annotations
         for (AnnotationAttachmentNode attachmentNode : annotations) {

@@ -29,10 +29,13 @@ import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
  *
  * @since 0.995.0
  */
-public class StringUtils {
+public final class StringUtils {
 
     private static final BString NULL_REF_EXCEPTION = io.ballerina.runtime.api.utils.StringUtils
             .fromString("NullReferenceException");
+
+    private StringUtils() {
+    }
 
     public static void checkForNull(String... values) {
         Arrays.stream(values).forEach(value -> {

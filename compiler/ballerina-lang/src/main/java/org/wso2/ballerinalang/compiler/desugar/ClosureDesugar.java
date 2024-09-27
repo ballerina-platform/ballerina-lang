@@ -777,19 +777,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     private BVarSymbol createMapSymbolIfAbsent(BLangNode node, int closureMapCount) {
         NodeKind kind = node.getKind();
-        switch (kind) {
-            case BLOCK_FUNCTION_BODY:
-                return createMapSymbolIfAbsent((BLangBlockFunctionBody) node, closureMapCount);
-            case BLOCK:
-                return createMapSymbolIfAbsent((BLangBlockStmt) node, closureMapCount);
-            case FUNCTION:
-                return createMapSymbolIfAbsent((BLangFunction) node, closureMapCount);
-            case RESOURCE_FUNC:
-                return createMapSymbolIfAbsent((BLangResourceFunction) node, closureMapCount);
-            case CLASS_DEFN:
-                return createMapSymbolIfAbsent((BLangClassDefinition) node, closureMapCount);
-        }
-        return null;
+        return switch (kind) {
+            case BLOCK_FUNCTION_BODY -> createMapSymbolIfAbsent((BLangBlockFunctionBody) node, closureMapCount);
+            case BLOCK -> createMapSymbolIfAbsent((BLangBlockStmt) node, closureMapCount);
+            case FUNCTION -> createMapSymbolIfAbsent((BLangFunction) node, closureMapCount);
+            case RESOURCE_FUNC -> createMapSymbolIfAbsent((BLangResourceFunction) node, closureMapCount);
+            case CLASS_DEFN -> createMapSymbolIfAbsent((BLangClassDefinition) node, closureMapCount);
+            default -> null;
+        };
     }
 
     private BVarSymbol createMapSymbolIfAbsent(BLangBlockFunctionBody body, int closureMapCount) {

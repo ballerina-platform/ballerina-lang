@@ -60,27 +60,17 @@ public class BBuiltInRefType extends BType implements ReferenceType {
 
     @Override
     public TypeKind getKind() {
-        switch (tag) {
-            case JSON:
-                return TypeKind.JSON;
-            case XML:
-                return TypeKind.XML;
-            case STREAM:
-                return TypeKind.STREAM;
-            case TABLE:
-                return TypeKind.TABLE;
-            case ANY:
-                return TypeKind.ANY;
-            case ANYDATA:
-                return TypeKind.ANYDATA;
-            case MAP:
-                return TypeKind.MAP;
-            case FUTURE:
-                return TypeKind.FUTURE;
-            case TYPEDESC:
-                return TypeKind.TYPEDESC;
-            default:
-                return TypeKind.OTHER;
-        }
+        return switch (tag) {
+            case JSON -> TypeKind.JSON;
+            case XML -> TypeKind.XML;
+            case STREAM -> TypeKind.STREAM;
+            case TABLE -> TypeKind.TABLE;
+            case ANY -> TypeKind.ANY;
+            case ANYDATA -> TypeKind.ANYDATA;
+            case MAP -> TypeKind.MAP;
+            case FUTURE -> TypeKind.FUTURE;
+            case TYPEDESC -> TypeKind.TYPEDESC;
+            default -> TypeKind.OTHER;
+        };
     }
 }

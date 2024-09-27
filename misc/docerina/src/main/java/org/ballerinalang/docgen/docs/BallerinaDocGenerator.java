@@ -62,6 +62,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -74,6 +75,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -82,7 +84,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 /**
  * Main class to generate a ballerina documentation.
  */
-public class BallerinaDocGenerator {
+public final class BallerinaDocGenerator {
 
     private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
     private static PrintStream out = System.out;
@@ -106,6 +108,9 @@ public class BallerinaDocGenerator {
 
     private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
             .excludeFieldsWithoutExposeAnnotation().create();
+
+    private BallerinaDocGenerator() {
+    }
 
     /**
      * API to merge multiple api docs.
@@ -189,8 +194,7 @@ public class BallerinaDocGenerator {
         // Create the central Ballerina library index JSON.
         String stdIndexJson = gson.toJson(centralLib);
         File stdIndexJsonFile = apiDocsRoot.resolve(CENTRAL_STDLIB_INDEX_JSON).toFile();
-        try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(stdIndexJsonFile),
-                StandardCharsets.UTF_8)) {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(stdIndexJsonFile), StandardCharsets.UTF_8)) {
             writer.write(new String(stdIndexJson.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
             log.error("Failed to create {} file.", CENTRAL_STDLIB_INDEX_JSON, e);
@@ -199,8 +203,7 @@ public class BallerinaDocGenerator {
         // Create the central Ballerina library search JSON.
         String stdSearchJson = gson.toJson(genSearchJson(moduleLib));
         File stdSearchJsonFile = apiDocsRoot.resolve(CENTRAL_STDLIB_SEARCH_JSON).toFile();
-        try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(stdSearchJsonFile),
-                StandardCharsets.UTF_8)) {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(stdSearchJsonFile), StandardCharsets.UTF_8)) {
             writer.write(new String(stdSearchJson.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
             log.error("Failed to create {} file.", CENTRAL_STDLIB_SEARCH_JSON, e);
@@ -439,7 +442,7 @@ public class BallerinaDocGenerator {
         }
         String json = gson.toJson(apiDocsJson);
         if (!excludeUI) {
-            try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsFile),
+            try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsFile),
                     StandardCharsets.UTF_8)) {
                 String js = "var apiDocsJson = " + json + ";";
                 writer.write(new String(js.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
@@ -448,7 +451,7 @@ public class BallerinaDocGenerator {
             }
         }
 
-        try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile),
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile),
                 StandardCharsets.UTF_8)) {
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -537,7 +540,7 @@ public class BallerinaDocGenerator {
      *  @param project Ballerina project.
      *  @return a map of module names and their ModuleDoc.
      */
-    public static Map<String, ModuleDoc> generateModuleDocMap(io.ballerina.projects.Project project)
+    public static Map<String, ModuleDoc> generateModuleDocMap(Project project)
             throws IOException {
         Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
         for (io.ballerina.projects.Module module : project.currentPackage().modules()) {
@@ -661,8 +664,9 @@ public class BallerinaDocGenerator {
         Path resourcesDirPath = absolutePkgPath.resolve("resources");
         List<Path> resources = new ArrayList<>();
         if (resourcesDirPath.toFile().exists()) {
-            resources = Files.walk(resourcesDirPath).filter(path -> !path.equals(resourcesDirPath)).collect(Collectors
-                    .toList());
+            try (Stream<Path> paths = Files.walk(resourcesDirPath)) {
+                resources = paths.filter(path -> !path.equals(resourcesDirPath)).toList();
+            }
         }
         return resources;
     }

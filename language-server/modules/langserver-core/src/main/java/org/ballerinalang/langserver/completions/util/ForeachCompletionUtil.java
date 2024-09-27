@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class ForeachCompletionUtil {
+public final class ForeachCompletionUtil {
 
     private static final String VAR_NAME = "item";
     private static final String VAR_NAME_RANGE_EXP = "i";

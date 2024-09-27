@@ -32,7 +32,6 @@ import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ErrorMatchPatternNode} context.
@@ -67,7 +66,7 @@ public class ErrorMatchPatternNodeContext extends MatchStatementContext<ErrorMat
             List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
             errorTypes = visibleSymbols.stream()
                     .filter(this.errorTypeFilter())
-                    .collect(Collectors.toList());
+                    .toList();
             completionItems.addAll(this.getModuleCompletionItems(context));
         }
         completionItems.addAll(this.getCompletionItemList(errorTypes, context));

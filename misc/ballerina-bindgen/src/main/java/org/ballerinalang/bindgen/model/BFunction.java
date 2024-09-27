@@ -34,7 +34,7 @@ public abstract class BFunction {
     private String externalFunctionName;
     private String externalReturnType;
     private String functionName;
-    private Class declaringClass;
+    private Class<?> declaringClass;
     private List<JParameter> parameters = new LinkedList<>();
     private List<JError> throwables = new LinkedList<>();
     private boolean isStatic = true;
@@ -70,11 +70,11 @@ public abstract class BFunction {
         return functionName;
     }
 
-    public Class getDeclaringClass() {
+    public Class<?> getDeclaringClass() {
         return declaringClass;
     }
 
-    void setDeclaringClass(Class declaringClass) {
+    void setDeclaringClass(Class<?> declaringClass) {
         this.declaringClass = declaringClass;
     }
 

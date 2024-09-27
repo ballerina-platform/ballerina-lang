@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 public class SingletonStackTest {
     @Test(description = "The value in the stack should be retrieved/popped out if a value is present")
     public void testPopWithValue() {
-        SingletonStack singletonStackTest = new SingletonStack();
+        SingletonStack<String> singletonStackTest = new SingletonStack<>();
         singletonStackTest.push("hello");
         Assert.assertEquals(singletonStackTest.pop(), "hello");
     }
@@ -35,27 +35,27 @@ public class SingletonStackTest {
     @Test(description = "The value should not be pushed to the stack if the stack already contains a value it should " +
             "give an exception", expectedExceptions = IllegalStateException.class)
     public void testPopWithoutValue() {
-        SingletonStack singletonStackTest = new SingletonStack();
+        SingletonStack<String> singletonStackTest = new SingletonStack<>();
         singletonStackTest.pop();
         Assert.assertEquals(singletonStackTest.present(), true);
     }
 
     @Test(description = "Return true if the value exists")
     public void testWithValuePresent() {
-        SingletonStack singletonStackTest = new SingletonStack();
+        SingletonStack<String> singletonStackTest = new SingletonStack<>();
         singletonStackTest.push("hello");
         Assert.assertEquals(singletonStackTest.present(), true);
     }
 
     @Test(description = "Return false if a value does not exists")
     public void testWithValueAbsent() {
-        SingletonStack singletonStackTest = new SingletonStack();
+        SingletonStack<String> singletonStackTest = new SingletonStack<>();
         Assert.assertEquals(singletonStackTest.present(), false);
     }
 
     @Test(description = "The value should be pushed to the stack if the stack is not null")
     public void testPushToStackWithValue() {
-        SingletonStack singletonStackTest = new SingletonStack();
+        SingletonStack<String> singletonStackTest = new SingletonStack<>();
         singletonStackTest.push("hello");
         Assert.assertEquals(singletonStackTest.present(), true);
         Assert.assertEquals(singletonStackTest.pop(), "hello");
@@ -64,7 +64,7 @@ public class SingletonStackTest {
     @Test(description = "The value should not be pushed to the stack if the stack already contains a value it should " +
             "give an exception", expectedExceptions = IllegalStateException.class)
     public void testPushMultipleValuesToStack() {
-        SingletonStack singletonStackTest = new SingletonStack();
+        SingletonStack<String> singletonStackTest = new SingletonStack<>();
         singletonStackTest.push("hello");
         singletonStackTest.push("world");
         Assert.assertEquals(singletonStackTest.present(), true);

@@ -121,10 +121,9 @@ public class BInvokableType extends BType implements InvokableType {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof BInvokableType)) {
+        if (!(o instanceof BInvokableType that)) {
             return false;
         }
-        BInvokableType that = (BInvokableType) o;
 
         if (this.getFlags() != that.getFlags()) {
             return false;
@@ -158,18 +157,18 @@ public class BInvokableType extends BType implements InvokableType {
             retTypeWithParam = "(" + retType.toString() + ")";
         }
         String restParam = "";
-        if (restType != null && restType instanceof BArrayType) {
+        if (restType != null && restType instanceof BArrayType bArrayType) {
             if (!paramTypes.isEmpty()) {
                 restParam += ", ";
             }
-            restParam += ((BArrayType) restType).eType + "...";
+            restParam += bArrayType.eType + "...";
         }
         return "(" + (!paramTypes.isEmpty() ? getBTypeListAsString(paramTypes) : "") + restParam + ")"
                 + " returns " + retTypeWithParam;
     }
 
     private static String getBTypeListAsString(List<BType> typeNames) {
-        StringBuffer br = new StringBuffer();
+        StringBuilder br = new StringBuilder();
         int i = 0;
         for (BType type : typeNames) {
             br.append(type);

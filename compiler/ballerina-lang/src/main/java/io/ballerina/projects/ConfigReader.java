@@ -50,14 +50,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Util class to read configurable variables defined in a package.
  *
  * @since 2.0.0
  */
-public class ConfigReader {
+public final class ConfigReader {
+
+    private ConfigReader() {
+    }
 
     /**
      * Retrieve all the configurable variables for a package.
@@ -196,8 +198,7 @@ public class ConfigReader {
             // Filter configurable variables
             if (symbol != null && symbol.tag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags,
                     Flags.CONFIGURABLE)) {
-                if (symbol instanceof BVarSymbol) {
-                    BVarSymbol varSymbol = (BVarSymbol) symbol;
+                if (symbol instanceof BVarSymbol varSymbol) {
                     if ((validConfigs != null && validConfigs.contains(varSymbol)) || validConfigs == null) {
                         // Get description
                         String description = getDescriptionValue(varSymbol, module);
@@ -241,8 +242,9 @@ public class ConfigReader {
                     symbol = symbol.type.tsymbol;
                 }
                 if (symbol != null && symbol.tag == SymTag.VARIABLE
-                        && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE) && symbol instanceof BVarSymbol) {
-                    configVars.add((BVarSymbol) symbol);
+                        && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE) &&
+                        symbol instanceof BVarSymbol bVarSymbol) {
+                    configVars.add(bVarSymbol);
                 }
             }
         }
@@ -300,16 +302,13 @@ public class ConfigReader {
         for (Map.Entry<Document, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
             if (syntaxTreeEntry.getValue().containsModulePart()) {
                 ModulePartNode modulePartNode = syntaxTreeMap.get(syntaxTreeEntry.getKey()).rootNode();
-                List<Node> filteredVarNodes = modulePartNode.members().stream()
-                        .filter(node -> node.kind() == SyntaxKind.MODULE_VAR_DECL &&
-                                node instanceof ModuleVariableDeclarationNode)
-                        .collect(Collectors.toList());
-                for (Node node : filteredVarNodes) {
-                    if (node.location().lineRange().startLine().line() <= position &&
-                            node.location().lineRange().endLine().line() >= position) {
-                        return node;
-                    }
-                }
+                return modulePartNode.members().stream()
+                    .filter(node -> node.kind() == SyntaxKind.MODULE_VAR_DECL &&
+                        node instanceof ModuleVariableDeclarationNode &&
+                        node.location().lineRange().startLine().line() <= position &&
+                        node.location().lineRange().endLine().line() >= position)
+                    .findFirst()
+                    .orElse(null);
             }
         }
         return null;

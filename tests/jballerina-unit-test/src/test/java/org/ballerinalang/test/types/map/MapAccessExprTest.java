@@ -78,7 +78,7 @@ public class MapAccessExprTest {
 
         Assert.assertTrue(returns instanceof  BMap);
 
-        BMap mapValue = (BMap) returns;
+        BMap<?, ?> mapValue = (BMap<?, ?>) returns;
         Assert.assertEquals(mapValue.size(), 3);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("fname")).toString(), "Chanaka");

@@ -42,6 +42,7 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 public class CleanCommandTest extends BaseCommandTest {
     private Path testResources;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();

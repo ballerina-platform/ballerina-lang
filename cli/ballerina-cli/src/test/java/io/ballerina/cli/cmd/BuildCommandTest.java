@@ -74,6 +74,7 @@ public class BuildCommandTest extends BaseCommandTest {
     Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
     ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();

@@ -43,6 +43,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -341,7 +342,7 @@ public class CreateTestExecutableTask implements Task {
 
         // Write the cmdArgs to a file in path
         Path writingPath = path.resolve(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
-        try (BufferedWriter writer = java.nio.file.Files.newBufferedWriter(writingPath)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(writingPath)) {
             for (String arg : cmdArgs) {
                 writer.write(arg);
                 writer.newLine();

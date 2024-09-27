@@ -50,7 +50,7 @@ public class JError {
         return packageName;
     }
 
-    public Class getCurrentClass() {
+    public Class<?> getCurrentClass() {
         return currentClass;
     }
 }

@@ -291,9 +291,111 @@ function testTypeInclusionWithFiniteField() {
     assertEquality(true, expr is UnaryExpr);
 }
 
+isolated int count1 = 0;
+isolated int count2 = 0;
+
+isolated function getDefaultVal1() returns Val1 {
+    lock {
+        count1 = count1 + 1;
+    }
+    return {val: 10};
+}
+
+isolated function getDefaultVal2() returns Val2 {
+    lock {
+        count2 = count2 + 1;
+    }
+    return {val: 3.3};
+}
+
+type Val1 record {|
+    int val;
+|};
+
+type Val2 record {|
+    float val;
+|};
+
+type Base1 record {|
+    Val1 val1 = getDefaultVal1();
+|};
+
+type BO1 record {|
+    Val1 val1?;
+|};
+
+type Base2 record {|
+    Val2 val2 = getDefaultVal2();
+|};
+
+type BO2 record {|
+    Val2 val2?;
+|};
+
+type Derived record {|
+    *Base1;
+    *Base2;
+|};
+
+isolated function testDefaultValueFromInclusion() {
+    BO1 bo1 = {};
+    BO2 bo2 = {};
+    Derived d = {...bo1, ...bo2};
+    assertEquality(10, d.val1.val);
+    assertEquality(3.3, d.val2.val);
+    lock {
+        assertEquality(1, count1);
+    }
+    lock {
+        assertEquality(1, count2);
+    }
+
+    BO1 bo3 = {val1: {val: 20}};
+    Derived d1 = {...bo3, ...bo2};
+    assertEquality(20, d1.val1.val);
+    assertEquality(3.3, d1.val2.val);
+    lock {
+        assertEquality(1, count1);
+    }
+    lock {
+        assertEquality(2, count2);
+    }
+
+    BO2 bo4 = {val2: {val: 30.3}};
+    Derived d2 = {...bo3, ...bo4};
+    assertEquality(20, d2.val1.val);
+    assertEquality(30.3, d2.val2.val);
+    lock {
+        assertEquality(1, count1);
+    }
+    lock {
+        assertEquality(2, count2);
+    }
+
+    Derived d3 = {};
+    assertEquality(10, d3.val1.val);
+    assertEquality(3.3, d3.val2.val);
+    lock {
+        assertEquality(2, count1);
+    }
+    lock {
+        assertEquality(3, count2);
+    }
+
+    Derived d4 = {val1: {val: 40}, val2: {val: 50.5}};
+    assertEquality(40, d4.val1.val);
+    assertEquality(50.5, d4.val2.val);
+    lock {
+        assertEquality(2, count1);
+    }
+    lock {
+        assertEquality(3, count2);
+    }
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
-function assertEquality(any|error expected, any|error actual) {
+isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
     }

@@ -72,7 +72,7 @@ import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
  *
  * @since 2201.5.0
  */
-public class ValueConverter {
+public final class ValueConverter {
 
     private ValueConverter() {}
 
@@ -263,7 +263,7 @@ public class ValueConverter {
                 BArray data = ValueCreator
                         .createArrayValue(tableValues, TypeCreator.createArrayType(tableType.getConstrainedType()));
                 BArray fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
-                return new TableValueImpl(targetRefType, (ArrayValue) data, (ArrayValue) fieldNames);
+                return new TableValueImpl<>(targetRefType, (ArrayValue) data, (ArrayValue) fieldNames);
             default:
                 break;
         }

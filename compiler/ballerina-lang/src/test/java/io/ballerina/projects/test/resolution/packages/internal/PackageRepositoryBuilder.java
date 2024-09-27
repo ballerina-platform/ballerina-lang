@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Reads repository dot files and build test package repository instances.
@@ -76,16 +76,11 @@ public class PackageRepositoryBuilder {
     }
 
     private Optional<Path> getRepPath(TestCaseFilePaths filePaths, RepositoryKind repoKind) {
-        switch (repoKind) {
-            case DIST:
-                return filePaths.distRepoPath();
-            case CENTRAL:
-                return filePaths.centralRepoPath();
-            case LOCAL:
-                return filePaths.localRepoDirPath();
-            default:
-                throw new IllegalStateException("Unsupported package repository kind " + repoKind);
-        }
+        return switch (repoKind) {
+            case DIST -> filePaths.distRepoPath();
+            case CENTRAL -> filePaths.centralRepoPath();
+            case LOCAL -> filePaths.localRepoDirPath();
+        };
     }
 
     private PackageRepository buildLocalRepo(Path localRepoDirPath) {
@@ -93,8 +88,8 @@ public class PackageRepositoryBuilder {
             return DefaultPackageRepository.EMPTY_REPO;
         }
 
-        try {
-            return buildLocalRepo(Files.list(localRepoDirPath).collect(Collectors.toList()));
+        try (Stream<Path> paths = Files.list(localRepoDirPath)) {
+            return buildLocalRepo(paths.toList());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -190,15 +185,10 @@ public class PackageRepositoryBuilder {
     private PackageRepository buildInternal(PackageVersionContainer<PackageDescWrapper> pkgContainer,
                                             Map<PackageDescriptor, DependencyGraph<PackageDescriptor>> graphMap,
                                             RepositoryKind repoKind) {
-        switch (repoKind) {
-            case LOCAL:
-                return new LocalPackageRepository(pkgContainer, graphMap);
-            case CENTRAL:
-            case DIST:
-                return new DefaultPackageRepository(pkgContainer, graphMap);
-            default:
-                throw new IllegalStateException("Unsupported package repository kind " + repoKind);
-        }
+        return switch (repoKind) {
+            case LOCAL -> new LocalPackageRepository(pkgContainer, graphMap);
+            case CENTRAL, DIST -> new DefaultPackageRepository(pkgContainer, graphMap);
+        };
     }
 
     private static class GraphNodeMarker {
@@ -220,7 +210,7 @@ public class PackageRepositoryBuilder {
             return marker.entrySet().stream()
                     .filter(entry -> entry.getValue() == Boolean.FALSE)
                     .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
+                    .toList();
         }
     }
 }

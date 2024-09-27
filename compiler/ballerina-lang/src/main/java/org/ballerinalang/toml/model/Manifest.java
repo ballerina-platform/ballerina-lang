@@ -59,15 +59,14 @@ public class Manifest {
                     dependency.setMetadata(convertObjectToDependencyMetadata(entry.getValue()));
                     return dependency;
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private DependencyMetadata convertObjectToDependencyMetadata(Object obj) {
         DependencyMetadata metadata = new DependencyMetadata();
-        if (obj instanceof String) {
-            metadata.setVersion((String) obj);
-        } else if (obj instanceof Map) {
-            Map metadataMap = (Map) obj;
+        if (obj instanceof String s) {
+            metadata.setVersion(s);
+        } else if (obj instanceof Map<?, ?> metadataMap) {
             if (metadataMap.keySet().contains("version") && metadataMap.get("version") instanceof String) {
                 metadata.setVersion((String) metadataMap.get("version"));
             }

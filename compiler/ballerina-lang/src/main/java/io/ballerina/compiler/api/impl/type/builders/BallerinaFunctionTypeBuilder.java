@@ -123,8 +123,7 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
         }
 
         BSymbol internalSymbol = ((BallerinaSymbol) restParam).getInternalSymbol();
-        if (internalSymbol instanceof BVarSymbol) {
-            BVarSymbol varSymbol = (BVarSymbol) internalSymbol;
+        if (internalSymbol instanceof BVarSymbol varSymbol) {
             varSymbol.type = restType;
             return varSymbol;
         }
@@ -151,8 +150,8 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
         List<BVarSymbol> params = new ArrayList<>();
         for (ParameterSymbol parameterSymbol : parameterSymbols) {
             BSymbol internalSymbol = ((BallerinaSymbol) parameterSymbol).getInternalSymbol();
-            if (internalSymbol instanceof BVarSymbol) {
-                params.add((BVarSymbol) internalSymbol);
+            if (internalSymbol instanceof BVarSymbol bVarSymbol) {
+                params.add(bVarSymbol);
             }
         }
 
@@ -169,8 +168,8 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
     }
 
     private BType getBType(TypeSymbol typeSymbol) {
-        if (typeSymbol instanceof AbstractTypeSymbol) {
-            return ((AbstractTypeSymbol) typeSymbol).getBType();
+        if (typeSymbol instanceof AbstractTypeSymbol abstractTypeSymbol) {
+            return abstractTypeSymbol.getBType();
         }
 
         throw new IllegalArgumentException("Invalid type provided");
@@ -181,8 +180,8 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
             return symTable.nilType;
         }
 
-        if (returnTypeSymbol instanceof AbstractTypeSymbol) {
-            return ((AbstractTypeSymbol) returnTypeSymbol).getBType();
+        if (returnTypeSymbol instanceof AbstractTypeSymbol abstractTypeSymbol) {
+            return abstractTypeSymbol.getBType();
         }
 
         throw new IllegalArgumentException("Invalid return type provided");
@@ -256,8 +255,8 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
         }
 
         private BType getBType(TypeSymbol typeSymbol) {
-            if (typeSymbol instanceof AbstractTypeSymbol) {
-                    return ((AbstractTypeSymbol) typeSymbol).getBType();
+            if (typeSymbol instanceof AbstractTypeSymbol abstractTypeSymbol) {
+                    return abstractTypeSymbol.getBType();
             }
 
             throw new IllegalArgumentException("Invalid type provided");

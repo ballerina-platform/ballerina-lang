@@ -31,6 +31,7 @@ import java.util.List;
 @Test
 public class FindRefsInWorkersTest extends FindAllReferencesTest {
 
+    @Override
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{

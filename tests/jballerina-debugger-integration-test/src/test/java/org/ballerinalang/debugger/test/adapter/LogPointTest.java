@@ -41,6 +41,7 @@ public class LogPointTest extends BaseTestCase {
 
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "logpoint-tests-1";
@@ -153,6 +154,7 @@ public class LogPointTest extends BaseTestCase {
         Assert.assertEquals(outputInfo.getRight().getCategory(), OutputEventArgumentsCategory.STDOUT);
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

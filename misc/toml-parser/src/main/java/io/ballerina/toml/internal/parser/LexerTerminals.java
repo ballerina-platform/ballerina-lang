@@ -22,7 +22,8 @@ package io.ballerina.toml.internal.parser;
  *
  * @since 1.2.0
  */
-public class LexerTerminals {
+public final class LexerTerminals {
+
     // Keywords
     public static final String TRUE = "true";
     public static final String FALSE = "false";
@@ -58,6 +59,9 @@ public class LexerTerminals {
     public static final char SPACE = 0x20;
     public static final char FORM_FEED = 0xC;
     public static final char BACKSLASH = '\\';
+
+    private LexerTerminals() {
+    }
 
     //New
 }

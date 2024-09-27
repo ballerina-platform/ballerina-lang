@@ -262,11 +262,10 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
             return true;
         }
 
-        if (!(obj instanceof ModuleSymbol)) {
+        if (!(obj instanceof ModuleSymbol symbol)) {
             return false;
         }
 
-        ModuleSymbol symbol = (ModuleSymbol) obj;
         return this.id().equals(symbol.id());
     }
 

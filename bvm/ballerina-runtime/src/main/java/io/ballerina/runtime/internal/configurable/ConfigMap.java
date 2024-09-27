@@ -26,7 +26,8 @@ import java.util.Map;
  *
  * @since 2.0.0
  */
-public class ConfigMap {
+public final class ConfigMap {
+
     private static Map<VariableKey, ConfigValue> configurableMap = new HashMap<>();
 
     private ConfigMap() {}

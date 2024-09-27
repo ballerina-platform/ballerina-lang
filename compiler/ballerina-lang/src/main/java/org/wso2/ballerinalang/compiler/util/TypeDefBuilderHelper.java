@@ -80,9 +80,12 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createIdent
  *
  * @since 1.2.0
  */
-public class TypeDefBuilderHelper {
+public final class TypeDefBuilderHelper {
 
     public static final String INTERSECTED_ERROR_DETAIL = "$IntersectedErrorDetail$";
+
+    private TypeDefBuilderHelper() {
+    }
 
     public static BLangRecordTypeNode createRecordTypeNode(BRecordType recordType, PackageID packageID,
                                                            SymbolTable symTable, Location pos) {

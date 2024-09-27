@@ -163,7 +163,7 @@ public class BoilerplateGenerator extends SchemaVisitor {
         for (AbstractSchema value : children.values()) {
             //If Anything other than array or table
             if (!(value.type() == Type.OBJECT || value.type() == Type.ARRAY)) {
-                if (((PrimitiveValueSchema) value).defaultValue().isPresent()) {
+                if (((PrimitiveValueSchema<?>) value).defaultValue().isPresent()) {
                     return true;
                 }
             }

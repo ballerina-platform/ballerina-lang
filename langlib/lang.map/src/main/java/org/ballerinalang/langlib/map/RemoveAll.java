@@ -34,7 +34,10 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRecord;
  *
  * @since 1.0
  */
-public class RemoveAll {
+public final class RemoveAll {
+
+    private RemoveAll() {
+    }
 
     public static void removeAll(BMap<?, ?> m) {
         checkIsMapOnlyOperation(TypeUtils.getImpliedType(m.getType()), "removeAll()");
