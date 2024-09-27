@@ -22,6 +22,7 @@ import ballerina/lang.'xml as lang_xml;
 import ballerina/lang.'stream as lang_stream;
 import ballerina/lang.'table as lang_table;
 import ballerina/lang.'object as lang_object;
+import ballerina/lang.'function as lang_function;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
@@ -1056,34 +1057,9 @@ class _OrderTreeNode {
     # sorting is not supported for any[], therefore have to resolve runtime type and sort it.
     # + return - ordered array.
     function getSortedArray(any[] arr) returns any[] {
-        if (arr.length() > 0) {
-            int i = 0;
-            while (i < arr.length()) {
-                if (arr[i] is ()) {
-                    i += 1;
-                    continue;
-                } else if (arr[i] is boolean) {
-                    boolean?[] res = [];
-                    self.copyArray(arr, res);
-                    return res.sort(self.nodesDirection, (v) => v);
-                } else if (arr[i] is int) {
-                    int?[] res = [];
-                    self.copyArray(arr, res);
-                    return res.sort(self.nodesDirection, (v) => v);
-                } else if (arr[i] is float) {
-                    float?[] res = [];
-                    self.copyArray(arr, res);
-                    return res.sort(self.nodesDirection, (v) => v);
-                } else if (arr[i] is decimal) {
-                    decimal?[] res = [];
-                    self.copyArray(arr, res);
-                    return res.sort(self.nodesDirection, (v) => v);
-                } else if (arr[i] is string) {
-                    string?[] res = [];
-                    self.copyArray(arr, res);
-                    return res.sort(self.nodesDirection, (v) => v);
-                }
-            }
+        any|error res = lang_function:call(lang_array:sort, arr, self.nodesDirection);
+        if res is any[] {
+            return res;
         }
         return arr;
     }
