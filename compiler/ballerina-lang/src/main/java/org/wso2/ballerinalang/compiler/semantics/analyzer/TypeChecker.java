@@ -1949,7 +1949,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.JSON -> !Symbols.isFlagOn(referredType.getFlags(), Flags.READONLY) ? symTable.arrayJsonType :
                     ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayJsonType,
                             data.env, symTable, anonymousModelHelper, names);
-            case TypeTags.ANYDATA -> !Symbols.isFlagOn(referredType.getFlags(), Flags.READONLY) ? symTable.arrayAnydataType :
+            case TypeTags.ANYDATA -> !Symbols.isFlagOn(referredType.getFlags(), Flags.READONLY) ?
+                    symTable.arrayAnydataType :
                     ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAnydataType,
                             data.env, symTable, anonymousModelHelper, names);
             case TypeTags.ANY -> !Symbols.isFlagOn(referredType.getFlags(), Flags.READONLY) ? symTable.arrayAllType :
