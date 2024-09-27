@@ -502,3 +502,98 @@ function incrementCount(int i) returns int {
     int count = i + 2;
     return count;
 }
+
+function testQueryExprWithOrderByClauseWithArrayKey() {
+    record {|int[] t; string s;|}[] data1 = [
+        {s: "s5", t: [5, 2]},
+        {s: "s1", t: [1, 1, 3, 4]},
+        {s: "s0", t: [0]},
+        {s: "s4", t: [4]}
+    ];
+
+    string[] q1 = from var rec in data1
+        order by rec.t descending
+        select rec.s;
+    assertEquality(["s5", "s4", "s1", "s0"], q1);
+
+    record {|int k; [decimal, int] arr;|}[] data2 = [
+        {k: 1, arr: [3.2, 1]},
+        {k: 2, arr: [212.21, 3]},
+        {k: 3, arr: [0.2, 4]},
+        {k: 4, arr: [-1.2, 10]}
+    ];
+
+    int[] q2 = from var rec in data2
+        order by rec.arr descending
+        select rec.k;
+    assertEquality([2, 1, 3, 4], q2);
+
+    record {|int k; [boolean, string, int] arr;|}[] data3 = [
+        {k: 1, arr: [true, "abcd", 1]},
+        {k: 2, arr: [false, "efgh", 9]},
+        {k: 3, arr: [false, "abcd", 10]},
+        {k: 4, arr: [true, "ijkl", -5]}
+    ];
+
+    int[] q3 = from var rec in data3
+        order by rec.arr
+        select rec.k;
+    assertEquality([3, 2, 1, 4], q3);
+
+    record {|int k; [float...] arr;|}[] data4 = [
+        {k: 1, arr: [1.2, 3.1, 5.6, 9.2]},
+        {k: 2, arr: []},
+        {k: 3, arr: [-0.7, 0.8, 1.45]},
+        {k: 4, arr: [1, 2]}
+    ];
+
+    int[] q4 = from var rec in data4
+        order by rec.arr
+        select rec.k;
+    assertEquality([2, 3, 4, 1], q4);
+
+    record {|int k; [float...] arr1; [string, string...] arr2;|}[] data5 = [
+        {k: 1, arr1: [1.2, 3.1, 5.6, 9.2], arr2: ["s1", "s2"]},
+        {k: 2, arr1: [], arr2: ["s10", "s9"]},
+        {k: 3, arr1: [], arr2: ["s1", "s2"]},
+        {k: 4, arr1: [], arr2: ["s1", "s2"]},
+        {k: 5, arr1: [1, 2], arr2: ["s24", "s2"]}
+    ];
+
+    int[] q5 = from var rec in data5
+        order by rec.arr1 descending, rec.arr2 ascending
+        select rec.k;
+    assertEquality([1, 5, 3, 4, 2], q5);
+
+    record {|int k; float?[]? arr1;|}[] data6 = [
+        {k: 1, arr1: [1.2, 3.1, 5.6, 9.2]},
+        {k: 2, arr1: [1.2, 3.1, 5.6, ()]},
+        {k: 3, arr1: [(), (), ()]},
+        {k: 4, arr1: ()},
+        {k: 5, arr1: [1, 2]}
+    ];
+
+    int[] q6 = from var rec in data6
+        order by rec.arr1 descending
+        select rec.k;
+    assertEquality([1, 2, 5, 3, 4], q6);
+
+    record {|int k; [int?, string?, decimal?...] arr1;|}[] data7 = [
+        {k: 1, arr1: [1, "a", 9.2]},
+        {k: 2, arr1: [1, (), ()]},
+        {k: 3, arr1: [(), (), 4.2]},
+        {k: 4, arr1: [2, "b"]},
+        {k: 5, arr1: [2, (), 2.3]}
+    ];
+
+    int[] q7 = from var rec in data7
+        order by rec.arr1 descending
+        select rec.k;
+    assertEquality([4, 5, 1, 2, 3], q7);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected != actual {
+        panic error(string `Expected ${expected.toBalString()}, found ${actual.toBalString()}`);
+    }
+}
