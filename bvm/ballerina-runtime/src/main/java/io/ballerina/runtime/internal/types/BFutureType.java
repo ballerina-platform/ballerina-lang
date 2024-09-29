@@ -101,7 +101,7 @@ public class BFutureType extends BType implements FutureType {
     @Override
     public SemType createSemType() {
         if (constraint == null) {
-            return Builder.futureType();
+            return Builder.getFutureType();
         }
         return FutureUtils.futureContaining(TypeChecker.context().env, tryInto(constraint));
     }

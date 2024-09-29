@@ -92,7 +92,7 @@ public class BAnydataType extends BUnionType implements AnydataType {
     // TODO: this type don't have mutable parts so this should be a immutable semtype
     @Override
     public SemType createSemType() {
-        SemType semType = Builder.anyDataType();
+        SemType semType = Builder.getAnyDataType();
         if (isReadOnly()) {
             semType = Core.intersect(semType, Builder.readonlyType());
         }

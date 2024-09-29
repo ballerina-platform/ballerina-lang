@@ -29,7 +29,7 @@ public final class RegexUtils {
     }
 
     public static SemType regexShape(String value) {
-        SemType stringSubtype = Builder.stringConst(value);
+        SemType stringSubtype = Builder.getStringConst(value);
         BStringSubType stringSubType = (BStringSubType) stringSubtype.subTypeByCode(BasicTypeCode.CODE_STRING);
         return Builder.basicSubType(BasicTypeCode.BT_REGEXP, stringSubType);
     }

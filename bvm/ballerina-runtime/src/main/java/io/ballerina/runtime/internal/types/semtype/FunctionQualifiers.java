@@ -45,8 +45,8 @@ public final class FunctionQualifiers {
         if (semType == null) {
             ListDefinition ld = new ListDefinition();
             SemType[] members = {
-                    isolated ? Builder.booleanConst(true) : Builder.booleanType(),
-                    transactional ? Builder.booleanType() : Builder.booleanConst(false)
+                    isolated ? Builder.getBooleanConst(true) : Builder.booleanType(),
+                    transactional ? Builder.booleanType() : Builder.getBooleanConst(false)
             };
             semType = ld.defineListTypeWrapped(env, members, 2, Builder.neverType(),
                     CellAtomicType.CellMutability.CELL_MUT_NONE);

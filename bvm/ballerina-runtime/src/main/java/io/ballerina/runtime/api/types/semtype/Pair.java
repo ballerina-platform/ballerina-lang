@@ -18,6 +18,15 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+/**
+ * Data structure used to pass around pairs of values.
+ *
+ * @param <E1>   type of first value
+ * @param <E2>   type of second value
+ * @param first  first values
+ * @param second second value
+ * @since 2201.10.0
+ */
 public record Pair<E1, E2>(E1 first, E2 second) {
 
     public static <E1, E2> Pair<E1, E2> from(E1 first, E2 second) {

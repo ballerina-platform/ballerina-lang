@@ -119,7 +119,7 @@ public class BFunctionSubType extends SubType implements DelegatedSubType {
 
     private static SemType functionIntersectRet(Context cx, Conjunction pos) {
         if (pos == null) {
-            return Builder.valType();
+            return Builder.getValType();
         }
         return Core.intersect(cx.functionAtomicType(pos.atom()).retType(), functionIntersectRet(cx, pos.next()));
     }

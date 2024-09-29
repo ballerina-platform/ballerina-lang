@@ -73,12 +73,12 @@ public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTyp
     private static SemType pickSemType(int tag) {
         return switch (tag) {
             case TypeTags.INT_TAG -> Builder.intType();
-            case TypeTags.SIGNED8_INT_TAG -> Builder.intRange(SIGNED8_MIN_VALUE, SIGNED8_MAX_VALUE);
-            case TypeTags.SIGNED16_INT_TAG -> Builder.intRange(SIGNED16_MIN_VALUE, SIGNED16_MAX_VALUE);
-            case TypeTags.SIGNED32_INT_TAG -> Builder.intRange(SIGNED32_MIN_VALUE, SIGNED32_MAX_VALUE);
-            case TypeTags.UNSIGNED8_INT_TAG, TypeTags.BYTE_TAG -> Builder.intRange(0, UNSIGNED8_MAX_VALUE);
-            case TypeTags.UNSIGNED16_INT_TAG -> Builder.intRange(0, UNSIGNED16_MAX_VALUE);
-            case TypeTags.UNSIGNED32_INT_TAG -> Builder.intRange(0, UNSIGNED32_MAX_VALUE);
+            case TypeTags.SIGNED8_INT_TAG -> Builder.createIntRange(SIGNED8_MIN_VALUE, SIGNED8_MAX_VALUE);
+            case TypeTags.SIGNED16_INT_TAG -> Builder.createIntRange(SIGNED16_MIN_VALUE, SIGNED16_MAX_VALUE);
+            case TypeTags.SIGNED32_INT_TAG -> Builder.createIntRange(SIGNED32_MIN_VALUE, SIGNED32_MAX_VALUE);
+            case TypeTags.UNSIGNED8_INT_TAG, TypeTags.BYTE_TAG -> Builder.createIntRange(0, UNSIGNED8_MAX_VALUE);
+            case TypeTags.UNSIGNED16_INT_TAG -> Builder.createIntRange(0, UNSIGNED16_MAX_VALUE);
+            case TypeTags.UNSIGNED32_INT_TAG -> Builder.createIntRange(0, UNSIGNED32_MAX_VALUE);
             default -> throw new UnsupportedOperationException("Unexpected int tag");
         };
     }
@@ -92,7 +92,7 @@ public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTyp
 
     private static BIntegerType createSingletonType(long value) {
         return new BIntegerType(() -> (BIntegerTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.INT_TNAME, EMPTY_MODULE,
-                TypeTags.INT_TAG, Builder.intConst(value));
+                TypeTags.INT_TAG, Builder.getIntConst(value));
     }
 
     protected static final class BIntegerTypeImpl extends BType implements IntegerType, Cloneable {

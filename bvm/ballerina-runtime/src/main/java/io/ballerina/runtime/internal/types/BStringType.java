@@ -63,7 +63,7 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
 
     public static BStringType singletonType(String value) {
         return new BStringType(() -> (BStringTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.STRING_TNAME,
-                DEFAULT_MODULE, TypeTags.STRING_TAG, Builder.stringConst(value));
+                DEFAULT_MODULE, TypeTags.STRING_TAG, Builder.getStringConst(value));
     }
 
     private static SemType pickSemtype(int tag) {

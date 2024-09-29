@@ -758,7 +758,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx) {
+    public Optional<SemType> inherentTypeOf(Context cx) {
         TypeWithShape typeWithShape = (TypeWithShape) type;
         return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
     }

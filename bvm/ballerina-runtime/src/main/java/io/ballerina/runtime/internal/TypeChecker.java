@@ -445,16 +445,16 @@ public final class TypeChecker {
         if (basicTypePredicate.test(Builder.stringType())) {
             return isEqual(lhsValue, rhsValue);
         }
-        if (basicTypePredicate.test(Builder.xmlType())) {
+        if (basicTypePredicate.test(Builder.getXmlType())) {
             return isXMLValueRefEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
         }
-        if (basicTypePredicate.test(Builder.handleType())) {
+        if (basicTypePredicate.test(Builder.getHandleType())) {
             return isHandleValueRefEqual(lhsValue, rhsValue);
         }
-        if (basicTypePredicate.test(Builder.functionType())) {
+        if (basicTypePredicate.test(Builder.getFunctionType())) {
             return isFunctionPointerEqual(getImpliedType(getType(lhsValue)), getImpliedType(getType(rhsValue)));
         }
-        if (basicTypePredicate.test(Builder.regexType())) {
+        if (basicTypePredicate.test(Builder.getRegexType())) {
             RegExpValue lhsReg = (RegExpValue) lhsValue;
             RegExpValue rhsReg = (RegExpValue) rhsValue;
             return lhsReg.equals(rhsReg, new HashSet<>());
@@ -632,7 +632,7 @@ public final class TypeChecker {
 
     private static SemType widenedType(Context cx, Object value) {
         if (value instanceof BValue bValue) {
-            return bValue.widenedType(cx);
+            return bValue.widenedType();
         }
         if (value == null) {
             return Builder.nilType();
@@ -649,9 +649,10 @@ public final class TypeChecker {
     }
 
     private static SemType createInherentlyImmutableType() {
-        return Stream.of(createSimpleBasicType(), Builder.stringType(), Builder.errorType(), Builder.functionType(),
-                        Builder.typeDescType(), Builder.handleType(), Builder.xmlTextType(), Builder.xmlNeverType(),
-                        Builder.regexType())
+        return Stream.of(createSimpleBasicType(), Builder.stringType(), Builder.getErrorType(),
+                        Builder.getFunctionType(),
+                        Builder.getTypeDescType(), Builder.getHandleType(), Builder.getXmlTextType(), Builder.getXmlNeverType(),
+                        Builder.getRegexType())
                 .reduce(Builder.neverType(), Core::union);
     }
 
@@ -821,8 +822,8 @@ public final class TypeChecker {
     }
 
     private static SemType createRefValueMask() {
-        return Stream.of(Builder.xmlType(), Builder.mappingType(), Builder.listType(), Builder.errorType(),
-                        Builder.tableType(), Builder.regexType())
+        return Stream.of(Builder.getXmlType(), Builder.getMappingType(), Builder.listType(), Builder.getErrorType(),
+                        Builder.getTableType(), Builder.getRegexType())
                 .reduce(Builder.neverType(), Core::union);
     }
 
@@ -1001,7 +1002,7 @@ public final class TypeChecker {
 
     private static SemType createTopTypesWithFillerValues() {
         return Stream.of(Builder.intType(), Builder.floatType(), Builder.decimalType(), Builder.stringType(),
-                Builder.booleanType(), Builder.nilType(), Builder.tableType(), Builder.mappingType(),
+                Builder.booleanType(), Builder.nilType(), Builder.getTableType(), Builder.getMappingType(),
                 Builder.listType()).reduce(Builder.neverType(), Core::union);
     }
 
@@ -1283,7 +1284,7 @@ public final class TypeChecker {
     static boolean belongToSingleBasicTypeOrString(Type type) {
         Context cx = context();
         SemType semType = SemType.tryInto(type);
-        return isSingleBasicType(semType) && Core.isSubType(cx, semType, Builder.simpleOrStringType()) &&
+        return isSingleBasicType(semType) && Core.isSubType(cx, semType, Builder.getSimpleOrStringType()) &&
                 !Core.isSubType(cx, semType, Builder.nilType());
     }
 

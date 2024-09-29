@@ -37,10 +37,10 @@ public final class BBooleanType extends BSemTypeWrapper<BBooleanType.BBooleanTyp
 
     private static final BBooleanType TRUE =
             new BBooleanType(() -> new BBooleanTypeImpl(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE),
-                    TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE, Builder.booleanConst(true));
+                    TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE, Builder.getBooleanConst(true));
     private static final BBooleanType FALSE =
             new BBooleanType(() -> new BBooleanTypeImpl(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE),
-                    TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE, Builder.booleanConst(false));
+                    TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE, Builder.getBooleanConst(false));
 
     /**
      * Create a {@code BBooleanType} which represents the boolean type.

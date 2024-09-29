@@ -46,7 +46,8 @@ public final class BByteType extends BSemTypeWrapper<BByteType.BByteTypeImpl> im
      * @param typeName string name of the type
      */
     public BByteType(String typeName, Module pkg) {
-        this(() -> new BByteTypeImpl(typeName, pkg), typeName, EMPTY_MODULE, Builder.intRange(0, UNSIGNED8_MAX_VALUE));
+        this(() -> new BByteTypeImpl(typeName, pkg), typeName, EMPTY_MODULE,
+                Builder.createIntRange(0, UNSIGNED8_MAX_VALUE));
     }
 
     private BByteType(Supplier<BByteTypeImpl> bTypeSupplier, String typeName, Module pkg, SemType semType) {
@@ -55,7 +56,7 @@ public final class BByteType extends BSemTypeWrapper<BByteType.BByteTypeImpl> im
 
     public static BByteType singletonType(long value) {
         return new BByteType(() -> (BByteTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.BYTE_TNAME, EMPTY_MODULE,
-                Builder.intConst(value));
+                Builder.getIntConst(value));
     }
 
     protected static final class BByteTypeImpl extends BType implements ByteType, Cloneable {

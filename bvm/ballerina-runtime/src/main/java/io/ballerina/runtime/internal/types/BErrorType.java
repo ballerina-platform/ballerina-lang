@@ -128,7 +128,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
     public synchronized SemType createSemType() {
         SemType err;
         if (detailType == null || isTopType()) {
-            err = Builder.errorType();
+            err = Builder.getErrorType();
         } else {
             err = ErrorUtils.errorDetail(tryInto(getDetailType()));
         }

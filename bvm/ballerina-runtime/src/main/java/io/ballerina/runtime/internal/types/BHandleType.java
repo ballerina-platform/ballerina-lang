@@ -42,7 +42,7 @@ public final class BHandleType extends BSemTypeWrapper<BHandleType.BHandleTypeIm
     public BHandleType(String typeName, Module pkg) {
         super(new ConcurrentLazySupplier<>
                         (() -> BHandleTypeImpl.create(typeName, pkg)), typeName, pkg, TypeTags.HANDLE_TAG,
-                Builder.handleType());
+                Builder.getHandleType());
     }
 
     protected static final class BHandleTypeImpl extends BType implements HandleType {

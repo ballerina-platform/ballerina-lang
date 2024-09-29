@@ -40,12 +40,8 @@ public abstract sealed class BddNode extends Bdd permits BddNodeImpl, BddNodeSim
     public int hashCode() {
         Integer result = hashCode;
         if (result == null) {
-            synchronized (this) {
-                result = hashCode;
-                if (result == null) {
-                    hashCode = result = computeHashCode();
-                }
-            }
+            // No need to synchronize this since {@code computeHashCode} is idempotent
+            hashCode = result = computeHashCode();
         }
         return result;
     }

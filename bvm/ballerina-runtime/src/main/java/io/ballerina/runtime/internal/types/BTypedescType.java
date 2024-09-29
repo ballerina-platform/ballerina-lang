@@ -95,7 +95,7 @@ public class BTypedescType extends BType implements TypedescType {
     @Override
     public SemType createSemType() {
         if (constraint == null) {
-            return Builder.typeDescType();
+            return Builder.getTypeDescType();
         }
         SemType constraint = tryInto(getConstraint());
         Context cx = TypeChecker.context();

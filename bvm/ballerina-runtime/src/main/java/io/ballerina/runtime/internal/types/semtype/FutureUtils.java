@@ -36,8 +36,8 @@ public final class FutureUtils {
     }
 
     public static SemType futureContaining(Env env, SemType constraint) {
-        if (constraint == Builder.valType()) {
-            return Builder.futureType();
+        if (constraint == Builder.getValType()) {
+            return Builder.getFutureType();
         }
         MappingDefinition md = new MappingDefinition();
         SemType mappingType = md.defineMappingTypeWrapped(env, EMPTY_FIELDS, constraint,
