@@ -30,8 +30,8 @@ import java.util.Objects;
 import java.util.WeakHashMap;
 
 /**
- * Context in which type checking operations are performed. Note context is not thread safe, requiring external
- * synchronization if shared between threads. Multiple contexts may share same environment without issue.
+ * Context in which type checking operations are performed. Note context is not thread safe, and multiple type check
+ * operations should not use the same context concurrently. Multiple contexts may share same environment without issue.
  *
  * @since 2201.10.0
  */
