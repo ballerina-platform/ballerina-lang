@@ -66,7 +66,7 @@ public final class BTableSubType extends SubType implements DelegatedSubType {
 
     @Override
     public SubType complement() {
-        return createDelegate(Builder.listSubtypeThreeElement().diff(inner));
+        return createDelegate(Builder.getListSubtypeThreeElement().diff(inner));
     }
 
     @Override
@@ -75,7 +75,7 @@ public final class BTableSubType extends SubType implements DelegatedSubType {
         // The goal of this is to ensure that listSubtypeIsEmpty call beneath does
         // not get an empty posList, because it will interpret that
         // as `(any|error)[]` rather than `[(map<any|error>)[], any|error, any|error]`.
-        b = b.posMaybeEmpty() ? (Bdd) b.intersect(Builder.listSubtypeThreeElement()) : b;
+        b = b.posMaybeEmpty() ? (Bdd) b.intersect(Builder.getListSubtypeThreeElement()) : b;
         return cx.memoSubtypeIsEmpty(cx.listMemo,
                 (context, bdd) -> bddEvery(context, bdd, BListSubType::listFormulaIsEmpty), b);
     }

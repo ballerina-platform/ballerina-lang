@@ -36,8 +36,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-import static io.ballerina.runtime.api.types.semtype.Builder.cellContaining;
-import static io.ballerina.runtime.api.types.semtype.Builder.roCellContaining;
+import static io.ballerina.runtime.api.types.semtype.Builder.getRoCellContaining;
 import static io.ballerina.runtime.api.types.semtype.Conjunction.and;
 import static io.ballerina.runtime.api.types.semtype.Core.cellInnerVal;
 import static io.ballerina.runtime.api.types.semtype.Core.diff;
@@ -65,7 +64,7 @@ public final class BListProj {
 
     public static SemType listProjInnerVal(Context cx, SemType t, SemType k) {
         if (t.some() == 0) {
-            return t == Builder.listType() ? Builder.valType() : Builder.neverType();
+            return t == Builder.listType() ? Builder.getValType() : Builder.neverType();
         } else {
             SubTypeData keyData = Core.intSubtype(k);
             if (isNothingSubtype(keyData)) {
@@ -92,7 +91,7 @@ public final class BListProj {
         SemType rest;
         if (pos == null) {
             members = FixedLengthArray.empty();
-            rest = cellContaining(cx.env, union(Builder.valType(), Builder.undef()));
+            rest = Builder.getRwCellContaining(cx.env, union(Builder.getValType(), Builder.undef()));
         } else {
             // combine all the positive tuples using intersection
             ListAtomicType lt = cx.listAtomType(pos.atom());
@@ -125,7 +124,7 @@ public final class BListProj {
             }
             // Ensure that we can use isNever on rest in listInhabited
             if (!isNever(cellInnerVal(rest)) && isEmpty(cx, rest)) {
-                rest = roCellContaining(cx.env, Builder.neverType());
+                rest = getRoCellContaining(cx.env, Builder.neverType());
             }
         }
         Integer[] indices = listSamples(cx, members, rest, neg);
@@ -172,7 +171,7 @@ public final class BListProj {
                         diff(cellInnerVal(memberTypes[i]), listMemberAtInnerVal(nt.members(), nt.rest(), indices[i]));
                 if (!Core.isEmpty(cx, d)) {
                     SemType[] t = memberTypes.clone();
-                    t[i] = cellContaining(cx.env, d);
+                    t[i] = Builder.getRwCellContaining(cx.env, d);
                     // We need to make index i be required
                     p = union(p, listProjExcludeInnerVal(cx, indices, keyIndices, t, Integer.max(nRequired, i + 1),
                             neg.next()));

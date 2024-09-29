@@ -38,7 +38,6 @@ import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_ERROR;
@@ -69,10 +68,10 @@ public final class Builder {
     private static final SemType VAL = SemType.from(VT_MASK);
     private static final SemType OBJECT = from(BT_OBJECT);
 
-    private static final SemType INNER = basicTypeUnion(VAL.all() | from(BasicTypeCode.BT_UNDEF).all());
-    private static final SemType ANY = basicTypeUnion(BasicTypeCode.VT_MASK & ~(1 << BasicTypeCode.BT_ERROR.code()));
+    private static final SemType INNER = getBasicTypeUnion(VAL.all() | from(BasicTypeCode.BT_UNDEF).all());
+    private static final SemType ANY = getBasicTypeUnion(BasicTypeCode.VT_MASK & ~(1 << BasicTypeCode.BT_ERROR.code()));
     private static final SemType SIMPLE_OR_STRING =
-            basicTypeUnion((1 << BasicTypeCode.BT_NIL.code())
+            getBasicTypeUnion((1 << BasicTypeCode.BT_NIL.code())
                     | (1 << BasicTypeCode.BT_BOOLEAN.code())
                     | (1 << BasicTypeCode.BT_INT.code())
                     | (1 << BasicTypeCode.BT_FLOAT.code())
@@ -83,7 +82,7 @@ public final class Builder {
     private static final SemType[] EMPTY_TYPES_ARR = new SemType[0];
 
     private static final ConcurrentLazySupplier<SemType> MAPPING_RO = new ConcurrentLazySupplier<>(() ->
-            basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddSubtypeRo()))
+            basicSubType(BT_MAPPING, BMappingSubType.createDelegate(getBddSubtypeRo()))
     );
     private static final ConcurrentLazySupplier<SemType> ANYDATA = new ConcurrentLazySupplier<>(
             () -> {
@@ -92,7 +91,7 @@ public final class Builder {
                 MappingDefinition mapDef = new MappingDefinition();
                 SemType tableTy = TableUtils.tableContaining(env, mapDef.getSemType(env));
                 SemType accum =
-                        unionOf(simpleOrStringType(), xmlType(), listDef.getSemType(env), mapDef.getSemType(env),
+                        unionOf(getSimpleOrStringType(), getXmlType(), listDef.getSemType(env), mapDef.getSemType(env),
                                 tableTy);
                 listDef.defineListTypeWrapped(env, EMPTY_TYPES_ARR, 0, accum, CELL_MUT_LIMITED);
                 mapDef.defineMappingTypeWrapped(env, new MappingDefinition.Field[0], accum, CELL_MUT_LIMITED);
@@ -186,7 +185,7 @@ public final class Builder {
         return PREDEFINED_TYPE_ENV.readonlyType();
     }
 
-    static SemType basicTypeUnion(int bitset) {
+    static SemType getBasicTypeUnion(int bitset) {
         return switch (bitset) {
             case 0 -> neverType();
             case VT_MASK -> VAL;
@@ -218,7 +217,7 @@ public final class Builder {
                 && (basicTypeCode != BT_CELL || subType instanceof BCellSubType);
     }
 
-    public static SemType intConst(long value) {
+    public static SemType getIntConst(long value) {
         if (value >= IntTypeCache.CACHE_MIN_VALUE && value <= IntTypeCache.CACHE_MAX_VALUE) {
             return IntTypeCache.cache[(int) value - IntTypeCache.CACHE_MIN_VALUE];
         }
@@ -231,25 +230,25 @@ public final class Builder {
         return basicSubType(BasicTypeCode.BT_INT, BIntSubType.createIntSubType(values));
     }
 
-    public static SemType booleanConst(boolean value) {
+    public static SemType getBooleanConst(boolean value) {
         return value ? BooleanTypeCache.TRUE : BooleanTypeCache.FALSE;
     }
 
-    public static SemType intRange(long min, long max) {
+    public static SemType createIntRange(long min, long max) {
         return basicSubType(BasicTypeCode.BT_INT, BIntSubType.createIntSubType(min, max));
     }
 
-    public static SemType decimalConst(BigDecimal value) {
+    public static SemType getDecimalConst(BigDecimal value) {
         BigDecimal[] values = {value};
         return basicSubType(BasicTypeCode.BT_DECIMAL, BDecimalSubType.createDecimalSubType(true, values));
     }
 
-    public static SemType floatConst(double value) {
+    public static SemType getFloatConst(double value) {
         Double[] values = {value};
         return basicSubType(BasicTypeCode.BT_FLOAT, BFloatSubType.createFloatSubType(true, values));
     }
 
-    public static SemType stringConst(String value) {
+    public static SemType getStringConst(String value) {
         BStringSubType subType;
         String[] values = {value};
         String[] empty = EMPTY_STRING_ARR;
@@ -265,21 +264,16 @@ public final class Builder {
         return new SubType[Integer.bitCount(some)];
     }
 
-    public static SemType roCellContaining(Env env, SemType ty) {
-        return cellContaining(env, ty, CELL_MUT_NONE);
+    public static SemType getRoCellContaining(Env env, SemType ty) {
+        return getCellContaining(env, ty, CELL_MUT_NONE);
     }
 
-    public static SemType cellContaining(Env env, SemType ty) {
-        return cellContaining(env, ty, CellAtomicType.CellMutability.CELL_MUT_LIMITED);
+    public static SemType getRwCellContaining(Env env, SemType ty) {
+        return getCellContaining(env, ty, CellAtomicType.CellMutability.CELL_MUT_LIMITED);
     }
 
-    public static SemType cellContaining(Env env, SemType ty, CellAtomicType.CellMutability mut) {
-        Optional<SemType> cachedSemType = env.getCachedCellType(ty, mut);
-        return cachedSemType.orElseGet(() -> {
-            SemType semType = createCellSemType(env, ty, mut);
-            env.cacheCellType(ty, mut, semType);
-            return semType;
-        });
+    public static SemType getCellContaining(Env env, SemType ty, CellAtomicType.CellMutability mut) {
+        return env.getCachedCellType(ty, mut, () -> createCellSemType(env, ty, mut));
     }
 
     private static SemType createCellSemType(Env env, SemType ty, CellAtomicType.CellMutability mut) {
@@ -289,71 +283,71 @@ public final class Builder {
         return basicSubType(BT_CELL, BCellSubType.createDelegate(bdd));
     }
 
-    public static SemType valType() {
-        return basicTypeUnion(VT_MASK);
+    public static SemType getValType() {
+        return getBasicTypeUnion(VT_MASK);
     }
 
-    public static SemType anyType() {
+    public static SemType getAnyType() {
         return ANY;
     }
 
-    public static SemType mappingType() {
+    public static SemType getMappingType() {
         return from(BT_MAPPING);
     }
 
-    public static SemType functionType() {
+    public static SemType getFunctionType() {
         return from(BT_FUNCTION);
     }
 
-    public static SemType errorType() {
+    public static SemType getErrorType() {
         return from(BT_ERROR);
     }
 
-    public static SemType xmlType() {
+    public static SemType getXmlType() {
         return from(BT_XML);
     }
 
-    public static SemType xmlElementType() {
+    public static SemType getXmlElementType() {
         return XML_ELEMENT.get();
     }
 
-    public static SemType xmlCommentType() {
+    public static SemType getXmlCommentType() {
         return XML_COMMENT.get();
     }
 
-    public static SemType xmlTextType() {
+    public static SemType getXmlTextType() {
         return XML_TEXT.get();
     }
 
-    public static SemType xmlNeverType() {
+    public static SemType getXmlNeverType() {
         return XML_NEVER.get();
     }
 
-    public static SemType xmlPIType() {
+    public static SemType getXmlPIType() {
         return XML_PI.get();
     }
 
-    public static SemType handleType() {
+    public static SemType getHandleType() {
         return from(BT_HANDLE);
     }
 
-    public static SemType futureType() {
+    public static SemType getFutureType() {
         return from(BT_FUTURE);
     }
 
-    public static SemType regexType() {
+    public static SemType getRegexType() {
         return from(BT_REGEXP);
     }
 
-    public static SemType typeDescType() {
+    public static SemType getTypeDescType() {
         return from(BT_TYPEDESC);
     }
 
-    public static SemType streamType() {
+    public static SemType getStreamType() {
         return from(BasicTypeCode.BT_STREAM);
     }
 
-    public static SemType anyDataType() {
+    public static SemType getAnyDataType() {
         return ANYDATA.get();
     }
 
@@ -365,7 +359,7 @@ public final class Builder {
         return accum;
     }
 
-    public static SemType objectType() {
+    public static SemType getObjectType() {
         return OBJECT;
     }
 
@@ -381,35 +375,35 @@ public final class Builder {
         return PREDEFINED_TYPE_ENV.cellAtomicVal();
     }
 
-    public static BddNode bddSubtypeRo() {
+    public static BddNode getBddSubtypeRo() {
         return bddAtom(RecAtom.createRecAtom(0));
     }
 
-    public static ListAtomicType listAtomicInner() {
+    public static ListAtomicType getListAtomicInner() {
         return LIST_ATOMIC_INNER.get();
     }
 
-    public static MappingAtomicType mappingAtomicInner() {
+    public static MappingAtomicType getMappingAtomicInner() {
         return MAPPING_ATOMIC_INNER.get();
     }
 
-    public static BddNode listSubtypeThreeElement() {
+    public static BddNode getListSubtypeThreeElement() {
         return LIST_SUBTYPE_THREE_ELEMENT;
     }
 
-    public static BddNode listSubtypeThreeElementRO() {
+    public static BddNode getListSubtypeThreeElementRO() {
         return LIST_SUBTYPE_THREE_ELEMENT_RO;
     }
 
-    public static BddNode listSubtypeTwoElement() {
+    public static BddNode getListSubtypeTwoElement() {
         return LIST_SUBTYPE_TWO_ELEMENT;
     }
 
-    public static SemType simpleOrStringType() {
+    public static SemType getSimpleOrStringType() {
         return SIMPLE_OR_STRING;
     }
 
-    public static SemType tableType() {
+    public static SemType getTableType() {
         return from(BasicTypeCode.BT_TABLE);
     }
 

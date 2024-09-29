@@ -24,17 +24,17 @@ public class ShapeAnalyzer {
         if (object == null) {
             return Optional.of(Builder.nilType());
         } else if (object instanceof DecimalValue decimalValue) {
-            return Optional.of(Builder.decimalConst(decimalValue.value()));
+            return Optional.of(Builder.getDecimalConst(decimalValue.value()));
         } else if (object instanceof Double doubleValue) {
-            return Optional.of(Builder.floatConst(doubleValue));
+            return Optional.of(Builder.getFloatConst(doubleValue));
         } else if (object instanceof Number intValue) {
             long value =
                     intValue instanceof Byte byteValue ? Byte.toUnsignedLong(byteValue) : intValue.longValue();
-            return Optional.of(Builder.intConst(value));
+            return Optional.of(Builder.getIntConst(value));
         } else if (object instanceof Boolean booleanValue) {
-            return Optional.of(Builder.booleanConst(booleanValue));
+            return Optional.of(Builder.getBooleanConst(booleanValue));
         } else if (object instanceof BString stringValue) {
-            return Optional.of(Builder.stringConst(stringValue.getValue()));
+            return Optional.of(Builder.getStringConst(stringValue.getValue()));
         } else if (object instanceof BValue bValue) {
             Type type = bValue.getType();
             if (type instanceof TypeWithShape typeWithShape) {
@@ -48,18 +48,18 @@ public class ShapeAnalyzer {
 
     public static Optional<SemType> inherentTypeOf(Context cx, Object object) {
         if (object instanceof BValue bValue) {
-            return bValue.shapeOf(cx);
+            return bValue.inherentTypeOf(cx);
         }
         if (object == null) {
             return Optional.of(Builder.nilType());
         } else if (object instanceof Double doubleValue) {
-            return Optional.of(Builder.floatConst(doubleValue));
+            return Optional.of(Builder.getFloatConst(doubleValue));
         } else if (object instanceof Number intValue) {
             long value =
                     intValue instanceof Byte byteValue ? Byte.toUnsignedLong(byteValue) : intValue.longValue();
-            return Optional.of(Builder.intConst(value));
+            return Optional.of(Builder.getIntConst(value));
         } else if (object instanceof Boolean booleanValue) {
-            return Optional.of(Builder.booleanConst(booleanValue));
+            return Optional.of(Builder.getBooleanConst(booleanValue));
         }
         return Optional.empty();
     }

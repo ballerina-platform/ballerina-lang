@@ -53,7 +53,7 @@ public final class BFloatType extends BSemTypeWrapper<BFloatType.BFloatTypeImpl>
 
     public static BFloatType singletonType(Double value) {
         return new BFloatType(() -> new BFloatTypeImpl(TypeConstants.FLOAT_TNAME, EMPTY_MODULE),
-                TypeConstants.FLOAT_TNAME, EMPTY_MODULE, Builder.floatConst(value));
+                TypeConstants.FLOAT_TNAME, EMPTY_MODULE, Builder.getFloatConst(value));
     }
 
     protected static final class BFloatTypeImpl extends BType implements FloatType {

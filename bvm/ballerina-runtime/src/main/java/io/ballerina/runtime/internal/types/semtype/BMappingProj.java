@@ -50,7 +50,7 @@ public final class BMappingProj {
     // This is what Castagna calls projection.
     public static SemType mappingMemberTypeInner(Context cx, SemType t, SemType k) {
         if (t.some() == 0) {
-            return (t.all() & Builder.mappingType().all()) != 0 ? Builder.valType() : Builder.undef();
+            return (t.all() & Builder.getMappingType().all()) != 0 ? Builder.getValType() : Builder.undef();
         } else {
             SubTypeData keyData = stringSubtype(k);
             if (isNothingSubtype(keyData)) {

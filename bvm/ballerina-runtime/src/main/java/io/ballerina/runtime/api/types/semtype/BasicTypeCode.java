@@ -46,34 +46,33 @@ public final class BasicTypeCode {
     public static final int CODE_CELL = 0x12;
     public static final int CODE_UNDEF = 0x13;
 
-    // TODO: see if we can turn this class to an enum with a value
     // Inherently immutable
-    public static final BasicTypeCode BT_NIL = from(CODE_NIL);
-    public static final BasicTypeCode BT_BOOLEAN = from(CODE_BOOLEAN);
-    public static final BasicTypeCode BT_INT = from(CODE_INT);
-    public static final BasicTypeCode BT_FLOAT = from(CODE_FLOAT);
-    public static final BasicTypeCode BT_DECIMAL = from(CODE_DECIMAL);
-    public static final BasicTypeCode BT_STRING = from(CODE_STRING);
-    public static final BasicTypeCode BT_ERROR = from(CODE_ERROR);
-    public static final BasicTypeCode BT_TYPEDESC = from(CODE_TYPEDESC);
-    public static final BasicTypeCode BT_HANDLE = from(CODE_HANDLE);
-    public static final BasicTypeCode BT_FUNCTION = from(CODE_FUNCTION);
-    public static final BasicTypeCode BT_REGEXP = from(CODE_REGEXP);
+    public static final BasicTypeCode BT_NIL = get(CODE_NIL);
+    public static final BasicTypeCode BT_BOOLEAN = get(CODE_BOOLEAN);
+    public static final BasicTypeCode BT_INT = get(CODE_INT);
+    public static final BasicTypeCode BT_FLOAT = get(CODE_FLOAT);
+    public static final BasicTypeCode BT_DECIMAL = get(CODE_DECIMAL);
+    public static final BasicTypeCode BT_STRING = get(CODE_STRING);
+    public static final BasicTypeCode BT_ERROR = get(CODE_ERROR);
+    public static final BasicTypeCode BT_TYPEDESC = get(CODE_TYPEDESC);
+    public static final BasicTypeCode BT_HANDLE = get(CODE_HANDLE);
+    public static final BasicTypeCode BT_FUNCTION = get(CODE_FUNCTION);
+    public static final BasicTypeCode BT_REGEXP = get(CODE_REGEXP);
 
     // Inherently mutable
-    public static final BasicTypeCode BT_FUTURE = from(CODE_FUTURE);
-    public static final BasicTypeCode BT_STREAM = from(CODE_STREAM);
+    public static final BasicTypeCode BT_FUTURE = get(CODE_FUTURE);
+    public static final BasicTypeCode BT_STREAM = get(CODE_STREAM);
 
     // Selectively immutable
-    public static final BasicTypeCode BT_LIST = from(CODE_LIST);
-    public static final BasicTypeCode BT_MAPPING = from(CODE_MAPPING);
-    public static final BasicTypeCode BT_TABLE = from(CODE_TABLE);
-    public static final BasicTypeCode BT_XML = from(CODE_XML);
-    public static final BasicTypeCode BT_OBJECT = from(CODE_OBJECT);
+    public static final BasicTypeCode BT_LIST = get(CODE_LIST);
+    public static final BasicTypeCode BT_MAPPING = get(CODE_MAPPING);
+    public static final BasicTypeCode BT_TABLE = get(CODE_TABLE);
+    public static final BasicTypeCode BT_XML = get(CODE_XML);
+    public static final BasicTypeCode BT_OBJECT = get(CODE_OBJECT);
 
     // Non-val
-    public static final BasicTypeCode BT_CELL = from(CODE_CELL);
-    public static final BasicTypeCode BT_UNDEF = from(CODE_UNDEF);
+    public static final BasicTypeCode BT_CELL = get(CODE_CELL);
+    public static final BasicTypeCode BT_UNDEF = get(CODE_UNDEF);
 
     // Helper bit fields (does not represent basic type tag)
     static final int VT_COUNT = CODE_OBJECT + 1;
@@ -83,13 +82,13 @@ public final class BasicTypeCode {
     static final int VT_COUNT_INHERENTLY_IMMUTABLE = CODE_FUTURE;
     public static final int VT_INHERENTLY_IMMUTABLE = (1 << VT_COUNT_INHERENTLY_IMMUTABLE) - 1;
 
-    private int code;
+    private final int code;
 
     private BasicTypeCode(int code) {
         this.code = code;
     }
 
-    public static BasicTypeCode from(int code) {
+    public static BasicTypeCode get(int code) {
         if (BasicTypeCodeCache.isCached(code)) {
             return BasicTypeCodeCache.cache[code];
         }

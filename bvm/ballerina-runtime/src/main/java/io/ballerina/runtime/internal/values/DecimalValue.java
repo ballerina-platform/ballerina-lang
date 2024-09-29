@@ -490,12 +490,12 @@ public class DecimalValue implements SimpleValue, BDecimal {
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx) {
-        return Optional.of(Builder.decimalConst(value));
+    public Optional<SemType> inherentTypeOf(Context cx) {
+        return Optional.of(Builder.getDecimalConst(value));
     }
 
     @Override
-    public SemType widenedType(Context cx) {
+    public SemType widenedType() {
         return Builder.decimalType();
     }
 }

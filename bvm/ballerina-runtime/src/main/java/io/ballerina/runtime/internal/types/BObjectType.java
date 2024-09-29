@@ -487,7 +487,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             List<SemType> paramTypes = new ArrayList<>();
             for (Type part : pathSegmentTypes) {
                 if (part == null) {
-                    paramTypes.add(Builder.anyType());
+                    paramTypes.add(Builder.getAnyType());
                 } else {
                     paramTypes.add(tryInto(part));
                 }

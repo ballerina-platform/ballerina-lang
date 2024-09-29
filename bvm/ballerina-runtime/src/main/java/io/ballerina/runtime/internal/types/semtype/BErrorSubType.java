@@ -66,7 +66,7 @@ public class BErrorSubType extends SubType implements DelegatedSubType {
 
     @Override
     public SubType complement() {
-        return createDelegate(Builder.bddSubtypeRo().diff(inner));
+        return createDelegate(Builder.getBddSubtypeRo().diff(inner));
     }
 
     @Override
@@ -75,7 +75,7 @@ public class BErrorSubType extends SubType implements DelegatedSubType {
         // The goal of this is to ensure that mappingFormulaIsEmpty call in errorBddIsEmpty beneath
         // does not get an empty posList, because it will interpret that
         // as `map<any|error>` rather than `readonly & map<readonly>`.
-        b = b.posMaybeEmpty() ? (Bdd) b.intersect(Builder.bddSubtypeRo()) : b;
+        b = b.posMaybeEmpty() ? (Bdd) b.intersect(Builder.getBddSubtypeRo()) : b;
         return cx.memoSubtypeIsEmpty(cx.mappingMemo, BErrorSubType::errorBddIsEmpty, b);
     }
 

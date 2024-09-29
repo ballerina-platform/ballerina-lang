@@ -57,12 +57,12 @@ public class RuntimeTypeTestAPI implements TypeTestAPI<SemType> {
 
     @Override
     public boolean isMapType(SemType t) {
-        return Core.isSubtypeSimple(t, Builder.mappingType());
+        return Core.isSubtypeSimple(t, Builder.getMappingType());
     }
 
     @Override
     public SemType intConst(long l) {
-        return Builder.intConst(l);
+        return Builder.getIntConst(l);
     }
 
     @Override

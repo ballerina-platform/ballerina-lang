@@ -89,7 +89,7 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
     static boolean mappingFormulaIsEmpty(Context cx, Conjunction posList, Conjunction negList) {
         MappingAtomicType combined;
         if (posList == null) {
-            combined = Builder.mappingAtomicInner();
+            combined = Builder.getMappingAtomicInner();
         } else {
             // combine all the positive atoms using intersection
             combined = cx.mappingAtomType(posList.atom());

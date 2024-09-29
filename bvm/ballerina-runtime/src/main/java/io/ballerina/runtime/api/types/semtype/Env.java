@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 
 /**
  * Represent the environment in which {@code SemTypes} are defined in. Type checking types defined in different
@@ -104,18 +105,14 @@ public final class Env {
         }
     }
 
-    Optional<SemType> getCachedCellType(SemType ty, CellAtomicType.CellMutability mut) {
+    // Ideally this cache should be in the builder as well. But technically we can't cache cells across environments.
+    // In practice this shouldn't be an issue since there should be only one environment, but I am doing this here
+    // just in case.
+    SemType getCachedCellType(SemType ty, CellAtomicType.CellMutability mut, Supplier<SemType> semTypeCreator) {
         if (ty.some() != 0) {
-            return Optional.empty();
+            return semTypeCreator.get();
         }
-        return Optional.ofNullable(this.cellTypeCache.get(new CellSemTypeCacheKey(ty, mut)));
-    }
-
-    void cacheCellType(SemType ty, CellAtomicType.CellMutability mut, SemType semType) {
-        if (ty.some() != 0) {
-            return;
-        }
-        this.cellTypeCache.put(new CellSemTypeCacheKey(ty, mut), semType);
+        return this.cellTypeCache.computeIfAbsent(new CellSemTypeCacheKey(ty, mut), k -> semTypeCreator.get());
     }
 
     public RecAtom recListAtom() {

@@ -54,7 +54,7 @@ public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTyp
 
     public static BDecimalType singletonType(BigDecimal value) {
         return new BDecimalType(() -> (BDecimalTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.DECIMAL_TNAME,
-                EMPTY_MODULE, Builder.decimalConst(value));
+                EMPTY_MODULE, Builder.getDecimalConst(value));
     }
 
     private BDecimalType(Supplier<BDecimalTypeImpl> bType, String typeName, Module pkg, SemType semType) {

@@ -21,6 +21,11 @@ package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.internal.types.semtype.BMappingProj;
 
+/**
+ * Utility class for mapping type projection.
+ *
+ * @since 2201.10.0
+ */
 public final class MappingProj {
 
     private MappingProj() {

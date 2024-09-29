@@ -20,8 +20,4 @@ package io.ballerina.runtime.api.types.semtype;
 
 public record FieldPair(String name, SemType type1, SemType type2, Integer index1, Integer index2) {
 
-    public static FieldPair create(String name, SemType type1, SemType type2, Integer index1,
-                                   Integer index2) {
-        return new FieldPair(name, type1, type2, index1, index2);
-    }
 }

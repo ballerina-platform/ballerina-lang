@@ -39,8 +39,8 @@ public class StreamDefinition implements Definition {
     }
 
     public SemType define(Env env, SemType valueType, SemType completionType) {
-        if (Builder.valType() == completionType && Builder.valType() == valueType) {
-            return Builder.streamType();
+        if (Builder.getValType() == completionType && Builder.getValType() == valueType) {
+            return Builder.getStreamType();
         }
         SemType tuple = listDefinition.defineListTypeWrapped(env, new SemType[]{valueType, completionType}, 2,
                 Builder.neverType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED);

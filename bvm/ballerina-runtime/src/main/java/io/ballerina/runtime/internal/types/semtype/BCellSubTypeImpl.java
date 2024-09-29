@@ -91,7 +91,7 @@ final class BCellSubTypeImpl extends BCellSubType implements DelegatedSubType {
     private static boolean cellFormulaIsEmpty(Context cx, Conjunction posList, Conjunction negList) {
         CellAtomicType combined;
         if (posList == null) {
-            combined = CellAtomicType.from(Builder.valType(), CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
+            combined = CellAtomicType.from(Builder.getValType(), CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
         } else {
             combined = CellAtomicType.cellAtomType(posList.atom());
             Conjunction p = posList.next();
@@ -119,7 +119,7 @@ final class BCellSubTypeImpl extends BCellSubType implements DelegatedSubType {
         Conjunction neg = negList;
         while (neg != null) {
             if (CellAtomicType.cellAtomType(neg.atom()).mut() == CellAtomicType.CellMutability.CELL_MUT_LIMITED &&
-                    Core.isSameType(cx, Builder.valType(), CellAtomicType.cellAtomType(neg.atom()).ty())) {
+                    Core.isSameType(cx, Builder.getValType(), CellAtomicType.cellAtomType(neg.atom()).ty())) {
                 return false;
             }
             neg = neg.next();

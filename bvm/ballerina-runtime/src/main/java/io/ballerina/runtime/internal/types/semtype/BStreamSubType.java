@@ -64,7 +64,7 @@ public class BStreamSubType extends SubType implements DelegatedSubType {
 
     @Override
     public SubType complement() {
-        return createDelegate(Builder.listSubtypeTwoElement().diff(inner));
+        return createDelegate(Builder.getListSubtypeTwoElement().diff(inner));
     }
 
     @Override
@@ -73,7 +73,7 @@ public class BStreamSubType extends SubType implements DelegatedSubType {
         // The goal of this is to ensure that listSubtypeIsEmpty call beneath does
         // not get an empty posList, because it will interpret that
         // as `[any|error...]` rather than `[any|error, any|error]`.
-        b = b.posMaybeEmpty() ? (Bdd) b.intersect(Builder.listSubtypeTwoElement()) : b;
+        b = b.posMaybeEmpty() ? (Bdd) b.intersect(Builder.getListSubtypeTwoElement()) : b;
         return cx.memoSubtypeIsEmpty(cx.listMemo,
                 (context, bdd) -> bddEvery(context, bdd, BListSubType::listFormulaIsEmpty), b);
     }

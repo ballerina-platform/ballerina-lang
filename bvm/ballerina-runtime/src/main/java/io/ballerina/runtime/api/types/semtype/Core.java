@@ -50,14 +50,13 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_STREAM;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_TABLE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_TYPEDESC;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
-import static io.ballerina.runtime.api.types.semtype.Builder.cellContaining;
 import static io.ballerina.runtime.api.types.semtype.Builder.listType;
 import static io.ballerina.runtime.api.types.semtype.Builder.undef;
+import static io.ballerina.runtime.internal.types.semtype.BListSubType.bddListMemberTypeInnerVal;
+import static io.ballerina.runtime.internal.types.semtype.BMappingProj.mappingMemberTypeInner;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.cellAtomType;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.intersectCellAtomicType;
-import static io.ballerina.runtime.internal.types.semtype.BListSubType.bddListMemberTypeInnerVal;
-import static io.ballerina.runtime.internal.types.semtype.BMappingProj.mappingMemberTypeInner;
 
 /**
  * Contain functions defined in `core.bal` file.
@@ -76,7 +75,7 @@ public final class Core {
         int some2 = t2.some();
         if (some1 == 0) {
             if (some2 == 0) {
-                return Builder.basicTypeUnion(all1 & ~all2);
+                return Builder.getBasicTypeUnion(all1 & ~all2);
             } else {
                 if (all1 == 0) {
                     return t1;
@@ -85,7 +84,7 @@ public final class Core {
         } else {
             if (some2 == 0) {
                 if (all2 == VT_MASK) {
-                    return Builder.basicTypeUnion(0);
+                    return Builder.getBasicTypeUnion(0);
                 }
             }
         }
@@ -142,13 +141,14 @@ public final class Core {
     // If `t` is not a list, NEVER is returned
     public static SemType listMemberTypeInnerVal(Context cx, SemType t, SemType k) {
         if (t.some() == 0) {
-            return (t.all() & listType().all()) != 0 ? Builder.valType() : Builder.neverType();
+            return (t.all() & listType().all()) != 0 ? Builder.getValType() : Builder.neverType();
         } else {
             SubTypeData keyData = intSubtype(k);
             if (isNothingSubtype(keyData)) {
                 return Builder.neverType();
             }
-            return bddListMemberTypeInnerVal(cx, (Bdd) getComplexSubtypeData(t, BT_LIST), keyData, Builder.valType());
+            return bddListMemberTypeInnerVal(cx, (Bdd) getComplexSubtypeData(t, BT_LIST), keyData,
+                    Builder.getValType());
         }
     }
 
@@ -160,14 +160,14 @@ public final class Core {
         int some2 = t2.some();
         if (some1 == 0) {
             if (some2 == 0) {
-                return Builder.basicTypeUnion(all1 | all2);
+                return Builder.getBasicTypeUnion(all1 | all2);
             }
         }
 
         int all = all1 | all2;
         int some = (some1 | some2) & ~all;
         if (some == 0) {
-            return Builder.basicTypeUnion(all);
+            return Builder.getBasicTypeUnion(all);
         }
         SubType[] subtypes = Builder.initializeSubtypeArray(some);
         int i = 0;
@@ -287,7 +287,7 @@ public final class Core {
     }
 
     public static SemType complement(SemType t) {
-        return diff(Builder.valType(), t);
+        return diff(Builder.getValType(), t);
     }
 
     public static boolean isNever(SemType t) {
@@ -347,20 +347,21 @@ public final class Core {
         return Integer.bitCount(bitset);
     }
 
-    public static SemType cellContainingInnerVal(Env env, SemType t) {
+    public static SemType getCellContainingInnerVal(Env env, SemType t) {
         CellAtomicType cat =
                 cellAtomicType(t).orElseThrow(() -> new IllegalArgumentException("t is not a cell semtype"));
-        return cellContaining(env, diff(cat.ty(), undef()), cat.mut());
+        return Builder.getCellContaining(env, diff(cat.ty(), undef()), cat.mut());
     }
 
-    public static SemType intersectMemberSemTypes(Env env, SemType t1, SemType t2) {
+    public static SemType intersectCellMemberSemTypes(Env env, SemType t1, SemType t2) {
         CellAtomicType c1 =
                 cellAtomicType(t1).orElseThrow(() -> new IllegalArgumentException("t1 is not a cell semtype"));
         CellAtomicType c2 =
                 cellAtomicType(t2).orElseThrow(() -> new IllegalArgumentException("t2 is not a cell semtype"));
 
         CellAtomicType atomicType = intersectCellAtomicType(c1, c2);
-        return cellContaining(env, atomicType.ty(), undef().equals(atomicType.ty()) ? CELL_MUT_NONE : atomicType.mut());
+        return Builder.getCellContaining(env, atomicType.ty(),
+                undef().equals(atomicType.ty()) ? CELL_MUT_NONE : atomicType.mut());
     }
 
     public static Optional<CellAtomicType> cellAtomicType(SemType t) {
@@ -416,7 +417,7 @@ public final class Core {
     }
 
     public static Optional<ListAtomicType> listAtomicType(Context cx, SemType t) {
-        ListAtomicType listAtomicInner = Builder.listAtomicInner();
+        ListAtomicType listAtomicInner = Builder.getListAtomicInner();
         if (t.some() == 0) {
             return Core.isSubtypeSimple(t, Builder.listType()) ? Optional.ofNullable(listAtomicInner) :
                     Optional.empty();
@@ -433,7 +434,7 @@ public final class Core {
             return Builder.neverType();
         }
         return convertEnumerableNumericType(t, BT_FLOAT, Builder.intType(),
-                (floatValue) -> ((Double) floatValue).longValue(), Builder::intConst);
+                (floatValue) -> ((Double) floatValue).longValue(), Builder::getIntConst);
     }
 
     public static SemType floatToDecimal(SemType t) {
@@ -441,7 +442,7 @@ public final class Core {
             return Builder.neverType();
         }
         return convertEnumerableNumericType(t, BT_FLOAT, Builder.decimalType(),
-                (floatValue) -> BigDecimal.valueOf((Double) floatValue), Builder::decimalConst);
+                (floatValue) -> BigDecimal.valueOf((Double) floatValue), Builder::getDecimalConst);
     }
 
     public static SemType decimalToInt(SemType t) {
@@ -449,7 +450,7 @@ public final class Core {
             return Builder.neverType();
         }
         return convertEnumerableNumericType(t, BT_DECIMAL, Builder.intType(),
-                (decimalVal) -> ((BigDecimal) decimalVal).longValue(), Builder::intConst);
+                (decimalVal) -> ((BigDecimal) decimalVal).longValue(), Builder::getIntConst);
     }
 
     public static SemType decimalToFloat(SemType t) {
@@ -457,7 +458,7 @@ public final class Core {
             return Builder.neverType();
         }
         return convertEnumerableNumericType(t, BT_DECIMAL, Builder.floatType(),
-                (decimalVal) -> ((BigDecimal) decimalVal).doubleValue(), Builder::floatConst);
+                (decimalVal) -> ((BigDecimal) decimalVal).doubleValue(), Builder::getFloatConst);
     }
 
     public static SemType intToFloat(SemType t) {
@@ -472,7 +473,7 @@ public final class Core {
             return Builder.floatType();
         }
         BIntSubType.IntSubTypeData intSubTypeData = (BIntSubType.IntSubTypeData) subTypeData;
-        return intSubTypeData.values().stream().map(Builder::floatConst).reduce(Builder.neverType(), Core::union);
+        return intSubTypeData.values().stream().map(Builder::getFloatConst).reduce(Builder.neverType(), Core::union);
     }
 
     public static SemType intToDecimal(SemType t) {
@@ -487,7 +488,7 @@ public final class Core {
             return Builder.decimalType();
         }
         BIntSubType.IntSubTypeData intSubTypeData = (BIntSubType.IntSubTypeData) subTypeData;
-        return intSubTypeData.values().stream().map(BigDecimal::new).map(Builder::decimalConst)
+        return intSubTypeData.values().stream().map(BigDecimal::new).map(Builder::getDecimalConst)
                 .reduce(Builder.neverType(), Core::union);
     }
 

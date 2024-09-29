@@ -21,7 +21,7 @@ package io.ballerina.runtime.internal.types.semtype;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
-import static io.ballerina.runtime.api.types.semtype.Builder.stringConst;
+import static io.ballerina.runtime.api.types.semtype.Builder.getStringConst;
 
 public record Member(String name, SemType valueTy, Kind kind, Visibility visibility, boolean immutable) {
 
@@ -30,9 +30,9 @@ public record Member(String name, SemType valueTy, Kind kind, Visibility visibil
         Method;
 
         private static final MappingDefinition.Field FIELD =
-                new MappingDefinition.Field("kind", stringConst("field"), true, false);
+                new MappingDefinition.Field("kind", getStringConst("field"), true, false);
         private static final MappingDefinition.Field METHOD =
-                new MappingDefinition.Field("kind", stringConst("method"), true, false);
+                new MappingDefinition.Field("kind", getStringConst("method"), true, false);
 
         public MappingDefinition.Field field() {
             return switch (this) {
@@ -46,10 +46,10 @@ public record Member(String name, SemType valueTy, Kind kind, Visibility visibil
         Public,
         Private;
 
-        private static final SemType PUBLIC_TAG = stringConst("public");
+        private static final SemType PUBLIC_TAG = getStringConst("public");
         private static final MappingDefinition.Field PUBLIC =
                 new MappingDefinition.Field("visibility", PUBLIC_TAG, true, false);
-        private static final SemType PRIVATE_TAG = stringConst("private");
+        private static final SemType PRIVATE_TAG = getStringConst("private");
         private static final MappingDefinition.Field PRIVATE =
                 new MappingDefinition.Field("visibility", PRIVATE_TAG, true, false);
         static final MappingDefinition.Field ALL =

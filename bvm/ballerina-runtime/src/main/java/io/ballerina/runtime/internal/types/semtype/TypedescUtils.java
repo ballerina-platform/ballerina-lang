@@ -37,8 +37,8 @@ public final class TypedescUtils {
     }
 
     public static SemType typedescContaining(Env env, SemType constraint) {
-        if (constraint == Builder.valType()) {
-            return Builder.typeDescType();
+        if (constraint == Builder.getValType()) {
+            return Builder.getTypeDescType();
         }
         MappingDefinition md = new MappingDefinition();
         SemType mappingType = md.defineMappingTypeWrapped(env, EMPTY_FIELDS, constraint,

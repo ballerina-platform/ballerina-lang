@@ -61,7 +61,7 @@ final class BCellSubTypeSimple extends BCellSubType implements DelegatedSubType 
         if (other instanceof BCellSubTypeSimple simple) {
             // P1\N1 ∩ P2\N2 = (P1 ∩ P2)\(N1 U N2)
             SemType pos =
-                    Stream.concat(this.pos.stream(), simple.pos.stream()).reduce(Builder.valType(), Core::intersect);
+                    Stream.concat(this.pos.stream(), simple.pos.stream()).reduce(Builder.getValType(), Core::intersect);
             List<SemType> neg = Stream.concat(this.neg.stream(), simple.neg.stream()).toList();
             return new BCellSubTypeSimple(List.of(pos), neg);
         } else if (other instanceof BCellSubTypeImpl complex) {

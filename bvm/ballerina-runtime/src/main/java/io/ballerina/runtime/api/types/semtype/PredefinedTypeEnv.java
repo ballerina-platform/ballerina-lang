@@ -46,9 +46,9 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_INHERENTLY
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 import static io.ballerina.runtime.api.types.semtype.Builder.basicSubType;
-import static io.ballerina.runtime.api.types.semtype.Builder.basicTypeUnion;
 import static io.ballerina.runtime.api.types.semtype.Builder.from;
-import static io.ballerina.runtime.api.types.semtype.Builder.stringConst;
+import static io.ballerina.runtime.api.types.semtype.Builder.getBasicTypeUnion;
+import static io.ballerina.runtime.api.types.semtype.Builder.getStringConst;
 import static io.ballerina.runtime.api.types.semtype.Core.union;
 import static io.ballerina.runtime.api.types.semtype.TypeAtom.createTypeAtom;
 
@@ -69,7 +69,7 @@ final class PredefinedTypeEnv {
     // This is to avoid passing down env argument when doing cell type operations.
     // Please refer to the cellSubtypeDataEnsureProper() in cell.bal
     private final Supplier<CellAtomicType> cellAtomicVal = new ConcurrentLazySupplierWithCallback<>(
-            () -> CellAtomicType.from(basicTypeUnion(VT_MASK), CellAtomicType.CellMutability.CELL_MUT_LIMITED),
+            () -> CellAtomicType.from(getBasicTypeUnion(VT_MASK), CellAtomicType.CellMutability.CELL_MUT_LIMITED),
             this::addInitializedCellAtom
     );
     private final Supplier<TypeAtom> atomCellVal =
@@ -97,7 +97,7 @@ final class PredefinedTypeEnv {
     // TypeAtoms related to (map<any|error>)[]. This is to avoid passing down env argument when doing
     // tableSubtypeComplement operation.
     private final Supplier<CellAtomicType> cellAtomicInnerMapping = new ConcurrentLazySupplierWithCallback<>(
-            () -> CellAtomicType.from(union(Builder.mappingType(), Builder.undef()),
+            () -> CellAtomicType.from(union(Builder.getMappingType(), Builder.undef()),
                     CellAtomicType.CellMutability.CELL_MUT_LIMITED),
             this::addInitializedCellAtom
     );
@@ -219,7 +219,7 @@ final class PredefinedTypeEnv {
     private final Supplier<CellAtomicType> cellAtomicObjectMemberKind =
             new ConcurrentLazySupplierWithCallback<>(
                     () -> CellAtomicType.from(
-                            union(stringConst("field"), stringConst("method")),
+                            union(getStringConst("field"), getStringConst("method")),
                             CellAtomicType.CellMutability.CELL_MUT_NONE),
                     this::addInitializedCellAtom);
     private final Supplier<TypeAtom> atomCellObjectMemberKind =
@@ -229,7 +229,7 @@ final class PredefinedTypeEnv {
     private final Supplier<CellAtomicType> cellAtomicObjectMemberVisibility =
             new ConcurrentLazySupplierWithCallback<>(
                     () -> CellAtomicType.from(
-                            union(stringConst("public"), stringConst("private")),
+                            union(getStringConst("public"), getStringConst("private")),
                             CellAtomicType.CellMutability.CELL_MUT_NONE),
                     this::addInitializedCellAtom);
     private final Supplier<TypeAtom> atomCellObjectMemberVisibility =

@@ -32,7 +32,6 @@ import java.util.stream.Stream;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_OBJECT;
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
-import static io.ballerina.runtime.api.types.semtype.Builder.cellContaining;
 import static io.ballerina.runtime.api.types.semtype.Core.createBasicSemType;
 import static io.ballerina.runtime.api.types.semtype.Core.union;
 import static io.ballerina.runtime.api.types.semtype.RecAtom.createDistinctRecAtom;
@@ -46,16 +45,14 @@ public class ObjectDefinition implements Definition {
         return objectContaining(mappingDefinition.getSemType(env));
     }
 
-    public SemType define(Env env, ObjectQualifiers qualifiers, List<Member> members, CellAtomicType.CellMutability mut) {
-        Stream<MappingDefinition.Field> memberStream = members.stream()
-                .map(member -> memberField(env, member, qualifiers.readonly()));
+    public SemType define(Env env, ObjectQualifiers qualifiers, List<Member> members,
+                          CellAtomicType.CellMutability mut) {
+        Stream<MappingDefinition.Field> memberStream =
+                members.stream().map(member -> memberField(env, member, qualifiers.readonly()));
         Stream<MappingDefinition.Field> qualifierStream = Stream.of(qualifiers.field(env));
-        SemType mappingType =
-                mappingDefinition.define(env,
-                        Stream.concat(memberStream, qualifierStream)
-                                .map(field -> MappingDefinition.BCellField.from(env, field, mut))
-                                .toArray(MappingDefinition.BCellField[]::new),
-                        restMemberType(env, mut, qualifiers.readonly()));
+        SemType mappingType = mappingDefinition.define(env, Stream.concat(memberStream, qualifierStream)
+                .map(field -> MappingDefinition.BCellField.from(env, field, mut))
+                .toArray(MappingDefinition.BCellField[]::new), restMemberType(env, mut, qualifiers.readonly()));
         return objectContaining(mappingType);
     }
 
@@ -66,40 +63,26 @@ public class ObjectDefinition implements Definition {
 
     private SemType restMemberType(Env env, CellAtomicType.CellMutability mut, boolean readonly) {
         MappingDefinition fieldDefn = new MappingDefinition();
-        SemType fieldMemberType = fieldDefn.defineMappingTypeWrapped(
-                env,
-                new MappingDefinition.Field[]{
-                        new MappingDefinition.Field("value", readonly ? Builder.readonlyType() : Builder.valType(),
-                                readonly, false),
-                        Member.Kind.Field.field(),
-                        Member.Visibility.ALL
-                },
-                Builder.neverType(),
+        SemType fieldMemberType = fieldDefn.defineMappingTypeWrapped(env, new MappingDefinition.Field[]{
+                        new MappingDefinition.Field("value", readonly ? Builder.readonlyType() : Builder.getValType(),
+                                readonly,
+                                false),
+                        Member.Kind.Field.field(), Member.Visibility.ALL}, Builder.neverType(),
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED);
         MappingDefinition methodDefn = new MappingDefinition();
 
-        SemType methodMemberType = methodDefn.defineMappingTypeWrapped(
-                env,
-                new MappingDefinition.Field[]{
-                        new MappingDefinition.Field("value", Builder.functionType(), true, false),
-                        Member.Kind.Method.field(),
-                        Member.Visibility.ALL
-                },
-                Builder.neverType(),
+        SemType methodMemberType = methodDefn.defineMappingTypeWrapped(env, new MappingDefinition.Field[]{
+                        new MappingDefinition.Field("value", Builder.getFunctionType(), true, false),
+                        Member.Kind.Method.field(), Member.Visibility.ALL}, Builder.neverType(),
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED);
-        return cellContaining(env, union(fieldMemberType, methodMemberType), mut);
+        return Builder.getCellContaining(env, union(fieldMemberType, methodMemberType), mut);
     }
 
     private static MappingDefinition.Field memberField(Env env, Member member, boolean immutableObject) {
         MappingDefinition md = new MappingDefinition();
-        SemType semtype = md.defineMappingTypeWrapped(
-                env,
-                new MappingDefinition.Field[]{
+        SemType semtype = md.defineMappingTypeWrapped(env, new MappingDefinition.Field[]{
                         new MappingDefinition.Field("value", member.valueTy(), member.immutable(), false),
-                        member.kind().field(),
-                        member.visibility().field()
-                },
-                Builder.neverType(),
+                        member.kind().field(), member.visibility().field()}, Builder.neverType(),
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED);
         return new MappingDefinition.Field(member.name(), semtype, immutableObject | member.immutable(), false);
     }

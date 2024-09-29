@@ -161,7 +161,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
     private SemType resolveStreamTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
                                           BLangTypeDefinition defn, int depth, BLangStreamType td) {
         if (td.constraint == null) {
-            return Builder.streamType();
+            return Builder.getStreamType();
         }
         Env env = (Env) cx.getInnerEnv();
         Definition attachedDefinition = attachedDefinitions.get(td);
@@ -212,7 +212,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
     private SemType createErrorType(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
                                     int depth, BLangErrorType td) {
         if (td.detailType == null) {
-            return Builder.errorType();
+            return Builder.getErrorType();
         } else {
             SemType detailType = resolveTypeDesc(cx, mod, defn, depth + 1, td.detailType);
             return ErrorUtils.errorDetail(detailType);
@@ -303,14 +303,14 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
                                     BLangFunction functionType) {
         List<SemType> params = new ArrayList<>();
         if (functionType instanceof BLangResourceFunction resourceFunctionType) {
-            params.add(Builder.stringConst(resourceFunctionType.methodName.value));
+            params.add(Builder.getStringConst(resourceFunctionType.methodName.value));
             for (var each : resourceFunctionType.resourcePathSegments) {
                 params.add(resolveTypeDesc(cx, mod, defn, depth + 1, each.typeNode));
             }
         }
         for (BLangSimpleVariable paramVar : functionType.getParameters()) {
             SemType semType = resolveTypeDesc(cx, mod, defn, depth + 1, paramVar.typeNode);
-            if (Core.isSubtypeSimple(semType, Builder.typeDescType())) {
+            if (Core.isSubtypeSimple(semType, Builder.getTypeDescType())) {
                 paramScope.put(paramVar.name.value, paramVar);
             }
             params.add(semType);
@@ -328,12 +328,12 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         if (isFunctionTop(td)) {
             if (td.flagSet.contains(Flag.ISOLATED) || td.flagSet.contains(Flag.TRANSACTIONAL)) {
                 FunctionDefinition fd = new FunctionDefinition();
-                return fd.define(env, Builder.neverType(), Builder.valType(),
+                return fd.define(env, Builder.neverType(), Builder.getValType(),
                         FunctionQualifiers.create(
                                 td.flagSet.contains(Flag.ISOLATED),
                                 td.flagSet.contains(Flag.TRANSACTIONAL)));
             }
-            return Builder.functionType();
+            return Builder.getFunctionType();
         }
         Definition attachedDefinition = attachedDefinitions.get(td);
         if (attachedDefinition != null) {
@@ -347,7 +347,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         for (BLangSimpleVariable param : td.params) {
             SemType paramType = resolveTypeDesc(cx, mod, defn, depth + 1, param.typeNode);
             params.add(paramType);
-            if (Core.isSubtypeSimple(paramType, Builder.typeDescType())) {
+            if (Core.isSubtypeSimple(paramType, Builder.getTypeDescType())) {
                 tdScope.put(param.name.value, param);
             }
         }
@@ -389,7 +389,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         }
         ListDefinition ld = new ListDefinition();
         return ld.defineListTypeWrapped((Env) cx.getInnerEnv(),
-                new SemType[]{!isDependentlyType ? Builder.booleanType() : Builder.booleanConst(true),
+                new SemType[]{!isDependentlyType ? Builder.booleanType() : Builder.getBooleanConst(true),
                         innerType}, 2, Builder.neverType(),
                 CELL_MUT_LIMITED);
     }
@@ -433,7 +433,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
 
         SemType rest;
         if (!td.isSealed() && td.getRestFieldType() == null) {
-            rest = Builder.anyDataType();
+            rest = Builder.getAnyDataType();
         } else {
             rest = resolveTypeDesc(cx, mod, defn, depth + 1, td.getRestFieldType());
         }
@@ -556,10 +556,10 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
     private Optional<SemType> resolveSingletonType(Object value, TypeKind targetTypeKind) {
         return switch (targetTypeKind) {
             case NIL -> Optional.of(Builder.nilType());
-            case BOOLEAN -> Optional.of(Builder.booleanConst((Boolean) value));
+            case BOOLEAN -> Optional.of(Builder.getBooleanConst((Boolean) value));
             case INT, BYTE -> {
                 assert !(value instanceof Byte);
-                yield Optional.of(Builder.intConst(((Number) value).longValue()));
+                yield Optional.of(Builder.getIntConst(((Number) value).longValue()));
             }
             case FLOAT -> {
                 double doubleVal;
@@ -576,17 +576,17 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
                         yield Optional.empty();
                     }
                 }
-                yield Optional.of(Builder.floatConst(doubleVal));
+                yield Optional.of(Builder.getFloatConst(doubleVal));
             }
             case DECIMAL -> {
                 String repr = (String) value;
                 if (repr.contains("d") || repr.contains("D")) {
                     repr = repr.substring(0, repr.length() - 1);
                 }
-                yield Optional.of(Builder.decimalConst(new BigDecimal(repr)));
+                yield Optional.of(Builder.getDecimalConst(new BigDecimal(repr)));
             }
-            case STRING -> Optional.of(Builder.stringConst((String) value));
-            case HANDLE -> Optional.of(Builder.handleType());
+            case STRING -> Optional.of(Builder.getStringConst((String) value));
+            case HANDLE -> Optional.of(Builder.getHandleType());
             default -> Optional.empty();
         };
     }
@@ -613,7 +613,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         } else if (td.pkgAlias.value.equals("xml")) {
             return resolveXmlSubType(name);
         } else if (td.pkgAlias.value.equals("regexp") && name.equals("RegExp")) {
-            return Builder.regexType();
+            return Builder.getRegexType();
         }
 
         BLangNode moduleLevelDef = mod.get(name);
@@ -645,19 +645,19 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
 
     private SemType resolveXmlSubType(String name) {
         return switch (name) {
-            case "Element" -> Builder.xmlElementType();
-            case "Comment" -> Builder.xmlCommentType();
-            case "Text" -> Builder.xmlTextType();
-            case "ProcessingInstruction" -> Builder.xmlPIType();
+            case "Element" -> Builder.getXmlElementType();
+            case "Comment" -> Builder.getXmlCommentType();
+            case "Text" -> Builder.getXmlTextType();
+            case "ProcessingInstruction" -> Builder.getXmlPIType();
             default -> throw new IllegalStateException("Unknown XML subtype: " + name);
         };
     }
 
     private SemType getDistinctSemType(TypeTestContext<SemType> cx, SemType innerType) {
         Env env = (Env) cx.getInnerEnv();
-        if (Core.isSubtypeSimple(innerType, Builder.objectType())) {
+        if (Core.isSubtypeSimple(innerType, Builder.getObjectType())) {
             return getDistinctObjectType(env, innerType);
-        } else if (Core.isSubtypeSimple(innerType, Builder.errorType())) {
+        } else if (Core.isSubtypeSimple(innerType, Builder.getErrorType())) {
             return getDistinctErrorType(env, innerType);
         }
         throw new IllegalArgumentException("Distinct type not supported for: " + innerType);
@@ -666,12 +666,12 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
     private SemType resolveIntSubtype(String name) {
         // TODO: support MAX_VALUE
         return switch (name) {
-            case "Signed8" -> Builder.intRange(SIGNED8_MIN_VALUE, SIGNED8_MAX_VALUE);
-            case "Signed16" -> Builder.intRange(SIGNED16_MIN_VALUE, SIGNED16_MAX_VALUE);
-            case "Signed32" -> Builder.intRange(SIGNED32_MIN_VALUE, SIGNED32_MAX_VALUE);
-            case "Unsigned8" -> Builder.intRange(0, UNSIGNED8_MAX_VALUE);
-            case "Unsigned16" -> Builder.intRange(0, UNSIGNED16_MAX_VALUE);
-            case "Unsigned32" -> Builder.intRange(0, UNSIGNED32_MAX_VALUE);
+            case "Signed8" -> Builder.createIntRange(SIGNED8_MIN_VALUE, SIGNED8_MAX_VALUE);
+            case "Signed16" -> Builder.createIntRange(SIGNED16_MIN_VALUE, SIGNED16_MAX_VALUE);
+            case "Signed32" -> Builder.createIntRange(SIGNED32_MIN_VALUE, SIGNED32_MAX_VALUE);
+            case "Unsigned8" -> Builder.createIntRange(0, UNSIGNED8_MAX_VALUE);
+            case "Unsigned16" -> Builder.createIntRange(0, UNSIGNED16_MAX_VALUE);
+            case "Unsigned32" -> Builder.createIntRange(0, UNSIGNED32_MAX_VALUE);
             default -> throw new UnsupportedOperationException("Unknown int subtype: " + name);
         };
     }
@@ -689,8 +689,8 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
     private SemType resolveTypeDesc(BLangBuiltInRefTypeNode td) {
         return switch (td.typeKind) {
             case NEVER -> Builder.neverType();
-            case XML -> Builder.xmlType();
-            case FUTURE -> Builder.futureType();
+            case XML -> Builder.getXmlType();
+            case FUTURE -> Builder.getFutureType();
             // TODO: implement json type
 
             default -> throw new UnsupportedOperationException("Built-in ref type not implemented: " + td.typeKind);
@@ -701,28 +701,28 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         return switch (td.typeKind) {
             case NIL -> Builder.nilType();
             case BOOLEAN -> Builder.booleanType();
-            case BYTE -> Builder.intRange(0, UNSIGNED8_MAX_VALUE);
+            case BYTE -> Builder.createIntRange(0, UNSIGNED8_MAX_VALUE);
             case INT -> Builder.intType();
             case FLOAT -> Builder.floatType();
             case DECIMAL -> Builder.decimalType();
             case STRING -> Builder.stringType();
             case READONLY -> Builder.readonlyType();
-            case ANY -> Builder.anyType();
-            case ANYDATA -> Builder.anyDataType();
-            case ERROR -> Builder.errorType();
-            case XML -> Builder.xmlType();
-            case HANDLE -> Builder.handleType();
-            case TYPEDESC -> Builder.typeDescType();
+            case ANY -> Builder.getAnyType();
+            case ANYDATA -> Builder.getAnyDataType();
+            case ERROR -> Builder.getErrorType();
+            case XML -> Builder.getXmlType();
+            case HANDLE -> Builder.getHandleType();
+            case TYPEDESC -> Builder.getTypeDescType();
             default -> throw new IllegalStateException("Unknown type: " + td);
         };
     }
 
     private SemType evaluateConst(BLangConstant constant) {
         return switch (constant.symbol.value.type.getKind()) {
-            case INT -> Builder.intConst((long) constant.symbol.value.value);
-            case BOOLEAN -> Builder.booleanConst((boolean) constant.symbol.value.value);
-            case STRING -> Builder.stringConst((String) constant.symbol.value.value);
-            case FLOAT -> Builder.floatConst((double) constant.symbol.value.value);
+            case INT -> Builder.getIntConst((long) constant.symbol.value.value);
+            case BOOLEAN -> Builder.getBooleanConst((boolean) constant.symbol.value.value);
+            case STRING -> Builder.getStringConst((String) constant.symbol.value.value);
+            case FLOAT -> Builder.getFloatConst((double) constant.symbol.value.value);
             default -> throw new UnsupportedOperationException("Expression type not implemented for const semtype");
         };
     }

@@ -22,6 +22,7 @@ package io.ballerina.runtime.internal.types.semtype;
 import io.ballerina.runtime.api.types.semtype.Atom;
 import io.ballerina.runtime.api.types.semtype.BasicTypeCode;
 import io.ballerina.runtime.api.types.semtype.BddNode;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.RecAtom;
@@ -32,7 +33,6 @@ import java.util.Comparator;
 
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 import static io.ballerina.runtime.api.types.semtype.Builder.basicSubType;
-import static io.ballerina.runtime.api.types.semtype.Builder.cellContaining;
 import static io.ballerina.runtime.api.types.semtype.Builder.undef;
 import static io.ballerina.runtime.api.types.semtype.Core.isNever;
 import static io.ballerina.runtime.api.types.semtype.Core.union;
@@ -68,7 +68,7 @@ public class MappingDefinition implements Definition {
             BCellField cellField = BCellField.from(env, field, mut);
             cellFields[i] = cellField;
         }
-        SemType restCell = cellContaining(env, union(rest, undef()),
+        SemType restCell = Builder.getCellContaining(env, union(rest, undef()),
                 isNever(rest) ? CellAtomicType.CellMutability.CELL_MUT_NONE : mut);
         return define(env, cellFields, restCell);
     }
@@ -106,7 +106,7 @@ public class MappingDefinition implements Definition {
 
         static BCellField from(Env env, Field field, CellAtomicType.CellMutability mut) {
             SemType type = field.ty;
-            SemType cellType = cellContaining(env, field.optional ? union(type, undef()) : type,
+            SemType cellType = Builder.getCellContaining(env, field.optional ? union(type, undef()) : type,
                     field.readonly ? CellAtomicType.CellMutability.CELL_MUT_NONE : mut);
             BCellField cellField = new BCellField(field.name, cellType);
             return cellField;

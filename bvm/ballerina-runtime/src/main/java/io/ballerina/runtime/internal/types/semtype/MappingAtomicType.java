@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static io.ballerina.runtime.api.types.semtype.Core.cellInner;
-import static io.ballerina.runtime.api.types.semtype.Core.intersectMemberSemTypes;
+import static io.ballerina.runtime.api.types.semtype.Core.intersectCellMemberSemTypes;
 import static io.ballerina.runtime.api.types.semtype.Core.isNever;
 
 public record MappingAtomicType(String[] names, SemType[] types, SemType rest) implements AtomicType {
@@ -40,14 +40,14 @@ public record MappingAtomicType(String[] names, SemType[] types, SemType rest) i
         Collection<SemType> types = new ArrayList<>(expectedSize);
         for (FieldPair fieldPair : new FieldPairs(this, other)) {
             names.add(fieldPair.name());
-            SemType t = intersectMemberSemTypes(env, fieldPair.type1(), fieldPair.type2());
+            SemType t = intersectCellMemberSemTypes(env, fieldPair.type1(), fieldPair.type2());
             if (isNever(cellInner(fieldPair.type1()))) {
                 return null;
 
             }
             types.add(t);
         }
-        SemType rest = intersectMemberSemTypes(env, this.rest(), other.rest());
+        SemType rest = intersectCellMemberSemTypes(env, this.rest(), other.rest());
         return new MappingAtomicType(names.toArray(String[]::new), types.toArray(SemType[]::new), rest);
     }
 }

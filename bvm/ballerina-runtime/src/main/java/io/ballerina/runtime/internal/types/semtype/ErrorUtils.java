@@ -39,15 +39,15 @@ public final class ErrorUtils {
     public static SemType errorDetail(SemType detail) {
         SubTypeData data = Core.subTypeData(detail, BT_MAPPING);
         if (data == AllOrNothing.ALL) {
-            return Builder.errorType();
+            return Builder.getErrorType();
         } else if (data == AllOrNothing.NOTHING) {
             return Builder.neverType();
         }
 
         assert data instanceof Bdd;
-        SubType sd = ((Bdd) data).intersect(Builder.bddSubtypeRo());
-        if (sd.equals(Builder.bddSubtypeRo())) {
-            return Builder.errorType();
+        SubType sd = ((Bdd) data).intersect(Builder.getBddSubtypeRo());
+        if (sd.equals(Builder.getBddSubtypeRo())) {
+            return Builder.getErrorType();
         }
         return basicSubType(BT_ERROR, BErrorSubType.createDelegate(sd));
     }

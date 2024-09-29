@@ -44,7 +44,7 @@ public abstract class StringValue implements BString, SimpleValue {
         this.value = value;
         this.isNonBmp = isNonBmp;
         this.type = BStringType.singletonType(value);
-        this.shape = Builder.stringConst(value);
+        this.shape = Builder.getStringConst(value);
     }
 
     @Override
@@ -109,7 +109,7 @@ public abstract class StringValue implements BString, SimpleValue {
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx) {
+    public Optional<SemType> inherentTypeOf(Context cx) {
         return Optional.of(shape);
     }
 }

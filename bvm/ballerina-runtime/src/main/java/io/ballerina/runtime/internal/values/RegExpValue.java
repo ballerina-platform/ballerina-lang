@@ -127,8 +127,8 @@ public class RegExpValue implements BRegexpValue, RefValue {
     }
 
     @Override
-    public SemType widenedType(Context cx) {
-        return Builder.regexType();
+    public SemType widenedType() {
+        return Builder.getRegexType();
     }
 
     @Override
@@ -137,7 +137,7 @@ public class RegExpValue implements BRegexpValue, RefValue {
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx) {
+    public Optional<SemType> inherentTypeOf(Context cx) {
         return shapeOf();
     }
 }

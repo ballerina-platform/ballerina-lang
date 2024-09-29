@@ -22,8 +22,8 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
-import static io.ballerina.runtime.api.types.semtype.Builder.booleanConst;
-import static io.ballerina.runtime.api.types.semtype.Builder.stringConst;
+import static io.ballerina.runtime.api.types.semtype.Builder.getBooleanConst;
+import static io.ballerina.runtime.api.types.semtype.Builder.getStringConst;
 import static io.ballerina.runtime.api.types.semtype.Core.union;
 
 public record ObjectQualifiers(boolean isolated, boolean readonly, NetworkQualifier networkQualifier) {
@@ -31,7 +31,7 @@ public record ObjectQualifiers(boolean isolated, boolean readonly, NetworkQualif
     public MappingDefinition.Field field(Env env) {
         MappingDefinition md = new MappingDefinition();
         MappingDefinition.Field isolatedField =
-                new MappingDefinition.Field("isolated", isolated ? booleanConst(true) : Builder.booleanType(),
+                new MappingDefinition.Field("isolated", isolated ? getBooleanConst(true) : Builder.booleanType(),
                         true, false);
         MappingDefinition.Field networkField = networkQualifier.field();
         SemType ty = md.defineMappingTypeWrapped(env, new MappingDefinition.Field[]{isolatedField, networkField},
@@ -44,11 +44,11 @@ public record ObjectQualifiers(boolean isolated, boolean readonly, NetworkQualif
         Service,
         None;
 
-        private static final SemType CLIENT_TAG = stringConst("client");
+        private static final SemType CLIENT_TAG = getStringConst("client");
         private static final MappingDefinition.Field CLIENT =
                 new MappingDefinition.Field("network", CLIENT_TAG, true, false);
 
-        private static final SemType SERVICE_TAG = stringConst("service");
+        private static final SemType SERVICE_TAG = getStringConst("service");
         private static final MappingDefinition.Field SERVICE =
                 new MappingDefinition.Field("network", SERVICE_TAG, true, false);
 
