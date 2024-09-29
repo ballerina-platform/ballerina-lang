@@ -116,13 +116,7 @@ public final class TypeChecker {
     private static final String REG_EXP_TYPENAME = "RegExp";
     private static final ThreadLocal<Context> threadContext =
             ThreadLocal.withInitial(() -> Context.from(Env.getInstance()));
-    private static final SemType SIMPLE_BASIC_TYPE = createSimpleBasicType();
-    private static final SemType NUMERIC_TYPE = createNumericType();
-    private static final SemType INHERENTLY_IMMUTABLE_TYPE = createInherentlyImmutableType();
-    private static final SemType REF_TYPE_MASK = createRefValueMask();
-    private static final SemType CONVERTIBLE_CAST_MASK = createConvertibleCastMask();
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
-    private static final SemType TOP_TYPES_WITH_ALWAYS_FILLING = createTopTypesWithFillerValues();
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
@@ -132,8 +126,8 @@ public final class TypeChecker {
             return sourceVal;
         }
         Type sourceType = getType(sourceVal);
-        if (Core.containsBasicType(SemType.tryInto(sourceType), CONVERTIBLE_CAST_MASK) &&
-                Core.containsBasicType(SemType.tryInto(targetType), CONVERTIBLE_CAST_MASK)) {
+        if (Core.containsBasicType(SemType.tryInto(sourceType), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK) &&
+                Core.containsBasicType(SemType.tryInto(targetType), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK)) {
             // We need to maintain order for these?
             if (targetType instanceof BUnionType unionType) {
                 for (Type memberType : unionType.getMemberTypes()) {
@@ -151,8 +145,7 @@ public final class TypeChecker {
     }
 
     public static Context context() {
-        // We are pinning each context to thread. This depends on the assumption physical thread is not going to
-        // get switched while type checking. Also for the same reason we don't need to synchronize this method.
+        // We are pinning each context to thread. We can't use the same context with multiple type checks concurrently
         return threadContext.get();
     }
 
@@ -322,7 +315,7 @@ public final class TypeChecker {
         assert readonlyShape.isPresent();
         SemType shape = readonlyShape.get();
         SemType targetSemType = ShapeAnalyzer.acceptedTypeOf(cx, targetType).orElseThrow();
-        if (Core.isSubType(cx, shape, NUMERIC_TYPE) && allowNumericConversion) {
+        if (Core.isSubType(cx, shape, NumericTypeHolder.NUMERIC_TYPE) && allowNumericConversion) {
             targetSemType = appendNumericConversionTypes(targetSemType);
         }
         return Core.isSubType(cx, shape, targetSemType);
@@ -596,13 +589,8 @@ public final class TypeChecker {
                 lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0;
     }
 
-    private static SemType createNumericType() {
-        return Stream.of(Builder.intType(), Builder.floatType(), Builder.decimalType())
-                .reduce(Builder.neverType(), Core::union);
-    }
-
     public static boolean isNumericType(Type type) {
-        return Core.isSubType(context(), SemType.tryInto(type), NUMERIC_TYPE);
+        return Core.isSubType(context(), SemType.tryInto(type), NumericTypeHolder.NUMERIC_TYPE);
     }
 
     public static boolean isByteLiteral(long longValue) {
@@ -648,18 +636,11 @@ public final class TypeChecker {
         throw new IllegalArgumentException("Unexpected object type");
     }
 
-    private static SemType createInherentlyImmutableType() {
-        return Stream.of(createSimpleBasicType(), Builder.stringType(), Builder.getErrorType(),
-                        Builder.getFunctionType(),
-                        Builder.getTypeDescType(), Builder.getHandleType(), Builder.getXmlTextType(), Builder.getXmlNeverType(),
-                        Builder.getRegexType())
-                .reduce(Builder.neverType(), Core::union);
-    }
-
     public static boolean isInherentlyImmutableType(Type sourceType) {
         // readonly part is there to match to old API
         return
-                Core.isSubType(context(), SemType.tryInto(sourceType), INHERENTLY_IMMUTABLE_TYPE) ||
+                Core.isSubType(context(), SemType.tryInto(sourceType),
+                        InherentlyImmutableTypeHolder.INHERENTLY_IMMUTABLE_TYPE) ||
                         sourceType instanceof ReadonlyType;
     }
 
@@ -821,18 +802,6 @@ public final class TypeChecker {
         return checkValueEqual(lhsValue, rhsValue, new HashSet<>(checkedValues));
     }
 
-    private static SemType createRefValueMask() {
-        return Stream.of(Builder.getXmlType(), Builder.getMappingType(), Builder.listType(), Builder.getErrorType(),
-                        Builder.getTableType(), Builder.getRegexType())
-                .reduce(Builder.neverType(), Core::union);
-    }
-
-    private static SemType createConvertibleCastMask() {
-        return Stream.of(Builder.intType(), Builder.floatType(), Builder.decimalType(), Builder.stringType(),
-                        Builder.booleanType())
-                .reduce(Builder.neverType(), Core::union);
-    }
-
     private static boolean checkValueEqual(Object lhsValue, Object rhsValue, Set<ValuePair> checkedValues) {
         Context cx = context();
         SemType lhsShape = ShapeAnalyzer.inherentTypeOf(cx, lhsValue).orElseThrow();
@@ -855,7 +824,7 @@ public final class TypeChecker {
         if (belongToSameBasicType.test(Builder.decimalType())) {
             return checkDecimalEqual((DecimalValue) lhsValue, (DecimalValue) rhsValue);
         }
-        if (belongToSameBasicType.test(REF_TYPE_MASK)) {
+        if (belongToSameBasicType.test(RefValueTypeMaskHolder.REF_TYPE_MASK)) {
             RefValue lhs = (RefValue) lhsValue;
             return lhs.equals(rhsValue, checkedValues);
         }
@@ -1000,12 +969,6 @@ public final class TypeChecker {
         TRUE, FALSE, MAYBE
     }
 
-    private static SemType createTopTypesWithFillerValues() {
-        return Stream.of(Builder.intType(), Builder.floatType(), Builder.decimalType(), Builder.stringType(),
-                Builder.booleanType(), Builder.nilType(), Builder.getTableType(), Builder.getMappingType(),
-                Builder.listType()).reduce(Builder.neverType(), Core::union);
-    }
-
     private static FillerValueResult hasFillerValueSemType(Context cx, SemType type) {
         if (Core.containsBasicType(type, Builder.nilType())) {
             return FillerValueResult.TRUE;
@@ -1016,7 +979,8 @@ public final class TypeChecker {
         if (type.some() != 0) {
             return FillerValueResult.MAYBE;
         }
-        return Core.containsBasicType(type, TOP_TYPES_WITH_ALWAYS_FILLING) ? FillerValueResult.TRUE :
+        return Core.containsBasicType(type, TopTypesWithFillValueMaskHolder.TOP_TYPES_WITH_ALWAYS_FILLING) ?
+                FillerValueResult.TRUE :
                 FillerValueResult.FALSE;
     }
 
@@ -1271,14 +1235,9 @@ public final class TypeChecker {
         }
     }
 
-    private static SemType createSimpleBasicType() {
-        return Stream.of(Builder.nilType(), Builder.booleanType(), Builder.intType(), Builder.floatType(),
-                Builder.decimalType()).reduce(Builder.neverType(), Core::union);
-    }
-
     static boolean isSimpleBasicSemType(SemType semType) {
         Context cx = context();
-        return Core.isSubType(cx, semType, SIMPLE_BASIC_TYPE);
+        return Core.isSubType(cx, semType, SimpleBasicTypeHolder.SIMPLE_BASIC_TYPE);
     }
 
     static boolean belongToSingleBasicTypeOrString(Type type) {
@@ -1293,5 +1252,75 @@ public final class TypeChecker {
     }
 
     private TypeChecker() {
+    }
+
+    private static final class SimpleBasicTypeHolder {
+
+        static final SemType SIMPLE_BASIC_TYPE = createSimpleBasicType();
+
+        private static SemType createSimpleBasicType() {
+            return Stream.of(Builder.nilType(), Builder.booleanType(), Builder.intType(), Builder.floatType(),
+                    Builder.decimalType()).reduce(Builder.neverType(), Core::union);
+        }
+    }
+
+    private static final class NumericTypeHolder {
+
+        static final SemType NUMERIC_TYPE = createNumericType();
+
+        private static SemType createNumericType() {
+            return Stream.of(Builder.intType(), Builder.floatType(), Builder.decimalType())
+                    .reduce(Builder.neverType(), Core::union);
+        }
+
+    }
+
+    private static final class InherentlyImmutableTypeHolder {
+
+        static final SemType INHERENTLY_IMMUTABLE_TYPE = createInherentlyImmutableType();
+
+        private static SemType createInherentlyImmutableType() {
+            return Stream.of(SimpleBasicTypeHolder.SIMPLE_BASIC_TYPE, Builder.stringType(), Builder.getErrorType(),
+                            Builder.getFunctionType(),
+                            Builder.getTypeDescType(), Builder.getHandleType(), Builder.getXmlTextType(),
+                            Builder.getXmlNeverType(),
+                            Builder.getRegexType())
+                    .reduce(Builder.neverType(), Core::union);
+        }
+    }
+
+    private static final class RefValueTypeMaskHolder {
+
+        static final SemType REF_TYPE_MASK = createRefValueMask();
+
+        private static SemType createRefValueMask() {
+            return Stream.of(Builder.getXmlType(), Builder.getMappingType(), Builder.listType(), Builder.getErrorType(),
+                            Builder.getTableType(), Builder.getRegexType())
+                    .reduce(Builder.neverType(), Core::union);
+        }
+    }
+
+    private static final class ConvertibleCastMaskHolder {
+
+        private static final SemType CONVERTIBLE_CAST_MASK = createConvertibleCastMask();
+
+        private static SemType createConvertibleCastMask() {
+            return Stream.of(Builder.intType(), Builder.floatType(), Builder.decimalType(), Builder.stringType(),
+                            Builder.booleanType())
+                    .reduce(Builder.neverType(), Core::union);
+        }
+
+    }
+
+    private static final class TopTypesWithFillValueMaskHolder {
+
+        static final SemType TOP_TYPES_WITH_ALWAYS_FILLING = createTopTypesWithFillerValues();
+
+        private static SemType createTopTypesWithFillerValues() {
+            return Stream.of(Builder.intType(), Builder.floatType(), Builder.decimalType(), Builder.stringType(),
+                    Builder.booleanType(), Builder.nilType(), Builder.getTableType(), Builder.getMappingType(),
+                    Builder.listType()).reduce(Builder.neverType(), Core::union);
+        }
+
     }
 }
