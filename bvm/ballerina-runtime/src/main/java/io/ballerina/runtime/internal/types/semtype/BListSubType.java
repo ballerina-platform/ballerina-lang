@@ -38,10 +38,10 @@ import java.util.List;
 import java.util.Objects;
 
 import static io.ballerina.runtime.api.types.semtype.Bdd.bddEvery;
-import static io.ballerina.runtime.api.types.semtype.Core.cellContainingInnerVal;
 import static io.ballerina.runtime.api.types.semtype.Core.cellInner;
 import static io.ballerina.runtime.api.types.semtype.Core.cellInnerVal;
-import static io.ballerina.runtime.api.types.semtype.Core.intersectMemberSemTypes;
+import static io.ballerina.runtime.api.types.semtype.Core.getCellContainingInnerVal;
+import static io.ballerina.runtime.api.types.semtype.Core.intersectCellMemberSemTypes;
 import static io.ballerina.runtime.internal.types.semtype.BIntSubType.intSubtypeContains;
 
 // TODO: this has lot of common code with cell (and future mapping), consider refactoring (problem is createDelegate)
@@ -104,7 +104,7 @@ public class BListSubType extends SubType implements DelegatedSubType {
         FixedLengthArray members;
         SemType rest;
         if (pos == null) {
-            ListAtomicType atom = Builder.listAtomicInner();
+            ListAtomicType atom = Builder.getListAtomicInner();
             members = atom.members();
             rest = atom.rest();
         } else {
@@ -239,7 +239,7 @@ public class BListSubType extends SubType implements DelegatedSubType {
         int nRequired = 0;
         for (int i = 0; i < indices.length; i++) {
             int index = indices[i];
-            SemType t = cellContainingInnerVal(cx.env, listMemberAt(members, rest, index));
+            SemType t = getCellContainingInnerVal(cx.env, listMemberAt(members, rest, index));
             if (Core.isEmpty(cx, t)) {
                 break;
             }
@@ -343,11 +343,12 @@ public class BListSubType extends SubType implements DelegatedSubType {
         SemType[] initial = new SemType[max];
         for (int i = 0; i < max; i++) {
             initial[i] =
-                    intersectMemberSemTypes(env, listMemberAt(members1, rest1, i), listMemberAt(members2, rest2, i));
+                    intersectCellMemberSemTypes(env, listMemberAt(members1, rest1, i),
+                            listMemberAt(members2, rest2, i));
         }
         return Pair.from(FixedLengthArray.from(initial,
                         Integer.max(members1.fixedLength(), members2.fixedLength())),
-                intersectMemberSemTypes(env, rest1, rest2));
+                intersectCellMemberSemTypes(env, rest1, rest2));
     }
 
     private static boolean listLengthsDisjoint(FixedLengthArray members1, SemType rest1,

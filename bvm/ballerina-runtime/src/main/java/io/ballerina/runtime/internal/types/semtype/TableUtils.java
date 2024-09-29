@@ -43,7 +43,7 @@ public final class TableUtils {
         SemType[] fieldNameSingletons = new SemType[fieldNames.length];
         SemType[] fieldTypes = new SemType[fieldNames.length];
         for (int i = 0; i < fieldNames.length; i++) {
-            SemType key = Builder.stringConst(fieldNames[i]);
+            SemType key = Builder.getStringConst(fieldNames[i]);
             fieldNameSingletons[i] = key;
             fieldTypes[i] = Core.mappingMemberTypeInnerVal(cx, tableConstraint, key);
         }
@@ -63,12 +63,12 @@ public final class TableUtils {
         SemType normalizedKc = lat.map(atom -> {
             FixedLengthArray member = atom.members();
             return switch (member.fixedLength()) {
-                case 0 -> Builder.valType();
+                case 0 -> Builder.getValType();
                 case 1 -> Core.cellAtomicType(member.initial()[0]).orElseThrow().ty();
                 default -> keyConstraint;
             };
         }).orElse(keyConstraint);
-        return tableContaining(cx.env, tableConstraint, normalizedKc, Builder.valType(), CELL_MUT_LIMITED);
+        return tableContaining(cx.env, tableConstraint, normalizedKc, Builder.getValType(), CELL_MUT_LIMITED);
     }
 
     public static SemType tableContaining(Env env, SemType tableConstraint) {
@@ -76,12 +76,12 @@ public final class TableUtils {
     }
 
     private static SemType tableContaining(Env env, SemType tableConstraint, CellAtomicType.CellMutability mut) {
-        return tableContaining(env, tableConstraint, Builder.valType(), Builder.valType(), mut);
+        return tableContaining(env, tableConstraint, Builder.getValType(), Builder.getValType(), mut);
     }
 
     private static SemType tableContaining(Env env, SemType tableConstraint, SemType normalizedKc, SemType normalizedKs,
                                            CellAtomicType.CellMutability mut) {
-        tableConstraint = Core.intersect(tableConstraint, Builder.mappingType());
+        tableConstraint = Core.intersect(tableConstraint, Builder.getMappingType());
         ListDefinition typeParamArrDef = new ListDefinition();
         SemType typeParamArray = typeParamArrDef.defineListTypeWrapped(env, EMPTY_SEMTYPE_ARR, 0, tableConstraint, mut);
 

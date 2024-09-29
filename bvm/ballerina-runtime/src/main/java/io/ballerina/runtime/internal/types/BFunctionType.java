@@ -218,7 +218,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     private static SemType createIsolatedTop(Env env) {
         FunctionDefinition fd = new FunctionDefinition();
-        SemType ret = Builder.valType();
+        SemType ret = Builder.getValType();
         return fd.define(env, Builder.neverType(), ret, FunctionQualifiers.create(true, false));
     }
 
@@ -260,7 +260,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         if (SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED)) {
             return ISOLATED_TOP;
         }
-        return Builder.functionType();
+        return Builder.getFunctionType();
     }
 
     private record SemTypeResult(boolean hasBTypePart, SemType pureSemTypePart) {

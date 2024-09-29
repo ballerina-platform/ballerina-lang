@@ -134,12 +134,12 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     }
 
     @Override
-    public SemType widenedType(Context cx) {
-        return Builder.functionType();
+    public SemType widenedType() {
+        return Builder.getFunctionType();
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx) {
+    public Optional<SemType> inherentTypeOf(Context cx) {
         return Optional.of(SemType.tryInto(getType()));
     }
 }

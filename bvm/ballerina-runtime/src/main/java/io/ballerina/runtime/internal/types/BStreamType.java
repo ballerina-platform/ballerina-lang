@@ -145,7 +145,7 @@ public class BStreamType extends BType implements StreamType {
     @Override
     public synchronized SemType createSemType() {
         if (constraint == null) {
-            return Builder.streamType();
+            return Builder.getStreamType();
         }
         Env env = TypeChecker.context().env;
         if (definition != null) {

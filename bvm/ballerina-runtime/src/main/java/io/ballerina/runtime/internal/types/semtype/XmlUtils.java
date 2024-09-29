@@ -73,7 +73,7 @@ public final class XmlUtils {
 
     private static SemType createXmlSemtype(SubTypeData xmlSubtype) {
         if (xmlSubtype instanceof AllOrNothing) {
-            return xmlSubtype == AllOrNothing.ALL ? Builder.xmlType() : Builder.neverType();
+            return xmlSubtype == AllOrNothing.ALL ? Builder.getXmlType() : Builder.neverType();
         }
         assert xmlSubtype instanceof BXmlSubType : "subtype must be wrapped by delegate by now";
         return Builder.basicSubType(BasicTypeCode.BT_XML, (SubType) xmlSubtype);
@@ -101,12 +101,12 @@ public final class XmlUtils {
     }
 
     public static SemType xmlSequence(SemType constituentType) {
-        assert Core.isSubtypeSimple(constituentType, Builder.xmlType()) :
+        assert Core.isSubtypeSimple(constituentType, Builder.getXmlType()) :
                 "It is a precondition that constituentType is a subtype of XML";
         if (Core.isNever(constituentType)) {
             return xmlSequence(xmlSingleton(XML_PRIMITIVE_NEVER));
         } else if (constituentType.some() == 0) {
-            assert Core.isNever(Core.diff(Builder.xmlType(), constituentType));
+            assert Core.isNever(Core.diff(Builder.getXmlType(), constituentType));
             return constituentType;
         } else {
             SubType xmlSubType =

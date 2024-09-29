@@ -35,9 +35,9 @@ public class CoreTests {
         Env env = Env.getInstance();
         Context cx = Context.from(env);
         SemType intTy = Builder.intType();
-        SemType readonlyInt = Builder.cellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
+        SemType readonlyInt = Builder.getCellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
         assert Core.isSubType(cx, readonlyInt, readonlyInt);
-        SemType mutableInt = Builder.cellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
+        SemType mutableInt = Builder.getCellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
         assert Core.isSubType(cx, mutableInt, mutableInt);
         assert Core.isSubType(cx, readonlyInt, mutableInt);
         assert !Core.isSubType(cx, mutableInt, readonlyInt);
@@ -47,8 +47,8 @@ public class CoreTests {
     public void testCellTypeCaching() {
         Env env = Env.getInstance();
         SemType intTy = Builder.intType();
-        SemType readonlyInt1 = Builder.cellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
-        SemType readonlyInt2 = Builder.cellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
+        SemType readonlyInt1 = Builder.getCellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
+        SemType readonlyInt2 = Builder.getCellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
         assert readonlyInt1 == readonlyInt2;
     }
 

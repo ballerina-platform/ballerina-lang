@@ -329,7 +329,7 @@ public abstract class AbstractArrayValue implements ArrayValue, RecursiveValue<L
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx) {
+    public Optional<SemType> inherentTypeOf(Context cx) {
         TypeWithShape typeWithShape = (TypeWithShape) getType();
         return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
     }

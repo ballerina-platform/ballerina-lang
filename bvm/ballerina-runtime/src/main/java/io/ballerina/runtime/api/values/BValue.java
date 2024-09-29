@@ -62,11 +62,16 @@ public interface BValue {
 
     Type getType();
 
-    default SemType widenedType(Context cx) {
+    /**
+     * Basic type of the value.
+     *
+     * @return {@code SemType} representing the value's basic type
+     */
+    default SemType widenedType() {
         return SemType.tryInto(getType());
     }
 
-    default Optional<SemType> shapeOf(Context cx) {
+    default Optional<SemType> inherentTypeOf(Context cx) {
         return Optional.empty();
     }
 }

@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.types.semtype;
 import io.ballerina.runtime.api.types.semtype.Atom;
 import io.ballerina.runtime.api.types.semtype.BasicTypeCode;
 import io.ballerina.runtime.api.types.semtype.BddNode;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.RecAtom;
@@ -28,11 +29,10 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 import static io.ballerina.runtime.api.types.semtype.Builder.basicSubType;
-import static io.ballerina.runtime.api.types.semtype.Builder.cellContaining;
 import static io.ballerina.runtime.api.types.semtype.Builder.undef;
-import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.api.types.semtype.Core.isNever;
 import static io.ballerina.runtime.api.types.semtype.Core.union;
+import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 
 public class ListDefinition implements Definition {
 
@@ -54,9 +54,9 @@ public class ListDefinition implements Definition {
                                          CellAtomicType.CellMutability mut) {
         SemType[] initialCells = new SemType[initial.length];
         for (int i = 0; i < initial.length; i++) {
-            initialCells[i] = cellContaining(env, initial[i], mut);
+            initialCells[i] = Builder.getCellContaining(env, initial[i], mut);
         }
-        SemType restCell = cellContaining(env, union(rest, undef()), isNever(rest) ? CELL_MUT_NONE : mut);
+        SemType restCell = Builder.getCellContaining(env, union(rest, undef()), isNever(rest) ? CELL_MUT_NONE : mut);
         return define(env, initialCells, fixedLength, restCell);
     }
 

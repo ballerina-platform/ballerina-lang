@@ -95,7 +95,7 @@ public abstract class BError extends RuntimeException implements BValue, Pattern
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx) {
+    public Optional<SemType> inherentTypeOf(Context cx) {
         TypeWithShape type = getTypeWithShape();
         return type.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
     }

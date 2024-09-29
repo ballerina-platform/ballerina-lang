@@ -174,11 +174,11 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
 
     private SemType pickTopType() {
         return switch (tag) {
-            case TypeTags.XML_TAG -> Builder.xmlType();
-            case TypeTags.XML_ELEMENT_TAG -> Builder.xmlElementType();
-            case TypeTags.XML_COMMENT_TAG -> Builder.xmlCommentType();
-            case TypeTags.XML_PI_TAG -> Builder.xmlPIType();
-            case TypeTags.XML_TEXT_TAG -> Builder.xmlTextType();
+            case TypeTags.XML_TAG -> Builder.getXmlType();
+            case TypeTags.XML_ELEMENT_TAG -> Builder.getXmlElementType();
+            case TypeTags.XML_COMMENT_TAG -> Builder.getXmlCommentType();
+            case TypeTags.XML_PI_TAG -> Builder.getXmlPIType();
+            case TypeTags.XML_TEXT_TAG -> Builder.getXmlTextType();
             default -> throw new IllegalStateException("Unexpected value: " + tag);
         };
     }
@@ -230,13 +230,13 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
                     .map(XmlUtils::xmlSequence);
         } else if (object instanceof XmlText) {
             // Text is inherently readonly
-            return Optional.of(Builder.xmlTextType());
+            return Optional.of(Builder.getXmlTextType());
         } else if (object instanceof XmlItem xml) {
-            return getSemType(xml, Builder.xmlElementType());
+            return getSemType(xml, Builder.getXmlElementType());
         } else if (object instanceof XmlComment xml) {
-            return getSemType(xml, Builder.xmlCommentType());
+            return getSemType(xml, Builder.getXmlCommentType());
         } else if (object instanceof XmlPi xml) {
-            return getSemType(xml, Builder.xmlPIType());
+            return getSemType(xml, Builder.getXmlPIType());
         }
         throw new IllegalArgumentException("Unexpected xml value: " + object);
     }

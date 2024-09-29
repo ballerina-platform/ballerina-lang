@@ -21,7 +21,7 @@ package io.ballerina.runtime.api.types.semtype;
 import io.ballerina.runtime.internal.types.semtype.BListProj;
 
 /**
- * Wrapper utility class for list type projection.
+ * Utility class for list type projection.
  *
  * @since 2201.10.0
  */
