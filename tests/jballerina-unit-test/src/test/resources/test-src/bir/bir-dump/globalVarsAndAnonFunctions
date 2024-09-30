@@ -1,15 +1,15 @@
 public globalVarsAndAnonFunctions function() -> () {
     %0(RETURN) ();
     %1(SYNTHETIC) map<any|error>;
-    %2(TEMP) typeDesc<any|error>;
+    %3(TEMP) map<any|error>;
     %4(TEMP) any|error;
     %5(TEMP) int;
     %7(TEMP) string;
     %12(LOCAL) function(int) -> int;
 
     bb0 {
-        %2 = newType map<any|error>;
-        %1 = NewMap %2{};
+        %3 = newType map<any|error>;
+        %1 = NewMap %3{};
         %5 = ConstLoad 3;
         %4 = <any|error> %5;
         %7 = ConstLoad a;
