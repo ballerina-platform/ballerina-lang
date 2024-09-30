@@ -198,19 +198,19 @@ public class TomlParser extends AbstractParser {
 
     private STNode parseInlineKeyValuePair() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case IDENTIFIER_LITERAL:
-            case SINGLE_QUOTE_TOKEN:
-            case DOUBLE_QUOTE_TOKEN:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-            case DECIMAL_INT_TOKEN:
-            case DECIMAL_FLOAT_TOKEN:
-                return parseKeyValue(true);
-            default:
+        return switch (nextToken.kind) {
+            case IDENTIFIER_LITERAL,
+                 SINGLE_QUOTE_TOKEN,
+                 DOUBLE_QUOTE_TOKEN,
+                 TRUE_KEYWORD,
+                 FALSE_KEYWORD,
+                 DECIMAL_INT_TOKEN,
+                 DECIMAL_FLOAT_TOKEN -> parseKeyValue(true);
+            default -> {
                 recover(peek(), ParserRuleContext.INLINE_TABLE_ENTRY_START);
-                return parseInlineKeyValuePair();
-        }
+                yield parseInlineKeyValuePair();
+            }
+        };
     }
 
     private boolean isEndOfInlineTable(STToken token) {
@@ -218,16 +218,15 @@ public class TomlParser extends AbstractParser {
     }
 
     private STNode parseInlineTableEntryEnd() {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return consume();
-            case CLOSE_BRACE_TOKEN:
-                // null marks the end of values
-                return null;
-            default:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> consume();
+            // null marks the end of values
+            case CLOSE_BRACE_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.INLINE_TABLE_ENTRY_END);
-                return parseInlineTableEntryEnd();
-        }
+                yield parseInlineTableEntryEnd();
+            }
+        };
     }
 
     private STNode parseOpenBrace() {
@@ -390,25 +389,20 @@ public class TomlParser extends AbstractParser {
 
     private STNode parseSingleKey() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case DECIMAL_INT_TOKEN:
-            case DECIMAL_FLOAT_TOKEN:
-                return parseNumericalNode();
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-                return parseBoolean();
-            case IDENTIFIER_LITERAL:
-                return parseIdentifierLiteral();
-            case DOUBLE_QUOTE_TOKEN:
-                return parseStringValue();
-            case SINGLE_QUOTE_TOKEN:
-                return parseLiteralStringValue();
-            case EQUAL_TOKEN:
-                return null;
-            default:
+        return switch (nextToken.kind) {
+            case DECIMAL_INT_TOKEN,
+                 DECIMAL_FLOAT_TOKEN -> parseNumericalNode();
+            case TRUE_KEYWORD,
+                 FALSE_KEYWORD -> parseBoolean();
+            case IDENTIFIER_LITERAL -> parseIdentifierLiteral();
+            case DOUBLE_QUOTE_TOKEN -> parseStringValue();
+            case SINGLE_QUOTE_TOKEN -> parseLiteralStringValue();
+            case EQUAL_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.KEY_START);
-                return parseSingleKey();
-        }
+                yield parseSingleKey();
+            }
+        };
     }
 
     private STNode parseKeyList(STNode firstKey) {
@@ -437,17 +431,15 @@ public class TomlParser extends AbstractParser {
 
     private STNode parseKeyEnd() {
         STToken token = peek();
-        switch (token.kind) {
-            case DOT_TOKEN:
-                return consume();
-            case EQUAL_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-                // null marks the end of values
-                return null;
-            default:
+        return switch (token.kind) {
+            case DOT_TOKEN -> consume();
+            // null marks the end of values
+            case EQUAL_TOKEN, CLOSE_BRACKET_TOKEN -> null;
+            default -> {
                 recover(token, ParserRuleContext.KEY_END);
-                return parseKeyEnd();
-        }
+                yield parseKeyEnd();
+            }
+        };
     }
 
     private STNode parseEquals() {
@@ -475,34 +467,27 @@ public class TomlParser extends AbstractParser {
      */
     private STNode parseValue() {
         STToken token = peek();
-        switch (token.kind) {
-            case DOUBLE_QUOTE_TOKEN:
-                return parseStringValue();
-            case TRIPLE_DOUBLE_QUOTE_TOKEN:
-                return parseMultilineStringValue();
-            case SINGLE_QUOTE_TOKEN:
-                return parseLiteralStringValue();
-            case TRIPLE_SINGLE_QUOTE_TOKEN:
-                return parseMultilineLiteralStringValue();
-            case DECIMAL_INT_TOKEN:
-            case DECIMAL_FLOAT_TOKEN:
-            case HEX_INTEGER_LITERAL_TOKEN:
-            case OCTAL_INTEGER_LITERAL_TOKEN:
-            case BINARY_INTEGER_LITERAL_TOKEN:
-            case PLUS_TOKEN:
-            case MINUS_TOKEN:
-                return parseNumericalNode();
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-                return parseBoolean();
-            case OPEN_BRACKET_TOKEN:
-                return parseArray();
-            case OPEN_BRACE_TOKEN:
-                return parseInlineTable();
-            default:
+        return switch (token.kind) {
+            case DOUBLE_QUOTE_TOKEN -> parseStringValue();
+            case TRIPLE_DOUBLE_QUOTE_TOKEN -> parseMultilineStringValue();
+            case SINGLE_QUOTE_TOKEN -> parseLiteralStringValue();
+            case TRIPLE_SINGLE_QUOTE_TOKEN -> parseMultilineLiteralStringValue();
+            case DECIMAL_INT_TOKEN,
+                 DECIMAL_FLOAT_TOKEN,
+                 HEX_INTEGER_LITERAL_TOKEN,
+                 OCTAL_INTEGER_LITERAL_TOKEN,
+                 BINARY_INTEGER_LITERAL_TOKEN,
+                 PLUS_TOKEN,
+                 MINUS_TOKEN -> parseNumericalNode();
+            case TRUE_KEYWORD,
+                 FALSE_KEYWORD -> parseBoolean();
+            case OPEN_BRACKET_TOKEN -> parseArray();
+            case OPEN_BRACE_TOKEN -> parseInlineTable();
+            default -> {
                 recover(token, ParserRuleContext.VALUE);
-                return parseValue();
-        }
+                yield parseValue();
+            }
+        };
     }
 
     private STNode parseNumericalNode() {
@@ -513,18 +498,13 @@ public class TomlParser extends AbstractParser {
     }
 
     private SyntaxKind getNumericLiteralKind(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case DECIMAL_INT_TOKEN:
-                return DEC_INT;
-            case HEX_INTEGER_LITERAL_TOKEN:
-                return HEX_INT;
-            case OCTAL_INTEGER_LITERAL_TOKEN:
-                return OCT_INT;
-            case BINARY_INTEGER_LITERAL_TOKEN:
-                return BINARY_INT;
-            default:
-                return FLOAT;
-        }
+        return switch (tokenKind) {
+            case DECIMAL_INT_TOKEN -> DEC_INT;
+            case HEX_INTEGER_LITERAL_TOKEN -> HEX_INT;
+            case OCTAL_INTEGER_LITERAL_TOKEN -> OCT_INT;
+            case BINARY_INTEGER_LITERAL_TOKEN -> BINARY_INT;
+            default -> FLOAT;
+        };
     }
 
     private STNode parseNumericalToken() {
@@ -538,16 +518,14 @@ public class TomlParser extends AbstractParser {
     }
 
     private boolean isNumericalLiteral(STToken token) {
-        switch (token.kind) {
-            case DECIMAL_INT_TOKEN:
-            case DECIMAL_FLOAT_TOKEN:
-            case HEX_INTEGER_LITERAL_TOKEN:
-            case OCTAL_INTEGER_LITERAL_TOKEN:
-            case BINARY_INTEGER_LITERAL_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (token.kind) {
+            case DECIMAL_INT_TOKEN,
+                 DECIMAL_FLOAT_TOKEN,
+                 HEX_INTEGER_LITERAL_TOKEN,
+                 OCTAL_INTEGER_LITERAL_TOKEN,
+                 BINARY_INTEGER_LITERAL_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private STNode parseSign() {
@@ -791,49 +769,43 @@ public class TomlParser extends AbstractParser {
     }
 
     private STNode parseValueEnd() {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return consume();
-            case CLOSE_BRACKET_TOKEN:
-                // null marks the end of values
-                return null;
-            case NEWLINE:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> consume();
+            // null marks the end of values
+            case CLOSE_BRACKET_TOKEN -> null;
+            case NEWLINE -> {
                 consume();
-                return parseValueEnd();
-            default:
+                yield parseValueEnd();
+            }
+            default -> {
                 recover(peek(), ParserRuleContext.ARRAY_VALUE_END);
-                return parseValueEnd();
-        }
+                yield parseValueEnd();
+            }
+        };
     }
 
     private STNode parseArrayValue() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case DOUBLE_QUOTE_TOKEN:
-                return parseStringValue();
-            case TRIPLE_DOUBLE_QUOTE_TOKEN:
-                return parseMultilineStringValue();
-            case SINGLE_QUOTE_TOKEN:
-                return parseLiteralStringValue();
-            case TRIPLE_SINGLE_QUOTE_TOKEN:
-                return parseMultilineLiteralStringValue();
-            case DECIMAL_INT_TOKEN:
-            case DECIMAL_FLOAT_TOKEN:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-                return parseValue();
-            case OPEN_BRACKET_TOKEN:
-                return parseArray();
-            case CLOSE_BRACKET_TOKEN:
-                return null;
-            case OPEN_BRACE_TOKEN:
-                return parseInlineTable();
-            case NEWLINE:
+        return switch (nextToken.kind) {
+            case DOUBLE_QUOTE_TOKEN -> parseStringValue();
+            case TRIPLE_DOUBLE_QUOTE_TOKEN -> parseMultilineStringValue();
+            case SINGLE_QUOTE_TOKEN -> parseLiteralStringValue();
+            case TRIPLE_SINGLE_QUOTE_TOKEN -> parseMultilineLiteralStringValue();
+            case DECIMAL_INT_TOKEN,
+                 DECIMAL_FLOAT_TOKEN,
+                 TRUE_KEYWORD,
+                 FALSE_KEYWORD -> parseValue();
+            case OPEN_BRACKET_TOKEN -> parseArray();
+            case CLOSE_BRACKET_TOKEN -> null;
+            case OPEN_BRACE_TOKEN -> parseInlineTable();
+            case NEWLINE -> {
                 consume();
-                return parseArrayValue();
-            default:
+                yield parseArrayValue();
+            }
+            default -> {
                 recover(peek(), ParserRuleContext.ARRAY_VALUE_START);
-                return parseArrayValue();
-        }
+                yield parseArrayValue();
+            }
+        };
     }
 }

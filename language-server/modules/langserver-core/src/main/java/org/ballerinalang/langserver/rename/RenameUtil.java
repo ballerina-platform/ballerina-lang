@@ -74,7 +74,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class RenameUtil {
+public final class RenameUtil {
 
     private RenameUtil() {
     }
@@ -268,8 +268,8 @@ public class RenameUtil {
         }
 
         FieldBindingPatternNode fieldBindingPatternNode = (FieldBindingPatternNode) node.parent();
-        if (fieldBindingPatternNode instanceof FieldBindingPatternVarnameNode) {
-            return Optional.of((FieldBindingPatternVarnameNode) fieldBindingPatternNode);
+        if (fieldBindingPatternNode instanceof FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+            return Optional.of(fieldBindingPatternVarnameNode);
         }
         return Optional.empty();
     }

@@ -29,24 +29,28 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
  * Util methods used for doc generation.
  */
-public class BallerinaDocUtils {
+public final class BallerinaDocUtils {
 
     private static final boolean debugEnabled = "true".equals(System.getProperty(
             BallerinaDocConstants.ENABLE_DEBUG_LOGS));
     private static final PrintStream out = System.out;
 
+    private BallerinaDocUtils() {
+    }
+
     public static void packageToZipFile(String sourceDirPath, String zipFilePath) throws IOException {
         Path p = Files.createFile(Paths.get(zipFilePath));
-        try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(p))) {
-            Path pp = Paths.get(sourceDirPath);
-            Files.walk(pp)
-                    .filter(path -> !Files.isDirectory(path))
+        Path pp = Paths.get(sourceDirPath);
+        try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(p));
+             Stream<Path> sourcePaths = Files.walk(pp)) {
+            sourcePaths.filter(path -> !Files.isDirectory(path))
                     .forEach(path -> {
                         ZipEntry zipEntry = new ZipEntry(pp.relativize(path).toString());
                         try {

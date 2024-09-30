@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Support class to add required import statements.
@@ -113,7 +112,7 @@ public class ModuleImporter {
             }
         }
 
-        return moduleErrors.stream().distinct().collect(Collectors.toList());
+        return moduleErrors.stream().distinct().toList();
     }
 
     /**

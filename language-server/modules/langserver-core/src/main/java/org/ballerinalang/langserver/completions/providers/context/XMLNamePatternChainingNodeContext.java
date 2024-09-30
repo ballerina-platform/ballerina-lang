@@ -24,7 +24,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link XMLNamePatternChainingNode} context.
@@ -41,8 +40,7 @@ public class XMLNamePatternChainingNodeContext extends AbstractCompletionProvide
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, XMLNamePatternChainingNode node) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        List<Symbol> xmlNs = visibleSymbols.stream().filter(symbol -> symbol.kind() == SymbolKind.XMLNS)
-                .collect(Collectors.toList());
+        List<Symbol> xmlNs = visibleSymbols.stream().filter(symbol -> symbol.kind() == SymbolKind.XMLNS).toList();
         List<LSCompletionItem> completionItems = this.getCompletionItemList(xmlNs, context);
         this.sort(context, node, completionItems);
 

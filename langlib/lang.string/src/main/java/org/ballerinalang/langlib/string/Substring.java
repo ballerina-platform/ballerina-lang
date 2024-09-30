@@ -35,7 +35,10 @@ import static org.ballerinalang.langlib.string.utils.StringUtils.createNullRefer
 //        returnType = {@ReturnType(type = TypeKind.STRING)},
 //        isPublic = true
 //)
-public class Substring {
+public final class Substring {
+
+    private Substring() {
+    }
 
     public static BString substring(BString value, long startIndex, long endIndex) {
         if (value == null) {

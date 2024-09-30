@@ -54,7 +54,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -336,7 +335,10 @@ public class RunTestsTask implements Task {
 
     private List<Path> getAllSourceFilePaths(String projectRootString) throws IOException {
         List<Path> sourceFilePaths = new ArrayList<>();
-        List<Path> paths = Files.walk(Paths.get(projectRootString), 3).toList();
+        List<Path> paths;
+        try (Stream<Path> stream = Files.walk(Paths.get(projectRootString), 3)) {
+            paths = stream.toList();
+        }
 
         if (isWindows) {
             projectRootString = projectRootString.replace(PATH_SEPARATOR, EXCLUDES_PATTERN_PATH_SEPARATOR);
@@ -359,7 +361,7 @@ public class RunTestsTask implements Task {
     private static List<Path> filterPathStream(Stream<Path> pathStream, String combinedPattern) {
         return pathStream.filter(
                         FileSystems.getDefault().getPathMatcher("glob:" + combinedPattern)::matches)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private void getclassFromSourceFilePath(List<String> sourcePatternList, Package currentPackage,

@@ -30,7 +30,6 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link PanicStatementNode} context.
@@ -51,7 +50,7 @@ public class PanicStatementNodeContext extends AbstractCompletionProvider<PanicS
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(SymbolUtil::isError)
-                .collect(Collectors.toList());
+                .toList();
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.expressionCompletions(context));
         this.sort(context, node, completionItems);

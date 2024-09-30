@@ -214,7 +214,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
      */
     @Override
     public XmlValue elements() {
-        List elementsSeq = new ArrayList<XmlValue>();
+        List<BXml> elementsSeq = new ArrayList<>();
         for (BXml child : children) {
             if (child.getNodeType() == XmlNodeType.ELEMENT) {
                 elementsSeq.add(child);
@@ -612,8 +612,8 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     }
 
     @Override
-    public IteratorValue getIterator() {
-        return new IteratorValue() {
+    public IteratorValue<BXml> getIterator() {
+        return new IteratorValue<>() {
             Iterator<BXml> iterator = children.iterator();
 
             @Override
@@ -622,7 +622,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             }
 
             @Override
-            public Object next() {
+            public BXml next() {
                 return iterator.next();
             }
         };
@@ -643,8 +643,8 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             childrenType = children.get(0).getType();
         } else {
             Set<Type> types = new HashSet<>();
-            for (int i = 0; i < children.size(); i++) {
-                types.add(children.get(i).getType());
+            for (BXml child : children) {
+                types.add(child.getType());
             }
             childrenType = new BUnionType(new ArrayList<>(types));
         }

@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The class {@code AbstractNodeVisitorTarget} represent a generic entity that converts a
@@ -73,7 +72,7 @@ public abstract class AbstractNodeVisitorTarget extends Target {
                 .stream()
                 .map(syntaxNode -> convertToTreeNodeClass(syntaxNode,
                         getPackageName(), new ArrayList<>(), nodeMetadataMap))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     protected abstract String getPackageName();

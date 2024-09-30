@@ -138,19 +138,11 @@ public class BallerinaPathSegmentList implements PathSegmentList {
         for (int i = 0, pathParamCount = 0, pathSegmentCount = this.internalPathSegmentSymbols.size();
              i < pathSegmentCount; i++) {
             BResourcePathSegmentSymbol pathSegmentSymbol = this.internalPathSegmentSymbols.get(i);
-            PathSegment segment;
-            switch (pathSegmentSymbol.getName().getValue()) {
-                case "$^":
-                case "^":
-                    segment = pathParams.get(pathParamCount++);
-                    break;
-                case "^^":
-                case "$^^":
-                    segment = pathRestParameter().get();
-                    break;
-                default:
-                    segment = symbolFactory.createPathNameSymbol(pathSegmentSymbol);
-            }
+            PathSegment segment = switch (pathSegmentSymbol.getName().getValue()) {
+                case "$^", "^" -> pathParams.get(pathParamCount++);
+                case "^^", "$^^" -> pathRestParameter().get();
+                default -> symbolFactory.createPathNameSymbol(pathSegmentSymbol);
+            };
             segments.add(segment);
         }
 

@@ -22,7 +22,7 @@ package io.ballerina.runtime.api;
  *
  * @since 0.995.0
  */
-public class TypeTags {
+public final class TypeTags {
 
     public static final int INT_TAG = 1;
     public static final int BYTE_TAG = INT_TAG + 1;
@@ -88,41 +88,34 @@ public class TypeTags {
 
     public static final int REG_EXP_TYPE_TAG = TYPE_REFERENCED_TYPE_TAG + 1;
 
+    private TypeTags() {
+    }
+
     public static boolean isIntegerTypeTag(int tag) {
-        switch (tag) {
-            case BYTE_TAG:
-            case INT_TAG:
-            case SIGNED32_INT_TAG:
-            case SIGNED16_INT_TAG:
-            case SIGNED8_INT_TAG:
-            case UNSIGNED32_INT_TAG:
-            case UNSIGNED16_INT_TAG:
-            case UNSIGNED8_INT_TAG:
-                return true;
-        }
-        return false;
+        return switch (tag) {
+            case BYTE_TAG,
+                 INT_TAG,
+                 SIGNED32_INT_TAG,
+                 SIGNED16_INT_TAG,
+                 SIGNED8_INT_TAG,
+                 UNSIGNED32_INT_TAG,
+                 UNSIGNED16_INT_TAG,
+                 UNSIGNED8_INT_TAG -> true;
+            default -> false;
+        };
     }
 
     public static boolean isXMLTypeTag(int tag) {
-
-        switch (tag) {
-            case XML_TAG:
-            case XML_ELEMENT_TAG:
-            case XML_COMMENT_TAG:
-            case XML_PI_TAG:
-            case XML_TEXT_TAG:
-                return true;
-        }
-        return false;
+        return switch (tag) {
+            case XML_TAG, XML_ELEMENT_TAG, XML_COMMENT_TAG, XML_PI_TAG, XML_TEXT_TAG -> true;
+            default -> false;
+        };
     }
 
     public static boolean isStringTypeTag(int tag) {
-
-        switch (tag) {
-            case STRING_TAG:
-            case CHAR_STRING_TAG:
-                return true;
-        }
-        return false;
+        return switch (tag) {
+            case STRING_TAG, CHAR_STRING_TAG -> true;
+            default -> false;
+        };
     }
 }

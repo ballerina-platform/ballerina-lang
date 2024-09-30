@@ -55,8 +55,8 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns.get(3).toString(), "Error Two");
         Assert.assertEquals(returns.get(4).toString(), "{\"detail\":\"Detail Msg\"}");
         Assert.assertEquals(returns.get(5).toString(), "Msg One");
-        Assert.assertEquals(((BMap) returns.get(6)).get(StringUtils.fromString("message")).toString(), "Msg Two");
-        Assert.assertTrue((Boolean) ((BMap) returns.get(6)).get(StringUtils.fromString("fatal")));
+        Assert.assertEquals(((BMap<?, ?>) returns.get(6)).get(StringUtils.fromString("message")).toString(), "Msg Two");
+        Assert.assertTrue((Boolean) ((BMap<?, ?>) returns.get(6)).get(StringUtils.fromString("fatal")));
         Assert.assertEquals(returns.get(7).toString(), "Msg Two");
     }
 
@@ -68,10 +68,12 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns.get(1).toString(), "Some Error One");
         Assert.assertEquals(returns.get(2).toString(), "Some Error Two");
         Assert.assertEquals(returns.get(3).toString(), "Some Error Two");
-        Assert.assertEquals(((BMap) returns.get(4)).get(StringUtils.fromString("message")).toString(), "Msg Three");
+        Assert.assertEquals(((BMap<?, ?>) returns.get(4)).get(StringUtils.fromString("message")).toString(),
+                "Msg Three");
         Assert.assertEquals(returns.get(5).toString(), "Msg Three");
-        Assert.assertEquals(((BMap) returns.get(6)).get(StringUtils.fromString("message")).toString(), "Msg Four");
-        Assert.assertTrue((Boolean) ((BMap) returns.get(6)).get(StringUtils.fromString("fatal")));
+        Assert.assertEquals(((BMap<?, ?>) returns.get(6)).get(StringUtils.fromString("message")).toString(),
+                "Msg Four");
+        Assert.assertTrue((Boolean) ((BMap<?, ?>) returns.get(6)).get(StringUtils.fromString("fatal")));
         Assert.assertEquals(returns.get(7).toString(), "Msg Four");
     }
 
@@ -83,10 +85,10 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns.get(1).toString(), "Error One");
         Assert.assertEquals(returns.get(2).toString(), "Error Two");
         Assert.assertEquals(returns.get(3).toString(), "Error Two");
-        Assert.assertEquals(((BMap) returns.get(4)).get(StringUtils.fromString("message")).toString(), "Msg One");
+        Assert.assertEquals(((BMap<?, ?>) returns.get(4)).get(StringUtils.fromString("message")).toString(), "Msg One");
         Assert.assertEquals(returns.get(5).toString(), "Msg One");
-        Assert.assertEquals(((BMap) returns.get(6)).get(StringUtils.fromString("message")).toString(), "Msg Two");
-        Assert.assertTrue((Boolean) ((BMap) returns.get(6)).get(StringUtils.fromString("fatal")));
+        Assert.assertEquals(((BMap<?, ?>) returns.get(6)).get(StringUtils.fromString("message")).toString(), "Msg Two");
+        Assert.assertTrue((Boolean) ((BMap<?, ?>) returns.get(6)).get(StringUtils.fromString("fatal")));
         Assert.assertEquals(returns.get(7).toString(), "Msg Two");
     }
 
@@ -98,10 +100,12 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns.get(1).toString(), "Some Error One");
         Assert.assertEquals(returns.get(2).toString(), "Some Error Two");
         Assert.assertEquals(returns.get(3).toString(), "Some Error Two");
-        Assert.assertEquals(((BMap) returns.get(4)).get(StringUtils.fromString("message")).toString(), "Msg Three");
+        Assert.assertEquals(((BMap<?, ?>) returns.get(4)).get(StringUtils.fromString("message")).toString(),
+                "Msg Three");
         Assert.assertEquals(returns.get(5).toString(), "Msg Three");
-        Assert.assertEquals(((BMap) returns.get(6)).get(StringUtils.fromString("message")).toString(), "Msg Four");
-        Assert.assertTrue((Boolean) ((BMap) returns.get(6)).get(StringUtils.fromString("fatal")));
+        Assert.assertEquals(((BMap<?, ?>) returns.get(6)).get(StringUtils.fromString("message")).toString(),
+                "Msg Four");
+        Assert.assertTrue((Boolean) ((BMap<?, ?>) returns.get(6)).get(StringUtils.fromString("fatal")));
         Assert.assertEquals(returns.get(7).toString(), "Msg Four");
     }
 
@@ -113,7 +117,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns.get(1).toString(), "Error One");
         Assert.assertEquals(returns.get(2).toString(), "Something Wrong");
         Assert.assertTrue((Boolean) returns.get(3));
-        Assert.assertEquals(((BMap) returns.get(4)).get(StringUtils.fromString("message")).toString(),
+        Assert.assertEquals(((BMap<?, ?>) returns.get(4)).get(StringUtils.fromString("message")).toString(),
                 "Something Wrong");
     }
 

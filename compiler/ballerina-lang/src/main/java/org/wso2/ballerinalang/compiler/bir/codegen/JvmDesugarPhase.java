@@ -57,7 +57,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_G
  *
  * @since 1.2.0
  */
-public class JvmDesugarPhase {
+public final class JvmDesugarPhase {
 
     private JvmDesugarPhase() {
     }

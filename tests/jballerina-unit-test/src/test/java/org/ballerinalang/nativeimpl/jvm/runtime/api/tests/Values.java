@@ -83,7 +83,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class Values {
+public final class Values {
 
     private static final Module objectModule = new Module("testorg", "values.objects", "1");
     private static final Module recordModule = new Module("testorg", "values.records", "1");
@@ -92,6 +92,9 @@ public class Values {
     private static final BString intAnnotation = StringUtils.fromString("testorg/types.typeref:1:Int");
     private static final BError constraintError =
             ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+
+    private Values() {
+    }
 
     public static BMap<BString, Object> getRecord(BString recordName) {
         HashMap<String, Object> address = new HashMap<>();
@@ -182,7 +185,7 @@ public class Values {
         return StringUtils.fromString("");
     }
 
-    public static BString getParamTypesString(BFunctionPointer func) {
+    public static BString getParamTypesString(BFunctionPointer<?, ?> func) {
         BFunctionType funcType = (BFunctionType) func.getType();
         StringBuilder sb = new StringBuilder();
         for (Type type : funcType.getParameterTypes()) {
@@ -329,7 +332,7 @@ public class Values {
         BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
         if (annotations.containsKey(intAnnotation)) {
             Object annotValue = annotations.get(intAnnotation);
-            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
+            Long minValue = (Long) ((BMap<?, ?>) annotValue).get(StringUtils.fromString("minValue"));
             if (((Long) value) >= minValue) {
                 return value;
             }
@@ -339,11 +342,12 @@ public class Values {
 
     public static Object validateRecord(Object value, BTypedesc typedesc) {
         Type describingType = typedesc.getDescribingType();
-        Long age = ((BMap) value).getIntValue(StringUtils.fromString("age"));
+        Long age = ((BMap<?, ?>) value).getIntValue(StringUtils.fromString("age"));
         for (Field field : ((BRecordType) describingType).getFields().values()) {
             BMap<BString, Object> annotations = ((AnnotatableType) field.getFieldType()).getAnnotations();
             if (annotations.containsKey(intAnnotation)) {
-                Long minValue = (Long) ((BMap) annotations.get(intAnnotation)).get(StringUtils.fromString("minValue"));
+                Long minValue = (Long) ((BMap<?, ?>) annotations.get(intAnnotation))
+                        .get(StringUtils.fromString("minValue"));
                 if (age < minValue) {
                     return constraintError;
                 }
@@ -357,7 +361,7 @@ public class Values {
         BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
         if (annotations.containsKey(intAnnotation)) {
             Object annotValue = annotations.get(intAnnotation);
-            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
+            Long minValue = (Long) ((BMap<?, ?>) annotValue).get(StringUtils.fromString("minValue"));
             for (Object element : ((BArray) value).getValues()) {
                 if (((Long) element) >= minValue) {
                     return value;
@@ -373,7 +377,7 @@ public class Values {
         BString annotKey = StringUtils.fromString("testorg/types.typeref:1:Array");
         if (annotations.containsKey(annotKey)) {
             Object annotValue = annotations.get(annotKey);
-            Long maxLength = (Long) ((BMap) annotValue).get(StringUtils.fromString("maxLength"));
+            Long maxLength = (Long) ((BMap<?, ?>) annotValue).get(StringUtils.fromString("maxLength"));
             BArray array = (BArray) value;
             if (maxLength < array.getLength()) {
                 return ErrorCreator.createError(
@@ -386,7 +390,7 @@ public class Values {
                 return constraintError;
             }
             annotValue = annotations.get(intAnnotation);
-            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
+            Long minValue = (Long) ((BMap<?, ?>) annotValue).get(StringUtils.fromString("minValue"));
             for (int i = 0; i < array.getLength(); i++) {
                 if (((Long) array.get(i)) < minValue) {
                     return constraintError;
@@ -396,7 +400,7 @@ public class Values {
         return value;
     }
 
-    public static Object validateFunctionParameterExtern(BFunctionPointer fpValue) {
+    public static Object validateFunctionParameterExtern(BFunctionPointer<?, ?> fpValue) {
         return validateFunctionType((FunctionType) fpValue.getType());
     }
 
@@ -470,10 +474,10 @@ public class Values {
             throw ErrorCreator.createError(StringUtils.fromString("Annotation is not available."));
         }
         BString annotKey = StringUtils.fromString("testorg/types.typeref:1:String");
-        return TypeChecker.checkIsType(((BMap) annotation).get(annotKey), constraint.getDescribingType());
+        return TypeChecker.checkIsType(((BMap<?, ?>) annotation).get(annotKey), constraint.getDescribingType());
     }
 
-    public static BString getParameterName(BFunctionPointer fpValue) {
+    public static BString getParameterName(BFunctionPointer<?, ?> fpValue) {
         Parameter parameter = ((BFunctionType) fpValue.getType()).getParameters()[0];
         return StringUtils.fromString(parameter.name);
     }

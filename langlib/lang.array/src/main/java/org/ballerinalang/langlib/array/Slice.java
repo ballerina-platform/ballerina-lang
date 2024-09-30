@@ -40,7 +40,10 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
  *
  * @since 1.0
  */
-public class Slice {
+public final class Slice {
+
+    private Slice() {
+    }
 
     public static BArray slice(BArray arr, long startIndex, long endIndex) {
         int size = arr.size();

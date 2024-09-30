@@ -1684,13 +1684,13 @@ class SymbolFinder extends BaseVisitor {
 
         // The assumption is that if it's moduled-qualified, it must be a public symbol.
         // Hence, the owner would be a package symbol.
-        if (resourceAccessInvocation.symbol != null &&
-                setEnclosingNode(resourceAccessInvocation.symbol.owner, resourceAccessInvocation.pkgAlias.pos)) {
+        BSymbol symbol = resourceAccessInvocation.symbol;
+        if (symbol != null && setEnclosingNode(symbol.owner, resourceAccessInvocation.pkgAlias.pos)) {
             return;
         }
 
         if (this.symbolAtCursor == null) {
-            setEnclosingNode(resourceAccessInvocation.symbol, resourceAccessInvocation.resourceAccessPathSegments.pos);
+            setEnclosingNode(symbol, resourceAccessInvocation.name.pos);
         }
     }
 
@@ -1830,10 +1830,9 @@ class SymbolFinder extends BaseVisitor {
     }
 
     private boolean isWithinNodeMetaData(TopLevelNode node) {
-        if (node instanceof AnnotatableNode) {
+        if (node instanceof AnnotatableNode annotatableNode) {
 
-            List<AnnotationAttachmentNode> nodes =
-                    (List<AnnotationAttachmentNode>) ((AnnotatableNode) node).getAnnotationAttachments();
+            List<? extends AnnotationAttachmentNode> nodes = annotatableNode.getAnnotationAttachments();
 
             for (AnnotationAttachmentNode annotAttachment : nodes) {
                 if (PositionUtil.withinBlock(this.cursorPos, annotAttachment.getPosition())) {
@@ -1842,8 +1841,8 @@ class SymbolFinder extends BaseVisitor {
             }
         }
 
-        if (node instanceof DocumentableNode) {
-            BLangMarkdownDocumentation markdown = ((DocumentableNode) node).getMarkdownDocumentationAttachment();
+        if (node instanceof DocumentableNode documentableNode) {
+            BLangMarkdownDocumentation markdown = documentableNode.getMarkdownDocumentationAttachment();
             if (markdown != null) {
                 LinkedList<BLangMarkdownParameterDocumentation> parameters = markdown.getParameters();
                 for (BLangMarkdownParameterDocumentation parameter : parameters) {

@@ -18,11 +18,12 @@
 package io.ballerina.compiler.internal.parser.incremental;
 
 import io.ballerina.compiler.internal.parser.tree.STToken;
-import io.ballerina.compiler.internal.parser.utils.PersistentStack;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.TextRange;
+
+import java.util.Deque;
 
 /**
  * Contains utility methods to retrieve {@code HybridNode}s from
@@ -30,7 +31,10 @@ import io.ballerina.tools.text.TextRange;
  *
  * @since 1.3.0
  */
-class HybridNodes {
+final class HybridNodes {
+
+    private HybridNodes() {
+    }
 
     /**
      * Returns the next node based on the previous node's state and the given kind.
@@ -41,14 +45,11 @@ class HybridNodes {
      */
     static HybridNode nextNode(HybridNode prevNode, HybridNode.Kind kind) {
         HybridNode.State state = prevNode.state().cloneState();
-        switch (kind) {
-            case TOKEN:
-                return nextToken(state);
-            case SUBTREE:
-                return nextSubtree(state);
-            default:
-                throw new UnsupportedOperationException("Unsupported HybridNode.Kind: " + kind);
-        }
+        return switch (kind) {
+            case TOKEN -> nextToken(state);
+            case SUBTREE -> nextSubtree(state);
+            default -> throw new UnsupportedOperationException("Unsupported HybridNode.Kind: " + kind);
+        };
     }
 
     private static HybridNode nextSubtree(HybridNode.State state) {
@@ -140,8 +141,7 @@ class HybridNodes {
         if (nextOldTokenStartOffset < textEditRange.oldEndOffset) {
             return;
         }
-
-        state.textEditRanges = state.textEditRanges.pop();
+        state.textEditRanges.pop();
         state.oldTextOffset += textEditRange.newTextLength - textEditRange.oldLength;
     }
 
@@ -161,7 +161,7 @@ class HybridNodes {
     }
 
     private static boolean noOverlapWithCurrentTextEdit(Node oldNode,
-                                                        PersistentStack<TextEditRange> textEditRanges) {
+                                                        Deque<TextEditRange> textEditRanges) {
         if (textEditRanges.isEmpty()) {
             return true;
         }

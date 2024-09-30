@@ -28,7 +28,7 @@ import java.util.Collection;
  *
  * @since Swan Lake
  */
-public class BCollectionProperty implements DiagnosticProperty {
+public class BCollectionProperty implements DiagnosticProperty<Collection<DiagnosticProperty<?>>> {
     private final DiagnosticPropertyKind kind;
     private final Collection<DiagnosticProperty<?>> values;
 
@@ -54,8 +54,7 @@ public class BCollectionProperty implements DiagnosticProperty {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BCollectionProperty) {
-            BCollectionProperty that = (BCollectionProperty) obj;
+        if (obj instanceof BCollectionProperty that) {
             return this.kind.equals(that.kind) && this.values.equals(that.values);
         }
         return false;

@@ -93,7 +93,6 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -128,7 +127,8 @@ import static io.ballerina.projects.util.ProjectConstants.WILD_CARD;
  *
  * @since 2.0.0
  */
-public class ProjectUtils {
+public final class ProjectUtils {
+
     private static final String USER_HOME = "user.home";
     private static final Pattern separatedIdentifierPattern = Pattern.compile("^[a-zA-Z0-9_.]*$");
     private static final Pattern onlyDotsPattern = Pattern.compile("^[.]+$");
@@ -136,6 +136,9 @@ public class ProjectUtils {
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
     private static final Pattern separatedIdentifierWithHyphenPattern = Pattern.compile("^[a-zA-Z0-9_.-]*$");
     private static String projectLoadingDiagnostic;
+
+    private ProjectUtils() {
+    }
 
     /**
      * Validates the org-name.
@@ -1247,7 +1250,7 @@ public class ProjectUtils {
     private static List<Path> filterPathStream(Stream<Path> pathStream, String combinedPattern) {
         return pathStream.filter(
                         FileSystems.getDefault().getPathMatcher("glob:" + combinedPattern)::matches)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static String getGlobFormatPattern(String pattern) {

@@ -51,7 +51,10 @@ import java.util.Optional;
 /**
  * Utility class for Hover functionality of language server.
  */
-public class HoverUtil {
+public final class HoverUtil {
+
+    private HoverUtil() {
+    }
 
     /**
      * Get the hover content.
@@ -138,7 +141,7 @@ public class HoverUtil {
      *
      * @return {@link Hover} hover object.
      */
-    protected static Hover getHoverObject() {
+    static Hover getHoverObject() {
         return getHoverObject("");
     }
 
@@ -147,7 +150,7 @@ public class HoverUtil {
      *
      * @return {@link Hover} hover object.
      */
-    protected static Hover getHoverObject(String content) {
+    static Hover getHoverObject(String content) {
         Hover hover = new Hover();
         MarkupContent hoverMarkupContent = new MarkupContent();
         hoverMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
@@ -164,8 +167,8 @@ public class HoverUtil {
      * @param currentModule  Current Module.
      * @return {@link Boolean} Whether the symbol is visible in the current context.
      */
-    protected static Boolean withValidAccessModifiers(Symbol symbol, Package currentPackage,
-                                                      ModuleId currentModule, HoverContext context) {
+    static Boolean withValidAccessModifiers(Symbol symbol, Package currentPackage,
+                                            ModuleId currentModule, HoverContext context) {
         Optional<Project> project = context.workspace().project(context.filePath());
         Optional<ModuleSymbol> typeSymbolModule = symbol.getModule();
 
@@ -178,8 +181,7 @@ public class HoverUtil {
         boolean isPublic = false;
         boolean isRemote = false;
 
-        if (symbol instanceof Qualifiable) {
-            Qualifiable qSymbol = (Qualifiable) symbol;
+        if (symbol instanceof Qualifiable qSymbol) {
             isPrivate = qSymbol.qualifiers().contains(Qualifier.PRIVATE);
             isPublic = qSymbol.qualifiers().contains(Qualifier.PUBLIC);
             isResource = qSymbol.qualifiers().contains(Qualifier.RESOURCE);
@@ -201,11 +203,11 @@ public class HoverUtil {
      * @return {@link Hover}
      */
     public static Hover getDescriptionOnlyHoverObject(Symbol symbol) {
-        if (!(symbol instanceof Documentable) || ((Documentable) symbol).documentation().isEmpty()) {
+        if (!(symbol instanceof Documentable documentable) || documentable.documentation().isEmpty()) {
             return HoverUtil.getHoverObject("");
         }
 
-        return getDescriptionOnlyHoverObject(((Documentable) symbol).documentation().get());
+        return getDescriptionOnlyHoverObject(documentable.documentation().get());
     }
 
     /**

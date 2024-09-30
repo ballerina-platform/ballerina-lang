@@ -102,15 +102,15 @@ public class VarMutabilityClosureTest {
     @Test(description = "Test variable mutability with maps")
     public void testVarMutabilityWithMaps() {
         Object returns = BRunUtil.invoke(compileResult, "test8");
-        Assert.assertEquals(((BMap) returns).size(), 8);
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("a")).toString(), "AAAA");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("b")).toString(), "BB");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("c")).toString(), "C");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("d")).toString(), "D");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("e")).toString(), "EE");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("x")).toString(), "XXXX");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("y")).toString(), "YY");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("z")).toString(), "ZZ");
+        Assert.assertEquals(((BMap<?, ?>) returns).size(), 8);
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("a")).toString(), "AAAA");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("b")).toString(), "BB");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("c")).toString(), "C");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("d")).toString(), "D");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("e")).toString(), "EE");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("x")).toString(), "XXXX");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("y")).toString(), "YY");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("z")).toString(), "ZZ");
     }
 
 
@@ -126,12 +126,12 @@ public class VarMutabilityClosureTest {
     public void testVarMutabilityWithRecords() {
         Object returns = BRunUtil.invoke(compileResult, "test10");
 
-        BMap resMap = ((BMap) returns);
+        BMap<?, ?> resMap = ((BMap<?, ?>) returns);
         Assert.assertEquals(resMap.get(StringUtils.fromString("age")).toString(), "17");
         Assert.assertEquals(resMap.get(StringUtils.fromString("name")).toString(), "Adam Page");
         Assert.assertEquals(resMap.get(StringUtils.fromString("email")).toString(), "adamp@wso2.com");
 
-        BMap gradesMap = (BMap) resMap.get(StringUtils.fromString("grades"));
+        BMap<?, ?> gradesMap = (BMap<?, ?>) resMap.get(StringUtils.fromString("grades"));
         Assert.assertEquals(gradesMap.get(StringUtils.fromString("bio")).toString(), "22");
         Assert.assertEquals(gradesMap.get(StringUtils.fromString("maths")).toString(), "80");
         Assert.assertEquals(gradesMap.get(StringUtils.fromString("physics")).toString(), "100");
@@ -141,12 +141,12 @@ public class VarMutabilityClosureTest {
     @Test(description = "Test variable mutability with json objects")
     public void testVarMutabilityWithJSONObjects() {
         Object returns = BRunUtil.invoke(compileResult, "test11");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("f1")).toString(), "{\"name\":\"apple\"," +
-                "\"color\":\"red\",\"price\":12.48}");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("f2")).toString(), "{\"name\":\"orange\"," +
-                "\"color\":\"orange\",\"price\":5.36}");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("f3")).toString(), "{\"name\":\"cherry\"," +
-                "\"color\":\"red\",\"price\":5.36}");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("f1")).toString(),
+                "{\"name\":\"apple\",\"color\":\"red\",\"price\":12.48}");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("f2")).toString(),
+                "{\"name\":\"orange\",\"color\":\"orange\",\"price\":5.36}");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("f3")).toString(),
+                "{\"name\":\"cherry\",\"color\":\"red\",\"price\":5.36}");
     }
 
     @Test(description = "Test variable mutability with xml")

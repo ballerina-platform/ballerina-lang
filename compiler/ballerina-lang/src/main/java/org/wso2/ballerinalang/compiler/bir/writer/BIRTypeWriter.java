@@ -380,9 +380,9 @@ public class BIRTypeWriter extends TypeVisitor {
         writeMembers(bUnionType.getMemberTypes());
         writeMembers(bUnionType.getOriginalMemberTypes());
 
-        if (tsymbol instanceof BEnumSymbol) {
+        if (tsymbol instanceof BEnumSymbol enumSymbol) {
             buff.writeBoolean(true);
-            writeEnumSymbolInfo((BEnumSymbol) tsymbol);
+            writeEnumSymbolInfo(enumSymbol);
         } else {
             buff.writeBoolean(false);
         }

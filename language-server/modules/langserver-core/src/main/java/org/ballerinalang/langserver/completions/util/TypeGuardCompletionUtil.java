@@ -47,7 +47,7 @@ import java.util.stream.IntStream;
  *
  * @since 2.0.0
  */
-public class TypeGuardCompletionUtil {
+public final class TypeGuardCompletionUtil {
 
     private static final String TYPE_GUARD_LABEL = "typeguard";
 

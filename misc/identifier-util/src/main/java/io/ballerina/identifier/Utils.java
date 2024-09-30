@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  *
  * @since 2.0.0
  */
-public class Utils {
+public final class Utils {
 
     private static final String UNICODE_REGEX = "\\\\(\\\\*)u\\{([a-fA-F0-9]+)\\}";
     public static final Pattern UNICODE_PATTERN = Pattern.compile(UNICODE_REGEX);
@@ -117,28 +117,18 @@ public class Utils {
     }
 
     private static String getFormattedStringForJvmReservedSet(char c) {
-        switch (c) {
-            case '\\':
-                return "0092";
-            case '.':
-                return "0046";
-            case ':':
-                return "0058";
-            case ';':
-                return "0059";
-            case '[':
-                return "0091";
-            case ']':
-                return "0093";
-            case '/':
-                return "0047";
-            case '<':
-                return "0060";
-            case '>':
-                return "0062";
-            default:
-                return null;
-        }
+        return switch (c) {
+            case '\\' -> "0092";
+            case '.' -> "0046";
+            case ':' -> "0058";
+            case ';' -> "0059";
+            case '[' -> "0091";
+            case ']' -> "0093";
+            case '/' -> "0047";
+            case '<' -> "0060";
+            case '>' -> "0062";
+            default -> null;
+        };
     }
 
     /**
@@ -193,7 +183,7 @@ public class Utils {
      */
     public static String unescapeUnicodeCodepoints(String identifier) {
         Matcher matcher = UNICODE_PATTERN.matcher(identifier);
-        StringBuffer buffer = new StringBuffer(identifier.length());
+        StringBuilder buffer = new StringBuilder(identifier.length());
         while (matcher.find()) {
             String leadingSlashes = matcher.group(1);
             if (isEscapedNumericEscape(leadingSlashes)) {

@@ -30,6 +30,7 @@ import java.nio.file.Paths;
  */
 public class RemoteConfigurationTest extends FormatterTest {
 
+    @Override
     @Test(dataProvider = "test-file-provider")
     public void test(String source, String sourcePath) throws IOException {
         try {

@@ -48,6 +48,7 @@ public class BStringObjectTest extends BStringTestCommons {
         testAndAssert("testObjectSet", 8);
     }
 
+    @Override
     @AfterClass
     public void tearDown() {
         result = null;

@@ -127,9 +127,9 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BJsonType.class);
 
         Assert.assertEquals((mapValue0).size(), 4);
-        Assert.assertEquals(((LinkedHashMap) mapValue0).get(StringUtils.fromString("school")).toString(),
+        Assert.assertEquals(((LinkedHashMap<?, ?>) mapValue0).get(StringUtils.fromString("school")).toString(),
                 "Hindu College");
-        Assert.assertEquals(getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("school"))).getClass(),
+        Assert.assertEquals(getType(((LinkedHashMap<?, ?>) mapValue0).get(StringUtils.fromString("school"))).getClass(),
                 BStringType.class);
     }
 

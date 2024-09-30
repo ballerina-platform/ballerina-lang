@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 1.0
  */
-public class XIDGenerator {
+public final class XIDGenerator {
 
     private static final SecureRandom secureRand = new SecureRandom();
     private static final AtomicInteger formatIdIdGenerator = new AtomicInteger();

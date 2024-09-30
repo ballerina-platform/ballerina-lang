@@ -26,7 +26,8 @@ import java.util.Set;
  *
  * @since 0.974.0
  */
-public class AttachPoints {
+public final class AttachPoints {
+
     public static final int TYPE = 1;
     public static final int OBJECT = TYPE << 1;
     public static final int FUNCTION = OBJECT << 1;
@@ -45,6 +46,9 @@ public class AttachPoints {
     public static final int CONST = VAR << 1;
     public static final int WORKER = CONST << 1;
     public static final int CLASS = WORKER << 1;
+
+    private AttachPoints() {
+    }
 
     public static int asMask(Set<AttachPoint.Point> attachPoints) {
         int mask = 0;

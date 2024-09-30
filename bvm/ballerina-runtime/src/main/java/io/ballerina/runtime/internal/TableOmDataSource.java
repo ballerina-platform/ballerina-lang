@@ -51,11 +51,11 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
     private static final String DEFAULT_ROOT_WRAPPER = "results";
     private static final String DEFAULT_ROW_WRAPPER = "result";
 
-    private TableValueImpl table;
+    private TableValueImpl<?, ?> table;
     private String rootWrapper;
     private String rowWrapper;
 
-    public TableOmDataSource(TableValueImpl table, String rootWrapper, String rowWrapper) {
+    public TableOmDataSource(TableValueImpl<?, ?> table, String rootWrapper, String rowWrapper) {
         this.table = table;
         this.rootWrapper = rootWrapper != null ? rootWrapper : DEFAULT_ROOT_WRAPPER;
         this.rowWrapper = rowWrapper != null ? rowWrapper : DEFAULT_ROW_WRAPPER;
@@ -64,13 +64,13 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
     @Override
     public void serialize(XMLStreamWriter xmlStreamWriter) throws XMLStreamException {
         xmlStreamWriter.writeStartElement("", this.rootWrapper, "");
-        IteratorValue itr = this.table.getIterator();
+        IteratorValue<?> itr = this.table.getIterator();
 
         while (itr.hasNext()) {
             table.getIterator().next();
             xmlStreamWriter.writeStartElement("", this.rowWrapper, "");
             TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
-            MapValueImpl record = ((MapValueImpl) tupleValue.get(0));
+            MapValueImpl<?, ?> record = ((MapValueImpl<?, ?>) tupleValue.get(0));
 
             BStructureType structType = (BStructureType) record.getType();
             BField[] structFields = null;
@@ -90,7 +90,8 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
         xmlStreamWriter.flush();
     }
 
-    private void writeElement(MapValueImpl record, XMLStreamWriter xmlStreamWriter, String name, int type, int index,
+    private void writeElement(MapValueImpl<?, ?> record,
+                              XMLStreamWriter xmlStreamWriter, String name, int type, int index,
                               BField[] structFields) throws XMLStreamException {
         boolean isArray = false;
         xmlStreamWriter.writeStartElement("", name, "");
@@ -125,7 +126,7 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
                     BArray structData = record.getArrayValue(key);
                     processArray(xmlStreamWriter, structData);
                 } else {
-                    BMap structData = record.getMapValue(key);
+                    BMap<?, ?> structData = record.getMapValue(key);
                     processStruct(xmlStreamWriter, structData, structFields, index);
                 }
                 break;
@@ -154,7 +155,7 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
         }
     }
 
-    private void processStruct(XMLStreamWriter xmlStreamWriter, BMap structData,
+    private void processStruct(XMLStreamWriter xmlStreamWriter, BMap<?, ?> structData,
                                BField[] structFields, int index) throws XMLStreamException {
         boolean structError = true;
         Type internalType = TypeUtils.getImpliedType(structFields[index].getFieldType());
@@ -167,8 +168,8 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
                     BString internalKeyName = StringUtils.fromString(internalStructFields[i].getFieldName());
                     Object val = structData.get(internalKeyName);
                     xmlStreamWriter.writeStartElement("", internalStructFields[i].getFieldName(), "");
-                    if (val instanceof MapValueImpl) {
-                        processStruct(xmlStreamWriter, (MapValueImpl) val, internalStructFields, i);
+                    if (val instanceof MapValueImpl<?, ?> mapValue) {
+                        processStruct(xmlStreamWriter, mapValue, internalStructFields, i);
                     } else {
                         xmlStreamWriter.writeCharacters(val.toString());
                     }
