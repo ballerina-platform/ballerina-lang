@@ -31,6 +31,7 @@ import java.util.Optional;
 
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
 
 public final class TableUtils {
 
@@ -39,7 +40,16 @@ public final class TableUtils {
     private TableUtils() {
     }
 
+    public static SemType acceptedTypeContainingKeySpecifier(Context cx, SemType tableConstraint, String[] fieldNames) {
+        return tableContainingKeySpecifierInner(fieldNames, cx, tableConstraint, CELL_MUT_UNLIMITED);
+    }
+
     public static SemType tableContainingKeySpecifier(Context cx, SemType tableConstraint, String[] fieldNames) {
+        return tableContainingKeySpecifierInner(fieldNames, cx, tableConstraint, CELL_MUT_LIMITED);
+    }
+
+    private static SemType tableContainingKeySpecifierInner(String[] fieldNames, Context cx, SemType tableConstraint,
+                                                            CellAtomicType.CellMutability cellMutLimited) {
         SemType[] fieldNameSingletons = new SemType[fieldNames.length];
         SemType[] fieldTypes = new SemType[fieldNames.length];
         for (int i = 0; i < fieldNames.length; i++) {
@@ -55,10 +65,20 @@ public final class TableUtils {
         SemType normalizedKc = fieldNames.length > 1 ? new ListDefinition().defineListTypeWrapped(cx.env, fieldTypes,
                 fieldTypes.length, Builder.neverType(), CELL_MUT_NONE) : fieldTypes[0];
 
-        return tableContaining(cx.env, tableConstraint, normalizedKc, normalizedKs, CELL_MUT_LIMITED);
+        return tableContaining(cx.env, tableConstraint, normalizedKc, normalizedKs, cellMutLimited);
+    }
+
+    public static SemType acceptedTypeContainingKeyConstraint(Context cx, SemType tableConstraint,
+                                                              SemType keyConstraint) {
+        return tableContainingKeyConstraintInner(cx, tableConstraint, keyConstraint, CELL_MUT_UNLIMITED);
     }
 
     public static SemType tableContainingKeyConstraint(Context cx, SemType tableConstraint, SemType keyConstraint) {
+        return tableContainingKeyConstraintInner(cx, tableConstraint, keyConstraint, CELL_MUT_LIMITED);
+    }
+
+    private static SemType tableContainingKeyConstraintInner(Context cx, SemType tableConstraint, SemType keyConstraint,
+                                                             CellAtomicType.CellMutability mut) {
         Optional<ListAtomicType> lat = Core.listAtomicType(cx, keyConstraint);
         SemType normalizedKc = lat.map(atom -> {
             FixedLengthArray member = atom.members();
@@ -68,11 +88,15 @@ public final class TableUtils {
                 default -> keyConstraint;
             };
         }).orElse(keyConstraint);
-        return tableContaining(cx.env, tableConstraint, normalizedKc, Builder.getValType(), CELL_MUT_LIMITED);
+        return tableContaining(cx.env, tableConstraint, normalizedKc, Builder.getValType(), mut);
     }
 
     public static SemType tableContaining(Env env, SemType tableConstraint) {
         return tableContaining(env, tableConstraint, CELL_MUT_LIMITED);
+    }
+
+    public static SemType acceptedType(Env env, SemType tableConstraint) {
+        return tableContaining(env, tableConstraint, CELL_MUT_UNLIMITED);
     }
 
     private static SemType tableContaining(Env env, SemType tableConstraint, CellAtomicType.CellMutability mut) {
