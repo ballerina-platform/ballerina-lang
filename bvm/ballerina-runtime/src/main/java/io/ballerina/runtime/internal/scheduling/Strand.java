@@ -44,12 +44,12 @@ public class Strand {
     private Map<String, Object> globalProps;
 
     public final boolean isIsolated;
+    public State state;
     public Scheduler scheduler;
     public Strand parent;
     public TransactionLocalContext currentTrxContext;
     public Stack<TransactionLocalContext> trxContexts;
     public WorkerChannelMap workerChannelMap;
-    public boolean cancel;
     public int acquiredLockCount;
 
     public Strand() {
@@ -96,21 +96,24 @@ public class Strand {
 
     public void resume() {
         checkStrandCancelled();
-        if (!isIsolated && !scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
-            scheduler.globalNonIsolatedLock.lock();
+        if (!this.isIsolated && this.state == State.YIELD) {
+            this.scheduler.globalNonIsolatedLock.lock();
+            this.state = State.RUNNABLE;
         }
     }
 
     public void yield() {
         checkStrandCancelled();
-        if (!isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
+        if (!this.isIsolated && this.state == State.RUNNABLE) {
             scheduler.globalNonIsolatedLock.unlock();
+            this.state = State.YIELD;
         }
     }
 
     public void done() {
-        if (!isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
+        if (!isIsolated && this.state == State.RUNNABLE) {
             scheduler.globalNonIsolatedLock.unlock();
+            this.state = State.DONE;
         }
     }
 
@@ -186,8 +189,21 @@ public class Strand {
     }
 
     public void checkStrandCancelled() {
-        if (cancel) {
+        if (this.state == State.CANCELLED) {
             throw ErrorUtils.createCancelledFutureError();
         }
     }
+
+    /**
+     * Maintains the Strand state.
+     *
+     * @since 2201.11.0
+     */
+    public enum State {
+        RUNNABLE,
+        YIELD,
+        CANCELLED,
+        DONE
+    }
+
 }

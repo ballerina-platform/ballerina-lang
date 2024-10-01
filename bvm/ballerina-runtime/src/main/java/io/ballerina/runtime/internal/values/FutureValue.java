@@ -102,7 +102,7 @@
 
      @Override
      public void cancel() {
-         this.strand.cancel = true;
+         this.strand.state = Strand.State.CANCELLED;
      }
 
      /**
