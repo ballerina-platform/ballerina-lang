@@ -68,7 +68,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -307,9 +306,7 @@ public final class TypeChecker {
      */
     public static boolean checkIsLikeType(Object sourceValue, Type targetType, boolean allowNumericConversion) {
         Context cx = context();
-        Optional<SemType> readonlyShape = ShapeAnalyzer.shapeOf(cx, sourceValue);
-        assert readonlyShape.isPresent();
-        SemType shape = readonlyShape.get();
+        SemType shape = ShapeAnalyzer.shapeOf(cx, sourceValue).orElseThrow();
         SemType targetSemType = ShapeAnalyzer.acceptedTypeOf(cx, targetType).orElseThrow();
         if (Core.isSubType(cx, shape, NumericTypeHolder.NUMERIC_TYPE) && allowNumericConversion) {
             targetSemType = appendNumericConversionTypes(targetSemType);
