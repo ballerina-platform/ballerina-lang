@@ -6852,7 +6852,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
             if (!symbol.closure) {
-                if (searchClosureVariableInExpressions(symbol, pos, env, encInvokable, node)) {
+                if (searchClosureVariableInExpressions(symbol, pos, cEnv, encInvokable, node)) {
                     return;
                 }
             }
@@ -6863,7 +6863,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     // self symbol
                     return;
                 }
-                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(cEnv, encInvokable);
                 BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol);
                 BLangClassDefinition classDef = (BLangClassDefinition) node;
                 if (resolvedSymbol != symTable.notFoundSymbol) {
