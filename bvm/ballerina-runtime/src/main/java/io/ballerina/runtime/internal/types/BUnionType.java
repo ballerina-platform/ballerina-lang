@@ -27,8 +27,10 @@ import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
@@ -48,7 +50,7 @@ import java.util.regex.Pattern;
  *
  * @since 0.995.0
  */
-public class BUnionType extends BType implements UnionType, SelectivelyImmutableReferenceType {
+public class BUnionType extends BType implements UnionType, SelectivelyImmutableReferenceType, TypeWithAcceptedType {
 
     public boolean isCyclic = false;
     public static final String  PIPE = "|";
@@ -553,5 +555,11 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     @Override
     public SemType createSemType() {
         return memberTypes.stream().map(SemType::tryInto).reduce(Builder.neverType(), Core::union);
+    }
+
+    @Override
+    public Optional<SemType> acceptedTypeOf(Context cx) {
+        return Optional.of(memberTypes.stream().map(each -> ShapeAnalyzer.acceptedTypeOf(cx, each).orElseThrow())
+                .reduce(Builder.neverType(), Core::union));
     }
 }

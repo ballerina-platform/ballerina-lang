@@ -3,6 +3,7 @@ package io.ballerina.runtime.api.types.semtype;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
+import io.ballerina.runtime.internal.types.TypeWithAcceptedType;
 import io.ballerina.runtime.internal.types.TypeWithShape;
 import io.ballerina.runtime.internal.values.DecimalValue;
 
@@ -14,8 +15,8 @@ public class ShapeAnalyzer {
     }
 
     public static Optional<SemType> acceptedTypeOf(Context cx, Type typeDesc) {
-        if (typeDesc instanceof TypeWithShape typeWithShape) {
-            return typeWithShape.acceptedTypeOf(cx);
+        if (typeDesc instanceof TypeWithAcceptedType typeWithAcceptedType) {
+            return typeWithAcceptedType.acceptedTypeOf(cx);
         }
         return Optional.of(SemType.tryInto(typeDesc));
     }

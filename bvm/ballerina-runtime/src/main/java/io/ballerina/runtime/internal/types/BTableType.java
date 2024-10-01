@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.TableUtils;
@@ -218,8 +219,17 @@ public class BTableType extends BType implements TableType, TypeWithShape {
 
     @Override
     public Optional<SemType> acceptedTypeOf(Context cx) {
-        // TODO: this is not correct but can we actually match tables?
-        return Optional.of(getSemType());
+        SemType constraintType = ShapeAnalyzer.acceptedTypeOf(cx, this.constraint).orElseThrow();
+        SemType semType;
+        if (fieldNames.length > 0) {
+            semType = TableUtils.acceptedTypeContainingKeySpecifier(cx, constraintType, fieldNames);
+        } else if (keyType != null) {
+            SemType keyAcceptedType = ShapeAnalyzer.acceptedTypeOf(cx, keyType).orElseThrow();
+            semType = TableUtils.acceptedTypeContainingKeyConstraint(cx, constraintType, keyAcceptedType);
+        } else {
+            semType = TableUtils.acceptedType(cx.env, constraintType);
+        }
+        return Optional.of(semType);
     }
 
     private SemType valueShape(Context cx, ShapeSupplier shapeSupplier, BTable<?, ?> table) {

@@ -30,13 +30,11 @@ import java.util.Optional;
  * different objects should be able to do their shape calculations in a non-blocking manner, even when they share the
  * same instance of {@code TypeWithShape}.
  */
-public interface TypeWithShape {
+public interface TypeWithShape extends TypeWithAcceptedType {
 
     Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object);
 
     Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object);
-
-    Optional<SemType> acceptedTypeOf(Context cx);
 
     boolean couldInherentTypeBeDifferent();
 }
