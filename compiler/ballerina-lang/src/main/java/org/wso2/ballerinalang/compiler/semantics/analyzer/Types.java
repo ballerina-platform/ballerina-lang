@@ -29,6 +29,8 @@ import io.ballerina.types.MappingAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
+import io.ballerina.types.definition.ObjectDefinition;
+import io.ballerina.types.definition.ObjectQualifiers;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -360,6 +362,14 @@ public class Types {
 
         List<MappingAtomicType> matList = optMatList.get();
         return matList.stream().allMatch(mat -> mat.names().length == 0 && isLaxType(Core.cellInnerVal(mat.rest())));
+    }
+
+    public boolean isSameType2(BType source, BType target) {
+        return isSameType(SemTypeHelper.semType(source), SemTypeHelper.semType(target));
+    }
+
+    public boolean isSameType(SemType source, SemType target) {
+        return SemTypes.isSameType(semTypeCtx, source, target);
     }
 
     public boolean isSameType(BType source, BType target) {
@@ -716,6 +726,14 @@ public class Types {
         return SemTypeHelper.isSubtypeSimpleNotNever(bType, PredefinedType.MAPPING);
     }
 
+    public boolean isSubTypeOfBaseType(BType bType, BasicTypeBitSet bbs) {
+        return SemTypeHelper.isSubtypeSimpleNotNever(bType, bbs);
+    }
+
+    /**
+     * @deprecated Use {@link #isSubTypeOfBaseType(BType, BasicTypeBitSet)} instead.
+     */
+    @Deprecated
     public boolean isSubTypeOfBaseType(BType bType, int baseTypeTag) {
         BType type = getImpliedType(bType);
 
@@ -5127,7 +5145,7 @@ public class Types {
     }
 
     private boolean isSameBasicType(BType source, BType target) {
-        if (isSameType(source, target)) {
+        if (isSameType2(source, target)) {
             return true;
         }
         int sourceTag = getImpliedType(source).tag;
@@ -5486,7 +5504,7 @@ public class Types {
         return packageID.isTestPkg ? packageID.toString() + "_testable" : packageID.toString();
     }
 
-    private static class ListenerValidationModel {
+    private class ListenerValidationModel {
         private final Types types;
         private final SymbolTable symtable;
         private final BType serviceNameType;
@@ -5606,21 +5624,9 @@ public class Types {
         }
 
         private boolean isServiceObject(BType bType) {
-            BType type = getImpliedType(bType);
-            if (type.tag == TypeTags.UNION) {
-                for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                    if (!isServiceObject(memberType)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            if (type.tag != TypeTags.OBJECT) {
-                return false;
-            }
-
-            return Symbols.isService(type.tsymbol);
+            ObjectQualifiers quals = new ObjectQualifiers(false, false, ObjectQualifiers.NetworkQualifier.Service);
+            SemType serviceObjTy = new ObjectDefinition().define(typeEnv(), quals, new ArrayList<>(0));
+            return types.isSubtype(bType, serviceObjTy);
         }
     }
 
@@ -6058,5 +6064,9 @@ public class Types {
     //  will have a dependency on compiler
     public Env typeEnv() {
         return semTypeCtx.env;
+    }
+
+    public Context typeCtx() {
+        return semTypeCtx;
     }
 }

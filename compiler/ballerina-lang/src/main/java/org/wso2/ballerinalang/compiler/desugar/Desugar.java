@@ -6360,7 +6360,7 @@ public class Desugar extends BLangNodeVisitor {
         // can change the type of the expression, if it is type narrowed.
         BType varRefType = types.getTypeWithEffectiveIntersectionTypes(fieldAccessExpr.expr.getBType());
         fieldAccessExpr.expr = rewriteExpr(fieldAccessExpr.expr);
-        if (!types.isSameType(fieldAccessExpr.expr.getBType(), varRefType)) {
+        if (!types.isSameType2(fieldAccessExpr.expr.getBType(), varRefType)) {
             fieldAccessExpr.expr = types.addConversionExprIfRequired(fieldAccessExpr.expr, varRefType);
         }
 
@@ -6688,7 +6688,7 @@ public class Desugar extends BLangNodeVisitor {
         BType effectiveType = types.getTypeWithEffectiveIntersectionTypes(indexAccessExpr.expr.getBType());
         BType varRefType = Types.getImpliedType(effectiveType);
         indexAccessExpr.expr = rewriteExpr(indexAccessExpr.expr);
-        if (!types.isSameType(indexAccessExpr.expr.getBType(), varRefType)) {
+        if (!types.isSameType2(indexAccessExpr.expr.getBType(), varRefType)) {
             indexAccessExpr.expr = types.addConversionExprIfRequired(indexAccessExpr.expr, varRefType);
         }
 

@@ -216,7 +216,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -4355,7 +4354,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         for (BType member : tupleType.getTupleTypes()) {
-            if (!types.isSameType(tupleType.restType, member)) {
+            if (!types.isSameType2(tupleType.restType, member)) {
                 return true;
             }
         }
@@ -5459,17 +5458,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     public boolean isOptionalFloatOrDecimal(BType expectedType) {
-        if (expectedType.tag == TypeTags.UNION && expectedType.isNullable() && expectedType.tag != TypeTags.ANY) {
-            Iterator<BType> memberTypeIterator = ((BUnionType) expectedType).getMemberTypes().iterator();
-            while (memberTypeIterator.hasNext()) {
-                BType memberType = Types.getImpliedType(memberTypeIterator.next());
-                if (memberType.tag == TypeTags.FLOAT || memberType.tag == TypeTags.DECIMAL) {
-                    return true;
-                }
-            }
-
+        if (!expectedType.isNullable()) {
+            return false;
         }
-        return false;
+
+        SemType s = SemTypeHelper.semType(expectedType);
+        SemType t = Core.diff(s, PredefinedType.NIL);
+        return PredefinedType.FLOAT.equals(t) || PredefinedType.DECIMAL.equals(t);
     }
 
     private BType checkAndGetType(BLangExpression expr, SymbolEnv env, BLangBinaryExpr binaryExpr, AnalyzerData data) {
@@ -8687,7 +8682,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return ((BMapType) exprType).constraint;
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) exprType;
-                if (types.isSameType(symTable.jsonType, unionType)) {
+                if (types.isSameType(Core.createJson(types.semTypeCtx), unionType.semType())) {
                     return symTable.jsonType;
                 }
                 LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
@@ -9656,10 +9651,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         for (BType bType : typeList) {
             bType = Types.getImpliedType(bType);
             if (isRecord) {
+                // Seems defaultable values too are considered when checking uniqueness.
                 if (type == bType) {
                     return false;
                 }
-            } else if (types.isSameType(type, bType)) {
+            } else if (types.isSameType2(type, bType)) {
                 return false;
             }
         }
