@@ -920,12 +920,12 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        if (setEnclosingNode(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos)) {
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
+        if (setEnclosingNode(prefixedFieldBasedAccess.symbol, prefixedFieldBasedAccess.prefix.pos)) {
             return;
         }
 
-        lookupNode(nsPrefixedFieldBasedAccess.expr);
+        lookupNode(prefixedFieldBasedAccess.expr);
     }
 
     @Override

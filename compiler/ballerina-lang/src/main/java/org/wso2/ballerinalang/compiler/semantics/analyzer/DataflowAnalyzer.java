@@ -1621,11 +1621,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        if (!nsPrefixedFieldBasedAccess.isLValue && isObjectMemberAccessWithSelf(nsPrefixedFieldBasedAccess)) {
-            checkVarRef(nsPrefixedFieldBasedAccess.symbol, nsPrefixedFieldBasedAccess.pos);
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
+        if (!prefixedFieldBasedAccess.isLValue && isObjectMemberAccessWithSelf(prefixedFieldBasedAccess)) {
+            checkVarRef(prefixedFieldBasedAccess.symbol, prefixedFieldBasedAccess.pos);
         }
-        analyzeNode(nsPrefixedFieldBasedAccess.expr, env);
+        analyzeNode(prefixedFieldBasedAccess.expr, env);
     }
 
     @Override

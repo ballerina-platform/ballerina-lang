@@ -739,11 +739,10 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         visit((BLangFieldBasedAccess) node, data);
     }
 
-    @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess node, T data) {
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess node, T data) {
         analyzeNode(node, data);
         visit((BLangFieldBasedAccess) node, data);
-        visitNode(node.nsPrefix, data);
+        visitNode(node.prefix, data);
     }
 
     @Override

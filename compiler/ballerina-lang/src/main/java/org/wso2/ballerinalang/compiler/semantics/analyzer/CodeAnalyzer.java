@@ -2577,9 +2577,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess,
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess,
                       AnalyzerData data) {
-        analyzeFieldBasedAccessExpr(nsPrefixedFieldBasedAccess, data);
+        analyzeFieldBasedAccessExpr(prefixedFieldBasedAccess, data);
     }
 
     private void analyzeFieldBasedAccessExpr(BLangFieldBasedAccess fieldAccessExpr, AnalyzerData data) {

@@ -95,7 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExp
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -862,9 +862,9 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        find(nsPrefixedFieldBasedAccess.expr);
-        addIfSameSymbol(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos);
+    public void visit(BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
+        find(prefixedFieldBasedAccess.expr);
+        addIfSameSymbol(prefixedFieldBasedAccess.symbol, prefixedFieldBasedAccess.prefix.pos);
     }
 
     @Override
