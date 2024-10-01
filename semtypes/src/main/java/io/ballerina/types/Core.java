@@ -22,6 +22,7 @@ import io.ballerina.types.definition.MappingDefinition;
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
+import io.ballerina.types.subtypedata.BddNodeImpl;
 import io.ballerina.types.subtypedata.BddNodeSimple;
 import io.ballerina.types.subtypedata.BooleanSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
@@ -769,5 +770,53 @@ public final class Core {
             return ComplexSemType.createComplexSemType(0,
                     BasicSubtype.from(typeCode, (ProperSubtypeData) subtypeData));
         }
+    }
+
+    // ------------------------- Newly Introduced APIs (Does not exist in nBallerina) --------------------------------
+
+    // Consider map<T1>|map<T2>|...|map<Tn>. This API will return all MappingAtomicTypes in the union.
+    public static Optional<List<MappingAtomicType>> mappingAtomicTypesInUnion(Context cx, SemType t) {
+        ArrayList<MappingAtomicType> matList = new ArrayList<>();
+        MappingAtomicType mappingAtomicInner = MAPPING_ATOMIC_INNER;
+        if (t instanceof BasicTypeBitSet b) {
+            if (b.bitset == MAPPING.bitset) {
+                matList.add(mappingAtomicInner);
+                return Optional.of(matList);
+            }
+            return Optional.empty();
+        } else {
+            Env env = cx.env;
+            if (!isSubtypeSimple(t, MAPPING)) {
+                return Optional.empty();
+            }
+            return collectBddMappingAtomicTypesInUnion(env,
+                    (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_MAPPING),
+                    mappingAtomicInner, matList) ? Optional.of(matList) : Optional.empty();
+        }
+    }
+
+    private static boolean collectBddMappingAtomicTypesInUnion(Env env, Bdd bdd, MappingAtomicType top,
+                                                               List<MappingAtomicType> matList) {
+        if (bdd instanceof BddAllOrNothing allOrNothing) {
+            if (allOrNothing.isAll()) {
+                matList.add(top);
+                return true;
+            }
+            return false;
+        }
+        BddNode bddNode = (BddNode) bdd;
+        if (bddNode instanceof BddNodeSimple bddNodeSimple) {
+            matList.add(env.mappingAtomType(bddNodeSimple.atom()));
+            return true;
+        }
+
+        BddNodeImpl bddNodeImpl = (BddNodeImpl) bddNode;
+        if (bddNodeImpl.left() instanceof BddAllOrNothing leftNode && leftNode.isAll() &&
+                bddNodeImpl.right() instanceof BddAllOrNothing rightNode && rightNode.isNothing()) {
+            matList.add(env.mappingAtomType(bddNodeImpl.atom()));
+            return collectBddMappingAtomicTypesInUnion(env, bddNodeImpl.middle(), top, matList);
+        }
+
+        return false;
     }
 }

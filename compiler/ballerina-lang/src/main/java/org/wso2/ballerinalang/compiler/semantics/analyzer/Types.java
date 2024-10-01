@@ -25,6 +25,7 @@ import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Context;
 import io.ballerina.types.Core;
 import io.ballerina.types.Env;
+import io.ballerina.types.MappingAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
@@ -324,41 +325,41 @@ public class Types {
             return false;
         }
 
-        type = Types.getImpliedType(type);
-        Set<BType> visited = new HashSet<>();
-        return isLaxType(type, visited) == 1 || isAssignable(type, symTable.xmlType);
+        return SemTypeHelper.isSubtype(semTypeCtx, type, PredefinedType.XML) || isLaxType(type);
     }
 
-    // TODO : clean
-    public int isLaxType(BType type, Set<BType> visited) {
-        type = getImpliedType(type);
-        if (!visited.add(type)) {
-            return -1;
+    private boolean isLaxType(BType type) {
+        SemType t = SemTypeHelper.semType(type);
+        return isLaxType(t);
+    }
+
+    /**
+     * Checks if the type is a lax type.
+     * <p>
+     * Rules:
+     * <ul>
+     *   <li>json and readonly-json are lax</li>
+     *   <li>map&lt;T&gt; is lax if T is lax</li>
+     *   <li>U = T1|T2...|Tn is lax, if Ti is lax for all i.</li>
+     * </ul>
+     *
+     * @param t type to be checked
+     * @return true if t is lax
+     */
+    private boolean isLaxType(SemType t) {
+        SemType json = Core.createJson(semTypeCtx);
+        if (SemTypes.isSameType(semTypeCtx, t, json) ||
+                SemTypes.isSameType(semTypeCtx, t, SemTypes.intersect(json, PredefinedType.VAL_READONLY))) {
+            return true;
         }
-        switch (type.tag) {
-            case TypeTags.JSON:
-                return 1;
-            case TypeTags.MAP:
-                return isLaxType(((BMapType) type).constraint, visited);
-            case TypeTags.UNION:
-                if (isSameType(type, symTable.jsonType)) {
-                    visited.add(type);
-                    return 1;
-                }
-                boolean atleastOneLaxType = false;
-                for (BType member : ((BUnionType) type).getMemberTypes()) {
-                    int result = isLaxType(member, visited);
-                    if (result == -1) {
-                        continue;
-                    }
-                    if (result == 0) {
-                        return 0;
-                    }
-                    atleastOneLaxType = true;
-                }
-                return atleastOneLaxType ? 1 : 0;
+
+        Optional<List<MappingAtomicType>> optMatList = Core.mappingAtomicTypesInUnion(semTypeCtx, t);
+        if (optMatList.isEmpty()) {
+            return false;
         }
-        return 0;
+
+        List<MappingAtomicType> matList = optMatList.get();
+        return matList.stream().allMatch(mat -> mat.names().length == 0 && isLaxType(Core.cellInnerVal(mat.rest())));
     }
 
     public boolean isSameType(BType source, BType target) {
