@@ -503,6 +503,12 @@ function incrementCount(int i) returns int {
     return count;
 }
 
+enum Color {
+    RED,
+    GREEN,
+    BLUE
+}
+
 function testQueryExprWithOrderByClauseWithArrayKey() {
     record {|int[] t; string s;|}[] data1 = [
         {s: "s5", t: [5, 2]},
@@ -590,6 +596,19 @@ function testQueryExprWithOrderByClauseWithArrayKey() {
         order by rec.arr1 descending
         select rec.k;
     assertEquality([4, 5, 1, 2, 3], q7);
+
+    record {|int k; Color[] arr1;|}[] data8 = [
+        {k: 1, arr1: [RED]},
+        {k: 2, arr1: [RED, GREEN]},
+        {k: 3, arr1: [GREEN, BLUE, RED]},
+        {k: 4, arr1: [BLUE, RED]},
+        {k: 5, arr1: [BLUE, BLUE]}
+    ];
+
+    int[] q8 = from var rec in data8
+        order by rec.arr1 descending
+        select rec.k;
+    assertEquality([2, 1, 3, 4, 5], q8);
 }
 
 function assertEquality(anydata expected, anydata actual) {
