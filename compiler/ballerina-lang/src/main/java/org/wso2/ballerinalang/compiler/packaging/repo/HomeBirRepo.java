@@ -34,7 +34,7 @@ import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
  * Repo for bir_cache in home repository.
  */
 public class HomeBirRepo implements Repo<Path> {
-    private PathConverter pathConverter;
+    private final PathConverter pathConverter;
     
     public HomeBirRepo() {
         Path repoLocation = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME + "-" +

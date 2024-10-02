@@ -45,13 +45,13 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractSignatureHelpTest {
 
-    private final String configDir = "config";
+    private static final String CONFIG_DIR = "config";
 
     private Endpoint serviceEndpoint;
 
-    private Path testRoot = new File(getClass().getClassLoader().getResource("signature").getFile()).toPath();
+    private final Path testRoot = new File(getClass().getClassLoader().getResource("signature").getFile()).toPath();
 
-    private static final Logger log = LoggerFactory.getLogger(AbstractSignatureHelpTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractSignatureHelpTest.class);
 
     @BeforeClass
     public void init() throws Exception {
@@ -62,7 +62,7 @@ public abstract class AbstractSignatureHelpTest {
     public void test(String config, String source)
             throws WorkspaceDocumentException, IOException, InterruptedException {
         String configJsonPath =
-                "signature" + File.separator + source + File.separator + configDir + File.separator + config;
+                "signature" + File.separator + source + File.separator + CONFIG_DIR + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
@@ -104,7 +104,7 @@ public abstract class AbstractSignatureHelpTest {
         }
         List<String> skippedTests = this.skipList();
         try (Stream<Path> configPaths = Files.walk(
-                this.testRoot.resolve(this.getTestResourceDir()).resolve(this.configDir))) {
+                this.testRoot.resolve(this.getTestResourceDir()).resolve(this.CONFIG_DIR))) {
             return configPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".json")

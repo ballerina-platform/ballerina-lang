@@ -40,7 +40,7 @@ import java.util.Optional;
  */
 public class DocumentationReferenceFinder extends NodeTransformer<List<NodeLocation>> {
 
-    private Symbol symbol;
+    private final Symbol symbol;
 
     public DocumentationReferenceFinder(Symbol symbol) {
         this.symbol = symbol;

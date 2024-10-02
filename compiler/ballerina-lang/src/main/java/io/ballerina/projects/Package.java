@@ -437,13 +437,13 @@ public class Package {
      * Inner class that handles package modifications.
      */
     public static class Modifier {
-        private PackageId packageId;
+        private final PackageId packageId;
         private PackageManifest packageManifest;
         private DependencyManifest dependencyManifest;
-        private Map<ModuleId, ModuleContext> moduleContextMap;
-        private Project project;
+        private final Map<ModuleId, ModuleContext> moduleContextMap;
+        private final Project project;
         private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
-        private CompilationOptions compilationOptions;
+        private final CompilationOptions compilationOptions;
         private TomlDocumentContext ballerinaTomlContext;
         private TomlDocumentContext dependenciesTomlContext;
         private TomlDocumentContext cloudTomlContext;

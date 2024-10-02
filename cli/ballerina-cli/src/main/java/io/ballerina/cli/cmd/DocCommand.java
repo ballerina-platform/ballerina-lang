@@ -55,7 +55,7 @@ public class DocCommand implements BLauncherCmd {
     private final PrintStream errStream;
     private Path projectPath;
     private Path outputPath;
-    private boolean exitWhenFinish;
+    private final boolean exitWhenFinish;
 
     public DocCommand() {
         this.projectPath = Paths.get(System.getProperty("user.dir"));

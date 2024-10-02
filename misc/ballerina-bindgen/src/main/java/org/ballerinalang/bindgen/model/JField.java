@@ -38,12 +38,12 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticField;
  */
 public class JField extends BFunction {
 
-    private String fieldName;
-    private String fieldType;
+    private final String fieldName;
+    private final String fieldType;
     private String fieldMethodName;
 
     private boolean isArray;
-    private boolean isStatic;
+    private final boolean isStatic;
     private boolean isString;
     private boolean isStringArray;
     private boolean isObject = true;
@@ -51,7 +51,7 @@ public class JField extends BFunction {
     private boolean returnError = false;
     private boolean javaArraysModule = false;
 
-    private JParameter fieldObj;
+    private final JParameter fieldObj;
 
     JField(Field field, BFunction.BFunctionKind fieldKind, BindgenEnv env, JClass jClass) {
         super(fieldKind, env);

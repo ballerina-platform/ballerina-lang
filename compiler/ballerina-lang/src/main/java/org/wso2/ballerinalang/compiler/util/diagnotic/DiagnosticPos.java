@@ -34,9 +34,9 @@ import org.ballerinalang.model.elements.PackageID;
 @Deprecated
 public class DiagnosticPos implements Location {
 
-    private LineRange lineRange;
-    private TextRange textRange;
-    private PackageID packageID;
+    private final LineRange lineRange;
+    private final TextRange textRange;
+    private final PackageID packageID;
 
     public DiagnosticPos(String filePath, PackageID pkgId, int startLine, int endLine,
                          int startColumn, int endColumn) {

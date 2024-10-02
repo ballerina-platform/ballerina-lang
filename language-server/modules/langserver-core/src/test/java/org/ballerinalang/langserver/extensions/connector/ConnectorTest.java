@@ -31,7 +31,7 @@ import java.nio.file.Path;
  */
 public class ConnectorTest {
     private Endpoint serviceEndpoint;
-    private Path testConnectorFilePath = FileUtils.RES_DIR.resolve("extensions").resolve("connector")
+    private final Path testConnectorFilePath = FileUtils.RES_DIR.resolve("extensions").resolve("connector")
             .resolve("TestConnector").resolve("main.bal");
 
     @BeforeClass

@@ -30,10 +30,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TransferListenerForClient extends AbstractTransferListener {
     private static final String BALA_EXTENSION = "bala";
-    private PrintStream out;
-    private Map<TransferResource, Long> downloads = new ConcurrentHashMap<>();
-    private Map<String, ProgressBar> progressBars = new ConcurrentHashMap<>();
-    private Map<String, Long> progresses = new ConcurrentHashMap<>();
+    private final PrintStream out;
+    private final Map<TransferResource, Long> downloads = new ConcurrentHashMap<>();
+    private final Map<String, ProgressBar> progressBars = new ConcurrentHashMap<>();
+    private final Map<String, Long> progresses = new ConcurrentHashMap<>();
 
     public TransferListenerForClient() {
         this(System.out);

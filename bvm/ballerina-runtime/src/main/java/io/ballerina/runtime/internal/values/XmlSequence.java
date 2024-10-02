@@ -619,7 +619,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     @Override
     public IteratorValue<BXml> getIterator() {
         return new IteratorValue<>() {
-            Iterator<BXml> iterator = children.iterator();
+            final Iterator<BXml> iterator = children.iterator();
 
             @Override
             public boolean hasNext() {

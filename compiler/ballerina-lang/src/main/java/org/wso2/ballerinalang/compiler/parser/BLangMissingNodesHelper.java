@@ -34,7 +34,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
  */
 public class BLangMissingNodesHelper {
 
-    private Map<PackageID, Integer> missingIdentifierCount;
+    private final Map<PackageID, Integer> missingIdentifierCount;
 
     private static final String MISSING_NODE_PREFIX = "$missingNode$";
 

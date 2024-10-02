@@ -171,7 +171,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     private static final String OBJECT_CTOR_FUNCTION_MAP_SYM_NAME = "$map$objectCtor" + UNDERSCORE + "function";
     private static final BVarSymbol CLOSURE_MAP_NOT_FOUND;
 
-    private int blockClosureMapCount = 1;
+    private final int blockClosureMapCount = 1;
     private BLangClassDefinition classDef;
     private BLangNode result;
     private SymbolEnv env;

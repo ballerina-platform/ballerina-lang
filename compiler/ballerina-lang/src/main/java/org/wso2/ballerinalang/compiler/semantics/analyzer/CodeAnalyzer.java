@@ -4157,9 +4157,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         public final List<BLangAlternateWorkerReceive> alternateWorkerReceives = new ArrayList<>();
         public List<WorkerActionStateMachine> finshedWorkers = new ArrayList<>();
-        private Deque<WorkerActionStateMachine> workerActionStateMachines = new ArrayDeque<>();
-        private Map<BLangNode, SymbolEnv> workerInteractionEnvironments = new IdentityHashMap<>();
-        private Map<String, Integer> workerEventIndexMap = new HashMap<>();
+        private final Deque<WorkerActionStateMachine> workerActionStateMachines = new ArrayDeque<>();
+        private final Map<BLangNode, SymbolEnv> workerInteractionEnvironments = new IdentityHashMap<>();
+        private final Map<String, Integer> workerEventIndexMap = new HashMap<>();
         private boolean hasErrors = false;
 
 
