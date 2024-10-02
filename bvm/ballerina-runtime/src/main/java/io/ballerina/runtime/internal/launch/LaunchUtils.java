@@ -19,7 +19,6 @@
 package io.ballerina.runtime.internal.launch;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.launch.LaunchListener;
 import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
@@ -43,7 +42,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
@@ -66,14 +64,6 @@ public class LaunchUtils {
     private LaunchUtils() {
     }
 
-    public static void startListenersAndSignalHandler(boolean isService) {
-        // starts all listeners
-        startListeners(isService);
-
-        // start TRAP signal handler which produces the strand dump
-        startTrapSignalHandler();
-    }
-
     public static void startTrapSignalHandler() {
         try {
             Signal.handle(new Signal("TRAP"), signal -> outStream.println(StrandDump.getStrandDump()));
@@ -81,16 +71,6 @@ public class LaunchUtils {
             // In some Operating Systems like Windows, "TRAP" POSIX signal is not supported.
             // There getting the strand dump using kill signals is not expected, hence this exception is ignored.
         }
-    }
-
-    public static void startListeners(boolean isService) {
-        ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-        listeners.forEach(listener -> listener.beforeRunProgram(isService));
-    }
-
-    public static void stopListeners(boolean isService) {
-        ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-        listeners.forEach(listener -> listener.afterRunProgram(isService));
     }
 
     public static void addModuleConfigData(Map<Module, VariableKey[]> configurationData, Module m,

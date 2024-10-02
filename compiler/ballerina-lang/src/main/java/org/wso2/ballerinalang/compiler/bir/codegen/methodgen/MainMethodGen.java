@@ -180,8 +180,8 @@ public class MainMethodGen {
         generateJavaCompatibilityCheck(mv);
         generateBallerinaRuntimeInformation(mv);
         invokeConfigInit(mv, pkg.packageID);
-        // start all listeners and TRAP signal handler
-        startListenersAndSignalHandler(mv, serviceEPAvailable);
+        // TRAP signal handler
+        genStartTrapSignalHandler(mv);
 
         genRuntimeAndGetScheduler(mv, initClass, runtimeVarIndex, schedulerVarIndex);
         // register a shutdown hook to call package stop() method.
@@ -193,17 +193,15 @@ public class MainMethodGen {
         // handle calling init and start during module initialization.
         generateSetModuleInitialedAndStarted(mv, runtimeVarIndex);
         generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable, schedulerVarIndex, futureVarIndex);
-
-        if (hasInitFunction && !isTestable) {
-            setListenerFound(mv, serviceEPAvailable, runtimeVarIndex);
-        }
-        stopListeners(mv, serviceEPAvailable);
-        if (!serviceEPAvailable && !isTestable) {
-            JvmCodeGenUtil.generateExitRuntime(mv);
-        }
-
         if (isTestable) {
             generateModuleStopCall(initClass, mv, runtimeVarIndex);
+        } else {
+            if (hasInitFunction) {
+                setListenerFound(mv, serviceEPAvailable, runtimeVarIndex);
+            }
+            if (!serviceEPAvailable) {
+                JvmCodeGenUtil.generateExitRuntime(mv);
+            }
         }
         mv.visitLabel(tryCatchEnd);
         mv.visitInsn(RETURN);
@@ -242,11 +240,6 @@ public class MainMethodGen {
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
         // invoke the module execute method
         genSubmitToScheduler(initClass, mv, userMainFunc, isTestable, futureVarIndex);
-    }
-
-    private void stopListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
-        mv.visitLdcInsn(isServiceEPAvailable);
-        mv.visitMethodInsn(INVOKESTATIC , LAUNCH_UTILS, "stopListeners", "(Z)V", false);
     }
 
     private void generateModuleStopCall(String initClass, MethodVisitor mv, int runtimeVarIndex) {
@@ -306,9 +299,8 @@ public class MainMethodGen {
         return Objects.requireNonNullElse(javaVersion, "");
     }
 
-    private void startListenersAndSignalHandler(MethodVisitor mv, boolean isServiceEPAvailable) {
-        mv.visitLdcInsn(isServiceEPAvailable);
-        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListenersAndSignalHandler", "(Z)V", false);
+    private void genStartTrapSignalHandler(MethodVisitor mv) {
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startTrapSignalHandler", VOID_METHOD_DESC, false);
     }
 
     private void genShutdownHook(MethodVisitor mv, String initClass, int runtimeVarIndex) {

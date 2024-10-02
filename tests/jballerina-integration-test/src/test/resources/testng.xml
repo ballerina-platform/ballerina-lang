@@ -47,11 +47,6 @@
             <package name="org.ballerinalang.test.run.*"/>
         </packages>
     </test>
-    <test name="ballerina-launch-listener-tests">
-        <classes>
-            <class name="org.ballerinalang.test.listener.LaunchListenerTestCase"/>
-        </classes>
-    </test>
     <test name="ballerina-testerina-tests">
         <groups>
             <run>
