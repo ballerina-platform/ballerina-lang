@@ -189,9 +189,7 @@ public final class DiagnosticAnnotation {
                 outputBuilder.append(underlineFirstHalf).append(NEW_LINE)
                         .append(startLineResult.line, maxLength, startLineResult.line.length()).append(NEW_LINE)
                         .append(underlineSecondHalf).append(NEW_LINE);
-            }
-            else {
-
+            } else {
                 outputBuilder
                         .append(getUnderline(startLineResult.diagnosticStart, startLineResult.diagnosticLength))
                         .append(NEW_LINE)
@@ -286,7 +284,7 @@ public final class DiagnosticAnnotation {
 
     /**
      * Represents a result of truncating a line.
-     *
+     * @param needsWrap        If the result needs to be wrapped
      * @param line             The truncated line
      * @param diagnosticStart  The start of the diagnostic in the truncated line
      * @param diagnosticLength The length of the diagnostic in the truncated line
