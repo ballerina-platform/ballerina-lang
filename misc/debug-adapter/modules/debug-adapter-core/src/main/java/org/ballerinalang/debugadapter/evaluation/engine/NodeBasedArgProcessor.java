@@ -134,7 +134,7 @@ public class NodeBasedArgProcessor extends InvocationArgProcessor {
 
                 String argName = arg.getKey();
                 if (!remainingParams.containsKey(argName)) {
-                    throw createEvaluationException("undefined defaultable parameter '" + argName + "'.");
+                    throw createEvaluationException("undefined parameter '" + argName + "'.");
                 }
                 namedArgsFound = true;
                 Value argValue = arg.getValue().evaluate().getJdiValue();
