@@ -40,6 +40,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.values.ErrorValue;
@@ -105,7 +106,7 @@ public class DebuggerRuntime {
     public static Object invokeObjectMethod(BObject bObject, String methodName, Object... args) {
         try {
             final Object[] paramValues = args[0] instanceof Strand ? Arrays.copyOfRange(args, 1, args.length) : args;
-            final Strand strand = args[0] instanceof Strand s ?  s  : new Strand();
+            final Strand strand = args[0] instanceof Strand s ?  s  : Scheduler.getStrand();
             return ((ObjectValue) bObject).call(strand, methodName, paramValues);
         } catch (Exception e) {
             throw ErrorCreator.createError(StringUtils.fromString("invocation failed: " + e.getMessage()));

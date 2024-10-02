@@ -45,13 +45,11 @@ public abstract class Environment {
     public abstract Parameter[] getFunctionPathParameters();
 
     /**
-     * Mark the current executing strand as async. Execution of Ballerina code after the current
-     * interop will stop until given Ballerina Future is completed. However the java thread will not be blocked
-     * and will be reused for running other Ballerina code in the meantime. Therefore callee of this method
-     * must return as soon as possible to avoid starvation of Ballerina code execution.
+     * Yield the current execution and run some operation so other non isolated functions can run in asynchronously.
      *
+     * @param runnable operation to be executed.
      */
-    public abstract void markAsync();
+    public abstract void yieldAndRun(Runnable runnable);
 
     /**
      * Gets an instance of Ballerina runtime.
@@ -105,5 +103,10 @@ public abstract class Environment {
      */
     public abstract Object getStrandLocal(String key);
 
+    /**
+     * Gets the current environment repository.
+     *
+     * @return repository.
+     */
     public abstract Repository getRepository();
 }
