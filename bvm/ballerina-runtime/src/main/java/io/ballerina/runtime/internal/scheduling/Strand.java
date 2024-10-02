@@ -44,20 +44,13 @@ public class Strand {
     private Map<String, Object> globalProps;
 
     public final boolean isIsolated;
-    public State state;
+    public State state = State.YIELD;
     public Scheduler scheduler;
     public Strand parent;
     public TransactionLocalContext currentTrxContext;
     public Stack<TransactionLocalContext> trxContexts;
     public WorkerChannelMap workerChannelMap;
     public int acquiredLockCount;
-
-    public Strand() {
-        this.id = -1;
-        this.name = null;
-        this.metadata = null;
-        this.isIsolated = false;
-    }
 
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent, boolean isIsolated,
                   Map<String, Object> properties, WorkerChannelMap workerChannelMap) {
@@ -113,7 +106,6 @@ public class Strand {
     public void done() {
         if (!isIsolated && this.state == State.RUNNABLE) {
             scheduler.globalNonIsolatedLock.unlock();
-            this.state = State.DONE;
         }
     }
 
@@ -202,8 +194,7 @@ public class Strand {
     public enum State {
         RUNNABLE,
         YIELD,
-        CANCELLED,
-        DONE
+        CANCELLED
     }
 
 }

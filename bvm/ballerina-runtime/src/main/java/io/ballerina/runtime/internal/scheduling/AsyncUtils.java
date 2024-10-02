@@ -58,6 +58,7 @@ public class AsyncUtils {
      * Used for codegen wait for future.
      */
     public static Object handleWait(Strand strand, FutureValue future) {
+        future.strand.checkStrandCancelled();
         if (future.getAndSetWaited()) {
             return ErrorUtils.createWaitOnSameFutureError();
         }
@@ -79,6 +80,7 @@ public class AsyncUtils {
         CompletableFuture<?>[] cFutures = new CompletableFuture[futures.size()];
         for (int i = 0; i < futures.size(); i++) {
             FutureValue future = futures.get(i);
+            future.strand.checkStrandCancelled();
             if (future.getAndSetWaited()) {
                 return ErrorUtils.createWaitOnSameFutureError();
             }
@@ -98,6 +100,7 @@ public class AsyncUtils {
         List<String> alreadyWaitedKeys = new ArrayList<>();
         for (Map.Entry<String, FutureValue> entry : futureMap.entrySet()) {
             FutureValue future = entry.getValue();
+            future.strand.checkStrandCancelled();
             if (!future.getAndSetWaited()) {
                 cFutures.add(future.completableFuture);
             } else {
