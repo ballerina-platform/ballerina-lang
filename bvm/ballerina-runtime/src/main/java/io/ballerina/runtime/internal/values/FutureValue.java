@@ -103,6 +103,9 @@
      @Override
      public void cancel() {
          this.strand.state = Strand.State.CANCELLED;
+         if (this.strand.workerChannelMap != null) {
+             this.strand.workerChannelMap.cancel();
+         }
      }
 
      /**
