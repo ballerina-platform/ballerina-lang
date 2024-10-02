@@ -124,7 +124,7 @@ public final class SQLDBUtils {
      * This class represents a file based database used for testing data clients.
      */
     public static class FileBasedTestDatabase extends TestDatabase {
-        private String dbDirectory;
+        private final String dbDirectory;
 
         public FileBasedTestDatabase(DBType dbType, String databaseScript, String dbDirectory, String dbName) {
             this.dbDirectory = dbDirectory;

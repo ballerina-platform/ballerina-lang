@@ -34,8 +34,8 @@ import java.util.Set;
  */
 public class XmlPi extends XmlNonElementItem {
 
-    private String data;
-    private String target;
+    private final String data;
+    private final String target;
 
     public XmlPi(String data, String target) {
         this.data = data;

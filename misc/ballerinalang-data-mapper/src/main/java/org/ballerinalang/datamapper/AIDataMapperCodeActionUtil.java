@@ -87,17 +87,17 @@ class AIDataMapperCodeActionUtil {
     private static final int MAXIMUM_CACHE_SIZE = 100;
     private static final int RIGHT_SYMBOL_INDEX = 1;
     private static final int LEFT_SYMBOL_INDEX = 0;
-    private Cache<Integer, String> mappingCache =
+    private final Cache<Integer, String> mappingCache =
             CacheBuilder.newBuilder().maximumSize(MAXIMUM_CACHE_SIZE).build();
-    private HashMap<String, String> isOptionalMap = new HashMap<>();
-    private HashMap<String, String> leftFieldMap = new HashMap<>();
-    private HashMap<String, String> responseFieldMap = new HashMap<>();
+    private final HashMap<String, String> isOptionalMap = new HashMap<>();
+    private final HashMap<String, String> leftFieldMap = new HashMap<>();
+    private final HashMap<String, String> responseFieldMap = new HashMap<>();
     private HashMap<String, String> restFieldMap = new HashMap<>();
     private HashMap<String, Map<String, RecordFieldSymbol>> spreadFieldMap = new HashMap<>();
-    private HashMap<String, String> spreadFieldResponseMap = new HashMap<>();
-    private ArrayList<String> leftReadOnlyFields = new ArrayList<>();
+    private final HashMap<String, String> spreadFieldResponseMap = new HashMap<>();
+    private final ArrayList<String> leftReadOnlyFields = new ArrayList<>();
     private ArrayList<String> rightSpecificFieldList = new ArrayList<>();
-    private ArrayList<String> optionalRightRecordFields = new ArrayList<>();
+    private final ArrayList<String> optionalRightRecordFields = new ArrayList<>();
 
     private static final String SCHEMA = "schema";
     private static final String ID = "id";

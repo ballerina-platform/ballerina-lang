@@ -33,9 +33,9 @@ import java.util.Collection;
  */
 public class NormalizedCoverageClass implements IClassCoverage {
     private final IClassCoverage oldClassCoverage;
-    private String normalizedPackageName;
-    private String normalizedClassName;
-    private Collection<IMethodCoverage> updatedMethods = new ArrayList<>();
+    private final String normalizedPackageName;
+    private final String normalizedClassName;
+    private final Collection<IMethodCoverage> updatedMethods = new ArrayList<>();
 
     public NormalizedCoverageClass(IClassCoverage oldClassCoverage, String normalizedPackageName,
                                    String normalizedClassName) {

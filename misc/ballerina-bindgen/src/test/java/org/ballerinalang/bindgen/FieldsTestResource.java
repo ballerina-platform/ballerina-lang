@@ -31,6 +31,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
+@SuppressWarnings("all")
 public class FieldsTestResource implements InterfaceTestResource {
 
     // Instance primitive fields

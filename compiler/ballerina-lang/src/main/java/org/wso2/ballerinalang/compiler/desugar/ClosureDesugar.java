@@ -205,13 +205,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private static final BVarSymbol CLOSURE_MAP_NOT_FOUND;
 
     private SymbolResolver symResolver;
-    private SymbolTable symTable;
+    private final SymbolTable symTable;
     private SymbolEnv env;
     private BLangNode result;
-    private Types types;
-    private Desugar desugar;
-    private Names names;
-    private ClassClosureDesugar classClosureDesugar;
+    private final Types types;
+    private final Desugar desugar;
+    private final Names names;
+    private final ClassClosureDesugar classClosureDesugar;
     private int funClosureMapCount = 1;
     private int blockClosureMapCount = 1;
 

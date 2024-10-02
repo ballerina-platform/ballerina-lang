@@ -164,14 +164,14 @@ public class Types {
     private static final CompilerContext.Key<Types> TYPES_KEY =
             new CompilerContext.Key<>();
     private final Unifier unifier;
-    private SymbolTable symTable;
-    private SymbolResolver symResolver;
-    private BLangDiagnosticLog dlog;
-    private Names names;
+    private final SymbolTable symTable;
+    private final SymbolResolver symResolver;
+    private final BLangDiagnosticLog dlog;
+    private final Names names;
     private int finiteTypeCount = 0;
-    private BUnionType expandedXMLBuiltinSubtypes;
+    private final BUnionType expandedXMLBuiltinSubtypes;
     private final BLangAnonymousModelHelper anonymousModelHelper;
-    private int recordCount = 0;
+    private final int recordCount = 0;
     private SymbolEnv env;
     private boolean ignoreObjectTypeIds = false;
     private static final String BASE_16 = "base16";

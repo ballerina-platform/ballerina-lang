@@ -99,10 +99,10 @@ public class PushCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--skip-source-check"}, description = "skip checking if source has changed")
     private boolean skipSourceCheck;
 
-    private Path userDir;
-    private PrintStream errStream;
-    private PrintStream outStream;
-    private boolean exitWhenFinish;
+    private final Path userDir;
+    private final PrintStream errStream;
+    private final PrintStream outStream;
+    private final boolean exitWhenFinish;
 
     public PushCommand() {
         this.userDir = Path.of(System.getProperty(ProjectConstants.USER_DIR));

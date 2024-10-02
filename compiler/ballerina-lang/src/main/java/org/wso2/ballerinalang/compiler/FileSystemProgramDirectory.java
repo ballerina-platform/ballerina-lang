@@ -54,7 +54,7 @@ import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
  */
 public class FileSystemProgramDirectory implements SourceDirectory {
     private final Path programDirPath;
-    private static PrintStream outStream = System.out;
+    private static final PrintStream OUT_STREAM = System.out;
 
     public FileSystemProgramDirectory(Path programDirPath) {
         this.programDirPath = programDirPath;
@@ -112,7 +112,7 @@ public class FileSystemProgramDirectory implements SourceDirectory {
         // the user
         Path targetFilePath = Path.of(fileName);
         try {
-            outStream.println("    " + fileName);
+            OUT_STREAM.println("    " + fileName);
             Files.copy(source, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
             return targetFilePath;
         } catch (DirectoryNotEmptyException e) {

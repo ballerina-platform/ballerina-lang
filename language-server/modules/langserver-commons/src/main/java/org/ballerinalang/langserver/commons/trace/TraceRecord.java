@@ -24,15 +24,15 @@ import java.util.UUID;
  * Model class for trace log.
  */
 public class TraceRecord {
-    private Message message;
-    private String rawMessage;
-    private String id;
-    private String millis;
-    private String sequence;
-    private String logger;
-    private String sourceClass;
-    private String sourceMethod;
-    private String thread;
+    private final Message message;
+    private final String rawMessage;
+    private final String id;
+    private final String millis;
+    private final String sequence;
+    private final String logger;
+    private final String sourceClass;
+    private final String sourceMethod;
+    private final String thread;
 
     public TraceRecord(Message message, JsonObject record, String rawMessage) {
         this.message = message;

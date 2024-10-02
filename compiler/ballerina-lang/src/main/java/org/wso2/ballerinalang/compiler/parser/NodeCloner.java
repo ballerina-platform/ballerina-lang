@@ -1171,13 +1171,13 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess source) {
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess source) {
 
-        BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess clone =
-                new BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess();
+        BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess clone =
+                new BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess();
 
         source.cloneRef = clone;
-        clone.nsPrefix = source.nsPrefix;
+        clone.prefix = source.prefix;
         clone.field = source.field;
         clone.fieldKind = source.fieldKind;
         cloneBLangAccessExpression(source, clone);

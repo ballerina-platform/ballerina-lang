@@ -374,9 +374,6 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         boolean isRemoteMgtEnabled = moduleContext.project().buildOptions().compilationOptions().remoteManagement();
         CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, isRemoteMgtEnabled);
-        if (compiledJarFile == null) {
-            throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
-        }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
             ByteArrayOutputStream byteStream = compiledJarFile.toByteArrayStream();

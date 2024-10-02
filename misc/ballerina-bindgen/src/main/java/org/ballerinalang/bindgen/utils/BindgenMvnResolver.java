@@ -49,8 +49,8 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirs.isModuleExist;
  */
 public class BindgenMvnResolver {
 
-    private PrintStream outStream;
-    private BindgenEnv env;
+    private final PrintStream outStream;
+    private final BindgenEnv env;
 
     public BindgenMvnResolver(PrintStream outStream, BindgenEnv env) {
         this.outStream = outStream;

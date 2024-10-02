@@ -44,7 +44,7 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     public BType attachedType;
     public Set<AttachPoint> points;
     public int maskedPoints;
-    private List<BAnnotationAttachmentSymbol> annotationAttachments;
+    private final List<BAnnotationAttachmentSymbol> annotationAttachments;
 
     public BAnnotationSymbol(Name name, Name originalName, long flags, Set<AttachPoint> points, PackageID pkgID,
                              BType type, BSymbol owner, Location pos, SymbolOrigin origin) {

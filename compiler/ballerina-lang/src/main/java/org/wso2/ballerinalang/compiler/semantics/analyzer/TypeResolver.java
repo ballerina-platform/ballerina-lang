@@ -153,18 +153,18 @@ public class TypeResolver {
     private final ConstantTypeChecker constantTypeChecker;
     private final ConstantTypeChecker.ResolveConstantExpressionType resolveConstantExpressionType;
     private final EffectiveTypePopulator effectiveTypePopulator;
-    private BLangAnonymousModelHelper anonymousModelHelper;
-    private BLangMissingNodesHelper missingNodesHelper;
+    private final BLangAnonymousModelHelper anonymousModelHelper;
+    private final BLangMissingNodesHelper missingNodesHelper;
 
-    private List<BLangTypeDefinition> resolvingTypeDefinitions = new ArrayList<>();
+    private final List<BLangTypeDefinition> resolvingTypeDefinitions = new ArrayList<>();
     private HashMap<BIntersectionType, BLangIntersectionTypeNode> intersectionTypeList;
     public HashSet<BLangConstant> resolvedConstants = new HashSet<>();
-    private ArrayList<BLangConstant> resolvingConstants = new ArrayList<>();
+    private final ArrayList<BLangConstant> resolvingConstants = new ArrayList<>();
     private Deque<String> resolvingModuleDefs;
-    private HashSet<BLangClassDefinition> resolvedClassDef = new HashSet<>();
-    private Map<String, BLangNode> modTable = new LinkedHashMap<>();
-    private Map<String, BLangConstantValue> constantMap = new HashMap<>();
-    private HashSet<LocationData> unknownTypeRefs;
+    private final HashSet<BLangClassDefinition> resolvedClassDef = new HashSet<>();
+    private final Map<String, BLangNode> modTable = new LinkedHashMap<>();
+    private final Map<String, BLangConstantValue> constantMap = new HashMap<>();
+    private final HashSet<LocationData> unknownTypeRefs;
     private SymbolEnv pkgEnv;
     private int currentDepth;
     private Deque<BType> resolvingTypes;
@@ -2134,9 +2134,9 @@ public class TypeResolver {
      * @since 2201.7.0
      */
     private static class LocationData {
-        private String name;
-        private int row;
-        private int column;
+        private final String name;
+        private final int row;
+        private final int column;
 
         LocationData(String name, int row, int column) {
             this.name = name;

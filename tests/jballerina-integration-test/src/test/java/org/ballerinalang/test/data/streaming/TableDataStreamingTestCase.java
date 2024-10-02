@@ -75,8 +75,8 @@ public class TableDataStreamingTestCase extends BaseTest {
     @Test(groups = {"brokenOnXMLChange"},
             description = "Tests streaming a large amount of data from a table, converted to XML")
     public void testStreamingLargeXml() throws Exception {
-        HttpResponse response = HttpClientRequest
-                .doGet(serverInstance.getServiceURLHttp(servicePort, "dataService/getXmlData"), 60000, responseBuilder);
+        HttpResponse response = HttpClientRequest.doGet(
+                serverInstance.getServiceURLHttp(servicePort, "dataService/getXmlData"), 60000, RESPONSE_BUILDER);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200);
         Assert.assertEquals(Integer.parseInt(response.getData()), 211288909);
@@ -86,7 +86,7 @@ public class TableDataStreamingTestCase extends BaseTest {
     public void testStreamingLargeJson() throws Exception {
         HttpResponse response = HttpClientRequest
                 .doGet(serverInstance.getServiceURLHttp(servicePort, "dataService/getJsonData"), 60000,
-                        responseBuilder);
+                        RESPONSE_BUILDER);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200);
         Assert.assertEquals(Integer.parseInt(response.getData()), 208788890);
@@ -96,7 +96,7 @@ public class TableDataStreamingTestCase extends BaseTest {
     public void testStreamingLargeJsonAppended() throws Exception {
         HttpResponse response = HttpClientRequest
                 .doGet(serverInstance.getServiceURLHttp(servicePort, "dataService/getJsonDataAppended"), 60000,
-                        responseBuilder);
+                        RESPONSE_BUILDER);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200);
         Assert.assertEquals(Integer.parseInt(response.getData()), 208788925);
@@ -106,7 +106,7 @@ public class TableDataStreamingTestCase extends BaseTest {
     public void getJosnViaSetJsonPayloadMethod() throws Exception {
         HttpResponse response = HttpClientRequest
                 .doGet(serverInstance.getServiceURLHttp(servicePort, "dataService/getJosnViaSetJsonPayloadMethod"),
-                        60000, responseBuilder);
+                        60000, RESPONSE_BUILDER);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200);
         Assert.assertEquals(Integer.parseInt(response.getData()), 208788890);
@@ -116,7 +116,7 @@ public class TableDataStreamingTestCase extends BaseTest {
     public void getJosnViaGetJsonStringMethod() throws Exception {
         HttpResponse response = HttpClientRequest
                 .doGet(serverInstance.getServiceURLHttp(servicePort, "dataService/getJosnViaGetJsonStringMethod"),
-                        60000, responseBuilder);
+                        60000, RESPONSE_BUILDER);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200);
         Assert.assertEquals(Integer.parseInt(response.getData()), 20840);
@@ -125,7 +125,7 @@ public class TableDataStreamingTestCase extends BaseTest {
     @Test(groups = {"brokenOnXMLChange"}, description = "Tests the outbound throttling scenario with a slow client")
     public void testStreamingLargeXMLWithSlowClient() throws Exception {
         HttpResponse response = HttpClientRequest.doGet(
-                serverInstance.getServiceURLHttp(servicePort, "dataService/getXmlData"), 60000, slowResponseBuilder);
+                serverInstance.getServiceURLHttp(servicePort, "dataService/getXmlData"), 60000, SLOW_RESPONSE_BUILDER);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200);
         Assert.assertEquals(Integer.parseInt(response.getData()), 211288909);
@@ -134,7 +134,7 @@ public class TableDataStreamingTestCase extends BaseTest {
     @Test(description = "Tests the outbound throttling scenario with a slow client")
     public void testStreamingLargeJsonWithSlowClient() throws Exception {
         HttpResponse response = HttpClientRequest.doGet(
-                serverInstance.getServiceURLHttp(servicePort, "dataService/getJsonData"), 60000, slowResponseBuilder);
+                serverInstance.getServiceURLHttp(servicePort, "dataService/getJsonData"), 60000, SLOW_RESPONSE_BUILDER);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200);
         Assert.assertEquals(Integer.parseInt(response.getData()), 208788890);
@@ -172,18 +172,19 @@ public class TableDataStreamingTestCase extends BaseTest {
     /**
      * This reads a buffered stream and returns the number of characters.
      */
-    private static HttpClientRequest.CheckedFunction<BufferedReader, String> responseBuilder = ((bufferedReader) -> {
-        int count = 0;
-        while (bufferedReader.read() != -1) {
-            count++;
-        }
-        return String.valueOf(count);
-    });
+    private static final HttpClientRequest.CheckedFunction<BufferedReader, String> RESPONSE_BUILDER =
+            (bufferedReader -> {
+                int count = 0;
+                while (bufferedReader.read() != -1) {
+                    count++;
+                }
+                return String.valueOf(count);
+            });
 
     /**
      * This reads a buffered stream and returns the number of characters.
      */
-    private static HttpClientRequest.CheckedFunction<BufferedReader, String> slowResponseBuilder =
+    private static final HttpClientRequest.CheckedFunction<BufferedReader, String> SLOW_RESPONSE_BUILDER =
             ((bufferedReader) -> {
                 int count = 0;
                 while (bufferedReader.read() != -1) {

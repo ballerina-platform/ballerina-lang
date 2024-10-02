@@ -223,12 +223,12 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private static final CompilerContext.Key<ClosureGenerator> CLOSURE_GENERATOR_KEY = new CompilerContext.Key<>();
     private Queue<BLangSimpleVariableDef> queue;
     private Queue<BLangSimpleVariableDef> annotationClosureReferences;
-    private SymbolTable symTable;
+    private final SymbolTable symTable;
     private SymbolEnv env;
     private BLangNode result;
-    private SymbolResolver symResolver;
-    private AnnotationDesugar annotationDesugar;
-    private Types types;
+    private final SymbolResolver symResolver;
+    private final AnnotationDesugar annotationDesugar;
+    private final Types types;
 
     public static ClosureGenerator getInstance(CompilerContext context) {
         ClosureGenerator closureGenerator = context.get(CLOSURE_GENERATOR_KEY);
@@ -1506,9 +1506,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
         result = isLikeExpr;
     }
 
-    @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        result = nsPrefixedFieldBasedAccess;
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
+        result = prefixedFieldBasedAccess;
     }
 
     @Override

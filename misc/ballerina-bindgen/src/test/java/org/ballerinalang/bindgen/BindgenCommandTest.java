@@ -46,7 +46,7 @@ import java.util.Objects;
 public class BindgenCommandTest extends BindgenCommandBaseTest {
 
     private Path testResources;
-    private String newLine = System.lineSeparator();
+    private final String newLine = System.lineSeparator();
 
     @Override
     @BeforeClass
@@ -332,9 +332,9 @@ public class BindgenCommandTest extends BindgenCommandBaseTest {
 
     static class Copy extends SimpleFileVisitor<Path> {
 
-        private Path fromPath;
-        private Path toPath;
-        private StandardCopyOption copyOption;
+        private final Path fromPath;
+        private final Path toPath;
+        private final StandardCopyOption copyOption;
 
         private Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
             this.fromPath = fromPath;

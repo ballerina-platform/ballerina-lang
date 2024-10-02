@@ -261,9 +261,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private final Names names;
     private SymbolEnv env;
-    private SymbolTable symTable;
-    private BLangDiagnosticLog dlog;
-    private Types types;
+    private final SymbolTable symTable;
+    private final BLangDiagnosticLog dlog;
+    private final Types types;
     private Map<BSymbol, InitStatus> uninitializedVars;
     private Map<BSymbol, Location> unusedErrorVarsDeclaredWithVar;
     private Map<BSymbol, Location> unusedLocalVariables;
@@ -276,7 +276,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private boolean definiteFailureReached = false;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
-    private Deque<BSymbol> currDependentSymbolDeque;
+    private final Deque<BSymbol> currDependentSymbolDeque;
     private final GlobalVariableRefAnalyzer globalVariableRefAnalyzer;
 
     private DataflowAnalyzer(CompilerContext context) {
@@ -1621,11 +1621,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        if (!nsPrefixedFieldBasedAccess.isLValue && isObjectMemberAccessWithSelf(nsPrefixedFieldBasedAccess)) {
-            checkVarRef(nsPrefixedFieldBasedAccess.symbol, nsPrefixedFieldBasedAccess.pos);
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
+        if (!prefixedFieldBasedAccess.isLValue && isObjectMemberAccessWithSelf(prefixedFieldBasedAccess)) {
+            checkVarRef(prefixedFieldBasedAccess.symbol, prefixedFieldBasedAccess.pos);
         }
-        analyzeNode(nsPrefixedFieldBasedAccess.expr, env);
+        analyzeNode(prefixedFieldBasedAccess.expr, env);
     }
 
     @Override

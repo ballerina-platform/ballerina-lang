@@ -46,14 +46,14 @@ import java.util.stream.Stream;
  * @since 0.982.0
  */
 public class BMainInstance implements BMain {
-    private static final Logger log = LoggerFactory.getLogger(BMainInstance.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BMainInstance.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private String agentArgs = "";
-    private BalServer balServer;
+    private final BalServer balServer;
 
     private static class StreamGobbler extends Thread {
-        private InputStream inputStream;
-        private PrintStream printStream;
+        private final InputStream inputStream;
+        private final PrintStream printStream;
 
         public StreamGobbler(InputStream inputStream, PrintStream printStream) {
             this.inputStream = inputStream;

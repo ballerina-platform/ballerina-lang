@@ -216,7 +216,7 @@ class NodeFinder extends BaseVisitor {
     private LineRange range;
     private BLangNode enclosingNode;
     private BLangNode enclosingContainer;
-    private boolean allowExprStmts;
+    private final boolean allowExprStmts;
 
     NodeFinder(boolean allowExprStmts) {
         this.allowExprStmts = allowExprStmts;
