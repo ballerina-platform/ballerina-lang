@@ -169,7 +169,6 @@ public class Types {
     private BLangDiagnosticLog dlog;
     private Names names;
     private int finiteTypeCount = 0;
-    private BUnionType expandedXMLBuiltinSubtypes;
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private int recordCount = 0;
     private SymbolEnv env;
@@ -201,9 +200,6 @@ public class Types {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
-        this.expandedXMLBuiltinSubtypes = BUnionType.create(null,
-                                                            symTable.xmlElementType, symTable.xmlCommentType,
-                                                            symTable.xmlPIType, symTable.xmlTextType);
         this.unifier = new Unifier();
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
@@ -1449,7 +1445,7 @@ public class Types {
                 boolean isTypeParam = TypeParamAnalyzer.isTypeParam(targetParam);
 
                 if (isTypeParam) {
-                    if (!isAssignable(sourceParam, targetParam)) {
+                    if (!isTypeParamAssignable(sourceParam, targetParam)) {
                         return false;
                     }
                 } else {
@@ -1472,6 +1468,11 @@ public class Types {
         // Source param types should be contravariant with target param types. Hence s and t switched when checking
         // assignability.
         return checkFunctionTypeEquality(source, target, unresolvedTypes, (s, t, ut) -> isAssignable(t, s, ut));
+    }
+
+    private boolean isTypeParamAssignable(BType sourceParam, BType targetParam) {
+        return isAssignable(sourceParam, targetParam) ||
+                (isAssignable(sourceParam, symTable.xmlType) && isAssignable(targetParam, sourceParam));
     }
 
     public boolean isInherentlyImmutableType(BType type) {
@@ -2048,11 +2049,14 @@ public class Types {
             case TypeTags.NEVER:
                 return constraint;
             case TypeTags.UNION:
+                BTypeSymbol collectionTSymbol = collectionType.tsymbol;
+                BTypeSymbol typeSymbol =
+                        Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY,
+                                collectionTSymbol.pkgID, null, collectionTSymbol.owner, symTable.builtinPos, VIRTUAL);
                 Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) constraint);
-                Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
-                        ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
-                return collectionTypes.size() == 4 && builtinXMLConstraintTypes.equals(collectionTypes) ?
-                        collectionType : BUnionType.create(null, (LinkedHashSet<BType>) collectionTypes);
+                BType type = BUnionType.create(typeSymbol, (LinkedHashSet<BType>) collectionTypes);
+                typeSymbol.type = type;
+                return type;
             default:
                 return null;
         }
@@ -3659,11 +3663,6 @@ public class Types {
                 continue;
             }
             if (sMember.tag == TypeTags.FINITE && isAssignable(sMember, target, unresolvedTypes)) {
-                sourceIterator.remove();
-                continue;
-            }
-            if (sMember.tag == TypeTags.XML &&
-                    isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)) {
                 sourceIterator.remove();
                 continue;
             }
