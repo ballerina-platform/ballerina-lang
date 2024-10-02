@@ -40,7 +40,7 @@ jobs:
           ./gradlew clean build -x check publishToMavenLocal --stacktrace --scan
 
       - name: Archive Lang Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: Ballerina Lang Artifacts
           path: ~/.m2/
