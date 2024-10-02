@@ -1,15 +1,9 @@
 {
-  "range": {
-    "start": {
-      "line": 7,
-      "character": 18
-    },
-    "end": {
-      "line": 7,
-      "character": 25
-    }
+  "position": {
+    "line": 9,
+    "character": 24
   },
-  "source": "extractToConstant.bal",
+  "source": "extractToConstantWithAmbiguousType.bal",
   "expected": [
     {
       "title": "Extract to constant",
@@ -18,24 +12,24 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
-          "newText": "const CONST = 10 + 20;\n"
+          "newText": "const float CONST = 18;\n"
         },
         {
           "range": {
             "start": {
-              "line": 7,
-              "character": 18
+              "line": 9,
+              "character": 23
             },
             "end": {
-              "line": 7,
+              "line": 9,
               "character": 25
             }
           },
@@ -46,10 +40,10 @@
         "title": "Rename constant",
         "command": "ballerina.action.positional.rename",
         "arguments": [
-          "extractToConstant.bal",
+          "extractToConstantWithAmbiguousType.bal",
           {
-            "line": 8,
-            "character": 18
+            "line": 10,
+            "character": 23
           }
         ]
       },

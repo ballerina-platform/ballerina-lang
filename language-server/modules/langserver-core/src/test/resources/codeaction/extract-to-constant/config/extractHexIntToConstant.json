@@ -20,7 +20,7 @@
               "character": 0
             }
           },
-          "newText": "const int CONST = 0x12;\n"
+          "newText": "const CONST = 0x12;\n"
         },
         {
           "range": {
