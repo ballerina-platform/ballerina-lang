@@ -1,0 +1,10 @@
+HINT [main.bal:(9:5,9:5)] concurrent calls will not be made to this method since the method is not an 'isolated' method (BCH2005)
+  |
+9 |     resource function get add(int a, int b) returns int {
+  |     ^
+
+HINT [main.bal:(13:5,13:5)] concurrent calls will not be made to this method since the method is not an 'isolated' method (BCH2005)
+   |
+13 |     resource function get subtract(int a, int b) returns int {
+   |     ^
+

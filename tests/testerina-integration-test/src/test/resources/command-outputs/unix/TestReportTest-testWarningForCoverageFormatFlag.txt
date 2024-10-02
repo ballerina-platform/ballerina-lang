@@ -1,7 +1,11 @@
 warning: ignoring --coverage-format flag since code coverage is not enabled
 Compiling source
 	testerina_report/foo:0.0.0
-WARNING [main.bal:(36:5,36:19)] unused variable 'b'
+WARNING [main.bal:(36:5,36:19)] unused variable 'b' (BCE20403)
+   |
+36 |     int b = a + 1;
+   |     ^^^^^^^^^^^^^^
+
 
 Running Tests
 

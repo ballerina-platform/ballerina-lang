@@ -5,6 +5,7 @@ WARNING [Ballerina.toml:(1:1,1:1)] missing table '[package]' in 'Ballerina.toml'
 org = "john"
 name = "validProjectWithEmptyBallerinaToml"
 version = "0.1.0"
+(BCE5001)
 
 Generating executable
 	target\bin\validProjectWithEmptyBallerinaToml.jar

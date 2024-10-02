@@ -2,5 +2,9 @@ Code coverage is not yet supported with single bal files. Ignoring the flag and 
 warning: ignoring --includes flag since code coverage is not enabled
 Compiling source
 	empty-data-provider-test.bal
-ERROR [empty-data-provider-test.bal:(14:19,14:28)] incompatible types: expected 'function () returns (ballerina/test:0.0.0:DataProviderReturnType)?', found 'function () returns (int[])'
-error: compilation contains errors
+ERROR [empty-data-provider-test.bal:(14:19,14:28)] incompatible types: expected 'function () returns (ballerina/test:0.0.0:DataProviderReturnType)?', found 'function () returns (int[])' (BCE2066)
+   |
+14 |     dataProvider: provider2
+   |                   ^^^^^^^^^
+
+error: compilation contains errors

@@ -1,7 +1,15 @@
 Compiling source
 	foo/pkg_b:1.0.0
-WARNING [main.bal:(26:5,26:41)] unused variable 'msgHello'
-WARNING [main.bal:(27:5,27:53)] unused variable 'msg'
+WARNING [main.bal:(26:5,26:41)] unused variable 'msgHello' (BCE20403)
+   |
+26 |     string msgHello = pkg_a:helloCall();
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+WARNING [main.bal:(27:5,27:53)] unused variable 'msg' (BCE20403)
+   |
+27 |     handle? msg = greeting(java:fromString("Jane"));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 Generating executable
 

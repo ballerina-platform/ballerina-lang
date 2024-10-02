@@ -1,0 +1,14 @@
+ERROR [two-line-error.bal:(2:45,3:18)] operator '+' not defined for 'int' and 'string' (BCE2070)
+  |
+2 |     int a = exponentiate(1 + 2 + 3 + 4 + 5, 3 + 4 + 5 +
+  |                                             ^^^^^^^^^^^
+3 |     "Hello world" + 6 + 7 + 8 + 9 + 10);
+  | ^^^^^^^^^^^^^^^^^
+
+ERROR [two-line-error.bal:(17:13,18:29)] too many arguments in call to 'exponentiate()' (BCE2524)
+   |
+17 |     int d = exponentiate(2, 3
+   |             ^^^^^^^^^^^^^^^^^
+18 |     , true, "Hello, World!");
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

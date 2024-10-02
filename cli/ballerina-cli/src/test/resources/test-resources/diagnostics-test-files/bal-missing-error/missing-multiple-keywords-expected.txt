@@ -1,0 +1,40 @@
+ERROR [missing-multiple-keywords.bal:(5:8,5:8)] missing function keyword (BCE0248)
+  |
+5 | public function add(int a, int b) returns int {
+  |        ++++++++
+
+ERROR [missing-multiple-keywords.bal:(8:12,8:12)] missing if keyword (BCE0262)
+  |
+8 |     } else if (b < 0) {
+  |            ++
+
+ERROR [missing-multiple-keywords.bal:(14:8,14:8)] missing function keyword (BCE0248)
+   |
+14 | public function sub(int a, int b) returns int {
+   |        ++++++++
+
+ERROR [missing-multiple-keywords.bal:(24:44,24:44)] missing select keyword (BCE0231)
+   |
+24 |     int[] numsTimes10 = from var i in nums select i * 10;
+   |                                            ++++++
+
+ERROR [missing-multiple-keywords.bal:(25:24,25:24)] missing from keyword (BCE0260)
+   |
+25 |     int[] numsTimes2 = from var i in nums select i * 2;
+   |                        ++++
+
+ERROR [missing-multiple-keywords.bal:(26:35,26:35)] missing in keyword (BCE0261)
+   |
+26 |     int[] numsTimes3 = from var i in nums select i * 3;
+   |                                   ++
+
+ERROR [missing-multiple-keywords.bal:(27:45,27:45)] missing order keyword (BCE0266)
+   |
+27 |     int[] numsReversed = from int i in nums order by i descending select i;
+   |                                             +++++
+
+ERROR [missing-multiple-keywords.bal:(28:52,28:52)] missing by keyword (BCE0267)
+   |
+28 |     int[] numsReversed_ = from int i in nums order by i descending select i;
+   |                                                    ++
+

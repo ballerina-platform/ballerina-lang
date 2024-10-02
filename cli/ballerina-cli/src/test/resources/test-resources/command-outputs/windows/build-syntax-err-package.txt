@@ -1,3 +1,7 @@
 Compiling source
 	foo/winery:0.1.0
-ERROR [hello_world.bal:(2:3,2:4)] invalid token ';'
+ERROR [hello_world.bal:(2:3,2:4)] invalid token ';' (BCE0600)
+  |
+2 | };;
+  |   ^
+
