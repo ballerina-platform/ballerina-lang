@@ -29,6 +29,6 @@ import io.ballerina.types.Bdd;
  * @param right  path that include this node's atom negatively
  * @since 2201.10.0
  */
-record BddNodeImpl(Atom atom, Bdd left, Bdd middle, Bdd right) implements BddNode {
+public record BddNodeImpl(Atom atom, Bdd left, Bdd middle, Bdd right) implements BddNode {
 
 }

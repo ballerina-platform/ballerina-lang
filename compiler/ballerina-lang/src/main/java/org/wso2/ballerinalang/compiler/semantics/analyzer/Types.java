@@ -25,9 +25,12 @@ import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Context;
 import io.ballerina.types.Core;
 import io.ballerina.types.Env;
+import io.ballerina.types.MappingAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
+import io.ballerina.types.definition.ObjectDefinition;
+import io.ballerina.types.definition.ObjectQualifiers;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -324,41 +327,49 @@ public class Types {
             return false;
         }
 
-        type = Types.getImpliedType(type);
-        Set<BType> visited = new HashSet<>();
-        return isLaxType(type, visited) == 1 || isAssignable(type, symTable.xmlType);
+        return SemTypeHelper.isSubtype(semTypeCtx, type, PredefinedType.XML) || isLaxType(type);
     }
 
-    // TODO : clean
-    public int isLaxType(BType type, Set<BType> visited) {
-        type = getImpliedType(type);
-        if (!visited.add(type)) {
-            return -1;
+    private boolean isLaxType(BType type) {
+        SemType t = SemTypeHelper.semType(type);
+        return isLaxType(t);
+    }
+
+    /**
+     * Checks if the type is a lax type.
+     * <p>
+     * Rules:
+     * <ul>
+     *   <li>json and readonly-json are lax</li>
+     *   <li>map&lt;T&gt; is lax if T is lax</li>
+     *   <li>U = T1|T2...|Tn is lax, if Ti is lax for all i.</li>
+     * </ul>
+     *
+     * @param t type to be checked
+     * @return true if t is lax
+     */
+    private boolean isLaxType(SemType t) {
+        SemType json = Core.createJson(semTypeCtx);
+        if (SemTypes.isSameType(semTypeCtx, t, json) ||
+                SemTypes.isSameType(semTypeCtx, t, SemTypes.intersect(json, PredefinedType.VAL_READONLY))) {
+            return true;
         }
-        switch (type.tag) {
-            case TypeTags.JSON:
-                return 1;
-            case TypeTags.MAP:
-                return isLaxType(((BMapType) type).constraint, visited);
-            case TypeTags.UNION:
-                if (isSameType(type, symTable.jsonType)) {
-                    visited.add(type);
-                    return 1;
-                }
-                boolean atleastOneLaxType = false;
-                for (BType member : ((BUnionType) type).getMemberTypes()) {
-                    int result = isLaxType(member, visited);
-                    if (result == -1) {
-                        continue;
-                    }
-                    if (result == 0) {
-                        return 0;
-                    }
-                    atleastOneLaxType = true;
-                }
-                return atleastOneLaxType ? 1 : 0;
+
+        Optional<List<MappingAtomicType>> optMatList = Core.mappingAtomicTypesInUnion(semTypeCtx, t);
+        if (optMatList.isEmpty()) {
+            return false;
         }
-        return 0;
+
+        List<MappingAtomicType> matList = optMatList.get();
+        return matList.stream().allMatch(mat -> mat.names().length == 0 && isLaxType(Core.cellInnerVal(mat.rest())));
+    }
+
+    public boolean isSameType2(BType source, BType target) {
+        return isSameType(SemTypeHelper.semType(source), SemTypeHelper.semType(target));
+    }
+
+    public boolean isSameType(SemType source, SemType target) {
+        return SemTypes.isSameType(semTypeCtx, source, target);
     }
 
     public boolean isSameType(BType source, BType target) {
@@ -390,7 +401,7 @@ public class Types {
     }
 
     public boolean isAnydata(BType type) {
-        return SemTypeHelper.isSubtype(semTypeCtx, type, Core.createAnydata(semTypeCtx));
+        return isSubtype(type, Core.createAnydata(semTypeCtx));
     }
 
     private boolean isSameType(BType source, BType target, Set<TypePair> unresolvedTypes) {
@@ -446,44 +457,15 @@ public class Types {
     }
 
     public boolean containsErrorType(BType bType) {
-        BType type = getImpliedType(bType);
-        if (type.tag == TypeTags.UNION) {
-            return ((BUnionType) type).getMemberTypes().stream()
-                    .anyMatch(this::containsErrorType);
-        }
-
-        if (type.tag == TypeTags.READONLY) {
-            return true;
-        }
-
-        return type.tag == TypeTags.ERROR;
+        return SemTypeHelper.containsBasicType(bType, PredefinedType.ERROR);
     }
 
     public boolean containsNilType(BType bType) {
-        BType type = getImpliedType(bType);
-        if (type.tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (containsNilType(memberType)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (type.tag == TypeTags.READONLY) {
-            return true;
-        }
-
-        return type.tag == TypeTags.NIL;
+        return SemTypeHelper.containsBasicType(bType, PredefinedType.NIL);
     }
 
     public boolean isSubTypeOfList(BType bType) {
-        BType type = getImpliedType(bType);
-        if (type.tag != TypeTags.UNION) {
-            return isSubTypeOfBaseType(type, TypeTags.ARRAY) || isSubTypeOfBaseType(type, TypeTags.TUPLE);
-        }
-
-        return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
+        return SemTypeHelper.isSubtypeSimpleNotNever(bType, PredefinedType.LIST);
     }
 
     BType resolvePatternTypeFromMatchExpr(BLangErrorBindingPattern errorBindingPattern, BLangExpression matchExpr,
@@ -714,31 +696,11 @@ public class Types {
     }
 
     private boolean containsAnyType(BType type) {
-        type = getImpliedType(type);
-        if (type.tag != TypeTags.UNION) {
-            return type.tag == TypeTags.ANY;
-        }
-
-        for (BType memberTypes : ((BUnionType) type).getMemberTypes()) {
-            if (getImpliedType(memberTypes).tag == TypeTags.ANY) {
-                return true;
-            }
-        }
-        return false;
+        return SemTypeHelper.containsType(semTypeCtx, type, PredefinedType.ANY);
     }
 
     private boolean containsAnyDataType(BType type) {
-        type = getImpliedType(type);
-        if (type.tag != TypeTags.UNION) {
-            return type.tag == TypeTags.ANYDATA;
-        }
-
-        for (BType memberTypes : ((BUnionType) type).getMemberTypes()) {
-            if (getImpliedType(memberTypes).tag == TypeTags.ANYDATA) {
-                return true;
-            }
-        }
-        return false;
+        return SemTypeHelper.containsType(semTypeCtx, type, Core.createAnydata(semTypeCtx));
     }
 
     BType mergeTypes(BType typeFirst, BType typeSecond) {
@@ -761,13 +723,17 @@ public class Types {
     }
 
     public boolean isSubTypeOfMapping(BType bType) {
-        BType type = getImpliedType(bType);
-        if (type.tag != TypeTags.UNION) {
-            return isSubTypeOfBaseType(type, TypeTags.MAP) || isSubTypeOfBaseType(type, TypeTags.RECORD);
-        }
-        return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfMapping);
+        return SemTypeHelper.isSubtypeSimpleNotNever(bType, PredefinedType.MAPPING);
     }
 
+    public boolean isSubTypeOfBaseType(BType bType, BasicTypeBitSet bbs) {
+        return SemTypeHelper.isSubtypeSimpleNotNever(bType, bbs);
+    }
+
+    /**
+     * @deprecated Use {@link #isSubTypeOfBaseType(BType, BasicTypeBitSet)} instead.
+     */
+    @Deprecated
     public boolean isSubTypeOfBaseType(BType bType, int baseTypeTag) {
         BType type = getImpliedType(bType);
 
@@ -836,6 +802,10 @@ public class Types {
 
     public boolean isSubtype(SemType t1, SemType t2) {
         return SemTypes.isSubtype(semTypeCtx, t1, t2);
+    }
+
+    public boolean isSubtype(BType t1, SemType t2) {
+        return SemTypeHelper.isSubtype(semTypeCtx, t1, t2);
     }
 
     BField getTableConstraintField(BType constraintType, String fieldName) {
@@ -2108,7 +2078,7 @@ public class Types {
     }
 
     public boolean isAllErrorMembers(BUnionType actualType) {
-        return actualType.getMemberTypes().stream().allMatch(t -> isAssignable(t, symTable.errorType));
+        return isSubtype(actualType, PredefinedType.ERROR);
     }
 
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType targetType) {
@@ -3443,51 +3413,13 @@ public class Types {
     }
 
     boolean validIntegerTypeExists(BType bType) {
-        BType type = getImpliedType(bType);
-        if (type.isNullable() && type.tag != TypeTags.NIL) {
-            type = getSafeType(type, true, false);
-        }
-        if (TypeTags.isIntegerTypeTag(type.tag)) {
-            return true;
-        }
-        switch (type.tag) {
-            case TypeTags.BYTE:
-                return true;
-            case TypeTags.UNION:
-                LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
-                for (BType memberType : memberTypes) {
-                    memberType = getImpliedType(memberType);
-                    if (!validIntegerTypeExists(memberType)) {
-                        return false;
-                    }
-                }
-                return true;
-            case TypeTags.FINITE:
-                return !Core.isEmpty(semTypeCtx, SemTypes.intersect(type.semType(), PredefinedType.INT));
-            default:
-                return false;
-        }
+        SemType s = SemTypeHelper.semType(bType);
+        s = Core.diff(s, PredefinedType.NIL); // nil lift
+        return SemTypes.isSubtypeSimpleNotNever(s, PredefinedType.INT);
     }
 
     public boolean isStringSubType(BType type) {
-        type = getImpliedType(type);
-        if (TypeTags.isStringTypeTag(type.tag)) {
-            return true;
-        }
-        switch (type.tag) {
-            case TypeTags.UNION:
-                for (BType memType : ((BUnionType) type).getMemberTypes()) {
-                    if (!isStringSubType(memType)) {
-                        return false;
-                    }
-                }
-                return true;
-            case TypeTags.FINITE:
-                SemType semType = type.semType();
-                return SemTypes.isSubtype(semTypeCtx, semType, PredefinedType.STRING);
-            default:
-                return false;
-        }
+        return SemTypeHelper.isSubtypeSimpleNotNever(type, PredefinedType.STRING);
     }
 
     /**
@@ -5029,13 +4961,8 @@ public class Types {
             return false;
         }
 
-        for (BType memType : type.getMemberTypes()) {
-            BType referredMemType = getImpliedType(memType);
-            if (referredMemType.tag != TypeTags.NIL && referredMemType.tag != TypeTags.ERROR) {
-                return false;
-            }
-        }
-        return true;
+        BasicTypeBitSet nilOrError = (BasicTypeBitSet) Core.union(PredefinedType.NIL, PredefinedType.ERROR);
+        return SemTypeHelper.isSubtypeSimpleNotNever(type, nilOrError);
     }
 
     /**
@@ -5218,7 +5145,7 @@ public class Types {
     }
 
     private boolean isSameBasicType(BType source, BType target) {
-        if (isSameType(source, target)) {
+        if (isSameType2(source, target)) {
             return true;
         }
         int sourceTag = getImpliedType(source).tag;
@@ -5392,24 +5319,8 @@ public class Types {
     }
 
     public boolean isNonNilSimpleBasicTypeOrString(BType bType) {
-        BType type = getImpliedType(bType);
-        if (type.tag == TypeTags.UNION) {
-            Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
-            for (BType member : memberTypes) {
-                BType memType = getImpliedType(member);
-                if (memType.tag == TypeTags.FINITE || memType.tag == TypeTags.UNION) {
-                    isNonNilSimpleBasicTypeOrString(memType);
-                    continue;
-                }
-                if (memType.tag == TypeTags.NIL || !isSimpleBasicType(memType.tag)) {
-                    return false;
-                }
-            }
-            return true;
-        } else if (type.tag == TypeTags.FINITE) {
-            return !type.isNullable();
-        }
-        return type.tag != TypeTags.NIL && isSimpleBasicType(type.tag);
+        return SemTypeHelper.isSubtypeSimpleNotNever(bType,
+                (BasicTypeBitSet) Core.diff(PredefinedType.SIMPLE_OR_STRING, PredefinedType.NIL));
     }
 
     public boolean isSubTypeOfReadOnlyOrIsolatedObjectUnion(BType bType) {
@@ -5535,14 +5446,7 @@ public class Types {
     }
 
     public boolean isNeverType(BType type) {
-        type = getImpliedType(type);
-        if (type.tag == NEVER) {
-            return true;
-        } else if (type.tag == TypeTags.UNION) {
-            LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
-            return memberTypes.stream().allMatch(this::isNeverType);
-        }
-        return false;
+        return Core.isNever(SemTypeHelper.semType(type));
     }
 
     boolean isSingletonType(BType bType) {
@@ -5600,7 +5504,7 @@ public class Types {
         return packageID.isTestPkg ? packageID.toString() + "_testable" : packageID.toString();
     }
 
-    private static class ListenerValidationModel {
+    private class ListenerValidationModel {
         private final Types types;
         private final SymbolTable symtable;
         private final BType serviceNameType;
@@ -5720,21 +5624,9 @@ public class Types {
         }
 
         private boolean isServiceObject(BType bType) {
-            BType type = getImpliedType(bType);
-            if (type.tag == TypeTags.UNION) {
-                for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                    if (!isServiceObject(memberType)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            if (type.tag != TypeTags.OBJECT) {
-                return false;
-            }
-
-            return Symbols.isService(type.tsymbol);
+            ObjectQualifiers quals = new ObjectQualifiers(false, false, ObjectQualifiers.NetworkQualifier.Service);
+            SemType serviceObjTy = new ObjectDefinition().define(typeEnv(), quals, new ArrayList<>(0));
+            return types.isSubtype(bType, serviceObjTy);
         }
     }
 
@@ -6172,5 +6064,9 @@ public class Types {
     //  will have a dependency on compiler
     public Env typeEnv() {
         return semTypeCtx.env;
+    }
+
+    public Context typeCtx() {
+        return semTypeCtx;
     }
 }

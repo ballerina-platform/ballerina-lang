@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.PredefinedType;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
@@ -671,12 +672,12 @@ public class QueryTypeChecker extends TypeChecker {
                 dlog.error(pos, INVALID_QUERY_CONSTRUCT_INFERRED_MAP);
                 return symTable.semanticError;
             case TypeTags.XML:
-                if (types.isSubTypeOfBaseType(constraintType, symTable.xmlType.tag)) {
+                if (types.isSubTypeOfBaseType(constraintType, PredefinedType.XML)) {
                     return new BXMLType(constraintType, null);
                 }
                 break;
             case TypeTags.STRING:
-                if (types.isSubTypeOfBaseType(constraintType, TypeTags.STRING)) {
+                if (types.isSubTypeOfBaseType(constraintType, PredefinedType.STRING)) {
                     return symTable.stringType;
                 }
                 break;
