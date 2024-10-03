@@ -1478,6 +1478,7 @@ public class Types {
     }
 
     private boolean isTypeParamAssignable(BType sourceParam, BType targetParam) {
+        // xml is special cased due to this issue: https://github.com/ballerina-platform/ballerina-spec/issues/1319
         return isAssignable(sourceParam, targetParam) ||
                 (isAssignable(sourceParam, symTable.xmlType) && isAssignable(targetParam, sourceParam));
     }
