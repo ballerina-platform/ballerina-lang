@@ -390,7 +390,7 @@ tasks.register('pathingJar', Jar) {
     doFirst {
         manifest {
             attributes "Class-Path": configurations.docerina.files.collect {
-                it.toURL().toString().replaceFirst("file:/", "/")
+                it.toURI().toString()
             }.join(' ')
         }
     }
