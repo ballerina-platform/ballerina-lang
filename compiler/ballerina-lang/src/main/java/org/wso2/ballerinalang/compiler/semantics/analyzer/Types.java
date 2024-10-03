@@ -5324,27 +5324,9 @@ public class Types {
     }
 
     public boolean isSubTypeOfReadOnlyOrIsolatedObjectUnion(BType bType) {
-        BType type = getImpliedType(bType);
-        if (isInherentlyImmutableType(type) || Symbols.isFlagOn(type.getFlags(), Flags.READONLY)) {
-            return true;
-        }
-
-        int tag = type.tag;
-
-        if (tag == TypeTags.OBJECT) {
-            return isIsolated(type);
-        }
-
-        if (tag != TypeTags.UNION) {
-            return false;
-        }
-
-        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-            if (!isSubTypeOfReadOnlyOrIsolatedObjectUnion(memberType)) {
-                return false;
-            }
-        }
-        return true;
+        ObjectQualifiers quals = new ObjectQualifiers(true, false, ObjectQualifiers.NetworkQualifier.None);
+        SemType isolatedObjTy = new ObjectDefinition().define(typeEnv(), quals, new ArrayList<>(0));
+        return SemTypeHelper.isSubtype(semTypeCtx, bType, SemTypes.union(PredefinedType.VAL_READONLY, isolatedObjTy));
     }
 
     private boolean isIsolated(BType type) {
