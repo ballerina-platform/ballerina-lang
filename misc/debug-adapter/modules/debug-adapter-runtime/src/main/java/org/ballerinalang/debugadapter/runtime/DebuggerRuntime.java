@@ -38,8 +38,8 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
-import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
-import io.ballerina.runtime.internal.launch.LaunchUtils;
+import io.ballerina.runtime.internal.BalRuntime;
+import io.ballerina.runtime.internal.ClassloaderRuntime;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.values.ErrorValue;
@@ -54,13 +54,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -114,7 +112,6 @@ public class DebuggerRuntime {
 
     /**
      * Invoke Ballerina functions in blocking manner.
-     *
      * @param classLoader normal classLoader
      * @param className   which the function resides/ or file name
      * @param methodName  to be invokable unit
@@ -340,11 +337,6 @@ public class DebuggerRuntime {
     public static Object classloadAndInvokeFunction(String executablePath, String mainClass, String functionName,
                                                     Object... userArgs) {
         try {
-            // Need to pass the strand (or null) as the first argument for the generated function.
-            List<Object> functionArgs = new ArrayList<>();
-            functionArgs.add(null);
-            functionArgs.addAll(Arrays.asList(userArgs));
-
             URL pathUrl = Paths.get(executablePath).toUri().toURL();
             URLClassLoader classLoader = AccessController.doPrivileged((PrivilegedAction<URLClassLoader>) () ->
                     new URLClassLoader(new URL[]{pathUrl}, ClassLoader.getSystemClassLoader()));
@@ -354,26 +346,34 @@ public class DebuggerRuntime {
             String packageOrg = mainClassNameParts[0];
             String packageName = mainClassNameParts[1];
             String packageVersion = mainClassNameParts[2];
-            String packageNameSpace = String.join(".", packageOrg, packageName, packageVersion);
-
-
-            // Initialize configurations
-            ConfigDetails configurationDetails = LaunchUtils.getConfigurationDetails();
-            invokeMethodDirectly(classLoader, String.join(".", packageNameSpace, CONFIGURE_INIT_CLASS_NAME),
-                    CONFIGURE_INIT_METHOD_NAME, new Class[]{Map.class, String[].class, Path[].class, String.class},
-                    new Object[]{new HashMap<>(), new String[]{}, configurationDetails.paths,
-                            configurationDetails.configContent});
-            // Initialize the module
-            invokeFunction(classLoader, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
-                    MODULE_INIT_METHOD_NAME, new Object[1]);
-            // Start the module
-            invokeFunction(classLoader, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
-                    MODULE_START_METHOD_NAME, new Object[1]);
-            // Run the actual method
-            return invokeFunction(classLoader, mainClass, functionName, functionArgs.toArray());
+            Module module = new Module(packageOrg, packageName, packageVersion, false);
+            return invokeBalRuntimeMethod(functionName, module, classLoader, userArgs);
         } catch (Exception e) {
             return e.getMessage();
         }
+    }
+
+    private static Object invokeBalRuntimeMethod(String functionName, Module module, ClassLoader classLoader, Object[] paramValues) {
+        BalRuntime runtime = new ClassloaderRuntime(module, classLoader);
+        Object result;
+        try {
+            // Initialize the module
+            runtime.init();
+            // Start the module
+            runtime.start();
+            // Then call run method
+            result = runtime.call(module, functionName, paramValues);
+        } catch (Throwable throwable) {
+            throw ErrorCreator.createError(StringUtils.fromString("'" + functionName + "' function " +
+                                           "invocation failed : " + throwable.getMessage()));
+        } finally {
+            try {
+                runtime.stop();
+            } catch (BError ignored) {
+                // stop errors are ignored
+            }
+        }
+        return result;
     }
 
     /**
