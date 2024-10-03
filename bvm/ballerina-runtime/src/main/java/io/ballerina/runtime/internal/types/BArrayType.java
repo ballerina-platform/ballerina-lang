@@ -148,7 +148,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof BArrayType other) {
-            if (other.state == ArrayState.CLOSED && this.size != other.size) {
+            if ((other.state == ArrayState.CLOSED || this.state == ArrayState.CLOSED) && this.size != other.size) {
                 return false;
             }
             return this.elementType.equals(other.elementType) && this.readonly == other.readonly;
