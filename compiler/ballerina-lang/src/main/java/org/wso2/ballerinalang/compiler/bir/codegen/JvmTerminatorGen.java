@@ -511,8 +511,6 @@ public class JvmTerminatorGen {
         if (callIns.lhsOp != null && callIns.lhsOp.variableDcl != null) {
             this.storeToVar(callIns.lhsOp.variableDcl);
         }
-        mv.visitVarInsn(ALOAD, localVarOffset);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "resume", VOID_METHOD_DESC, false);
     }
 
     private void genJIConstructorTerm(JIConstructorCall callIns) {

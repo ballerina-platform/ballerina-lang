@@ -75,15 +75,13 @@ public class Scheduler {
         return daemonStrand;
     }
     public Object call(Module module, String functionName, Strand parentStrand, Object... args) {
-        parentStrand.resume();
-        ValueCreatorAndFunctionType result = getGetValueCreatorAndFunctionType(module, functionName);
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(result.valueCreator(), result.functionType(),
-                parentStrand, args);
-        return result.valueCreator().call(parentStrand, functionName, argsWithDefaultValues);
+        ValueCreatorAndFunctionType functionType = getGetValueCreatorAndFunctionType(module, functionName);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(functionType.valueCreator(),
+                functionType.functionType(), parentStrand, args);
+        return functionType.valueCreator().call(parentStrand, functionName, argsWithDefaultValues);
     }
 
     public Object call(BObject object, String methodName, Strand parentStrand, Object... args) {
-        parentStrand.resume();
         ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
         MethodType methodType = getObjectMethodType(methodName, objectType);
         Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, parentStrand, args);
@@ -91,7 +89,6 @@ public class Scheduler {
     }
 
     public Object call(FPValue fp, Strand parentStrand, Object... args) {
-        parentStrand.resume();
         FunctionType functionType = (FunctionType) TypeUtils.getImpliedType(TypeUtils.getType(fp));
         Object[] argsWithDefaultValues = getArgsWithDefaultValues(parentStrand, args, functionType);
         Object[] argsWithStrand = getArgsWithStrand(parentStrand, argsWithDefaultValues);

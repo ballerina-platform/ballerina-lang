@@ -109,4 +109,13 @@ public class WorkerChannelMap {
             channelMapLock.writeLock().unlock();
         }
     }
+
+    public void cancel() {
+        try {
+            channelMapLock.writeLock().lock();
+            channelMap.values().forEach(WorkerChannel::cancel);
+        } finally {
+            channelMapLock.writeLock().unlock();
+        }
+    }
 }

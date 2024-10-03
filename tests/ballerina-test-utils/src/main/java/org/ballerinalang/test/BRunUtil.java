@@ -436,7 +436,7 @@ public class BRunUtil {
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
             try {
-                method.invoke(null, new Strand());
+                method.invoke(null, Scheduler.getStrand());
             } catch (InvocationTargetException e) {
                 Throwable targetException = e.getTargetException();
                 if (targetException instanceof RuntimeException) {
