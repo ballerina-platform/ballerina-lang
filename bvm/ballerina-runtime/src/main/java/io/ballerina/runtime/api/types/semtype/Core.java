@@ -295,13 +295,7 @@ public final class Core {
     }
 
     public static boolean isSubType(Context cx, SemType t1, SemType t2) {
-        SemType.CachedResult cached = t1.cachedSubTypeRelation(t2);
-        if (cached != SemType.CachedResult.NOT_FOUND) {
-            return cached == SemType.CachedResult.TRUE;
-        }
-        boolean result = isEmpty(cx, diff(t1, t2));
-        t1.cacheSubTypeRelation(t2, result);
-        return result;
+        return isEmpty(cx, diff(t1, t2));
     }
 
     public static boolean isSubtypeSimple(SemType t1, SemType t2) {

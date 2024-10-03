@@ -5,15 +5,11 @@ import io.ballerina.runtime.internal.types.semtype.ImmutableSemType;
 import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 import io.ballerina.runtime.internal.types.semtype.SemTypeHelper;
 
-import java.util.Map;
-import java.util.WeakHashMap;
-
 public sealed class SemType extends BasicTypeBitSet
         permits io.ballerina.runtime.internal.types.BType, ImmutableSemType {
 
     private int some;
     private SubType[] subTypeData;
-    private volatile Map<SemType, CachedResult> cachedResults;
 
     protected SemType(int all, int some, SubType[] subTypeData) {
         super(all);
@@ -40,33 +36,6 @@ public sealed class SemType extends BasicTypeBitSet
 
     public final SubType[] subTypeData() {
         return subTypeData;
-    }
-
-    public final CachedResult cachedSubTypeRelation(SemType other) {
-        if (skipCache()) {
-            return CachedResult.NOT_FOUND;
-        }
-        if (cachedResults == null) {
-            synchronized (this) {
-                if (cachedResults == null) {
-                    cachedResults = new WeakHashMap<>();
-                }
-            }
-            return CachedResult.NOT_FOUND;
-        }
-        return cachedResults.getOrDefault(other, CachedResult.NOT_FOUND);
-    }
-
-    private boolean skipCache() {
-        return this.some() == 0;
-    }
-
-    public final void cacheSubTypeRelation(SemType other, boolean result) {
-        if (skipCache() || other.skipCache()) {
-            return;
-        }
-        // we always check of the result before caching so there will always be a map
-        cachedResults.put(other, result ? CachedResult.TRUE : CachedResult.FALSE);
     }
 
     public final SubType subTypeByCode(int code) {
