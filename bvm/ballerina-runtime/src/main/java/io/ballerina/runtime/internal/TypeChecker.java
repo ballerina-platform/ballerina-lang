@@ -55,6 +55,7 @@ import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.utils.ErrorUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.types.CacheableTypeDescriptor;
 import io.ballerina.runtime.internal.types.TypeWithShape;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.DecimalValueKind;
@@ -72,6 +73,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -604,15 +606,34 @@ public final class TypeChecker {
     }
 
     private static boolean isSubType(Type source, Type target) {
+        if (source instanceof CacheableTypeDescriptor sourceCacheableType &&
+                target instanceof CacheableTypeDescriptor targetCacheableType) {
+            return isSubTypeWithCache(sourceCacheableType, targetCacheableType);
+        }
         // This is really a workaround for Standard libraries that create record types that are not the "same". But
         // with the same name and expect them to be same.
-        if (source.equals(target)) {
-            return true;
-        }
+        return isSubTypeInner(source, target);
+    }
+
+    private static boolean isSubTypeInner(Type source, Type target) {
         Context cx = context();
         SemType sourceSemType = SemType.tryInto(source);
         SemType targetSemType = SemType.tryInto(target);
         return Core.isSubType(cx, sourceSemType, targetSemType);
+    }
+
+    private static boolean isSubTypeWithCache(CacheableTypeDescriptor source, CacheableTypeDescriptor target) {
+        if (!source.shouldCache() || !target.shouldCache()) {
+            return isSubTypeInner(source, target);
+        }
+        Optional<Boolean> cachedResult = source.cachedTypeCheckResult(target);
+        if (cachedResult.isPresent()) {
+            assert cachedResult.get() == isSubTypeInner(source, target);
+            return cachedResult.get();
+        }
+        boolean result = isSubTypeInner(source, target);
+        source.cacheTypeCheckResult(target, result);
+        return result;
     }
 
     private static SemType widenedType(Context cx, Object value) {

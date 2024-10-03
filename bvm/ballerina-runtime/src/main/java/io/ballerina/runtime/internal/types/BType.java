@@ -28,7 +28,10 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.WeakHashMap;
 
 /**
  * {@code BType} represents a type in Ballerina.
@@ -40,7 +43,8 @@ import java.util.Objects;
  *
  * @since 0.995.0
  */
-public abstract non-sealed class BType extends SemType implements Type, MutableSemType, Cloneable {
+public abstract non-sealed class BType extends SemType
+        implements Type, MutableSemType, Cloneable, CacheableTypeDescriptor {
 
     protected String typeName;
     protected Module pkg;
@@ -50,6 +54,7 @@ public abstract non-sealed class BType extends SemType implements Type, MutableS
     private Type cachedImpliedType = null;
     private volatile SemType cachedSemType = null;
     private TypeCreator.TypeMemoKey lookupKey = null;
+    private volatile Map<CacheableTypeDescriptor, Boolean> cachedResults;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -284,5 +289,31 @@ public abstract non-sealed class BType extends SemType implements Type, MutableS
 
     public void setLookupKey(TypeCreator.TypeMemoKey lookupKey) {
         this.lookupKey = lookupKey;
+    }
+
+    @Override
+    public boolean shouldCache() {
+        return true;
+    }
+
+    @Override
+    public final Optional<Boolean> cachedTypeCheckResult(CacheableTypeDescriptor other) {
+        if (other.equals(this)) {
+            return Optional.of(true);
+        }
+        if (cachedResults == null) {
+            synchronized (this) {
+                if (cachedResults == null) {
+                    cachedResults = new WeakHashMap<>();
+                }
+            }
+            return Optional.empty();
+        }
+        return Optional.ofNullable(cachedResults.get(other));
+    }
+
+    @Override
+    public final void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result) {
+        cachedResults.put(other, result);
     }
 }
