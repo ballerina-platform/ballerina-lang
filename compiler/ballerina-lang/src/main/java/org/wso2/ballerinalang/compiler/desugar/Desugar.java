@@ -10751,16 +10751,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                  BLangXMLIndexedStepExtend indexedStepExtend) {
         BLangExpression indexExpr = indexedStepExtend.indexExpr;
         markAndAddPossibleClosureVarsToArrowFunction(arrowFunction, indexExpr);
-        return createIndexBasedAccessNode(indexedStepExtend.pos, indexExpr, expression);
-    }
-
-    private BLangIndexBasedAccess createIndexBasedAccessNode(Location pos, BLangExpression indexExpr,
-                                                             BLangExpression expr) {
-        BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
-        indexBasedAccess.pos = pos;
-        indexBasedAccess.indexExpr = indexExpr;
-        indexBasedAccess.expr = expr;
-        return indexBasedAccess;
+        return ASTBuilderUtil.createIndexAccessExpr(expression, indexExpr);
     }
 
     private static void markAndAddPossibleClosureVarsToArrowFunction(BLangArrowFunction arrFunction,
