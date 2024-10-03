@@ -169,7 +169,6 @@ public class Types {
     private final BLangDiagnosticLog dlog;
     private final Names names;
     private int finiteTypeCount = 0;
-    private final BUnionType expandedXMLBuiltinSubtypes;
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private final int recordCount = 0;
     private SymbolEnv env;
@@ -1472,6 +1471,7 @@ public class Types {
     }
 
     private boolean isTypeParamAssignable(BType sourceParam, BType targetParam) {
+        // xml is special cased due to this issue: https://github.com/ballerina-platform/ballerina-spec/issues/1319
         return isAssignable(sourceParam, targetParam) ||
                 (isAssignable(sourceParam, symTable.xmlType) && isAssignable(targetParam, sourceParam));
     }
