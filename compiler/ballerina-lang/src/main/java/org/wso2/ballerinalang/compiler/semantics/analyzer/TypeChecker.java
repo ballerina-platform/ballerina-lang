@@ -3657,11 +3657,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return true;
         }
 
-        if (expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR  && hasLaxOriginalType((BLangFieldBasedAccess) expr)
+        if (expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR && hasLaxOriginalType((BLangFieldBasedAccess) expr)
                 && exprType.tag == TypeTags.UNION) {
-            Set<BType> memberTypes = ((BUnionType) exprType).getMemberTypes();
-            return memberTypes.contains(symTable.xmlType) || memberTypes.contains(symTable.xmlElementType);
-          }
+            SemType s = exprType.semType();
+            return SemTypes.containsType(types.semTypeCtx, s, PredefinedType.XML_ELEMENT);
+        }
 
         return false;
     }
@@ -6362,16 +6362,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private boolean containsAnyType(BType bType) {
-        BType type = Types.getImpliedType(bType);
-        if (type == symTable.anyType) {
-            return true;
-        }
-
-        if (type.tag == TypeTags.UNION) {
-            return ((BUnionType) type).getMemberTypes().contains(symTable.anyType);
-        }
-
-        return false;
+        return SemTypeHelper.containsType(types.semTypeCtx, bType, PredefinedType.ANY);
     }
 
     private BType getCompatibleRawTemplateType(BType bType, Location pos) {
@@ -8765,24 +8756,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private boolean accessCouldResultInError(BType bType) {
-        BType type = Types.getImpliedType(bType);
-        if (type.tag == TypeTags.JSON) {
-            return true;
-        }
-
-        if (type.tag == TypeTags.MAP) {
-            return false;
-        }
-
-        if (types.isAssignable(bType, symTable.xmlType)) {
-            return true;
-        }
-
-        if (type.tag == TypeTags.UNION) {
-            return ((BUnionType) type).getMemberTypes().stream().anyMatch(this::accessCouldResultInError);
-        } else {
-            return false;
-        }
+        SemType s = SemTypeHelper.semType(bType);
+        return SemTypes.containsBasicType(s, PredefinedType.XML) ||
+                SemTypes.containsType(types.semTypeCtx, s, Core.createJson(types.semTypeCtx));
     }
 
     private BType checkIndexAccessExpr(BLangIndexBasedAccess indexBasedAccessExpr, AnalyzerData data) {
