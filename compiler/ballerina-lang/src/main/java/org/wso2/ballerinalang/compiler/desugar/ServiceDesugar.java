@@ -268,7 +268,7 @@ public class ServiceDesugar {
         // call is generated in BIRGen. Casting to the first listener type should be fine as actual method invocation
         // is based on the value rather than the type.
         BType listenerType = getListenerType(varRef.getBType());
-        if (!types.isSameType(listenerType, varRef.getBType())) {
+        if (listenerType.tag != varRef.getBType().tag || !types.isSameType2(listenerType, varRef.getBType())) {
             BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
             castExpr.expr = varRef;
             castExpr.setBType(listenerType);

@@ -364,6 +364,24 @@ public class Types {
         return matList.stream().allMatch(mat -> mat.names().length == 0 && isLaxType(Core.cellInnerVal(mat.rest())));
     }
 
+    boolean isUniqueType(Iterable<BType> typeList, BType type) {
+        type = Types.getImpliedType(type);
+        boolean isRecord = type.tag == TypeTags.RECORD;
+
+        for (BType bType : typeList) {
+            bType = Types.getImpliedType(bType);
+            if (isRecord) {
+                // Seems defaultable values too are considered when checking uniqueness.
+                if (type == bType) {
+                    return false;
+                }
+            } else if (isSameType2(type, bType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean isSameType2(BType source, BType target) {
         return isSameType(SemTypeHelper.semType(source), SemTypeHelper.semType(target));
     }
@@ -969,7 +987,7 @@ public class Types {
             return addConversionExprIfRequired(expr, Types.getReferredType(lhsType));
         }
 
-        if (isSameType(rhsType, lhsType)) {
+        if (rhsType.tag == lhsType.tag && isSameType2(rhsType, lhsType)) {
             return expr;
         }
 

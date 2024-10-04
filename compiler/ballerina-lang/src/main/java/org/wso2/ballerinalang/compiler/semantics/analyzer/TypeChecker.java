@@ -1235,7 +1235,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
                 BType resultType = checkExpr(clonedTableExpr, memType, data);
                 if (resultType != symTable.semanticError && dlog.errorCount() == 0 &&
-                        isUniqueType(matchingTypes, resultType)) {
+                        types.isUniqueType(matchingTypes, resultType)) {
                     matchingTypes.add(resultType);
                 }
             }
@@ -1822,7 +1822,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BType memCompatibiltyType = checkListConstructorCompatibility(listCompatibleMemType, listConstructor,
                                                                               data);
                 if (memCompatibiltyType != symTable.semanticError && dlog.errorCount() == 0 &&
-                        isUniqueType(compatibleTypes, memCompatibiltyType)) {
+                        types.isUniqueType(compatibleTypes, memCompatibiltyType)) {
                     compatibleTypes.add(memCompatibiltyType);
                 }
             }
@@ -2565,7 +2565,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                                                                  mappingConstructor, data);
 
                 if (memCompatibiltyType != symTable.semanticError && dlog.errorCount() == 0 &&
-                        isUniqueType(compatibleTypes, memCompatibiltyType)) {
+                        types.isUniqueType(compatibleTypes, memCompatibiltyType)) {
                     compatibleTypes.add(memCompatibiltyType);
                 }
             }
@@ -9470,7 +9470,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 if (key.computedKey) {
                     checkExpr(keyExpr, symTable.stringType, data);
                     BType exprType = checkExpr(expression, expType, data);
-                    if (isUniqueType(restFieldTypes, exprType)) {
+                    if (types.isUniqueType(restFieldTypes, exprType)) {
                         restFieldTypes.add(exprType);
                     }
                 } else {
@@ -9487,7 +9487,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 if (type.tag == TypeTags.MAP) {
                     BType constraintType = ((BMapType) type).constraint;
 
-                    if (isUniqueType(restFieldTypes, constraintType)) {
+                    if (types.isUniqueType(restFieldTypes, constraintType)) {
                         restFieldTypes.add(constraintType);
                     }
                 }
@@ -9504,7 +9504,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
                 if (!recordType.sealed) {
                     BType restFieldType = recordType.restFieldType;
-                    if (isUniqueType(restFieldTypes, restFieldType)) {
+                    if (types.isUniqueType(restFieldTypes, restFieldType)) {
                         restFieldTypes.add(restFieldType);
                     }
                 }
@@ -9611,31 +9611,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         FieldInfo fieldInfo = nonRestFieldTypes.get(keyString);
         List<BType> typeList = fieldInfo.types;
 
-        if (isUniqueType(typeList, exprType)) {
+        if (types.isUniqueType(typeList, exprType)) {
             typeList.add(exprType);
         }
 
         if (required && !fieldInfo.required) {
             fieldInfo.required = true;
         }
-    }
-
-    private boolean isUniqueType(Iterable<BType> typeList, BType type) {
-        type = Types.getImpliedType(type);
-        boolean isRecord = type.tag == TypeTags.RECORD;
-
-        for (BType bType : typeList) {
-            bType = Types.getImpliedType(bType);
-            if (isRecord) {
-                // Seems defaultable values too are considered when checking uniqueness.
-                if (type == bType) {
-                    return false;
-                }
-            } else if (types.isSameType2(type, bType)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private BType checkXmlSubTypeLiteralCompatibility(Location location, BXMLSubType mutableXmlSubType,
