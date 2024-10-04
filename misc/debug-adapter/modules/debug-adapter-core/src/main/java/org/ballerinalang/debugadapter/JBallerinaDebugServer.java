@@ -318,8 +318,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         if (eventProcessor == null) {
             return CompletableFuture.completedFuture(threadsResponse);
         }
-        Map<Integer, ThreadReferenceProxyImpl> threadsMap = getActiveStrandThreads();
-        if (threadsMap == null) {
+        Map<Integer, ThreadReferenceProxyImpl> threadsMap;
+        try {
+             threadsMap = getActiveStrandThreads();
+        } catch (IllegalStateException e) {
+            LOGGER.error(e.getMessage());
             return CompletableFuture.completedFuture(threadsResponse);
         }
         Thread[] threads = new Thread[threadsMap.size()];
@@ -348,7 +351,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
         try {
-            activeThread = getAllThreads().get(args.getThreadId());
+            ThreadReferenceProxyImpl activeThread = getAllThreads().get(args.getThreadId());
             if (loadedThreadFrames.containsKey(activeThread.uniqueID())) {
                 stackTraceResponse.setStackFrames(loadedThreadFrames.get(activeThread.uniqueID()));
             } else {
@@ -359,6 +362,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 stackTraceResponse.setStackFrames(validFrames);
                 loadedThreadFrames.put(activeThread.uniqueID(), validFrames);
             }
+            this.activeThread = activeThread;
             return CompletableFuture.completedFuture(stackTraceResponse);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -806,7 +810,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private Variable[] computeStackFrameVariables(VariablesArguments args) throws Exception {
-        StackFrameProxyImpl stackFrame = suspendedContext.getFrame();
+        StackFrameProxyImpl stackFrame = Objects.requireNonNull(suspendedContext).getFrame();
         List<Variable> variables = new ArrayList<>();
         List<LocalVariableProxyImpl> localVariableProxies = stackFrame.visibleVariables();
         for (LocalVariableProxyImpl var : localVariableProxies) {
@@ -952,9 +956,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      * Thread objects that have not yet been started (see {@link java.lang.Thread#start Thread.start()})
      * and thread objects that have completed their execution are not included in the returned list.
      */
-    @Nullable Map<Integer, ThreadReferenceProxyImpl> getAllThreads() {
+    Map<Integer, ThreadReferenceProxyImpl> getAllThreads() {
         if (context.getDebuggeeVM() == null) {
-            return null;
+            throw new IllegalStateException("Debuggee VM is not available");
         }
         Collection<ThreadReference> threadReferences = context.getDebuggeeVM().getVirtualMachine().allThreads();
         Map<Integer, ThreadReferenceProxyImpl> threadsMap = new HashMap<>();
@@ -971,11 +975,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     /**
      * Returns a map of thread instances which correspond to an active ballerina strand, against their unique ID.
      */
-    @Nullable Map<Integer, ThreadReferenceProxyImpl> getActiveStrandThreads() {
+    Map<Integer, ThreadReferenceProxyImpl> getActiveStrandThreads() {
         Map<Integer, ThreadReferenceProxyImpl> allThreads = getAllThreads();
-        if (allThreads == null) {
-            return null;
-        }
 
         Map<Integer, ThreadReferenceProxyImpl> balStrandThreads = new HashMap<>();
         // Filter thread references which are suspended, whose thread status is running, and which represents an active

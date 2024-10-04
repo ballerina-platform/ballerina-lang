@@ -25,7 +25,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,8 +95,7 @@ public class BTupleType extends BType implements TupleType {
     @Override
     public List<BType> getTupleTypes() {
         if (memberTypes == null) {
-            memberTypes = new ArrayList<>(members.size());
-            members.forEach(member -> memberTypes.add(member.type));
+            this.memberTypes = members.stream().map(member -> member.type).collect(Collectors.toList());
         }
         return memberTypes;
     }

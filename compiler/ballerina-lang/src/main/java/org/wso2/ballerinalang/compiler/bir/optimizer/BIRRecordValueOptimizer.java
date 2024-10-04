@@ -53,7 +53,6 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
     private final List<BIROperand> recordOperandList = new ArrayList<>();
     private final Map<BIROperand, BRecordType> recordOperandTypeMap = new HashMap<>();
 
-    @Nullable
     private BIRNode.BIRBasicBlock lastBB = null;
     private BIRNode.BIRFunction currentFunction = null;
     private List<BIRNode.BIRBasicBlock> newBBs = new ArrayList<>();

@@ -60,7 +60,7 @@ public class BLangXMLIndexedStepExtend extends BLangXMLStepExtend {
 
     @Override
     public String toString() {
-        return "[" + String.valueOf(indexExpr) + "]";
+        return "[" + indexExpr + "]";
     }
 
 }

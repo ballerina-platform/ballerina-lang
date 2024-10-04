@@ -494,11 +494,15 @@ class ModuleContext {
         // Can we improve this logic
         ByteArrayOutputStream birContent = new ByteArrayOutputStream();
         try {
-            CompiledBinaryFile.BIRPackageFile birPackageFile = moduleContext.bLangPackage.symbol.birPackageFile;
+            BLangPackage bLangPackage = moduleContext.bLangPackage;
+            if (bLangPackage == null) {
+                throw new IllegalStateException("BLangPackage is null");
+            }
+            CompiledBinaryFile.BIRPackageFile birPackageFile = bLangPackage.symbol.birPackageFile;
             if (birPackageFile == null) {
                 birPackageFile = new CompiledBinaryFile
-                        .BIRPackageFile(new BIRBinaryWriter(moduleContext.bLangPackage.symbol.bir).serialize());
-                moduleContext.bLangPackage.symbol.birPackageFile = birPackageFile;
+                        .BIRPackageFile(new BIRBinaryWriter(bLangPackage.symbol.bir).serialize());
+                bLangPackage.symbol.birPackageFile = birPackageFile;
             }
             byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(birPackageFile);
             birContent.writeBytes(pkgBirBinaryContent);

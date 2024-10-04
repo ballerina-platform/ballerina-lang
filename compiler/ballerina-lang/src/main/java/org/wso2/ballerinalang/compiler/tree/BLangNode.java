@@ -48,7 +48,6 @@ public abstract class BLangNode implements Node, Cloneable {
     /**
      * The location of this node in the source file.
      */
-    @Nullable
     public Location pos;
 
     /*

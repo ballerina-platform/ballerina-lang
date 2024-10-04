@@ -570,7 +570,7 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private BPackageSymbol getModuleSymbol(BLangCompilationUnit compilationUnit) {
         return compilationUnit.getSourceKind() == REGULAR_SOURCE ? bLangPackage.symbol :
-                bLangPackage.getTestablePkg().symbol;
+                bLangPackage.getTestablePkg().orElseThrow().symbol;
     }
 
     private void addToCompiledSymbols(Set<Symbol> compiledSymbols, Scope.ScopeEntry scopeEntry, Location cursorPos,

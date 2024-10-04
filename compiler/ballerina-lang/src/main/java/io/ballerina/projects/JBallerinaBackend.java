@@ -420,7 +420,6 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     // TODO Can we move this method to Module.displayName()
-    @Nullable
     private String getJarFileName(ModuleContext moduleContext) {
         String jarName;
         if (moduleContext.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
@@ -644,7 +643,8 @@ public class JBallerinaBackend extends CompilerBackend {
         Package pkg = packageCache.getPackageOrThrow(packageId);
         ProjectEnvironment projectEnvironment = pkg.project().projectEnvironmentContext();
         CompilationCache compilationCache = projectEnvironment.getService(CompilationCache.class);
-        String jarFileName = getJarFileName(pkg.packageContext().moduleContext(moduleName)) + fileNameSuffix;
+        String jarFileName = getJarFileName(pkg.packageContext().moduleContext(moduleName).orElseThrow())
+                + fileNameSuffix;
         Optional<Path> platformSpecificLibrary = compilationCache.getPlatformSpecificLibrary(
                 this, jarFileName);
         return new JarLibrary(platformSpecificLibrary.orElseThrow(

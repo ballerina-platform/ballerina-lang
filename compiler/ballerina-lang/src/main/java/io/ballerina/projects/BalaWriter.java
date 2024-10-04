@@ -37,6 +37,7 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -236,7 +237,7 @@ public abstract class BalaWriter {
         for (PackageManifest.Platform platform: platforms.values()) {
             if (platform.isPlatfromDepsGraalvmCompatible() == null) {
                 isAllDepsGraalvmCompatible = null;
-            } else if (!platform.isPlatfromDepsGraalvmCompatible()) {
+            } else if (Boolean.FALSE.equals(platform.isPlatfromDepsGraalvmCompatible())) {
                 return false;
             }
         }
@@ -541,23 +542,21 @@ public abstract class BalaWriter {
 
     // Following function was put in to handle a bug in windows zipFileSystem
     // Refer https://bugs.openjdk.java.net/browse/JDK-8195141
-    @Nullable
+    @Contract("null -> null")
     private String convertPathSeperator(Path file) {
         if (file == null) {
             return null;
-        } else {
-            if (File.separatorChar == '\\') {
-                String replaced;
-                // Following is to evade spotbug issue if file is null
-                replaced = Optional.ofNullable(file.getFileName()).orElse(Path.of("")).toString();
-                Path parent = file.getParent();
-                while (parent != null) {
-                    replaced = parent.getFileName() + UNIX_FILE_SEPARATOR + replaced;
-                    parent = parent.getParent();
-                }
-                return replaced;
-            }
+        }
+        if (File.separatorChar != '\\') {
             return file.toString();
         }
+        // Following is to evade spotbug issue if file is null
+        String replaced = Optional.ofNullable(file.getFileName()).orElse(Path.of("")).toString();
+        Path parent = file.getParent();
+        while (parent != null) {
+            replaced = parent.getFileName() + UNIX_FILE_SEPARATOR + replaced;
+            parent = parent.getParent();
+        }
+        return replaced;
     }
 }

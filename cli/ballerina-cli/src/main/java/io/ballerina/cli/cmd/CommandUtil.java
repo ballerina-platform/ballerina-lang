@@ -998,7 +998,6 @@ public final class CommandUtil {
         Files.writeString(balToolToml, balToolManifest);
     }
 
-    @Nullable
     private static Optional<PackageVersion> findLatest(List<PackageVersion> packageVersions) {
         if (packageVersions.isEmpty()) {
             return Optional.empty();

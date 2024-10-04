@@ -144,9 +144,9 @@ public class ManifestProcessorTest {
         
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
                 "string-utils = {path = '" + balaPath + "', version = \"1.1.5\"} \n");
-        Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
-        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.1.5");
-        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath().toString(), balaPath.toString());
+        Assert.assertEquals(manifest.getDependencies().get(0).moduleID(), "string-utils");
+        Assert.assertEquals(manifest.getDependencies().get(0).metadata().getVersion(), "1.1.5");
+        Assert.assertEquals(manifest.getDependencies().get(0).metadata().getPath().toString(), balaPath.toString());
         
         Files.delete(balaPath);
         Files.delete(tmpDir);
@@ -167,15 +167,15 @@ public class ManifestProcessorTest {
 
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
                 "string-utils = {path = '" + balaPath + "', version = \"1.1.5\"} \n");
-        Path manifestPath = manifest.getDependencies().get(0).getMetadata().getPath();
+        Path manifestPath = manifest.getDependencies().get(0).metadata().getPath().orElseThrow();
         if (manifestPath.toString().contains("\\")) {
             manifestPath = Path.of(manifestPath.toString().replace("\\", "/"));
         } else {
             manifestPath = Path.of(manifestPath.toString().replace("/", "\\"));
         }
 
-        Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
-        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.1.5");
+        Assert.assertEquals(manifest.getDependencies().get(0).moduleID(), "string-utils");
+        Assert.assertEquals(manifest.getDependencies().get(0).metadata().getVersion(), "1.1.5");
         Assert.assertEquals(manifestPath.toString(), balaPath.toString());
     }
 
@@ -183,7 +183,7 @@ public class ManifestProcessorTest {
     public void testSingleEmptyDependencies() throws TomlException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
                 "string-utils = {} \n");
-        Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
+        Assert.assertEquals(manifest.getDependencies().get(0).moduleID(), "string-utils");
     }
 
     @Test(description = "Multiple dependencies added with path in the regular form to the dependencies section " +
@@ -196,11 +196,11 @@ public class ManifestProcessorTest {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
                 "string-utils = { path = '" + balaPath + "', version = \"1.0.5\" } \n " +
                 "jquery = { version = \"2.2.3\" } \n");
-        Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
-        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.0.5");
-        Assert.assertEquals(manifest.getDependencies().get(1).getModuleID(), "jquery");
-        Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "2.2.3");
-        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath().toString(), balaPath.toString());
+        Assert.assertEquals(manifest.getDependencies().get(0).moduleID(), "string-utils");
+        Assert.assertEquals(manifest.getDependencies().get(0).metadata().getVersion(), "1.0.5");
+        Assert.assertEquals(manifest.getDependencies().get(1).moduleID(), "jquery");
+        Assert.assertEquals(manifest.getDependencies().get(1).metadata().getVersion(), "2.2.3");
+        Assert.assertEquals(manifest.getDependencies().get(0).metadata().getPath().toString(), balaPath.toString());
 
         Files.delete(balaPath);
         Files.delete(tmpDir);
@@ -216,11 +216,11 @@ public class ManifestProcessorTest {
             Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock +
                     "[dependencies] \n " + "string-utils = { path = '" + balaPath + "', version = \"1.0.5\" } \n " +
                     "jquery = { version = \"2.2.3\" } \n");
-            Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
-            Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.0.5");
-            Assert.assertEquals(manifest.getDependencies().get(1).getModuleID(), "jquery");
-            Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "2.2.3");
-            Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath().toString(),
+            Assert.assertEquals(manifest.getDependencies().get(0).moduleID(), "string-utils");
+            Assert.assertEquals(manifest.getDependencies().get(0).metadata().getVersion(), "1.0.5");
+            Assert.assertEquals(manifest.getDependencies().get(1).moduleID(), "jquery");
+            Assert.assertEquals(manifest.getDependencies().get(1).metadata().getVersion(), "2.2.3");
+            Assert.assertEquals(manifest.getDependencies().get(0).metadata().getPath().toString(),
                     balaPath.toString());
 
             Files.delete(balaPath);

@@ -128,7 +128,6 @@ public class Package {
         return this.moduleMap.computeIfAbsent(moduleId, this.populateModuleFunc);
     }
 
-    @Nullable
     public Module module(ModuleName moduleName) {
         for (Module module : this.moduleMap.values()) {
             if (module.moduleName().equals(moduleName)) {
@@ -136,12 +135,9 @@ public class Package {
             }
         }
 
-        ModuleContext moduleContext = this.packageContext.moduleContext(moduleName);
-        if (moduleContext != null) {
-            return module(moduleContext.moduleId());
-        }
-
-        return null;
+        return this.packageContext.moduleContext(moduleName)
+                .map(moduleContext -> module(moduleContext.moduleId()))
+                .orElseThrow(() -> new IllegalArgumentException("Module not found: " + moduleName));
     }
 
     public boolean containsModule(ModuleId moduleId) {
@@ -752,7 +748,9 @@ public class Package {
         }
 
         private void updatePackageManifest() {
-            ManifestBuilder manifestBuilder = ManifestBuilder.from(this.ballerinaTomlContext.tomlDocument(),
+            ManifestBuilder manifestBuilder = ManifestBuilder.from(
+                    Optional.ofNullable(this.ballerinaTomlContext)
+                            .map(TomlDocumentContext::tomlDocument).orElse(null),
                     Optional.ofNullable(this.compilerPluginTomlContext)
                             .map(TomlDocumentContext::tomlDocument).orElse(null),
                     Optional.ofNullable(this.balToolTomlContext)

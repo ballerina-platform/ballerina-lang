@@ -18,7 +18,6 @@
 package org.ballerinalang.toml.model;
 
 import org.ballerinalang.toml.util.PathUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -55,12 +54,8 @@ public class DependencyMetadata {
      *
      * @return location of the dependency
      */
-    @Nullable
     public Optional<Path> getPath() {
-        if (PathUtils.getPath(this.path) == null) {
-            return Optional.empty();
-        }
-        return Optional.of(Path.of(PathUtils.getPath(this.path)));
+        return Optional.ofNullable(PathUtils.getPath(this.path)).map(Path::of);
     }
 
     /**

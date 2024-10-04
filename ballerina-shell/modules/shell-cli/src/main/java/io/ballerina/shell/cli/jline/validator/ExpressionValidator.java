@@ -47,6 +47,6 @@ public class ExpressionValidator implements Validator {
         IncompleteInputFinder incompleteInputFinder = new IncompleteInputFinder();
         Node parsedNode = NodeParser.parseExpression(source);
         return !parsedNode.hasDiagnostics() || !parsedNode.apply(incompleteInputFinder)
-                || nextInValidator.evaluate(source);
+                || (nextInValidator != null && nextInValidator.evaluate(source));
     }
 }

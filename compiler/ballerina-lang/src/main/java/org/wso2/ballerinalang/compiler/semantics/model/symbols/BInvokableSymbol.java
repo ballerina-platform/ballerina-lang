@@ -40,7 +40,6 @@ import java.util.Set;
  */
 public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
 
-    @Nullable
     public List<BVarSymbol> params;
     @Nullable
     public BVarSymbol restParam;

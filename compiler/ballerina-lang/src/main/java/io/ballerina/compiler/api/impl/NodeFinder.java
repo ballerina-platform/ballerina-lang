@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -230,11 +229,7 @@ class NodeFinder extends BaseVisitor {
 
     BLangNode lookup(BLangPackage module, LineRange range) {
         List<TopLevelNode> topLevelNodes = new ArrayList<>(module.topLevelNodes);
-        BLangTestablePackage tests = module.getTestablePkg();
-
-        if (tests != null) {
-            topLevelNodes.addAll(tests.topLevelNodes);
-        }
+        module.getTestablePkg().ifPresent(tests -> topLevelNodes.addAll(tests.topLevelNodes));
 
         return lookupTopLevelNodes(topLevelNodes, range);
     }

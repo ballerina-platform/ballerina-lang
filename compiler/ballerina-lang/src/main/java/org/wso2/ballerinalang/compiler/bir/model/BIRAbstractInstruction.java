@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.bir.model;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Abstract instruction with an lhs-operand.
@@ -28,7 +27,6 @@ import org.jetbrains.annotations.Nullable;
 public abstract class BIRAbstractInstruction extends BIRNode implements BIRInstruction {
 
     public InstructionKind kind;
-    @Nullable
     public BIROperand lhsOp;
     public BirScope scope;
 

@@ -53,7 +53,7 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
 
     @Override
     public String toString() {
-        return String.valueOf(expr) + "[" + String.valueOf(indexExpr) + "]";
+        return expr + "[" + indexExpr + "]";
     }
 
     @Override

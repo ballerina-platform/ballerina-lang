@@ -70,6 +70,9 @@ public class BRecord extends NamedCompoundVariable {
 
             Map<String, Value> childVarMap = new LinkedHashMap<>();
             Map<Value, Value> recordFields = getRecordFields();
+            if (recordFields == null) {
+                return childVarMap;
+            }
 
             for (Map.Entry<Value, Value> mapEntry : recordFields.entrySet()) {
                 childVarMap.put(Utils.encodeNonFunctionIdentifier(
@@ -87,6 +90,9 @@ public class BRecord extends NamedCompoundVariable {
         try {
             loadAllKeys();
             Map<Value, Value> recordFields = new LinkedHashMap<>();
+            if (loadedKeys == null) {
+                return null;
+            }
             List<Value> keysRange = loadedKeys.getValues(0, loadedKeys.length());
 
             for (int i = 0; i < loadedKeys.length(); i++) {

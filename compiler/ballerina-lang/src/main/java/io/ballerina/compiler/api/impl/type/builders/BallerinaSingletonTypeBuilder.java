@@ -70,6 +70,9 @@ public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
         if (value == null) {
             throw new IllegalArgumentException("The value provided to the singleton type can not be null");
         }
+        if (valueTypeSymbol == null) {
+            throw new IllegalArgumentException("The type symbol provided to the singleton type can not be null");
+        }
 
         if (!isValidValueType(value, valueTypeSymbol)) {
             throw new IllegalArgumentException("Type of value provided doesn't match with the provided type symbol");

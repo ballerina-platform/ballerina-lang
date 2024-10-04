@@ -275,7 +275,6 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewInstance extends BIRNonTerminator {
         public final boolean isExternalDef;
         public final PackageID externalPackageId;
-        @Nullable
         public BIRTypeDefinition def;
         public final String objectName;
         public final BType expectedType;

@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifiable;
@@ -252,8 +253,7 @@ public class Type {
                     CATEGORY_INLINE_CLOSED_RECORD : CATEGORY_INLINE_RECORD;
             type.memberTypes = fields;
         } else if (node instanceof StreamTypeDescriptorNode streamNode) {
-            StreamTypeParamsNode streamParams = streamNode.streamTypeParamsNode().isPresent() ?
-                    (StreamTypeParamsNode) streamNode.streamTypeParamsNode().get() : null;
+            StreamTypeParamsNode streamParams = (StreamTypeParamsNode) streamNode.streamTypeParamsNode().orElse(null);
             type.name = streamNode.streamKeywordToken().text();
             type.category = "stream";
             if (streamParams != null) {
@@ -358,16 +358,15 @@ public class Type {
                 resolveSymbolMetaData(type, symbol, module);
                 type.isPublic = true;
             }
-            type.name = typeReferenceTypeSymbol.getName().isPresent() ? typeReferenceTypeSymbol.getName().get() : null;
+            type.name = typeReferenceTypeSymbol.getName().orElse(null);
         } else if (symbol instanceof RecordTypeSymbol recordTypeSymbol) {
             Type recordType = type;
-            recordType.name = recordTypeSymbol.getName().isPresent() ? recordTypeSymbol.getName().get() : "";
-            recordType.description = documentation.isPresent() && documentation.get().description().isPresent() ?
-                    documentation.get().description().get() : "";
+            recordType.name = recordTypeSymbol.getName().orElse("");
+            recordType.description = documentation.flatMap(Documentation::description).orElse("");
             recordTypeSymbol.fieldDescriptors().forEach((name, field) -> {
                 Type recField = new Type();
                 recField.name = name;
-                recField.description = documentation.isPresent() ? documentation.get().parameterMap().get(name) : "";
+                recField.description = documentation.map(doc -> doc.parameterMap().get(name)).orElse("");
                 recField.elementType = fromSemanticSymbol(field.typeDescriptor(), documentation, parentTypeRefSymbol,
                         isTypeInclusion, module);
                 recordType.memberTypes.add(recField);
@@ -385,13 +384,12 @@ public class Type {
             recordType.category = CATEGORY_INLINE_RECORD;
         } else if (symbol instanceof ObjectTypeSymbol objectTypeSymbol) {
             ObjectType objType = new ObjectType();
-            objType.name = objectTypeSymbol.getName().isPresent() ? objectTypeSymbol.getName().get() : "";
+            objType.name = objectTypeSymbol.getName().orElse("");
             objectTypeSymbol.fieldDescriptors().forEach((name, field) -> {
                 if (field.qualifiers().contains(Qualifier.PUBLIC)) {
                     Type objField = new Type();
                     objField.name = name;
-                    objField.description = documentation.isPresent() ?
-                            documentation.get().parameterMap().get(name) : "";
+                    objField.description = documentation.map(doc -> doc.parameterMap().get(name)).orElse("");
                     objField.elementType = fromSemanticSymbol(field.typeDescriptor(), documentation,
                             parentTypeRefSymbol, isTypeInclusion, module);
                     objType.memberTypes.add(objField);
@@ -408,9 +406,8 @@ public class Type {
                     functionType.name = methodName;
                     functionType.accessor = "";
                 }
-                functionType.description = methodSymbol.documentation().isPresent() &&
-                        methodSymbol.documentation().get().description().isPresent() ?
-                        methodSymbol.documentation().get().description().get() : null;
+                functionType.description = methodSymbol.documentation()
+                        .flatMap(Documentation::description).orElse(null);
                 functionType.category = "included_function";
                 functionType.isIsolated = methodSymbol.qualifiers().contains(Qualifier.ISOLATED);
                 FunctionKind functionKind;
@@ -427,7 +424,7 @@ public class Type {
                 methodSymbol.typeDescriptor().params().ifPresent(parameterSymbols -> {
                     parameterSymbols.forEach(parameterSymbol -> {
                         Type paramType = new Type();
-                        paramType.name = parameterSymbol.getName().isPresent() ? parameterSymbol.getName().get() : "";
+                        paramType.name = parameterSymbol.getName().orElse("");
                         paramType.elementType = fromSemanticSymbol(parameterSymbol.typeDescriptor(),
                                 methodSymbol.documentation(), parentTypeRefSymbol, isTypeInclusion, module);
                         paramType.isDeprecated = parameterSymbol.annotations().stream()
@@ -501,7 +498,7 @@ public class Type {
     }
 
     public static void resolveSymbolMetaData(Type type, Symbol symbol, Module module) {
-        ModuleID moduleID = symbol.getModule().isPresent() ? symbol.getModule().get().id() : null;
+        ModuleID moduleID = symbol.getModule().map(ModuleSymbol::id).orElse(null);
 
         if (moduleID != null) {
             type.moduleName = moduleID.moduleName();

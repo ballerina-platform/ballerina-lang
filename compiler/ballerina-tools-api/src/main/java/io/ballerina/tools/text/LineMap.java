@@ -45,6 +45,9 @@ class LineMap {
     LinePosition linePositionFrom(int position) {
         positionRangeCheck(position);
         TextLine textLine = findLineFrom(position);
+        if (textLine == null) {
+            throw new IllegalArgumentException("Cannot find a line with the character offset '" + position + "'");
+        }
         return LinePosition.from(textLine.lineNo(), position - textLine.startOffset());
     }
 
@@ -98,7 +101,6 @@ class LineMap {
             return textLines[length - 1];
         }
 
-        TextLine foundTextLine = null;
         int left = 0;
         int right = length - 1;
         while (left <= right) {
@@ -109,14 +111,13 @@ class LineMap {
             int startOffset = textLines[middle].startOffset();
             int endOffset = textLines[middle].endOffsetWithNewLines();
             if (startOffset <= position && position < endOffset) {
-                foundTextLine = textLines[middle];
-                break;
+                return textLines[middle];
             } else if (endOffset <= position) {
                 left = middle + 1;
             } else {
                 right = middle - 1;
             }
         }
-        return foundTextLine;
+        return null;
     }
 }

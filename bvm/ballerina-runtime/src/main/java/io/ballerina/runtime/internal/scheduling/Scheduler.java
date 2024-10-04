@@ -228,8 +228,8 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return Reference to the scheduled task
      */
-    public FutureValue schedule(Object[] params, Function<Object[], ?> function, @Nullable Strand parent, Callback callback,
-                                String strandName, @Nullable StrandMetadata metadata) {
+    public FutureValue schedule(Object[] params, Function<Object[], ?> function, @Nullable Strand parent,
+                                Callback callback, String strandName, @Nullable StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, null, PredefinedTypes.TYPE_NULL, strandName, metadata);
         return schedule(params, function, future);
     }

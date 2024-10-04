@@ -1897,9 +1897,12 @@ public class LargeMethodOptimizer {
             birFunc.returnVariable = new BIRVariableDcl(currentIns.pos, retType, new Name("%0"),
                     VarScope.FUNCTION, VarKind.RETURN, null);
         }
-        birFunc.localVars.add(0, birFunc.returnVariable);
-        birFunc.localVars.addAll(functionParams);
-        birFunc.localVars.addAll(lhsOperandList);
+        List<BIRVariableDcl> localVars = birFunc.localVars;
+        if (localVars != null) {
+            localVars.add(0, birFunc.returnVariable);
+            localVars.addAll(functionParams);
+            localVars.addAll(lhsOperandList);
+        }
 
         // creates 2 bbs
         BIRBasicBlock entryBB = new BIRBasicBlock(0);
@@ -1909,8 +1912,11 @@ public class LargeMethodOptimizer {
         BIRBasicBlock exitBB = new BIRBasicBlock(1);
         exitBB.terminator = new BIRTerminator.Return(null);
         entryBB.terminator = new BIRTerminator.GOTO(null, exitBB, currentIns.scope);
-        birFunc.basicBlocks.add(entryBB);
-        birFunc.basicBlocks.add(exitBB);
+        List<BIRBasicBlock> basicBlocks = birFunc.basicBlocks;
+        if (basicBlocks != null) {
+            basicBlocks.add(entryBB);
+            basicBlocks.add(exitBB);
+        }
         rectifyVarKindsAndTerminators(birFunc, selfVarDcl, exitBB);
         return birFunc;
     }

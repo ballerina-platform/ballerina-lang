@@ -206,13 +206,13 @@ class PackageContext {
         return moduleContextMap.get(moduleId);
     }
 
-    @Nullable ModuleContext moduleContext(ModuleName moduleName) {
+    Optional<ModuleContext> moduleContext(ModuleName moduleName) {
         for (ModuleContext moduleContext : moduleContextMap.values()) {
             if (moduleContext.moduleName().equals(moduleName)) {
-                return moduleContext;
+                return Optional.of(moduleContext);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     ModuleContext defaultModuleContext() {

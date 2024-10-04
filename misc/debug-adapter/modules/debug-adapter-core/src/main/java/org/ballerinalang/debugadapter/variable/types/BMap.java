@@ -101,8 +101,11 @@ public class BMap extends IndexedCompoundVariable {
         if (loadedKeys == null) {
             loadAllKeys();
         }
-        Map<Value, Value> entries = new LinkedHashMap<>();
+        if (loadedKeys == null) {
+            return Collections.emptyMap();
+        }
         List<Value> keysRange = loadedKeys.getValues(startIndex, count);
+        Map<Value, Value> entries = new LinkedHashMap<>();
         for (int i = startIndex; i < startIndex + count; i++) {
             Value key = keysRange.get(i - startIndex);
             if (loadedValues[i] == null) {

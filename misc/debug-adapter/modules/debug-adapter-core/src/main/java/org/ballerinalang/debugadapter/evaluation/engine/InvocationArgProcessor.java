@@ -147,8 +147,7 @@ public abstract class InvocationArgProcessor {
         return getRestArgArray.invokeSafely();
     }
 
-    protected static Value getElementType(SuspendedContext context, @Nullable Value arrayType
-    ) throws EvaluationException {
+    protected static Value getElementType(SuspendedContext context, Value arrayType) throws EvaluationException {
         ReferenceType arrayTypeRef = ((ObjectReference) arrayType).referenceType();
         List<Method> methods = arrayTypeRef.methodsByName(GET_ELEMENT_TYPE_METHOD);
         if (methods == null || methods.size() != 1) {

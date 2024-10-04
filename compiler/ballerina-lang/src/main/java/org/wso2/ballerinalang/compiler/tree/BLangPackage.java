@@ -35,7 +35,6 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.DiagnosticComparator;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -48,6 +47,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
@@ -247,9 +247,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
      *
      * @return testable package
      */
-    @Nullable
-    public BLangTestablePackage getTestablePkg() {
-        return testablePkgs.stream().findAny().orElse(null);
+    public Optional<BLangTestablePackage> getTestablePkg() {
+        return testablePkgs.stream().findAny();
     }
 
     /**

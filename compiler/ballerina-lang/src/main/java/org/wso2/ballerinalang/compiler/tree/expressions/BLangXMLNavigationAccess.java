@@ -89,14 +89,10 @@ public class BLangXMLNavigationAccess extends BLangExpression implements XMLNavi
     public String toString() {
         StringJoiner filters = new StringJoiner(" |");
         this.filters.forEach(f -> filters.add(f.toString()));
-        switch (navAccessType) {
-            case CHILDREN:
-                return String.valueOf(expr) + "/*";
-            case CHILD_ELEMS:
-                return String.valueOf(expr) + "/<" + filters.toString() + ">";
-            case DESCENDANTS:
-                return String.valueOf(expr) + "/**/<" + filters.toString() + ">";
-        }
-        return null;
+        return switch (navAccessType) {
+            case CHILDREN -> expr + "/*";
+            case CHILD_ELEMS -> expr + "/<" + filters + ">";
+            case DESCENDANTS -> expr + "/**/<" + filters + ">";
+        };
     }
 }

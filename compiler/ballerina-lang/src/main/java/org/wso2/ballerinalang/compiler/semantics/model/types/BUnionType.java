@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -412,7 +413,7 @@ public class BUnionType extends BType implements UnionType {
      * @return the implied type if provided with a type reference type or an intersection type,
      * else returns the original type
      */
-    @Nullable
+    @Contract(value = "null -> null")
     public static BType getImpliedType(BType type) {
         type = getReferredType(type);
         if (type != null && type.tag == TypeTags.INTERSECTION) {
@@ -422,7 +423,7 @@ public class BUnionType extends BType implements UnionType {
         return type;
     }
 
-    @Nullable
+    @Contract(value = "null -> null")
     private static BType getReferredType(BType type) {
         if (type != null && type.tag == TypeTags.TYPEREFDESC) {
             return getReferredType(((BTypeReferenceType) type).referredType);

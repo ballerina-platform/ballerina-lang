@@ -218,6 +218,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
@@ -275,7 +276,7 @@ public class ReferenceFinder extends BaseVisitor {
                      .toList());
 
         if (!(pkgNode instanceof BLangTestablePackage)) {
-            find(pkgNode.getTestablePkg());
+            find(pkgNode.getTestablePkg().orElseThrow());
         }
     }
 
@@ -1509,7 +1510,7 @@ public class ReferenceFinder extends BaseVisitor {
             }
             
             BLangLiteral literal = (BLangLiteral) expr;
-            if (literal.value.equals(pathSymbol.name.value) && addIfSameSymbol(pathSymbol, expr.pos)) {
+            if (Objects.equals(literal.value, pathSymbol.name.value) && addIfSameSymbol(pathSymbol, expr.pos)) {
                 return;
             }
         }

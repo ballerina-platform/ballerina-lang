@@ -386,13 +386,7 @@ public class PackageResolution {
             }
             moduleName = ModuleName.from(packageName, moduleNamePart);
         }
-        ModuleContext resolvedModule = resolvedPackage.moduleContext(moduleName);
-        if (resolvedModule == null) {
-            return Optional.empty();
-        }
-
-        // TODO convert this to a debug log
-        return Optional.of(resolvedModule);
+        return resolvedPackage.moduleContext(moduleName);
     }
 
     private DependencyGraph<ResolvedPackageDependency> buildPackageGraph(DependencyGraph<DependencyNode> depGraph,
@@ -705,10 +699,9 @@ public class PackageResolution {
 
             PackageName packageName;
             // TODO remove the null check and else block once the new resolution is fully done
-            packageName = importModuleResponse.packageDescriptor().name();
+            packageName = importModuleResponse.packageDescriptor().orElseThrow().name();
 
-            Optional<Package> optionalPackage = getPackage(packageOrg,
-                                                           packageName);
+            Optional<Package> optionalPackage = getPackage(packageOrg, packageName);
             if (optionalPackage.isEmpty()) {
                 return Optional.empty();
                 // This branch cannot be executed since the package is resolved before hand

@@ -1189,7 +1189,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         if (langLibInvocation) {
-            if (bLangInvocation.expr.getBType().getKind() == TypeKind.ARRAY) {
+            if (bLangInvocation.expr != null && bLangInvocation.expr.getBType().getKind() == TypeKind.ARRAY) {
                 return Optional.ofNullable(typesFactory.getTypeDescriptor
                         (((BArrayType) bLangInvocation.expr.expectedType).eType));
             }
@@ -1207,7 +1207,9 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         BLangExpression bLangExpression = bLangInvocation.argExprs.get(argumentIndex);
-        if (bLangExpression.toString().startsWith("$missingNode$")) {
+        // Spotbugs thinks this can be nullable for some reason
+        String bLangExpressionString = bLangExpression.toString();
+        if (bLangExpressionString != null && bLangExpressionString.startsWith("$missingNode$")) {
             return getParamType(bLangInvocation, argumentIndex, namedArgs);
         }
 

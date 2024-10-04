@@ -17,8 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.util;
 
-import org.jetbrains.annotations.Nullable;
-
 /**
  * @since 0.94
  */
@@ -27,7 +25,7 @@ public class Name implements org.ballerinalang.model.Name {
     //TODO: Make this field private.
     public final String value;
 
-    public Name(@Nullable String value) {
+    public Name(String value) {
         this.value = value;
     }
 

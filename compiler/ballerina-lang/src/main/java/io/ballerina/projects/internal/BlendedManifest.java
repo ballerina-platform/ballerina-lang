@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import static io.ballerina.projects.PackageVersion.BUILTIN_PACKAGE_VERSION;
@@ -82,12 +83,12 @@ public class BlendedManifest {
             AbstractPackageRepository targetRepository = localPackageRepository;
             Optional<Dependency> existingDepOptional = depContainer.get(
                     depInPkgManifest.org(), depInPkgManifest.name());
-            Repository depInPkgManifestRepo = depInPkgManifest.repository() != null &&
-                    depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME) ?
+            Repository depInPkgManifestRepo = Objects.equals(
+                    depInPkgManifest.repository(), ProjectConstants.LOCAL_REPOSITORY_NAME) ?
                     REPOSITORY_LOCAL : new Repository(depInPkgManifest.repository());
 
             if (depInPkgManifest.repository() != null) {
-                if (!depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME) &&
+                if (!Objects.equals(depInPkgManifest.repository(), ProjectConstants.LOCAL_REPOSITORY_NAME) &&
                     !mavenPackageRepositoryMap.containsKey(depInPkgManifest.repository())) {
                     var diagnosticInfo = new DiagnosticInfo(
                             ProjectDiagnosticErrorCode.CUSTOM_REPOSITORY_NOT_FOUND.diagnosticId(),
@@ -101,7 +102,7 @@ public class BlendedManifest {
                 }
 
 
-                if (depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME) &&
+                if (Objects.equals(depInPkgManifest.repository(), ProjectConstants.LOCAL_REPOSITORY_NAME) &&
                         !localPackageRepository.isPackageExists(depInPkgManifest.org(), depInPkgManifest.name(),
                         depInPkgManifest.version())) {
                     var diagnosticInfo = new DiagnosticInfo(
@@ -116,7 +117,7 @@ public class BlendedManifest {
                     continue;
                 }
 
-                if (!depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
+                if (!Objects.equals(depInPkgManifest.repository(), ProjectConstants.LOCAL_REPOSITORY_NAME)) {
                     targetRepository = mavenPackageRepositoryMap.get(depInPkgManifest.repository());
                     if (!((MavenPackageRepository) targetRepository).isPackageExists(depInPkgManifest.org(),
                             depInPkgManifest.name(), depInPkgManifest.version(), offline)) {

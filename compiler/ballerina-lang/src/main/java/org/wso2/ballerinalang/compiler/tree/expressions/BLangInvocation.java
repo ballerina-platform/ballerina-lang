@@ -310,7 +310,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
             
             StringJoiner joiner = new StringJoiner("/");
             resourceAccessPathSegments.exprs.forEach(item -> joiner.add(item.toString()));
-            br.append(joiner.toString());
+            br.append(joiner);
                     
             br.append(".");
             br.append(name == null ? String.valueOf(symbol.name) : String.valueOf(name));
@@ -318,7 +318,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
             br.append("(");
             StringJoiner joiner1 = new StringJoiner(",");
             argExprs.forEach(item -> joiner1.add(item.toString()));
-            br.append(joiner1.toString());
+            br.append(joiner1);
             br.append(")");
             
             return br.toString();

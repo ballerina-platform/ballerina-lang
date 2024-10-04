@@ -323,7 +323,6 @@ public abstract class BIRNode {
         /**
          * Receiver. This is an optional field.
          */
-        @Nullable
         public BIRVariableDcl receiver;
 
         /**
@@ -343,28 +342,23 @@ public abstract class BIRNode {
          * entries are allocated for function arguments. The rest are for user-defined local variables and
          * temporary variables.
          */
-        @Nullable
         public List<BIRVariableDcl> localVars;
 
-        @Nullable
         public BIRVariableDcl returnVariable;
 
         /**
          * Variable used for parameters of this function.
          */
-        @Nullable
         public List<BIRFunctionParameter>  parameters;
 
         /**
          * List of basic blocks in this function.
          */
-        @Nullable
         public List<BIRBasicBlock> basicBlocks;
 
         /**
          * List of error entries in this function.
          */
-        @Nullable
         public List<BIRErrorEntry> errorTable;
 
         /**
@@ -375,24 +369,18 @@ public abstract class BIRNode {
         /**
          * List of channels this worker interacts.
          */
-        @Nullable
         public ChannelDetails[] workerChannels;
 
-        @Nullable
         public List<BIRAnnotationAttachment> annotAttachments;
 
-        @Nullable
         public List<BIRAnnotationAttachment> returnTypeAnnots;
 
-        @Nullable
         public Set<BIRGlobalVariableDcl> dependentGlobalVars = new TreeSet<>();
 
         // Below fields will only be available on resource functions
         // TODO: consider creating a sub class for resource functions issue: #36964
-        @Nullable
         public List<BIRVariableDcl> pathParams;
-        
-        @Nullable
+
         public BIRVariableDcl restPathParam;
         
         public List<Name> resourcePath;
@@ -492,7 +480,7 @@ public abstract class BIRNode {
         public int number;
         public Name id;
         public List<BIRNonTerminator> instructions;
-        @Nullable
+        // TODO add @Nullable
         public BIRTerminator terminator;
         public static final String BIR_BASIC_BLOCK_PREFIX = "bb";
 
@@ -554,7 +542,6 @@ public abstract class BIRNode {
 
         public SymbolOrigin origin;
 
-        @Nullable
         public List<BIRAnnotationAttachment> annotAttachments;
 
         /**

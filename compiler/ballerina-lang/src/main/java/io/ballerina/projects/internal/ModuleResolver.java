@@ -95,7 +95,7 @@ public class ModuleResolver {
 
             DirectPackageDependency newPkgDep;
             ImportModuleRequest importModuleRequest = importModResp.importModuleRequest();
-            PackageDescriptor pkgDesc = importModResp.packageDescriptor();
+            PackageDescriptor pkgDesc = importModResp.packageDescriptor().orElseThrow();
             Optional<DirectPackageDependency> pkgDepOptional = pkgContainer.get(pkgDesc.org(), pkgDesc.name());
             ModuleLoadRequest moduleLoadRequest = importModuleRequest.moduleLoadRequest();
             if (pkgDepOptional.isEmpty()) {

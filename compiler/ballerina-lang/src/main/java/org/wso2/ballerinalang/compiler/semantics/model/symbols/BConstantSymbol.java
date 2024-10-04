@@ -34,7 +34,6 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.CON
  */
 public class BConstantSymbol extends BVarSymbol implements ConstantSymbol {
 
-    @Nullable
     public BLangConstantValue value;
     public BType literalType;
 

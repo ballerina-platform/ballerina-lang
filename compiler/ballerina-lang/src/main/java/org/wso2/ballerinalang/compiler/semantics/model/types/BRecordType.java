@@ -42,7 +42,6 @@ public class BRecordType extends BStructureType implements RecordType {
     public static final String EMPTY = "";
     public static final String READONLY = "readonly";
     public boolean sealed;
-    @Nullable
     public BType restFieldType;
     public Boolean isAnyData = null;
 
