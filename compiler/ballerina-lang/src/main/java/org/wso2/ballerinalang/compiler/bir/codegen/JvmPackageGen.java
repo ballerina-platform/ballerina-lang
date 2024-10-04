@@ -23,6 +23,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassTooLargeException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -115,11 +116,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_GE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARENT_MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NO_OF_DEPENDANT_MODULES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARENT_MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_EP_AVAILABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
@@ -346,6 +347,7 @@ public class JvmPackageGen {
         return new BIRFunctionWrapper(packageID, currentFunc, moduleClass, jvmMethodDescription);
     }
 
+    @Nullable
     private static BIRFunction findFunction(BIRNode parentNode, String funcName) {
         BIRFunction func;
         if (parentNode instanceof BIRTypeDefinition typeDef) {
@@ -360,6 +362,7 @@ public class JvmPackageGen {
         return func;
     }
 
+    @Nullable
     private static BIRFunction findFunction(List<BIRFunction> functions, String funcName) {
 
         for (BIRFunction func : functions) {
@@ -780,6 +783,7 @@ public class JvmPackageGen {
         typeDefs.removeIf(def -> Symbols.isFlagOn(def.flags, Flags.SOURCE_ANNOTATION));
     }
 
+    @Nullable
     private BIRFunction getMainFunction(BIRPackage module) {
         BIRFunction mainFunc = null;
         if (module.packageID.skipTests) {
@@ -788,6 +792,7 @@ public class JvmPackageGen {
         return mainFunc;
     }
 
+    @Nullable
     private BIRFunction getTestExecuteFunction(BIRPackage module) {
         BIRFunction testExecuteFunc = null;
         if (!module.packageID.skipTests) {
@@ -796,6 +801,7 @@ public class JvmPackageGen {
         return testExecuteFunc;
     }
 
+    @Nullable
     private BIRFunction getFunction(BIRPackage module, String funcName) {
         BIRFunction function = null;
         for (BIRFunction birFunc : module.functions) {

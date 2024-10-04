@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -72,7 +73,7 @@ public final class Symbols {
     public static BObjectTypeSymbol createObjectSymbol(long flags,
                                                        Name name,
                                                        PackageID pkgID,
-                                                       BType type,
+                                                       @Nullable BType type,
                                                        BSymbol owner,
                                                        Location pos,
                                                        SymbolOrigin origin) {
@@ -83,13 +84,13 @@ public final class Symbols {
     }
 
     public static BClassSymbol createClassSymbol(long flags,
-                                                       Name name,
-                                                       PackageID pkgID,
-                                                       BType type,
-                                                       BSymbol owner,
-                                                       Location pos,
-                                                       SymbolOrigin origin,
-                                                       boolean isServiceDecl) {
+                                                 Name name,
+                                                 PackageID pkgID,
+                                                 @Nullable BType type,
+                                                 BSymbol owner,
+                                                 Location pos,
+                                                 SymbolOrigin origin,
+                                                 boolean isServiceDecl) {
         BClassSymbol typeSymbol = new BClassSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner, pos, origin);
         typeSymbol.kind = SymbolKind.OBJECT;
         // This class represent the service declared via service declaration.
@@ -100,9 +101,9 @@ public final class Symbols {
     public static BRecordTypeSymbol createRecordSymbol(long flags,
                                                        Name name,
                                                        PackageID pkgID,
-                                                       BType type,
-                                                       BSymbol owner,
-                                                       Location pos,
+                                                       @Nullable BType type,
+                                                       @Nullable BSymbol owner,
+                                                       @Nullable Location pos,
                                                        SymbolOrigin origin) {
         BRecordTypeSymbol typeSymbol = new BRecordTypeSymbol(SymTag.RECORD, flags, name, pkgID, type, owner, pos,
                                                              origin);
@@ -110,14 +111,16 @@ public final class Symbols {
         return typeSymbol;
     }
 
-    public static BErrorTypeSymbol createErrorSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
-                                                     Location pos, SymbolOrigin origin) {
+    public static BErrorTypeSymbol createErrorSymbol(
+            long flags, Name name, PackageID pkgID, @Nullable BType type, BSymbol owner, Location pos,
+            SymbolOrigin origin) {
         return new BErrorTypeSymbol(SymTag.ERROR, flags, name, pkgID, type, owner, pos, origin);
     }
 
-    public static BAnnotationSymbol createAnnotationSymbol(long flags, Set<AttachPoint> points, Name name,
-                                                           Name origName, PackageID pkgID, BType type, BSymbol owner,
-                                                           Location pos, SymbolOrigin origin) {
+    public static BAnnotationSymbol createAnnotationSymbol(
+            long flags, Set<AttachPoint> points, Name name,
+            Name origName, PackageID pkgID, @Nullable BType type, BSymbol owner,
+            Location pos, SymbolOrigin origin) {
         BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, origName, flags, points, pkgID, type, owner,
                                                                    pos, origin);
         annotationSymbol.kind = SymbolKind.ANNOTATION;
@@ -142,8 +145,8 @@ public final class Symbols {
                                                         Name name,
                                                         Name originalName,
                                                         PackageID pkgID,
-                                                        BType type,
-                                                        BSymbol owner,
+                                                        @Nullable BType type,
+                                                        @Nullable BSymbol owner,
                                                         boolean bodyExist,
                                                         Location pos,
                                                         SymbolOrigin origin) {
@@ -158,9 +161,9 @@ public final class Symbols {
                                                long flags,
                                                Name name,
                                                PackageID pkgID,
-                                               BType type,
+                                               @Nullable BType type,
                                                BSymbol owner,
-                                               Location pos,
+                                               @Nullable Location pos,
                                                SymbolOrigin origin) {
         return createTypeSymbol(symTag, flags, name, name, pkgID, type, owner, pos, origin);
     }
@@ -170,7 +173,7 @@ public final class Symbols {
                                                Name name,
                                                Name originalName,
                                                PackageID pkgID,
-                                               BType type,
+                                               @Nullable BType type,
                                                BSymbol owner,
                                                Location pos,
                                                SymbolOrigin origin) {
@@ -186,7 +189,7 @@ public final class Symbols {
     public static BTypeDefinitionSymbol createTypeDefinitionSymbol(long flags,
                                                                    Name name,
                                                                    PackageID pkgID,
-                                                                   BType type,
+                                                                   @Nullable BType type,
                                                                    BSymbol owner,
                                                                    Location pos,
                                                                    SymbolOrigin origin) {
@@ -197,7 +200,7 @@ public final class Symbols {
     public static BInvokableTypeSymbol createInvokableTypeSymbol(long symTag,
                                                                  long flags,
                                                                  PackageID pkgID,
-                                                                 BType type,
+                                                                 @Nullable BType type,
                                                                  BSymbol owner,
                                                                  Location pos,
                                                                  SymbolOrigin origin) {
@@ -221,18 +224,19 @@ public final class Symbols {
                                                  PackageID pkgID,
                                                  BSymbol owner,
                                                  Location pos,
-                                                 SymbolOrigin origin, Name compUnit) {
+                                                 SymbolOrigin origin, @Nullable Name compUnit) {
         return new BXMLNSSymbol(name, nsURI, pkgID, owner, pos, origin, compUnit);
     }
     
-    public static BResourcePathSegmentSymbol createResourcePathSegmentSymbol(Name name,
-                                                                             PackageID pkgID,
-                                                                             BType type,
-                                                                             BSymbol owner,
-                                                                             Location location,
-                                                                             BResourcePathSegmentSymbol parentResource,
-                                                                             BResourceFunction resourceMethod,
-                                                                             SymbolOrigin origin) {
+    public static BResourcePathSegmentSymbol createResourcePathSegmentSymbol(
+            Name name,
+            PackageID pkgID,
+            BType type,
+            BSymbol owner,
+            Location location,
+            @Nullable BResourcePathSegmentSymbol parentResource,
+            BResourceFunction resourceMethod,
+            SymbolOrigin origin) {
         return new BResourcePathSegmentSymbol(name, pkgID, type, owner, location, parentResource, resourceMethod,
                 origin);
     }

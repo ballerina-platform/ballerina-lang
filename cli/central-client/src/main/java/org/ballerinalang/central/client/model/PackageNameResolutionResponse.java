@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.central.client.model;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 
 /**
@@ -86,7 +88,8 @@ public class PackageNameResolutionResponse {
             this.reason = reason;
         }
 
-        public Module(String organization, String moduleName, String version, String packageName, String reason) {
+        public Module(String organization, String moduleName, String version, @Nullable String packageName,
+                      @Nullable String reason) {
             this.organization = organization;
             this.moduleName = moduleName;
             this.version = version;

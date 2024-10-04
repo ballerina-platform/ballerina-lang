@@ -20,6 +20,7 @@ package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -71,7 +72,8 @@ public class ModuleVarDiff extends NodeDiffImpl<ModuleVariableDeclarationNode> {
 
         private final ModuleVarDiff moduleVarDiff;
 
-        public Builder(ModuleVariableDeclarationNode newNode, ModuleVariableDeclarationNode oldNode) {
+        public Builder(@Nullable ModuleVariableDeclarationNode newNode,
+                       @Nullable ModuleVariableDeclarationNode oldNode) {
             super(newNode, oldNode);
             moduleVarDiff = new ModuleVarDiff(newNode, oldNode);
         }

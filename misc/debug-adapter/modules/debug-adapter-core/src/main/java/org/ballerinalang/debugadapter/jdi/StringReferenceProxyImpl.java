@@ -17,11 +17,13 @@
 package org.ballerinalang.debugadapter.jdi;
 
 import com.sun.jdi.StringReference;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Proxy implementation for JDI strings.
  */
 public class StringReferenceProxyImpl extends ObjectReferenceProxyImpl {
+    @Nullable
     private String myStringValue;
 
     public StringReferenceProxyImpl(VirtualMachineProxyImpl virtualMachineProxy, StringReference objectReference) {

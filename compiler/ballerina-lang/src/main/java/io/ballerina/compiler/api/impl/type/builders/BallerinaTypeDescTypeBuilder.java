@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -43,6 +44,7 @@ public class BallerinaTypeDescTypeBuilder implements TypeBuilder.TYPEDESC {
 
     private final TypesFactory typesFactory;
     private final SymbolTable symTable;
+    @Nullable
     private TypeSymbol typeParam;
 
     public BallerinaTypeDescTypeBuilder(CompilerContext context) {
@@ -70,6 +72,7 @@ public class BallerinaTypeDescTypeBuilder implements TypeBuilder.TYPEDESC {
         return typeDescTypeSymbol;
     }
 
+    @Nullable
     private BType getBType(TypeSymbol typeSymbol) {
         if (typeSymbol != null) {
             if (typeSymbol instanceof AbstractTypeSymbol abstractTypeSymbol) {

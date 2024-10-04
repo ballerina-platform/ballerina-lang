@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
@@ -1435,6 +1436,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return symbol;
     }
 
+    @Nullable
     private Object calculateSingletonValue(BFiniteType lhs, BFiniteType rhs, OperatorKind kind,
                                            BType type, AnalyzerData data) {
         // Calculate the value for the binary operation.
@@ -1496,6 +1498,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return value;
     }
 
+    @Nullable
     private Object evaluateUnaryOperator(BFiniteType finiteType, BType type, OperatorKind kind, AnalyzerData data) {
         // Calculate the value for the unary operation.
         BLangLiteral lhsLiteral = (BLangLiteral) finiteType.getValueSpace().iterator().next();
@@ -1525,6 +1528,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return null;
     }
 
+    @Nullable
     private Object calculateBitWiseOp(Object lhs, Object rhs, BiFunction<Long, Long, Long> func, BType type,
                                       AnalyzerData data) {
         if (Types.getImpliedType(type).tag == TypeTags.INT) {
@@ -1535,6 +1539,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return null;
     }
 
+    @Nullable
     private Object calculateAddition(Object lhs, Object rhs, BType type, AnalyzerData data) {
         switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
@@ -1561,6 +1566,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
     }
 
+    @Nullable
     private Object calculateSubtract(Object lhs, Object rhs, BType type, AnalyzerData data) {
         switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
@@ -1585,6 +1591,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
     }
 
+    @Nullable
     private Object calculateMultiplication(Object lhs, Object rhs, BType type, AnalyzerData data) {
         switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
@@ -1609,6 +1616,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
     }
 
+    @Nullable
     private Object calculateDivision(Object lhs, Object rhs, BType type, AnalyzerData data) {
         switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
@@ -1632,6 +1640,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
     }
 
+    @Nullable
     private Object calculateMod(Object lhs, Object rhs, BType type) {
         switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
@@ -1651,6 +1660,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
     }
 
+    @Nullable
     private Object calculateNegationForInt(Object value, AnalyzerData data) {
         if ((Long) (value) == Long.MIN_VALUE) {
             dlog.error(data.pos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
@@ -1670,6 +1680,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return resultDecimal.toPlainString();
     }
 
+    @Nullable
     private Object calculateNegation(Object value, BType type, AnalyzerData data) {
         return switch (type.tag) {
             case TypeTags.INT -> calculateNegationForInt(value, data);
@@ -1679,6 +1690,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         };
     }
 
+    @Nullable
     private Object calculateBitWiseComplement(Object value, BType type) {
         Object result = null;
         if (Types.getImpliedType(type).tag == TypeTags.INT) {
@@ -1687,6 +1699,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return result;
     }
 
+    @Nullable
     private Object calculateBooleanComplement(Object value, BType type) {
         Object result = null;
         if (Types.getImpliedType(type).tag == TypeTags.BOOLEAN) {
@@ -1921,7 +1934,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return symTable.floatType;
     }
 
-    private BType getFiniteType(Object value, BConstantSymbol constantSymbol, Location pos, BType type) {
+    private BType getFiniteType(Object value, BConstantSymbol constantSymbol, @Nullable Location pos, BType type) {
         return switch (type.tag) {
             case TypeTags.INT,
                  TypeTags.FLOAT,
@@ -2496,6 +2509,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
     }
 
+    @Nullable
     public BLangConstantValue getConstantValue(BType type) {
         // Obtain the constant value using its type.
         BType refType = Types.getImpliedType(type);
@@ -2556,7 +2570,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             return resolveConstantExpressionType;
         }
 
-        public BType resolveConstExpr(BLangExpression expr, BType expType, AnalyzerData data) {
+        public BType resolveConstExpr(BLangExpression expr, @Nullable BType expType, AnalyzerData data) {
             return resolveConstExpr(expr, data.env, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data);
         }
 
@@ -2696,6 +2710,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             }
         }
 
+        @Nullable
         private BType getResolvedFieldType(Object targetKey, BType resolvedType) {
             BRecordType recordType = (BRecordType) ((resolvedType.tag == TypeTags.INTERSECTION) ?
                     ((BIntersectionType) resolvedType).effectiveType : resolvedType);

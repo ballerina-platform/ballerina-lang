@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -83,6 +84,7 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
      */
     public static class AnnotationAttachPointNodeModifier {
         private final AnnotationAttachPointNode oldNode;
+        @Nullable
         private Token sourceKeyword;
         private NodeList<Token> identifiers;
 

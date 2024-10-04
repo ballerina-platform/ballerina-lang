@@ -21,6 +21,7 @@ package io.ballerina.toml.internal.parser;
 import io.ballerina.toml.internal.parser.tree.STNode;
 import io.ballerina.toml.internal.parser.tree.STToken;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -249,6 +250,7 @@ public abstract class AbstractParserErrorHandler {
      *
      * @return head of the stack
      */
+    @Nullable
     protected ParserRuleContext getParentContext() {
         return this.ctxStack.peek();
     }
@@ -258,6 +260,7 @@ public abstract class AbstractParserErrorHandler {
      *
      * @return second element of the stack
      */
+    @Nullable
     protected ParserRuleContext getGrandParentContext() {
         ParserRuleContext parent = this.ctxStack.pop();
         ParserRuleContext grandParent = this.ctxStack.peek();
@@ -544,6 +547,7 @@ public abstract class AbstractParserErrorHandler {
          * <code>fixes.peek()</code>. Else, if the solution is to insert/remove a token that is not the
          * immediate next token, then this will have a solution with {@link Action#KEEP} as the action.
          */
+        @Nullable
         protected Solution solution;
 
         public Result(ArrayDeque<Solution> fixes, int matches) {

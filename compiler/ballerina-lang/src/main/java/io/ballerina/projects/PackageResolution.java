@@ -46,6 +46,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -622,7 +623,7 @@ public class PackageResolution {
                 && currentDistributionVersion.minor() > prevDistributionVersion.minor();
     }
 
-    private void addOlderSLUpdateDistributionDiagnostic(SemanticVersion prevDistributionVersion,
+    private void addOlderSLUpdateDistributionDiagnostic(@Nullable SemanticVersion prevDistributionVersion,
                                                         SemanticVersion currentDistributionVersion) {
         String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
         if (currentDistributionVersion.patch() != 0) {

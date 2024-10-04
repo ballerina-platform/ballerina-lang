@@ -473,7 +473,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 instanceof BInvokableSymbol)) {
             List<BVarSymbol> params = ((BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
                     initInvocation).symbol)).params;
-            if (params.isEmpty()) {
+            if (params == null || params.isEmpty()) {
                 throw new IllegalStateException();
             }
 
@@ -525,7 +525,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             }
 
             List<BVarSymbol> params = ((BInvokableSymbol) initInvocation.symbol).params;
-            if (params.isEmpty()) {
+            if (params == null || params.isEmpty()) {
                 throw new IllegalStateException();
             }
 

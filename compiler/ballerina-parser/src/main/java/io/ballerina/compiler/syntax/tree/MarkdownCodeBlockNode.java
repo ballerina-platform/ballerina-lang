@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -117,6 +118,7 @@ public class MarkdownCodeBlockNode extends DocumentationNode {
         private final MarkdownCodeBlockNode oldNode;
         private Token startLineHashToken;
         private Token startBacktick;
+        @Nullable
         private Token langAttribute;
         private NodeList<MarkdownCodeLineNode> codeLines;
         private Token endLineHashToken;

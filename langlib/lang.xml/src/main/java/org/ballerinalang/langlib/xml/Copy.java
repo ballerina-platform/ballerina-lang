@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.xml;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 
@@ -40,6 +41,7 @@ public final class Copy {
     private Copy() {
     }
 
+    @Nullable
     public static BXml copy(Strand strand, BXml xml) {
         try {
             return (BXml) xml.copy(new HashMap<>());

@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ConstrainedType;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -31,12 +32,12 @@ public class BFutureType extends BBuiltInRefType implements ConstrainedType {
     public BType constraint;
     public boolean workerDerivative;
 
-    public BFutureType(int tag, BType constraint, BTypeSymbol tsymbol) {
+    public BFutureType(int tag, @Nullable BType constraint, @Nullable BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;
     }
 
-    public BFutureType(int tag, BType constraint, BTypeSymbol tsymbol, boolean workerDerivative) {
+    public BFutureType(int tag, BType constraint, @Nullable BTypeSymbol tsymbol, boolean workerDerivative) {
         this(tag, constraint, tsymbol);
         this.workerDerivative = workerDerivative;
     }

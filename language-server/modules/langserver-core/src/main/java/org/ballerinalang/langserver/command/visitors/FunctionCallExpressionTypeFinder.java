@@ -83,6 +83,7 @@ import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -98,6 +99,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     private final SemanticModel semanticModel;
     private final FunctionCallExpressionNode functionCallExpr;
+    @Nullable
     private TypeSymbol returnTypeSymbol;
     private boolean resultFound = false;
 
@@ -546,7 +548,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         // Do nothing
     }
 
-    private void checkAndSetTypeResult(TypeSymbol typeSymbol) {
+    private void checkAndSetTypeResult(@Nullable TypeSymbol typeSymbol) {
         if (typeSymbol == null) {
             return;
         }

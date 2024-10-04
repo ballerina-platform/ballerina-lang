@@ -46,6 +46,7 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -118,6 +119,7 @@ public final class ReadOnlyUtils {
         return setImmutableIntersectionType(type, unresolvedTypes).getEffectiveType();
     }
 
+    @Nullable
     private static Type getAvailableImmutableType(Type type) {
         if (type.isReadOnly() || TypeChecker.isInherentlyImmutableType(type)) {
             return type;

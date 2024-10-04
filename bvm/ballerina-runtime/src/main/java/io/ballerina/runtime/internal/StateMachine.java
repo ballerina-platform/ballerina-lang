@@ -22,6 +22,7 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -74,6 +75,7 @@ public abstract class StateMachine {
     static final State STRING_FIELD_UNICODE_HEX_PROCESSING_STATE = new StringFieldUnicodeHexProcessingState();
     static final State STRING_VALUE_UNICODE_HEX_PROCESSING_STATE = new StringValueUnicodeHexProcessingState();
 
+    @Nullable
     protected Object currentJsonNode = null;
     protected final Deque<Object> nodesStack = new ArrayDeque<>();
     protected final Deque<String> fieldNames = new ArrayDeque<>();
@@ -193,6 +195,7 @@ public abstract class StateMachine {
      */
     private static class DocumentStartState implements State {
 
+        @Nullable
         @Override
         public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
             char ch;
@@ -231,6 +234,7 @@ public abstract class StateMachine {
      */
     private static class DocumentEndState implements State {
 
+        @Nullable
         @Override
         public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
             char ch;
@@ -254,6 +258,7 @@ public abstract class StateMachine {
      */
     private static class FirstFieldReadyState implements State {
 
+        @Nullable
         @Override
         public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
             char ch;
@@ -284,6 +289,7 @@ public abstract class StateMachine {
      */
     private static class FirstArrayElementReadyState implements State {
 
+        @Nullable
         @Override
         public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
             State state = null;
@@ -322,6 +328,7 @@ public abstract class StateMachine {
      */
     private static class NonFirstFieldReadyState implements State {
 
+        @Nullable
         @Override
         public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
             State state = null;
@@ -350,6 +357,7 @@ public abstract class StateMachine {
      */
     private static class NonFirstArrayElementReadyState implements State {
 
+        @Nullable
         @Override
         public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
             State state = null;
@@ -398,6 +406,7 @@ public abstract class StateMachine {
      */
     private static class EndFieldNameState implements State {
 
+        @Nullable
         @Override
         public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
             State state = null;
@@ -425,6 +434,7 @@ public abstract class StateMachine {
      */
     private static class FieldValueReadyState implements State {
 
+        @Nullable
         @Override
         public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
             State state = null;
@@ -463,6 +473,7 @@ public abstract class StateMachine {
      */
     private static class NonStringFieldValueState implements State {
 
+        @Nullable
         @Override
         public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
             State state = null;
@@ -502,6 +513,7 @@ public abstract class StateMachine {
      */
     private static class NonStringArrayElementState implements State {
 
+        @Nullable
         @Override
         public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
             State state = null;
@@ -541,6 +553,7 @@ public abstract class StateMachine {
      */
     private static class NonStringValueState implements State {
 
+        @Nullable
         @Override
         public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
             State state = null;
@@ -569,6 +582,7 @@ public abstract class StateMachine {
      */
     private static class FieldEndState implements State {
 
+        @Nullable
         @Override
         public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
             State state = null;
@@ -598,6 +612,7 @@ public abstract class StateMachine {
      */
     private static class ArrayElementEndState implements State {
 
+        @Nullable
         @Override
         public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
             State state = null;
@@ -677,6 +692,7 @@ public abstract class StateMachine {
 
         protected abstract State getSourceState(StateMachine sm);
 
+        @Nullable
         @Override
         public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
             State state = null;
@@ -762,6 +778,7 @@ public abstract class StateMachine {
 
         protected abstract State getSourceState(StateMachine sm);
 
+        @Nullable
         @Override
         public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
             State state = null;

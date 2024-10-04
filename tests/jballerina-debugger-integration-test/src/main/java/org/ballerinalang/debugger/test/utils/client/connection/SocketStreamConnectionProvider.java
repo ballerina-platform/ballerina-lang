@@ -16,6 +16,7 @@
 package org.ballerinalang.debugger.test.utils.client.connection;
 
 import org.ballerinalang.debugger.test.utils.FileUtils;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,9 @@ public class SocketStreamConnectionProvider extends ProcessStreamConnectionProvi
     private final int port;
 
     private Socket socket;
+    @Nullable
     private InputStream inputStream;
+    @Nullable
     private OutputStream outputStream;
 
     public SocketStreamConnectionProvider(List<String> commands, String workingDir, String address, int port,

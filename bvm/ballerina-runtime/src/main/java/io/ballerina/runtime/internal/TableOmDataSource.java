@@ -34,6 +34,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 import org.apache.axiom.om.ds.AbstractPushOMDataSource;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -58,7 +59,7 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
     private final String rootWrapper;
     private final String rowWrapper;
 
-    public TableOmDataSource(TableValue<?, ?> table, String rootWrapper, String rowWrapper) {
+    public TableOmDataSource(TableValue<?, ?> table, @Nullable String rootWrapper, @Nullable String rowWrapper) {
         this.table = table;
         this.rootWrapper = rootWrapper != null ? rootWrapper : DEFAULT_ROOT_WRAPPER;
         this.rowWrapper = rowWrapper != null ? rowWrapper : DEFAULT_ROW_WRAPPER;

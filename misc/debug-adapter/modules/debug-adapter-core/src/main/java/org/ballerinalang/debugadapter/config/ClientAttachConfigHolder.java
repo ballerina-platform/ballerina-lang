@@ -16,6 +16,8 @@
 
 package org.ballerinalang.debugadapter.config;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,6 +29,7 @@ import java.util.Optional;
 public class ClientAttachConfigHolder extends ClientConfigHolder {
 
     // The host name or IP address of remote debuggee.
+    @Nullable
     private String hostName;
 
     public ClientAttachConfigHolder(Map<String, Object> args) {

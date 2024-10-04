@@ -56,6 +56,8 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,9 +66,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * This class is being used to build function type completion item.
@@ -149,7 +148,7 @@ public final class FunctionCompletionItemBuilder {
      * @param context        LS context
      * @return {@link CompletionItem}
      */
-    public static CompletionItem buildMethod(@Nonnull FunctionSymbol functionSymbol,
+    public static CompletionItem buildMethod(@NotNull FunctionSymbol functionSymbol,
                                              BallerinaCompletionContext context) {
         CompletionItem item = new CompletionItem();
         setMeta(item, functionSymbol, context);
@@ -162,7 +161,8 @@ public final class FunctionCompletionItemBuilder {
         return item;
     }
 
-    static void setMeta(CompletionItem item, FunctionSymbol functionSymbol, BallerinaCompletionContext ctx) {
+    static void setMeta(CompletionItem item, @Nullable FunctionSymbol functionSymbol,
+                                  BallerinaCompletionContext ctx) {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setKind(CompletionItemKind.Function);
         if (functionSymbol != null) {
@@ -309,7 +309,7 @@ public final class FunctionCompletionItemBuilder {
      * @param ctx            Language Server Operation context
      * @return {@link Pair} of insert text(left-side) and signature label(right-side)
      */
-    private static Pair<String, String> getFunctionInvocationSignature(FunctionSymbol functionSymbol,
+    private static Pair<String, String> getFunctionInvocationSignature(@Nullable FunctionSymbol functionSymbol,
                                                                        String functionName,
                                                                        BallerinaCompletionContext ctx) {
         String escapedFunctionName = CommonUtil.escapeEscapeCharsInIdentifier(functionName);

@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.values.BString;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represent ballerina strings containing only unicode basic multilingual plane characters.
@@ -56,12 +57,14 @@ public class BmpStringValue extends StringValue {
         return new BmpStringValue(this.value + str.getValue());
     }
 
+    @Nullable
     @Override
     public Long indexOf(BString str, int fromIndex) {
         long index = value.indexOf(str.getValue(), fromIndex);
         return index >= 0 ? index : null;
     }
 
+    @Nullable
     @Override
     public Long lastIndexOf(BString str, int fromIndex) {
         long index = value.lastIndexOf(str.getValue(), fromIndex);

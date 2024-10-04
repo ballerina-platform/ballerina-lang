@@ -32,6 +32,7 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -314,6 +315,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
      * @param moduleName Module name passed via function annotation
      * @return Module packageID
      */
+    @Nullable
     private PackageID getPackageID(String moduleName) {
         if (packageCache.getSymbol(moduleName) != null) {
             return packageCache.getSymbol(moduleName).pkgID;
@@ -350,8 +352,8 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
      * @param attachmentNode MockFunction object attachment node
      * @return true if the provided function name valid
      */
-    private boolean isValidFunctionName(String functionName, String moduleName, PackageID functionToMockID,
-                                      AnnotationAttachmentNode attachmentNode) {
+    private boolean isValidFunctionName(String functionName, String moduleName, @Nullable PackageID functionToMockID,
+                                        AnnotationAttachmentNode attachmentNode) {
         if (functionToMockID == null) {
             diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
                     "could not find specified module '" + moduleName + "'");
@@ -396,6 +398,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
      * @param functionName Name of the function
      * @return Function type if found, null if not found
      */
+    @Nullable
     private BType getFunctionType(Map<BPackageSymbol, SymbolEnv> pkgEnvMap, PackageID packageID, String functionName) {
         // Symbol resolver, Pass the acquired package Symbol from package cache
         for (Map.Entry<BPackageSymbol, SymbolEnv> entry : pkgEnvMap.entrySet()) {
@@ -430,6 +433,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
         return className;
     }
 
+    @Nullable
     private String getImportedFunctionClassName(BLangTestablePackage bLangTestablePackage,
                                                 String pkgId, String functionName) {
         String className = getClassName(bLangTestablePackage.getImports(), pkgId, functionName);
@@ -440,6 +444,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
         return className;
     }
 
+    @Nullable
     private String getClassName(List<BLangImportPackage> imports, String pkgId, String functionName) {
         for (BLangImportPackage importPackage : imports) {
             if (importPackage.symbol.pkgID.toString().equals(pkgId)) {

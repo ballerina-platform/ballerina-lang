@@ -40,6 +40,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.completions.CompletionSearchProvider;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -215,7 +216,7 @@ public final class SymbolUtil {
      * @param symbol to evaluate
      * @return {@link Optional} type descriptor
      */
-    public static Optional<TypeSymbol> getTypeDescriptor(Symbol symbol) {
+    public static Optional<TypeSymbol> getTypeDescriptor(@Nullable Symbol symbol) {
         if (symbol == null) {
             return Optional.empty();
         }

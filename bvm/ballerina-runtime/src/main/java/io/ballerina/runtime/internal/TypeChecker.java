@@ -81,6 +81,7 @@ import io.ballerina.runtime.internal.values.XmlPi;
 import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlText;
 import io.ballerina.runtime.internal.values.XmlValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -278,7 +279,7 @@ public final class TypeChecker {
      * @param targetType type to be test against
      * @return true if the value belongs to the given type, false otherwise
      */
-    public static boolean checkIsType(Object sourceVal, Type targetType) {
+    public static boolean checkIsType(@Nullable Object sourceVal, Type targetType) {
         return checkIsType(null, sourceVal, getType(sourceVal), targetType);
     }
 
@@ -291,7 +292,8 @@ public final class TypeChecker {
      * @param targetType type to be test against
      * @return true if the value belongs to the given type, false otherwise
      */
-    public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
+    public static boolean checkIsType(
+            @Nullable List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
         if (checkIsType(sourceVal, sourceType, targetType, null)) {
             return true;
         }
@@ -317,7 +319,7 @@ public final class TypeChecker {
      * @param targetType type to check the shape against
      * @return true if the value has the same shape as the given type; false otherwise
      */
-    public static boolean checkIsLikeType(Object sourceValue, Type targetType) {
+    public static boolean checkIsLikeType(@Nullable Object sourceValue, Type targetType) {
         return checkIsLikeType(sourceValue, targetType, false);
     }
 
@@ -345,7 +347,7 @@ public final class TypeChecker {
         return sourceType == targetType || sourceType.equals(targetType);
     }
 
-    public static Type getType(Object value) {
+    public static Type getType(@Nullable Object value) {
         if (value == null) {
             return TYPE_NULL;
         } else if (value instanceof Number) {
@@ -523,6 +525,7 @@ public final class TypeChecker {
      * @param value Value
      * @return type desc associated with the value
      */
+    @Nullable
     public static TypedescValue getTypedesc(Object value) {
         Type type = TypeChecker.getType(value);
         if (type == null) {
@@ -544,6 +547,7 @@ public final class TypeChecker {
      * @param annotTag          The annot-tag-reference
      * @return the annotation value if present, nil else
      */
+    @Nullable
     public static Object getAnnotValue(TypedescValue typedescValue, BString annotTag) {
         Type describingType = typedescValue.getDescribingType();
         if (!(describingType instanceof BAnnotatableType annotatableType)) {
@@ -564,7 +568,7 @@ public final class TypeChecker {
     }
 
     @Deprecated
-    public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
+    public static boolean checkIsType(Type sourceType, Type targetType, @Nullable List<TypePair> unresolvedTypes) {
         // First check whether both types are the same.
         if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
             return true;
@@ -662,7 +666,7 @@ public final class TypeChecker {
     }
 
     private static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType,
-                                       List<TypePair> unresolvedTypes) {
+                                       @Nullable List<TypePair> unresolvedTypes) {
         sourceType = getImpliedType(sourceType);
         targetType = getImpliedType(targetType);
 
@@ -970,6 +974,7 @@ public final class TypeChecker {
         return Arrays.equals(srcTableType.getFieldNames(), targetType.getFieldNames());
     }
 
+    @Nullable
     static BField getTableConstraintField(Type constraintType, String fieldName) {
         switch (constraintType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
@@ -1617,7 +1622,7 @@ public final class TypeChecker {
         return checkObjectEquivalency(null, sourceType, targetType, unresolvedTypes);
     }
 
-    private static boolean checkObjectEquivalency(Object sourceVal, Type sourceType, BObjectType targetType,
+    private static boolean checkObjectEquivalency(@Nullable Object sourceVal, Type sourceType, BObjectType targetType,
                                                   List<TypePair> unresolvedTypes) {
         sourceType = getImpliedType(sourceType);
         if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG && sourceType.getTag() != TypeTags.SERVICE_TAG) {
@@ -2110,9 +2115,9 @@ public final class TypeChecker {
      * @param varName variable name to identify the parent of a record field
      * @return True if the value confirms to the provided type. False, otherwise.
      */
-    private static boolean checkIsLikeType(List<String> errors, Object sourceValue, Type targetType,
+    private static boolean checkIsLikeType(@Nullable List<String> errors, Object sourceValue, Type targetType,
                                            List<TypeValuePair> unresolvedValues,
-                                           boolean allowNumericConversion, String varName) {
+                                           boolean allowNumericConversion, @Nullable String varName) {
         Type sourceType = getType(sourceValue);
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
@@ -2135,9 +2140,10 @@ public final class TypeChecker {
      * @param varName variable name to identify the parent of a record field
      * @return True if the value confirms to the provided type. False, otherwise.
      */
-    private static boolean checkIsLikeOnValue(List<String> errors, Object sourceValue, Type sourceType, Type targetType,
-                                              List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
-                                              String varName) {
+    private static boolean checkIsLikeOnValue(
+            @Nullable List<String> errors, Object sourceValue, Type sourceType, Type targetType,
+            List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
+            @Nullable String varName) {
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 
@@ -2706,7 +2712,7 @@ public final class TypeChecker {
         return returnVal;
     }
 
-    private static void addErrorMessage(int initialErrorCount, String errorMessage, List<String> errors) {
+    private static void addErrorMessage(int initialErrorCount, String errorMessage, @Nullable List<String> errors) {
         if ((errors != null) && (errors.size() <= MAX_TYPECAST_ERROR_COUNT) &&
                 ((errors.size() - initialErrorCount) == 0)) {
             errors.add(errorMessage);
@@ -3271,6 +3277,7 @@ public final class TypeChecker {
         return false;
     }
 
+    @Nullable
     public static Object handleAnydataValues(Object sourceVal, Type targetType) {
         if (sourceVal != null && !(sourceVal instanceof Number) && !(sourceVal instanceof BString) &&
                 !(sourceVal instanceof Boolean) && !(sourceVal instanceof BValue)) {

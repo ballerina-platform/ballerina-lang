@@ -19,6 +19,7 @@ package io.ballerina.projects.environment;
 
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.PackageDescriptor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -34,8 +35,8 @@ public class PackageMetadataResponse {
     private final ResolutionResponse.ResolutionStatus resolutionStatus;
 
     private PackageMetadataResponse(ResolutionRequest packageLoadRequest,
-                                    PackageDescriptor resolvedDescriptor,
-                                    DependencyGraph<PackageDescriptor> dependencyGraph,
+                                    @Nullable PackageDescriptor resolvedDescriptor,
+                                    @Nullable DependencyGraph<PackageDescriptor> dependencyGraph,
                                     ResolutionResponse.ResolutionStatus resolutionStatus) {
         this.packageLoadRequest = packageLoadRequest;
         this.packageDescriptor = resolvedDescriptor;
@@ -50,7 +51,7 @@ public class PackageMetadataResponse {
                 packageLoadRequest, resolvedDescriptor, dependencyGraph, ResolutionResponse.ResolutionStatus.RESOLVED);
     }
 
-    public static PackageMetadataResponse createUnresolvedResponse(ResolutionRequest packageLoadRequest) {
+    public static PackageMetadataResponse createUnresolvedResponse(@Nullable ResolutionRequest packageLoadRequest) {
         return new PackageMetadataResponse(
                 packageLoadRequest, null, null, ResolutionResponse.ResolutionStatus.UNRESOLVED);
     }

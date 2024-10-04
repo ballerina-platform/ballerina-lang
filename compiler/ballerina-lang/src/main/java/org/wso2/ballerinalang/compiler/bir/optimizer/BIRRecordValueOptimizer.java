@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -52,6 +53,7 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
     private final List<BIROperand> recordOperandList = new ArrayList<>();
     private final Map<BIROperand, BRecordType> recordOperandTypeMap = new HashMap<>();
 
+    @Nullable
     private BIRNode.BIRBasicBlock lastBB = null;
     private BIRNode.BIRFunction currentFunction = null;
     private List<BIRNode.BIRBasicBlock> newBBs = new ArrayList<>();
@@ -210,6 +212,7 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
         fpRemoved = false;
     }
 
+    @Nullable
     private BIRNode.BIRFunction getDefaultBIRFunction(String funcName) {
         for (BIRNode.BIRFunction func : moduleFunctions) {
             if (func.name.value.equals(funcName)) {

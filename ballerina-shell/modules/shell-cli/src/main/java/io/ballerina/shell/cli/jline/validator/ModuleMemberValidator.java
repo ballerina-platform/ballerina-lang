@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.shell.cli.utils.IncompleteInputFinder;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Validates user input as a complete module member.
@@ -34,6 +35,7 @@ import io.ballerina.tools.text.TextDocuments;
  */
 public class ModuleMemberValidator implements Validator {
 
+    @Nullable
     private Validator nextInValidator;
 
     public ModuleMemberValidator() {

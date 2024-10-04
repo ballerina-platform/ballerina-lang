@@ -35,6 +35,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import org.jetbrains.annotations.Nullable;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -166,6 +167,7 @@ public class ProfileCommand implements BLauncherCmd {
         return args;
     }
 
+    @Nullable
     private Project loadProject(BuildOptions buildOptions) {
         if (FileUtils.hasExtension(this.projectPath)) {
             return loadSingleFileProject(buildOptions);
@@ -174,6 +176,7 @@ public class ProfileCommand implements BLauncherCmd {
         }
     }
 
+    @Nullable
     private Project loadSingleFileProject(BuildOptions buildOptions) {
         try {
             return SingleFileProject.load(this.projectPath, buildOptions);
@@ -183,6 +186,7 @@ public class ProfileCommand implements BLauncherCmd {
         }
     }
 
+    @Nullable
     private Project loadBuildProject(BuildOptions buildOptions) {
         try {
             return BuildProject.load(this.projectPath, buildOptions);

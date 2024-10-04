@@ -21,6 +21,7 @@ import io.ballerina.compiler.internal.parser.BallerinaLexer;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Deque;
 
@@ -34,7 +35,7 @@ class HybridNode {
     private final State state;
     private final STNode node;
 
-    HybridNode(STNode node, State state) {
+    HybridNode(@Nullable STNode node, @Nullable State state) {
         this.node = node;
         this.state = state;
     }
@@ -48,11 +49,11 @@ class HybridNode {
      *
      * @return {@code STToken} value if the underlying node is a token, otherwise null
      */
-    STToken token() {
+    @Nullable STToken token() {
         return SyntaxUtils.isToken(node) ? (STToken) node : null;
     }
 
-    STNode subtree() {
+    @Nullable STNode subtree() {
         return SyntaxUtils.isNonTerminalNode(node) ? node : null;
     }
 

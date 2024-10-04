@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 
 import static io.ballerina.projects.util.ProjectConstants.BUILTIN_PACKAGE_VERSION_STR;
@@ -39,7 +41,7 @@ public class PackageVersion {
         this.version = version;
     }
 
-    public static PackageVersion from(String versionString) {
+    public static PackageVersion from(@Nullable String versionString) {
         // TODO Check whether the packageOrg is a valid Ballerina identifier
         return PackageVersion.from(SemanticVersion.from(versionString));
     }

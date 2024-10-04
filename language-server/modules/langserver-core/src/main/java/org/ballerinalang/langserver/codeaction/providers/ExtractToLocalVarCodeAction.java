@@ -44,6 +44,7 @@ import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -225,6 +226,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         return NAME;
     }
 
+    @Nullable
     private Node getStatementNode(Node node) {
         Node statementNode = node;
         while (statementNode != null && !(statementNode instanceof StatementNode)

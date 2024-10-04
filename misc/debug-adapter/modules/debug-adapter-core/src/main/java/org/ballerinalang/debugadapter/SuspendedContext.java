@@ -30,6 +30,7 @@ import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -57,10 +58,12 @@ public class SuspendedContext {
 
     private DebugSourceType sourceType;
     private Path breakPointSourcePath;
+    @Nullable
     private String fileName;
     private int lineNumber;
     private Module module;
     private Document document;
+    @Nullable
     private ClassLoaderReference classLoader;
     private DebugExpressionCompiler debugCompiler;
 
@@ -86,6 +89,7 @@ public class SuspendedContext {
         return attachedVm;
     }
 
+    @Nullable
     public ClassLoaderReference getDebuggeeClassLoader() {
         if (classLoader == null) {
             try {

@@ -56,6 +56,7 @@ import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -349,6 +350,7 @@ public class ConfigValueCreator {
         return ValueCreator.createMapValue(mapType, keyValueEntries);
     }
 
+    @Nullable
     private Object createUnionValue(TomlNode tomlValue, BUnionType unionType) {
         Object balValue = Utils.getBalValueFromToml(tomlValue, new HashSet<>(), unionType, new HashSet<>(), "");
         Type convertibleType = TypeConverter.getConvertibleType(balValue, unionType, null, new HashSet<>(),

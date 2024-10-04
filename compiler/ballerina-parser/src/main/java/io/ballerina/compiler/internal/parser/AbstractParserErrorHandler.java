@@ -20,6 +20,7 @@ package io.ballerina.compiler.internal.parser;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -117,6 +118,7 @@ public abstract class AbstractParserErrorHandler {
         return getFailSafeSolution(currentCtx, nextToken);
     }
 
+    @Nullable
     private Solution getResolution(ParserRuleContext currentCtx, STToken nextToken) {
         Result bestMatch = seekMatch(currentCtx);
         validateSolution(bestMatch, currentCtx, nextToken);
@@ -312,6 +314,7 @@ public abstract class AbstractParserErrorHandler {
      *
      * @return head of the stack
      */
+    @Nullable
     protected ParserRuleContext getParentContext() {
         return this.ctxStack.peek();
     }
@@ -321,6 +324,7 @@ public abstract class AbstractParserErrorHandler {
      *
      * @return second element of the stack
      */
+    @Nullable
     protected ParserRuleContext getGrandParentContext() {
         ParserRuleContext parent = this.ctxStack.pop();
         ParserRuleContext grandParent = this.ctxStack.peek();

@@ -30,6 +30,7 @@ import io.ballerina.toml.syntax.tree.SyntaxKind;
 import io.ballerina.toml.syntax.tree.TableArrayNode;
 import io.ballerina.toml.syntax.tree.TableNode;
 import io.ballerina.toml.syntax.tree.Token;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Responsible for generating sample toml syntax tree nodes for BoilerplateGenerator.
@@ -43,7 +44,7 @@ public final class SampleNodeGenerator {
     private SampleNodeGenerator() {
     }
 
-    public static KeyValueNode createStringKV(String key, String value, String description) {
+    public static KeyValueNode createStringKV(String key, String value, @Nullable String description) {
         KeyNode keyNode = getKeyNode(key);
         Token assign = getAssignToken();
         Token startingDoubleQuote = NodeFactory.createToken(SyntaxKind.DOUBLE_QUOTE_TOKEN);
@@ -56,7 +57,7 @@ public final class SampleNodeGenerator {
         return NodeFactory.createKeyValueNode(keyNode, assign, stringLiteralNode);
     }
 
-    public static KeyValueNode createNumericKV(String key, String value, String description) {
+    public static KeyValueNode createNumericKV(String key, String value, @Nullable String description) {
         KeyNode keyNode = getKeyNode(key);
         Token assign = getAssignToken();
         MinutiaeList endingMinList = getEndingMinList(description);
@@ -65,7 +66,7 @@ public final class SampleNodeGenerator {
         return NodeFactory.createKeyValueNode(keyNode, assign, numericLiteralNode);
     }
 
-    public static KeyValueNode createBooleanKV(String key, Boolean value, String description) {
+    public static KeyValueNode createBooleanKV(String key, Boolean value, @Nullable String description) {
         KeyNode keyNode = getKeyNode(key);
         Token assign = getAssignToken();
         MinutiaeList endingMinList = getEndingMinList(description);
@@ -81,7 +82,7 @@ public final class SampleNodeGenerator {
         return NodeFactory.createKeyValueNode(keyNode, assign, boolLiteralNode);
     }
 
-    public static TableNode createTable(String key, String description) {
+    public static TableNode createTable(String key, @Nullable String description) {
         KeyNode keyNode = getKeyNode(key);
         return NodeFactory.createTableNode(NodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN,
                 getLeadingTableMinList(description), NodeFactory.createEmptyMinutiaeList()), keyNode,
@@ -89,7 +90,7 @@ public final class SampleNodeGenerator {
                         , getEndingMinList(null)), NodeFactory.createEmptyNodeList());
     }
 
-    public static TableArrayNode createTableArray(String key, String description) {
+    public static TableArrayNode createTableArray(String key, @Nullable String description) {
         KeyNode keyNode = getKeyNode(key);
         return NodeFactory.createTableArrayNode(NodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN,
                 getLeadingTableMinList(description), NodeFactory.createEmptyMinutiaeList()),
@@ -108,7 +109,7 @@ public final class SampleNodeGenerator {
         return minutiaeList;
     }
 
-    private static MinutiaeList getEndingMinList(String comment) {
+    private static MinutiaeList getEndingMinList(@Nullable String comment) {
         Minutiae newLineMinutiae = NodeFactory.createWhitespaceMinutiae(NEW_LINE);
         MinutiaeList endingMinList = NodeFactory.createMinutiaeList();
         if (comment != null) {

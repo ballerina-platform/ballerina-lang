@@ -17,6 +17,8 @@
  */
 package io.ballerina.tools.text;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -87,6 +89,7 @@ class LineMap {
      * @param position of the source text
      * @return the {@code TextLine} to which the given position belongs to
      */
+    @Nullable
     private TextLine findLineFrom(int position) {
         // Check boundary conditions
         if (position == 0) {

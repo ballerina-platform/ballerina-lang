@@ -19,6 +19,7 @@ package io.ballerina.projects.environment;
 
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * {@code ResolutionResponse} is used to return a response to a given {@code PackageLoadRequest}.
@@ -43,7 +44,7 @@ public class ResolutionResponse {
     }
 
     public static ResolutionResponse from(ResolutionStatus resolutionStatus,
-                                          Package resolvedPackage,
+                                          @Nullable Package resolvedPackage,
                                           ResolutionRequest resolutionRequest) {
         return new ResolutionResponse(resolutionStatus, resolvedPackage, resolutionRequest,
                 resolutionRequest.packageDescriptor());

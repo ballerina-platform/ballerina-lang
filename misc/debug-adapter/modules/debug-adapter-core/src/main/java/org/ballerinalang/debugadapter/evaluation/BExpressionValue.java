@@ -22,6 +22,7 @@ import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Ballerina specific wrapper implementation for JDI Values.
@@ -30,9 +31,10 @@ public class BExpressionValue {
 
     private final SuspendedContext context;
     private final Value jdiValue;
+    @Nullable
     private BVariable bVariable;
 
-    public BExpressionValue(SuspendedContext context, Value jdiValue) {
+    public BExpressionValue(SuspendedContext context, @Nullable Value jdiValue) {
         this.context = context;
         this.jdiValue = EvaluationUtils.unboxValue(context, jdiValue);
         this.bVariable = null;

@@ -19,6 +19,7 @@
 package org.ballerinalang.toml.model;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -29,6 +30,7 @@ public class Dependency {
     private String moduleID;
     private DependencyMetadata metadata;
     
+    @Nullable
     public String getModuleID() {
         return moduleID == null ? null : moduleID.replaceAll("^\"|\"$", "");
     }

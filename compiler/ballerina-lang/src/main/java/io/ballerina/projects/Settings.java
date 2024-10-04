@@ -24,6 +24,7 @@ import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 
@@ -38,7 +39,7 @@ public class Settings {
     private final Repository[] repositories;
     private final DiagnosticResult diagnostics;
 
-    private Settings(Proxy proxy, Central central, DiagnosticResult diagnostics, Repository[] repositories) {
+    private Settings(Proxy proxy, Central central, DiagnosticResult diagnostics, @Nullable Repository[] repositories) {
         this.proxy = proxy;
         this.central = central;
         this.diagnostics = diagnostics;

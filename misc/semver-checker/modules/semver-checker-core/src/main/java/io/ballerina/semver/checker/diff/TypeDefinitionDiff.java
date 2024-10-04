@@ -20,6 +20,7 @@ package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -71,7 +72,7 @@ public class TypeDefinitionDiff extends NodeDiffImpl<TypeDefinitionNode> {
 
         private final TypeDefinitionDiff typeDefDiff;
 
-        public Builder(TypeDefinitionNode newNode, TypeDefinitionNode oldNode) {
+        public Builder(@Nullable TypeDefinitionNode newNode, @Nullable TypeDefinitionNode oldNode) {
             super(newNode, oldNode);
             typeDefDiff = new TypeDefinitionDiff(newNode, oldNode);
         }

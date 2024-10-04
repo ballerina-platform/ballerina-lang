@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.ErrorValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,6 +61,7 @@ public class WDChannels {
         return channel;
     }
 
+    @Nullable
     public Object receiveDataMultipleChannels(Strand strand, ReceiveField[] receiveFields, Type targetType)
             throws Throwable {
         if (strand.workerReceiveMap == null) {
@@ -95,6 +97,7 @@ public class WDChannels {
         ++strand.channelCount;
     }
 
+    @Nullable
     private Object clearResultCache(Strand strand, ReceiveField[] receiveFields) {
         if (strand.channelCount != receiveFields.length) {
             return null;
@@ -122,6 +125,7 @@ public class WDChannels {
         return processResulAndError(strand, channels, result, allChannelsClosed);
     }
 
+    @Nullable
     private Object handleResultForOpenChannel(Strand strand, String[] channels, WorkerDataChannel channel)
             throws Throwable {
         Object result = channel.tryTakeData(strand, true);
@@ -138,14 +142,16 @@ public class WDChannels {
         return result;
     }
 
-    private static Object getResultValue(Object result) {
+    private static Object getResultValue(@Nullable Object result) {
         if (result instanceof WorkerDataChannel.WorkerResult workerResult) {
             return workerResult.value;
         }
         return result;
     }
 
-    private Object processResulAndError(Strand strand, String[] channels, Object result, boolean allChannelsClosed) {
+    @Nullable
+    private Object processResulAndError(
+            Strand strand, String[] channels, @Nullable Object result, boolean allChannelsClosed) {
         if (result == null) {
             if (errors.size() == channels.length) {
                 result = errors.get(errors.size() - 1);

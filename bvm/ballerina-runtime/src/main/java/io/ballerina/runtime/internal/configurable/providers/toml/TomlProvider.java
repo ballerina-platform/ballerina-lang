@@ -58,6 +58,7 @@ import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.tools.text.LineRange;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -449,6 +450,7 @@ public class TomlProvider implements ConfigProvider {
         }
     }
 
+    @Nullable
     private Object getPrimitiveTomlValue(Module module, VariableKey key) {
         TomlNode tomlValue = getBasicTomlValue(module, key);
         if (tomlValue == null) {
@@ -457,6 +459,7 @@ public class TomlProvider implements ConfigProvider {
         return ((TomlBasicValueNode<?>) tomlValue).getValue();
     }
 
+    @Nullable
     private TomlNode getBasicTomlValue(Module module, VariableKey key) {
         String variableName = key.variable;
         List<TomlTableNode> moduleTomlNodes = getModuleTomlNodes(module, key);
@@ -568,6 +571,7 @@ public class TomlProvider implements ConfigProvider {
         }
     }
 
+    @Nullable
     private TomlNode getErrorNode(Toml toml, String moduleName, String orgModuleKey, String variableName) {
         // check for toml key-value error nodes
         Optional<TomlValueNode> valueNode = toml.get(moduleName);
@@ -639,6 +643,7 @@ public class TomlProvider implements ConfigProvider {
         validateSimpleValue(variableName, type, value);
     }
 
+    @Nullable
     private Object validateAndGetFiniteValue(TomlNode tomlValue, String variableName, BFiniteType type) {
         visitedNodes.add(tomlValue);
         Object balValue = Utils.getFiniteBalValue(tomlValue, visitedNodes, type, invalidTomlLines,

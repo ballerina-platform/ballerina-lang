@@ -32,6 +32,7 @@ import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -313,6 +314,7 @@ public class BlendedManifest {
             return (this.repository() != null) && (!REPOSITORY_LOCAL.repositoryName.equals(repository.repositoryName));
         }
 
+        @Nullable
         public String repository() {
             return !REPOSITORY_NOT_SPECIFIED.repositoryName.equals(this.repository.repositoryName) ?
                     this.repository.repositoryName : null;

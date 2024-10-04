@@ -57,6 +57,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -328,6 +329,7 @@ public final class ProjectUtils {
      * @param filePath project path
      * @return project root
      */
+    @Nullable
     public static Path findProjectRoot(Path filePath) {
         if (filePath != null) {
             filePath = filePath.toAbsolutePath().normalize();
@@ -449,7 +451,7 @@ public final class ProjectUtils {
         );
     }
 
-    public static String getBalaName(String org, String pkgName, String version, String platform) {
+    public static String getBalaName(String org, String pkgName, String version, @Nullable String platform) {
         // <orgname>-<packagename>-<platform>-<version>.bala
         if (platform == null || platform.isEmpty()) {
             platform = "any";
@@ -466,7 +468,7 @@ public final class ProjectUtils {
      * @param platform version, null converts to `any`
      * @return relative bala path
      */
-    public static Path getRelativeBalaPath(String org, String pkgName, String version, String platform) {
+    public static Path getRelativeBalaPath(String org, String pkgName, String version, @Nullable String platform) {
         // <orgname>-<packagename>-<platform>-<version>.bala
         if (platform == null || platform.isEmpty()) {
             platform = "any";
@@ -634,6 +636,7 @@ public final class ProjectUtils {
      * @param module Module instance
      * @return the name of the thin jar
      */
+    @Nullable
     public static String getJarFileName(Module module) {
         String jarName;
         if (module.packageInstance().manifest().org().anonymous()) {
@@ -706,6 +709,7 @@ public final class ProjectUtils {
      * @param proxy toml model proxy
      * @return proxy
      */
+    @Nullable
     public static Proxy initializeProxy(io.ballerina.projects.internal.model.Proxy proxy) {
         if (proxy != null && !"".equals(proxy.host()) && proxy.port() > 0) {
             InetSocketAddress proxyInet = new InetSocketAddress(proxy.host(), proxy.port());
@@ -844,7 +848,7 @@ public final class ProjectUtils {
     }
 
     private static void addDependencyContent(StringBuilder content, String org, String name, String version,
-                                             String scope, List<Dependency> dependencies,
+                                             @Nullable String scope, List<Dependency> dependencies,
                                              List<Dependency.Module> modules) {
         content.append("[[package]]\n");
         content.append("org = \"").append(org).append("\"\n");
@@ -909,6 +913,7 @@ public final class ProjectUtils {
         content.append("version = \"").append(version).append("\"\n");
     }
 
+    @Nullable
     private static String getDependencyScope(PackageDependencyScope scope) {
         if (scope == PackageDependencyScope.TEST_ONLY) {
             return "testOnly";
@@ -1338,7 +1343,7 @@ public final class ProjectUtils {
      * @return compatible versions
      */
     public static List<SemanticVersion> getVersionsInCompatibleRange(
-            SemanticVersion minVersion,
+            @Nullable SemanticVersion minVersion,
             List<SemanticVersion> versions,
             CompatibleRange compatibleRange) {
         if (compatibleRange.equals(CompatibleRange.LATEST)) {
@@ -1365,7 +1370,8 @@ public final class ProjectUtils {
      * @param packageLockingMode locking mode of the project
      * @return compatible range
      */
-    public static CompatibleRange getCompatibleRange(SemanticVersion version, PackageLockingMode packageLockingMode) {
+    public static CompatibleRange getCompatibleRange(@Nullable SemanticVersion version,
+                                                     PackageLockingMode packageLockingMode) {
         if (version == null) {
             return CompatibleRange.LATEST;
         }

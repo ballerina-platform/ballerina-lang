@@ -31,6 +31,7 @@ import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.transactions.TransactionLocalContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,9 +67,11 @@ public class Strand {
     private final String name;
     private final StrandMetadata metadata;
 
+    @Nullable
     public Stack<FunctionFrame> frames;
     public int resumeIndex;
     public int functionInvocation;
+    @Nullable
     public Object returnValue;
     public BError panic;
     public Scheduler scheduler;
@@ -82,15 +85,17 @@ public class Strand {
     public int acquiredLockCount;
 
     SchedulerItem schedulerItem;
-    List<WaitContext> waitingContexts;
+    @Nullable List<WaitContext> waitingContexts;
     WaitContext waitContext;
     ItemGroup strandGroup;
 
     private Map<String, Object> globalProps;
+    @Nullable
     public TransactionLocalContext currentTrxContext;
     public Stack<TransactionLocalContext> trxContexts;
     private State state;
     private final ReentrantLock strandLock;
+    @Nullable
     public BMap<BString, Object> workerReceiveMap = null;
     public int channelCount = 0;
 
@@ -127,7 +132,7 @@ public class Strand {
         }
     }
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
-                  Map<String, Object> properties, TransactionLocalContext currentTrxContext) {
+                  Map<String, Object> properties, @Nullable TransactionLocalContext currentTrxContext) {
         this(name, metadata, scheduler, parent, properties);
         if (currentTrxContext != null) {
             this.trxContexts = parent.trxContexts;
@@ -210,6 +215,7 @@ public class Strand {
         globalProps.putIfAbsent(CURRENT_TRANSACTION_CONTEXT_PROPERTY, this.currentTrxContext);
     }
 
+    @Nullable
     public ErrorValue handleFlush(ChannelDetails[] channels) throws Throwable {
         try {
             if (flushDetail == null) {
@@ -517,8 +523,10 @@ public class Strand {
         public ChannelDetails[] flushChannels;
         public int flushedCount;
         public Lock flushLock;
+        @Nullable
         public ErrorValue result;
         public boolean inProgress;
+        @Nullable
         public Throwable panic;
 
         public FlushDetail(ChannelDetails[] flushChannels) {
@@ -539,7 +547,7 @@ public class Strand {
         public boolean done;
         public Object result;
 
-        public WaitResult(boolean done, Object result) {
+        public WaitResult(boolean done, @Nullable Object result) {
             this.done = done;
             this.result = result;
         }

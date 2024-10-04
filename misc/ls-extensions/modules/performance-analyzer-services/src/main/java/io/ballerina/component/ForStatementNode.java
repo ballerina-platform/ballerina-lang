@@ -18,6 +18,8 @@
 
 package io.ballerina.component;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * models for statement nodes.
  *
@@ -26,6 +28,7 @@ package io.ballerina.component;
 public class ForStatementNode extends Node {
 
     private final long length;
+    @Nullable
     private Node forBody;
 
     public ForStatementNode(long length) {

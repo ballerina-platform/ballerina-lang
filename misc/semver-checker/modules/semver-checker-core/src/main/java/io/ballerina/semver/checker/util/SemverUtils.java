@@ -20,6 +20,7 @@ package io.ballerina.semver.checker.util;
 
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.semver.checker.diff.PackageDiff;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Semantic versioning related utilities.
@@ -34,7 +35,7 @@ public final class SemverUtils {
     private SemverUtils() {
     }
 
-    public static String calculateSuggestedVersion(SemanticVersion prevVersion, PackageDiff packageDiff) {
+    public static String calculateSuggestedVersion(SemanticVersion prevVersion, @Nullable PackageDiff packageDiff) {
         if (packageDiff == null) {
             return prevVersion.toString();
         } else {

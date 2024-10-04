@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.internal.parser;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayDeque;
 
 /**
@@ -56,6 +58,7 @@ public class Result {
         this.matches = matches;
     }
 
+    @Nullable
     protected AbstractParserErrorHandler.Solution peekFix() {
         return this.fixes.peek();
     }

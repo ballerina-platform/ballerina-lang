@@ -18,8 +18,10 @@
 package org.ballerinalang.toml.model;
 
 import org.ballerinalang.toml.util.PathUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Defines dependency object fields. The same object will be used to define patches.
@@ -53,11 +55,12 @@ public class DependencyMetadata {
      *
      * @return location of the dependency
      */
-    public Path getPath() {
+    @Nullable
+    public Optional<Path> getPath() {
         if (PathUtils.getPath(this.path) == null) {
-            return null;
+            return Optional.empty();
         }
-        return Path.of(PathUtils.getPath(this.path));
+        return Optional.of(Path.of(PathUtils.getPath(this.path)));
     }
 
     /**

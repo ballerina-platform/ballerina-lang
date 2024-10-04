@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.BIRGenUtils;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -42,7 +43,7 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
     private BIROptimizer.OptimizerEnv env;
     private final Map<BIRBasicBlock, List<BIRBasicBlock>> predecessorMap = new HashMap<>();
 
-    public void optimizeNode(BIRNode node, BIROptimizer.OptimizerEnv env) {
+    public void optimizeNode(BIRNode node, @Nullable BIROptimizer.OptimizerEnv env) {
         if (node == null) {
             return;
         }

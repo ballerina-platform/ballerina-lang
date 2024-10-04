@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.PackageResolution.DependencyResolution;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -76,12 +77,12 @@ class PackageContext {
                    PackageId packageId,
                    PackageManifest packageManifest,
                    DependencyManifest dependencyManifest,
-                   TomlDocumentContext ballerinaTomlContext,
-                   TomlDocumentContext dependenciesTomlContext,
-                   TomlDocumentContext cloudTomlContext,
-                   TomlDocumentContext compilerPluginTomlContext,
-                   TomlDocumentContext balToolTomlContext,
-                   MdDocumentContext packageMdContext,
+                   @Nullable TomlDocumentContext ballerinaTomlContext,
+                   @Nullable TomlDocumentContext dependenciesTomlContext,
+                   @Nullable TomlDocumentContext cloudTomlContext,
+                   @Nullable TomlDocumentContext compilerPluginTomlContext,
+                   @Nullable TomlDocumentContext balToolTomlContext,
+                   @Nullable MdDocumentContext packageMdContext,
                    CompilationOptions compilationOptions,
                    Map<ModuleId, ModuleContext> moduleContextMap,
                    DependencyGraph<PackageDescriptor> pkgDescDependencyGraph,
@@ -205,7 +206,7 @@ class PackageContext {
         return moduleContextMap.get(moduleId);
     }
 
-    ModuleContext moduleContext(ModuleName moduleName) {
+    @Nullable ModuleContext moduleContext(ModuleName moduleName) {
         for (ModuleContext moduleContext : moduleContextMap.values()) {
             if (moduleContext.moduleName().equals(moduleName)) {
                 return moduleContext;

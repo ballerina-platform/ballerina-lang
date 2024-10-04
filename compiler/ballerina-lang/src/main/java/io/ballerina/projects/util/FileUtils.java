@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -72,6 +74,7 @@ public final class FileUtils {
      * @param filePath Path of the file.
      * @return File name without extension.
      */
+    @Nullable
     public static String getFileNameWithoutExtension(String filePath) {
         Path fileName = Path.of(filePath).getFileName();
         if (null != fileName) {

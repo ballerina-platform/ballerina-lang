@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.Flag;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -220,6 +221,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
         throw new IllegalArgumentException("Invalid type provided");
     }
 
+    @Nullable
     private BType getTypeInclusionBType(TypeSymbol typeSymbol) {
         if (typeSymbol != null) {
             if (typeSymbol instanceof AbstractTypeSymbol abstractTypeSymbol) {

@@ -29,6 +29,7 @@ import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -195,7 +196,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @param parent The link to the parent node
      */
     @Override
-    public String stringValue(BLink parent) {
+    public String stringValue(@Nullable BLink parent) {
         if (this.valueKind != DecimalValueKind.OTHER) {
             return this.valueKind.getValue();
         }

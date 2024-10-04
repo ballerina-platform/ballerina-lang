@@ -51,6 +51,7 @@ import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.eclipse.lsp4j.debug.Variable;
 import org.eclipse.lsp4j.debug.VariablesArguments;
 import org.eclipse.lsp4j.debug.VariablesResponse;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -80,9 +81,11 @@ public class DebugTestRunner {
     private static Path testProjectBaseDir;
     private static Path testSingleFileBaseDir;
     private static BalServer balServer;
+    @Nullable
     private DAPClientConnector debugClientConnector;
     private boolean isConnected = false;
     private int port;
+    @Nullable
     private BMainInstance balClient = null;
     private Process debuggeeProcess;
     private DebugHitListener hitListener;
@@ -274,6 +277,7 @@ public class DebugTestRunner {
         return Optional.empty();
     }
 
+    @Nullable
     private SetBreakpointsResponse setBreakpoints(List<BallerinaTestDebugPoint> breakPoints)
             throws BallerinaTestException {
 

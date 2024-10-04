@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.model;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -58,12 +59,12 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
 
         public BIRBasicBlock targetBB;
 
-        public GOTO(Location pos, BIRBasicBlock targetBB) {
+        public GOTO(@Nullable Location pos, BIRBasicBlock targetBB) {
             super(pos, InstructionKind.GOTO);
             this.targetBB = targetBB;
         }
 
-        public GOTO(Location pos,
+        public GOTO(@Nullable Location pos,
                     BIRBasicBlock targetBB,
                     BirScope scope) {
             this(pos, targetBB);
@@ -106,13 +107,13 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public List<BIRAnnotationAttachment> calleeAnnotAttachments;
         public Set<Flag> calleeFlags;
 
-        public Call(Location pos,
+        public Call(@Nullable Location pos,
                     InstructionKind kind,
                     boolean isVirtual,
                     PackageID calleePkg,
                     Name name,
                     List<BIROperand> args,
-                    BIROperand lhsOp,
+                    @Nullable BIROperand lhsOp,
                     BIRBasicBlock thenBB,
                     List<BIRAnnotationAttachment> calleeAnnotAttachments,
                     Set<Flag> calleeFlags) {
@@ -133,7 +134,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                     PackageID calleePkg,
                     Name name,
                     List<BIROperand> args,
-                    BIROperand lhsOp,
+                    @Nullable BIROperand lhsOp,
                     BIRBasicBlock thenBB,
                     List<BIRAnnotationAttachment> calleeAnnotAttachments,
                     Set<Flag> calleeFlags,
@@ -231,14 +232,14 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.scope = scope;
         }
 
-        public FPCall(Location pos,
+        public FPCall(@Nullable Location pos,
                       InstructionKind kind,
-                      BIROperand fp,
+                      @Nullable BIROperand fp,
                       List<BIROperand> args,
                       BIROperand lhsOp,
                       boolean isAsync,
                       BIRBasicBlock thenBB,
-                      BirScope scope,
+                      @Nullable BirScope scope,
                       boolean workerDerivative) {
             this(pos, kind, fp, args, lhsOp, isAsync, thenBB, scope);
             this.workerDerivative = workerDerivative;
@@ -282,7 +283,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      */
     public static class Return extends BIRTerminator {
 
-        public Return(Location pos) {
+        public Return(@Nullable Location pos) {
             super(pos, InstructionKind.RETURN);
         }
 
@@ -319,17 +320,17 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public BIRBasicBlock trueBB;
         public BIRBasicBlock falseBB;
 
-        public Branch(Location pos, BIROperand op, BIRBasicBlock trueBB, BIRBasicBlock falseBB) {
+        public Branch(@Nullable Location pos, BIROperand op, BIRBasicBlock trueBB, BIRBasicBlock falseBB) {
             super(pos, InstructionKind.BRANCH);
             this.op = op;
             this.trueBB = trueBB;
             this.falseBB = falseBB;
         }
 
-        public Branch(Location pos,
+        public Branch(@Nullable Location pos,
                       BIROperand op,
                       BIRBasicBlock trueBB,
-                      BIRBasicBlock falseBB,
+                      @Nullable BIRBasicBlock falseBB,
                       BirScope scope) {
             this(pos, op, trueBB, falseBB);
             this.scope = scope;
@@ -460,7 +461,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.unlockBB = unlockBB;
         }
 
-        public Unlock(Location pos, BIRBasicBlock unlockBB, BirScope scope) {
+        public Unlock(@Nullable Location pos, BIRBasicBlock unlockBB, BirScope scope) {
             this(pos, unlockBB);
             this.scope = scope;
         }
@@ -497,7 +498,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
 
         public BIROperand errorOp;
 
-        public Panic(Location pos, BIROperand errorOp) {
+        public Panic(@Nullable Location pos, BIROperand errorOp) {
             super(pos, InstructionKind.PANIC);
             this.errorOp = errorOp;
         }

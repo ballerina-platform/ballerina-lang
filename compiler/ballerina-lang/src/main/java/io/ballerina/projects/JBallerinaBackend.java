@@ -37,6 +37,7 @@ import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
@@ -419,6 +420,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     // TODO Can we move this method to Module.displayName()
+    @Nullable
     private String getJarFileName(ModuleContext moduleContext) {
         String jarName;
         if (moduleContext.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
@@ -916,6 +918,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
     }
 
+    @Nullable
     private JarConflict getJarConflict(JarLibrary conflictingJar) {
         for (JarConflict jarConflict: this.conflictedJars) {
             if (jarConflict.firstJarLibrary().path() == conflictingJar.path()) {
@@ -937,6 +940,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
     }
 
+    @Nullable
     private PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId, PlatformLibraryScope scope) {
         Package pkg = packageCache.getPackageOrThrow(packageId);
         CompilationCache compilationCache = pkg.project().projectEnvironmentContext().getService(

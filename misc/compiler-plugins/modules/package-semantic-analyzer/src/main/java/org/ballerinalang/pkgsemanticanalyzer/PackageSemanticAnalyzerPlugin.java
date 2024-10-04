@@ -37,6 +37,7 @@ import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,7 +114,7 @@ public class PackageSemanticAnalyzerPlugin extends CompilerPlugin {
     }
 
     private static void reportTomlDiagnostic(CompilationAnalysisContext compilationAnalysisContext,
-                                             TomlNodeLocation location, String code, String message,
+                                             TomlNodeLocation location, @Nullable String code, String message,
                                              DiagnosticSeverity severity) {
         var diagnosticInfo = new DiagnosticInfo(code, message, severity);
         var tomlDiagnostic = new TomlDiagnostic(location, diagnosticInfo, message);

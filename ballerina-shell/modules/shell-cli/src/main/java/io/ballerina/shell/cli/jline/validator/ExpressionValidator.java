@@ -21,6 +21,7 @@ package io.ballerina.shell.cli.jline.validator;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.shell.cli.utils.IncompleteInputFinder;
+import org.jetbrains.annotations.Nullable;
 
 /**
  *  Validates user input completes as an expression.
@@ -29,6 +30,7 @@ import io.ballerina.shell.cli.utils.IncompleteInputFinder;
  */
 public class ExpressionValidator implements Validator {
 
+    @Nullable
     private Validator nextInValidator;
 
     public ExpressionValidator() {

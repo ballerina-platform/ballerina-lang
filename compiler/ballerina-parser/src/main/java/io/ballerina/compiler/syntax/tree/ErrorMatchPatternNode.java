@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -108,6 +109,7 @@ public class ErrorMatchPatternNode extends NonTerminalNode {
     public static class ErrorMatchPatternNodeModifier {
         private final ErrorMatchPatternNode oldNode;
         private Token errorKeyword;
+        @Nullable
         private NameReferenceNode typeReference;
         private Token openParenthesisToken;
         private SeparatedNodeList<Node> argListMatchPatternNode;

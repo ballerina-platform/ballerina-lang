@@ -24,6 +24,7 @@ import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -60,6 +61,7 @@ public class TomlDiagnostic extends Diagnostic {
         return message;
     }
 
+    @Nullable
     @Override
     public List<DiagnosticProperty<?>> properties() {
         return null;

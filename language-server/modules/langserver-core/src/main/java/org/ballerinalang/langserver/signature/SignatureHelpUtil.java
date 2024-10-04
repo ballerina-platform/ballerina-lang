@@ -66,6 +66,7 @@ import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -96,6 +97,7 @@ public final class SignatureHelpUtil {
      * @param context Signature Help context.
      * @return {@link SignatureHelp} SignatureHelp for the invocation node.
      */
+    @Nullable
     public static SignatureHelp getSignatureHelp(SignatureContext context) {
         fillTokenInfoAtCursor(context);
         Optional<NonTerminalNode> sNode = context.getNodeAtCursor();

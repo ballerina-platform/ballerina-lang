@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,7 @@ public final class Map {
     private Map() {
     }
 
+    @Nullable
     public static BXml map(BXml x, BFunctionPointer<Object[], Object> func) {
         if (x.isSingleton()) {
             func.asyncCall(new Object[]{x, true}, METADATA);

@@ -22,6 +22,7 @@ import org.ballerinalang.model.Name;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -359,8 +360,9 @@ public class TypeParamAnalyzer {
         findTypeParam(expr, loc, expType, actualType, env, resolvedTypes, result, false);
     }
 
-    private void findTypeParam(BLangExpression expr, Location loc, BType expType, BType actualType, SymbolEnv env,
-                               HashSet<BType> resolvedTypes, FindTypeParamResult result, boolean checkContravariance) {
+    private void findTypeParam(
+            @Nullable BLangExpression expr, Location loc, BType expType, BType actualType, SymbolEnv env,
+            HashSet<BType> resolvedTypes, FindTypeParamResult result, boolean checkContravariance) {
         if (resolvedTypes.contains(expType)) {
             return;
         }

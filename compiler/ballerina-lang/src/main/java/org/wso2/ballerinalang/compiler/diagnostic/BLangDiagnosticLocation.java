@@ -21,6 +21,7 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -41,8 +42,8 @@ public class BLangDiagnosticLocation implements Location {
         this(filePath, startLine, endLine, startColumn, endColumn, 0, 0);
     }
 
-    public BLangDiagnosticLocation(String filePath, int startLine, int endLine, int startColumn, int endColumn,
-                                   int startOffset, int length) {
+    public BLangDiagnosticLocation(@Nullable String filePath, int startLine, int endLine, int startColumn,
+                                   int endColumn, int startOffset, int length) {
         this.filePath = filePath;
         this.startLine = startLine;
         this.endLine = endLine;

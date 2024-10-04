@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
 import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -161,7 +162,7 @@ public class InitMethodGen {
 
     public void generateLambdaForModuleExecuteFunction(ClassWriter cw, String initClass, JvmCastGen jvmCastGen,
                                                        BIRNode.BIRFunction mainFunc,
-                                                       BIRNode.BIRFunction testExecuteFunc) {
+                                                       @Nullable BIRNode.BIRFunction testExecuteFunc) {
         String lambdaFuncName = LAMBDA_PREFIX + MODULE_EXECUTE_METHOD + "$";
         MethodVisitor mv = visitFunction(cw, lambdaFuncName);
         mv.visitCode();
@@ -517,6 +518,7 @@ public class InitMethodGen {
                 thenBB, null, workerDerivative);
     }
 
+    @Nullable
     private BIRNode.BIRGlobalVariableDcl getDefaultFuncFPGlobalVar(Name name,
                                                                    List<BIRNode.BIRGlobalVariableDcl> globalVars) {
 

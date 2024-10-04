@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir;
 
 import org.ballerinalang.model.tree.BlockNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRLockDetailsHolder;
@@ -43,7 +44,7 @@ class BIRGenEnv {
 
     BIRPackage enclPkg;
 
-    BIRFunction enclFunc;
+    @Nullable BIRFunction enclFunc;
 
     List<BIRBasicBlock> enclBasicBlocks;
 
@@ -53,8 +54,8 @@ class BIRGenEnv {
     private int currentLocalVarId = -1;
     private int currentLambdaVarId = -1;
 
-    BIRBasicBlock enclBB;
-    BIROperand targetOperand;
+    @Nullable BIRBasicBlock enclBB;
+    @Nullable BIROperand targetOperand;
     BIRBasicBlock enclLoopBB;
     BIRBasicBlock enclLoopEndBB;
     BIRBasicBlock enclOnFailEndBB;
@@ -72,7 +73,7 @@ class BIRGenEnv {
 
     // This is the basic block that contains the return instruction for the current function.
     // A function can have only one basic block that has a return instruction.
-    BIRBasicBlock returnBB;
+    @Nullable BIRBasicBlock returnBB;
 
     // This is to hold whether a NewArray or NewStructure instruction is being constructed
     int isInArrayOrStructure = 0;

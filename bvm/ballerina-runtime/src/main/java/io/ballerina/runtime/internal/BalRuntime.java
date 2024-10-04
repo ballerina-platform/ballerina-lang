@@ -45,6 +45,7 @@ import io.ballerina.runtime.internal.scheduling.SyncCallback;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.ValueCreator;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -74,7 +75,7 @@ public class BalRuntime extends Runtime {
     private boolean moduleStopped = false;
     private Thread schedulerThread = null;
 
-    public BalRuntime(Scheduler scheduler, Module module) {
+    public BalRuntime(Scheduler scheduler, @Nullable Module module) {
         this.scheduler = scheduler;
         this.module = module;
     }
@@ -163,6 +164,7 @@ public class BalRuntime extends Runtime {
      * This method needs to be called if object.getType().isIsolated() or
      * object.getType().isIsolated(methodName) returns false.
      */
+    @Nullable
     @Override
     public BFuture invokeMethodAsyncSequentially(BObject object, String methodName, String strandName,
                                                  StrandMetadata metadata,
@@ -212,6 +214,7 @@ public class BalRuntime extends Runtime {
      * This method needs to be called if both object.getType().isIsolated() and
      * object.getType().isIsolated(methodName) returns true.
      */
+    @Nullable
     @Override
     public BFuture invokeMethodAsyncConcurrently(BObject object, String methodName, String strandName,
                                                  StrandMetadata metadata,
@@ -267,10 +270,11 @@ public class BalRuntime extends Runtime {
      * We can decide the object method isolation if and only if both object.getType().isIsolated() and
      * object.getType().isIsolated(methodName) returns true.
      */
+    @Nullable
     @Override
     @Deprecated
     public BFuture invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
-                                     Callback callback, Map<String, Object> properties,
+                                     Callback callback, @Nullable Map<String, Object> properties,
                                      Type returnType, Object... args) {
         try {
             validateArgs(object, methodName);

@@ -19,6 +19,7 @@ package io.samjs.plugins.badsad;
 
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 
@@ -35,7 +36,7 @@ public class BadSadCompilerPlugin20 extends CompilerPlugin {
         out.println(getStr().toCharArray());
     }
 
-    String getStr() {
+    @Nullable String getStr() {
         return null;
     }
 }
