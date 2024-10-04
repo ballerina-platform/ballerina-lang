@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -49,7 +48,7 @@ public class TestarinaTestCase extends BaseTest {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-testarina-project-");
 
         // copy TestProject1 to a temp
-        Path originalTestProj1 = Paths.get("src", "test", "resources",
+        Path originalTestProj1 = Path.of("src", "test", "resources",
                 "testarina", "ServiceTestProject").toAbsolutePath();
         this.serviceProjectPath = this.tempProjectDirectory.resolve("ServiceTestProject");
         copyFolder(originalTestProj1, this.serviceProjectPath);

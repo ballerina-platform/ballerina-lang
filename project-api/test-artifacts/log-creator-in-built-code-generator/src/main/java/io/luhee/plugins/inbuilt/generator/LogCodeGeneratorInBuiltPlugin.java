@@ -30,7 +30,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 
 /***
@@ -39,7 +38,7 @@ import java.nio.file.Paths;
  * @since 2.7.1
  */
 public class LogCodeGeneratorInBuiltPlugin extends CompilerPlugin {
-    private static final Path filePath = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
+    private static final Path filePath = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
             .toAbsolutePath();
 
     @Override

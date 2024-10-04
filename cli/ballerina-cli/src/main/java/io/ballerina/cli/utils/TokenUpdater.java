@@ -30,7 +30,7 @@ import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Collections;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -79,7 +79,7 @@ public final class TokenUpdater {
         public void handle(HttpExchange httpExchange) {
             String token = getToken(httpExchange.getRequestURI().getPath());
             String currentUsersHomeDir = System.getProperty("user.home");
-            String settingsTomlPath = String.valueOf(Paths.get(currentUsersHomeDir, ".ballerina", SETTINGS_FILE_NAME));
+            String settingsTomlPath = String.valueOf(Path.of(currentUsersHomeDir, ".ballerina", SETTINGS_FILE_NAME));
             FileOutputStream outputStream = null;
             try {
                 outputStream = new FileOutputStream(settingsTomlPath);

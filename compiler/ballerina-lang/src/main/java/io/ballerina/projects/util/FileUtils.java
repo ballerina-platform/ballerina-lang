@@ -34,7 +34,6 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -74,7 +73,7 @@ public final class FileUtils {
      * @return File name without extension.
      */
     public static String getFileNameWithoutExtension(String filePath) {
-        Path fileName = Paths.get(filePath).getFileName();
+        Path fileName = Path.of(filePath).getFileName();
         if (null != fileName) {
             int index = indexOfExtension(fileName.toString());
             return index == -1 ? fileName.toString() :

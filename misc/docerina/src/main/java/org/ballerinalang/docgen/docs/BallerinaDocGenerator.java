@@ -66,7 +66,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -143,7 +142,7 @@ public final class BallerinaDocGenerator {
                     if (moduleFile.isDirectory() && moduleFile.listFiles().length > 0
                             && moduleFile.listFiles()[0].isDirectory()) {
                         File versionFile = moduleFile.listFiles()[0];
-                        Path docJsonPath = Paths.get(versionFile.getAbsolutePath(), API_DOCS_JSON);
+                        Path docJsonPath = Path.of(versionFile.getAbsolutePath(), API_DOCS_JSON);
                         if (docJsonPath.toFile().exists()) {
                             try (BufferedReader br = Files.newBufferedReader(docJsonPath, StandardCharsets.UTF_8)) {
                                 ApiDocsJson apiDocsJson = GSON.fromJson(br, ApiDocsJson.class);
@@ -154,7 +153,7 @@ public final class BallerinaDocGenerator {
                                 apiDocsJson.docsData.modules.forEach(mod -> {
                                     try {
                                         mod.resources
-                                                .addAll(getResourcePaths(Paths.get(orgFile.getAbsolutePath())));
+                                                .addAll(getResourcePaths(Path.of(orgFile.getAbsolutePath())));
                                     } catch (IOException e) {
                                         LOG.error(String.format("API documentation generation failed. Cause: %s"
                                                 , e.getMessage()), e);
@@ -231,7 +230,7 @@ public final class BallerinaDocGenerator {
         if (!sourceLocation.isEmpty()) {
             output = output.resolve(moduleLib.modules.get(0).orgName).resolve(moduleLib.modules.get(0).id)
                     .resolve(moduleLib.modules.get(0).version).resolve(ICON_NAME);
-            Path iconPath = Paths.get(sourceLocation);
+            Path iconPath = Path.of(sourceLocation);
             try {
                 byte[] iconByteArray = Files.readAllBytes(iconPath);
                 Files.write(output, iconByteArray);

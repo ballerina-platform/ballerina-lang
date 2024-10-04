@@ -39,7 +39,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
@@ -56,7 +55,7 @@ import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 public class ProfileCommandTest extends BaseCommandTest {
     private Path testResources;
 
-    private static final Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
+    private static final Path logFile = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
             .toAbsolutePath();
 
     @BeforeSuite
@@ -73,7 +72,7 @@ public class ProfileCommandTest extends BaseCommandTest {
             this.testResources = super.tmpDir.resolve("build-test-resources");
             URI testResourcesURI = Objects.requireNonNull(
                     getClass().getClassLoader().getResource("test-resources")).toURI();
-            Path resourceURI = Paths.get(testResourcesURI);
+            Path resourceURI = Path.of(testResourcesURI);
             Files.walkFileTree(resourceURI, new BuildCommandTest.Copy(resourceURI,
                     this.testResources));
         } catch (URISyntaxException e) {
@@ -84,7 +83,7 @@ public class ProfileCommandTest extends BaseCommandTest {
 
     @Test(description = "Profile a ballerina project")
     public void testRunBalProjectWithProfileFlag() throws IOException {
-        Path projectPath = this.testResources.resolve("projectForProfile").resolve("package_a");
+        Path projectPath = this.testResources.resolve("projectForProfile/package_a");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -94,7 +93,7 @@ public class ProfileCommandTest extends BaseCommandTest {
         profileCommand.execute();
         String buildLog = readOutput(true).replaceAll("\r", "").replaceAll("\\\\", "/").strip();
         Assert.assertEquals(buildLog, getOutput("run-project-with-profile.txt"));
-        Path htmlPath = projectPath.resolve("target").resolve("profiler").resolve("ProfilerReport.html");
+        Path htmlPath = projectPath.resolve("target/profiler/ProfilerReport.html");
         Assert.assertTrue(htmlPath.toFile().exists());
         try {
             String htmlContent = Files.readString(htmlPath);
@@ -108,7 +107,7 @@ public class ProfileCommandTest extends BaseCommandTest {
 
     @Test(description = "Profile a ballerina project with build tools")
     public void testRunBalProjectWithProfileFlagWithBuildTools() throws IOException {
-        Path projectPath = this.testResources.resolve("projectForProfile").resolve("package_b");
+        Path projectPath = this.testResources.resolve("projectForProfile/package_b");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -118,7 +117,7 @@ public class ProfileCommandTest extends BaseCommandTest {
         profileCommand.execute();
         String buildLog = readOutput(true).replaceAll("\r", "").replaceAll("\\\\", "/").strip();
         Assert.assertEquals(buildLog, getOutput("profile-project-with-build-tool.txt"));
-        Path htmlPath = projectPath.resolve("target").resolve("profiler").resolve("ProfilerReport.html");
+        Path htmlPath = projectPath.resolve("target/profiler/ProfilerReport.html");
         Assert.assertTrue(htmlPath.toFile().exists());
         try {
             String htmlContent = Files.readString(htmlPath);
@@ -133,7 +132,7 @@ public class ProfileCommandTest extends BaseCommandTest {
     @Test(description = "Test profile command with help")
     public void testProfileCommandAndHelp() throws IOException {
         String[] args = {"--help"};
-        Path projectPath = this.testResources.resolve("projectForProfile").resolve("package_a");
+        Path projectPath = this.testResources.resolve("projectForProfile/package_a");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         ProfileCommand profileCommand = new ProfileCommand(projectPath, printStream, false);
         new CommandLine(profileCommand).parseArgs(args);
@@ -160,9 +159,9 @@ public class ProfileCommandTest extends BaseCommandTest {
 
     @Test(description = "Profile an empty package with code generator build tools")
     public void testProfileEmptyProjectWithBuildTools() throws IOException {
-        Path testDistCacheDirectory = Paths.get("build").toAbsolutePath().resolve(DIST_CACHE_DIRECTORY);
-        BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
-                .resolve("ballerina-generate-file").toString());
+        Path testDistCacheDirectory = Path.of("build").toAbsolutePath().resolve(DIST_CACHE_DIRECTORY);
+        BCompileUtil.compileAndCacheBala(
+                testResources.resolve("buildToolResources/tools/ballerina-generate-file").toString());
         Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());

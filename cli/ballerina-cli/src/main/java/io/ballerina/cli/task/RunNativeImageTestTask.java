@@ -52,7 +52,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -329,7 +328,7 @@ public class RunNativeImageTestTask implements Task {
             nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
                     + (NativeUtils.OS.contains("win") ? "native-image.cmd" : "native-image");
 
-            File commandExecutable = Paths.get(nativeImageCommand).toFile();
+            File commandExecutable = Path.of(nativeImageCommand).toFile();
             if (!commandExecutable.exists()) {
                 throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME/bin "
                         + "directory. Install it using: gu install native-image");

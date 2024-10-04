@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of assignment statements.
@@ -50,6 +50,6 @@ public class AssignmentStatementsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("statements", "assignment").toString();
+        return Path.of("statements", "assignment").toString();
     }
 }

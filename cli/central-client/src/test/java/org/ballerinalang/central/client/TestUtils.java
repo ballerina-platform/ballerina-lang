@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,8 +57,8 @@ import static org.ballerinalang.central.client.Utils.writeBalaFile;
  */
 public class TestUtils {
 
-    private static final Path UTILS_TEST_RESOURCES = Paths.get("src/test/resources/test-resources/utils");
-    private final Path tempBalaCache = Paths.get("build").resolve("temp-test-utils-bala-cache");
+    private static final Path UTILS_TEST_RESOURCES = Path.of("src/test/resources/test-resources/utils");
+    private final Path tempBalaCache = Path.of("build").resolve("temp-test-utils-bala-cache");
 
     @BeforeClass
     public void setUp() throws IOException {

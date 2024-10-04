@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the parser.
@@ -39,7 +39,7 @@ public final class TestParser {
 
     public static void main(String[] args) throws IOException {
         String path = TestParser.class.getClassLoader().getResource("test_parser.bal").getPath();
-        String content = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
+        String content = new String(Files.readAllBytes(Path.of(path)), StandardCharsets.UTF_8);
         testParser(content);
     }
 

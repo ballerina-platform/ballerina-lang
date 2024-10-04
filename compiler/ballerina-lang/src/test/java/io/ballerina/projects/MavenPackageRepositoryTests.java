@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -57,11 +56,11 @@ public class MavenPackageRepositoryTests {
 
         @Override
         public boolean getPackageFromRemoteRepo(String org, String name, String version) {
-            Path sourceFolderPath = RESOURCE_DIRECTORY.resolve("custom-repo-resources")
-                    .resolve("remote-custom-repo").resolve(name);
-            Path destinationFolderPath = RESOURCE_DIRECTORY.resolve("custom-repo-resources")
-                    .resolve("local-custom-repo")
-                    .resolve("bala").resolve(org).resolve(name);
+            Path sourceFolderPath =
+                    RESOURCE_DIRECTORY.resolve("custom-repo-resources/remote-custom-repo").resolve(name);
+            Path destinationFolderPath =
+                    RESOURCE_DIRECTORY.resolve("custom-repo-resources/local-custom-repo/bala").resolve(org)
+                            .resolve(name);
 
             try {
                 Files.walkFileTree(sourceFolderPath, new SimpleFileVisitor<Path>() {
@@ -87,9 +86,8 @@ public class MavenPackageRepositoryTests {
         }
     }
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
-    private static final Path TEST_REPO = RESOURCE_DIRECTORY.resolve("custom-repo-resources")
-            .resolve("local-custom-repo");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources");
+    private static final Path TEST_REPO = RESOURCE_DIRECTORY.resolve("custom-repo-resources/local-custom-repo");
     private MavenPackageRepository customPackageRepository;
 
     @BeforeSuite
@@ -238,9 +236,8 @@ public class MavenPackageRepositoryTests {
 
 
     private static void deleteRemotePackage() throws IOException {
-        Path destinationFolderPath = RESOURCE_DIRECTORY.resolve("custom-repo-resources").
-                resolve("local-custom-repo")
-                .resolve("bala").resolve("luheerathan").resolve("pact");
+        Path destinationFolderPath =
+                RESOURCE_DIRECTORY.resolve("custom-repo-resources/local-custom-repo/bala/luheerathan/pact");
         if (Files.exists(destinationFolderPath)) {
             try (Stream<Path> paths = Files.walk(destinationFolderPath)) {
                 paths.sorted(Comparator.reverseOrder())

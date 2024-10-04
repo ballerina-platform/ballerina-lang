@@ -29,7 +29,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
@@ -50,7 +49,7 @@ public class CleanCommandTest extends BaseCommandTest {
             this.testResources = super.tmpDir.resolve("build-test-resources");
             URI testResourcesURI = Objects.requireNonNull(
                     getClass().getClassLoader().getResource("test-resources")).toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI), new BuildCommandTest.Copy(Paths.get(testResourcesURI),
+            Files.walkFileTree(Path.of(testResourcesURI), new BuildCommandTest.Copy(Path.of(testResourcesURI),
                     this.testResources));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
@@ -104,7 +103,7 @@ public class CleanCommandTest extends BaseCommandTest {
     @Test(description = "Test clean command on a ballerina project with custom target dir.")
     public void testCleanCommandNonExistentTargetAndGenerated() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTargetAndGenerated");
-        Path customTargetDir = Paths.get("customTargetDirNotExists");
+        Path customTargetDir = Path.of("customTargetDirNotExists");
         Path generatedDir = projectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT);
         Assert.assertTrue(Files.notExists(customTargetDir));
 

@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of relational expressions.
@@ -50,6 +50,6 @@ public class RelationalExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("expressions", "relational").toString();
+        return Path.of("expressions", "relational").toString();
     }
 }

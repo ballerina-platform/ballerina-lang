@@ -101,7 +101,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -668,7 +667,7 @@ public final class TestUtil {
     @Deprecated
     public static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier();
-        identifier.setUri(Paths.get(filePath).toUri().toString());
+        identifier.setUri(Path.of(filePath).toUri().toString());
 
         return identifier;
     }

@@ -35,7 +35,7 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.function.Function;
 
 /**
@@ -107,11 +107,11 @@ public class NodeListAPITest extends AbstractSyntaxTreeAPITest {
 
     @Override
     protected SyntaxTree parseFile(String sourceFileName) {
-        return super.parseFile(Paths.get("node_list_api").resolve(sourceFileName));
+        return super.parseFile(Path.of("node_list_api", sourceFileName));
     }
 
     protected void testTree(Node node, String jsonFileName) {
-        super.testTree(node, Paths.get("node_list_api").resolve(jsonFileName));
+        super.testTree(node, Path.of("node_list_api", jsonFileName));
     }
 
     private StatementNode dupLocalVarDeclStmt(VariableDeclarationNode srcDeclNode, String varName) {

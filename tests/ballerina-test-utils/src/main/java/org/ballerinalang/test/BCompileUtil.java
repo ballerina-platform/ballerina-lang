@@ -41,7 +41,6 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
@@ -54,9 +53,9 @@ import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
  */
 public final class BCompileUtil {
 
-    private static final Path TEST_SOURCES_DIRECTORY = Paths.get("src/test/resources").toAbsolutePath()
+    private static final Path TEST_SOURCES_DIRECTORY = Path.of("src/test/resources").toAbsolutePath()
             .normalize();
-    private static final Path TEST_BUILD_DIRECTORY = Paths.get("build").toAbsolutePath().normalize();
+    private static final Path TEST_BUILD_DIRECTORY = Path.of("build").toAbsolutePath().normalize();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BCompileUtil.class);
 
@@ -68,11 +67,11 @@ public final class BCompileUtil {
     }
 
     public static Project loadProject(String sourceFilePath, BuildOptions buildOptions) {
-        Path sourcePath = Paths.get(sourceFilePath);
+        Path sourcePath = Path.of(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = TEST_SOURCES_DIRECTORY.resolve(sourcePath.getParent());
 
-        Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
+        Path projectPath = Path.of(sourceRoot.toString(), sourceFileName);
 
         BuildOptions defaultOptions;
         try {
@@ -162,11 +161,10 @@ public final class BCompileUtil {
 
     public static CompileResult compileAndCacheBala(String sourceFilePath, Path repoPath,
                                              ProjectEnvironmentBuilder projectEnvironmentBuilder) {
-        Path sourcePath = Paths.get(sourceFilePath);
+        Path sourcePath = Path.of(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = TEST_SOURCES_DIRECTORY.resolve(sourcePath.getParent());
-        Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-
+        Path projectPath = Path.of(sourceRoot.toString(), sourceFileName);
         return compileAndCacheBala(projectPath, repoPath, projectEnvironmentBuilder);
     }
 

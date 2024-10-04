@@ -27,7 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -87,7 +87,7 @@ public class BServerInstance implements BServer {
     }
 
     private void configureAgentArgs() throws BallerinaTestException {
-        String balAgent = Paths.get(System.getProperty(BALLERINA_AGENT_PATH)).toString();
+        String balAgent = Path.of(System.getProperty(BALLERINA_AGENT_PATH)).toString();
 
         if (balAgent == null || balAgent.isEmpty()) {
             throw new BallerinaTestException("Cannot start server, Ballerina agent not provided");
@@ -97,10 +97,8 @@ public class BServerInstance implements BServer {
                 + ",exitStatus=1,timeout=15000,killStatus=5 ";
 
         // add jacoco agent
-        String jacocoArgLine = "-javaagent:" + Paths.get(balServer.getServerHome())
-                .resolve("bre").resolve("lib").resolve("jacocoagent.jar").toString() + "=destfile=" +
-                Paths.get(System.getProperty("user.dir"))
-                        .resolve("build").resolve("jacoco").resolve("test.exec");
+        String jacocoArgLine = "-javaagent:" + Path.of(balServer.getServerHome(), "bre/lib/jacocoagent.jar")
+                + "=destfile=" + Path.of(System.getProperty("user.dir"), "build/jacoco/test.exec");
 
         agentArgs = jacocoArgLine + " " + agentArgs + " ";
     }
@@ -440,7 +438,7 @@ public class BServerInstance implements BServer {
                         int[] requiredPorts)
             throws BallerinaTestException {
         File commandDir = new File(balServer.getServerHome());
-        executeJarFile(Paths.get(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
+        executeJarFile(Path.of(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
                        args, envProperties, commandDir, requiredPorts);
     }
 
@@ -456,8 +454,8 @@ public class BServerInstance implements BServer {
     private void runJar(String balFile, String[] args, Map<String, String> envProperties, int[] requiredPorts)
             throws BallerinaTestException {
         File commandDir = new File(balServer.getServerHome());
-        String balFileName = Paths.get(balFile).getFileName().toString();
-        String jarPath = Paths.get(commandDir.getAbsolutePath(), balFileName.substring(0, balFileName.length() -
+        String balFileName = Path.of(balFile).getFileName().toString();
+        String jarPath = Path.of(commandDir.getAbsolutePath(), balFileName.substring(0, balFileName.length() -
                 4) + ".jar").toString();
         executeJarFile(jarPath, args, envProperties, commandDir, requiredPorts);
     }

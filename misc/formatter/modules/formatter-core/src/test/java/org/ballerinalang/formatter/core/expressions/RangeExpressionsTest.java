@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of range expressions.
@@ -43,6 +43,6 @@ public class RangeExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("expressions", "range").toString();
+        return Path.of("expressions", "range").toString();
     }
 }

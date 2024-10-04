@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of simple type descriptors.
@@ -43,6 +43,6 @@ public class SimpleTypesTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("types", "simple").toString();
+        return Path.of("types", "simple").toString();
     }
 }

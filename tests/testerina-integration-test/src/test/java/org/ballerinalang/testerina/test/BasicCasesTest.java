@@ -25,7 +25,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 /**
@@ -40,8 +40,7 @@ public class BasicCasesTest extends BaseTestCase {
     public void setup() throws BallerinaTestException, IOException {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.toString();
-        FileUtils.copyFolder(Paths.get("build/libs"),
-                Paths.get(projectPath, "runtime-api-tests", "libs"));
+        FileUtils.copyFolder(Path.of("build/libs"), Path.of(projectPath, "runtime-api-tests", "libs"));
     }
 
     @Test

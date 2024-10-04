@@ -31,7 +31,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -94,10 +94,8 @@ public class BMainInstance implements BMain {
 
     private void configureAgentArgs() {
         // add jacoco agent
-        String jacocoArgLine = "-javaagent:" + Paths.get(balServer.getServerHome())
-                .resolve("bre").resolve("lib").resolve("jacocoagent.jar") + "=destfile=" +
-                Paths.get(System.getProperty("user.dir"))
-                        .resolve("build").resolve("jacoco").resolve("test.exec");
+        String jacocoArgLine = "-javaagent:" + Path.of(balServer.getServerHome(), "bre/lib/jacocoagent.jar")
+                + "=destfile=" + Path.of(System.getProperty("user.dir"), "build/jacoco/test.exec");
         agentArgs = jacocoArgLine + " ";
     }
 
@@ -200,7 +198,7 @@ public class BMainInstance implements BMain {
             envProperties = new HashMap<>();
         }
         runMain("build", new String[]{packagePath}, envProperties, null, leechers, sourceRoot);
-        runJar(Paths.get(sourceRoot, packagePath).toString(), packagePath, ArrayUtils.addAll(flags, args),
+        runJar(Path.of(sourceRoot, packagePath).toString(), packagePath, ArrayUtils.addAll(flags, args),
                 envProperties, clientArgs, leechers, sourceRoot);
     }
 
@@ -220,7 +218,7 @@ public class BMainInstance implements BMain {
     }
 
     public String getBalServerHome() {
-        return Paths.get(balServer.getServerHome()).toString();
+        return Path.of(balServer.getServerHome()).toString();
     }
 
     /**
@@ -530,7 +528,7 @@ public class BMainInstance implements BMain {
      */
     private void runJar(String sourceRoot, String packageName, String[] args, Map<String, String> envProperties,
                         String[] clientArgs, LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
-        executeJarFile(Paths.get(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
+        executeJarFile(Path.of(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
                 args, envProperties, clientArgs, leechers, commandDir);
     }
 
@@ -547,8 +545,8 @@ public class BMainInstance implements BMain {
      */
     private void runJar(String balFile, String[] args, Map<String, String> envProperties, String[] clientArgs,
                         LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
-        String balFileName = Paths.get(balFile).getFileName().toString();
-        String jarPath = Paths.get(Paths.get(commandDir).toString(), balFileName.substring(0, balFileName.length() -
+        String balFileName = Path.of(balFile).getFileName().toString();
+        String jarPath = Path.of(Path.of(commandDir).toString(), balFileName.substring(0, balFileName.length() -
                 4) + ".jar").toString();
         executeJarFile(jarPath, args, envProperties, clientArgs, leechers, commandDir);
     }

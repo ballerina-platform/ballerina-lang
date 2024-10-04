@@ -39,7 +39,6 @@ import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -136,14 +135,14 @@ public class TransactionResourceManager {
      *
      */
     private void setLogProperties() {
-        final Path projectRoot = Paths.get(RuntimeUtils.USER_DIR);
+        final Path projectRoot = Path.of(RuntimeUtils.USER_DIR);
         if (projectRoot != null) {
             String logDir = getTransactionLogDirectory();
-            Path logDirPath = Paths.get(logDir);
+            Path logDirPath = Path.of(logDir);
             Path transactionLogDirectory;
             if (!logDirPath.isAbsolute()) {
                 logDir = projectRoot.toAbsolutePath().toString() + File.separatorChar + logDir;
-                transactionLogDirectory = Paths.get(logDir);
+                transactionLogDirectory = Path.of(logDir);
             } else {
                 transactionLogDirectory = logDirPath;
             }

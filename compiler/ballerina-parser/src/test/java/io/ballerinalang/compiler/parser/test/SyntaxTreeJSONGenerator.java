@@ -38,7 +38,6 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
@@ -65,7 +64,7 @@ public final class SyntaxTreeJSONGenerator {
     private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.COMP_UNIT;
 
     private static final PrintStream STANDARD_OUT = System.out;
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/");
 
     private SyntaxTreeJSONGenerator() {
     }
@@ -76,7 +75,7 @@ public final class SyntaxTreeJSONGenerator {
 
         // Using a file source as input
         String path = "test_parser.bal";
-        String jsonString = generateJSON(Paths.get(path), PARSER_CONTEXT);
+        String jsonString = generateJSON(Path.of(path), PARSER_CONTEXT);
         STANDARD_OUT.println(jsonString);
     }
 

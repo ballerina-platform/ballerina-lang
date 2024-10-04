@@ -43,7 +43,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test goto definition language server feature.
@@ -80,7 +79,7 @@ public class DefinitionTest {
 
     @Test(dataProvider = "testInterStdLibDataProvider")
     public void testInterStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
-        Path ballerinaHome = Paths.get(CommonUtil.BALLERINA_HOME);
+        Path ballerinaHome = Path.of(CommonUtil.BALLERINA_HOME);
         performStdLibDefinitionTest(ballerinaHome, configPath, configDir, true);
         performStdLibDefinitionTest(ballerinaHome, configPath, configDir, false);
     }
@@ -198,7 +197,7 @@ public class DefinitionTest {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
-            Path expectedPath = Paths.get(root.toUri());
+            Path expectedPath = Path.of(root.toUri());
             for (String uriComponent : uriComponents) {
                 expectedPath = expectedPath.resolve(uriComponent);
             }
@@ -211,7 +210,7 @@ public class DefinitionTest {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
-            Path expectedPath = Paths.get("build").toAbsolutePath();
+            Path expectedPath = Path.of("build").toAbsolutePath();
             for (String uriComponent : uriComponents) {
                 expectedPath = expectedPath.resolve(uriComponent);
             }

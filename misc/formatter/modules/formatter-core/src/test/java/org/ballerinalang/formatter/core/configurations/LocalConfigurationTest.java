@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test formatting with a local configuration file.
@@ -54,7 +53,7 @@ public class LocalConfigurationTest extends FormatterTest {
     }
     @Override
     public String getTestResourceDir() {
-        Path path = Paths.get("configurations", "local");
+        Path path = Path.of("configurations", "local");
         return path.toString();
     }
 }

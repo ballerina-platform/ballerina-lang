@@ -38,7 +38,6 @@ import picocli.CommandLine;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.DOC_COMMAND;
@@ -58,14 +57,14 @@ public class DocCommand implements BLauncherCmd {
     private final boolean exitWhenFinish;
 
     public DocCommand() {
-        this.projectPath = Paths.get(System.getProperty("user.dir"));
+        this.projectPath = Path.of(System.getProperty("user.dir"));
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;
     }
 
     DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
-        this.projectPath = Paths.get(System.getProperty("user.dir"));
+        this.projectPath = Path.of(System.getProperty("user.dir"));
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
@@ -73,7 +72,7 @@ public class DocCommand implements BLauncherCmd {
     }
 
     DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish, Path targetDir) {
-        this.projectPath = Paths.get(System.getProperty("user.dir"));
+        this.projectPath = Path.of(System.getProperty("user.dir"));
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
@@ -126,11 +125,11 @@ public class DocCommand implements BLauncherCmd {
             return;
         }
         if (argList == null) {
-            this.projectPath = Paths.get(System.getProperty("user.dir"));
+            this.projectPath = Path.of(System.getProperty("user.dir"));
         } else {
             // Generate docs from a bala
             if (argList.get(0).endsWith(".bala")) {
-                this.projectPath = Paths.get(System.getProperty("user.dir"));
+                this.projectPath = Path.of(System.getProperty("user.dir"));
                 Path balaPath = this.projectPath.resolve(argList.get(0));
                 ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
                 defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
@@ -144,7 +143,7 @@ public class DocCommand implements BLauncherCmd {
                 }
                 return;
             }
-            this.projectPath = Paths.get(argList.get(0));
+            this.projectPath = Path.of(argList.get(0));
         }
         // combine docs
         if (this.combine) {
@@ -187,7 +186,7 @@ public class DocCommand implements BLauncherCmd {
 
         // normalize paths
         this.projectPath = this.projectPath.normalize();
-        this.outputPath = this.outputLoc != null ? Paths.get(this.outputLoc).toAbsolutePath() : null;
+        this.outputPath = this.outputLoc != null ? Path.of(this.outputLoc).toAbsolutePath() : null;
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CreateTargetDirTask()) // create target directory.

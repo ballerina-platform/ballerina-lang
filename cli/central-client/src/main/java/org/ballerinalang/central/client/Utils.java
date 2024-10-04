@@ -52,7 +52,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -316,7 +315,7 @@ public final class Utils {
             LogFormatter logFormatter) throws CentralClientException {
         if (isNightlyBuild) {
             // If its a nightly build tag the file as a module from nightly
-            Path nightlyBuildMetaFile = Paths.get(balaCacheWithPkgPath.toString(), "nightly.build");
+            Path nightlyBuildMetaFile = Path.of(balaCacheWithPkgPath.toString(), "nightly.build");
             if (!nightlyBuildMetaFile.toFile().exists()) {
                 createMetaFile(nightlyBuildMetaFile, logFormatter, "error occurred while creating nightly.build file.");
             }
@@ -334,7 +333,7 @@ public final class Utils {
             LogFormatter logFormatter) throws CentralClientException {
         if (deprecateMsg != null) {
             // If its a deprecated package tag a file to denote as deprecated
-            Path deprecateMsgFile = Paths.get(balaCacheWithPkgPath.toString(), DEPRECATED_META_FILE_NAME);
+            Path deprecateMsgFile = Path.of(balaCacheWithPkgPath.toString(), DEPRECATED_META_FILE_NAME);
             if (!deprecateMsgFile.toFile().exists()) {
                 createMetaFile(deprecateMsgFile, logFormatter,
                         "error occurred while creating the file '" + DEPRECATED_META_FILE_NAME + "'");

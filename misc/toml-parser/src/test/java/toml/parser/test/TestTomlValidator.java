@@ -26,7 +26,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * A test class that prints results based on a schema and sample toml file.
@@ -41,10 +40,10 @@ public final class TestTomlValidator {
     }
 
     public static void main(String [] args) throws IOException {
-        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "sample-schema.json");
+        Path resourceDirectory = Path.of("src", "test", "resources", "validator", "sample-schema.json");
         TomlValidator validator = new TomlValidator(Schema.from(resourceDirectory));
 
-        Path sampleInput = Paths.get("src", "test", "resources", "validator", "sample.toml");
+        Path sampleInput = Path.of("src", "test", "resources", "validator", "sample.toml");
 
         Toml toml = Toml.read(sampleInput);
         validator.validate(toml);

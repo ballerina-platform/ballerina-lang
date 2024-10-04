@@ -37,7 +37,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -111,7 +110,7 @@ public class FileSystemProgramDirectory implements SourceDirectory {
     public Path saveCompiledProgram(InputStream source, String fileName) {
         // When building a single bal file the executable (balx) should be generated in the current directory of
         // the user
-        Path targetFilePath = Paths.get(fileName);
+        Path targetFilePath = Path.of(fileName);
         try {
             OUT_STREAM.println("    " + fileName);
             Files.copy(source, targetFilePath, StandardCopyOption.REPLACE_EXISTING);

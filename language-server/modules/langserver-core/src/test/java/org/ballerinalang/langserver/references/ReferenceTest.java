@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test suit for testing find all references.
@@ -91,7 +90,7 @@ public class ReferenceTest {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
-            Path expectedPath = Paths.get(this.sourceRoot.toUri());
+            Path expectedPath = Path.of(this.sourceRoot.toUri());
             for (String uriComponent : uriComponents) {
                 expectedPath = expectedPath.resolve(uriComponent);
             }

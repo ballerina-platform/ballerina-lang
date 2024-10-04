@@ -27,7 +27,6 @@ import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +38,7 @@ import static io.netty.util.internal.PlatformDependent.isWindows;
  * @since 2201.2.1
  */
 public class FileSystemRepositoryGetPackagesTests {
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources", "repository-resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/repository-resources");
     private Map<String, List<String>> nonEmptyRepoPackages;
     private Map<String, List<String>> emptyRepoPackages;
     private Environment environment;
