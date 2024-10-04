@@ -310,7 +310,7 @@ public class XMLAccessTest {
         int i = 0;
         BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'j'", 4, 14);
         BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 5, 14);
-        BAssertUtil.validateError(navigationNegative, i++, "cannot find xml namespace prefix 'ns'", 6, 15);
+        BAssertUtil.validateError(navigationNegative, i++, "cannot find the prefix 'ns'", 6, 15);
         BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'x2'", 7, 9);
         BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'x2'", 8, 9);
         BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'j'", 8, 18);
