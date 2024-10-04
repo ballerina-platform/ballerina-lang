@@ -24,8 +24,9 @@ type Employee record {|
 function testFrozenAnyArrayElementUpdate() returns error? {
     error? actualError = trap frozenAnyArrayElementUpdate();
     test:assertTrue(actualError is error);
-    test:assertEquals((<error>actualError).message(), "{ballerina/lang.map}InherentTypeViolation");
-    test:assertEquals((<error>actualError).detail()["message"],
+    error e = <error>actualError;
+    test:assertEquals(e.message(), "{ballerina/lang.map}InherentTypeViolation");
+    test:assertEquals(e.detail()["message"],
         "cannot update 'readonly' field 'name' in record of type '(Employee & readonly)'");
 }
 

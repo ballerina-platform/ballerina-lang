@@ -52,7 +52,7 @@ public class MappingConstructorExprTest {
         resultWithTupleUpdateMethod =
                 BCompileUtil.compile("test-src/types/readonly/test_tuple_vs_array_readonly_violation_consistency.bal");
         resultWithoutTupleUpdateMethod = BCompileUtil.compile("test-src/types/readonly/" +
-                "test_tuple_vs_array_readonly_violation_consistency_without_tuple_Update_method.bal");
+                "test_tuple_vs_array_readonly_violation_without_tuple_update_method.bal");
     }
 
     @Test(dataProvider = "mappingConstructorTests")
