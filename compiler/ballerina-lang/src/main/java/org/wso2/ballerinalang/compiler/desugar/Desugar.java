@@ -10738,7 +10738,9 @@ public class Desugar extends BLangNodeVisitor {
                                                                  BLangXMLIndexedStepExtend indexedStepExtend) {
         BLangExpression indexExpr = indexedStepExtend.indexExpr;
         markAndAddPossibleClosureVarsToArrowFunction(arrowFunction, indexExpr);
-        return ASTBuilderUtil.createIndexAccessExpr(expression, indexExpr);
+        BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(expression, indexExpr);
+        indexAccessExpr.pos = indexedStepExtend.pos;
+        return indexAccessExpr;
     }
 
     private static void markAndAddPossibleClosureVarsToArrowFunction(BLangArrowFunction arrFunction,
