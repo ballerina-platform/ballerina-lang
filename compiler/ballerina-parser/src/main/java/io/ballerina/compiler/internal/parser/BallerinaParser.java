@@ -5564,7 +5564,8 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode namePattern = parseXMLNamePatternChain(slashLT);
-        newLhsExpr = STNodeFactory.createXMLStepExpressionNode(lhsExpr, namePattern);
+        STNode xmlStepExtends = parseXMLStepExtends();
+        newLhsExpr = STNodeFactory.createXMLStepExpressionNode(lhsExpr, namePattern, xmlStepExtends);
         return newLhsExpr;
     }
 
@@ -5772,9 +5773,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseFieldAccessOrMethodCall(STNode lhsExpr, boolean isInConditionalExpr) {
         STNode dotToken = parseDotToken();
-        STToken token = peek();
-        if (token.kind == SyntaxKind.MAP_KEYWORD || token.kind == SyntaxKind.START_KEYWORD || 
-                token.kind == SyntaxKind.JOIN_KEYWORD) {
+        if (isSpecialMethodName(peek())) {
             STNode methodName = getKeywordAsSimpleNameRef();
             STNode openParen = parseArgListOpenParenthesis();
             STNode args = parseArgsList();
@@ -14268,6 +14267,84 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse xml step extends.
+     * <p>
+     * <code>
+     * xml-step-extends := xml-step-extend*
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseXMLStepExtends() {
+        STToken nextToken = peek();
+        if (isEndOfXMLStepExtend(nextToken.kind)) {
+            return STNodeFactory.createEmptyNodeList();
+        }
+
+        List<STNode> xmlStepExtendList = new ArrayList<>();
+        startContext(ParserRuleContext.XML_STEP_EXTENDS);
+        STNode stepExtension;
+        while (!isEndOfXMLStepExtend(nextToken.kind)) {
+            if (nextToken.kind == SyntaxKind.DOT_TOKEN) {
+                stepExtension = parseXMLStepMethodCallExtend();
+            } else if (nextToken.kind == SyntaxKind.DOT_LT_TOKEN) {
+                stepExtension = parseXMLFilterExpressionRhs();
+            } else {
+                stepExtension = parseXMLIndexedStepExtend();
+            }
+            xmlStepExtendList.add(stepExtension);
+            nextToken = peek();
+        }
+        endContext();
+        return STNodeFactory.createNodeList(xmlStepExtendList);
+    }
+
+    /**
+     * <p>
+     * Parse xml indexed step extension.
+     * <br/>
+     * <code>
+     *     xml-indexed-step-extend:= [ expression ]
+     * </code>
+     * </p>
+     *
+     * @return Parsed node
+     */
+    private STNode parseXMLIndexedStepExtend() {
+        startContext(ParserRuleContext.MEMBER_ACCESS_KEY_EXPR);
+        STNode openBracket = parseOpenBracket();
+        STNode keyExpr = parseKeyExpr(true);
+        STNode closeBracket = parseCloseBracket();
+        endContext();
+        return STNodeFactory.createXMLStepIndexedExtendNode(openBracket, keyExpr, closeBracket);
+    }
+
+    /**
+     * <p>
+     * Parse xml method call step extension.
+     * <br/>
+     * <code>
+     *     xml-method-call-step-extend:= . method-name ( arg-list )
+     * </code>
+     * </p>
+     *
+     * @return Parsed node
+     */
+    private STNode parseXMLStepMethodCallExtend() {
+        STNode dotToken = parseDotToken();
+        STNode methodName = parseMethodName();
+        STNode parenthesizedArgsList = parseParenthesizedArgList();
+        return STNodeFactory.createXMLStepMethodCallExtendNode(dotToken, methodName, parenthesizedArgsList);
+    }
+
+    private STNode parseMethodName() {
+        if (isSpecialMethodName(peek())) {
+            return getKeywordAsSimpleNameRef();
+        }
+        return STNodeFactory.createSimpleNameReferenceNode(parseIdentifier(ParserRuleContext.IDENTIFIER));
+    }
+
+    /**
      * Parse <code> .< </code> token.
      *
      * @return Parsed node
@@ -14322,6 +14399,14 @@ public class BallerinaParser extends AbstractParser {
         return switch (tokenKind) {
             case GT_TOKEN, EOF_TOKEN -> true;
             default -> false;
+        };
+    }
+
+    private boolean isEndOfXMLStepExtend(SyntaxKind tokenKind) {
+        return switch (tokenKind) {
+            case OPEN_BRACKET_TOKEN, DOT_LT_TOKEN -> false;
+            case DOT_TOKEN -> peek(3).kind != SyntaxKind.OPEN_PAREN_TOKEN;
+            default -> true;
         };
     }
 
@@ -14390,14 +14475,15 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse xml step expression.
      * <p>
-     * <code>xml-step-expr := expression xml-step-start</code>
+     * <code>xml-step-expr := expression xml-step-start xml-step-extend*</code>
      *
      * @param lhsExpr Preceding expression of /*, /<, or /**\/< token
      * @return Parsed node
      */
     private STNode parseXMLStepExpression(STNode lhsExpr) {
         STNode xmlStepStart = parseXMLStepStart();
-        return STNodeFactory.createXMLStepExpressionNode(lhsExpr, xmlStepStart);
+        STNode xmlStepExtends = parseXMLStepExtends();
+        return STNodeFactory.createXMLStepExpressionNode(lhsExpr, xmlStepStart, xmlStepExtends);
     }
 
     /**
@@ -19107,6 +19193,11 @@ public class BallerinaParser extends AbstractParser {
                  MODULE_ENUM_DECLARATION -> true;
             default -> false;
         };
+    }
+
+    private boolean isSpecialMethodName(STToken token) {
+        return token.kind == SyntaxKind.MAP_KEYWORD || token.kind == SyntaxKind.START_KEYWORD ||
+                token.kind == SyntaxKind.JOIN_KEYWORD;
     }
 
     // ----------------------------------------- ~ End of Parser ~ ----------------------------------------

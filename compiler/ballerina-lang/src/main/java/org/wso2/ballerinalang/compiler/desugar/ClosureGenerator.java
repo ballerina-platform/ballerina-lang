@@ -92,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -142,11 +143,15 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -1388,8 +1393,34 @@ public class ClosureGenerator extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         xmlNavigation.expr = rewriteExpr(xmlNavigation.expr);
-        xmlNavigation.childIndex = rewriteExpr(xmlNavigation.childIndex);
         result = xmlNavigation;
+    }
+
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess) {
+        extendedXmlNavigationAccess.stepExpr = rewriteExpr(extendedXmlNavigationAccess.stepExpr);
+        List<BLangXMLStepExtend> extensions = extendedXmlNavigationAccess.extensions;
+        for (int i = 0; i < extensions.size(); i++) {
+            extensions.set(i, rewrite(extensions.get(i), env));
+        }
+        result = extendedXmlNavigationAccess;
+    }
+
+    @Override
+    public void visit(BLangXMLIndexedStepExtend xmlIndexedStepExtend) {
+        xmlIndexedStepExtend.indexExpr = rewriteExpr(xmlIndexedStepExtend.indexExpr);
+        result = xmlIndexedStepExtend;
+    }
+
+    @Override
+    public void visit(BLangXMLFilterStepExtend xmlFilterStepExtend) {
+        result = xmlFilterStepExtend;
+    }
+   
+    @Override
+    public void visit(BLangXMLMethodCallStepExtend xmlMethodCallStepExtend) {
+        xmlMethodCallStepExtend.invocation = rewriteExpr(xmlMethodCallStepExtend.invocation);
+        result = xmlMethodCallStepExtend;
     }
 
     @Override

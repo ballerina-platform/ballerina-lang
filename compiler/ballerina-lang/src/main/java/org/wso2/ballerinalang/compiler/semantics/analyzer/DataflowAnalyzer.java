@@ -108,6 +108,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -169,6 +170,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -1642,9 +1646,27 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         analyzeNode(xmlNavigation.expr, env);
-        if (xmlNavigation.childIndex == null) {
-            analyzeNode(xmlNavigation.childIndex, env);
-        }
+    }
+
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess) {
+        analyzeNode(extendedXmlNavigationAccess.stepExpr, env);
+        extendedXmlNavigationAccess.extensions.forEach(extension -> analyzeNode(extension, env));
+    }
+
+    @Override
+    public void visit(BLangXMLIndexedStepExtend xmlIndexedStepExtend) {
+        analyzeNode(xmlIndexedStepExtend.indexExpr, env);
+    }
+
+    @Override
+    public void visit(BLangXMLFilterStepExtend xmlFilterStepExtend) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangXMLMethodCallStepExtend xmlMethodCallStepExtend) {
+        analyzeNode(xmlMethodCallStepExtend.invocation, env);
     }
 
     @Override

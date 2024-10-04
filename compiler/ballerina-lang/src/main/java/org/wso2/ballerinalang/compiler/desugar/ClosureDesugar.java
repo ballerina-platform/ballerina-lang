@@ -1895,7 +1895,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = xmlIndexAccessExpr;
     }
 
-
     @Override
     public void visit(BLangXMLElementAccess xmlElementAccess) {
         xmlElementAccess.expr = rewriteExpr(xmlElementAccess.expr);
@@ -1905,10 +1904,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         xmlNavigation.expr = rewriteExpr(xmlNavigation.expr);
-        xmlNavigation.childIndex = rewriteExpr(xmlNavigation.childIndex);
         result = xmlNavigation;
     }
-
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {

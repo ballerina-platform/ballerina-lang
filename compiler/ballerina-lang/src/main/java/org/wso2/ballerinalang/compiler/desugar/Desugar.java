@@ -83,6 +83,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -142,6 +143,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -227,11 +229,15 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
@@ -330,6 +336,7 @@ import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createBlockStmt;
@@ -368,13 +375,13 @@ public class Desugar extends BLangNodeVisitor {
     private static final String CREATE_RECORD_VALUE = "createRecordFromMap";
     private static final String CHANNEL_AUTO_CLOSE_FUNC_NAME = "autoClose";
 
-    public static final String XML_INTERNAL_SELECT_DESCENDANTS = "selectDescendants";
     public static final String XML_INTERNAL_CHILDREN = "children";
-    public static final String XML_INTERNAL_GET_FILTERED_CHILDREN_FLAT = "getFilteredChildrenFlat";
+    public static final String XML_MAP = "map";
+    public static final String XML_GET_DESCENDANTS = "getDescendants";
     public static final String XML_INTERNAL_GET_ELEMENT_NAME_NIL_LIFTING = "getElementNameNilLifting";
     public static final String XML_INTERNAL_GET_ATTRIBUTE = "getAttribute";
     public static final String XML_INTERNAL_GET_ELEMENTS = "getElements";
-    public static final String XML_GET_CONTENT_OF_TEXT = "getContent";
+    public static final String XML_ELEMENTS = "elements";
 
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
@@ -437,6 +444,7 @@ public class Desugar extends BLangNodeVisitor {
     private Map<Name, BLangStatement> stmtsToBePropagatedToQuery = new HashMap<>();
     // Reuse the strand annotation in isolated workers and start action
     private BLangAnnotationAttachment strandAnnotAttachement;
+    private BLangAnonymousModelHelper anonymousModelHelper;
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -474,6 +482,7 @@ public class Desugar extends BLangNodeVisitor {
         this.mockDesugar = MockDesugar.getInstance(context);
         this.classClosureDesugar = ClassClosureDesugar.getInstance(context);
         this.unifier = new Unifier();
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -6634,9 +6643,10 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Handle element name access.
+        // Accessing field name using the "_" has been disallowed in the compile time.
         if (fieldName.equals("_")) {
             return createLanglibXMLInvocation(fieldAccessExpr.pos, XML_INTERNAL_GET_ELEMENT_NAME_NIL_LIFTING,
-                    fieldAccessExpr.expr, new ArrayList<>(), new ArrayList<>());
+                    fieldAccessExpr.expr, Collections.emptyList(), Collections.emptyList());
         }
 
         BLangLiteral attributeNameLiteral = createStringLiteral(fieldAccessExpr.field.pos, fieldName);
@@ -6644,7 +6654,7 @@ public class Desugar extends BLangNodeVisitor {
         args.add(isOptionalAccessToLiteral(fieldAccessExpr));
 
         return createLanglibXMLInvocation(fieldAccessExpr.pos, XML_INTERNAL_GET_ATTRIBUTE, fieldAccessExpr.expr, args,
-                new ArrayList<>());
+                Collections.emptyList());
     }
 
     private BLangExpression isOptionalAccessToLiteral(BLangFieldBasedAccess fieldAccessExpr) {
@@ -8573,7 +8583,7 @@ public class Desugar extends BLangNodeVisitor {
         ArrayList<BLangExpression> filters = expandFilters(xmlElementAccess.filters);
 
         BLangInvocation invocationNode = createLanglibXMLInvocation(xmlElementAccess.pos, XML_INTERNAL_GET_ELEMENTS,
-                xmlElementAccess.expr, new ArrayList<>(), filters);
+                xmlElementAccess.expr, Collections.emptyList(), filters);
         result = rewriteExpr(invocationNode);
     }
 
@@ -8595,8 +8605,8 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangInvocation createLanglibXMLInvocation(Location pos, String functionName,
                                                        BLangExpression invokeOnExpr,
-                                                       ArrayList<BLangExpression> args,
-                                                       ArrayList<BLangExpression> restArgs) {
+                                                       List<BLangExpression> args,
+                                                       List<BLangExpression> restArgs) {
         invokeOnExpr = rewriteExpr(invokeOnExpr);
 
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
@@ -8626,36 +8636,19 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         xmlNavigation.expr = rewriteExpr(xmlNavigation.expr);
-        xmlNavigation.childIndex = rewriteExpr(xmlNavigation.childIndex);
-
-        ArrayList<BLangExpression> filters = expandFilters(xmlNavigation.filters);
-
-        // xml/**/<elemName>
-        if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.DESCENDANTS) {
-            BLangInvocation invocationNode = createLanglibXMLInvocation(xmlNavigation.pos,
-                    XML_INTERNAL_SELECT_DESCENDANTS, xmlNavigation.expr, new ArrayList<>(), filters);
-            result = rewriteExpr(invocationNode);
-        } else if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
-            // xml/*
-            BLangInvocation invocationNode = createLanglibXMLInvocation(xmlNavigation.pos, XML_INTERNAL_CHILDREN,
-                    xmlNavigation.expr, new ArrayList<>(), new ArrayList<>());
-            result = rewriteExpr(invocationNode);
-        } else {
-            BLangExpression childIndexExpr;
-            // xml/<elem>
-            if (xmlNavigation.childIndex == null) {
-                childIndexExpr = new BLangLiteral(Long.valueOf(-1), symTable.intType);
-            } else {
-                // xml/<elem>[index]
-                childIndexExpr = xmlNavigation.childIndex;
-            }
-            ArrayList<BLangExpression> args = new ArrayList<>();
-            args.add(rewriteExpr(childIndexExpr));
-
-            BLangInvocation invocationNode = createLanglibXMLInvocation(xmlNavigation.pos,
-                    XML_INTERNAL_GET_FILTERED_CHILDREN_FLAT, xmlNavigation.expr, args, filters);
-            result = rewriteExpr(invocationNode);
+        if (xmlNavigation.parent.getKind() == NodeKind.XML_EXTENDED_NAVIGATION) {
+            result = xmlNavigation;
+            return;
         }
+        createMapFunctionForStepExpr(xmlNavigation, new ArrayList<>());
+    }
+
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess) {
+        BLangXMLNavigationAccess stepExpr = extendedXmlNavigationAccess.stepExpr;
+        stepExpr.parent = extendedXmlNavigationAccess;
+        extendedXmlNavigationAccess.stepExpr = rewriteExpr(stepExpr);
+        createMapFunctionForStepExpr(extendedXmlNavigationAccess.stepExpr, extendedXmlNavigationAccess.extensions);
     }
 
     @Override
@@ -10619,5 +10612,144 @@ public class Desugar extends BLangNodeVisitor {
             env.enclPkg.imports.add(importDcl);
             env.enclPkg.symbol.imports.add(importDcl.symbol);
         }
+    }
+
+    private void createMapFunctionForStepExpr(BLangXMLNavigationAccess xmlNavigation,
+                                              List<BLangXMLStepExtend> extensions) {
+        Location pos = xmlNavigation.pos;
+        List<BLangExpression> args;
+        List<BLangExpression> filters = expandFilters(xmlNavigation.filters);
+
+        // xml/**/<elemName>
+        if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.DESCENDANTS) {
+            args = List.of(createArrowFunctionForNavigation(pos, extensions, XML_GET_DESCENDANTS, filters));
+        } else {
+            // xml/*
+            args = List.of(createArrowFunctionForNavigation(pos, extensions, XML_INTERNAL_CHILDREN, filters));
+        }
+
+        BLangInvocation elements =
+                createLanglibXMLInvocation(pos, XML_ELEMENTS, xmlNavigation.expr, Collections.emptyList(),
+                        Collections.emptyList());
+        BLangInvocation invocationNode =
+                createLanglibXMLInvocation(pos, XML_MAP, elements, args, Collections.emptyList());
+        result = rewriteExpr(invocationNode);
+    }
+
+    public BLangLambdaFunction createArrowFunctionForNavigation(Location pos, List<BLangXMLStepExtend> extensions,
+                                                                String func, List<BLangExpression> filters) {
+        BLangPackage enclPkg = env.enclPkg;
+        PackageID pkgID = enclPkg.packageID;
+        BType xmlType = symTable.xmlType;
+        BXMLSubType xmlElementType = symTable.xmlElementType;
+
+        BLangArrowFunction arrowFunction = (BLangArrowFunction) TreeBuilder.createArrowFunctionNode();
+        arrowFunction.pos = pos;
+        arrowFunction.functionName = createIdentifier(pos, anonymousModelHelper.getNextAnonymousFunctionKey(pkgID));
+
+        BInvokableTypeSymbol invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, Flags.PUBLIC,
+                pkgID, xmlType, enclPkg.symbol.owner, pos, VIRTUAL);
+        arrowFunction.funcType = new BInvokableType(List.of(xmlElementType), xmlType, invokableTypeSymbol);
+
+        BSymbol owner = env.scope.owner;
+        String parameterName = "$element$";
+        BLangSimpleVariable param = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        param.pos = pos;
+        param.setName(createIdentifier(pos, parameterName));
+        BVarSymbol symbol =
+                new BVarSymbol(0, Names.fromString(parameterName), owner.pkgID, xmlElementType, owner, pos, SOURCE);
+        param.symbol = symbol;
+        param.typeNode = ASTBuilderUtil.createTypeNode(xmlElementType);
+        param.setBType(xmlElementType);
+        arrowFunction.params.add(param);
+
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        varRef.pos = pos;
+        varRef.variableName = createIdentifier(pos, parameterName);
+        varRef.symbol = symbol;
+        varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        varRef.setBType(xmlElementType);
+
+        BLangExpression expression =
+                createLanglibXMLInvocation(pos, func, varRef, Collections.emptyList(), Collections.emptyList());
+        expression = rewriteExpr(expression);
+
+        if (filters.size() > 0) {
+            expression = createLanglibXMLInvocation(pos, XML_INTERNAL_GET_ELEMENTS, expression, Collections.emptyList(),
+                    filters);
+            expression = rewriteExpr(expression);
+        }
+
+        expression = createExpressionForExtensions(extensions, arrowFunction, expression);
+
+        arrowFunction.body = new BLangExprFunctionBody();
+        arrowFunction.body.expr = expression;
+        arrowFunction.body.pos = arrowFunction.body.expr.pos;
+        result = rewrite(arrowFunction, env);
+        return (BLangLambdaFunction) result;
+    }
+
+    private BLangExpression createExpressionForExtensions(List<BLangXMLStepExtend> extensions,
+                                                          BLangArrowFunction arrowFunction,
+                                                          BLangExpression expression) {
+        for (BLangXMLStepExtend extension : extensions) {
+            switch (extension.getKind()) {
+                case XML_STEP_INDEXED_EXTEND -> expression =
+                        createExpressionForIndexedStepExtend(arrowFunction, expression,
+                                (BLangXMLIndexedStepExtend) extension);
+                case XML_STEP_FILTER_EXTEND -> expression =
+                        createExpressionForFilterStepExtend(expression, (BLangXMLFilterStepExtend) extension);
+                case XML_STEP_METHOD_CALL_EXTEND ->
+                        expression = createExpressionForMethodCallStepExtend(arrowFunction, expression,
+                                (BLangXMLMethodCallStepExtend) extension);
+                default -> throw new IllegalStateException("Invalid xml step extension: " + extension.getKind());
+            }
+            expression.setBType(symTable.xmlType);
+        }
+        return expression;
+    }
+
+    private BLangExpression createExpressionForMethodCallStepExtend(BLangArrowFunction arrowFunction,
+                                                                    BLangExpression expression,
+                                                                    BLangXMLMethodCallStepExtend methodCallStepExtend) {
+        BLangInvocation invocation = methodCallStepExtend.invocation;
+        if (invocation.requiredArgs.size() > 0) {
+            invocation.requiredArgs.remove(0);
+        }
+
+        for (BLangExpression arg : invocation.requiredArgs) {
+            markAndAddPossibleClosureVarsToArrowFunction(arrowFunction, arg);
+        }
+        expression = createLanglibXMLInvocation(methodCallStepExtend.pos, invocation.name.value, expression,
+                invocation.requiredArgs, invocation.restArgs);
+        expression = rewrite(expression, env);
+        return types.addConversionExprIfRequired(expression, symTable.xmlType);
+    }
+
+    private BLangExpression createExpressionForFilterStepExtend(BLangExpression expression,
+                                                                BLangXMLFilterStepExtend filterStepExtend) {
+        ArrayList<BLangExpression> filterExtensions = expandFilters(filterStepExtend.filters);
+        return createLanglibXMLInvocation(filterStepExtend.pos, XML_INTERNAL_GET_ELEMENTS, expression,
+                Collections.emptyList(), filterExtensions);
+    }
+
+    private BLangExpression createExpressionForIndexedStepExtend(BLangArrowFunction arrowFunction,
+                                                                 BLangExpression expression,
+                                                                 BLangXMLIndexedStepExtend indexedStepExtend) {
+        BLangExpression indexExpr = indexedStepExtend.indexExpr;
+        markAndAddPossibleClosureVarsToArrowFunction(arrowFunction, indexExpr);
+        BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(expression, indexExpr);
+        indexAccessExpr.pos = indexedStepExtend.pos;
+        return indexAccessExpr;
+    }
+
+    private static void markAndAddPossibleClosureVarsToArrowFunction(BLangArrowFunction arrFunction,
+                                                                     BLangExpression expression) {
+        if (expression.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return;
+        }
+        BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) expression;
+        simpleVarRef.symbol.closure = true;
+        arrFunction.closureVarSymbols.add(new ClosureVarSymbol(simpleVarRef.symbol, simpleVarRef.pos));
     }
 }

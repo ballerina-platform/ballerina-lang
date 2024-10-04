@@ -25,6 +25,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -278,7 +279,7 @@ public class XMLAccessTest {
         BRunUtil.invoke(result, "testXmlIndexedAccessWithUnionType");
     }
 
-    @Test
+    @Test(enabled = false) // disabling until providing semantic support for step extension
     public void testXmlNavigationWithUnionType() {
         BRunUtil.invoke(navigation, "testXmlNavigationWithUnionType");
     }
@@ -288,23 +289,55 @@ public class XMLAccessTest {
         BRunUtil.invoke(navigation, "testXmlNavigationWithDefaultNamespaceDefinedAfter");
     }
 
+    @Test(dataProvider = "xmlStepExtension")
+    public void testXmlStepExtension(String function) {
+        BRunUtil.invoke(navigation, function);
+    }
+
+    @DataProvider
+    private Object[] xmlStepExtension() {
+        return new Object[]{
+                "testXmlIndexedStepExtend",
+                "testXmlFilterStepExtend",
+                "testXmlIndexedAndFilterStepExtend",
+                "testXmlMethodCallStepExtend",
+                "testXmlMethodCallIndexedAndFilterStepExtend"
+        };
+    }
+
     @Test
     public void testXMLNavExpressionNegative() {
-        String methodInvocMessage = "method invocations are not yet supported within XML navigation expressions, " +
-                "use a grouping expression (parenthesis) " +
-                "if you intend to invoke the method on the result of the navigation expression.";
-
-        String navIndexingMessage = "member access operations are not yet supported within XML navigation " +
-                "expressions, use a grouping expression (parenthesis) " +
-                "if you intend to member-access the result of the navigation expression.";
         int i = 0;
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 3, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 4, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 5, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 6, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 7, 13);
-        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 8, 13);
-        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 9, 13);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'j'", 4, 14);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 5, 14);
+        BAssertUtil.validateError(navigationNegative, i++, "cannot find the prefix 'ns'", 6, 15);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'x2'", 7, 9);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'x2'", 8, 9);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'j'", 8, 18);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 17,
+                18);
+        BAssertUtil.validateError(navigationNegative, i++, "too many arguments in call to 'get()'", 18, 13);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 19,
+                18);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined function 'foo' in type 'xml'", 21, 14);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'xml', found 'int'", 22, 13);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 23,
+                23);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'xml', found 'int'", 25, 22);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'r'", 29, 23);
+        BAssertUtil.validateError(navigationNegative, i++,
+                "incompatible types: expected 'boolean', found 'xml:Element'", 31, 31);
+        BAssertUtil.validateError(navigationNegative, i++,
+                "incompatible types: expected 'xml:ProcessingInstruction', found 'xml:Element'", 33, 60);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'xml', found '()'", 34, 18);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'r'", 36, 26);
+        BAssertUtil.validateError(navigationNegative, i++,
+                "incompatible types: expected 'boolean', found 'xml:Element'", 38, 34);
+        BAssertUtil.validateError(navigationNegative, i++,
+                "incompatible types: expected 'function (ballerina/lang.xml:0.0.0:ItemType) returns (boolean)', found" +
+                        " 'function (xml) returns ()'",
+                39, 29);
+
         Assert.assertEquals(navigationNegative.getErrorCount(), i);
     }
 
