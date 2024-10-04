@@ -224,8 +224,8 @@ public final class ReadOnlyUtils {
                 for (Map.Entry<String, Field> entry : originalFields.entrySet()) {
                     Field originalField = entry.getValue();
                     fields.put(entry.getKey(),
-                               new BField(getImmutableType(originalField.getFieldType(), unresolvedTypes),
-                                          originalField.getFieldName(), originalField.getFlags()));
+                            new BField(getImmutableType(originalField.getFieldType(), unresolvedTypes),
+                                    originalField.getFieldName(), originalField.getFlags() | SymbolFlags.READONLY));
                 }
 
                 BRecordType immutableRecordType = new BRecordType(
