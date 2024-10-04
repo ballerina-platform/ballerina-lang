@@ -2,6 +2,7 @@ package org.wso2.ballerinalang.compiler.packaging.repo;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.Patten.Part;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
@@ -25,7 +26,7 @@ public class BinaryRepo implements Repo<Path> {
         this(pathToHiddenDir, Path.of(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME), compilerPhase);
     }
 
-    public BinaryRepo(ZipConverter converter, CompilerPhase compilerPhase) {
+    public BinaryRepo(@Nullable ZipConverter converter, CompilerPhase compilerPhase) {
         this.converter = converter;
     }
 

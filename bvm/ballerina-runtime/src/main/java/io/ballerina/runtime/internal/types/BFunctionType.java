@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -36,8 +37,10 @@ import java.util.Arrays;
 public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     public Type restType;
+    @Nullable
     public Type retType;
     public long flags;
+    @Nullable
     public Parameter[] parameters;
 
     public BFunctionType(Module pkg) {
@@ -86,11 +89,13 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return retType;
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getZeroValue() {
         return null;
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getEmptyValue() {
         return null;

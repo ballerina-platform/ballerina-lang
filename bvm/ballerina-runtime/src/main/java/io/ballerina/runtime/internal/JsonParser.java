@@ -56,6 +56,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -244,6 +245,7 @@ public final class JsonParser {
             return new ParserException("value '" + inputValue + "' cannot be converted to '" + targetType + "'");
         }
 
+        @Nullable
         private static Object convertValues(Type targetType, String inputValue) throws ParserException {
             return switch (targetType.getTag()) {
                 case TypeTags.INT_TAG, TypeTags.SIGNED32_INT_TAG, TypeTags.SIGNED16_INT_TAG,
@@ -277,6 +279,7 @@ public final class JsonParser {
             }
         }
 
+        @Nullable
         private static Object convertToNull(Type targetType, String inputValue) throws ParserException {
             if (inputValue.charAt(0) == 'n' && StateMachine.NULL.equals(inputValue)) {
                 return null;
@@ -642,6 +645,7 @@ public final class JsonParser {
          */
         protected static class FieldNameState implements State {
 
+            @Nullable
             @Override
             public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
                 char ch;
@@ -693,6 +697,7 @@ public final class JsonParser {
          */
         protected static class StringFieldValueState implements State {
 
+            @Nullable
             @Override
             public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
                 State state = null;
@@ -765,6 +770,7 @@ public final class JsonParser {
          */
         protected static class StringArrayElementState implements State {
 
+            @Nullable
             @Override
             public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
                 State state = null;
@@ -833,6 +839,7 @@ public final class JsonParser {
          */
         protected static class StringValueState implements State {
 
+            @Nullable
             @Override
             public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
                 State state = null;
@@ -876,6 +883,7 @@ public final class JsonParser {
 
         }
 
+        @Nullable
         private static Object getNonStringValueAsJson(String str) throws ParserException {
             if (str.indexOf('.') >= 0) {
                 return getFloatingPointValue(str);
@@ -1001,7 +1009,7 @@ public final class JsonParser {
         }
 
         @Override
-        void setValueToJsonType(ValueType type, Object value) {
+        void setValueToJsonType(ValueType type, @Nullable Object value) {
             switch (type) {
                 case ARRAY_ELEMENT:
                     ArrayValueImpl arrayValue = (ArrayValueImpl) this.currentJsonNode;
@@ -1017,10 +1025,11 @@ public final class JsonParser {
             }
         }
 
-        private static Object convert(Object value, Type targetType) {
+        private static Object convert(@Nullable Object value, Type targetType) {
             return convert(value, targetType, new HashSet<>());
         }
 
+        @Nullable
         private static Object convert(Object value, Type targetType, Set<TypeValuePair> unresolvedValues) {
 
             if (value == null) {
@@ -1087,6 +1096,7 @@ public final class JsonParser {
             throw createConversionError(value, targetType);
         }
 
+        @Nullable
         private static Object handleNullConversion(Type targetType) {
             if (TypeUtils.getImpliedType(targetType).isNilable()) {
                 return null;

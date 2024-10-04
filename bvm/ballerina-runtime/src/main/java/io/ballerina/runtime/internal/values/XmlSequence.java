@@ -36,6 +36,7 @@ import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -155,6 +156,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     /**
      * {@inheritDoc}
      */
+    @Nullable
     @Override
     public BString getAttribute(String localName, String namespace) {
         if (isSingleton()) {
@@ -167,6 +169,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     /**
      * {@inheritDoc}
      */
+    @Nullable
     @Override
     public BString getAttribute(String localName, String namespace, String prefix) {
         if (isSingleton()) {
@@ -193,6 +196,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     /**
      * {@inheritDoc}
      */
+    @Nullable
     @Override
     public MapValue<BString, BString> getAttributesMap() {
         if (isSingleton()) {
@@ -446,6 +450,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     /**
      * {@inheritDoc}
      */
+    @Nullable
     @Override
     public String toString() {
         try {
@@ -460,8 +465,9 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
      * {@inheritDoc}
      * @param parent The link to the parent node
      */
+    @Nullable
     @Override
-    public String stringValue(BLink parent) {
+    public String stringValue(@Nullable BLink parent) {
         try {
             StringBuilder sb = new StringBuilder();
             for (BXml child : children) {

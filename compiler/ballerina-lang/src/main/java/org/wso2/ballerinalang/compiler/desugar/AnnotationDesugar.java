@@ -32,6 +32,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ConstantValueResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -378,6 +379,7 @@ public class AnnotationDesugar {
         return String.format("%d", Objects.hash(serviceName, moduleId, lineRange));
     }
 
+    @Nullable
     private BLangLambdaFunction defineAnnotations(BLangClassDefinition classDef, BLangPackage pkgNode,
                                                   SymbolEnv env, PackageID pkgID, BSymbol owner) {
         BLangFunction function = null;
@@ -568,6 +570,7 @@ public class AnnotationDesugar {
                 .toList();
     }
 
+    @Nullable
     private BLangLambdaFunction defineAnnotations(List<BLangAnnotationAttachment> annAttachments,
                                                   BLangPackage pkgNode,
                                                   SymbolEnv env,
@@ -590,6 +593,7 @@ public class AnnotationDesugar {
         return addReturnAndDefineLambda(function, mapLiteral, pkgNode, env, pkgID, owner);
     }
 
+    @Nullable
     private BLangLambdaFunction defineAnnotations(BLangTypeDefinition typeDef, BLangPackage pkgNode, SymbolEnv env,
                                                   PackageID pkgID, BSymbol owner) {
         BLangFunction function = null;
@@ -626,6 +630,7 @@ public class AnnotationDesugar {
         return addReturnAndDefineLambda(function, mapLiteral, pkgNode, env, pkgID, owner);
     }
 
+    @Nullable
     public BLangLambdaFunction defineFieldAnnotations(List<BLangSimpleVariable> fields, Location pos,
                                                       BLangPackage pkgNode, SymbolEnv env, PackageID pkgID,
                                                       BSymbol owner) {
@@ -660,6 +665,7 @@ public class AnnotationDesugar {
         return lambdaFunction;
     }
 
+    @Nullable
     private BLangLambdaFunction defineAnnotations(BLangFunction bLangFunction, BLangPackage pkgNode, SymbolEnv env,
                                                   PackageID pkgID, BSymbol owner) {
         BLangFunction function = null;

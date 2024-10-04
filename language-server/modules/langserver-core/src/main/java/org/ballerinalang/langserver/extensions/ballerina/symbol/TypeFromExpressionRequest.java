@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
 import io.ballerina.tools.text.LineRange;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a request to get type info given for given positions of expressions.
@@ -24,6 +25,7 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 public class TypeFromExpressionRequest {
     private TextDocumentIdentifier documentIdentifier;
 
+    @Nullable
     private LineRange[] expressionRanges;
 
     public TextDocumentIdentifier getDocumentIdentifier() {

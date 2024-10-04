@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,7 @@ public final class Elements {
     private Elements() {
     }
 
+    @Nullable
     public static BXml elements(BXml xml, Object name) {
         try {
             if (name instanceof BString bString) {

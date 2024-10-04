@@ -67,6 +67,7 @@ import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.XmlItem;
 import io.ballerina.runtime.internal.values.XmlQName;
 import io.ballerina.runtime.internal.values.XmlSequence;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -777,7 +778,7 @@ public final class ValueCreator {
      * @param value value
      * @return      key field entry
      */
-    public static BMapInitialValueEntry createKeyFieldEntry(Object key, Object value) {
+    public static BMapInitialValueEntry createKeyFieldEntry(Object key, @Nullable Object value) {
         return new MappingInitialValueEntry.KeyValueEntry(key, value);
     }
 
@@ -797,7 +798,7 @@ public final class ValueCreator {
      * @param value value
      * @return      list initial value entry
      */
-    public static BListInitialValueEntry createListInitialValueEntry(Object value) {
+    public static BListInitialValueEntry createListInitialValueEntry(@Nullable Object value) {
         return new ListInitialValueEntry.ExpressionEntry(value);
     }
 
@@ -857,7 +858,7 @@ public final class ValueCreator {
      * @throws BError        if given record type is not defined in the ballerina module.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
-                                                          Map<String, Object> valueMap) throws BError {
+                                                          @Nullable Map<String, Object> valueMap) throws BError {
         valueMap = RuntimeUtils.validateBMapValues(valueMap);
         return ValueUtils.createRecordValue(packageId, recordTypeName, valueMap);
     }
@@ -948,7 +949,7 @@ public final class ValueCreator {
      * @param value object value
      * @return      handle value for given object value
      */
-    public static BHandle createHandleValue(Object value) {
+    public static BHandle createHandleValue(@Nullable Object value) {
         return new HandleValue(value);
     }
 

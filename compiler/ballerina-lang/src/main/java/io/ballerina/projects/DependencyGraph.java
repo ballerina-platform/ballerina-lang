@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,6 +42,7 @@ public class DependencyGraph<T> {
     private final T rootNode;
     private final Map<T, Set<T>> dependencies;
 
+    @Nullable
     private List<T> topologicallySortedNodes;
     private Set<List<T>> cyclicDependencies;
 
@@ -57,7 +60,7 @@ public class DependencyGraph<T> {
         return new DependencyGraph<>(null, dependencies);
     }
 
-    private DependencyGraph(T rootNode, Map<T, Set<T>> dependencies) {
+    private DependencyGraph(@Nullable T rootNode, Map<T, Set<T>> dependencies) {
         this.rootNode = rootNode;
         this.dependencies = Collections.unmodifiableMap(dependencies);
     }
@@ -242,7 +245,7 @@ public class DependencyGraph<T> {
         private final T rootNode;
         private final Map<T, Set<T>> dependenciesMap;
 
-        private DependencyGraphBuilder(T rootNode, Map<T, Set<T>> dependencies) {
+        private DependencyGraphBuilder(@Nullable T rootNode, Map<T, Set<T>> dependencies) {
             this.rootNode = rootNode;
             this.dependenciesMap = dependencies;
         }

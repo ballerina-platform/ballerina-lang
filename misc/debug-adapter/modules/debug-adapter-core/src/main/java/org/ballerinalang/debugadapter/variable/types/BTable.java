@@ -27,6 +27,7 @@ import org.ballerinalang.debugadapter.variable.DebugVariableException;
 import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -180,6 +181,7 @@ public class BTable extends IndexedCompoundVariable {
         return childVariables;
     }
 
+    @Nullable
     private Value getIterator() throws Exception {
         Optional<Method> getIteratorMethod =
                 VariableUtils.getMethod(jvmValue, METHOD_GET_ITERATOR, ITERATOR_VALUE_PATTERN);
@@ -190,7 +192,7 @@ public class BTable extends IndexedCompoundVariable {
                 getIteratorMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
     }
 
-    private boolean hasNext(Value iterator) throws Exception {
+    private boolean hasNext(@Nullable Value iterator) throws Exception {
         Optional<Method> hasNextMethod = VariableUtils.getMethod(iterator, METHOD_HAS_NEXT);
         if (hasNextMethod.isEmpty()) {
             return false;
@@ -200,7 +202,8 @@ public class BTable extends IndexedCompoundVariable {
         return Boolean.parseBoolean(hasNext.toString());
     }
 
-    private Value nextElement(Value iterator) throws Exception {
+    @Nullable
+    private Value nextElement(@Nullable Value iterator) throws Exception {
         Optional<Method> nextMethod = VariableUtils.getMethod(iterator, METHOD_NEXT);
         if (nextMethod.isEmpty()) {
             return null;
@@ -209,7 +212,8 @@ public class BTable extends IndexedCompoundVariable {
                 nextMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
     }
 
-    private Value getValues(Value next) throws Exception {
+    @Nullable
+    private Value getValues(@Nullable Value next) throws Exception {
         Optional<Method> getValuesMethod = VariableUtils.getMethod(next, METHOD_GET_VALUES);
         if (getValuesMethod.isEmpty()) {
             return null;

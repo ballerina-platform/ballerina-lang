@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BFutureType;
 import io.ballerina.runtime.internal.util.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.StringJoiner;
@@ -58,14 +59,14 @@ public class FutureValue implements BFuture, RefValue {
     Type type;
 
     @Deprecated
-    public FutureValue(Strand strand, Callback callback, Type constraint) {
+    public FutureValue(@Nullable Strand strand, @Nullable Callback callback, @Nullable Type constraint) {
         this.strand = strand;
         this.callback = callback;
         this.type = new BFutureType(constraint);
     }
 
     @Override
-    public String stringValue(BLink parent) {
+    public String stringValue(@Nullable BLink parent) {
         StringJoiner sj = new StringJoiner(",", "{", "}");
         sj.add("isDone:" + isDone);
         if (isDone) {

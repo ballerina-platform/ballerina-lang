@@ -22,6 +22,7 @@ import io.ballerina.toml.syntax.tree.NonTerminalNode;
 import io.ballerina.toml.syntax.tree.Token;
 import io.ballerina.toml.syntax.tree.TreeModifier;
 import io.ballerina.tools.text.TextRange;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Replaces syntax nodes with the given replacements.
@@ -51,6 +52,7 @@ class NodeReplacer extends TreeModifier {
         return oldNodeTextRange.intersectionExists(node.textRangeWithMinutiae());
     }
 
+    @Nullable
     @Override
     protected <T extends Node> T modifyNode(T node) {
         if (node == null) {
@@ -66,6 +68,7 @@ class NodeReplacer extends TreeModifier {
         return (T) replaced;
     }
 
+    @Nullable
     @Override
     protected <T extends Token> T modifyToken(T token) {
         if (token == null) {

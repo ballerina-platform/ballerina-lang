@@ -20,6 +20,7 @@ package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -71,7 +72,7 @@ public class ModuleConstantDiff extends NodeDiffImpl<ConstantDeclarationNode> {
 
         private final ModuleConstantDiff moduleConstDiff;
 
-        public Builder(ConstantDeclarationNode newNode, ConstantDeclarationNode oldNode) {
+        public Builder(@Nullable ConstantDeclarationNode newNode, @Nullable ConstantDeclarationNode oldNode) {
             super(newNode, oldNode);
             moduleConstDiff = new ModuleConstantDiff(newNode, oldNode);
         }

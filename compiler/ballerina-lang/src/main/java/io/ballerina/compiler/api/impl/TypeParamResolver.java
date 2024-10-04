@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl;
 
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -377,7 +378,8 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         return type == this.typeParam;
     }
 
-    private BVarSymbol createNewVarSymbol(BVarSymbol symbol, BType newType) {
+    @Nullable
+    private BVarSymbol createNewVarSymbol(BVarSymbol symbol, @Nullable BType newType) {
 
         if (symbol == null) {
             return null;

@@ -22,6 +22,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -46,7 +47,7 @@ public class BAnnotationAttachmentSymbol extends BSymbol implements AnnotationAt
     }
 
     public BAnnotationAttachmentSymbol(PackageID annotPkgID, Name annotTag, PackageID pkgID, BSymbol owner,
-                                       Location pos, SymbolOrigin origin, BType attachedType) {
+                                       Location pos, SymbolOrigin origin, @Nullable BType attachedType) {
         super(ANNOTATION_ATTACHMENT, 0, Names.EMPTY, pkgID, attachedType, owner, pos, origin);
         this.annotPkgID = annotPkgID;
         this.annotTag = annotTag;
@@ -75,7 +76,7 @@ public class BAnnotationAttachmentSymbol extends BSymbol implements AnnotationAt
 
         public BConstAnnotationAttachmentSymbol(PackageID annotPkgID, Name annotTag, PackageID pkgID, BSymbol owner,
                                                 Location pos, SymbolOrigin origin,
-                                                BConstantSymbol attachmentValueSymbol, BType attachedType) {
+                                                BConstantSymbol attachmentValueSymbol, @Nullable BType attachedType) {
             super(annotPkgID, annotTag, pkgID, owner, pos, origin, attachedType);
             this.attachmentValueSymbol = attachmentValueSymbol;
         }

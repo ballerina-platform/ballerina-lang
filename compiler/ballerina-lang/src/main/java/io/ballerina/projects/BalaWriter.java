@@ -37,6 +37,7 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
@@ -229,6 +230,7 @@ public abstract class BalaWriter {
         }
     }
 
+    @Nullable
     private static Boolean isAllPlatformDepsGraalvmCompatible(Map<String, PackageManifest.Platform> platforms) {
         Boolean isAllDepsGraalvmCompatible = true;
         for (PackageManifest.Platform platform: platforms.values()) {
@@ -539,6 +541,7 @@ public abstract class BalaWriter {
 
     // Following function was put in to handle a bug in windows zipFileSystem
     // Refer https://bugs.openjdk.java.net/browse/JDK-8195141
+    @Nullable
     private String convertPathSeperator(Path file) {
         if (file == null) {
             return null;

@@ -4,4 +4,5 @@ module io.ballerina.runtime.profiler {
     requires io.ballerina.runtime;
     requires io.ballerina.identifier;
     requires com.google.gson;
+    requires static org.jetbrains.annotations;
 }

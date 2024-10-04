@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.api;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * A future that will resume the underling strand when completed.
  *
@@ -25,5 +27,5 @@ package io.ballerina.runtime.api;
  */
 public abstract class Future {
 
-    public abstract void complete(Object returnValue);
+    public abstract void complete(@Nullable Object returnValue);
 }

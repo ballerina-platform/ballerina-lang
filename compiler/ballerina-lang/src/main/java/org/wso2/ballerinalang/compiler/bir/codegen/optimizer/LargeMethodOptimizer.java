@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.optimizer;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.BIRGenUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
@@ -1914,7 +1915,7 @@ public class LargeMethodOptimizer {
         return birFunc;
     }
 
-    private void rectifyVarKindsAndTerminators(BIRFunction birFunction, BIRVariableDcl selfVarDcl,
+    private void rectifyVarKindsAndTerminators(BIRFunction birFunction, @Nullable BIRVariableDcl selfVarDcl,
                                                BIRBasicBlock returnBB) {
         Map<Name, BIRVariableDcl> funcArgsWithName = new HashMap<>();
         for (BIRFunctionParameter parameter : birFunction.parameters) {
@@ -1964,7 +1965,7 @@ public class LargeMethodOptimizer {
         }
     }
 
-    private static void populateNewRHSOperands(BIRVariableDcl variableDcl, List<BIROperand> operandList,
+    private static void populateNewRHSOperands(@Nullable BIRVariableDcl variableDcl, List<BIROperand> operandList,
                                                Map<BIRVariableDcl, BIROperand> newRhsOperands, BIROperand rhsOperand) {
         if (!newRhsOperands.containsKey(rhsOperand.variableDcl)) {
             BIROperand newOperand = new BIROperand(variableDcl);

@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -53,7 +54,7 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     public String strandName;
 
     @Deprecated
-    public FPValue(Function<T, R> function, Type type, String strandName, boolean isConcurrent) {
+    public FPValue(Function<T, R> function, Type type, @Nullable String strandName, boolean isConcurrent) {
         this.function = function;
         this.type = type;
         this.strandName = strandName;

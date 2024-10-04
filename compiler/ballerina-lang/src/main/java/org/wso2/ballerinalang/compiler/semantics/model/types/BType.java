@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.ValueType;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -53,27 +54,28 @@ public class BType implements ValueType {
     public Name name;
     public long flags;
 
-    public BType(int tag, BTypeSymbol tsymbol) {
+    public BType(int tag, @Nullable BTypeSymbol tsymbol) {
         this.tag = tag;
         this.tsymbol = tsymbol;
         this.name = Names.EMPTY;
         this.flags = 0;
     }
 
-    public BType(int tag, BTypeSymbol tsymbol, long flags) {
+    public BType(int tag, @Nullable BTypeSymbol tsymbol, long flags) {
         this.tag = tag;
         this.tsymbol = tsymbol;
         this.name = Names.EMPTY;
         this.flags = flags;
     }
 
-    public BType(int tag, BTypeSymbol tsymbol, Name name, long flags) {
+    public BType(int tag, @Nullable BTypeSymbol tsymbol, Name name, long flags) {
         this.tag = tag;
         this.tsymbol = tsymbol;
         this.name = name;
         this.flags = flags;
     }
 
+    @Nullable
     public BType getReturnType() {
         return null;
     }
@@ -82,7 +84,7 @@ public class BType implements ValueType {
         return false;
     }
 
-    public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
+    public <T, R> R accept(BTypeVisitor<T, R> visitor, @Nullable T t) {
         return visitor.visit(this, t);
     }
 

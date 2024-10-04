@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -45,6 +46,7 @@ public class BallerinaFutureTypeBuilder implements TypeBuilder.FUTURE {
 
     private final TypesFactory typesFactory;
     private final SymbolTable symTable;
+    @Nullable
     private TypeSymbol typeParam;
 
     public BallerinaFutureTypeBuilder(CompilerContext context) {
@@ -71,6 +73,7 @@ public class BallerinaFutureTypeBuilder implements TypeBuilder.FUTURE {
         return futureTypeSymbol;
     }
 
+    @Nullable
     private BType getBType(TypeSymbol typeSymbol) {
         if (typeSymbol == null) {
             return null;

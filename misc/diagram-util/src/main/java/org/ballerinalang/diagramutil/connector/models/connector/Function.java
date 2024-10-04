@@ -19,6 +19,7 @@ package org.ballerinalang.diagramutil.connector.models.connector;
 
 import com.google.gson.annotations.Expose;
 import org.ballerinalang.diagramutil.connector.models.connector.types.PathParamType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -42,8 +43,9 @@ public class Function {
     @Expose
     public Map<String, String> displayAnnotation;
 
-    public Function(String name, List<Type> queryParams, Type returnType, Map<String, String> displayAnnotation,
-                    String[] qualifiers, String documentation) {
+    public Function(String name, List<Type> queryParams, Type returnType,
+                    @Nullable Map<String, String> displayAnnotation,
+                    @Nullable String[] qualifiers, String documentation) {
         this.name = name;
         this.parameters = queryParams;
         this.returnType = returnType;
@@ -52,7 +54,7 @@ public class Function {
         this.documentation = documentation;
     }
 
-    public Function(String name, List<PathParamType> pathParams, List<Type> queryParams, Type returnType,
+    public Function(String name, List<PathParamType> pathParams, List<Type> queryParams, @Nullable Type returnType,
                     Map<String, String> displayAnnotation, String[] qualifiers, String documentation) {
         this.name = name;
         this.pathParams = pathParams;

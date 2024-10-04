@@ -24,6 +24,7 @@ import com.google.gson.JsonPrimitive;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.semver.checker.util.DiffUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,6 +57,7 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
     protected DiffKind diffKind;
     protected SemverImpact versionImpact;
     protected final List<Diff> childDiffs;
+    @Nullable
     protected String message;
 
     protected NodeDiffImpl(T newNode, T oldNode) {
@@ -221,7 +223,7 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
 
         private final NodeDiffImpl<T> nodeDiff;
 
-        public Builder(T newNode, T oldNode) {
+        public Builder(@Nullable T newNode, @Nullable T oldNode) {
             nodeDiff = new NodeDiffImpl<>(newNode, oldNode);
         }
 

@@ -24,6 +24,7 @@ import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.Location;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -85,8 +86,8 @@ public class PackageManifest {
     }
 
     private PackageManifest(PackageDescriptor packageDesc,
-                            CompilerPluginDescriptor compilerPluginDesc,
-                            BalToolDescriptor balToolDesc,
+                            @Nullable CompilerPluginDescriptor compilerPluginDesc,
+                            @Nullable BalToolDescriptor balToolDesc,
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
@@ -192,8 +193,8 @@ public class PackageManifest {
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
-                                       CompilerPluginDescriptor compilerPluginDesc,
-                                       BalToolDescriptor balToolDesc,
+                                       @Nullable CompilerPluginDescriptor compilerPluginDesc,
+                                       @Nullable BalToolDescriptor balToolDesc,
                                        Map<String, Platform> platforms,
                                        List<Dependency> dependencies) {
         return new PackageManifest(packageDesc, compilerPluginDesc, balToolDesc, platforms, dependencies,
@@ -201,8 +202,8 @@ public class PackageManifest {
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
-                                       CompilerPluginDescriptor compilerPluginDesc,
-                                       BalToolDescriptor balToolDesc,
+                                       @Nullable CompilerPluginDescriptor compilerPluginDesc,
+                                       @Nullable BalToolDescriptor balToolDesc,
                                        Map<String, Platform> platforms,
                                        List<Dependency> dependencies,
                                        Map<String, Object> otherEntries,
@@ -224,8 +225,8 @@ public class PackageManifest {
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
-                                       CompilerPluginDescriptor compilerPluginDesc,
-                                       BalToolDescriptor balToolDescriptor,
+                                       @Nullable CompilerPluginDescriptor compilerPluginDesc,
+                                       @Nullable BalToolDescriptor balToolDescriptor,
                                        Map<String, Platform> platforms,
                                        List<Dependency> dependencies,
                                        List<String> license,
@@ -348,7 +349,7 @@ public class PackageManifest {
         }
 
         public Platform(List<Map<String, Object>> dependencies, List<Map<String, Object>> repositories,
-                        Boolean graalvmCompatible) {
+                        @Nullable Boolean graalvmCompatible) {
             if (dependencies != null) {
                 this.dependencies = Collections.unmodifiableList(dependencies);
             } else {
@@ -374,6 +375,7 @@ public class PackageManifest {
                 return graalvmCompatible;
         }
 
+        @Nullable
         public Boolean isPlatfromDepsGraalvmCompatible() {
             Boolean overallGraalvmCompatibility = true;
             for (Map<String, Object> dependency : dependencies) {
@@ -418,7 +420,7 @@ public class PackageManifest {
         }
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion version,
-                          String repository, Location location) {
+                          @Nullable String repository, Location location) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
             this.version = version;
@@ -438,6 +440,7 @@ public class PackageManifest {
             return version;
         }
 
+        @Nullable
         public String repository() {
             return repository;
         }
@@ -461,8 +464,8 @@ public class PackageManifest {
         private final Toml optionsToml;
         private final boolean hasErrorDiagnostic;
 
-        public Tool(Field type, Field id, Field filePath, Field targetModule, Toml optionsToml,
-                    TomlTableNode optionsTable, boolean hasErrorDiagnostic) {
+        public Tool(Field type, Field id, Field filePath, Field targetModule, @Nullable Toml optionsToml,
+                    @Nullable TomlTableNode optionsTable, boolean hasErrorDiagnostic) {
             this.type = type;
             this.id = id;
             this.filePath = filePath;

@@ -26,6 +26,7 @@ import org.ballerinalang.debugadapter.evaluation.validator.impl.ExpressionValida
 import org.ballerinalang.debugadapter.evaluation.validator.impl.InvalidInputValidator;
 import org.ballerinalang.debugadapter.evaluation.validator.impl.StatementValidator;
 import org.ballerinalang.debugadapter.evaluation.validator.impl.TopLevelDeclarationValidator;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,9 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationException.crea
  */
 public class SerialExpressionValidator extends Validator {
 
+    @Nullable
     private ExpressionValidator expressionValidator;
+    @Nullable
     private List<Validator> otherValidators;
 
     public SerialExpressionValidator() {

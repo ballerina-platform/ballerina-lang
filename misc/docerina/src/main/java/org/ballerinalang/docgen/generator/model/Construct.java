@@ -16,6 +16,7 @@
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class Construct {
     public List<String> descriptionSections;
     @Expose
     public boolean isDeprecated;
+    @Nullable
     @Expose
     public Type inclusionType = null;
     @Expose

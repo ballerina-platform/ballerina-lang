@@ -19,6 +19,7 @@
 package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -41,7 +42,7 @@ public class ServiceDiff extends NodeDiffImpl<ServiceDeclarationNode> {
 
         private final ServiceDiff serviceDiff;
 
-        public Builder(ServiceDeclarationNode newNode, ServiceDeclarationNode oldNode) {
+        public Builder(@Nullable ServiceDeclarationNode newNode, @Nullable ServiceDeclarationNode oldNode) {
             super(newNode, oldNode);
             serviceDiff = new ServiceDiff(newNode, oldNode);
         }

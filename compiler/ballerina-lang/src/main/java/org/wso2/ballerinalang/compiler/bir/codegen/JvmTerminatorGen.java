@@ -21,6 +21,7 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -129,7 +130,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STOR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAKE_CONCAT_WITH_CONSTANTS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_INITIALIZER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
@@ -190,6 +190,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_ARR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_JOBJECT_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_INITIALIZER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MULTIPLE_RECEIVE_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PANIC_IF_IN_LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
@@ -731,7 +732,7 @@ public class JvmTerminatorGen {
         mv.visitLabel(panicLabel);
     }
 
-    private void storeReturnFromCallIns(BIRNode.BIRVariableDcl lhsOpVarDcl) {
+    private void storeReturnFromCallIns(@Nullable BIRNode.BIRVariableDcl lhsOpVarDcl) {
 
         if (lhsOpVarDcl != null) {
             this.storeToVar(lhsOpVarDcl);

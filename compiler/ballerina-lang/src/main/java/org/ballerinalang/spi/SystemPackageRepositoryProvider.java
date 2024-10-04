@@ -18,6 +18,7 @@
 package org.ballerinalang.spi;
 
 import org.ballerinalang.repository.PackageRepository;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
 import java.net.URI;
@@ -31,6 +32,7 @@ import java.nio.file.Path;
  */
 public interface SystemPackageRepositoryProvider {
 
+    @Nullable
     static URI getClassUri(Object obj) {
         try {
             return obj.getClass().getProtectionDomain().getCodeSource().getLocation().toURI();

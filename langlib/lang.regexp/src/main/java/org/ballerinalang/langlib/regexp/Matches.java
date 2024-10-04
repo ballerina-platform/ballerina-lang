@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.regexp;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Matcher;
 
@@ -38,6 +39,7 @@ public final class Matches {
     private Matches() {
     }
 
+    @Nullable
     public static BArray matchAt(BRegexpValue regExp, BString str, int startIndex) {
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
@@ -50,6 +52,7 @@ public final class Matches {
         return null;
     }
 
+    @Nullable
     public static BArray matchGroupsAt(BRegexpValue regExp, BString str, int startIndex) {
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);

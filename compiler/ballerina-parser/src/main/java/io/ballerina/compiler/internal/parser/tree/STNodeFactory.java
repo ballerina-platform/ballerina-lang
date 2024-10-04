@@ -18,6 +18,7 @@
 package io.ballerina.compiler.internal.parser.tree;
 
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A factory that constructs internal tree nodes.
@@ -70,9 +71,9 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createImportDeclarationNode(
             STNode importKeyword,
-            STNode orgName,
+            @Nullable STNode orgName,
             STNode moduleName,
-            STNode prefix,
+            @Nullable STNode prefix,
             STNode semicolon) {
 
         return new STImportDeclarationNode(
@@ -178,10 +179,10 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createVariableDeclarationNode(
             STNode annotations,
-            STNode finalKeyword,
+            @Nullable STNode finalKeyword,
             STNode typedBindingPattern,
-            STNode equalsToken,
-            STNode initializer,
+            @Nullable STNode equalsToken,
+            @Nullable STNode initializer,
             STNode semicolonToken) {
 
         return new STVariableDeclarationNode(
@@ -305,7 +306,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createReturnStatementNode(
             STNode returnKeyword,
-            STNode expression,
+            @Nullable STNode expression,
             STNode semicolonToken) {
 
         return new STReturnStatementNode(
@@ -569,7 +570,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode annotations,
             STNode typeName,
             STNode ellipsisToken,
-            STNode paramName) {
+            @Nullable STNode paramName) {
 
         return new STRestParameterNode(
                 annotations,
@@ -597,10 +598,10 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createSpecificFieldNode(
-            STNode readonlyKeyword,
+            @Nullable STNode readonlyKeyword,
             STNode fieldName,
-            STNode colon,
-            STNode valueExpr) {
+            @Nullable STNode colon,
+            @Nullable STNode valueExpr) {
 
         return new STSpecificFieldNode(
                 readonlyKeyword,
@@ -673,7 +674,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode annotations,
             STNode objectTypeQualifiers,
             STNode objectKeyword,
-            STNode typeReference,
+            @Nullable STNode typeReference,
             STNode openBraceToken,
             STNode members,
             STNode closeBraceToken) {
@@ -692,7 +693,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode recordKeyword,
             STNode bodyStartDelimiter,
             STNode fields,
-            STNode recordRestDescriptor,
+            @Nullable STNode recordRestDescriptor,
             STNode bodyEndDelimiter) {
 
         return new STRecordTypeDescriptorNode(
@@ -733,13 +734,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createObjectFieldNode(
-            STNode metadata,
-            STNode visibilityQualifier,
+            @Nullable STNode metadata,
+            @Nullable STNode visibilityQualifier,
             STNode qualifierList,
             STNode typeName,
             STNode fieldName,
-            STNode equalsToken,
-            STNode expression,
+            @Nullable STNode equalsToken,
+            @Nullable STNode expression,
             STNode semicolonToken) {
 
         return new STObjectFieldNode(
@@ -758,7 +759,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode readonlyKeyword,
             STNode typeName,
             STNode fieldName,
-            STNode questionMarkToken,
+            @Nullable STNode questionMarkToken,
             STNode semicolonToken) {
 
         return new STRecordFieldNode(
@@ -814,7 +815,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createAnnotationNode(
             STNode atToken,
             STNode annotReference,
-            STNode annotValue) {
+            @Nullable STNode annotValue) {
 
         return new STAnnotationNode(
                 atToken,
@@ -823,8 +824,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createMetadataNode(
-            STNode documentationString,
-            STNode annotations) {
+            @Nullable STNode documentationString,
+            @Nullable STNode annotations) {
 
         return new STMetadataNode(
                 documentationString,
@@ -833,11 +834,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createModuleVariableDeclarationNode(
             STNode metadata,
-            STNode visibilityQualifier,
+            @Nullable STNode visibilityQualifier,
             STNode qualifiers,
             STNode typedBindingPattern,
-            STNode equalsToken,
-            STNode initializer,
+            @Nullable STNode equalsToken,
+            @Nullable STNode initializer,
             STNode semicolonToken) {
 
         return new STModuleVariableDeclarationNode(
@@ -903,7 +904,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode annotationKeyword,
             STNode typeDescriptor,
             STNode annotationTag,
-            STNode onKeyword,
+            @Nullable STNode onKeyword,
             STNode attachPoints,
             STNode semicolonToken) {
 
@@ -920,7 +921,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createAnnotationAttachPointNode(
-            STNode sourceKeyword,
+            @Nullable STNode sourceKeyword,
             STNode identifiers) {
 
         return new STAnnotationAttachPointNode(
@@ -931,8 +932,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createXMLNamespaceDeclarationNode(
             STNode xmlnsKeyword,
             STNode namespaceuri,
-            STNode asKeyword,
-            STNode namespacePrefix,
+            @Nullable STNode asKeyword,
+            @Nullable STNode namespacePrefix,
             STNode semicolonToken) {
 
         return new STXMLNamespaceDeclarationNode(
@@ -946,8 +947,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createModuleXMLNamespaceDeclarationNode(
             STNode xmlnsKeyword,
             STNode namespaceuri,
-            STNode asKeyword,
-            STNode namespacePrefix,
+            @Nullable STNode asKeyword,
+            @Nullable STNode namespacePrefix,
             STNode semicolonToken) {
 
         return new STModuleXMLNamespaceDeclarationNode(
@@ -960,10 +961,10 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createFunctionBodyBlockNode(
             STNode openBraceToken,
-            STNode namedWorkerDeclarator,
+            @Nullable STNode namedWorkerDeclarator,
             STNode statements,
             STNode closeBraceToken,
-            STNode semicolonToken) {
+            @Nullable STNode semicolonToken) {
 
         return new STFunctionBodyBlockNode(
                 openBraceToken,
@@ -1074,7 +1075,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createTypeCastParamNode(
             STNode annotations,
-            STNode type) {
+            @Nullable STNode type) {
 
         return new STTypeCastParamNode(
                 annotations,
@@ -1122,7 +1123,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createStreamTypeDescriptorNode(
             STNode streamKeywordToken,
-            STNode streamTypeParamsNode) {
+            @Nullable STNode streamTypeParamsNode) {
 
         return new STStreamTypeDescriptorNode(
                 streamKeywordToken,
@@ -1132,8 +1133,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createStreamTypeParamsNode(
             STNode ltToken,
             STNode leftTypeDescNode,
-            STNode commaToken,
-            STNode rightTypeDescNode,
+            @Nullable STNode commaToken,
+            @Nullable STNode rightTypeDescNode,
             STNode gtToken) {
 
         return new STStreamTypeParamsNode(
@@ -1172,7 +1173,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createTemplateExpressionNode(
             SyntaxKind kind,
-            STNode type,
+            @Nullable STNode type,
             STNode startBacktick,
             STNode content,
             STNode endBacktick) {
@@ -1333,7 +1334,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createTableTypeDescriptorNode(
             STNode tableKeywordToken,
             STNode rowTypeParameterNode,
-            STNode keyConstraintNode) {
+            @Nullable STNode keyConstraintNode) {
 
         return new STTableTypeDescriptorNode(
                 tableKeywordToken,
@@ -1364,7 +1365,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createFunctionTypeDescriptorNode(
             STNode qualifierList,
             STNode functionKeyword,
-            STNode functionSignature) {
+            @Nullable STNode functionSignature) {
 
         return new STFunctionTypeDescriptorNode(
                 qualifierList,
@@ -1403,7 +1404,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createExpressionFunctionBodyNode(
             STNode rightDoubleArrow,
             STNode expression,
-            STNode semicolon) {
+            @Nullable STNode semicolon) {
 
         return new STExpressionFunctionBodyNode(
                 rightDoubleArrow,
@@ -1505,7 +1506,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createJoinClauseNode(
-            STNode outerKeyword,
+            @Nullable STNode outerKeyword,
             STNode joinKeyword,
             STNode typedBindingPattern,
             STNode inKeyword,
@@ -1954,8 +1955,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createEnumMemberNode(
             STNode metadata,
             STNode identifier,
-            STNode equalToken,
-            STNode constExprNode) {
+            @Nullable STNode equalToken,
+            @Nullable STNode constExprNode) {
 
         return new STEnumMemberNode(
                 metadata,
@@ -1975,7 +1976,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createArrayDimensionNode(
             STNode openBracket,
-            STNode arrayLength,
+            @Nullable STNode arrayLength,
             STNode closeBracket) {
 
         return new STArrayDimensionNode(
@@ -1997,7 +1998,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createRollbackStatementNode(
             STNode rollbackKeyword,
-            STNode expression,
+            @Nullable STNode expression,
             STNode semicolon) {
 
         return new STRollbackStatementNode(
@@ -2009,7 +2010,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createRetryStatementNode(
             STNode retryKeyword,
             STNode typeParameter,
-            STNode arguments,
+            @Nullable STNode arguments,
             STNode retryBody,
             STNode onFailClause) {
 
@@ -2038,7 +2039,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createByteArrayLiteralNode(
             STNode type,
             STNode startBacktick,
-            STNode content,
+            @Nullable STNode content,
             STNode endBacktick) {
 
         return new STByteArrayLiteralNode(
@@ -2138,7 +2139,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createMatchClauseNode(
             STNode matchPatterns,
-            STNode matchGuard,
+            @Nullable STNode matchGuard,
             STNode rightDoubleArrow,
             STNode blockStatement) {
 
@@ -2335,7 +2336,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createOrderKeyNode(
             STNode expression,
-            STNode orderDirection) {
+            @Nullable STNode orderDirection) {
 
         return new STOrderKeyNode(
                 expression,
@@ -2418,7 +2419,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode openBracketToken,
             STNode annotations,
             STNode typeDescriptor,
-            STNode ellipsisToken,
+            @Nullable STNode ellipsisToken,
             STNode paramName,
             STNode closeBracketToken) {
 
@@ -2457,7 +2458,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createParameterizedTypeDescriptorNode(
             SyntaxKind kind,
             STNode keywordToken,
-            STNode typeParamNode) {
+            @Nullable STNode typeParamNode) {
 
         return new STParameterizedTypeDescriptorNode(
                 kind,
@@ -2479,8 +2480,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode rightArrowToken,
             STNode slashToken,
             STNode resourceAccessPath,
-            STNode dotToken,
-            STNode methodName,
+            @Nullable STNode dotToken,
+            @Nullable STNode methodName,
             STNode arguments) {
 
         return new STClientResourceAccessActionNode(
@@ -2526,7 +2527,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createReAtomQuantifierNode(
             STNode reAtom,
-            STNode reQuantifier) {
+            @Nullable STNode reQuantifier) {
 
         return new STReAtomQuantifierNode(
                 reAtom,
@@ -2583,7 +2584,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createReUnicodeGeneralCategoryNode(
-            STNode categoryStart,
+            @Nullable STNode categoryStart,
             STNode reUnicodeGeneralCategoryName) {
 
         return new STReUnicodeGeneralCategoryNode(
@@ -2593,8 +2594,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createReCharacterClassNode(
             STNode openBracket,
-            STNode negation,
-            STNode reCharSet,
+            @Nullable STNode negation,
+            @Nullable STNode reCharSet,
             STNode closeBracket) {
 
         return new STReCharacterClassNode(
@@ -2606,7 +2607,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createReCharSetRangeWithReCharSetNode(
             STNode reCharSetRange,
-            STNode reCharSet) {
+            @Nullable STNode reCharSet) {
 
         return new STReCharSetRangeWithReCharSetNode(
                 reCharSetRange,
@@ -2635,7 +2636,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createReCharSetRangeNoDashWithReCharSetNode(
             STNode reCharSetRangeNoDash,
-            STNode reCharSet) {
+            @Nullable STNode reCharSet) {
 
         return new STReCharSetRangeNoDashWithReCharSetNode(
                 reCharSetRangeNoDash,
@@ -2664,7 +2665,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createReCapturingGroupsNode(
             STNode openParenthesis,
-            STNode reFlagExpression,
+            @Nullable STNode reFlagExpression,
             STNode reSequences,
             STNode closeParenthesis) {
 
@@ -2677,7 +2678,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createReFlagExpressionNode(
             STNode questionMark,
-            STNode reFlagsOnOff,
+            @Nullable STNode reFlagsOnOff,
             STNode colon) {
 
         return new STReFlagExpressionNode(
@@ -2688,8 +2689,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createReFlagsOnOffNode(
             STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags) {
+            @Nullable STNode minusToken,
+            @Nullable STNode rhsReFlags) {
 
         return new STReFlagsOnOffNode(
                 lhsReFlags,
@@ -2713,7 +2714,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createReQuantifierNode(
             STNode reBaseQuantifier,
-            STNode nonGreedyChar) {
+            @Nullable STNode nonGreedyChar) {
 
         return new STReQuantifierNode(
                 reBaseQuantifier,
@@ -2723,7 +2724,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createReBracedQuantifierNode(
             STNode openBraceToken,
             STNode leastTimesMatchedDigit,
-            STNode commaToken,
+            @Nullable STNode commaToken,
             STNode mostTimesMatchedDigit,
             STNode closeBraceToken) {
 

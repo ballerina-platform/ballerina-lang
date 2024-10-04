@@ -24,6 +24,7 @@ import io.ballerina.toml.internal.parser.tree.STNodeFactory;
 import io.ballerina.toml.internal.parser.tree.STToken;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.CharReader;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -227,6 +228,7 @@ public class TomlLexer extends AbstractLexer {
         return token;
     }
 
+    @Nullable
     private STToken readNewlineToken() {
         reader.mark();
         if (reader.isEOF()) {

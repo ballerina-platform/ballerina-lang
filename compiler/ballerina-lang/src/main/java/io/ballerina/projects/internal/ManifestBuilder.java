@@ -52,6 +52,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.CompilerOptionName;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -135,9 +136,9 @@ public class ManifestBuilder {
         this.buildOptions = parseBuildOptions();
     }
 
-    public static ManifestBuilder from(TomlDocument ballerinaToml,
-                                       TomlDocument compilerPluginToml,
-                                       TomlDocument balToolToml,
+    public static ManifestBuilder from(@Nullable TomlDocument ballerinaToml,
+                                       @Nullable TomlDocument compilerPluginToml,
+                                       @Nullable TomlDocument balToolToml,
                                        Path projectPath) {
         return new ManifestBuilder(ballerinaToml, compilerPluginToml, balToolToml, projectPath);
     }
@@ -448,6 +449,7 @@ public class ManifestBuilder {
         }
     }
 
+    @Nullable
     private BuildOptions parseBuildOptions() {
         TomlTableNode tomlTableNode = ballerinaToml.toml().rootNode();
         return setBuildOptions(tomlTableNode);
@@ -513,6 +515,7 @@ public class ManifestBuilder {
         return platforms;
     }
 
+    @Nullable
     private PackageManifest.Platform getRepositoryPlatform(TopLevelNode dependencyNode) {
         PackageManifest.Platform platform = null;
         if (dependencyNode.kind() == TomlType.TABLE_ARRAY) {
@@ -540,6 +543,7 @@ public class ManifestBuilder {
         return platform;
     }
 
+    @Nullable
     private PackageManifest.Platform getDependencyPlatform(TopLevelNode dependencyNode) {
         PackageManifest.Platform platform = null;
         if (dependencyNode.kind() == TomlType.TABLE_ARRAY) {
@@ -591,6 +595,7 @@ public class ManifestBuilder {
         return platform;
     }
 
+    @Nullable
     private PackageManifest.Platform getGraalvmCompatibilityPlatform(TopLevelNode graalvmCompatibleNode) {
         PackageManifest.Platform platform = null;
         if (graalvmCompatibleNode.kind() == TomlType.KEY_VALUE) {
@@ -657,6 +662,7 @@ public class ManifestBuilder {
         tomlTableNode.addDiagnostic(tomlDiagnostic);
     }
 
+    @Nullable
     private BuildOptions setBuildOptions(TomlTableNode tomlTableNode) {
         TopLevelNode topLevelBuildOptionsNode = tomlTableNode.entries().get("build-options");
         if (topLevelBuildOptionsNode == null || topLevelBuildOptionsNode.kind() != TomlType.TABLE) {
@@ -725,6 +731,7 @@ public class ManifestBuilder {
         return buildOptionsBuilder.build();
     }
 
+    @Nullable
     private Boolean getBooleanFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
         TopLevelNode topLevelNode = tableNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
@@ -742,6 +749,7 @@ public class ManifestBuilder {
         return null;
     }
 
+    @Nullable
     private String getStringFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
         TopLevelNode topLevelNode = tableNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
@@ -793,6 +801,7 @@ public class ManifestBuilder {
         return true;
     }
 
+    @Nullable
     public static String getStringValueFromTomlTableNode(TomlTableNode tomlTableNode, String key) {
         TopLevelNode topLevelNode = tomlTableNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
@@ -836,6 +845,7 @@ public class ManifestBuilder {
         return elements;
     }
 
+    @Nullable
     private String getStringValueFromPlatformEntry(TomlTableNode pkgNode, String key) {
         TopLevelNode topLevelNode = pkgNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
@@ -844,6 +854,7 @@ public class ManifestBuilder {
         return getStringFromTomlTableNode(topLevelNode);
     }
 
+    @Nullable
     private Boolean getBooleanValueFromPlatformEntry(TomlTableNode pkgNode, String key) {
         TopLevelNode topLevelNode = pkgNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
@@ -852,6 +863,7 @@ public class ManifestBuilder {
         return getBooleanFromTomlTableNode(topLevelNode);
     }
 
+    @Nullable
     private String getStringValueFromDependencyNode(TomlTableNode pkgNode, String key) {
         TopLevelNode topLevelNode = pkgNode.entries().get(key);
         if (topLevelNode == null) {
@@ -894,6 +906,7 @@ public class ManifestBuilder {
         return new PackageManifest.Tool.Field(null, toolNode.location());
     }
 
+    @Nullable
     private Toml getToml(TomlTableNode toolNode, String key) {
         TopLevelNode topLevelNode = toolNode.entries().get(key);
         if (topLevelNode == null) {
@@ -906,7 +919,8 @@ public class ManifestBuilder {
         return new Toml(optionsNode);
     }
 
-    private boolean providedPlatformDependencyIsValid(String artifactId, String groupId, String version) {
+    private boolean providedPlatformDependencyIsValid(
+            @Nullable String artifactId, @Nullable String groupId, @Nullable String version) {
         return artifactId != null && !artifactId.isEmpty() && groupId != null && !groupId.isEmpty()
                 && version != null && !version.isEmpty();
     }

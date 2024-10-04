@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.api.async;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Holds metadata of a Ballerina strand.
  *
@@ -50,7 +52,7 @@ public class StrandMetadata {
      */
     private final String parentFunctionName;
 
-    public StrandMetadata(String moduleOrg, String moduleName, String moduleVersion, String typeName,
+    public StrandMetadata(String moduleOrg, String moduleName, String moduleVersion, @Nullable String typeName,
                           String parentFunctionName) {
         this.moduleOrg = moduleOrg;
         this.moduleName = moduleName;

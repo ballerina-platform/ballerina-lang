@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -35,10 +36,14 @@ import static io.ballerina.runtime.internal.scheduling.State.BLOCK_AND_YIELD;
  */
 public class WorkerDataChannel {
 
+    @Nullable
     private Strand receiver;
+    @Nullable
     private WaitingSender waitingSender;
+    @Nullable
     private WaitingSender flushSender;
     private ErrorValue error;
+    @Nullable
     private Throwable panic;
     private int senderCounter;
     private int receiverCounter;
@@ -134,6 +139,7 @@ public class WorkerDataChannel {
      * @return error if receiver already in error state, else null
      * @throws Throwable panic
      */
+    @Nullable
     public Object syncSendData(Object data, Strand strand) throws Throwable {
         try {
             acquireChannelLock();
@@ -187,6 +193,7 @@ public class WorkerDataChannel {
         return tryTakeData(strand, false);
     }
 
+    @Nullable
     public Object tryTakeData(Strand strand, boolean isMultiple) throws Throwable {
         try {
             acquireChannelLock();
@@ -289,6 +296,7 @@ public class WorkerDataChannel {
      * @return error or null
      * @throws Throwable panic
      */
+    @Nullable
     public ErrorValue flushChannel(Strand strand) throws Throwable {
         acquireChannelLock();
         try {

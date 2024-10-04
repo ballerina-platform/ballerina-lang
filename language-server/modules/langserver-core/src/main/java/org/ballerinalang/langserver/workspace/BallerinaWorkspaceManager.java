@@ -1373,6 +1373,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         return Optional.of(ProjectContext.from(project));
     }
 
+    @org.jetbrains.annotations.Nullable
     private Project createProject(Path filePath, String operationName) {
         Pair<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndProjectRoot(filePath);
         ProjectKind projectKind = projectKindAndProjectRootPair.getLeft();
@@ -1491,6 +1492,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
         private boolean compilationCrashed;
 
+        @org.jetbrains.annotations.Nullable
         private Process process;
 
         private boolean projectCrashed;

@@ -20,6 +20,7 @@ package org.ballerinalang.observe.metrics.extension.defaultimpl;
 import io.ballerina.runtime.observability.metrics.AbstractMetric;
 import io.ballerina.runtime.observability.metrics.Counter;
 import io.ballerina.runtime.observability.metrics.MetricId;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.LongAdder;
 
@@ -30,7 +31,7 @@ public class DefaultCounter extends AbstractMetric implements Counter {
 
     private final LongAdder count = new LongAdder();
 
-    public DefaultCounter(MetricId id) {
+    public DefaultCounter(@Nullable MetricId id) {
         super(id);
     }
 

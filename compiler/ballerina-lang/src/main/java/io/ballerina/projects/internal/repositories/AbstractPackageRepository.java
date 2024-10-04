@@ -32,6 +32,7 @@ import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.util.ProjectUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,7 +79,7 @@ public abstract class AbstractPackageRepository implements PackageRepository {
 
     protected abstract List<PackageVersion> getPackageVersions(PackageOrg org,
                                                                PackageName name,
-                                                               PackageVersion version);
+                                                               @Nullable PackageVersion version);
 
     protected abstract DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org,
                                                                              PackageName name,
@@ -145,6 +146,7 @@ public abstract class AbstractPackageRepository implements PackageRepository {
         return ImportModuleResponse.createUnresolvedResponse(importModuleRequest);
     }
 
+    @Nullable
     private ImportModuleResponse getImportModuleResponse(ImportModuleRequest importModuleRequest,
                                                          PackageName packageName,
                                                          List<PackageVersion> packageVersions) {
@@ -183,6 +185,7 @@ public abstract class AbstractPackageRepository implements PackageRepository {
         return PackageMetadataResponse.from(resolutionRequest, resolvedDescriptor, dependencyGraph);
     }
 
+    @Nullable
     protected PackageVersion findLatest(List<PackageVersion> packageVersions) {
         if (packageVersions.isEmpty()) {
             return null;

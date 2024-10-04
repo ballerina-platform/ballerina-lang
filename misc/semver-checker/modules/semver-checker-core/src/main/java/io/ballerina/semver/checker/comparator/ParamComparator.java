@@ -29,6 +29,7 @@ import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 import io.ballerina.semver.checker.diff.SemverImpact;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -128,6 +129,7 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
         return paramDiffBuilder.build();
     }
 
+    @Nullable
     private Node getParamType(ParameterNode paramNode) {
         if (paramNode.kind() == SyntaxKind.REQUIRED_PARAM) {
             return ((RequiredParameterNode) paramNode).typeName();

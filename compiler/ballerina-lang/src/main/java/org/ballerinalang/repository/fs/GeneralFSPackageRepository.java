@@ -24,6 +24,7 @@ import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -53,7 +54,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
     protected Path basePath;
     private final Name orgName;
 
-    public GeneralFSPackageRepository(Path basePath, Name orgName) {
+    public GeneralFSPackageRepository(Path basePath, @Nullable Name orgName) {
         this.basePath = basePath;
         this.orgName = orgName;
     }
@@ -62,6 +63,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
         this(basePath, null);
     }
 
+    @Nullable
     protected PackageSource lookupPackageSource(PackageID pkgID) {
 
         Path path;
@@ -81,6 +83,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
         return new FSPackageSource(pkgID, path);
     }
 
+    @Nullable
     protected PackageSource lookupPackageSource(PackageID pkgID, String entryName) {
         Path path = this.generatePathOld(pkgID);
         if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {

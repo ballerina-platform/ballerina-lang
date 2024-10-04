@@ -25,6 +25,7 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.exceptions.InvalidBalaException;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -297,6 +298,7 @@ public final class ProjectFiles {
         }
     }
 
+    @Nullable
     public static DocumentData loadDocument(Path documentFilePath) {
         if (Files.notExists(documentFilePath)) {
             return null;

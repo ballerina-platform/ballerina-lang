@@ -34,6 +34,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,6 +106,7 @@ public class GenericMockObjectValue implements ObjectValue {
         return 0;
     }
 
+    @Nullable
     @Override
     public BString getStringValue(BString fieldName) {
         return null;
@@ -116,16 +118,19 @@ public class GenericMockObjectValue implements ObjectValue {
     }
 
     @SuppressWarnings("rawtypes")
+    @Nullable
     @Override
     public BMap getMapValue(BString fieldName) {
         return null;
     }
 
+    @Nullable
     @Override
     public BObject getObjectValue(BString fieldName) {
         return null;
     }
 
+    @Nullable
     @Override
     public BArray getArrayValue(BString fieldName) {
         return null;
@@ -136,11 +141,13 @@ public class GenericMockObjectValue implements ObjectValue {
 
     }
 
+    @Nullable
     @Override
     public Object getNativeData(String key) {
         return null;
     }
 
+    @Nullable
     @Override
     public HashMap<String, Object> getNativeData() {
         return null;
@@ -152,17 +159,20 @@ public class GenericMockObjectValue implements ObjectValue {
     }
 
 
+    @Nullable
     @Override
     public BFuture start(Strand strand, String funcName, Object... args) {
         return null;
     }
 
 
+    @Nullable
     @Override
     public String stringValue(BLink parent) {
         return null;
     }
 
+    @Nullable
     @Override
     public String expressionStringValue(BLink parent) {
         return null;
@@ -297,11 +307,13 @@ public class GenericMockObjectValue implements ObjectValue {
         return newArgs.toArray();
     }
 
+    @Nullable
     @Override
     public Object copy(Map<Object, Object> refs) {
         return null;
     }
 
+    @Nullable
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
         return null;

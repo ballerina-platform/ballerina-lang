@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -115,7 +116,9 @@ public class TypeDefinitionNode extends ModuleMemberDeclarationNode {
      */
     public static class TypeDefinitionNodeModifier {
         private final TypeDefinitionNode oldNode;
+        @Nullable
         private MetadataNode metadata;
+        @Nullable
         private Token visibilityQualifier;
         private Token typeKeyword;
         private Token typeName;

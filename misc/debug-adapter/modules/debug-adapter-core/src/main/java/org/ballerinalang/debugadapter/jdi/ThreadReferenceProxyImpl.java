@@ -27,6 +27,7 @@ import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadGroupReference;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,11 +46,13 @@ import java.util.ListIterator;
 public final class ThreadReferenceProxyImpl extends ObjectReferenceProxyImpl implements ThreadReferenceProxy {
     private static final Logger LOG = LoggerFactory.getLogger(ThreadReferenceProxyImpl.class);
     // cached data
+    @Nullable
     private String myName;
     private int myFrameCount = -1;
     // stack frames, 0 - bottom
     private final LinkedList<StackFrameProxyImpl> myFramesFromBottom = new LinkedList<>();
     //cache build on the base of myFramesFromBottom 0 - top, initially nothing is cached
+    @Nullable
     private List<StackFrameProxyImpl> myFrames = null;
 
     private ThreadGroupReferenceProxyImpl myThreadGroupProxy;
@@ -265,6 +268,7 @@ public final class ThreadReferenceProxyImpl extends ObjectReferenceProxyImpl imp
         }
     }
 
+    @Nullable
     @Override
     public StackFrameProxyImpl frame(int i) throws JdiProxyException {
         final ThreadReference threadReference = getThreadReference();

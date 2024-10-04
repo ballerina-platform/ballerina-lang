@@ -71,6 +71,7 @@ import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.types.FunctionType;
 import org.ballerinalang.docgen.generator.model.types.ObjectType;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,8 +90,10 @@ public class Type {
     public String moduleName;
     @Expose
     public String version;
+    @Nullable
     @Expose
     public String name;
+    @Nullable
     @Expose
     public String description;
     @Expose
@@ -127,6 +130,7 @@ public class Type {
     public List<Type> memberTypes = new ArrayList<>();
     @Expose
     public int arrayDimensions;
+    @Nullable
     @Expose
     public Type elementType;
     @Expose
@@ -327,9 +331,9 @@ public class Type {
         return type;
     }
 
-    public static Type fromSemanticSymbol(Symbol symbol, Optional<Documentation> documentation,
-                                          TypeReferenceTypeSymbol parentTypeRefSymbol, boolean isTypeInclusion,
-                                          Module module) {
+    public static Type fromSemanticSymbol(
+            Symbol symbol, Optional<Documentation> documentation,
+            @Nullable TypeReferenceTypeSymbol parentTypeRefSymbol, boolean isTypeInclusion, Module module) {
         Type type = new Type();
         if (symbol instanceof TypeReferenceTypeSymbol typeReferenceTypeSymbol) {
             Symbol typeDefinition = typeReferenceTypeSymbol.definition();

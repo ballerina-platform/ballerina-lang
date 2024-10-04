@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +52,7 @@ public final class TypeCompletionItemBuilder {
      * @param label   label
      * @return {@link CompletionItem}
      */
-    public static CompletionItem build(Symbol bSymbol, String label) {
+    public static CompletionItem build(@Nullable Symbol bSymbol, String label) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         String insertText = CommonUtil.escapeSpecialCharsInInsertText(label);

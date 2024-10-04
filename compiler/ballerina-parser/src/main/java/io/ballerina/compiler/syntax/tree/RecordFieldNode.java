@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -115,10 +116,13 @@ public class RecordFieldNode extends NonTerminalNode {
      */
     public static class RecordFieldNodeModifier {
         private final RecordFieldNode oldNode;
+        @Nullable
         private MetadataNode metadata;
+        @Nullable
         private Token readonlyKeyword;
         private Node typeName;
         private Token fieldName;
+        @Nullable
         private Token questionMarkToken;
         private Token semicolonToken;
 
@@ -133,7 +137,7 @@ public class RecordFieldNode extends NonTerminalNode {
         }
 
         public RecordFieldNodeModifier withMetadata(
-                MetadataNode metadata) {
+                @Nullable MetadataNode metadata) {
             this.metadata = metadata;
             return this;
         }
@@ -159,7 +163,7 @@ public class RecordFieldNode extends NonTerminalNode {
         }
 
         public RecordFieldNodeModifier withQuestionMarkToken(
-                Token questionMarkToken) {
+                @Nullable Token questionMarkToken) {
             this.questionMarkToken = questionMarkToken;
             return this;
         }
