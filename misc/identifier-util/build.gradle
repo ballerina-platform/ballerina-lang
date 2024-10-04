@@ -15,10 +15,12 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 dependencies {
-    implementation 'org.apache.commons:commons-text'
+    implementation libs.apache.commons.text
 }
 
 description = 'Identifier Utils'

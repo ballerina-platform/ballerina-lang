@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
+plugins {
+    id 'ballerinaStdLibBuild'
+}
 
 configurations.all {
     resolutionStrategy {
@@ -29,7 +31,7 @@ dependencies {
     implementation project(':ballerina-lang:jballerina.java')
 
     distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
-    implementation 'org.slf4j:slf4j-api'
+    implementation libs.slf4j.api
 }
 
 tasks.generateMetadataFileForMavenJavaPublication.dependsOn(':ballerina-io-internal:copyInteropImports')

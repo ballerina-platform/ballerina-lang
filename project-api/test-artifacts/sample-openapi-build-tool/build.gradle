@@ -33,7 +33,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tools-api')
 
-    implementation 'info.picocli:picocli:4.0.1'
+    implementation libs.picocli
     implementation group: 'org.talend.sdk.component', name: 'sample', version: '10.57.0'
 }
 

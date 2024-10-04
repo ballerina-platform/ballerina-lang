@@ -17,9 +17,8 @@
 
 plugins {
     id 'base'
+    id 'repositories'
 }
-
-apply from: "$rootDir/gradle/repositories.gradle"
 
 configurations.all {
     resolutionStrategy.preferProjectModules()
@@ -70,39 +69,39 @@ configurations {
 }
 
 dependencies {
-    dist "com.fasterxml.jackson.core:jackson-databind:${project.jacksonDatabindVersion}"
-    dist "com.fasterxml.jackson.core:jackson-core:${project.jacksonCoreVersion}"
-    dist "com.fasterxml.jackson.core:jackson-annotations:${project.jacksonAnnotationsVersion}"
-    dist "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${project.jacksonDataformatYamlVersion}"
+    dist libs.jackson.databind
+    dist libs.jackson.core
+    dist libs.jackson.annotations
+    dist libs.jackson.dataformat.yaml
     // dist 'org.ow2.asm:asm:6.2.1'
-    dist "com.fasterxml.woodstox:woodstox-core:${project.fasterxmlWoodstoxCoreVersion}"
-    dist "org.codehaus.woodstox:stax2-api:${project.codehausWoodstoxStax2ApiVersion}"
-    dist "org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}"
-    dist "me.tongfei:progressbar:${project.tongfeiProgressbarVersion}"
-    dist "org.jline:jline:${project.jlineVersion}"
-    dist "org.apache.commons:commons-text:${project.apacheCommonsTextVersion}"
-    dist "com.github.spullara.mustache.java:compiler:${project.spullaraMustacheCompilerVersion}"
+    dist libs.fasterxml.woodstox.core
+    dist libs.codehaus.woodstox.stax2.api
+    dist libs.apache.commons.compress
+    dist libs.tongfei.progressbar
+    dist libs.jline
+    dist libs.apache.commons.text
+    dist libs.mustache.java.compiler
 
-    dist "org.jetbrains.kotlin:kotlin-stdlib:${project.jetbrainsKotlinStdlibVersion}"
-    dist "org.jetbrains.kotlin:kotlin-stdlib-common:${project.jetbrainsKotlinStdlibCommonVersion}"
-    dist "org.ow2.asm:asm:${project.ow2AsmVersion}"
-    dist "org.ow2.asm:asm-analysis:${project.ow2AsmAnalysisVersion}"
-    dist "org.ow2.asm:asm-tree:${project.ow2AsmTreeVersion}"
-    dist "org.ow2.asm:asm-util:${project.ow2AsmUtilVersion}"
-    dist "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${project.jacksonDatatypeJsr310Version}"
+    dist libs.jetbrains.kotlin.stdlib
+    dist libs.jetbrains.kotlin.stdlib.common
+    dist libs.ow2.asm
+    dist libs.ow2.asm.analysis
+    dist libs.ow2.asm.tree
+    dist libs.ow2.asm.util
+    dist libs.jackson.datatype.jsr310
 
     // Following dependencies are required for transactions
-    dist "com.atomikos:transactions-jta:${project.atomikosTransactionsJtaVersion}"
-    dist "com.atomikos:transactions-api:${project.atomikosTransactionsApiVersion}"
-    dist "com.atomikos:atomikos-util:${project.atomikosUtilVersion}"
-    dist "com.atomikos:transactions:${project.atomikosTransactionsVersion}"
+    dist libs.atomikos.transactions.jta
+    dist libs.atomikos.transactions.api
+    dist libs.atomikos.util
+    dist libs.atomikos.transactions
 
     // Following dependencies are required for testerina
-    dist "org.jacoco:org.jacoco.core:${project.jacocoVersion}"
-    dist "org.jacoco:org.jacoco.report:${project.jacocoVersion}"
-    dist "org.ow2.asm:asm-commons:${project.ow2AsmCommonsVersion}"
-    dist "io.github.java-diff-utils:java-diff-utils:${project.javaDiffUtilsVersion}"
-    jacocoAgentLib "org.jacoco:org.jacoco.agent:${project.jacocoVersion}:runtime"
+    dist libs.jacoco.core
+    dist libs.jacoco.report
+    dist libs.ow2.asm.commons
+    dist libs.java.diff.utils
+    jacocoAgentLib "org.jacoco:org.jacoco.agent:${libs.versions.jacocoVersion.get()}:runtime"
 
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
@@ -134,7 +133,7 @@ dependencies {
 
     datamapperLib project(':ballerinalang-data-mapper')
 
-    langserverLib project(path: ':language-server:language-server-core', configuration: 'libs')
+    langserverLib project(path: ':language-server:language-server-core', configuration: 'lib')
     langserverLib project(':language-server:language-server-stdio-launcher')
     langserverLib project(':language-server:language-server-cli')
     langserverLib project(':language-server:language-server-core')
@@ -145,7 +144,7 @@ dependencies {
     langserverLib project(':ls-extensions:bal-shell-service')
     langserverLib project(':xml-to-record-converter')
 
-    debugAdapterLib project(path: ':debug-adapter:debug-adapter-core', configuration: 'libs')
+    debugAdapterLib project(path: ':debug-adapter:debug-adapter-core', configuration: 'lib')
     debugAdapterLib project(':debug-adapter:debug-adapter-cli')
     debugAdapterLib project(':debug-adapter:debug-adapter-core')
 
@@ -312,7 +311,7 @@ def copyAndRenameJaCoCoAgent = {
     path -> copySpec {
         from configurations.jacocoAgentLib
         into("$path/bre/lib")
-        rename "org.jacoco.agent-${project.jacocoVersion}-runtime.jar", "jacocoagent.jar"
+        rename "org.jacoco.agent-${libs.versions.jacocoVersion.get()}-runtime.jar", "jacocoagent.jar"
     }
 }
 
