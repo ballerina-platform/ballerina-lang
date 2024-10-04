@@ -1,4 +1,4 @@
-package io.ballerina.runtime.internal.types;
+package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.api.types.Type;
 
@@ -13,7 +13,7 @@ public interface CacheableTypeDescriptor extends Type {
 
     boolean shouldCache();
 
-    Optional<Boolean> cachedTypeCheckResult(CacheableTypeDescriptor other);
+    Optional<Boolean> cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other);
 
     void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result);
 }

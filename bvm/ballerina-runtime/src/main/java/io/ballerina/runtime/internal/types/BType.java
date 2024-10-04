@@ -23,15 +23,16 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.WeakHashMap;
 
 /**
  * {@code BType} represents a type in Ballerina.
@@ -54,7 +55,7 @@ public abstract non-sealed class BType extends SemType
     private Type cachedImpliedType = null;
     private volatile SemType cachedSemType = null;
     private TypeCreator.TypeMemoKey lookupKey = null;
-    private volatile Map<CacheableTypeDescriptor, Boolean> cachedResults;
+    private volatile TypeCheckCache<CacheableTypeDescriptor> typeCheckCache;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -297,23 +298,21 @@ public abstract non-sealed class BType extends SemType
     }
 
     @Override
-    public final Optional<Boolean> cachedTypeCheckResult(CacheableTypeDescriptor other) {
-        if (other.equals(this)) {
-            return Optional.of(true);
-        }
-        if (cachedResults == null) {
+    public final Optional<Boolean> cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other) {
+        if (typeCheckCache == null) {
             synchronized (this) {
-                if (cachedResults == null) {
-                    cachedResults = new WeakHashMap<>();
+                if (typeCheckCache == null) {
+                    typeCheckCache = cx.getTypeCheckCache(this);
                 }
             }
-            return Optional.empty();
         }
-        return Optional.ofNullable(cachedResults.get(other));
+        return typeCheckCache.cachedTypeCheckResult(other);
     }
 
     @Override
     public final void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result) {
-        cachedResults.put(other, result);
+        // This happening after checking the cache so it must be initialized by now
+        typeCheckCache.cacheTypeCheckResult(other, result);
     }
+
 }
