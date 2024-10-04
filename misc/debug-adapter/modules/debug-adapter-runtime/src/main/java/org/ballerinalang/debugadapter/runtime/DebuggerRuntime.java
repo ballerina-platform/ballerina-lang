@@ -120,17 +120,20 @@ public class DebuggerRuntime {
      * @param paramValues to be passed to invokable unit
      * @return return values
      */
-    public static Object invokeFunction(ClassLoader classLoader, String className, String methodName, Object... paramValues) {
+    public static Object invokeFunction(ClassLoader classLoader, String className, String methodName,
+                                        Object... paramValues) {
         try {
             Class<?> clazz = classLoader.loadClass(className);
             Method method = getMethod(methodName, clazz);
             try {
                 return method.invoke(null, paramValues);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw ErrorCreator.createError(StringUtils.fromString("'" + methodName + "' function invocation failed: " + e.getMessage()));
+                throw ErrorCreator.createError(StringUtils.fromString("'" + methodName +
+                                               "' function invocation failed: " + e.getMessage()));
             }
         } catch (Exception e) {
-            throw ErrorCreator.createError(StringUtils.fromString("'" + methodName + "' function invocation failed: " + e.getMessage()));
+            throw ErrorCreator.createError(StringUtils.fromString("'" + methodName +
+                                           "' function invocation failed: " + e.getMessage()));
         }
     }
 
@@ -144,7 +147,8 @@ public class DebuggerRuntime {
      * @param fieldValues    field values
      * @return Ballerina object instance
      */
-    public static Object createObjectValue(String pkgOrg, String pkgName, String pkgVersion, String objectTypeName, Object... fieldValues) {
+    public static Object createObjectValue(String pkgOrg, String pkgName, String pkgVersion,
+                                           String objectTypeName, Object... fieldValues) {
         Module packageId = new Module(pkgOrg, pkgName, pkgVersion);
         return ValueCreator.createObjectValue(packageId, objectTypeName, fieldValues);
     }
@@ -189,7 +193,9 @@ public class DebuggerRuntime {
         }
 
         ErrorType bErrorType = createErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage());
-        BMap<BString, Object> errorDetailsMap = ValueCreator.createMapValue((MapType) PredefinedTypes.TYPE_ERROR_DETAIL, errorDetailEntries.toArray(errorDetailEntries.toArray(new BMapInitialValueEntry[0])));
+        BMap<BString, Object> errorDetailsMap = ValueCreator.createMapValue((MapType)
+                PredefinedTypes.TYPE_ERROR_DETAIL, errorDetailEntries.toArray(
+                        errorDetailEntries.toArray(new BMapInitialValueEntry[0])));
         return ErrorCreator.createError(bErrorType, (StringValue) message, (ErrorValue) cause, errorDetailsMap);
     }
 
@@ -202,18 +208,23 @@ public class DebuggerRuntime {
      */
     public static Object getAnnotationValue(Object typedescValue, String annotationName) {
         if (!(typedescValue instanceof TypedescValue)) {
-            return ErrorCreator.createError(StringUtils.fromString("Incompatible types: expected 'typedesc`, " + "found '" + typedescValue.toString() + "'."));
+            return ErrorCreator.createError(StringUtils.fromString("Incompatible types: expected 'typedesc`, "
+                                                                   + "found '" + typedescValue.toString() + "'."));
         }
         Type type = ((TypedescValue) typedescValue).getDescribingType();
         if (type instanceof BAnnotatableType) {
-            return ((BAnnotatableType) type).getAnnotations().entrySet().stream().filter(annotationEntry -> annotationEntry.getKey().getValue().endsWith(annotationName)).findFirst().map(Map.Entry::getValue).orElse(null);
+            return ((BAnnotatableType) type).getAnnotations().entrySet().stream().filter(annotationEntry ->
+                    annotationEntry.getKey().getValue().endsWith(annotationName)).findFirst()
+                    .map(Map.Entry::getValue).orElse(null);
         }
 
-        return ErrorCreator.createError(StringUtils.fromString("type: '" + TypeUtils.getType(type.getEmptyValue()) + "' does not support annotation access."));
+        return ErrorCreator.createError(StringUtils.fromString("type: '" + TypeUtils.getType(type.getEmptyValue())
+                                                               + "' does not support annotation access."));
     }
 
     private static Method getMethod(String functionName, Class<?> funcClass) throws NoSuchMethodException {
-        Method declaredMethod = Arrays.stream(funcClass.getDeclaredMethods()).filter(method -> functionName.equals(method.getName())).findAny().orElse(null);
+        Method declaredMethod = Arrays.stream(funcClass.getDeclaredMethods()).filter(method ->
+                functionName.equals(method.getName())).findAny().orElse(null);
 
         if (declaredMethod != null) {
             return declaredMethod;
@@ -307,7 +318,8 @@ public class DebuggerRuntime {
             xmlNamePattern = stepParts[stepParts.length - 1];
         }
 
-        return Arrays.stream(xmlNamePattern.split(XML_NAME_PATTERN_SEPARATOR)).map(entry -> StringUtils.fromString(entry.trim())).toArray(BString[]::new);
+        return Arrays.stream(xmlNamePattern.split(XML_NAME_PATTERN_SEPARATOR)).map(entry ->
+                StringUtils.fromString(entry.trim())).toArray(BString[]::new);
     }
 
     /**
@@ -319,10 +331,12 @@ public class DebuggerRuntime {
      * @param userArgs       argument values
      * @return result of the function invocation
      */
-    public static Object classloadAndInvokeFunction(String executablePath, String mainClass, String functionName, Object... userArgs) {
+    public static Object classloadAndInvokeFunction(String executablePath, String mainClass, String functionName,
+                                                    Object... userArgs) {
         try {
             URL pathUrl = Paths.get(executablePath).toUri().toURL();
-            URLClassLoader classLoader = AccessController.doPrivileged((PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(new URL[]{pathUrl}, ClassLoader.getSystemClassLoader()));
+            URLClassLoader classLoader = AccessController.doPrivileged((PrivilegedAction<URLClassLoader>) () ->
+                    new URLClassLoader(new URL[]{pathUrl}, ClassLoader.getSystemClassLoader()));
 
             // Derives the namespace of the generated classes.
             String[] mainClassNameParts = mainClass.split("\\.");
@@ -336,7 +350,8 @@ public class DebuggerRuntime {
         }
     }
 
-    private static Object invokeBalRuntimeMethod(String functionName, Module module, ClassLoader classLoader, Object[] paramValues) {
+    private static Object invokeBalRuntimeMethod(String functionName, Module module, ClassLoader classLoader,
+                                                 Object[] paramValues) {
         BalRuntime runtime = new ClassloaderRuntime(module, classLoader);
         Object result;
         try {
@@ -347,7 +362,8 @@ public class DebuggerRuntime {
             // Then call run method
             result = runtime.call(module, functionName, paramValues);
         } catch (Throwable throwable) {
-            throw ErrorCreator.createError(StringUtils.fromString("'" + functionName + "' function " + "invocation failed : " + throwable.getMessage()));
+            throw ErrorCreator.createError(StringUtils.fromString("'" + functionName + "' function " +
+                                                                  "invocation failed : " + throwable.getMessage()));
         } finally {
             try {
                 runtime.stop();
@@ -370,7 +386,8 @@ public class DebuggerRuntime {
      * @param args        Arguments to provide.
      * @return The result of the invocation.
      */
-    protected static Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName, Class<?>[] argTypes, Object[] args) throws Exception {
+    protected static Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
+                                                 Class<?>[] argTypes, Object[] args) throws Exception {
         Class<?> clazz = classLoader.loadClass(className);
         Method method = clazz.getDeclaredMethod(methodName, argTypes);
         return method.invoke(null, args);
