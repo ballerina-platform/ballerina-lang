@@ -51,7 +51,7 @@ public class BallerinaTomlCompletionExtension implements TomlCompletionExtension
     @Override
     public List<CompletionItem> execute(CompletionParams completionParams,
                                         CompletionContext completionContext,
-                                        LanguageServerContext languageServerContext) throws Throwable {
+                                        LanguageServerContext languageServerContext) {
         BallerinaTomlCompletionContext ballerinaTomlCompletionContext =
                 new BallerinaTomlCompletionContext(completionContext, languageServerContext);
         return BallerinaTomlCompletionUtil.getCompletionItems(ballerinaTomlCompletionContext, languageServerContext);

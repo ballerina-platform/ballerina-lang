@@ -48,7 +48,7 @@ public class ReferenceTest {
     protected Endpoint serviceEndpoint;
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         this.configRoot = FileUtils.RES_DIR.resolve("reference").resolve("expected");
         this.sourceRoot = FileUtils.RES_DIR.resolve("reference").resolve("sources");
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
@@ -75,14 +75,14 @@ public class ReferenceTest {
 
 
     @DataProvider
-    public Object[][] testDataProvider() throws IOException {
+    public Object[][] testDataProvider() {
         return new Object[][]{
                 {"refFunction1.json", "function"}
         };
     }
 
     @AfterClass
-    public void shutDownLanguageServer() throws IOException {
+    public void shutDownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 

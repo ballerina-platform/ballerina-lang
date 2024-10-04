@@ -33,7 +33,6 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -274,11 +273,7 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         // Validate Settings.toml file
-        try {
-            RepoUtils.readSettings();
-        } catch (SettingsTomlException e) {
-            this.outStream.println("warning: " + e.getMessage());
-        }
+        RepoUtils.readSettings();
 
         if (!project.buildOptions().nativeImage() && !project.buildOptions().graalVMBuildOptions().isEmpty()) {
             this.outStream.println("WARNING: Additional GraalVM build options are ignored since graalvm " +

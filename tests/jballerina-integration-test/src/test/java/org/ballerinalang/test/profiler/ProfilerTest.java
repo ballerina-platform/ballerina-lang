@@ -47,7 +47,7 @@ public class ProfilerTest extends BaseTest {
     public static final String BALLERINA_HOME = "ballerina.home";
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         bMainInstance = new BMainInstance(balServer);
     }
 

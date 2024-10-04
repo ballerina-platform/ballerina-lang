@@ -37,7 +37,7 @@ public class BasicCasesTest extends BaseTestCase {
     private String projectPath;
 
     @BeforeClass()
-    public void setup() throws BallerinaTestException, IOException {
+    public void setup() throws IOException {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.toString();
         FileUtils.copyFolder(Path.of("build/libs"), Path.of(projectPath, "runtime-api-tests", "libs"));

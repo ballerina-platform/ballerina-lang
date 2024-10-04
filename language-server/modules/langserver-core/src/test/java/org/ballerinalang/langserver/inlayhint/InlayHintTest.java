@@ -22,7 +22,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import org.ballerinalang.langserver.AbstractLSTest;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.InlayHint;
@@ -60,7 +59,7 @@ public class InlayHintTest extends AbstractLSTest {
     private final Path testRoot = FileUtils.RES_DIR.resolve("inlayhint");
 
     @Test(dataProvider = "data-provider")
-    public void test(String config, String source) throws WorkspaceDocumentException, IOException {
+    public void test(String config, String source) throws IOException {
         Path configPath = getConfigJsonPath(config);
         TestConfig testConfig = gson.fromJson(Files.newBufferedReader(configPath), TestConfig.class);
         Path sourcePath = sourcesPath.resolve(testConfig.source);

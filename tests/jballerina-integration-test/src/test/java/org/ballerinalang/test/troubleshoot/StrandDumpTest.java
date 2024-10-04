@@ -52,7 +52,7 @@ public class StrandDumpTest extends BaseTest {
     private BMainInstance bMainInstance;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         bMainInstance = new BMainInstance(balServer);
     }
 

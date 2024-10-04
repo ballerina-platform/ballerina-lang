@@ -1,7 +1,6 @@
 package io.ballerina.cli.utils;
 
 import io.ballerina.projects.Settings;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
@@ -20,7 +19,7 @@ public class TestCentralUtils {
     private static final Path UTILS_TEST_RESOURCES = Path.of("src/test/resources/test-resources/central-utils");
 
     @Test(description = "Test get access token from Settings.toml")
-    public void testGetAccessTokenOfCliFromSettings() throws SettingsTomlException {
+    public void testGetAccessTokenOfCliFromSettings() {
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
             repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(UTILS_TEST_RESOURCES);
             Settings settings = RepoUtils.readSettings();
@@ -29,7 +28,7 @@ public class TestCentralUtils {
     }
 
     @Test(description = "Test read settings")
-    public void testReadSettings() throws SettingsTomlException {
+    public void testReadSettings() {
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
             repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(UTILS_TEST_RESOURCES);
             Settings settings = RepoUtils.readSettings();

@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
-import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
@@ -70,7 +69,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
      * @param context
      */
     @Override
-    public Object execute(ExecuteCommandContext context) throws LSCommandExecutorException {
+    public Object execute(ExecuteCommandContext context) {
         String fileUri = null;
         String moduleName = null;
         for (CommandArgument arg : context.getArguments()) {

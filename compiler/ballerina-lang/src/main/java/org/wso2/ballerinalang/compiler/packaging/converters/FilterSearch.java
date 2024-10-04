@@ -23,7 +23,7 @@ class FilterSearch<T> extends SimpleFileVisitor<T> {
     }
 
     @Override
-    public FileVisitResult preVisitDirectory(Object dir, BasicFileAttributes attrs) throws IOException {
+    public FileVisitResult preVisitDirectory(Object dir, BasicFileAttributes attrs) {
         if (!isExcluded((Path) dir)) {
             return FileVisitResult.CONTINUE;
         } else {

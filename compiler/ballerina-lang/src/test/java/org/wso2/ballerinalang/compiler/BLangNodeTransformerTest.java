@@ -53,7 +53,7 @@ public class BLangNodeTransformerTest {
 
     @Test(dataProvider = "testTransformationTestProvider", enabled = false)
     public void testTransformation(String configName, String sourcePackage)
-            throws IOException, IllegalAccessException {
+            throws IllegalAccessException {
         // Get expected result json
         JsonObject expJsonObj = fileContentAsObject(configName);
 

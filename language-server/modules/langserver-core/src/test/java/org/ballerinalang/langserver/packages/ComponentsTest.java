@@ -30,7 +30,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +54,7 @@ public class ComponentsTest {
     }
 
     @Test(description = "Test package components API", dataProvider = "components-data-provider")
-    public void packageComponentsTestCase(String[] projects, String expected) throws IOException {
+    public void packageComponentsTestCase(String[] projects, String expected) {
         Path configsPath = this.resourceRoot.resolve("configs");
         List<String> filePaths = new ArrayList<>();
         for (String project : projects) {

@@ -42,7 +42,6 @@ import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -248,7 +247,7 @@ public class PushCommand implements BLauncherCmd {
                     pushBalaToRemote(balaPath, client);
                 }
             }
-        } catch (ProjectException | CentralClientException | SettingsTomlException e) {
+        } catch (ProjectException | CentralClientException e) {
             CommandUtil.printError(this.errStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -483,12 +482,7 @@ public class PushCommand implements BLauncherCmd {
             Path ballerinaHomePath = RepoUtils.createAndGetHomeReposPath();
             Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
 
-            try {
-                authenticate(errStream, getBallerinaCentralCliTokenUrl(), settingsTomlFilePath, client);
-            } catch (SettingsTomlException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-                return;
-            }
+            authenticate(errStream, getBallerinaCentralCliTokenUrl(), settingsTomlFilePath, client);
 
             try {
                 client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_17.code(),

@@ -107,7 +107,7 @@ public class FormattingTest {
     }
 
     @AfterClass
-    public void shutdownLanguageServer() throws IOException {
+    public void shutdownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 }

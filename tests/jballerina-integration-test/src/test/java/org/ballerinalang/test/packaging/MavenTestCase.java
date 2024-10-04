@@ -45,7 +45,7 @@ public class MavenTestCase extends BaseTest {
     private BMainInstance balClient;
 
     @BeforeClass
-    public void setUp() throws IOException, BallerinaTestException {
+    public void setUp() throws IOException {
         this.tempHomeDirectory = Files.createTempDirectory("bal-test-integration-maven-home-");
         this.projectPath = Files.createTempDirectory("bal-test-integration-maven-");
 

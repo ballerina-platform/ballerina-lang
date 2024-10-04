@@ -38,7 +38,7 @@ import java.util.List;
 public class SemverValidatorNegativeTest extends SemverValidatorBaseTest {
 
     @BeforeClass()
-    private void setup() throws IOException, BallerinaTestException {
+    private void setup() throws IOException {
         tempProjectsDir = Files.createTempDirectory("bal-test-integration-semver-");
         customRepoDir = tempProjectsDir.resolve("ballerina-home");
         Path testProject = Path.of("src", "test", "resources", "semver").toAbsolutePath();

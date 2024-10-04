@@ -40,7 +40,7 @@ public class InvalidDataProviderTestCase extends BaseTestCase {
     private Path errorlogFile;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         balClient = new BMainInstance(balServer);
         projectPath = singleFileTestsPath.resolve("invalid-data-providers").toString();
         errorlogFile = Path.of(projectPath).resolve("ballerina-internal.log");

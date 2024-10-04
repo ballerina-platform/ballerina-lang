@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -34,31 +33,31 @@ public class RegressionEvaluatorTest extends AbstractEvaluatorTest {
     private static final String IMPORT_CYCLIC_TYPE_TESTCASE = "testcases/evaluator/regression.cyclic.type.json";
 
     @Test
-    public void testEvaluateSameImport() throws BallerinaShellException {
+    public void testEvaluateSameImport() {
         // Import can be again and again imported with same prefix.
         testEvaluate(SAME_IMPORT_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateImportUsedFn() throws BallerinaShellException {
+    public void testEvaluateImportUsedFn() {
         // Functions using imports are correctly processed.
         testEvaluate(IMPORT_USED_FN_TESTCASE);
     }
 
     @Test
-    public void testEvaluateQualifiers() throws BallerinaShellException {
+    public void testEvaluateQualifiers() {
         // Test for qualifiers use.
         testEvaluate(QUALIFIERS_TESTCASE);
     }
 
     @Test
-    public void testEvaluatePanicSaveState() throws BallerinaShellException {
+    public void testEvaluatePanicSaveState() {
         // Check if panic correctly preserves state.
         testEvaluate(PANIC_SAVE_STATE_TESTCASE);
     }
 
     @Test
-    public void testEvaluateCyclicType() throws BallerinaShellException {
+    public void testEvaluateCyclicType() {
         // Cyclic types use.
         testEvaluate(IMPORT_CYCLIC_TYPE_TESTCASE);
     }

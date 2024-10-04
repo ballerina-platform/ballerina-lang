@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
 import org.ballerinalang.langserver.util.FileUtils;
@@ -54,7 +53,7 @@ public class LSPackageLoaderTest extends AbstractLSTest {
     private final List<LSPackageLoader.ModuleInfo> remoteRepoPackages = new ArrayList<>(getRemotePackages());
 
     @Test(dataProvider = "data-provider")
-    public void test(String source) throws IOException, EventSyncException, WorkspaceDocumentException {
+    public void test(String source) throws IOException, EventSyncException {
         //Open the source text document and load project
         Path sourcePath = testRoot.resolve("source").resolve(source);
         Endpoint endpoint = getServiceEndpoint();
