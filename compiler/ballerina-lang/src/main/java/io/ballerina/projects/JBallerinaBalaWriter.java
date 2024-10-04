@@ -155,7 +155,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
                 // null check is added for spot bug with the toml validation filename cannot be null
                 String fileName = Optional.ofNullable(libPath.getFileName())
                         .map(Path::toString).orElse(ANNON);
-                Path entryPath = Paths.get("compiler-plugin").resolve("libs").resolve(fileName);
+                Path entryPath = Path.of("compiler-plugin").resolve("libs").resolve(fileName);
                 // create a zip entry for each file
                 putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
                 compilerPluginLibPaths.add(entryPath.toString());
