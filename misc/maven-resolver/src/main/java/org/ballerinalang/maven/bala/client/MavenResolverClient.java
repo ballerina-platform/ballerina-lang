@@ -19,7 +19,6 @@ package org.ballerinalang.maven.bala.client;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
-import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.WriterFactory;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
@@ -197,8 +196,6 @@ public class MavenResolverClient {
         Writer fw = WriterFactory.newXmlWriter(tempFile);
         new MavenXpp3Writer().write(fw, model);
         fw.close();
-        fw = null;
-        IOUtil.close(fw);
         return tempFile;
     }
 }

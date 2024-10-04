@@ -360,9 +360,7 @@ public class AnnotationDesugar {
         if (fieldSymbol instanceof BVarSymbol bVarSymbol) {
             descriptorKeyValue.key.fieldSymbol = bVarSymbol;
         }
-        if (valueLiteral != null) {
-            descriptorKeyValue.valueExpr = valueLiteral;
-        }
+        descriptorKeyValue.valueExpr = valueLiteral;
 
         symResolver.populateAnnotationAttachmentSymbol(annoAttachment, env, constantValueResolver);
 
@@ -786,9 +784,7 @@ public class AnnotationDesugar {
         if (fieldSymbol instanceof BVarSymbol bVarSymbol) {
             descriptorKeyValue.key.fieldSymbol = bVarSymbol;
         }
-        if (valueLiteral != null) {
-            descriptorKeyValue.valueExpr = valueLiteral;
-        }
+        descriptorKeyValue.valueExpr = valueLiteral;
 
         symResolver.populateAnnotationAttachmentSymbol(annoAttachment, env, constantValueResolver);
         ((List<BAnnotationAttachmentSymbol>) mainFunc.symbol.getAnnotations()).add(

@@ -945,9 +945,8 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
             return;
         }
 
-        BVarSymbol mapSym = null;
         //createMapSymbolIfAbsent(symbolEnv.node, symbolEnv.envCount);
-        updateClosureVars(localVarRef, mapSym);
+        updateClosureVars(localVarRef, null);
     }
 
     @Override
@@ -1401,7 +1400,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     private BLangNode getNextPossibleNode(SymbolEnv envArg) {
         SymbolEnv localEnv = envArg;
         BLangNode node = localEnv.node;
-        while (localEnv != null) {
+        while (true) {
             NodeKind kind = node.getKind();
             if (kind == NodeKind.PACKAGE) {
                 break;

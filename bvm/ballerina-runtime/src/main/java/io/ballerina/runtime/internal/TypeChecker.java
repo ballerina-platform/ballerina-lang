@@ -1744,9 +1744,7 @@ public final class TypeChecker {
             }
 
             MethodType rhsFunc = rhsFunction.get();
-            if (rhsFunc == null ||
-                    !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsFunc.getFlags(),
-                                              rhsFunc.getFlags())) {
+            if (!isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsFunc.getFlags(), rhsFunc.getFlags())) {
                 return false;
             }
             if (SymbolFlags.isFlagOn(lhsFunc.getFlags(), SymbolFlags.REMOTE) != SymbolFlags
@@ -1803,7 +1801,7 @@ public final class TypeChecker {
             return matchingFunction;
         }
         
-        if ((lhsFuncIsResource && !matchingFuncIsResource) || (matchingFuncIsResource && !lhsFuncIsResource)) {
+        if (!lhsFuncIsResource || !matchingFuncIsResource) {
             return Optional.empty();
         }
 

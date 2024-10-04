@@ -3797,7 +3797,7 @@ public class FormattingTreeModifier extends TreeModifier {
     private <T extends Node> T formatNode(T node, int trailingWS, int trailingNL, Boolean preserveIndentation) {
         try {
             if (node == null) {
-                return node;
+                return null;
             }
 
             if (!isInlineRange(node, lineRange)) {
@@ -3863,7 +3863,7 @@ public class FormattingTreeModifier extends TreeModifier {
     private <T extends Token> T formatToken(T token, int trailingWS, int trailingNL, Boolean preserveIndentation) {
         try {
             if (token == null) {
-                return token;
+                return null;
             }
 
             if (!isInlineRange(token, lineRange)) {
@@ -4637,10 +4637,10 @@ public class FormattingTreeModifier extends TreeModifier {
     private void preserveIndentation(boolean value) {
         if (value) {
             if (env.trailingNL < 1) {
-                env.preserveIndentation = value;
+                env.preserveIndentation = true;
             }
         } else {
-            env.preserveIndentation = value;
+            env.preserveIndentation = false;
         }
     }
 

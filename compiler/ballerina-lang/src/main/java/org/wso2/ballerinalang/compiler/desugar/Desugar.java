@@ -3332,7 +3332,7 @@ public class Desugar extends BLangNodeVisitor {
         retryTransaction.transaction.pos = null;
         retryTransaction.transaction.transactionBody.pos = null;
 
-        BLangBlockStmt retryBody = ASTBuilderUtil.createBlockStmt(retryTransaction.pos);
+        BLangBlockStmt retryBody = ASTBuilderUtil.createBlockStmt(null);
         retryBody.stmts.add(retryTransaction.transaction);
 
         BLangRetry retry = (BLangRetry) TreeBuilder.createRetryNode();
@@ -6319,9 +6319,9 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        // If the the variable is not used in lhs, then add a conversion if required.
+        // If the variable is not used in lhs, then add a conversion if required.
         // This is done to make the types compatible for narrowed types.
-        genVarRefExpr.isLValue = varRefExpr.isLValue;
+        genVarRefExpr.isLValue = false;
         BType targetType = genVarRefExpr.getBType();
         genVarRefExpr.setBType(genVarRefExpr.symbol.type);
         BLangExpression expression = types.addConversionExprIfRequired(genVarRefExpr, targetType);
@@ -7779,12 +7779,12 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        if (isLhsIntegerType && !isRhsIntegerType) {
+        if (isLhsIntegerType) {
             addTypeCastForBinaryExprB(binaryExpr, symTable.intType, rhsExprType);
             return;
         }
 
-        if (!isLhsIntegerType && isRhsIntegerType) {
+        if (isRhsIntegerType) {
             addTypeCastForBinaryExprA(binaryExpr, symTable.intType, lhsExprType);
             return;
         }
@@ -7808,12 +7808,12 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        if (isLhsStringType && !isRhsStringType) {
+        if (isLhsStringType) {
             addTypeCastForBinaryExprB(binaryExpr, symTable.stringType, rhsExprType);
             return;
         }
 
-        if (!isLhsStringType && isRhsStringType) {
+        if (isRhsStringType) {
             addTypeCastForBinaryExprA(binaryExpr, symTable.stringType, lhsExprType);
         }
     }
