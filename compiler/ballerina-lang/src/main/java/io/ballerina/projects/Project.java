@@ -42,7 +42,7 @@ public abstract class Project {
     protected ProjectEnvironment projectEnvironment;
     private final ProjectKind projectKind;
     private Map<PackageManifest.Tool.Field, ToolContext> toolContextMap;
-    private List<CompilerPluginContextIml> compilerPluginContexts;
+    private final List<CompilerPluginContextIml> compilerPluginContexts;
 
     protected Project(ProjectKind projectKind,
                       Path projectPath,

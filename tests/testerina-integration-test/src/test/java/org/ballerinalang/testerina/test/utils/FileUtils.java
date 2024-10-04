@@ -20,7 +20,6 @@ package org.ballerinalang.testerina.test.utils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -78,7 +77,7 @@ public final class FileUtils {
                 .resolve("coverage").resolve("ballerina.exec");
         if (execPath.toFile().exists()) {
             Files.copy(execPath,
-                    Paths.get(System.getProperty("user.dir")).resolve("build").resolve("jacoco").resolve(
+                    Path.of(System.getProperty("user.dir"), "build", "jacoco",
                             packagePath.getFileName().toString() + suffix + ".exec"));
 
         }

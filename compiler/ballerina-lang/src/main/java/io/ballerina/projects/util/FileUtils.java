@@ -34,7 +34,6 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -74,7 +73,7 @@ public final class FileUtils {
      * @return File name without extension.
      */
     public static String getFileNameWithoutExtension(String filePath) {
-        Path fileName = Paths.get(filePath).getFileName();
+        Path fileName = Path.of(filePath).getFileName();
         if (null != fileName) {
             int index = indexOfExtension(fileName.toString());
             return index == -1 ? fileName.toString() :
@@ -340,11 +339,11 @@ public final class FileUtils {
      * Copy files to the given destination.
      */
     public static class Copy extends SimpleFileVisitor<Path> {
-        private Path fromPath;
-        private Path toPath;
-        private String templateName;
-        private String packageName;
-        private StandardCopyOption copyOption;
+        private final Path fromPath;
+        private final Path toPath;
+        private final String templateName;
+        private final String packageName;
+        private final StandardCopyOption copyOption;
 
 
         public Copy(Path fromPath, Path toPath, String templateName, String packageName,
@@ -402,7 +401,7 @@ public final class FileUtils {
      * Look for existing Ballerina.toml file in the given directory up to 10 levels.
      */
     public static class BallerinaTomlChecker extends SimpleFileVisitor<Path> {
-        private Path startingPath;
+        private final Path startingPath;
         private boolean ballerinaTomlFound = false;
 
         public boolean isBallerinaTomlFound() {
@@ -418,8 +417,7 @@ public final class FileUtils {
         }
 
         @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                throws IOException {
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
 
             int depth = dir.getNameCount() - startingPath.getNameCount();
             if (depth >= 10) {
@@ -429,8 +427,7 @@ public final class FileUtils {
         }
 
         @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                throws IOException {
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 
             if (FILE_MATCHER.matches(file)) {
                 setBallerinaTomlFound(true);

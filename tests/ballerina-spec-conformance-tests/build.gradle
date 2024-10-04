@@ -14,9 +14,11 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 dependencies {
     implementation project(':ballerina-io-internal')
@@ -25,9 +27,9 @@ dependencies {
     testImplementation project(':ballerina-lang:annotations')
     testImplementation project(':testerina:testerina-core')
 
-    testImplementation'org.testng:testng'
-    testImplementation 'org.slf4j:slf4j-api'
-    testImplementation 'org.slf4j:slf4j-jdk14'
+    testImplementation libs.testng
+    testImplementation libs.slf4j.api
+    testImplementation libs.slf4j.jdk14
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 
     distributionBala project(path: ':ballerina-io-internal', configuration: 'distributionBala')

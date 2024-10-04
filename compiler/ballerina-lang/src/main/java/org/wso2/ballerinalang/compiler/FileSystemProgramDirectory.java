@@ -37,7 +37,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,7 +54,7 @@ import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
  */
 public class FileSystemProgramDirectory implements SourceDirectory {
     private final Path programDirPath;
-    private static PrintStream outStream = System.out;
+    private static final PrintStream OUT_STREAM = System.out;
 
     public FileSystemProgramDirectory(Path programDirPath) {
         this.programDirPath = programDirPath;
@@ -111,9 +110,9 @@ public class FileSystemProgramDirectory implements SourceDirectory {
     public Path saveCompiledProgram(InputStream source, String fileName) {
         // When building a single bal file the executable (balx) should be generated in the current directory of
         // the user
-        Path targetFilePath = Paths.get(fileName);
+        Path targetFilePath = Path.of(fileName);
         try {
-            outStream.println("    " + fileName);
+            OUT_STREAM.println("    " + fileName);
             Files.copy(source, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
             return targetFilePath;
         } catch (DirectoryNotEmptyException e) {

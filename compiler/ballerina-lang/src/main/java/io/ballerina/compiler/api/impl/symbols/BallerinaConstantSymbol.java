@@ -48,7 +48,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.is
 public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements ConstantSymbol {
 
     private final BallerinaConstantValue constValue;
-    private TypeSymbol broaderType;
+    private final TypeSymbol broaderType;
 
     private BallerinaConstantSymbol(String name, List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
                                     List<AnnotationAttachmentSymbol> annotAttachments, TypeSymbol typeDescriptor,

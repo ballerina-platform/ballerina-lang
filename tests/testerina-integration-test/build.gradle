@@ -14,8 +14,11 @@
  * limitations under the License.
  *
  */
-apply plugin: 'base'
-apply from: "$rootDir/gradle/javaProject.gradle"
+
+plugins {
+    id 'base'
+    id 'javaProject'
+}
 
 description = 'Ballerina - Testerina Test'
 
@@ -30,27 +33,22 @@ configurations {
 
 dependencies {
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
-    testImplementation 'org.testng:testng'
-    testImplementation 'org.slf4j:slf4j-jdk14'
-    testImplementation "com.google.code.gson:gson:${project.gsonVersion}"
-    implementation 'info.picocli:picocli'
+    testImplementation libs.testng
+    testImplementation libs.slf4j.jdk14
+    testImplementation libs.gson
+    implementation libs.picocli
 
     implementation project(path: ':ballerina-test-utils')
     implementation project(':ballerina-runtime')
 
-    implementation "org.jacoco:org.jacoco.core:${project.jacocoVersion}"
-    implementation "org.jacoco:org.jacoco.report:${project.jacocoVersion}"
-    implementation "org.ow2.asm:asm:${project.ow2AsmVersion}"
-    implementation "org.ow2.asm:asm-commons:${project.ow2AsmCommonsVersion}"
-    implementation "org.ow2.asm:asm-tree:${project.ow2AsmTreeVersion}"
-    implementation "org.testng:testng:${project.testngVersion}"
+    implementation libs.jacoco.core
+    implementation libs.jacoco.report
+    implementation libs.ow2.asm
+    implementation libs.ow2.asm.commons
+    implementation libs.ow2.asm.tree
+    implementation libs.testng
 
-    implementation group: 'org.jacoco', name: 'org.jacoco.core', version: "${project.jacocoVersion}"
-    implementation group: 'org.jacoco', name: 'org.jacoco.report', version: "${project.jacocoVersion}"
-    implementation group: 'org.ow2.asm', name: 'asm', version: "${project.ow2AsmVersion}"
-    implementation group: 'org.ow2.asm', name: 'asm-commons', version: "${project.ow2AsmCommonsVersion}"
-    implementation group: 'org.ow2.asm', name: 'asm-tree', version: "${project.ow2AsmTreeVersion}"
-    implementation group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: "${project.javaDiffUtilsVersion}"
+    implementation libs.java.diff.utils
 
     compilerPluginJar project(':project-api-test-artifact:init-function-code-modify-compiler-plugin')
     compilerPluginJar project(':project-api-test-artifact:remove-function-code-modify-compiler-plugin')
@@ -59,7 +57,7 @@ dependencies {
 }
 
 jacoco {
-    toolVersion = "${project.jacocoVersion}"
+    toolVersion = "${libs.versions.jacocoVersion.get()}"
 }
 
 tasks.register('copyCompilerPluginJars', Copy) {

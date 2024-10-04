@@ -103,7 +103,7 @@ public class StatisticConfig {
      */
     public static class Builder {
 
-        private StatisticConfig config = new StatisticConfig();
+        private final StatisticConfig config = new StatisticConfig();
 
         /**
          * Percentiles to compute and publish. Percentile is in the domain [0,1].

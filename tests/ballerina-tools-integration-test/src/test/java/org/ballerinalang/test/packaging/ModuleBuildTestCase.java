@@ -34,7 +34,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
@@ -74,16 +73,16 @@ public class ModuleBuildTestCase extends BaseTest {
         balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{}, projectPath.
                                                                                                             toString());
 
-        Path genPkgPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
+        Path genPkgPath = Path.of(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                     ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "foo", VERSION);
         Assert.assertTrue(Files.exists(projectPath.resolve(genPkgPath)));
         Assert.assertTrue(Files.exists(projectPath.resolve(genPkgPath).resolve("foo" + ".zip")));
 
-        Path emptyPkgPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
+        Path emptyPkgPath = Path.of(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                       ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "emptypkg", VERSION);
         Assert.assertTrue(Files.notExists(projectPath.resolve(emptyPkgPath).resolve("emptypkg" + ".zip")));
 
-        Path otherPkgPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
+        Path otherPkgPath = Path.of(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                       ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "otherpkg", VERSION);
         Assert.assertTrue(Files.notExists(projectPath.resolve(otherPkgPath).resolve("otherpkg" + ".zip")));
     }
@@ -105,12 +104,12 @@ public class ModuleBuildTestCase extends BaseTest {
         balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{},
                           projectPath.toString());
 
-        Path genPkgPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
+        Path genPkgPath = Path.of(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                     ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "foo", VERSION);
         Assert.assertTrue(Files.exists(projectPath.resolve(genPkgPath)));
         Assert.assertTrue(Files.exists(projectPath.resolve(genPkgPath).resolve("foo" + ".zip")));
 
-        Path otherPkgPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
+        Path otherPkgPath = Path.of(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                       ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "otherpkg", VERSION);
         Assert.assertTrue(Files.notExists(projectPath.resolve(otherPkgPath).resolve("otherpkg" + ".zip")));
     }
@@ -131,12 +130,12 @@ public class ModuleBuildTestCase extends BaseTest {
         balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{},
                           projectPath.toString());
 
-        Path genPkgPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
+        Path genPkgPath = Path.of(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                     ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "foo", VERSION);
         Assert.assertTrue(Files.exists(projectPath.resolve(genPkgPath)));
         Assert.assertTrue(Files.exists(projectPath.resolve(genPkgPath).resolve("foo" + ".zip")));
 
-        Path emptyPkgPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
+        Path emptyPkgPath = Path.of(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                       ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "emptypkg", VERSION);
         Assert.assertTrue(Files.notExists(projectPath.resolve(emptyPkgPath).resolve("emptypkg" + ".zip")));
     }
@@ -233,7 +232,7 @@ public class ModuleBuildTestCase extends BaseTest {
         balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{},
                           projectPath.toString());
 
-        Path genPkgPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
+        Path genPkgPath = Path.of(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                     ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "foo", VERSION);
         Assert.assertTrue(Files.exists(projectPath.resolve(genPkgPath).resolve("foo.zip")));
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
@@ -286,7 +285,7 @@ public class ModuleBuildTestCase extends BaseTest {
         // Copy the module with tests to the temp project directory
         Path projectPath = tempProjectDirectory.resolve("testModuleBuild");
         String resourcePath = (new File("src/test/resources/testModule")).getAbsolutePath();
-        FileUtils.copyDirectory(Paths.get(resourcePath).toFile(), projectPath.toFile());
+        FileUtils.copyDirectory(Path.of(resourcePath).toFile(), projectPath.toFile());
         // Initialize the project
         initProject(projectPath, EMPTY_PROJECT_OPTS);
 

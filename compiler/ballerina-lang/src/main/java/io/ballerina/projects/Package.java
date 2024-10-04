@@ -264,7 +264,7 @@ public class Package {
      * in form of a {@code DiagnosticResult} instance.
      * <p>
      * Here is a sample usage of this API: <pre>
-     *   Project project = BuildProject.load(Paths.get(...));
+     *   Project project = BuildProject.load(Path.of(...));
      *   Package currentPackage = project.currentPackage();
      *   DiagnosticResult diagnosticsResult = currentPackage.runCodeGenAndModifyPlugins();
      *
@@ -320,7 +320,7 @@ public class Package {
      * reported by the code generator tasks in form of a {@code CodeGeneratorResult} instance.
      * <p>
      * Here is a sample usage of this API: <pre>
-     *   Project project = BuildProject.load(Paths.get(...));
+     *   Project project = BuildProject.load(Path.of(...));
      *   Package currentPackage = project.currentPackage();
      *   Package packageWithGenFiles = currentPackage.runCodeGeneratorPlugins();
      *
@@ -362,7 +362,7 @@ public class Package {
      * reported by the code modifier tasks in form of a {@code CodeModifierResult} instance.
      * <p>
      * Here is a sample usage of this API: <pre>
-     *   Project project = BuildProject.load(Paths.get(...));
+     *   Project project = BuildProject.load(Path.of(...));
      *   Package currentPackage = project.currentPackage();
      *   Package packageWithGenFiles = currentPackage.runCodeModifierPlugins();
      *
@@ -437,13 +437,13 @@ public class Package {
      * Inner class that handles package modifications.
      */
     public static class Modifier {
-        private PackageId packageId;
+        private final PackageId packageId;
         private PackageManifest packageManifest;
         private DependencyManifest dependencyManifest;
-        private Map<ModuleId, ModuleContext> moduleContextMap;
-        private Project project;
+        private final Map<ModuleId, ModuleContext> moduleContextMap;
+        private final Project project;
         private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
-        private CompilationOptions compilationOptions;
+        private final CompilationOptions compilationOptions;
         private TomlDocumentContext ballerinaTomlContext;
         private TomlDocumentContext dependenciesTomlContext;
         private TomlDocumentContext cloudTomlContext;

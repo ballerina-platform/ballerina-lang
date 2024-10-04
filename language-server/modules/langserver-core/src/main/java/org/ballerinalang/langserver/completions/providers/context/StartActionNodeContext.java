@@ -27,7 +27,6 @@ import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -53,8 +52,7 @@ public class StartActionNodeContext extends AbstractCompletionProvider<StartActi
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, StartActionNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, StartActionNode node) {
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
 

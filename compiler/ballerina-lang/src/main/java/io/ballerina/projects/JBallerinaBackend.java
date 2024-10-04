@@ -55,7 +55,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -317,7 +316,7 @@ public class JBallerinaBackend extends CompilerBackend {
                     if (Objects.equals(dependencyScope, PlatformLibraryScope.PROVIDED)
                             && !Objects.equals(packageId, this.packageContext().packageId())) {
                         dependencyFilePath = getPlatformLibPathFromProvided(platform, groupId, artifactId, version);
-                        Path jarPath = Paths.get(dependencyFilePath);
+                        Path jarPath = Path.of(dependencyFilePath);
                         if (!jarPath.isAbsolute()) {
                             jarPath = this.packageContext().project().sourceRoot().resolve(jarPath);
                         }
@@ -328,7 +327,7 @@ public class JBallerinaBackend extends CompilerBackend {
                     dependency.put(JarLibrary.KEY_PATH, dependencyFilePath);
                 }
                 // If the path is relative we will convert to absolute relative to Ballerina.toml file
-                Path jarPath = Paths.get(dependencyFilePath);
+                Path jarPath = Path.of(dependencyFilePath);
                 if (!jarPath.isAbsolute()) {
                     jarPath = pkg.project().sourceRoot().resolve(jarPath);
                 }
@@ -375,9 +374,6 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         boolean isRemoteMgtEnabled = moduleContext.project().buildOptions().compilationOptions().remoteManagement();
         CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, isRemoteMgtEnabled);
-        if (compiledJarFile == null) {
-            throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
-        }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
             ByteArrayOutputStream byteStream = compiledJarFile.toByteArrayStream();
@@ -699,7 +695,7 @@ public class JBallerinaBackend extends CompilerBackend {
         nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
                 + (OS.contains("win") ? "native-image.cmd" : "native-image");
 
-        File commandExecutable = Paths.get(nativeImageCommand).toFile();
+        File commandExecutable = Path.of(nativeImageCommand).toFile();
         if (!commandExecutable.exists()) {
             throw new ProjectException("cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME/bin " +
                     "directory. Install it using: gu install native-image");

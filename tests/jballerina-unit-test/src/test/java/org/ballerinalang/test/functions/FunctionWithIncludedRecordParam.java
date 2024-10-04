@@ -56,15 +56,15 @@ public class FunctionWithIncludedRecordParam {
         BAssertUtil.validateError(result, i++, "too many arguments in call to " +
                                             "'functionWithIncludedRecordParam3()'", 59, 95);
         BAssertUtil.validateError(result, i++, "undeclared field 'firstName' in record 'Address'", 67, 12);
-        BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'a'", 80, 47);
-        BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 81, 51);
+        BAssertUtil.validateError(result, i++, "undefined parameter 'a'", 80, 47);
+        BAssertUtil.validateError(result, i++, "undefined parameter 'abc'", 81, 51);
         BAssertUtil.validateError(result, i++, "undefined field 'abc' in 'Bar2'", 90, 12);
-        BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 104, 75);
-        BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 122, 71);
+        BAssertUtil.validateError(result, i++, "undefined parameter 'abc'", 104, 75);
+        BAssertUtil.validateError(result, i++, "undefined parameter 'abc'", 122, 71);
         BAssertUtil.validateError(result, i++, "missing required parameter 'c' in call to " +
                                 "'functionWithIncludedRecordParam8()'", 136, 18);
-        BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 136, 71);
-        BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 144, 63);
+        BAssertUtil.validateError(result, i++, "undefined parameter 'abc'", 136, 71);
+        BAssertUtil.validateError(result, i++, "undefined parameter 'abc'", 144, 63);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'id'", 161, 53);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'name'", 161, 72);
         BAssertUtil.validateError(result, i++, "cannot specify a named argument for a field of an included record " +
@@ -125,9 +125,9 @@ public class FunctionWithIncludedRecordParam {
                 "not found in type 'int'", 280, 21);
         BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn5()'", 296, 23);
         BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn5()'", 297, 16);
-        BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'j'", 298, 23);
+        BAssertUtil.validateError(result, i++, "undefined parameter 'j'", 298, 23);
         BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn6()'", 299, 37);
-        BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'j'", 300, 9);
+        BAssertUtil.validateError(result, i++, "undefined parameter 'j'", 300, 9);
         BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn6()'", 300, 30);
         BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn9()'", 301, 37);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'r'", 308, 15);

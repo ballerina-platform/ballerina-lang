@@ -110,7 +110,7 @@ public class ShellCommandTest extends BaseCommandTest {
                             shellPrompt, testCase[0], testCase[1], shellPrompt);
                     Assert.assertEquals(filteredString(exprResponse), filteredString(expectedExprResponse));
                 }
-            } catch (IOException | InterruptedException ignored) {
+            } catch (IOException ignored) {
             }
         });
         testIntegratorThread.start();
@@ -137,7 +137,7 @@ public class ShellCommandTest extends BaseCommandTest {
         return data.toString();
     }
 
-    private void sendRequest(PrintStream stream, String string) throws InterruptedException {
+    private void sendRequest(PrintStream stream, String string) {
         stream.append(string);
         stream.println(System.lineSeparator());
         stream.flush();

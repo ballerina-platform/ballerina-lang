@@ -22,7 +22,6 @@ import org.testng.Assert;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Locale;
 
 /**
@@ -35,8 +34,7 @@ public final class AssertionUtils {
     private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
             .contains("win");
 
-    private static final Path commandOutputsDir = Paths
-            .get("src", "test", "resources", "command-outputs");
+    private static final Path commandOutputsDir = Path.of("src", "test", "resources", "command-outputs");
 
     private AssertionUtils() {
     }

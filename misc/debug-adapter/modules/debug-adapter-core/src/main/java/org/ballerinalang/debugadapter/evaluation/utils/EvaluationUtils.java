@@ -524,7 +524,7 @@ public final class EvaluationUtils {
      * @param val     string value
      * @return {@link StringReference} instance
      */
-    public static Value getAsJString(SuspendedContext context, String val) throws EvaluationException {
+    public static Value getAsJString(SuspendedContext context, String val) {
         return context.getAttachedVm().mirrorOf(val);
     }
 
@@ -603,8 +603,7 @@ public final class EvaluationUtils {
      * @param name    name of the variable to be retrieved
      * @return the JDI value instance of the Ballerina variable
      */
-    public static Optional<BExpressionValue> fetchVariableReferenceValue(EvaluationContext context, String name)
-            throws EvaluationException {
+    public static Optional<BExpressionValue> fetchVariableReferenceValue(EvaluationContext context, String name) {
         Optional<BExpressionValue> bExpressionValue = searchLocalVariables(context.getSuspendedContext(), name);
         if (bExpressionValue.isPresent()) {
             return bExpressionValue;

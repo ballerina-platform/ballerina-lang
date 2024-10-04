@@ -40,7 +40,7 @@ public abstract class AbstractRenameTest {
     protected Endpoint serviceEndpoint;
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         this.configRoot = FileUtils.RES_DIR.resolve("rename").resolve("expected").resolve(configRoot());
         this.sourceRoot = FileUtils.RES_DIR.resolve("rename").resolve("sources").resolve(sourceRoot());
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
@@ -77,7 +77,7 @@ public abstract class AbstractRenameTest {
     }
 
     @AfterClass
-    public void shutDownLanguageServer() throws IOException {
+    public void shutDownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 

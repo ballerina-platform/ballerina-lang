@@ -41,7 +41,6 @@ import java.io.PrintStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Optional;
@@ -70,8 +69,8 @@ public final class BuildLangLib {
     public static void main(String[] args) throws IOException {
         PrintStream out = System.out;
         try {
-            projectDir = Paths.get(args[0]);
-            distCache = Paths.get(args[1]);
+            projectDir = Path.of(args[0]);
+            distCache = Path.of(args[1]);
             String pkgName = args[2];
             // Following is to compile stdlib Modules
             if (args.length >= 4 && args[3].equals("true")) {

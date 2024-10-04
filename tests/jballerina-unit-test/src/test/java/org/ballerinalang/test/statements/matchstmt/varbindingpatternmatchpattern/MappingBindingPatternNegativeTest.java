@@ -33,8 +33,8 @@ import org.testng.annotations.Test;
 @Test
 public class MappingBindingPatternNegativeTest {
     private CompileResult warningResult, negativeResult;
-    private String patternNotMatched = "pattern will not be matched";
-    private String unreachablePattern = "unreachable pattern";
+    private final String patternNotMatched = "pattern will not be matched";
+    private final String unreachablePattern = "unreachable pattern";
 
     @BeforeClass
     public void setup() {

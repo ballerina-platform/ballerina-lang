@@ -825,7 +825,7 @@ public abstract class BIRNode {
     public static class BIRLockDetailsHolder {
 
         //This is the list of recursive locks in the current scope.
-        private List<BIRTerminator.Lock> locks = new ArrayList<>();
+        private final List<BIRTerminator.Lock> locks = new ArrayList<>();
 
         public boolean isEmpty() {
             return locks.isEmpty();

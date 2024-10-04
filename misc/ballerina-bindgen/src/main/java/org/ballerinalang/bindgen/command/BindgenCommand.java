@@ -28,7 +28,6 @@ import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.COMPONENT_IDENTIFIER;
@@ -45,7 +44,7 @@ public class BindgenCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final PrintStream outError;
     private final boolean exitWhenFinish;
-    private Path targetOutputPath = Paths.get(System.getProperty(USER_DIR));
+    private Path targetOutputPath = Path.of(System.getProperty(USER_DIR));
 
     public BindgenCommand() {
         this(System.out, System.err);
@@ -138,10 +137,10 @@ public class BindgenCommand implements BLauncherCmd {
 
         BindingsGenerator bindingsGenerator = new BindingsGenerator(outStream, outError);
         if (this.outputPath != null) {
-            if (Paths.get(outputPath).isAbsolute()) {
-                targetOutputPath = Paths.get(outputPath).normalize();
+            if (Path.of(outputPath).isAbsolute()) {
+                targetOutputPath = Path.of(outputPath).normalize();
             } else {
-                targetOutputPath = Paths.get(targetOutputPath.toString(), outputPath).normalize();
+                targetOutputPath = Path.of(targetOutputPath.toString(), outputPath).normalize();
             }
             bindingsGenerator.setOutputPath(targetOutputPath.toString());
         } else {

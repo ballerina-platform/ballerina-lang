@@ -16,14 +16,14 @@ import java.util.List;
 class FilterSearch<T> extends SimpleFileVisitor<T> {
 
     private final List<Path> excludeDir;
-    private List<Path> pathList = new ArrayList<>();
+    private final List<Path> pathList = new ArrayList<>();
 
     FilterSearch(List<Path> exclude) {
         this.excludeDir = exclude;
     }
 
     @Override
-    public FileVisitResult preVisitDirectory(Object dir, BasicFileAttributes attrs) throws IOException {
+    public FileVisitResult preVisitDirectory(Object dir, BasicFileAttributes attrs) {
         if (!isExcluded((Path) dir)) {
             return FileVisitResult.CONTINUE;
         } else {

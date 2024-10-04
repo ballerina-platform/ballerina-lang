@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,10 +57,10 @@ import java.util.stream.Stream;
 final class BIRTestUtils {
 
     private static final String TEST_RESOURCES_ROOT = "src/test/resources/test-src";
-    private static final Path TEST_RESOURCES_ROOT_PATH = Paths.get(TEST_RESOURCES_ROOT);
+    private static final Path TEST_RESOURCES_ROOT_PATH = Path.of(TEST_RESOURCES_ROOT);
 
     private static final String LANG_LIB_TEST_SRC_ROOT = "../../langlib/langlib-test/src/test/resources/test-src";
-    private static final Path LANG_LIB_TEST_ROOT_PATH = Paths.get(LANG_LIB_TEST_SRC_ROOT);
+    private static final Path LANG_LIB_TEST_ROOT_PATH = Path.of(LANG_LIB_TEST_SRC_ROOT);
 
     private BIRTestUtils() {
     }
