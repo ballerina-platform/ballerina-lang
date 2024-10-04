@@ -33,6 +33,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticHintCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -364,7 +365,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.env = prevEnv;
     }
 
-    private void analyzeTypeNode(BLangType node, AnalyzerData data) {
+    private void analyzeTypeNode(@Nullable BLangType node, AnalyzerData data) {
 
         if (node == null) {
             return;
@@ -615,7 +616,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyseOnFailClause(onFailExists, transactionNode.onFailClause, data);
     }
 
-    private void analyzeOnFailClause(BLangOnFailClause onFailClause, AnalyzerData data) {
+    private void analyzeOnFailClause(@Nullable BLangOnFailClause onFailClause, AnalyzerData data) {
         if (onFailClause != null) {
             analyzeNode(onFailClause, data);
         }
@@ -1085,6 +1086,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return constValAndType;
     }
 
+    @Nullable
     private Object getConstValueFromFiniteType(BFiniteType type) {
         if (type.getValueSpace().size() == 1) {
             BLangExpression expr = type.getValueSpace().iterator().next();
@@ -3917,6 +3919,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
+    @Nullable
     private BSymbol getWorkerSymbol(BLangWaitForAllExpr.BLangWaitKeyValue keyValuePair) {
         BLangExpression value = keyValuePair.getValue();
         if (value != null && value.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -3964,7 +3967,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return isWorkerFromFunction(functionEnv.enclEnv, workerName);
     }
 
-    private boolean isWorkerSymbol(BSymbol symbol) {
+    private boolean isWorkerSymbol(@Nullable BSymbol symbol) {
         return symbol != null && (symbol.flags & Flags.WORKER) == Flags.WORKER;
     }
 
@@ -4350,6 +4353,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
+    @Nullable
     private BLangExpression getMatchedExprIfCalledInMatchGuard(BLangInvocation invocation) {
         BLangNode prevParent = invocation;
         BLangNode parent = invocation.parent;

@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -49,6 +50,7 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
     private final TypesFactory typesFactory;
     private final SymbolTable symTable;
     private final List<TypeSymbol> memberTypes = new ArrayList<>();
+    @Nullable
     private TypeSymbol restType;
 
     public BallerinaTupleTypeBuilder(CompilerContext context) {
@@ -106,6 +108,7 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
         return symTable.noType;
     }
 
+    @Nullable
     private BType getRestType(TypeSymbol restType) {
         return restType instanceof AbstractTypeSymbol abstractTypeSymbol ? abstractTypeSymbol.getBType() : null;
     }

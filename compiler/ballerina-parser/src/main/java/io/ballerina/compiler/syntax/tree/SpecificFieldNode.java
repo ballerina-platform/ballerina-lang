@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -99,9 +100,12 @@ public class SpecificFieldNode extends MappingFieldNode {
      */
     public static class SpecificFieldNodeModifier {
         private final SpecificFieldNode oldNode;
+        @Nullable
         private Token readonlyKeyword;
         private Node fieldName;
+        @Nullable
         private Token colon;
+        @Nullable
         private ExpressionNode valueExpr;
 
         public SpecificFieldNodeModifier(SpecificFieldNode oldNode) {

@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
 
@@ -32,6 +33,7 @@ import java.lang.reflect.Type;
  */
 public class JsonStringsAdaptor implements JsonSerializer<String> {
 
+    @Nullable
     @Override
     public JsonElement serialize(String src, Type typeOfSrc, JsonSerializationContext context) {
         if (src == null || src.isEmpty()) { // exclusion is made here

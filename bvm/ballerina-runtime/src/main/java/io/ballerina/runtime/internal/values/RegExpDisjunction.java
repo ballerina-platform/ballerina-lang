@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.values.BLink;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.StringJoiner;
 
@@ -49,7 +50,7 @@ public class RegExpDisjunction extends RegExpCommonValue {
     }
 
     @Override
-    public String stringValue(BLink parent) {
+    public String stringValue(@Nullable BLink parent) {
         StringJoiner terms = new StringJoiner("");
         for (Object t : this.seqList) {
             if (t == null) {

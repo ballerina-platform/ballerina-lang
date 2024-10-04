@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.registration.BallerinaClientCapability;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +45,8 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
     LSClientCapabilitiesImpl(TextDocumentClientCapabilities textDocCapabilities,
                              WorkspaceClientCapabilities workspaceCapabilities,
-                             Map<String, Object> experimentalClientCapabilities,
-                             Map<String, Object> initializationOptionsMap) {
+                             @Nullable Map<String, Object> experimentalClientCapabilities,
+                             @Nullable Map<String, Object> initializationOptionsMap) {
         this.textDocCapabilities = (textDocCapabilities != null) ?
                 textDocCapabilities : new TextDocumentClientCapabilities();
 

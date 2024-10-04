@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -108,8 +109,10 @@ public class ImportDeclarationNode extends NonTerminalNode {
     public static class ImportDeclarationNodeModifier {
         private final ImportDeclarationNode oldNode;
         private Token importKeyword;
+        @Nullable
         private ImportOrgNameNode orgName;
         private SeparatedNodeList<IdentifierToken> moduleName;
+        @Nullable
         private ImportPrefixNode prefix;
         private Token semicolon;
 

@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Language server context implementation.
@@ -50,7 +51,7 @@ public class CompletionContextImpl extends PositionedOperationContextImpl implem
                           CompletionCapabilities capabilities,
                           Position cursorPosition,
                           LanguageServerContext serverContext,
-                          CancelChecker cancelChecker) {
+                          @Nullable CancelChecker cancelChecker) {
         super(operation, fileUri, cursorPosition, wsManager, serverContext, cancelChecker);
         this.capabilities = capabilities;
     }

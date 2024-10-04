@@ -20,6 +20,7 @@ package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -103,7 +104,7 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
 
         private final FunctionDiff functionDiff;
 
-        public Builder(FunctionDefinitionNode newNode, FunctionDefinitionNode oldNode) {
+        public Builder(@Nullable FunctionDefinitionNode newNode, @Nullable FunctionDefinitionNode oldNode) {
             super(newNode, oldNode);
             functionDiff = new FunctionDiff(newNode, oldNode);
         }

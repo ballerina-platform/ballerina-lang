@@ -24,6 +24,7 @@ import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.text.CharReader;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ public abstract class AbstractLexer {
     protected List<STNode> leadingTriviaList;
     private Collection<STNodeDiagnostic> diagnostics;
     protected CharReader reader;
+    @Nullable
     protected ParserMode mode;
     protected ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
     protected ArrayDeque<KeywordMode> keywordModes = new ArrayDeque<>();
@@ -135,7 +137,7 @@ public abstract class AbstractLexer {
         return diagnostics;
     }
 
-    protected STToken cloneWithDiagnostics(STToken toClone) {
+    protected STToken cloneWithDiagnostics(@Nullable STToken toClone) {
         if (noDiagnostics()) {
             return toClone;
         }

@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +48,7 @@ public class CliSpec {
     private final List<Object> mainArgs;
     private final String[] args;
 
-    public CliSpec(Option option, Operand[] operands, String... args) {
+    public CliSpec(@Nullable Option option, Operand[] operands, String... args) {
         this.option = option;
         this.operands = operands;
         this.args = args;

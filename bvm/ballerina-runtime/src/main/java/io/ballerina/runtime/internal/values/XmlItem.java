@@ -36,6 +36,7 @@ import io.ballerina.runtime.internal.xml.XmlValidator;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
@@ -466,9 +467,10 @@ public final class XmlItem extends XmlValue implements BXmlItem {
      * {@inheritDoc}
      * @param parent The link to the parent node
      */
+    @Nullable
     @Override
     @Deprecated
-    public String stringValue(BLink parent) {
+    public String stringValue(@Nullable BLink parent) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             BallerinaXmlSerializer ballerinaXMLSerializer = new BallerinaXmlSerializer(outputStream);
@@ -559,7 +561,8 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     }
 
     @Override
-    protected void setAttributeOnInitialization(String localName, String namespace, String prefix, String value) {
+    protected void setAttributeOnInitialization(
+            String localName, @Nullable String namespace, @Nullable String prefix, String value) {
         attributes.setAttribute(localName, namespace, prefix, value, true);
     }
 
@@ -713,7 +716,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     }
 
     private interface SetAttributeFunction {
-        void set(String localName, String namespace, String prefix, String value);
+        void set(String localName, @Nullable String namespace, @Nullable String prefix, String value);
     }
 
     public static XmlItem createXMLItemWithDefaultNSAttribute(QName name, boolean readonly, String defaultNsUri) {

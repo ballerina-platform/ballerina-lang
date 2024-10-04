@@ -41,6 +41,7 @@ import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.utils.CycleUtils;
 import io.ballerina.runtime.internal.utils.ValueConverter;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -85,6 +86,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private byte[] byteValues;
     private double[] floatValues;
     private BString[] bStringValues;
+    @Nullable
     private BTypedesc typedesc;
     // ------------------------ Constructors -------------------------------------------------------------------
 
@@ -276,7 +278,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this(type, ((ArrayType) TypeUtils.getImpliedType(type)).getSize(), initialValues, typedescValue);
     }
 
-    public ArrayValueImpl(Type type, long size, BListInitialValueEntry[] initialValues, TypedescValue typedescValue) {
+    public ArrayValueImpl(Type type, long size, BListInitialValueEntry[] initialValues,
+                          @Nullable TypedescValue typedescValue) {
         this.type = type;
         this.arrayType = (ArrayType) TypeUtils.getImpliedType(type);
         this.elementType = arrayType.getElementType();
@@ -465,7 +468,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param value value to be added
      */
     @Override
-    public void add(long index, Object value) {
+    public void add(long index, @Nullable Object value) {
         handleImmutableArrayValue();
         addRefValue(index, value);
     }
@@ -739,7 +742,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    public String stringValue(BLink parent) {
+    public String stringValue(@Nullable BLink parent) {
         StringJoiner sj = new StringJoiner(",");
         switch (this.elementReferredType.getTag()) {
             case TypeTags.INT_TAG:

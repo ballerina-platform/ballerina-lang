@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BXml;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,7 @@ public final class Map {
     private Map() {
     }
 
+    @Nullable
     public static BXml map(Environment env, BXml x, BFunctionPointer func) {
         if (x.isSingleton()) {
             return (BXml) func.call(env.getRuntime(), x);

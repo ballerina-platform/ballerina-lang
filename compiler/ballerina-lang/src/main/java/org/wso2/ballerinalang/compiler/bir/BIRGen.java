@@ -33,6 +33,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -325,6 +326,7 @@ public class BIRGen extends BLangNodeVisitor {
         return false;
     }
 
+    @Nullable
     private BLangFunction getMainFunction(BLangPackage pkgNode) {
         for (BLangFunction funcNode : pkgNode.functions) {
             if (CompilerUtils.isMainFunction(funcNode)) {
@@ -775,7 +777,7 @@ public class BIRGen extends BLangNodeVisitor {
         return blockEndBB;
     }
 
-    private void endBreakableBlock(BIRBasicBlock blockEndBB) {
+    private void endBreakableBlock(@Nullable BIRBasicBlock blockEndBB) {
         this.env.unlockVars.pop();
         if (this.env.enclBB.terminator == null) {
             this.env.enclBB.terminator = new BIRTerminator.GOTO(null, blockEndBB, this.currentScope);
@@ -857,6 +859,7 @@ public class BIRGen extends BLangNodeVisitor {
         return splitNames[splitNames.length - 1];
     }
 
+    @Nullable
     private BType getRecordTargetType(String funcName) {
         if (!funcName.contains(RECORD_DELIMITER)) {
             return null;
@@ -905,7 +908,7 @@ public class BIRGen extends BLangNodeVisitor {
         addParam(birFunc, paramSymbol, null, pos, paramSymbol.getAnnotations());
     }
 
-    private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, BLangExpression defaultValExpr,
+    private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, @Nullable BLangExpression defaultValExpr,
                           Location pos, List<? extends AnnotationAttachmentSymbol> annots) {
         boolean isPathParam = paramSymbol.kind == SymbolKind.PATH_PARAMETER ||
                 paramSymbol.kind == SymbolKind.PATH_REST_PARAMETER;
@@ -958,6 +961,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.symbolVarMap.put(paramSymbol, birVarDcl);
     }
 
+    @Nullable
     private PackageID getPackageIdForBoundMethod(BLangLambdaFunction lambdaExpr, String funcName) {
         if (!funcName.startsWith("$anon$method$delegate$")) {
             return null;
@@ -1478,6 +1482,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
+    @Nullable
     private BLangDiagnosticLocation getFunctionLastLinePos() {
         if (this.env.enclFunc.pos == null) {
             return null;
@@ -2311,7 +2316,7 @@ public class BIRGen extends BLangNodeVisitor {
         visitTypedesc(pos, type, Collections.emptyList(), annotations);
     }
 
-    private void visitTypedesc(Location pos, BType type, List<BIROperand> varDcls, BIROperand annotations) {
+    private void visitTypedesc(Location pos, BType type, List<BIROperand> varDcls, @Nullable BIROperand annotations) {
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.typeDesc, this.env.nextLocalVarId(names),
                                                        VarScope.FUNCTION, VarKind.TEMP);
         BIRGenEnv env = this.env;
@@ -2869,7 +2874,7 @@ public class BIRGen extends BLangNodeVisitor {
         return objType;
     }
 
-    private BIROperand generateStringLiteral(String value) {
+    private BIROperand generateStringLiteral(@Nullable String value) {
         BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         prefixLiteral.value = value;
 
@@ -3063,6 +3068,7 @@ public class BIRGen extends BLangNodeVisitor {
         return annotationAttachments;
     }
 
+    @Nullable
     private BIROperand getAnnotations(BTypeSymbol typeSymbol, BIRGenEnv env) {
         if (typeSymbol == null || typeSymbol.annotations == null) {
             return null;
@@ -3077,7 +3083,7 @@ public class BIRGen extends BLangNodeVisitor {
         return globalVarMap.get(annotations);
     }
 
-    private void addReturnBB(Location pos) {
+    private void addReturnBB(@Nullable Location pos) {
         if (this.env.returnBB == null) {
             BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId());
             addToTrapStack(returnBB);

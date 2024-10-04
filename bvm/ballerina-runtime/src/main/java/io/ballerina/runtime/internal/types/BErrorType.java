@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.values.ErrorValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -52,11 +53,13 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
         this.typeIdSet = typeIdSet;
     }
 
+    @Nullable
     @Override
     public <V> V getZeroValue() {
         return null;
     }
 
+    @Nullable
     @Override
     public <V> V getEmptyValue() {
         return null;

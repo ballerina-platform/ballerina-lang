@@ -35,6 +35,7 @@ import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BTypeIdSet;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,6 +64,7 @@ public final class TypeIds {
     private TypeIds() {
     }
 
+    @Nullable
     public static Object typeIds(BTypedesc t, boolean primaryOnly) {
         Type describingType = t.getDescribingType();
         BTypeIdSet typeIdSet = getTypeIdSetForType(describingType);
@@ -84,6 +86,7 @@ public final class TypeIds {
         return arrayValue;
     }
 
+    @Nullable
     private static BTypeIdSet getTypeIdSetForType(Type describingType) {
         BTypeIdSet typeIdSet;
         switch (describingType.getTag()) {

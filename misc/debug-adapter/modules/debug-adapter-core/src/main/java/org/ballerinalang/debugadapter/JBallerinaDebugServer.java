@@ -106,6 +106,7 @@ import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,6 +155,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     private DebugExecutionManager executionManager;
     private JDIEventProcessor eventProcessor;
     private final ExecutionContext context;
+    @Nullable
     private SuspendedContext suspendedContext;
     private DebugOutputLogger outputLogger;
     private DebugExpressionEvaluator evaluator;
@@ -313,8 +315,11 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         if (eventProcessor == null) {
             return CompletableFuture.completedFuture(threadsResponse);
         }
-        Map<Integer, ThreadReferenceProxyImpl> threadsMap = getActiveStrandThreads();
-        if (threadsMap == null) {
+        Map<Integer, ThreadReferenceProxyImpl> threadsMap;
+        try {
+             threadsMap = getActiveStrandThreads();
+        } catch (IllegalStateException e) {
+            LOGGER.error(e.getMessage());
             return CompletableFuture.completedFuture(threadsResponse);
         }
         Thread[] threads = new Thread[threadsMap.size()];
@@ -343,7 +348,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
         try {
-            activeThread = getAllThreads().get(args.getThreadId());
+            ThreadReferenceProxyImpl activeThread = getAllThreads().get(args.getThreadId());
             if (threadStackTraces.containsKey(activeThread.uniqueID())) {
                 stackTraceResponse.setStackFrames(threadStackTraces.get(activeThread.uniqueID()));
             } else {
@@ -354,6 +359,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
                 stackTraceResponse.setStackFrames(validFrames);
                 threadStackTraces.put(activeThread.uniqueID(), validFrames);
             }
+            this.activeThread = activeThread;
             return CompletableFuture.completedFuture(stackTraceResponse);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -797,6 +803,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     /**
      * Coverts a JDI stack frame instance to a DAP stack frame instance.
      */
+    @Nullable
     private StackFrame toDapStackFrame(StackFrameProxyImpl stackFrameProxy) {
         try {
             if (!isBalStackFrame(stackFrameProxy.getStackFrame())) {
@@ -990,7 +997,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     }
 
     private Variable[] computeLocalScopeVariables(VariablesArguments args) throws Exception {
-        StackFrameProxyImpl stackFrame = suspendedContext.getFrame();
+        StackFrameProxyImpl stackFrame = Objects.requireNonNull(suspendedContext).getFrame();
         List<CompletableFuture<Variable>> scheduledVariables = new ArrayList<>();
         List<CompletableFuture<Variable[]>> scheduledLambdaMapVariables = new ArrayList<>();
         List<LocalVariableProxyImpl> localVariableProxies = stackFrame.visibleVariables();
@@ -1069,6 +1076,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
      * @param value         runtime value of the variable
      * @param stackFrameRef reference ID of the parent stack frame
      */
+    @Nullable
     private CompletableFuture<Variable> computeVariableAsync(String name, Value value, Integer stackFrameRef) {
         return CompletableFuture.supplyAsync(() -> {
             BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);

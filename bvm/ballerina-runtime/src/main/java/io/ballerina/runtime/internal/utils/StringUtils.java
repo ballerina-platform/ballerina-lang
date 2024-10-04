@@ -37,6 +37,7 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ObjectValue;
+import org.jetbrains.annotations.Nullable;
 
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 
@@ -59,7 +60,7 @@ public final class StringUtils {
      * @param parent    The link to the parent node
      * @return          String value of the value
      */
-    public static String getStringVal(Object value, BLink parent) {
+    public static String getStringVal(Object value, @Nullable BLink parent) {
         if (value == null) {
             return "";
         }
@@ -106,7 +107,7 @@ public final class StringUtils {
      * @param parent The link to the parent node
      * @return String value of the value in expression style
      */
-    public static String getExpressionStringVal(Object value, BLink parent) {
+    public static String getExpressionStringVal(Object value, @Nullable BLink parent) {
         if (value == null) {
             return "()";
         }
@@ -165,7 +166,8 @@ public final class StringUtils {
      * @return Ballerina value represented by Ballerina expression syntax
      * @throws BError for any parsing error
      */
-    public static Object parseExpressionStringVal(String value, BLink parent) throws BError {
+    @Nullable
+    public static Object parseExpressionStringVal(String value, @Nullable BLink parent) throws BError {
         String exprValue = value.trim();
         int endIndex = exprValue.length() - 1;
         if (exprValue.equals("()")) {

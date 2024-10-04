@@ -23,6 +23,7 @@ import io.ballerina.toml.semantic.ast.TomlNode;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +42,7 @@ public class ArraySchema extends AbstractSchema {
     private final AbstractSchema items;
 
     public ArraySchema(Type type, Map<String, String> message, AbstractSchema items, CompositionSchema comps,
-                       String description) {
+                       @Nullable String description) {
         super(type, message, comps, description);
         this.items = items;
     }

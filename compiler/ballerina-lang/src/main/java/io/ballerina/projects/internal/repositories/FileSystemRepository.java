@@ -39,6 +39,7 @@ import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
@@ -207,7 +208,8 @@ public class FileSystemRepository extends AbstractPackageRepository {
     }
 
     @Override
-    protected List<PackageVersion> getPackageVersions(PackageOrg org, PackageName name, PackageVersion version) {
+    protected List<PackageVersion> getPackageVersions(PackageOrg org, PackageName name,
+                                                      @Nullable PackageVersion version) {
         List<Path> versions = new ArrayList<>();
         try {
             Path balaPackagePath = bala.resolve(org.value()).resolve(name.value());

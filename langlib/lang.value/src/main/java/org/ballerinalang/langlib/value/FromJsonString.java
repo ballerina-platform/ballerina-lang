@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.json.JsonParser;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Parse a string in JSON format and return the value that it represents.
@@ -34,6 +35,7 @@ public final class FromJsonString {
     private FromJsonString() {
     }
 
+    @Nullable
     public static Object fromJsonString(BString value) {
 
         String str = value.getValue();

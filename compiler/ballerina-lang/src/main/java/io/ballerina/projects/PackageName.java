@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 
 /**
@@ -32,7 +34,7 @@ public class PackageName {
         this.packageNameStr = packageNameStr;
     }
 
-    public static PackageName from(String packageNameStr) {
+    public static PackageName from(@Nullable String packageNameStr) {
         // TODO Check whether the packageName is a valid Ballerina identifier
         return new PackageName(packageNameStr);
     }

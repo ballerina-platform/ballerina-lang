@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
@@ -1771,8 +1772,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         return typeResolver.validateModuleLevelDef(name, pkgAlias, typeName, userDefinedTypeNode);
     }
 
+    @Nullable
     public ParameterizedTypeInfo getTypedescParamValueType(List<BLangSimpleVariable> params,
-                                                            AnalyzerData data, BSymbol varSym) {
+                                                           AnalyzerData data, BSymbol varSym) {
         for (int i = 0; i < params.size(); i++) {
             BLangSimpleVariable param = params.get(i);
 
@@ -2476,7 +2478,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         return types.getTypeIntersection(intersectionContext, lhsType, rhsType, env);
     }
 
-    boolean validateInferTypedescParams(Location pos, List<? extends BLangVariable> parameters, BType retType) {
+    boolean validateInferTypedescParams(
+            Location pos, List<? extends BLangVariable> parameters, @Nullable BType retType) {
         int inferTypedescParamCount = 0;
         BVarSymbol paramWithInferredTypedescDefault = null;
         Location inferDefaultLocation = null;

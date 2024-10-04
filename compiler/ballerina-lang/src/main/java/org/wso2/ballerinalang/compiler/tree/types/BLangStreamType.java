@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.types;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.StreamTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -32,6 +33,7 @@ public class BLangStreamType extends BLangType implements StreamTypeNode {
     // BLangNodes
     public BLangType type;
     public BLangType constraint;
+    @Nullable
     public BLangType error;
 
     public BLangStreamType() {

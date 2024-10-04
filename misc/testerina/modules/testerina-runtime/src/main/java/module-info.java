@@ -11,4 +11,5 @@ module io.ballerina.testerina.runtime {
     requires io.ballerina.identifier;
     requires org.objectweb.asm;
     requires io.github.javadiffutils;
+    requires static org.jetbrains.annotations;
 }

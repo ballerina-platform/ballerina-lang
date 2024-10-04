@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 import org.ballerinalang.model.clauses.InputClauseNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -40,6 +41,7 @@ public abstract class BLangInputClause extends BLangNode implements InputClauseN
 
     // Semantic Data
     public BType varType; // T
+    @Nullable
     public BType resultType; // map<T>
     public BType nillableResultType; // map<T>?
 

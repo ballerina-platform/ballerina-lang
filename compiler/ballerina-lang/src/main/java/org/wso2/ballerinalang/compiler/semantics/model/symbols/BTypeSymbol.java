@@ -21,6 +21,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.symbols.TypeSymbol;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -34,12 +35,12 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
     public BTypeSymbol typeParamTSymbol;
     public BVarSymbol annotations;
 
-    public BTypeSymbol(long symTag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
+    public BTypeSymbol(long symTag, long flags, Name name, PackageID pkgID, @Nullable BType type, BSymbol owner,
                        Location pos, SymbolOrigin origin) {
         this(symTag, flags, name, name, pkgID, type, owner, pos, origin);
     }
 
-    public BTypeSymbol(long symTag, long flags, Name name, Name originalName, PackageID pkgID, BType type,
+    public BTypeSymbol(long symTag, long flags, Name name, Name originalName, PackageID pkgID, @Nullable BType type,
                        BSymbol owner, Location pos, SymbolOrigin origin) {
         super(symTag, flags, name, originalName, pkgID, type, owner, pos, origin);
     }

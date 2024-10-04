@@ -12,4 +12,5 @@ module io.ballerina.central.client {
     requires org.apache.commons.io;
     requires okhttp3;
     requires okio;
+    requires static org.jetbrains.annotations;
 }

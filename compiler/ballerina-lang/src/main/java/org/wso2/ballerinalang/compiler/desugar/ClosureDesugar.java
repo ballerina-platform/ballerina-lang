@@ -24,6 +24,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -207,6 +208,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private final SymbolTable symTable;
     private SymbolEnv env;
+    @Nullable
     private BLangNode result;
     private final Types types;
     private final Desugar desugar;
@@ -328,7 +330,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     // TODO: filter out only the needed variables, otherwise OCE has indrect access to all block level
-    private void addClosureMapToInit(BLangClassDefinition classDef, BVarSymbol mapSymbol) {
+    private void addClosureMapToInit(BLangClassDefinition classDef, @Nullable BVarSymbol mapSymbol) {
 
         OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
 
@@ -762,6 +764,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createAssignmentStmt(varDefNode.pos, accessExpr, varDefNode.var.expr);
     }
 
+    @Nullable
     private BVarSymbol findClosureMapSymbol(int absoluteLevel) {
         SymbolEnv symbolEnv = env;
         while (symbolEnv.node.getKind() != NodeKind.PACKAGE) {
@@ -773,6 +776,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         throw new IllegalStateException("Failed to find the closure symbol defined scope");
     }
 
+    @Nullable
     private BVarSymbol createMapSymbolIfAbsent(BLangNode node, int closureMapCount) {
         NodeKind kind = node.getKind();
         return switch (kind) {
@@ -2142,6 +2146,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     // Rewrite methods
+    @Nullable
     @SuppressWarnings("unchecked")
     private <E extends BLangNode> E rewrite(E node, SymbolEnv env) {
         if (node == null) {
@@ -2176,6 +2181,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         return (E) resultNode;
     }
 
+    @Nullable
     @SuppressWarnings("unchecked")
     private <E extends BLangExpression> E rewriteExpr(E node) {
         if (node == null) {

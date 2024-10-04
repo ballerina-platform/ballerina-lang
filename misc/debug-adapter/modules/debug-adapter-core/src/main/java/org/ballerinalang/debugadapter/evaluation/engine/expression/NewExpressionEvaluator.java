@@ -36,6 +36,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.SymbolBasedArgProcessor;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,8 +67,9 @@ public class NewExpressionEvaluator extends Evaluator {
     private final List<Map.Entry<String, Evaluator>> argEvaluators;
     private static final String OBJECT_INIT_METHOD_NAME = "init";
 
-    public NewExpressionEvaluator(EvaluationContext context, ExpressionNode newExpressionNode, List<Map.Entry<String,
-            Evaluator>> argEvaluators) {
+    public NewExpressionEvaluator(
+            EvaluationContext context, ExpressionNode newExpressionNode,
+            @Nullable List<Map.Entry<String, Evaluator>> argEvaluators) {
         super(context);
         this.syntaxNode = newExpressionNode;
         this.argEvaluators = argEvaluators;

@@ -278,10 +278,10 @@ public class RemotePackageRepositoryTests {
 
         Assert.assertEquals(response.size(), 3);
         ImportModuleResponse javaArray = response.get(0);
-        Assert.assertEquals(javaArray.packageDescriptor().name().value(), "java.array");
+        Assert.assertEquals(javaArray.packageDescriptor().orElseThrow().name().value(), "java.array");
 
         ImportModuleResponse covid = response.get(1);
-        Assert.assertEquals(covid.packageDescriptor().name().value(), "covid");
+        Assert.assertEquals(covid.packageDescriptor().orElseThrow().name().value(), "covid");
 
         ImportModuleResponse unknown = response.get(2);
         Assert.assertEquals(unknown.resolutionStatus(), ResolutionResponse.ResolutionStatus.UNRESOLVED);

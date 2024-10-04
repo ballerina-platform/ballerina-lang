@@ -21,56 +21,51 @@ package org.ballerinalang.toml.model;
 import org.ballerinalang.compiler.BLangCompilerException;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Dependency definition in Ballerina.toml manifest file.
+ * @param moduleID module id of the dependency
+ * @param metadata metadata of the dependency
  */
-public class Dependency {
-    private String moduleID;
-    private DependencyMetadata metadata;
-    
-    public String getModuleID() {
-        return moduleID == null ? null : moduleID.replaceAll("^\"|\"$", "");
-    }
-    
-    public void setModuleID(String moduleID) {
+public record Dependency(String moduleID, DependencyMetadata metadata) {
+
+    public Dependency(String moduleID, DependencyMetadata metadata) {
         this.moduleID = moduleID.replaceAll("^\"|\"$", "");
+        this.metadata = metadata;
     }
-    
+
+    @Override
+    public String moduleID() {
+        return moduleID;
+    }
+
     public String getOrgName() {
-        String[] moduleIDParts = this.getModuleID().split("/");
+        String[] moduleIDParts = this.moduleID().split("/");
         if (moduleIDParts.length == 2) {
             return moduleIDParts[0];
         }
         throw new BLangCompilerException("invalid dependency name. dependency should be in the format " +
-                                         "<org-name>/<module-name>.");
+                "<org-name>/<module-name>.");
     }
-    
+
     public String getModuleName() {
-        String[] moduleIDParts = this.getModuleID().split("/");
+        String[] moduleIDParts = this.moduleID().split("/");
         if (moduleIDParts.length == 2) {
             return moduleIDParts[1];
         }
         throw new BLangCompilerException("invalid dependency name. dependency should be in the format " +
-                                         "<org-name>/<module-name>.");
+                "<org-name>/<module-name>.");
     }
-    
-    public DependencyMetadata getMetadata() {
-        return metadata;
-    }
-    
-    public void setMetadata(DependencyMetadata metadata) {
-        this.metadata = metadata;
-    }
-    
+
     @Override
     public String toString() {
-        return null != this.metadata &&
-               null != this.metadata.getVersion() &&
-                !this.metadata.getVersion().trim().isEmpty() ?
-               getModuleID() + ":" + this.metadata.getVersion() : getModuleID();
+        return moduleID + Optional.ofNullable(metadata)
+                .flatMap(meta -> Optional.ofNullable(meta.getVersion()))
+                .map(version -> version.isEmpty() ? "" : ":" + version)
+                .orElse("");
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -81,7 +76,7 @@ public class Dependency {
         }
         return this.toString().equals(that.toString());
     }
-    
+
     @Override
     public int hashCode() {
         return Objects.hash(toString());

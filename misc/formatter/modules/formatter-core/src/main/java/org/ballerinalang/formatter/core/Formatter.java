@@ -54,6 +54,7 @@ import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.formatter.core.options.FormattingOptions;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Class that exposes the formatting APIs.
@@ -189,7 +190,7 @@ public final class Formatter {
         return formattedNode.toSourceCode().strip();
     }
 
-    private static SyntaxTree modifyTree(SyntaxTree syntaxTree, FormattingOptions options, LineRange range)
+    private static SyntaxTree modifyTree(SyntaxTree syntaxTree, FormattingOptions options, @Nullable LineRange range)
             throws FormatterException {
         FormattingTreeModifier treeModifier = new FormattingTreeModifier(options, range);
         ModulePartNode modulePartNode = syntaxTree.rootNode();

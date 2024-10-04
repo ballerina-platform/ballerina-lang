@@ -19,6 +19,7 @@ package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 
@@ -73,6 +74,7 @@ public class ChildNodeList implements Iterable<Node> {
         return count;
     }
 
+    @Nullable
     private Node loadNode(int childIndex) {
         int index = 0;
         Node child = null;

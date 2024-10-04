@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -93,6 +94,7 @@ public class DoStatementNode extends StatementNode {
         private final DoStatementNode oldNode;
         private Token doKeyword;
         private BlockStatementNode blockStatement;
+        @Nullable
         private OnFailClauseNode onFailClause;
 
         public DoStatementNodeModifier(DoStatementNode oldNode) {
@@ -117,7 +119,7 @@ public class DoStatementNode extends StatementNode {
         }
 
         public DoStatementNodeModifier withOnFailClause(
-                OnFailClauseNode onFailClause) {
+                @Nullable OnFailClauseNode onFailClause) {
             this.onFailClause = onFailClause;
             return this;
         }

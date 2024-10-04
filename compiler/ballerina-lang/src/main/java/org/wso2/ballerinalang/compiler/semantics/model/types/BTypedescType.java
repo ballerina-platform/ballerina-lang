@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ConstrainedType;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -30,7 +31,7 @@ public class BTypedescType extends BBuiltInRefType implements ConstrainedType {
 
     public BType constraint;
 
-    public BTypedescType(BType constraint, BTypeSymbol tsymbol) {
+    public BTypedescType(@Nullable BType constraint, @Nullable BTypeSymbol tsymbol) {
 
         super(TypeTags.TYPEDESC, tsymbol, Flags.READONLY);
         this.constraint = constraint;

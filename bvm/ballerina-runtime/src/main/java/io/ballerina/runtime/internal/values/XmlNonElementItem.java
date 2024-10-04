@@ -30,6 +30,7 @@ import io.ballerina.runtime.internal.xml.BallerinaXmlSerializer;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -57,16 +58,19 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
         return getNodeType().value();
     }
 
+    @Nullable
     @Override
     public String getElementName() {
         return null;
     }
 
+    @Nullable
     @Override
     public BString getAttribute(String localName, String namespace) {
         return null;
     }
 
+    @Nullable
     @Override
     public BString getAttribute(String localName, String namespace, String prefix) {
         return null;
@@ -77,6 +81,7 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
 
     }
 
+    @Nullable
     @Override
     public MapValue<BString, BString> getAttributesMap() {
         return null;
@@ -92,6 +97,7 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
         return new XmlSequence();
     }
 
+    @Nullable
     @Override
     public BXml elements(String qname) {
         return null;
@@ -124,6 +130,7 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
     @Override
     public abstract XmlNodeType getNodeType();
 
+    @Nullable
     @Override
     public BXml slice(long startIndex, long endIndex) {
         return null;
@@ -190,8 +197,9 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
         };
     }
 
+    @Nullable
     @Override
-    public String stringValue(BLink parent) {
+    public String stringValue(@Nullable BLink parent) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             BallerinaXmlSerializer ballerinaXMLSerializer = new BallerinaXmlSerializer(outputStream);

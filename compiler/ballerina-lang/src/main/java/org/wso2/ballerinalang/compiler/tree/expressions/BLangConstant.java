@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.statements.ConstantNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -49,6 +50,7 @@ public class BLangConstant extends BLangVariable implements ConstantNode, TypeDe
     // BLangNodes
     public BLangIdentifier name;
     // Type definition associated with this constant.
+    @Nullable
     public BLangTypeDefinition associatedTypeDefinition;
 
     // Semantic Data

@@ -19,6 +19,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -56,10 +57,10 @@ public class BuildTool {
      */
     public static BuildTool from(
             BuildToolId id,
-            PackageOrg org,
-            PackageName name,
-            PackageVersion version,
-            TomlNodeLocation location) {
+            @Nullable PackageOrg org,
+            @Nullable PackageName name,
+            @Nullable PackageVersion version,
+            @Nullable TomlNodeLocation location) {
         return new BuildTool(id, org, name, version, location);
     }
 

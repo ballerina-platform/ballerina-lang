@@ -20,6 +20,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BTypedesc;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Objects;
@@ -52,7 +53,7 @@ public class RegExpValue implements BRegexpValue, RefValue {
     }
 
     @Override
-    public String stringValue(BLink parent) {
+    public String stringValue(@Nullable BLink parent) {
         return this.regExpDisjunction.stringValue(parent);
     }
 

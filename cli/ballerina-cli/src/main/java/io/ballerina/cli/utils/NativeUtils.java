@@ -28,6 +28,7 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.test.runtime.entity.MockFunctionReplaceVisitor;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -249,6 +250,7 @@ public final class NativeUtils {
         return methodSet;
     }
 
+    @Nullable
     private static Class<?> validateClassExistance(TestSuite testSuite, String qualifiedTestClassName) {
         List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
         ClassLoader classLoader = AccessController.doPrivileged(

@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.elements;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * {@code AttachPoint} represents annotation attach point in ballerina.
  *
@@ -127,6 +129,7 @@ public class AttachPoint {
         this.source = source;
     }
 
+    @Nullable
     public static AttachPoint getAttachmentPoint(String value, boolean source) {
         for (Point point : Point.values()) {
             if (point.value.equals(value)) {

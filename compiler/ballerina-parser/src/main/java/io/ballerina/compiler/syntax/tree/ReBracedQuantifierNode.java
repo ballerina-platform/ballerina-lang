@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -109,6 +110,7 @@ public class ReBracedQuantifierNode extends NonTerminalNode {
         private final ReBracedQuantifierNode oldNode;
         private Token openBraceToken;
         private NodeList<Node> leastTimesMatchedDigit;
+        @Nullable
         private Token commaToken;
         private NodeList<Node> mostTimesMatchedDigit;
         private Token closeBraceToken;

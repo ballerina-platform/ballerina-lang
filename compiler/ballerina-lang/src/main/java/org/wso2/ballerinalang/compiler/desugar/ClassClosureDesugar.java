@@ -21,6 +21,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -176,8 +177,11 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     private static final BVarSymbol CLOSURE_MAP_NOT_FOUND;
 
     private final int blockClosureMapCount = 1;
+    @Nullable
     private BLangClassDefinition classDef;
+    @Nullable
     private BLangNode result;
+    @Nullable
     private SymbolEnv env;
 
     private final SymbolTable symTable;
@@ -217,7 +221,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     }
 
     private void createClosureMapUpdateExpression(BLangClassDefinition classDef,
-                                                  BVarSymbol blockMap,
+                                                  @Nullable BVarSymbol blockMap,
                                                   BVarSymbol classMapSymbol) {
 
         OCEDynamicEnvironmentData oceEnvData = classDef.oceEnvData;
@@ -373,6 +377,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createAssignmentStmt(varDefNode.pos, accessExpr, varDefNode.var.expr);
     }
 
+    @Nullable
     private BVarSymbol createMapSymbolIfAbsent(BLangNode node, int closureMapCount) {
         NodeKind kind = node.getKind();
         return switch (kind) {
@@ -730,6 +735,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         classDef.oceEnvData.desugaredClosureVars.add(varRefExpr);
     }
 
+    @Nullable
     private BVarSymbol getVarMapSymbol(BVarSymbol symbol) {
         BVarSymbol mapSymbol = null;
         if (classDef.oceEnvData.closureFuncSymbols.contains(symbol)) {
@@ -985,7 +991,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
      * @param varRefExpr closure variable reference to be updated
      * @param mapSymbol  map symbol to be used
      */
-    private void updateClosureVars(BLangSimpleVarRef varRefExpr, BVarSymbol mapSymbol) {
+    private void updateClosureVars(BLangSimpleVarRef varRefExpr, @Nullable BVarSymbol mapSymbol) {
         BVarSymbol selfSymbol = classDef.generatedInitFunction.receiver.symbol;
         BLangSimpleVarRef.BLangLocalVarRef localSelfVarRef = new BLangSimpleVarRef.BLangLocalVarRef(selfSymbol);
         localSelfVarRef.setBType(classDef.getBType());
@@ -1331,6 +1337,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     }
 
     // Rewrite methods
+    @Nullable
     @SuppressWarnings("unchecked")
     private <E extends BLangNode> E rewrite(E node, SymbolEnv env) {
         if (node == null) {
@@ -1348,6 +1355,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         return (E) resultNode;
     }
 
+    @Nullable
     @SuppressWarnings("unchecked")
     private <E extends BLangExpression> E rewriteExpr(E node) {
         if (node == null) {

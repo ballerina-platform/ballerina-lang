@@ -30,6 +30,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BCollectionProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BNumericProperty;
@@ -97,7 +98,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      * @param code Error code
      * @param args Parameters associated with the error
      */
-    public void error(Location location, DiagnosticCode code, Object... args) {
+    public void error(@Nullable Location location, DiagnosticCode code, Object... args) {
         String msg = formatMessage(ERROR_PREFIX, code, args);
         reportDiagnostic((ModuleDescriptor) null, code, location, msg, DiagnosticSeverity.ERROR, args);
     }
@@ -192,9 +193,9 @@ public class BLangDiagnosticLog implements DiagnosticLog {
 
     @Override
     public void logDiagnostic(DiagnosticSeverity severity,
-                       ModuleDescriptor moduleDescriptor,
-                       Location location,
-                       CharSequence message) {
+                              @Nullable ModuleDescriptor moduleDescriptor,
+                              Location location,
+                              CharSequence message) {
         reportDiagnostic(moduleDescriptor, null, location, message.toString(), severity, new Object[] {});
     }
 
@@ -219,8 +220,8 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         return MessageFormat.format(msgKey, args);
     }
 
-    private void reportDiagnostic(ModuleDescriptor moduleDescriptor, DiagnosticCode diagnosticCode, Location location,
-                                  String msg, DiagnosticSeverity severity, Object[] args) {
+    private void reportDiagnostic(@Nullable ModuleDescriptor moduleDescriptor, @Nullable DiagnosticCode diagnosticCode,
+                                  Location location, String msg, DiagnosticSeverity severity, Object[] args) {
         PackageID pkgId = null;
         if (moduleDescriptor != null) {
             pkgId = new PackageID(new Name(moduleDescriptor.org().value()),
@@ -230,8 +231,8 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         reportDiagnostic(pkgId, diagnosticCode, location, msg, severity, args);
     }
 
-    private void reportDiagnostic(PackageID packageID, DiagnosticCode diagnosticCode, Location location,
-                                  String msg, DiagnosticSeverity severity, Object[] args) {
+    private void reportDiagnostic(@Nullable PackageID packageID, @Nullable DiagnosticCode diagnosticCode,
+                                  Location location, String msg, DiagnosticSeverity severity, Object[] args) {
         if (severity == DiagnosticSeverity.ERROR) {
             this.errorCount++;
         }

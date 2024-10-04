@@ -22,6 +22,7 @@ import io.ballerina.toml.internal.syntax.SyntaxUtils;
 import io.ballerina.toml.internal.syntax.TreeModifiers;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextRange;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,7 +44,7 @@ public abstract class NonTerminalNode extends Node {
     protected final Node[] childBuckets;
     private ChildNodeList childNodeList;
 
-    public NonTerminalNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public NonTerminalNode(STNode internalNode, int position, @Nullable NonTerminalNode parent) {
         super(internalNode, position, parent);
         this.childBuckets = new Node[internalNode.bucketCount()];
     }
@@ -131,6 +132,7 @@ public abstract class NonTerminalNode extends Node {
      * @param textRange to evaluate and find the node
      * @return {@link NonTerminalNode} which is the inner most non terminal node, encapsulating the given position
      */
+    @Nullable
     public NonTerminalNode findNode(TextRange textRange) {
         TextRange textRangeWithMinutiae = textRangeWithMinutiae();
         if (!(this instanceof DocumentNode)

@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -210,8 +211,8 @@ public final class TypeDefBuilderHelper {
         return typeDefinition;
     }
 
-    public static BLangTypeDefinition createTypeDefinitionForTSymbol(BType type, BSymbol symbol, BLangType typeNode,
-                                                                     SymbolEnv env) {
+    public static BLangTypeDefinition createTypeDefinitionForTSymbol(
+            @Nullable BType type, BSymbol symbol, BLangType typeNode, SymbolEnv env) {
         BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
         typeDefinition.typeNode = typeNode;
         typeDefinition.setBType(type);
@@ -282,7 +283,7 @@ public final class TypeDefBuilderHelper {
         return errorType;
     }
 
-    public static String getPackageAlias(SymbolEnv env, String compUnitName, PackageID typePkgId) {
+    public static String getPackageAlias(SymbolEnv env, @Nullable String compUnitName, PackageID typePkgId) {
         for (BLangImportPackage importStmt : env.enclPkg.imports) {
             if (importStmt == null || importStmt.compUnit == null || importStmt.compUnit.value == null ||
                     !importStmt.compUnit.value.equals(compUnitName)) {
@@ -297,14 +298,15 @@ public final class TypeDefBuilderHelper {
         return ""; // current module
     }
 
-    public static void populateStructureFieldsAndTypeInclusions(Types types, SymbolTable symTable,
-                                                                BLangAnonymousModelHelper anonymousModelHelper,
-                                                                Names names, BLangStructureTypeNode structureTypeNode,
-                                                                BStructureType structureType,
-                                                                BStructureType origStructureType, Location pos,
-                                                                SymbolEnv env, PackageID pkgID,
-                                                                Set<BType> unresolvedTypes, long flag,
-                                                                boolean isImmutable) {
+    public static void populateStructureFieldsAndTypeInclusions(
+            Types types, SymbolTable symTable,
+            @Nullable BLangAnonymousModelHelper anonymousModelHelper,
+            Names names, BLangStructureTypeNode structureTypeNode,
+            BStructureType structureType,
+            BStructureType origStructureType, Location pos,
+            SymbolEnv env, PackageID pkgID,
+            @Nullable Set<BType> unresolvedTypes, long flag,
+            boolean isImmutable) {
         BTypeSymbol structureSymbol = structureType.tsymbol;
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         structureType.typeInclusions = origStructureType.typeInclusions;

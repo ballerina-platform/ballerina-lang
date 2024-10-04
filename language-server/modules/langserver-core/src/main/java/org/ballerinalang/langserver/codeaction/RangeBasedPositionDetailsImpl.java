@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codeaction;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -103,17 +104,18 @@ public class RangeBasedPositionDetailsImpl implements RangeBasedPositionDetails 
         private PositionDetailsBuilder() {
         }
 
-        public PositionDetailsBuilder setDocumentableNode(NonTerminalNode documentableNode) {
+        public PositionDetailsBuilder setDocumentableNode(@Nullable NonTerminalNode documentableNode) {
             this.documentableNode = documentableNode;
             return this;
         }
 
-        public PositionDetailsBuilder setEnclosingDocumentableNode(NonTerminalNode enclosingDocumentableNode) {
+        public PositionDetailsBuilder setEnclosingDocumentableNode(
+                @Nullable NonTerminalNode enclosingDocumentableNode) {
             this.enclosingDocumentableNode = enclosingDocumentableNode;
             return this;
         }
 
-        public PositionDetailsBuilder setStatementNode(NonTerminalNode statementNode) {
+        public PositionDetailsBuilder setStatementNode(@Nullable NonTerminalNode statementNode) {
             this.statementNode = statementNode;
             return this;
         }
@@ -128,7 +130,7 @@ public class RangeBasedPositionDetailsImpl implements RangeBasedPositionDetails 
             return this;
         }
 
-        public PositionDetailsBuilder setTopLevelNodeType(TypeSymbol topLevelNodeType) {
+        public PositionDetailsBuilder setTopLevelNodeType(@Nullable TypeSymbol topLevelNodeType) {
             this.topLevelNodeType = topLevelNodeType;
             return this;
         }

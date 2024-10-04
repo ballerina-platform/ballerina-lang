@@ -29,6 +29,7 @@ import org.ballerinalang.debugadapter.utils.PackageUtils;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.StackFrame;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -51,6 +52,7 @@ public class BallerinaStackFrame {
     private final ExecutionContext context;
     private final Integer frameId;
     private final StackFrameProxyImpl jStackFrame;
+    @Nullable
     private StackFrame dapStackFrame;
 
     private static final String STRAND_FIELD_NAME = "name";
@@ -88,6 +90,7 @@ public class BallerinaStackFrame {
         return Optional.ofNullable(dapStackFrame);
     }
 
+    @Nullable
     private StackFrame computeDapStackFrame() {
         try {
             if (!isBalStackFrame(jStackFrame.getStackFrame())) {
@@ -197,6 +200,7 @@ public class BallerinaStackFrame {
     /**
      * Retrieves ballerina strand instance of the given stack frame.
      */
+    @Nullable
     private static ObjectReference getStrand(StackFrameProxyImpl frame) {
         try {
             if (frame.visibleVariableByName(STRAND_VAR_NAME) == null) {

@@ -22,6 +22,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Util functions required for handling BIR.
@@ -48,11 +50,12 @@ public final class BIRGenUtils {
     public static void rearrangeBasicBlocks(BIRNode.BIRFunction birFunction) {
         int currentBBId = 0;
         // Re-arrange basic blocks
-        for (BIRNode.BIRBasicBlock bb : birFunction.basicBlocks) {
+        for (BIRNode.BIRBasicBlock bb : Optional.ofNullable(birFunction.basicBlocks).orElse(List.of())) {
             currentBBId = renumberBasicBlock(currentBBId, bb);
         }
         // Re-arrange error entries
-        birFunction.errorTable.sort(Comparator.comparingInt(o -> o.trapBB.number));
+        Optional.ofNullable(birFunction.errorTable).ifPresent(
+                errorTable -> errorTable.sort(Comparator.comparingInt(o -> o.trapBB.number)));
     }
 
     public static int renumberBasicBlock(int newBBNum, BIRBasicBlock bb) {

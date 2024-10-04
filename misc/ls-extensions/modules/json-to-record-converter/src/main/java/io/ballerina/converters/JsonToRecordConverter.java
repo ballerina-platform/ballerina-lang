@@ -54,6 +54,7 @@ import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.options.ForceFormattingOptions;
 import org.ballerinalang.formatter.core.options.FormattingOptions;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -405,8 +406,8 @@ public final class JsonToRecordConverter {
         return createBuiltinSimpleNameReferenceNode(null, typeName);
     }
     
-    private static ArrayTypeDescriptorNode createArrayTypeDesc(TypeDescriptorNode memberTypeDesc, 
-                                                               Token openBracketToken, Node arrayLengthNode, 
+    private static ArrayTypeDescriptorNode createArrayTypeDesc(TypeDescriptorNode memberTypeDesc,
+                                                               Token openBracketToken, @Nullable Node arrayLengthNode,
                                                                Token closeBracketToken) {
         NodeList<ArrayDimensionNode> arrayDimensions = NodeFactory.createEmptyNodeList();
         if (memberTypeDesc.kind() == SyntaxKind.ARRAY_TYPE_DESC) {

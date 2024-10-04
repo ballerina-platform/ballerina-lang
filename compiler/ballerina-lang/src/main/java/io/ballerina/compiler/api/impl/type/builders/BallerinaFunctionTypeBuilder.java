@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -59,7 +60,9 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
     private final TypesFactory typesFactory;
     private final SymbolTable symTable;
     private final List<ParameterSymbol> parameterSymbols = new ArrayList<>();
+    @Nullable
     private ParameterSymbol restParam;
+    @Nullable
     private TypeSymbol returnTypeSymbol;
 
     public BallerinaFunctionTypeBuilder(CompilerContext context) {
@@ -116,6 +119,7 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
         return functionTypeSymbol;
     }
 
+    @Nullable
     private BVarSymbol getRestParamSymbol(ParameterSymbol restParam, BType restType) {
         if (restParam == null) {
             return null;
@@ -130,6 +134,7 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
         return null;
     }
 
+    @Nullable
     private BType getRestType(ParameterSymbol restParam) {
         if (restParam == null) {
             return null;
@@ -194,8 +199,11 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
     public class ParameterBuilder implements PARAMETER_BUILDER {
 
         private final SymbolFactory symbolFactory;
+        @Nullable
         private String name;
+        @Nullable
         private TypeSymbol type;
+        @Nullable
         private ParameterKind kind;
 
         private ParameterBuilder(CompilerContext context) {

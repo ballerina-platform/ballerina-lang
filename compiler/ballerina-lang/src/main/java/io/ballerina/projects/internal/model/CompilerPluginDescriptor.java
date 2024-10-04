@@ -26,6 +26,7 @@ import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +44,7 @@ public class CompilerPluginDescriptor {
     private final Plugin plugin;
     private final List<Dependency> dependencies;
 
-    private CompilerPluginDescriptor(Plugin plugin, List<Dependency> dependencies) {
+    private CompilerPluginDescriptor(@Nullable Plugin plugin, List<Dependency> dependencies) {
         this.plugin = plugin;
         this.dependencies = dependencies;
     }
@@ -89,7 +90,7 @@ public class CompilerPluginDescriptor {
         private String id;
         private String className;
 
-        Plugin(String id, String className) {
+        Plugin(@Nullable String id, @Nullable String className) {
             this.id = id;
             this.className = className;
         }
@@ -145,6 +146,7 @@ public class CompilerPluginDescriptor {
         return dependencies;
     }
 
+    @Nullable
     private static String getPluginID(TomlTableNode tomlTableNode) {
         TomlTableNode pluginNode = (TomlTableNode) tomlTableNode.entries().get("plugin");
         if (pluginNode != null && pluginNode.kind() != TomlType.NONE && pluginNode.kind() == TomlType.TABLE) {
@@ -156,6 +158,7 @@ public class CompilerPluginDescriptor {
         return null;
     }
 
+    @Nullable
     private static String getPluginClass(TomlTableNode tomlTableNode) {
         TomlTableNode pluginNode = (TomlTableNode) tomlTableNode.entries().get("plugin");
         if (pluginNode != null && pluginNode.kind() != TomlType.NONE && pluginNode.kind() == TomlType.TABLE) {
@@ -167,6 +170,7 @@ public class CompilerPluginDescriptor {
         return null;
     }
 
+    @Nullable
     private static String getStringFromTomlTableNode(TopLevelNode topLevelNode) {
         if (topLevelNode != null && topLevelNode.kind() == TomlType.KEY_VALUE) {
             TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;

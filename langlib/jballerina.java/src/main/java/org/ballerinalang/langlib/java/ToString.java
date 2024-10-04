@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.java;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BString;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This class contains the implementation of the "toString" ballerina function in ballerina/jballerina.java module.
@@ -31,6 +32,7 @@ public final class ToString {
     private ToString() {
     }
 
+    @Nullable
     public static Object toString(BHandle value) {
         Object referredValue = value.getValue();
         if (referredValue == null) {

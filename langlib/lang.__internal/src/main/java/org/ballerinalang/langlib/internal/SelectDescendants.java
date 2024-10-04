@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.internal;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,7 @@ public final class SelectDescendants {
     private SelectDescendants() {
     }
 
+    @Nullable
     public static BXml selectDescendants(BXml xml, BString[] qnames) {
         try {
             List<String> qnameList = new ArrayList<>();

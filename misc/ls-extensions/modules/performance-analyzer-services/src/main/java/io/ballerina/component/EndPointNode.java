@@ -19,6 +19,7 @@
 package io.ballerina.component;
 
 import io.ballerina.tools.text.LineRange;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * model obj to store endpoints.
@@ -32,7 +33,7 @@ public class EndPointNode {
     private final String baseUrl;
     private final LineRange pos;
 
-    public EndPointNode(String pkgID, String name, String baseUrl, LineRange pos) {
+    public EndPointNode(String pkgID, String name, @Nullable String baseUrl, LineRange pos) {
 
         this.pkgID = pkgID;
         this.name = name;

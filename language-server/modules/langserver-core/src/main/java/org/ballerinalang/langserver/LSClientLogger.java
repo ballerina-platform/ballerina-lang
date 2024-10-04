@@ -26,6 +26,7 @@ import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -85,8 +86,9 @@ public class LSClientLogger {
      * @param identifier text document
      * @param pos        pos
      */
-    public void logError(LSOperation operation, String message, Throwable error, TextDocumentIdentifier identifier,
-                         Position... pos) {
+    public void logError(
+            @Nullable LSOperation operation, String message, Throwable error,
+            @Nullable TextDocumentIdentifier identifier, Position... pos) {
         if (!this.isInitializedOnce || this.languageClient == null) {
             return;
         }

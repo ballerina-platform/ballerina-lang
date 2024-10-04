@@ -19,6 +19,7 @@ package io.ballerina.compiler.internal.parser;
 
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 
@@ -853,10 +854,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OPTIONAL_TOP_LEVEL_SEMICOLON =
             { ParserRuleContext.TOP_LEVEL_NODE, ParserRuleContext.SEMICOLON };
 
-  private static final ParserRuleContext[] TUPLE_MEMBER =
+    private static final ParserRuleContext[] TUPLE_MEMBER =
             { ParserRuleContext.ANNOTATIONS, ParserRuleContext.TYPE_DESC_IN_TUPLE };
 
-    public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
+    public BallerinaParserErrorHandler(@Nullable AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
 

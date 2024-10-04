@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
@@ -52,7 +53,7 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
 
     @Override
     public String toString() {
-        return String.valueOf(expr) + "[" + String.valueOf(indexExpr) + "]";
+        return expr + "[" + indexExpr + "]";
     }
 
     @Override
@@ -271,7 +272,7 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         }
 
         public BLangStructFieldAccessExpr(Location pos, BLangExpression varRef, BLangExpression keyExpr,
-                                          BVarSymbol fieldSymbol, boolean except, boolean isStoreOnCreation) {
+                                          @Nullable BVarSymbol fieldSymbol, boolean except, boolean isStoreOnCreation) {
             this.pos = pos;
             this.expr = varRef;
             this.indexExpr = keyExpr;

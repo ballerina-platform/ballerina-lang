@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BXml;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Native implementation of lang.xml.XMLIterator:next().
@@ -35,6 +36,7 @@ public final class Next {
 
     private Next() {
     }
+    @Nullable
     public static Object next(BObject m) {
         BIterator<?> xmlIterator = (BIterator<?>) m.getNativeData("&iterator&");
         BXml bXml = (BXml) m.get(StringUtils.fromString("m"));

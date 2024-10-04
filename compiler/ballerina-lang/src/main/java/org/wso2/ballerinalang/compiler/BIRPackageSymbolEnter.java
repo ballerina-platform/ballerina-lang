@@ -29,6 +29,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.ConstrainedType;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -138,10 +139,12 @@ public class BIRPackageSymbolEnter {
     private final Names names;
     private final TypeParamAnalyzer typeParamAnalyzer;
     private final Types types;
+    @Nullable
     private BIRTypeReader typeReader;
 
     private BIRPackageSymbolEnv env;
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
+    @Nullable
     private BStructureTypeSymbol currentStructure = null;
     private final LinkedList<Object> compositeStack = new LinkedList<>();
 
@@ -319,6 +322,7 @@ public class BIRPackageSymbolEnter {
         return constantPool;
     }
 
+    @Nullable
     private CPEntry readCPEntry(DataInputStream dataInStream,
                                 CPEntry[] constantPool,
                                 CPEntry.Type cpEntryType, int i) throws IOException {
@@ -657,6 +661,7 @@ public class BIRPackageSymbolEnter {
         }
     }
 
+    @Nullable
     private BType readBType(DataInputStream dataInStream) throws IOException {
         int typeCpIndex = dataInStream.readInt();
         CPEntry cpEntry = this.env.constantPool[typeCpIndex];
@@ -675,7 +680,7 @@ public class BIRPackageSymbolEnter {
         return type;
     }
 
-    private void addShapeCP(BType bType, int typeCpIndex) {
+    private void addShapeCP(@Nullable BType bType, int typeCpIndex) {
         this.env.constantPool[typeCpIndex] = new CPEntry.ShapeCPEntry(bType);
     }
 
@@ -1215,6 +1220,7 @@ public class BIRPackageSymbolEnter {
             return invokableSymbol;
         }
 
+        @Nullable
         public BType readType(int cpI) throws IOException {
             byte tag = inputStream.readByte();
             Name name = Names.fromString(getStringCPEntryValue(inputStream));

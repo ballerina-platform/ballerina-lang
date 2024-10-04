@@ -26,6 +26,7 @@ import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -52,7 +53,7 @@ public class BalToolDescriptor {
     private final BalToolDescriptor.Tool tool;
     private final List<BalToolDescriptor.Dependency> dependencies;
 
-    private BalToolDescriptor(BalToolDescriptor.Tool tool, List<BalToolDescriptor.Dependency> dependencies) {
+    private BalToolDescriptor(@Nullable BalToolDescriptor.Tool tool, List<BalToolDescriptor.Dependency> dependencies) {
         this.tool = tool;
         this.dependencies = dependencies;
     }
@@ -96,7 +97,7 @@ public class BalToolDescriptor {
     public static class Tool {
         private String id;
 
-        Tool(String id) {
+        Tool(@Nullable String id) {
             this.id = id;
         }
 
@@ -152,6 +153,7 @@ public class BalToolDescriptor {
         return dependencies;
     }
 
+    @Nullable
     private static String getToolID(TomlTableNode tomlTableNode) {
         TomlTableNode toolNode = (TomlTableNode) tomlTableNode.entries().get(TOOL);
         if (toolNode != null && toolNode.kind() != TomlType.NONE && toolNode.kind() == TomlType.TABLE) {
@@ -163,6 +165,7 @@ public class BalToolDescriptor {
         return null;
     }
 
+    @Nullable
     private static String getStringFromTomlTableNode(TopLevelNode topLevelNode) {
         if (topLevelNode != null && topLevelNode.kind() == TomlType.KEY_VALUE) {
             TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;

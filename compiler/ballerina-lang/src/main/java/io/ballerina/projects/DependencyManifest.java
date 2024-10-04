@@ -21,6 +21,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageContainer;
 import io.ballerina.tools.diagnostics.Location;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -59,16 +60,16 @@ public class DependencyManifest {
         }
     }
 
-    public static DependencyManifest from(String dependenciesTomlVersion,
-                                          SemanticVersion distributionVersion,
+    public static DependencyManifest from(@Nullable String dependenciesTomlVersion,
+                                          @Nullable SemanticVersion distributionVersion,
                                           List<Package> dependencies,
-                                            List<Tool> tools,
+                                          List<Tool> tools,
                                           DiagnosticResult diagnostics) {
         return new DependencyManifest(dependenciesTomlVersion, distributionVersion, dependencies, tools, diagnostics);
     }
 
-    public static DependencyManifest from(String dependenciesTomlVersion,
-                                            SemanticVersion distributionVersion,
+    public static DependencyManifest from(@Nullable String dependenciesTomlVersion,
+                                          @Nullable SemanticVersion distributionVersion,
                                           List<Package> dependencies,
                                           List<Tool> tools) {
         return new DependencyManifest(dependenciesTomlVersion, distributionVersion, dependencies, tools,
@@ -131,7 +132,7 @@ public class DependencyManifest {
             this.modules = Collections.emptyList();
         }
 
-        public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion version, String scope,
+        public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion version, @Nullable String scope,
                        boolean transitive, List<Dependency> dependencies, List<Module> modules, Location location) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
@@ -154,7 +155,7 @@ public class DependencyManifest {
             this.modules = Collections.emptyList();
         }
 
-        public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion version, String scope,
+        public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion version, @Nullable String scope,
                        boolean transitive, List<Dependency> dependencies, List<Module> modules) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;

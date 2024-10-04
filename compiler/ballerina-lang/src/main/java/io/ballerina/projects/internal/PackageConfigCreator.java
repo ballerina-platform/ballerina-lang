@@ -37,6 +37,7 @@ import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.model.PackageJson;
 import io.ballerina.projects.util.ProjectConstants;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -258,7 +259,7 @@ public final class PackageConfigCreator {
                 .toList();
     }
 
-    static DocumentConfig createDocumentConfig(DocumentData documentData, ModuleId moduleId) {
+    static DocumentConfig createDocumentConfig(DocumentData documentData, @Nullable ModuleId moduleId) {
         final DocumentId documentId = DocumentId.create(documentData.name(), moduleId);
         return DocumentConfig.from(documentId, documentData.content(), documentData.name());
     }

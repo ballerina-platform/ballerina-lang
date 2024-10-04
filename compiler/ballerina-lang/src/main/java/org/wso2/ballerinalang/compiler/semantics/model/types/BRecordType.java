@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.RecordType;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -44,13 +45,14 @@ public class BRecordType extends BStructureType implements RecordType {
     public BType restFieldType;
     public Boolean isAnyData = null;
 
+    @Nullable
     public BRecordType mutableType;
 
-    public BRecordType(BTypeSymbol tSymbol) {
+    public BRecordType(@Nullable BTypeSymbol tSymbol) {
         super(TypeTags.RECORD, tSymbol);
     }
 
-    public BRecordType(BTypeSymbol tSymbol, long flags) {
+    public BRecordType(@Nullable BTypeSymbol tSymbol, long flags) {
         super(TypeTags.RECORD, tSymbol, flags);
     }
 

@@ -18,6 +18,7 @@
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class MapType extends Construct {
     public Type mapParameterType;
 
     public MapType(String name, String description, List<String> descriptionSections, boolean isDeprecated,
-                   Type mapParameterType) {
+                   @Nullable Type mapParameterType) {
         super(name, description, descriptionSections, isDeprecated);
         this.mapParameterType = mapParameterType;
     }

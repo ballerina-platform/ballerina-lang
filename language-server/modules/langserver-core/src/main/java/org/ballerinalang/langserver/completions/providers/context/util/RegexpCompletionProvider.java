@@ -33,6 +33,7 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SnippetBlock;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -270,7 +271,7 @@ public final class RegexpCompletionProvider {
                                                   BallerinaCompletionContext ctx,
                                                   RegexTemplateNodeFinder nodeFinder,
                                                   List<LSCompletionItem> completionItems,
-                                                  String resolvedWord) {
+                                                  @Nullable String resolvedWord) {
         if (nodeFinder.getTemplateExpressionNode() != null
                 && nodeFinder.getTemplateExpressionNode().textRange().endOffset() - 1
                 == ctx.getCursorPositionInTree()

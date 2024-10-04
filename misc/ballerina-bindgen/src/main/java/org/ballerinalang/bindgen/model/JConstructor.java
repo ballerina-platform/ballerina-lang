@@ -19,6 +19,7 @@ package org.ballerinalang.bindgen.model;
 
 import org.ballerinalang.bindgen.utils.BindgenEnv;
 import org.ballerinalang.bindgen.utils.BindgenUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
@@ -53,7 +54,7 @@ public class JConstructor extends BFunction  {
     private final StringBuilder paramTypes = new StringBuilder();
     private final Set<String> importedPackages = new HashSet<>();
 
-    JConstructor(Constructor<?> c, BindgenEnv env, JClass jClass, String constructorName) {
+    JConstructor(Constructor<?> c, BindgenEnv env, JClass jClass, @Nullable String constructorName) {
         super(BFunctionKind.CONSTRUCTOR, env);
         this.constructor = c;
         parentClass = c.getDeclaringClass();

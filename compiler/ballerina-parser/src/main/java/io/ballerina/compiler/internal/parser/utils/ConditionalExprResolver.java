@@ -25,6 +25,7 @@ import io.ballerina.compiler.internal.parser.tree.STQualifiedNameReferenceNode;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Utility methods to resolve ambiguity between qualified name ref and conditional expression.
@@ -52,6 +53,7 @@ public final class ConditionalExprResolver {
     private ConditionalExprResolver() {
     }
 
+    @Nullable
     public static STNode getQualifiedNameRefNode(STNode parentNode, boolean leftMost) {
         if (parentNode == null || parentNode.kind == SyntaxKind.LIST && ((STNodeList) parentNode).isEmpty()) {
             return null;

@@ -26,6 +26,7 @@ import org.eclipse.lsp4j.debug.StackTraceResponse;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
 import org.eclipse.lsp4j.debug.ThreadsResponse;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,6 +95,7 @@ public class DebugHitListener extends TimerTask {
         }
     }
 
+    @Nullable
     private BallerinaTestDebugPoint fetchDebugHitPoint(StoppedEventArguments args) throws BallerinaTestException {
 
         if (!connector.isConnected()) {

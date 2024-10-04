@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -148,12 +149,12 @@ public class TypesFactory {
      * @param rawTypeOnly Whether to convert the type descriptor to type reference or keep the raw type
      * @return {@link TypeSymbol} generated
      */
-    public TypeSymbol getTypeDescriptor(BType bType, BSymbol tSymbol, boolean rawTypeOnly) {
+    public TypeSymbol getTypeDescriptor(BType bType, @Nullable BSymbol tSymbol, boolean rawTypeOnly) {
         return getTypeDescriptor(bType, tSymbol, rawTypeOnly, true, false);
     }
 
-    TypeSymbol getTypeDescriptor(BType bType, BSymbol tSymbol, boolean rawTypeOnly, boolean getOriginalType,
-                                 boolean typeRefFromIntersectType) {
+    @Nullable TypeSymbol getTypeDescriptor(BType bType, @Nullable BSymbol tSymbol, boolean rawTypeOnly,
+                                           boolean getOriginalType, boolean typeRefFromIntersectType) {
         if (bType == null) {
             return null;
         }
@@ -312,6 +313,7 @@ public class TypesFactory {
                 || tSymbol.kind == SymbolKind.ENUM || isCustomError(tSymbol);
     }
 
+    @Nullable
     public static TypeDescKind getTypeDescKind(TypeKind bTypeKind) {
         return switch (bTypeKind) {
             case ANY -> TypeDescKind.ANY;

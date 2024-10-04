@@ -75,6 +75,6 @@ public class BLangUnaryExpr extends BLangExpression implements UnaryExpressionNo
 
     @Override
     public String toString() {
-        return String.valueOf(operator) + " " + String.valueOf(expr);
+        return operator + " " + expr;
     }
 }

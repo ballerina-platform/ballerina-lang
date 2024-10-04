@@ -16,6 +16,7 @@
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +32,7 @@ public class BClass extends Construct {
     public List<DefaultableVariable> fields;
     @Expose
     public List<Function> methods;
+    @Nullable
     @Expose
     public Function initMethod;
     @Expose

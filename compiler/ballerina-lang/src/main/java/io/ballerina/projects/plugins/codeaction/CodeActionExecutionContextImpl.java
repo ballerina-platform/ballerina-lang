@@ -18,6 +18,7 @@ package io.ballerina.projects.plugins.codeaction;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -43,9 +44,9 @@ public class CodeActionExecutionContextImpl extends PositionedActionContextImpl 
         return this.arguments;
     }
 
-    public static CodeActionExecutionContextImpl from(String fileUri, Path filePath, LinePosition cursorPosition,
-                                                      Document document, SemanticModel semanticModel,
-                                                      List<CodeActionArgument> arguments) {
+    public static CodeActionExecutionContextImpl from(
+            String fileUri, Path filePath, @Nullable LinePosition cursorPosition, Document document,
+            SemanticModel semanticModel, List<CodeActionArgument> arguments) {
         return new CodeActionExecutionContextImpl(fileUri, filePath, cursorPosition, document, semanticModel,
                 arguments);
     }

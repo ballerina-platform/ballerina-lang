@@ -22,6 +22,7 @@ import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.Location;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,7 +48,7 @@ public class BLangDiagnostic extends Diagnostic {
     }
 
     public BLangDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo,
-                           DiagnosticCode diagnosticCode, List<DiagnosticProperty<?>> properties) {
+                           @Nullable DiagnosticCode diagnosticCode, List<DiagnosticProperty<?>> properties) {
         this.location = location;
         this.msg = msg;
         this.diagnosticInfo = diagnosticInfo;

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -97,8 +98,10 @@ public class MainFunctionValidator extends BLangNodeVisitor {
         }
     }
 
-    private BLangSimpleVariable handleSuccessfulVisit(MainParameterVisitor mainParameterVisitor,
-                                                      BLangSimpleVariable foundOperand, BLangSimpleVariable param) {
+    @Nullable
+    private BLangSimpleVariable handleSuccessfulVisit(
+            MainParameterVisitor mainParameterVisitor, @Nullable BLangSimpleVariable foundOperand,
+            BLangSimpleVariable param) {
         BType paramType = param.getBType();
         BType referredParamType = Types.getImpliedType(paramType);
         if (mainParameterVisitor.isOperandType(paramType) && param.expr == null && foundOperand != null) {

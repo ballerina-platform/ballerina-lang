@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
@@ -572,6 +573,7 @@ public class QueryTypeChecker extends TypeChecker {
         return symTable.semanticError;
     }
 
+    @Nullable
     private BType getCompletionType(List<BType> collectionTypes, Types.QueryConstructType queryConstructType,
                                     TypeChecker.AnalyzerData data) {
         Set<BType> completionTypes = new LinkedHashSet<>();
@@ -1246,6 +1248,7 @@ public class QueryTypeChecker extends TypeChecker {
                 : new SymbolEnv(node, null);
     }
 
+    @Nullable
     private BLangNode getLastInputNodeFromEnv(SymbolEnv env) {
         while (env != null && (env.node.getKind() != NodeKind.FROM && env.node.getKind() != NodeKind.JOIN)) {
             env = env.enclEnv;

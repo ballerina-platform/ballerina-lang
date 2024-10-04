@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a list of {@code Node}s. This class is not exposed with the syntax tre API.
@@ -41,6 +42,7 @@ public class ExternalTreeNodeList extends NonTerminalNode {
     public void accept(NodeVisitor visitor) {
     }
 
+    @Nullable
     @Override
     public <T> T apply(NodeTransformer<T> transformer) {
         return null;

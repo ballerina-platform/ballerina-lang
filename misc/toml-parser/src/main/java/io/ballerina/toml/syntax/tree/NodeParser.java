@@ -17,6 +17,8 @@
  */
 package io.ballerina.toml.syntax.tree;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Parses a given input and produces a {@code Node}.
  *
@@ -24,10 +26,12 @@ package io.ballerina.toml.syntax.tree;
  */
 public class NodeParser {
 
+    @Nullable
     public StatementNode parseStatement(String text) {
         return null;
     }
 
+    @Nullable
     public ExpressionNode parseExpression(String text) {
         return null;
     }

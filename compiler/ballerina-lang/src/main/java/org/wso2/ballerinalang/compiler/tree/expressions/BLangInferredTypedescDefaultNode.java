@@ -52,6 +52,6 @@ public class BLangInferredTypedescDefaultNode extends BLangExpression implements
 
     @Override
     public String toString() {
-        return ("<>");
+        return "<>";
     }
 }

@@ -18,6 +18,8 @@
 
 package io.ballerina.xmltorecordconverter;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Request format for XMLToRecord endpoint.
  *
@@ -35,7 +37,7 @@ public class XMLToRecordRequest {
     private final boolean withoutAttributeAnnot;
 
     public XMLToRecordRequest(String xmlValue, boolean isRecordTypeDesc, boolean isClosed,
-                              boolean forceFormatRecordFields, String textFieldName, boolean withNameSpace,
+                              boolean forceFormatRecordFields, @Nullable String textFieldName, boolean withNameSpace,
                               boolean withoutAttributes, boolean withoutAttributeAnnot) {
         this.xmlValue = xmlValue;
         this.isRecordTypeDesc = isRecordTypeDesc;

@@ -52,13 +52,8 @@ public class Manifest {
 
     public List<Dependency> getDependencies() {
         return this.dependencies.entrySet().stream()
-                .map(entry -> {
-                    Dependency dependency = new Dependency();
-                    // get rid of the double quotes
-                    dependency.setModuleID(entry.getKey());
-                    dependency.setMetadata(convertObjectToDependencyMetadata(entry.getValue()));
-                    return dependency;
-                })
+                // get rid of the double quotes
+                .map(entry -> new Dependency(entry.getKey(), convertObjectToDependencyMetadata(entry.getValue())))
                 .toList();
     }
 
@@ -67,11 +62,11 @@ public class Manifest {
         if (obj instanceof String s) {
             metadata.setVersion(s);
         } else if (obj instanceof Map<?, ?> metadataMap) {
-            if (metadataMap.keySet().contains("version") && metadataMap.get("version") instanceof String) {
+            if (metadataMap.containsKey("version") && metadataMap.get("version") instanceof String) {
                 metadata.setVersion((String) metadataMap.get("version"));
             }
 
-            if (metadataMap.keySet().contains("path") && metadataMap.get("path") instanceof String) {
+            if (metadataMap.containsKey("path") && metadataMap.get("path") instanceof String) {
                 metadata.setPath((String) metadataMap.get("path"));
             }
         }

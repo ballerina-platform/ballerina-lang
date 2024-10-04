@@ -29,6 +29,8 @@ dependencies {
     checkstyle libs.puppycrawl.checkstyle
 
     implementation libs.slf4j.api
+    compileOnly libs.jetbrains.annotations
+    testCompileOnly libs.jetbrains.annotations
 
     constraints {
         implementation libs.commons.codec

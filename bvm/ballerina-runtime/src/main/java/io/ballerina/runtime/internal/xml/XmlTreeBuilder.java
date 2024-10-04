@@ -29,6 +29,7 @@ import io.ballerina.runtime.internal.values.XmlPi;
 import io.ballerina.runtime.internal.values.XmlQName;
 import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlText;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -103,6 +104,7 @@ public class XmlTreeBuilder {
         throw ErrorCreator.createError(StringUtils.fromString(XmlFactory.PARSE_ERROR_PREFIX + reason));
     }
 
+    @Nullable
     public BXml parse() {
         boolean readNext = false;
         int next;

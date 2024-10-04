@@ -53,6 +53,7 @@ import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -98,7 +99,8 @@ public final class JsonInternalUtils {
      * @param bArray {@link ArrayValue} to be converted to JSON
      * @return JSON representation of the provided bArray
      */
-    public static ArrayValue convertArrayToJSON(BArray bArray) {
+    @Nullable
+    public static ArrayValue convertArrayToJSON(@Nullable BArray bArray) {
         if (bArray == null) {
             return null;
         }
@@ -124,7 +126,8 @@ public final class JsonInternalUtils {
      * @param targetType the target JSON type to be convert to
      * @return JSON representation of the provided array
      */
-    public static Object convertMapToJSON(BMap<BString, ?> map, JsonType targetType) {
+    @Nullable
+    public static Object convertMapToJSON(@Nullable BMap<BString, ?> map, JsonType targetType) {
         if (map == null) {
             return null;
         }
@@ -146,6 +149,7 @@ public final class JsonInternalUtils {
      * @return Element of the JSON for the provided key, if the JSON is object type. Error if not an object or nil
      * if the object does not have the key.
      */
+    @Nullable
     public static Object getElementOrNil(Object json, BString elementName) {
         return getMappingElement(json, elementName, true);
     }
@@ -158,6 +162,7 @@ public final class JsonInternalUtils {
      * @return Element of the JSON for the provided key, if the JSON is object type. Error if not an object or does
      * not have the key.
      */
+    @Nullable
     public static Object getElement(Object json, BString elementName) {
         return getMappingElement(json, elementName, false);
     }
@@ -170,6 +175,7 @@ public final class JsonInternalUtils {
      * @param returnNilOnMissingKey Whether to return nil on missing key instead of error
      * @return Element of JSON having the provided name, if the JSON is object type. Null otherwise.
      */
+    @Nullable
     private static Object getMappingElement(Object json, BString elementName, boolean returnNilOnMissingKey) {
         if (!isJSONObject(json)) {
             return ErrorCreator.createError(JSON_OPERATION_ERROR,
@@ -313,6 +319,7 @@ public final class JsonInternalUtils {
         return bStruct;
     }
 
+    @Nullable
     public static Object convertJSON(Object jsonValue, Type targetType) {
         targetType = TypeUtils.getImpliedType(targetType);
         Type matchingType;
@@ -387,6 +394,7 @@ public final class JsonInternalUtils {
         return new ArrayValueImpl(keys, false);
     }
 
+    @Nullable
     public static Object convertUnionTypeToJSON(Object source, JsonType targetType) {
         if (source == null) {
             return null;
@@ -423,6 +431,7 @@ public final class JsonInternalUtils {
         ((MapValueImpl<BString, ?>) json).remove(fieldName);
     }
 
+    @Nullable
     public static BError getErrorIfUnmergeable(Object j1, Object j2, List<ObjectPair> visitedPairs) {
         if (j1 == null || j2 == null) {
             return null;

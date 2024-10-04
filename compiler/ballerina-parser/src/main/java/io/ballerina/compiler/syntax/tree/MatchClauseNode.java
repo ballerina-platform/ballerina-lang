@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -100,6 +101,7 @@ public class MatchClauseNode extends NonTerminalNode {
     public static class MatchClauseNodeModifier {
         private final MatchClauseNode oldNode;
         private SeparatedNodeList<Node> matchPatterns;
+        @Nullable
         private MatchGuardNode matchGuard;
         private Token rightDoubleArrow;
         private BlockStatementNode blockStatement;

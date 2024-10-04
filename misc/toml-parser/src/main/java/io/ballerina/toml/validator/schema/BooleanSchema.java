@@ -23,6 +23,7 @@ import io.ballerina.toml.semantic.ast.TomlNode;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,8 +39,8 @@ import static io.ballerina.toml.validator.ValidationUtil.getTypeErrorMessage;
  */
 public class BooleanSchema extends PrimitiveValueSchema<Boolean> {
 
-    public BooleanSchema(Type type, Map<String, String> message, Boolean defaultValue, CompositionSchema comps,
-                         String description) {
+    public BooleanSchema(Type type, Map<String, String> message, Boolean defaultValue,
+                         @Nullable CompositionSchema comps, @Nullable String description) {
         super(type, message, defaultValue, comps, description);
     }
 

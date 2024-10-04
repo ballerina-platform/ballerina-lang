@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.regexp;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 
@@ -31,6 +32,7 @@ import java.util.ArrayDeque;
 public class TreeTraverser {
 
     private final CharReader reader;
+    @Nullable
     private ParserMode mode;
     private final ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
 
@@ -40,6 +42,7 @@ public class TreeTraverser {
         this.modeStack.add(this.mode);
     }
 
+    @Nullable
     public Token nextToken() {
         return switch (this.mode) {
             case RE_DISJUNCTION -> readTokenInReDisjunction();

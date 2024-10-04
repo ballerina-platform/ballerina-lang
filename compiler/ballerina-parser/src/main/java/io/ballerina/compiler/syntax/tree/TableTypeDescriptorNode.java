@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -93,6 +94,7 @@ public class TableTypeDescriptorNode extends TypeDescriptorNode {
         private final TableTypeDescriptorNode oldNode;
         private Token tableKeywordToken;
         private Node rowTypeParameterNode;
+        @Nullable
         private Node keyConstraintNode;
 
         public TableTypeDescriptorNodeModifier(TableTypeDescriptorNode oldNode) {

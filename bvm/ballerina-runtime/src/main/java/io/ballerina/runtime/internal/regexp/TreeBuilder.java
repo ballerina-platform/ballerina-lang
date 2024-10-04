@@ -37,6 +37,7 @@ import io.ballerina.runtime.internal.values.RegExpQuantifier;
 import io.ballerina.runtime.internal.values.RegExpSequence;
 import io.ballerina.runtime.internal.values.RegExpTerm;
 import io.ballerina.runtime.internal.values.RegExpValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -421,6 +422,7 @@ public class TreeBuilder {
                 ErrorCodes.REGEXP_MISSING_CLOSE_BRACKET.messageKey()));
     }
 
+    @Nullable
     private RegExpQuantifier readOptionalQuantifier() {
         Token nextToken = peek();
         return switch (nextToken.kind) {

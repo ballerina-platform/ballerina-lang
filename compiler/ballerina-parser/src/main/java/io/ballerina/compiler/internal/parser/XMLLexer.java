@@ -26,6 +26,7 @@ import io.ballerina.tools.text.CharReader;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A LL(k) lexer for XML in ballerina.
@@ -45,7 +46,7 @@ public class XMLLexer extends AbstractLexer {
      */
     @Override
     public STToken nextToken() {
-        STToken token = switch (this.mode) {
+        STToken token = switch (Objects.requireNonNull(this.mode, "Lexer mode was null, an underflow occurred")) {
             case XML_CONTENT -> readTokenInXMLContent();
             case XML_ELEMENT_START_TAG -> {
                 processLeadingXMLTrivia();

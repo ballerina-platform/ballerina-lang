@@ -20,6 +20,7 @@ package org.ballerinalang.diagramutil.connector.models.connector;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import org.ballerinalang.central.client.model.Package;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -75,7 +76,7 @@ public class Connector {
     }
 
     public Connector(String orgName, String moduleName, String packageName, String version, String name,
-                        String documentation, Map<String, String> displayAnnotation, List<Function> functions) {
+                     String documentation, @Nullable Map<String, String> displayAnnotation, List<Function> functions) {
         this.moduleName = moduleName;
         this.name = name;
         this.documentation = documentation;

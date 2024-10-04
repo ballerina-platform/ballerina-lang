@@ -22,6 +22,7 @@ import io.ballerina.toml.internal.parser.tree.STNode;
 import io.ballerina.toml.internal.parser.tree.STNodeFactory;
 import io.ballerina.toml.internal.parser.tree.STToken;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,6 +81,7 @@ public class TomlParser extends AbstractParser {
      *
      * @return Parsed top-level node
      */
+    @Nullable
     private STNode parseTopLevelNode() {
         startContext(ParserRuleContext.TOP_LEVEL_NODE);
         STToken nextToken = peek();
@@ -217,6 +219,7 @@ public class TomlParser extends AbstractParser {
         return token.kind == SyntaxKind.CLOSE_BRACE_TOKEN || token.kind == EOF_TOKEN;
     }
 
+    @Nullable
     private STNode parseInlineTableEntryEnd() {
         return switch (peek().kind) {
             case COMMA_TOKEN -> consume();
@@ -387,6 +390,7 @@ public class TomlParser extends AbstractParser {
         }
     }
 
+    @Nullable
     private STNode parseSingleKey() {
         STToken nextToken = peek();
         return switch (nextToken.kind) {
@@ -429,6 +433,7 @@ public class TomlParser extends AbstractParser {
         return STNodeFactory.createNodeList(keyList);
     }
 
+    @Nullable
     private STNode parseKeyEnd() {
         STToken token = peek();
         return switch (token.kind) {
@@ -528,6 +533,7 @@ public class TomlParser extends AbstractParser {
         };
     }
 
+    @Nullable
     private STNode parseSign() {
         STToken token = peek();
         if (token.kind == SyntaxKind.MINUS_TOKEN || token.kind == SyntaxKind.PLUS_TOKEN) {
@@ -570,6 +576,7 @@ public class TomlParser extends AbstractParser {
         return STNodeFactory.createStringLiteralNode(startingDoubleQuote, content, endingDoubleQuote);
     }
 
+    @Nullable
     private STNode parseMultilineStringContent() {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL) {
@@ -594,6 +601,7 @@ public class TomlParser extends AbstractParser {
         return STNodeFactory.createLiteralStringLiteralNode(startingDoubleQuote, content, endingDoubleQuote);
     }
 
+    @Nullable
     private STNode parseLiteralStringContent() {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL) {
@@ -618,6 +626,7 @@ public class TomlParser extends AbstractParser {
         return STNodeFactory.createLiteralStringLiteralNode(startingDoubleQuote, content, endingDoubleQuote);
     }
 
+    @Nullable
     private STNode parseMultilineLiteralStringContent() {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL) {
@@ -690,6 +699,7 @@ public class TomlParser extends AbstractParser {
         }
     }
 
+    @Nullable
     private STNode parseStringContent() {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL) {
@@ -768,6 +778,7 @@ public class TomlParser extends AbstractParser {
         return STNodeFactory.createNodeList(valuesList);
     }
 
+    @Nullable
     private STNode parseValueEnd() {
         return switch (peek().kind) {
             case COMMA_TOKEN -> consume();
@@ -784,6 +795,7 @@ public class TomlParser extends AbstractParser {
         };
     }
 
+    @Nullable
     private STNode parseArrayValue() {
         STToken nextToken = peek();
         return switch (nextToken.kind) {

@@ -23,6 +23,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -140,7 +141,8 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         }
     }
 
-    private Schema getObjectSchema(JsonDeserializationContext context, JsonObject jsonObj, CompositionSchema comps) {
+    private Schema getObjectSchema(
+            JsonDeserializationContext context, JsonObject jsonObj, @Nullable CompositionSchema comps) {
         JsonElement titleProp = jsonObj.get(TITLE);
         String title = titleProp != null ? titleProp.getAsString() : null;
         JsonElement schemaProp = jsonObj.get(SCHEMA);
@@ -163,7 +165,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
     }
 
     private AbstractSchema getArraySchema(JsonDeserializationContext jsonDeserializationContext, JsonObject jsonObj,
-                                          CompositionSchema comps) {
+                                          @Nullable CompositionSchema comps) {
         JsonElement items = jsonObj.get(ITEMS).getAsJsonObject();
         AbstractSchema abstractSchema = jsonDeserializationContext.deserialize(items, AbstractSchema.class);
         Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
@@ -172,7 +174,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         return new ArraySchema(Type.ARRAY, customMessages, abstractSchema, comps, desc);
     }
 
-    private StringSchema getStringSchema(JsonObject jsonObj, CompositionSchema comps) {
+    private StringSchema getStringSchema(JsonObject jsonObj, @Nullable CompositionSchema comps) {
         String pattern = parseOptionalStringFromJson(jsonObj, PATTERN);
         String defaultValue = parseOptionalStringFromJson(jsonObj, DEFAULT_VALUE);
         Integer minLength = parseOptionalIntFromJson(jsonObj, MIN_LENGTH);
@@ -183,7 +185,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         return new StringSchema(Type.STRING, customMessages, pattern, defaultValue, minLength, maxLength, comps, desc);
     }
 
-    private NumericSchema getNumericSchema(JsonObject jsonObj, Type type, CompositionSchema comps) {
+    private NumericSchema getNumericSchema(JsonObject jsonObj, Type type, @Nullable CompositionSchema comps) {
         Double minimum = parseOptionalDoubleFromJson(jsonObj, MINIMUM);
         Double maximum = parseOptionalDoubleFromJson(jsonObj, MAXIMUM);
         Double defaultValue = parseOptionalDoubleFromJson(jsonObj, DEFAULT_VALUE);
@@ -193,6 +195,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         return new NumericSchema(type, customMessages, minimum, maximum, defaultValue, comps, desc);
     }
 
+    @Nullable
     private Double parseOptionalDoubleFromJson(JsonObject jsonObject, String key) {
         JsonElement jsonElement = jsonObject.get(key);
         if (jsonElement == null || jsonElement.isJsonNull()) {
@@ -205,7 +208,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         throw new JsonSchemaException(key + " should always be a number");
     }
 
-    private Boolean parseOptionalBooleanFromJson(JsonObject jsonObject, String key, Boolean defaultVal) {
+    private Boolean parseOptionalBooleanFromJson(JsonObject jsonObject, String key, @Nullable Boolean defaultVal) {
         JsonElement jsonElement = jsonObject.get(key);
         if (jsonElement == null || jsonElement.isJsonNull()) {
             return defaultVal;
@@ -234,6 +237,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         return list;
     }
 
+    @Nullable
     private String parseOptionalStringFromJson(JsonObject jsonObject, String key) {
         JsonElement jsonElement = jsonObject.get(key);
         if (jsonElement == null || jsonElement.isJsonNull()) {
@@ -246,6 +250,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         throw new JsonSchemaException(key + " should always be a string");
     }
 
+    @Nullable
     private Integer parseOptionalIntFromJson(JsonObject jsonObject, String key) {
         JsonElement jsonElement = jsonObject.get(key);
         if (jsonElement == null || jsonElement.isJsonNull()) {

@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -60,7 +62,8 @@ public class BUnionType extends BType implements UnionType {
     private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE);
     private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
 
-    public BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
+    public BUnionType(@Nullable BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable,
+                      boolean readonly) {
         this(tsymbol, memberTypes, memberTypes, nullable, readonly);
     }
 
@@ -162,7 +165,7 @@ public class BUnionType extends BType implements UnionType {
      * @param isCyclic The cyclic indicator.
      * @return The created union type.
      */
-    public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types, boolean isCyclic) {
+    public static BUnionType create(@Nullable BTypeSymbol tsymbol, LinkedHashSet<BType> types, boolean isCyclic) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.size());
         boolean isImmutable = true;
         boolean hasNilableType = false;
@@ -177,7 +180,7 @@ public class BUnionType extends BType implements UnionType {
      * @param types   The types to be used to define the union.
      * @return The created union type.
      */
-    public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
+    public static BUnionType create(@Nullable BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.size());
 
         if (types.isEmpty()) {
@@ -234,7 +237,7 @@ public class BUnionType extends BType implements UnionType {
      * @param types   The types to be used to define the union.
      * @return The created union type.
      */
-    public static BUnionType create(BTypeSymbol tsymbol, BType... types) {
+    public static BUnionType create(@Nullable BTypeSymbol tsymbol, BType... types) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.length);
         memberTypes.addAll(Arrays.asList(types));
         return create(tsymbol, memberTypes);
@@ -410,6 +413,7 @@ public class BUnionType extends BType implements UnionType {
      * @return the implied type if provided with a type reference type or an intersection type,
      * else returns the original type
      */
+    @Contract(value = "null -> null")
     public static BType getImpliedType(BType type) {
         type = getReferredType(type);
         if (type != null && type.tag == TypeTags.INTERSECTION) {
@@ -419,6 +423,7 @@ public class BUnionType extends BType implements UnionType {
         return type;
     }
 
+    @Contract(value = "null -> null")
     private static BType getReferredType(BType type) {
         if (type != null && type.tag == TypeTags.TYPEREFDESC) {
             return getReferredType(((BTypeReferenceType) type).referredType);

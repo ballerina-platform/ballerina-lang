@@ -17,6 +17,8 @@
  */
 package io.ballerina.tools.text;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 
 /**
@@ -35,7 +37,7 @@ public class LineRange {
         this.endLine = endLine;
     }
 
-    public static LineRange from(String fileName, LinePosition startLine, LinePosition endLine) {
+    public static LineRange from(@Nullable String fileName, LinePosition startLine, LinePosition endLine) {
         return new LineRange(fileName, startLine, endLine);
     }
 

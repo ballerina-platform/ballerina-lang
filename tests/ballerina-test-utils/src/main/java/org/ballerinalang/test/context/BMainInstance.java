@@ -18,6 +18,7 @@
 package org.ballerinalang.test.context;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,20 +117,20 @@ public class BMainInstance implements BMain {
     }
 
     @Override
-    public void runMain(String balFile, String[] flags,
+    public void runMain(String balFile, @Nullable String[] flags,
                         String[] args, LogLeecher[] leechers) throws BallerinaTestException {
         runMain(balFile, flags, args, new HashMap<>(), new String[]{}, leechers);
     }
 
     @Override
-    public void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
-                        String[] clientArgs) throws BallerinaTestException {
+    public void runMain(String balFile, String[] flags, String[] args, @Nullable Map<String, String> envProperties,
+                        @Nullable String[] clientArgs) throws BallerinaTestException {
         runMain(balFile, flags, args, envProperties, clientArgs, null);
     }
 
     @Override
     public void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
-                        String[] clientArgs, LogLeecher[] leechers) throws BallerinaTestException {
+                        String[] clientArgs, @Nullable LogLeecher[] leechers) throws BallerinaTestException {
         if (balFile == null || balFile.isEmpty()) {
             throw new IllegalArgumentException("Invalid ballerina program file name provided, name - " + balFile);
         }
@@ -174,14 +175,15 @@ public class BMainInstance implements BMain {
 
     @Override
     public void runMain(String sourceRoot, String packagePath, String[] flags, String[] args,
-                        Map<String, String> envProperties, String[] clientArgs) throws BallerinaTestException {
+                        @Nullable Map<String, String> envProperties, @Nullable String[] clientArgs
+    ) throws BallerinaTestException {
         runMain(sourceRoot, packagePath, flags, args, envProperties, clientArgs, null);
     }
 
     @Override
     public void runMain(String sourceRoot, String packagePath,
-                        String[] flags, String[] args, Map<String, String> envProperties,
-                        String[] clientArgs, LogLeecher[] leechers) throws BallerinaTestException {
+                        @Nullable String[] flags, String[] args, @Nullable Map<String, String> envProperties,
+                        @Nullable String[] clientArgs, @Nullable LogLeecher[] leechers) throws BallerinaTestException {
         if (sourceRoot == null || sourceRoot.isEmpty() || packagePath == null || packagePath.isEmpty()) {
             throw new IllegalArgumentException("Invalid ballerina program file provided, sourceRoot - "
                     + sourceRoot + " packagePath - " + packagePath);
@@ -233,8 +235,9 @@ public class BMainInstance implements BMain {
      * @param commandDir    where to execute the command
      * @throws BallerinaTestException if starting services failed
      */
-    public void runMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
-                        LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
+    public void runMain(String command, String[] args, @Nullable Map<String, String> envProperties,
+                        @Nullable String[] clientArgs,
+                        @Nullable LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
         String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         String[] cmdArray;
         try {
@@ -349,7 +352,8 @@ public class BMainInstance implements BMain {
      * @return parent instance process
      * @throws BallerinaTestException if starting services failed
      */
-    public Process debugMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
+    public Process debugMain(String command, String[] args, @Nullable Map<String, String> envProperties,
+                             String[] clientArgs,
                              LogLeecher[] leechers, String commandDir, int timeout, boolean isAttachMode)
             throws BallerinaTestException {
         String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
@@ -464,7 +468,8 @@ public class BMainInstance implements BMain {
      * @param timeout       timeout for the process waiting time, in seconds.
      * @throws BallerinaTestException if starting services failed
      */
-    public void debugMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
+    public void debugMain(String command, String[] args, @Nullable Map<String, String> envProperties,
+                          @Nullable String[] clientArgs,
                           LogLeecher[] leechers, String commandDir, int timeout) throws BallerinaTestException {
         boolean isAttachMode = false;
         debugMain(command, args, envProperties, clientArgs, leechers, commandDir, timeout, isAttachMode);
@@ -496,7 +501,7 @@ public class BMainInstance implements BMain {
      *
      * @param process parent process instance.
      */
-    public void terminateProcessWithDescendants(Process process) {
+    public void terminateProcessWithDescendants(@Nullable Process process) {
         try {
             // Kills the descendants of the process. The descendants of a process are the children
             // of the process and the descendants of those children, recursively.

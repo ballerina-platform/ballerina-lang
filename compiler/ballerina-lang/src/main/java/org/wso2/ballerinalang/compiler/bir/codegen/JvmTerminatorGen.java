@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import io.ballerina.identifier.Utils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -529,7 +530,7 @@ public class JvmTerminatorGen {
         }
     }
 
-    private void storeReturnFromCallIns(BIRNode.BIRVariableDcl lhsOpVarDcl) {
+    private void storeReturnFromCallIns(@Nullable BIRNode.BIRVariableDcl lhsOpVarDcl) {
         if (lhsOpVarDcl != null) {
             this.storeToVar(lhsOpVarDcl);
         } else {

@@ -30,6 +30,8 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -250,7 +252,7 @@ public class Types {
         return expr.getBType();
     }
 
-    public boolean typeIncompatible(Location pos, BType actualType, BType expType) {
+    public boolean typeIncompatible(Location pos, BType actualType, @Nullable BType expType) {
         return checkType(pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES) == symTable.semanticError;
     }
 
@@ -1154,7 +1156,7 @@ public class Types {
     }
 
 
-    BField getTableConstraintField(BType constraintType, String fieldName) {
+    @Nullable BField getTableConstraintField(BType constraintType, String fieldName) {
         constraintType = getImpliedType(constraintType);
         switch (constraintType.tag) {
             case TypeTags.RECORD:
@@ -1504,7 +1506,8 @@ public class Types {
      * @return the implied type if provided with a type reference type or an intersection type,
      * else returns the original type
      */
-    public static BType getImpliedType(BType type) {
+    @Contract("null -> null; !null -> !null")
+    public static BType getImpliedType(@Nullable BType type) {
         type = getReferredType(type);
         if (type != null && type.tag == TypeTags.INTERSECTION) {
             return getImpliedType(((BIntersectionType) type).effectiveType);
@@ -1513,6 +1516,7 @@ public class Types {
         return type;
     }
 
+    @Contract("null -> null; !null -> !null")
     public static BType getReferredType(BType type) {
         if (type != null && type.tag == TypeTags.TYPEREFDESC) {
             return getReferredType(((BTypeReferenceType) type).referredType);
@@ -2033,6 +2037,7 @@ public class Types {
         bLangInputClause.nillableResultType = nextMethodReturnType;
     }
 
+    @Nullable
     private BType getTypedBindingPatternTypeForXmlCollection(BType collectionType) {
         BType constraint = getImpliedType(((BXMLType) collectionType).constraint);
         while (constraint.tag == TypeTags.XML) {
@@ -2135,6 +2140,7 @@ public class Types {
                 tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
     }
 
+    @Nullable
     public BUnionType getVarTypeFromIterableObject(BObjectType collectionType) {
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) collectionType.tsymbol;
         for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
@@ -2146,6 +2152,7 @@ public class Types {
         return null;
     }
 
+    @Nullable
     private BUnionType getVarTypeFromIteratorFunc(BAttachedFunction candidateIteratorFunc) {
         if (!candidateIteratorFunc.type.paramTypes.isEmpty()) {
             return null;
@@ -2156,6 +2163,7 @@ public class Types {
         return getVarTypeFromIteratorFuncReturnType(returnType);
     }
 
+    @Nullable
     public BUnionType getVarTypeFromIteratorFuncReturnType(BType type) {
         BObjectTypeSymbol objectTypeSymbol;
         BType returnType = getImpliedType(type);
@@ -2173,6 +2181,7 @@ public class Types {
         return null;
     }
 
+    @Nullable
     private BUnionType getVarTypeFromNextFunc(BAttachedFunction nextFunc) {
         BType returnType;
         if (!nextFunc.type.paramTypes.isEmpty()) {
@@ -2228,6 +2237,7 @@ public class Types {
         return recordType.fields.containsKey(BLangCompilerConstants.VALUE_FIELD);
     }
 
+    @Nullable
     private BRecordType getRecordType(BUnionType type) {
         for (BType member : type.getMemberTypes()) {
             BType referredRecordType = getImpliedType(member);
@@ -2238,6 +2248,7 @@ public class Types {
         return null;
     }
 
+    @Nullable
     public BErrorType getErrorType(BUnionType type) {
         for (BType member : type.getMemberTypes()) {
             member = getImpliedType(member);
@@ -2259,6 +2270,7 @@ public class Types {
         return Objects.requireNonNull(nextFunc).type.retType;
     }
 
+    @Nullable
     public BAttachedFunction getAttachedFuncFromObject(BObjectType objectType, String funcName) {
         BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) objectType.tsymbol;
         for (BAttachedFunction bAttachedFunction : iteratorSymbol.attachedFuncs) {
@@ -4129,7 +4141,7 @@ public class Types {
         return (longObject >= SIGNED32_MIN_VALUE && longObject <= SIGNED32_MAX_VALUE);
     }
 
-    BigDecimal getValidDecimalNumber(Location pos, BigDecimal bd) {
+    @Nullable BigDecimal getValidDecimalNumber(Location pos, BigDecimal bd) {
         if (bd.compareTo(DECIMAL_MAX) > 0 || bd.compareTo(DECIMAL_MIN) < 0) {
             dlog.error(pos, DiagnosticErrorCode.OUT_OF_RANGE, bd.toString(), symTable.decimalType);
             return null;
@@ -5120,6 +5132,7 @@ public class Types {
         }
     }
 
+    @Nullable
     private BType getIntersection(IntersectionContext intersectionContext, BType lhsType, SymbolEnv env, BType type,
                                   LinkedHashSet<BType> visitedTypes) {
 
@@ -5663,7 +5676,7 @@ public class Types {
         return errorType;
     }
 
-    public BErrorType createErrorType(BType detailType, long flags, SymbolEnv env) {
+    public BErrorType createErrorType(@Nullable BType detailType, long flags, SymbolEnv env) {
         String name = anonymousModelHelper.getNextAnonymousIntersectionErrorTypeName(env.enclPkg.packageID);
         BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(flags | Flags.ANONYMOUS, Names.fromString(name),
                                                                      env.enclPkg.symbol.pkgID, null,
@@ -6832,7 +6845,8 @@ public class Types {
         // Try to avoid creating new intersection types.
         boolean preferNonGenerativeIntersection;
 
-        private IntersectionContext(BLangDiagnosticLog diaglog, Location left, Location right) {
+        private IntersectionContext(
+                @Nullable BLangDiagnosticLog diaglog, @Nullable Location left, @Nullable Location right) {
             this.dlog = diaglog;
             this.lhsPos = left;
             this.rhsPos = right;
@@ -6842,7 +6856,8 @@ public class Types {
             this.preferNonGenerativeIntersection = false;
         }
 
-        private IntersectionContext(BLangDiagnosticLog diaglog, Location left, Location right, Location pos) {
+        private IntersectionContext(
+                @Nullable BLangDiagnosticLog diaglog, @Nullable Location left, @Nullable Location right, Location pos) {
             this(diaglog, left, right);
             this.pos = pos;
         }

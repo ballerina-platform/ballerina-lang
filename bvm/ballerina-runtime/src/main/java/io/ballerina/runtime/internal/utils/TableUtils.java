@@ -30,6 +30,7 @@ import io.ballerina.runtime.internal.values.IteratorValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.RegExpValue;
 import io.ballerina.runtime.internal.values.TableValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -54,7 +55,7 @@ public final class TableUtils {
      * @param parent Node linking to the parent object of 'obj'
      * @return The hash value
      */
-    public static Long hash(Object obj, Node parent) {
+    public static Long hash(Object obj, @Nullable Node parent) {
         long result = 0;
 
         if (obj == null) {

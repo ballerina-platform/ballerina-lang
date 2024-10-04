@@ -23,6 +23,7 @@ import io.ballerina.compiler.internal.syntax.SyntaxUtils;
 import io.ballerina.compiler.internal.syntax.TreeModifiers;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextRange;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +45,7 @@ public abstract class NonTerminalNode extends Node {
     protected final Node[] childBuckets;
     private ChildNodeList childNodeList;
 
-    public NonTerminalNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public NonTerminalNode(STNode internalNode, int position, @Nullable NonTerminalNode parent) {
         super(internalNode, position, parent);
         this.childBuckets = new Node[internalNode.bucketCount()];
     }
@@ -143,6 +144,7 @@ public abstract class NonTerminalNode extends Node {
      * @param includeStartOffset whether to include start offset when checking text range
      * @return Innermost {@link NonTerminalNode} encapsulation given text range
      */
+    @Nullable
     public NonTerminalNode findNode(TextRange textRange, boolean includeStartOffset) {
         TextRange textRangeWithMinutiae = textRangeWithMinutiae();
         if (!(this instanceof ModulePartNode)

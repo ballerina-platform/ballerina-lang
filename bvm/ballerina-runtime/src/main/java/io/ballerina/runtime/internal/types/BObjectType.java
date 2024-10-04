@@ -34,6 +34,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.utils.ValueUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -99,6 +100,7 @@ public class BObjectType extends BStructureType implements ObjectType {
         return Utils.decodeIdentifier(this.typeName);
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getEmptyValue() {
         return null;

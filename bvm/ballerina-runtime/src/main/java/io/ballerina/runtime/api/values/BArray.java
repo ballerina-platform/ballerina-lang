@@ -18,6 +18,7 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * <p>
@@ -98,7 +99,7 @@ public interface BArray extends BRefValue, BCollection {
      * @param index array index
      * @param value value to be added
      */
-    void add(long index, Object value);
+    void add(long index, @Nullable Object value);
 
     /**
      * Add int value to the given array index.
@@ -149,7 +150,7 @@ public interface BArray extends BRefValue, BCollection {
      * Append value to the existing array.
      * @param value value to be appended
      */
-    void append(Object value);
+    void append(@Nullable Object value);
 
     /**
      * Reverse an array.

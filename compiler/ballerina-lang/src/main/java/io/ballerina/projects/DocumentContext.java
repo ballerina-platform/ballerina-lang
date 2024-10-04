@@ -29,6 +29,7 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.SourceKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangNodeBuilder;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
@@ -51,13 +52,16 @@ class DocumentContext {
     // TODO This constant should not be here
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
 
+    @Nullable
     private SyntaxTree syntaxTree;
     private TextDocument textDocument;
+    @Nullable
     private Set<ModuleLoadRequest> moduleLoadRequests;
     private BLangCompilationUnit compilationUnit;
     private NodeCloner nodeCloner;
     private final DocumentId documentId;
     private final String name;
+    @Nullable
     private String content;
     private final boolean disableSyntaxTree;
 

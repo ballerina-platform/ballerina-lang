@@ -23,6 +23,7 @@ import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -39,7 +40,7 @@ public final class Minutiae {
     private TextRange textRange;
     private LineRange lineRange;
 
-    Minutiae(STMinutiae internalMinutiae, Token token, int position) {
+    Minutiae(STMinutiae internalMinutiae, @Nullable Token token, int position) {
         this.internalMinutiae = internalMinutiae;
         this.token = token;
         this.position = position;

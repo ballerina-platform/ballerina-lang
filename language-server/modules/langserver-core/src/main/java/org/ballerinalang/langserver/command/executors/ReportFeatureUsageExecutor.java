@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.telemetry.LSFeatureUsageTelemetryEvent;
 import org.ballerinalang.langserver.telemetry.TelemetryUtil;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,7 @@ public class ReportFeatureUsageExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "REPORT_FEATURE_USAGE";
 
+    @Nullable
     @Override
     public Object execute(ExecuteCommandContext context) {
         List<CommandArgument> arguments = context.getArguments();

@@ -31,6 +31,7 @@ import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvide
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.troubleshoot.StrandDump;
 import io.ballerina.runtime.internal.utils.RuntimeUtils;
+import org.jetbrains.annotations.Nullable;
 import sun.misc.Signal;
 
 import java.io.File;
@@ -134,6 +135,7 @@ public final class LaunchUtils {
         return new ConfigDetails(paths.toArray(new Path[0]), configContent);
     }
 
+    @Nullable
     private static String populateConfigDetails(List<Path> paths, Map<String, String> envVars) {
         if (envVars.containsKey(CONFIG_FILES_ENV_VARIABLE)) {
             String[] configPathList = envVars.get(CONFIG_FILES_ENV_VARIABLE).split(File.pathSeparator);

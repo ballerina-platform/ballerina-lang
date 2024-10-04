@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.CharReader;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * A LL(k) lexer for RegExp in ballerina.
@@ -45,7 +46,7 @@ public class RegExpLexer extends AbstractLexer {
     @Override
     public STToken nextToken() {
         STToken token;
-        switch (this.mode) {
+        switch (Objects.requireNonNull(this.mode, "Lexer mode was null, an underflow occurred")) {
             case RE_DISJUNCTION:
             case RE_CHAR_CLASS:
                 token = readTokenInReDisjunction();

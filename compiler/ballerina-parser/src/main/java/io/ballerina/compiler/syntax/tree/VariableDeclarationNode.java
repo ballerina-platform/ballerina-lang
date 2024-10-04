@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -116,9 +117,12 @@ public class VariableDeclarationNode extends StatementNode {
     public static class VariableDeclarationNodeModifier {
         private final VariableDeclarationNode oldNode;
         private NodeList<AnnotationNode> annotations;
+        @Nullable
         private Token finalKeyword;
         private TypedBindingPatternNode typedBindingPattern;
+        @Nullable
         private Token equalsToken;
+        @Nullable
         private ExpressionNode initializer;
         private Token semicolonToken;
 

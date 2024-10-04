@@ -70,6 +70,7 @@ import org.ballerinalang.langserver.commons.SemanticTokensContext;
 import org.ballerinalang.langserver.commons.SemanticTokensContext.TokenTypeModifiers;
 import org.ballerinalang.langserver.commons.SemanticTokensContext.TokenTypes;
 import org.eclipse.lsp4j.SemanticTokens;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -758,7 +759,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
             this.modifiers = modifiers;
         }
 
-        public SemanticToken processSemanticToken(List<Integer> data, SemanticToken previousToken) {
+        public SemanticToken processSemanticToken(List<Integer> data, @Nullable SemanticToken previousToken) {
             int line = this.getLine();
             int column = this.getColumn();
             int prevTokenLine = line;

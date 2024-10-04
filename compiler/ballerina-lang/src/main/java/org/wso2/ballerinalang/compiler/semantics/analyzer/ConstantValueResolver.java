@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -98,6 +99,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private static final CompilerContext.Key<ConstantValueResolver> CONSTANT_VALUE_RESOLVER_KEY =
             new CompilerContext.Key<>();
     private BConstantSymbol currentConstSymbol;
+    @Nullable
     private BLangConstantValue result;
     private final BLangDiagnosticLog dlog;
     private Location currentPos;
@@ -309,7 +311,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         this.result = evaluateUnaryOperator(value, unaryExpr.operator);
     }
 
-    private BLangConstantValue calculateConstValue(BLangConstantValue lhs, BLangConstantValue rhs, OperatorKind kind) {
+    private BLangConstantValue calculateConstValue(@Nullable BLangConstantValue lhs, @Nullable BLangConstantValue rhs,
+                                                   OperatorKind kind) {
         if (lhs == null || rhs == null || lhs.value == null || rhs.value == null) {
             // This is a compilation error.
             // This is to avoid NPE exceptions in sub-sequent validations.
@@ -353,7 +356,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return new BLangConstantValue(null, this.currentConstSymbol.type);
     }
 
-    private BLangConstantValue evaluateUnaryOperator(BLangConstantValue value, OperatorKind kind) {
+    private BLangConstantValue evaluateUnaryOperator(@Nullable BLangConstantValue value, OperatorKind kind) {
         if (value == null || value.value == null) {
             // This is a compilation error.
             // This is to avoid NPE exceptions in sub-sequent validations.
@@ -575,10 +578,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return constructBLangConstantValueWithExactType(expression, constantSymbol, env, new ArrayDeque<>(), false);
     }
 
-    BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
-                                                                BConstantSymbol constantSymbol, SymbolEnv env,
-                                                                Deque<String> anonTypeNameSuffixes,
-                                                                boolean isSourceOnlyAnon) {
+    @Nullable BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
+                                                                          BConstantSymbol constantSymbol, SymbolEnv env,
+                                                                          Deque<String> anonTypeNameSuffixes,
+                                                                          boolean isSourceOnlyAnon) {
         this.currentConstSymbol = constantSymbol;
         BLangConstantValue value = constructBLangConstantValue(expression);
         constantSymbol.value = value;
@@ -595,6 +598,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return value;
     }
 
+    @Nullable
     private BLangConstantValue constructBLangConstantValue(BLangExpression node) {
         if (!node.typeChecked) {
             return null;
@@ -707,6 +711,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return finiteType;
     }
 
+    @Nullable
     private BType checkType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, BType type,
                             Location pos, SymbolEnv env) {
         if (expr != null && expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
@@ -808,6 +813,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         createdTypeDefinitions.put(type.tsymbol, typeDefinition);
     }
 
+    @Nullable
     private BLangTypeDefinition findTypeDefinition(List<BLangTypeDefinition> typeDefinitionArrayList, String name) {
         for (int i = typeDefinitionArrayList.size() - 1; i >= 0; i--) {
             BLangTypeDefinition typeDefinition = typeDefinitionArrayList.get(i);
@@ -825,6 +831,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         constant.associatedTypeDefinition = typeDefinition;
     }
 
+    @Nullable
     private BType createRecordType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, Location pos,
                                    SymbolEnv env) {
         if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -967,6 +974,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return true;
     }
 
+    @Nullable
     private BType createTupleType(BLangExpression expr, BConstantSymbol constantSymbol, Location pos,
                                   Object constValue, SymbolEnv env) {
         if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {

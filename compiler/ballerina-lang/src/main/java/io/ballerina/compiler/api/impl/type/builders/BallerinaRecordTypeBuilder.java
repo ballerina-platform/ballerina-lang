@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.Flag;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -51,6 +52,7 @@ public class BallerinaRecordTypeBuilder implements TypeBuilder.RECORD {
 
     private final TypesFactory typesFactory;
     private final SymbolTable symTable;
+    @Nullable
     private TypeSymbol restField;
     private final List<RECORD_FIELD> recordFieldList = new ArrayList<>();
     private final List<TypeReferenceTypeSymbol> typeInclusions = new ArrayList<>();
@@ -243,6 +245,7 @@ public class BallerinaRecordTypeBuilder implements TypeBuilder.RECORD {
         return typeInclusionList;
     }
 
+    @Nullable
     private BType getBType(TypeSymbol typeSymbol) {
         if (typeSymbol != null) {
             if (typeSymbol instanceof AbstractTypeSymbol abstractTypeSymbol) {

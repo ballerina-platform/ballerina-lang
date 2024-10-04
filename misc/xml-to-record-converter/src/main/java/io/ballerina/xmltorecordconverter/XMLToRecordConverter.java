@@ -51,6 +51,7 @@ import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.options.ForceFormattingOptions;
 import org.ballerinalang.formatter.core.options.FormattingOptions;
+import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -97,8 +98,8 @@ public final class XMLToRecordConverter {
 
     public static XMLToRecordResponse convert(String xmlValue, boolean isRecordTypeDesc, boolean isClosed,
                                               boolean forceFormatRecordFields,
-                                              String textFieldName, boolean withNameSpaces, boolean withoutAttributes,
-                                              boolean withoutAttributeAnnot) {
+                                              @Nullable String textFieldName, boolean withNameSpaces,
+                                              boolean withoutAttributes, boolean withoutAttributeAnnot) {
         Map<String, NonTerminalNode> recordToTypeDescNodes = new LinkedHashMap<>();
         Map<String, AnnotationNode> recordToAnnotationNodes = new LinkedHashMap<>();
         Map<String, Element> recordToElementNodes = new LinkedHashMap<>();
@@ -672,7 +673,7 @@ public final class XMLToRecordConverter {
      *
      * @return {@link AnnotationNode} xmldata:Namespace AnnotationNode
      */
-    private static AnnotationNode getXMLNamespaceNode(String prefix, String uri) {
+    private static AnnotationNode getXMLNamespaceNode(@Nullable String prefix, String uri) {
         Token atToken = AbstractNodeFactory.createToken(SyntaxKind.AT_TOKEN);
 
         IdentifierToken modulePrefix = AbstractNodeFactory.createIdentifierToken(XMLDATA);

@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticHintCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -2541,8 +2542,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void handleNonExplicitlyIsolatedArgForIsolatedParam(BLangInvocation invocationExpr, BLangExpression expr,
-                                                                boolean expectsIsolation, BType type, Location pos) {
+    private void handleNonExplicitlyIsolatedArgForIsolatedParam(
+            BLangInvocation invocationExpr, @Nullable BLangExpression expr, boolean expectsIsolation, BType type,
+            Location pos) {
         if (Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
             return;
         }
@@ -2572,7 +2574,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isInIsolatedFunction(BLangInvokableNode enclInvokable) {
+    private boolean isInIsolatedFunction(@Nullable BLangInvokableNode enclInvokable) {
         if (enclInvokable == null) {
             // TODO: 14/11/20 This feels hack-y but cannot think of a different approach without a class variable
             // maintaining isolated-ness.
@@ -2718,10 +2720,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean isIsolatedExpression(BLangExpression expression, boolean logErrors, boolean visitRestOnError,
                                          List<BLangExpression> nonIsolatedExpressions, boolean inferring,
-                                         Set<BType> publiclyExposedObjectTypes,
-                                         List<BLangClassDefinition> classDefinitions,
-                                         List<BLangVariable> moduleLevelVariables,
-                                         Set<BSymbol> unresolvedSymbols) {
+                                         @Nullable Set<BType> publiclyExposedObjectTypes,
+                                         @Nullable List<BLangClassDefinition> classDefinitions,
+                                         @Nullable List<BLangVariable> moduleLevelVariables,
+                                         @Nullable Set<BSymbol> unresolvedSymbols) {
         BType type = expression.getBType();
 
         if (type != null &&
@@ -3354,7 +3356,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return ownerType.tag == TypeTags.OBJECT && isIsolated(ownerType.flags);
     }
 
-    private BLangFunction getEnclNonAnonymousFunction(BLangFunction enclFunction) {
+    @Nullable
+    private BLangFunction getEnclNonAnonymousFunction(@Nullable BLangFunction enclFunction) {
         if (enclFunction == null || enclFunction.symbol.owner.kind == SymbolKind.PACKAGE) {
             return null;
         }
@@ -3540,9 +3543,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         this.isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnlyOnInferableConstructs = false;
     }
 
-    private void analyzeFunctionInStartActionForInference(SymbolEnv env, List<BLangExpression> requiredArgs,
-                                                          List<BLangExpression> restArgs, BLangExpression expr,
-                                                          BInvokableSymbol symbol) {
+    private void analyzeFunctionInStartActionForInference(
+            SymbolEnv env, List<BLangExpression> requiredArgs, List<BLangExpression> restArgs,
+            @Nullable BLangExpression expr, BInvokableSymbol symbol) {
         Set<BLangExpression> argsList = new HashSet<>(requiredArgs);
         argsList.addAll(restArgs);
         if (expr != null) {

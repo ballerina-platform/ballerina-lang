@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 
@@ -30,6 +31,7 @@ import java.util.List;
  */
 public class JIConstructorCall extends JTerminator {
 
+    @Nullable
     public BIROperand receiver;
     public List<BIROperand> args;
     public List<BIROperand> resourcePathArgs;
@@ -38,6 +40,7 @@ public class JIConstructorCall extends JTerminator {
     public String jMethodVMSig;
     public String name;
     public boolean varArgExist;
+    @Nullable
     public JType varArgType;
 
     public JIConstructorCall(Location pos) {

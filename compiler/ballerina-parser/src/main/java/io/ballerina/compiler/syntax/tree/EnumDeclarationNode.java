@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -131,13 +132,16 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
      */
     public static class EnumDeclarationNodeModifier {
         private final EnumDeclarationNode oldNode;
+        @Nullable
         private MetadataNode metadata;
+        @Nullable
         private Token qualifier;
         private Token enumKeywordToken;
         private IdentifierToken identifier;
         private Token openBraceToken;
         private SeparatedNodeList<Node> enumMemberList;
         private Token closeBraceToken;
+        @Nullable
         private Token semicolonToken;
 
         public EnumDeclarationNodeModifier(EnumDeclarationNode oldNode) {

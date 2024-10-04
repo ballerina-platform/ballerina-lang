@@ -65,6 +65,6 @@ public class BLangXMLFilterStepExtend extends BLangXMLStepExtend {
     public String toString() {
         StringJoiner filters = new StringJoiner(" |");
         this.filters.forEach(f -> filters.add(f.toString()));
-        return "." + "/<" + filters.toString() + ">";
+        return "./<%s>".formatted(filters);
     }
 }

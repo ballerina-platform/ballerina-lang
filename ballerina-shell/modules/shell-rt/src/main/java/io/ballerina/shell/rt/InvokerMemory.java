@@ -18,6 +18,8 @@
 
 package io.ballerina.shell.rt;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 
 /**
@@ -44,6 +46,7 @@ public final class InvokerMemory {
      * @param name      Name of the variables.
      * @return The value of the variable.
      */
+    @Nullable
     public static Object recall(String contextId, String name) {
         if (memory.containsKey(contextId)) {
             return memory.get(contextId).getOrDefault(quoted(name.trim()), null);

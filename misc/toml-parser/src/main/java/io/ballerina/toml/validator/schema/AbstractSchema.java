@@ -20,6 +20,7 @@ package io.ballerina.toml.validator.schema;
 
 import io.ballerina.toml.semantic.ast.TomlNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +38,8 @@ public abstract class AbstractSchema {
     private final Map<String, String> message;
     private final CompositionSchema compositionSchemas;
 
-    public AbstractSchema(Type type, Map<String, String> message, CompositionSchema compositionSchemas, String desc) {
+    public AbstractSchema(Type type, Map<String, String> message, @Nullable CompositionSchema compositionSchemas,
+                          @Nullable String desc) {
         this.type = type;
         this.message = message;
         this.compositionSchemas = compositionSchemas;

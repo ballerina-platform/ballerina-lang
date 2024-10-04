@@ -18,6 +18,8 @@
 
 package io.ballerina.shell.snippet;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Snippet sub type to further categorize snippets.
  *
@@ -102,6 +104,7 @@ public enum SnippetSubKind {
         return error != null;
     }
 
+    @Nullable
     public String getError() {
         return error;
     }

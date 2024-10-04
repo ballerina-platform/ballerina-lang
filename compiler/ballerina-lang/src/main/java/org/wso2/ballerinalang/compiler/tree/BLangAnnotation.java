@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
@@ -58,7 +59,7 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
         this.attachPoints = new HashSet<>();
     }
 
-    public void addAttachPoint(AttachPoint attachmentPoint) {
+    public void addAttachPoint(@Nullable AttachPoint attachmentPoint) {
         attachPoints.add(attachmentPoint);
     }
 

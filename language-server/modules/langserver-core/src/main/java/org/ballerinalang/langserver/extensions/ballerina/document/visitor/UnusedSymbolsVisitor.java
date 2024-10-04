@@ -34,6 +34,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -67,7 +68,7 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
                 importDeclarationNode);
     }
 
-    private String getImportModuleName(ImportOrgNameNode importOrgNameNode,
+    private String getImportModuleName(@Nullable ImportOrgNameNode importOrgNameNode,
                                        SeparatedNodeList<IdentifierToken> importModuleName) {
         StringBuilder moduleName = new StringBuilder();
         if (importOrgNameNode != null) {
@@ -87,6 +88,7 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
         return moduleName.toString();
     }
 
+    @Nullable
     private LineRange getDeleteRange(LineRange lineRange) {
         if (lineRange != null) {
             for (LineRange aPosition : deleteRanges.keySet()) {

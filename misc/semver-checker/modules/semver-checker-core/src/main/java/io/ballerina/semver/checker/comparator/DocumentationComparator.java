@@ -24,6 +24,7 @@ import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 import io.ballerina.semver.checker.diff.SemverImpact;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -34,7 +35,7 @@ import java.util.Optional;
  */
 public class DocumentationComparator extends NodeComparator<Node> {
 
-    public DocumentationComparator(Node newNode, Node oldNode) {
+    public DocumentationComparator(@Nullable Node newNode, @Nullable Node oldNode) {
         super(newNode, oldNode);
     }
 

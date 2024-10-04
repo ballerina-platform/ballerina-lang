@@ -22,6 +22,7 @@ import io.ballerina.compiler.internal.syntax.SyntaxUtils;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.TextRange;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Deque;
 
@@ -43,6 +44,7 @@ final class HybridNodes {
      * @param kind     token or a subtree
      * @return the next available node
      */
+    @Nullable
     static HybridNode nextNode(HybridNode prevNode, HybridNode.Kind kind) {
         HybridNode.State state = prevNode.state().cloneState();
         return switch (kind) {
@@ -52,6 +54,7 @@ final class HybridNodes {
         };
     }
 
+    @Nullable
     private static HybridNode nextSubtree(HybridNode.State state) {
         if (state.oldTreePtr.isAtEOF() || state.oldTextOffset != state.newTextOffset) {
             return null;
@@ -105,6 +108,7 @@ final class HybridNodes {
         removeInvalidTextEdits(token, state);
     }
 
+    @Nullable
     private static HybridNode getReusableTokenFromOldTree(HybridNode.State state) {
         Token token = getTokenFromOldTree(state);
         if (isNodeReusable(token, state)) {

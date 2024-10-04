@@ -16,12 +16,14 @@
 package org.ballerinalang.langserver.extensions.ballerina.packages;
 
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Package metadata API request.
  */
 public class PackageMetadataRequest {
 
+    @Nullable
     private TextDocumentIdentifier documentIdentifier;
 
     protected TextDocumentIdentifier getDocumentIdentifier() {

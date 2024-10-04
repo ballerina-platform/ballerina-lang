@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.xml;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Get the type of a XML as a string. If the xml is singleton, type can be one of 
@@ -35,6 +36,7 @@ public class GetItemType {
     private GetItemType() {
     }
 
+    @Nullable
     public static Object getItemType(Strand strand, BXml xml) {
         try {
             return xml.getItemType();

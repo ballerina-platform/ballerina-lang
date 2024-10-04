@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.utils.IteratorUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.UUID;
@@ -46,6 +47,7 @@ public class StreamValue implements RefValue, BStream {
     private final Type constraintType;
     private final Type completionType;
     private Type iteratorNextReturnType;
+    @Nullable
     private final BObject iteratorObj;
 
 
@@ -93,7 +95,7 @@ public class StreamValue implements RefValue, BStream {
      * @param parent The link to the parent node
      */
     @Override
-    public String stringValue(BLink parent) {
+    public String stringValue(@Nullable BLink parent) {
         return getType().toString();
     }
 

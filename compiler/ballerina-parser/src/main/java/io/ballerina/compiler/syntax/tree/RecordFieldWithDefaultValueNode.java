@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -123,7 +124,9 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
      */
     public static class RecordFieldWithDefaultValueNodeModifier {
         private final RecordFieldWithDefaultValueNode oldNode;
+        @Nullable
         private MetadataNode metadata;
+        @Nullable
         private Token readonlyKeyword;
         private Node typeName;
         private Token fieldName;

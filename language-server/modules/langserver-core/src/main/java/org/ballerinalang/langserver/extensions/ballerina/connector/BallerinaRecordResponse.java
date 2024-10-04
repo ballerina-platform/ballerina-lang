@@ -19,6 +19,7 @@
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
 import com.google.gson.JsonElement;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents with record AST.
@@ -36,7 +37,7 @@ public class BallerinaRecordResponse {
     private final Boolean beta;
 
     public BallerinaRecordResponse(String org, String module, String version, String name,
-                                   JsonElement ast, String error, Boolean beta) {
+                                   @Nullable JsonElement ast, String error, Boolean beta) {
         this.org = org;
         this.module = module;
         this.version = version;

@@ -23,6 +23,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassTooLargeException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -333,6 +334,7 @@ public class JvmPackageGen {
         return new BIRFunctionWrapper(packageID, currentFunc, moduleClass, jvmMethodDescription);
     }
 
+    @Nullable
     private static BIRFunction findFunction(BIRNode parentNode, String funcName) {
         BIRFunction func;
         if (parentNode instanceof BIRTypeDefinition typeDef) {
@@ -346,6 +348,7 @@ public class JvmPackageGen {
         return func;
     }
 
+    @Nullable
     private static BIRFunction findFunction(List<BIRFunction> functions, String funcName) {
         for (BIRFunction func : functions) {
             if (func.name.value.equals(funcName)) {
@@ -744,6 +747,7 @@ public class JvmPackageGen {
         typeDefs.removeIf(def -> Symbols.isFlagOn(def.flags, Flags.SOURCE_ANNOTATION));
     }
 
+    @Nullable
     private BIRFunction getMainFunction(BIRPackage module) {
         BIRFunction mainFunc = null;
         if (module.packageID.skipTests) {
@@ -752,6 +756,7 @@ public class JvmPackageGen {
         return mainFunc;
     }
 
+    @Nullable
     private BIRFunction getTestExecuteFunction(BIRPackage module) {
         BIRFunction testExecuteFunc = null;
         if (!module.packageID.skipTests) {
@@ -760,6 +765,7 @@ public class JvmPackageGen {
         return testExecuteFunc;
     }
 
+    @Nullable
     private BIRFunction getFunction(BIRPackage module, String funcName) {
         BIRFunction function = null;
         for (BIRFunction birFunc : module.functions) {

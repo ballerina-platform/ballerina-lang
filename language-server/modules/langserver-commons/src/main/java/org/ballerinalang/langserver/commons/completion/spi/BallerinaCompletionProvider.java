@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -50,7 +51,8 @@ public interface BallerinaCompletionProvider<T extends Node> {
      * @return {@link List}     List of calculated Completion Items
      * @throws LSCompletionException when completion fails
      */
-    List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, T node) throws LSCompletionException;
+    List<LSCompletionItem> getCompletions(BallerinaCompletionContext context,
+                                          @Nullable T node) throws LSCompletionException;
 
     /**
      * Sort a given list of completion Items.

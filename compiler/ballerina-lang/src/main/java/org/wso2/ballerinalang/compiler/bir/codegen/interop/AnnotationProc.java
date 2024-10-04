@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -53,6 +54,7 @@ public final class AnnotationProc {
     private AnnotationProc() {
     }
 
+    @Nullable
     static InteropValidationRequest getInteropAnnotValue(BIRFunction birFunc) {
 
         BIRAnnotationAttachment annotAttach = getInteropAnnotAttachment(birFunc);
@@ -64,6 +66,7 @@ public final class AnnotationProc {
         return createJInteropValidationRequest(annotTagRef, annotAttach, birFunc);
     }
 
+    @Nullable
     private static BIRAnnotationAttachment getInteropAnnotAttachment(BIRFunction birFunc) {
 
         for (BIRAnnotationAttachment annotationAttachment : birFunc.annotAttachments) {
@@ -126,6 +129,7 @@ public final class AnnotationProc {
                 birFunc.type, getFieldMethodFromAnnotTag(annotTagRef));
     }
 
+    @Nullable
     private static List<JType> buildParamTypeConstraints(BIRNode.ConstValue annotValue) {
         if (annotValue == null) {
             return null;
@@ -155,6 +159,7 @@ public final class AnnotationProc {
         return constraints;
     }
 
+    @Nullable
     private static Object getLiteralValueFromAnnotValue(BIRNode.ConstValue annotValue) {
         if (annotValue == null) {
             return null;

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -123,6 +124,7 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
         public BLangIdentifier prefix;
 
         // Semantic Data
+        @Nullable
         public BSymbol symbol;
 
         @Override

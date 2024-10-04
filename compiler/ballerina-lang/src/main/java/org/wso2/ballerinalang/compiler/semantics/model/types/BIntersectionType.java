@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.IntersectionType;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -41,7 +42,7 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     private LinkedHashSet<BType> constituentTypes;
 
-    public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types,
+    public BIntersectionType(@Nullable BTypeSymbol tsymbol, LinkedHashSet<BType> types,
                              BType effectiveType) {
         super(TypeTags.INTERSECTION, tsymbol);
         this.constituentTypes = toFlatTypeSet(types);

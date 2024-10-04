@@ -19,6 +19,7 @@
 package io.ballerina.projects.internal.model;
 
 import com.google.gson.annotations.SerializedName;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -77,7 +78,7 @@ public class BuildJson {
         return distributionVersion;
     }
 
-    public void setDistributionVersion(String distributionVersion) {
+    public void setDistributionVersion(@Nullable String distributionVersion) {
         this.distributionVersion = distributionVersion;
     }
 

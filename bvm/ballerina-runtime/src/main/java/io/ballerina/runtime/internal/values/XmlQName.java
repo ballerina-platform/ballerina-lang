@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXmlQName;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Objects;
@@ -42,6 +43,7 @@ import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
 public final class XmlQName implements RefValue, BXmlQName {
 
     private String localName;
+    @Nullable
     private String uri;
     private String prefix;
     private BTypedesc typedesc = null;
@@ -100,7 +102,7 @@ public final class XmlQName implements RefValue, BXmlQName {
     }
 
     @Override
-    public String stringValue(BLink parent) {
+    public String stringValue(@Nullable BLink parent) {
         return (uri == null || uri.isEmpty()) ? localName : '{' + uri + '}' + localName;
     }
 

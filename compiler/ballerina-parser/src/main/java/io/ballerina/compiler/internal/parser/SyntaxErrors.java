@@ -28,6 +28,7 @@ import io.ballerina.compiler.internal.syntax.NodeListUtils;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -455,7 +456,7 @@ public final class SyntaxErrors {
      */
     public static STNode cloneWithLeadingInvalidNodeMinutiae(STNode toClone,
                                                              STNode invalidNode,
-                                                             DiagnosticCode diagnosticCode,
+                                                             @Nullable DiagnosticCode diagnosticCode,
                                                              Object... args) {
         STToken firstToken = toClone.firstToken();
         STToken firstTokenWithInvalidNodeMinutiae = cloneWithLeadingInvalidNodeMinutiae(firstToken,
@@ -504,7 +505,7 @@ public final class SyntaxErrors {
      */
     public static STNode cloneWithTrailingInvalidNodeMinutiae(STNode toClone,
                                                               STNode invalidNode,
-                                                              DiagnosticCode diagnosticCode,
+                                                              @Nullable DiagnosticCode diagnosticCode,
                                                               Object... args) {
         STToken lastToken = toClone.lastToken();
         STToken lastTokenWithInvalidNodeMinutiae = cloneWithTrailingInvalidNodeMinutiae(lastToken,

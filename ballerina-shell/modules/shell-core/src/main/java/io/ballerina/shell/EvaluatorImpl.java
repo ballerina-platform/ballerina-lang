@@ -32,6 +32,7 @@ import io.ballerina.shell.preprocessor.Preprocessor;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.factory.SnippetFactory;
 import io.ballerina.shell.utils.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -62,6 +63,7 @@ public class EvaluatorImpl extends Evaluator {
         }
     }
 
+    @Nullable
     @Override
     public String evaluate(String source) throws BallerinaShellException {
         try {

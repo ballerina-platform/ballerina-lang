@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -36,7 +38,7 @@ public final class DocumentId {
         this.moduleId = moduleId;
     }
 
-    public static DocumentId create(String documentPath, ModuleId moduleId) {
+    public static DocumentId create(String documentPath, @Nullable ModuleId moduleId) {
         return new DocumentId(UUID.randomUUID(), documentPath, moduleId);
     }
 

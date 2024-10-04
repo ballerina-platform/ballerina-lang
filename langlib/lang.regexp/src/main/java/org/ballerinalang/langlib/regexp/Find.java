@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Matcher;
 
@@ -40,6 +41,7 @@ public final class Find {
     private Find() {
     }
 
+    @Nullable
     public static BArray find(BRegexpValue regExp, BString str, long startIndex) {
         checkIndexWithinRange(str, startIndex);
         int[] surrogates = getSurrogatePositions(str);
@@ -51,6 +53,7 @@ public final class Find {
         return null;
     }
 
+    @Nullable
     public static BArray findGroups(BRegexpValue regExp, BString str, long startIndex) {
         checkIndexWithinRange(str, startIndex);
         int[] surrogates = getSurrogatePositions(str);
@@ -74,6 +77,7 @@ public final class Find {
         return resultArray;
     }
 
+    @Nullable
     public static BArray findAll(BRegexpValue regExp, BString str, long startIndex) {
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
@@ -90,6 +94,7 @@ public final class Find {
         return resultArray;
     }
 
+    @Nullable
     public static BArray findAllGroups(BRegexpValue regExp, BString str, long startIndex) {
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);

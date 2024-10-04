@@ -23,6 +23,7 @@ import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,6 +102,7 @@ public class XMLParser extends AbstractParser {
      * 
      * @return XML content item node
      */
+    @Nullable
     private STNode parseXMLContentItem() {
         STToken nextToken = peek();
         return switch (nextToken.kind) {
@@ -447,6 +449,7 @@ public class XMLParser extends AbstractParser {
      * 
      * @return XML text node
      */
+    @Nullable
     private STNode parseXMLText() {
         STToken nextToken = peek();
         return switch (nextToken.kind) {

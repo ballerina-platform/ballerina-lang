@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -93,6 +94,7 @@ public class RequiredParameterNode extends ParameterNode {
         private final RequiredParameterNode oldNode;
         private NodeList<AnnotationNode> annotations;
         private Node typeName;
+        @Nullable
         private Token paramName;
 
         public RequiredParameterNodeModifier(RequiredParameterNode oldNode) {

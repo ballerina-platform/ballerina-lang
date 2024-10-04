@@ -32,6 +32,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,7 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
     private boolean isContextTypeCaptured = false;
     private Optional<TypeSymbol> contextType = Optional.empty();
     private boolean isCapturedEnclosingNode = false;
+    @Nullable
     private ModuleMemberDeclarationNode enclosingNode = null;
     private final CompletionParams completionParams;
     private final Position cursorPosition;

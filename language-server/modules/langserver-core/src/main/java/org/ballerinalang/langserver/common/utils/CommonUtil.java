@@ -61,6 +61,7 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.File;
@@ -369,7 +370,7 @@ public final class CommonUtil {
         return false;
     }
     
-    private static void getErrorTypes(TypeSymbol type, TypeSymbol typeRef, List<TypeSymbol> errorTypes) {
+    private static void getErrorTypes(TypeSymbol type, @Nullable TypeSymbol typeRef, List<TypeSymbol> errorTypes) {
         TypeDescKind kind = type.typeKind();
         if (kind == TypeDescKind.ERROR) {
             errorTypes.add(Objects.requireNonNullElse(typeRef, type));

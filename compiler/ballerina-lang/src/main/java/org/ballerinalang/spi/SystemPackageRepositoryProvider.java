@@ -34,8 +34,8 @@ public interface SystemPackageRepositoryProvider {
     static URI getClassUri(Object obj) {
         try {
             return obj.getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-        } catch (URISyntaxException ignore) {
-            return null;
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Error while getting the URI of the class", e);
         }
     }
 

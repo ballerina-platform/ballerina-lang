@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 
 /**
@@ -22,7 +24,7 @@ import java.util.List;
  */
 public class BType extends Type {
     public BType(String name, String description, List<String> descriptionSections, boolean isDeprecated,
-                 List<Type> memberTypes) {
+                 @Nullable List<Type> memberTypes) {
         super(name, description, descriptionSections, isDeprecated);
         this.memberTypes = memberTypes;
     }

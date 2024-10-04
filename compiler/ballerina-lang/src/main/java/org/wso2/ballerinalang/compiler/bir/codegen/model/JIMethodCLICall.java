@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 
 import java.util.List;
@@ -36,7 +37,7 @@ public class JIMethodCLICall extends JTerminator {
     public String name;
     public List<BIROperand> defaultFunctionArgs;
 
-    public JIMethodCLICall(Location pos) {
+    public JIMethodCLICall(@Nullable Location pos) {
         super(pos);
         this.jTermKind = JTermKind.JI_METHOD_CLI_CALL;
     }

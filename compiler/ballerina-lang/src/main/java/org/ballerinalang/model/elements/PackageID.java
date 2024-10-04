@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.elements;
 
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
@@ -109,7 +110,7 @@ public class PackageID {
     public Name sourceFileName = null;
     public String sourceRoot = null;
 
-    public PackageID(Name orgName, List<Name> nameComps, Name version) {
+    public PackageID(@Nullable Name orgName, List<Name> nameComps, Name version) {
         this.orgName = orgName;
         this.nameComps = nameComps;
         this.name = new Name(
@@ -121,7 +122,7 @@ public class PackageID {
         this.version = version;
     }
 
-    public PackageID(Name orgName, Name pkgName, Name name, Name version, Name sourceFileName) {
+    public PackageID(Name orgName, Name pkgName, Name name, Name version, @Nullable Name sourceFileName) {
         this.orgName = orgName;
         this.name = name;
         this.pkgName = pkgName;
@@ -144,7 +145,7 @@ public class PackageID {
         this.sourceFileName = sourceFileName;
     }
 
-    public PackageID(Name orgName, Name pkgName, Name name, Name version, Name sourceFileName,
+    public PackageID(Name orgName, Name pkgName, Name name, Name version, @Nullable Name sourceFileName,
                      boolean isTestPkg, boolean skipTest) {
         this.orgName = orgName;
         this.name = name;

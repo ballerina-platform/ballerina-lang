@@ -18,6 +18,8 @@
 
 package io.ballerina.semver.checker.diff;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 
 /**
@@ -31,7 +33,7 @@ public interface NodeDiffBuilder extends DiffBuilder {
     NodeDiffBuilder withType(DiffType diffType);
 
     @Override
-    NodeDiffBuilder withKind(DiffKind diffKind);
+    NodeDiffBuilder withKind(@Nullable DiffKind diffKind);
 
     @Override
     NodeDiffBuilder withVersionImpact(SemverImpact versionImpact);

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.model;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -52,7 +53,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class Move extends BIRNonTerminator implements BIRAssignInstruction {
         public BIROperand rhsOp;
 
-        public Move(Location pos, BIROperand fromOperand, BIROperand toOperand) {
+        public Move(@Nullable Location pos, BIROperand fromOperand, BIROperand toOperand) {
             super(pos, InstructionKind.MOVE);
             this.rhsOp = fromOperand;
             this.lhsOp = toOperand;
@@ -171,7 +172,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public Object value;
         public BType type;
 
-        public ConstantLoad(Location pos, Object value, BType type, BIROperand lhsOp) {
+        public ConstantLoad(@Nullable Location pos, Object value, BType type, BIROperand lhsOp) {
             super(pos, InstructionKind.CONST_LOAD);
             this.value = value;
             this.type = type;
@@ -337,8 +338,8 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.values = values;
         }
 
-        public NewArray(Location location, BType type, BIROperand lhsOp, BIROperand typedescOp, BIROperand sizeOp,
-                        List<BIRListConstructorEntry> values) {
+        public NewArray(Location location, BType type, BIROperand lhsOp, @Nullable BIROperand typedescOp,
+                        BIROperand sizeOp, List<BIRListConstructorEntry> values) {
             this(location, type, lhsOp, sizeOp, values);
             this.typedescOp = typedescOp;
         }
@@ -494,7 +495,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BType type;
         public boolean checkTypes;
 
-        public TypeCast(Location location, BIROperand lhsOp, BIROperand rhsOp, BType castType,
+        public TypeCast(@Nullable Location location, BIROperand lhsOp, @Nullable BIROperand rhsOp, BType castType,
                         boolean checkTypes) {
             super(location, InstructionKind.TYPE_CAST);
             this.lhsOp = lhsOp;
@@ -564,7 +565,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand rhsOp;
         public BType type;
 
-        public TypeTest(Location pos, BType type, BIROperand lhsOp, BIROperand rhsOp) {
+        public TypeTest(@Nullable Location pos, BType type, BIROperand lhsOp, @Nullable BIROperand rhsOp) {
             super(pos, InstructionKind.TYPE_TEST);
             this.type = type;
             this.lhsOp = lhsOp;

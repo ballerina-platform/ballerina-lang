@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.xml.XmlValidator;
+import org.jetbrains.annotations.Nullable;
 
 import javax.xml.XMLConstants;
 
@@ -115,6 +116,7 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
         }
     }
 
+    @Nullable
     private BString insertValue(BString keyBStr, BString value, boolean onInitialization) {
         String key = keyBStr.getValue();
         String localName = "";

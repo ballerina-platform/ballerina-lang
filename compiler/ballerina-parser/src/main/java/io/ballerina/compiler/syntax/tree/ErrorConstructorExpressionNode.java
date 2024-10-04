@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -108,6 +109,7 @@ public class ErrorConstructorExpressionNode extends ExpressionNode {
     public static class ErrorConstructorExpressionNodeModifier {
         private final ErrorConstructorExpressionNode oldNode;
         private Token errorKeyword;
+        @Nullable
         private TypeDescriptorNode typeReference;
         private Token openParenToken;
         private SeparatedNodeList<FunctionArgumentNode> arguments;

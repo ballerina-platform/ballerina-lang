@@ -36,6 +36,7 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedReader;
@@ -66,7 +67,7 @@ public class MavenPackageRepository extends AbstractPackageRepository {
 
 
     public MavenPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion,
-                                  MavenResolverClient client, String repoLocation) {
+                                  @Nullable MavenResolverClient client, @Nullable String repoLocation) {
         this.fileSystemCache = new FileSystemRepository(environment, cacheDirectory, distributionVersion);
         this.client = client;
         this.repoLocation = repoLocation;
@@ -130,7 +131,7 @@ public class MavenPackageRepository extends AbstractPackageRepository {
     // This method should be called before calling other methods
     public boolean isPackageExists(PackageOrg org,
                                    PackageName name,
-                                   PackageVersion version, boolean offline) {
+                                   @Nullable PackageVersion version, boolean offline) {
         boolean isPackageExist = this.fileSystemCache.isPackageExists(org, name, version);
         if (!isPackageExist && !offline) {
             return getPackageFromRemoteRepo(org.value(), name.value(), version.value().toString());
@@ -139,7 +140,8 @@ public class MavenPackageRepository extends AbstractPackageRepository {
     }
 
     @Override
-    protected List<PackageVersion> getPackageVersions(PackageOrg org, PackageName name, PackageVersion version) {
+    protected List<PackageVersion> getPackageVersions(
+            PackageOrg org, PackageName name, @Nullable PackageVersion version) {
         if (version == null) {
             return Collections.emptyList();
         }

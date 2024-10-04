@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
 import java.util.ArrayList;
@@ -37,8 +38,11 @@ public class BTypeIdSet {
     private final List<Set<BTypeId>> secondary;
 
     // cache
+    @Nullable
     private Set<BTypeId> primaryAll = null;
+    @Nullable
     private Set<BTypeId> secondaryAll = null;
+    @Nullable
     private Set<BTypeId> all = null;
 
     public BTypeIdSet(Set<BTypeId> primary, Set<BTypeId> secondary) {

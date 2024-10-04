@@ -16,6 +16,8 @@
 
 package org.ballerinalang.debugadapter.utils;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Locale;
 
 /**
@@ -37,6 +39,7 @@ public final class OSUtils {
      *
      * @return operating system
      */
+    @Nullable
     public static String getOperatingSystem() {
         if (OSUtils.isWindows()) {
             return WINDOWS;

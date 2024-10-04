@@ -20,6 +20,7 @@ package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -71,7 +72,7 @@ public class EnumDiff extends NodeDiffImpl<EnumDeclarationNode> {
 
         private final EnumDiff enumDiff;
 
-        public Builder(EnumDeclarationNode newNode, EnumDeclarationNode oldNode) {
+        public Builder(@Nullable EnumDeclarationNode newNode, @Nullable EnumDeclarationNode oldNode) {
             super(newNode, oldNode);
             enumDiff = new EnumDiff(newNode, oldNode);
         }

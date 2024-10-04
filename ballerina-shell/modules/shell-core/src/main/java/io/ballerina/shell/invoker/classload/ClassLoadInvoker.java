@@ -46,6 +46,7 @@ import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 import io.ballerina.shell.utils.Identifier;
 import io.ballerina.shell.utils.QuotedImport;
 import io.ballerina.shell.utils.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -203,6 +204,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         this.availableModuleDeclarations.clear();
     }
 
+    @Nullable
     @Override
     public PackageCompilation getCompilation(Collection<Snippet> newSnippets) throws InvokerException {
         if (!this.initialized.get()) {

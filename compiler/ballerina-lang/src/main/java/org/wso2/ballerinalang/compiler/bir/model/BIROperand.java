@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * {@code BIROperand} represents an operand in an instruction.
  *
@@ -26,7 +28,7 @@ public class BIROperand extends BIRNode {
 
     public BIRVariableDcl variableDcl;
 
-    public BIROperand(BIRVariableDcl variableDcl) {
+    public BIROperand(@Nullable BIRVariableDcl variableDcl) {
         super(null);
         this.variableDcl = variableDcl;
     }

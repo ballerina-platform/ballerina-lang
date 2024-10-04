@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -187,6 +188,7 @@ public class DeclarativeAuthDesugar {
         result.var.symbol = resultSymbol;
     }
 
+    @Nullable
     private BPackageSymbol getPackageSymbol(SymbolEnv env, String packageName) {
         // This resolves the package symbol when the code have an import relevant to the particular service
         for (BLangImportPackage pkg : env.enclPkg.imports) {

@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -530,6 +531,7 @@ public class GlobalVariableRefAnalyzer {
                 .anyMatch(symbolsOfCycle::contains);
     }
 
+    @Nullable
     private BLangIdentifier getNodeName(BSymbol symbol) {
         for (TopLevelNode node : pkgNode.topLevelNodes) {
             if (getSymbol(node) == symbol) {
@@ -550,6 +552,7 @@ public class GlobalVariableRefAnalyzer {
         return null;
     }
 
+    @Nullable
     private BSymbol getSymbol(Node node) {
         if (node.getKind() == NodeKind.VARIABLE) {
             return ((BLangVariable) node).symbol;

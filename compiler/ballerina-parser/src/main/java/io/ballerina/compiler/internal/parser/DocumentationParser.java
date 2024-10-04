@@ -22,6 +22,7 @@ import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -307,6 +308,7 @@ public class DocumentationParser extends AbstractParser {
      *
      * @return Parsed node
      */
+    @Nullable
     private STNode parseOptionalLangAttributeToken() {
         STToken token = peek();
         if (token.kind == SyntaxKind.CODE_CONTENT) {
@@ -415,7 +417,7 @@ public class DocumentationParser extends AbstractParser {
      * @param referenceType Token that precedes the single backtick
      * @return Parsed node
      */
-    private STNode parseBallerinaNameRefOrInlineCodeRef(STNode referenceType) {
+    private STNode parseBallerinaNameRefOrInlineCodeRef(@Nullable STNode referenceType) {
         STNode startBacktick = parseBacktickToken();
 
         boolean isCodeRef = false;

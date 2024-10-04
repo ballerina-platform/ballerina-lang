@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -282,6 +283,7 @@ public class NodeCloner extends BLangNodeVisitor {
         return clone;
     }
 
+    @Nullable
     public <T extends Node> T cloneNode(T source) {
 
         if (source == null) {
@@ -300,6 +302,7 @@ public class NodeCloner extends BLangNodeVisitor {
         return (T) result;
     }
 
+    @Nullable
     private <T extends Node> List<T> cloneList(List<T> nodes) {
 
         if (nodes == null) {
@@ -313,6 +316,7 @@ public class NodeCloner extends BLangNodeVisitor {
         return cloneList;
     }
 
+    @Nullable
     @SuppressWarnings("unchecked")
     private <T extends Node> T clone(T source) {
 

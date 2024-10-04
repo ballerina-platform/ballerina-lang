@@ -1,6 +1,7 @@
 package org.wso2.ballerinalang.compiler.packaging.repo;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
@@ -11,7 +12,7 @@ import java.nio.file.Path;
  * Calculate path pattens for home repo.
  */
 public class HomeRepo extends NonSysRepo<Path> {
-    public HomeRepo(Converter<Path> converter) {
+    public HomeRepo(@Nullable Converter<Path> converter) {
         super(converter);
     }
 

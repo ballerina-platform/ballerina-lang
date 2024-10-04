@@ -17,12 +17,14 @@ package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
 import io.ballerina.tools.text.LinePosition;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a request to get type info given for given positions of symbols.
  */
 public class TypeFromSymbolRequest {
     private TextDocumentIdentifier documentIdentifier;
+    @Nullable
     private LinePosition[] positions;
 
     protected LinePosition[] getPositions() {

@@ -23,6 +23,7 @@ import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
 import io.ballerina.runtime.api.values.BError;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -108,6 +109,7 @@ public final class LauncherUtils {
         errorMessages.forEach(outStream::println);
     }
 
+    @Nullable
     static String makeFirstLetterLowerCase(String s) {
         if (s == null) {
             return null;

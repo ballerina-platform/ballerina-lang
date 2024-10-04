@@ -41,6 +41,7 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.json.JsonGenerator;
 import io.ballerina.runtime.internal.json.JsonInternalUtils;
 import io.ballerina.runtime.internal.json.JsonParser;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -214,6 +215,7 @@ public final class JsonUtils {
      * @return If the conversion is successes this will return JSON object.
      * @throws BError If conversion fails.
      */
+    @Nullable
     public static Object convertJSON(Object source, Type targetType) throws BError {
         return JsonInternalUtils.convertJSON(source, targetType);
     }
@@ -285,6 +287,7 @@ public final class JsonUtils {
      * @param value source value
      * @return      json value
      */
+    @Nullable
     public static Object convertToJson(Object value) {
         return convertToJsonType(value, new ArrayList<>());
     }
@@ -298,11 +301,13 @@ public final class JsonUtils {
      * @return                  json value
      * @deprecated              use {@link #convertToJson(Object)} instead.
      */
+    @Nullable
     @Deprecated(since = "2201.6.0", forRemoval = true)
     public static Object convertToJson(Object value, List<TypeValuePair> unresolvedValues) {
         return convertToJsonType(value, unresolvedValues);
     }
 
+    @Nullable
     private static Object convertToJsonType(Object value, List<TypeValuePair> unresolvedValues) {
         Type jsonType = PredefinedTypes.TYPE_JSON;
         if (value == null) {

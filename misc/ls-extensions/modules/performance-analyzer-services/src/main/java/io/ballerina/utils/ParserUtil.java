@@ -17,6 +17,7 @@ import io.ballerina.component.ForStatementNode;
 import io.ballerina.component.IfStatementNode;
 import io.ballerina.component.Node;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -105,6 +106,7 @@ public final class ParserUtil {
         return false;
     }
 
+    @Nullable
     private static BType isClientType(BType type) {
 
         if (type instanceof BUnionType bUnionType) {
@@ -123,6 +125,7 @@ public final class ParserUtil {
         return null;
     }
 
+    @Nullable
     public static BLangExpression getURLExpressionFromArgs(BLangTypeInit connectorInitExpr) {
 
         BSymbol bSymbol = ((BLangInvocation) connectorInitExpr.initInvocation).symbol;
@@ -139,6 +142,7 @@ public final class ParserUtil {
         return null;
     }
 
+    @Nullable
     public static BLangExpression getPathExpressionFromArgs(BLangInvocation actionInvocation) {
 
         BSymbol bSymbol = actionInvocation.symbol;

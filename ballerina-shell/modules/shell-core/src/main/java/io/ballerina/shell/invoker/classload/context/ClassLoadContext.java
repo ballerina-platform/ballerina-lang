@@ -20,6 +20,7 @@ package io.ballerina.shell.invoker.classload.context;
 
 import io.ballerina.shell.invoker.classload.ClassLoadInvoker;
 import io.ballerina.shell.rt.InvokerMemory;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -60,9 +61,9 @@ public class ClassLoadContext {
                             Collection<String> imports,
                             Collection<String> moduleDclns,
                             Collection<VariableContext> varDclns,
-                            Collection<String> newVarNames,
+                            @Nullable Collection<String> newVarNames,
                             String lastVarDcln,
-                            Collection<StatementContext> lastStmts) {
+                            @Nullable Collection<StatementContext> lastStmts) {
         this.lastStmts = Objects.requireNonNullElse(lastStmts, List.of());
         this.lastVarDcln = Objects.requireNonNullElse(lastVarDcln, "");
         this.contextId = Objects.requireNonNull(contextId);
@@ -88,8 +89,8 @@ public class ClassLoadContext {
                             Collection<String> imports,
                             Collection<String> moduleDclns,
                             Collection<VariableContext> varDclns,
-                            Collection<String> newVarNames,
-                            String lastVarDcln) {
+                            @Nullable Collection<String> newVarNames,
+                            @Nullable String lastVarDcln) {
         this(contextId, imports, moduleDclns, varDclns, newVarNames, lastVarDcln, null);
     }
 

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.StreamType;
 import org.ballerinalang.model.types.Type;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -34,7 +35,8 @@ public class BStreamType extends BBuiltInRefType implements StreamType {
     public BType constraint;
     public BType completionType;
 
-    public BStreamType(int tag, BType constraint, BType completionType, BTypeSymbol tsymbol) {
+    public BStreamType(int tag, @Nullable BType constraint, @Nullable BType completionType,
+                       @Nullable BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;
         this.completionType = completionType != null ? completionType : new BNilType();

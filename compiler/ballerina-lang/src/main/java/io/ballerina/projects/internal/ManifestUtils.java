@@ -27,6 +27,7 @@ import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Utilities for creating manifests.
@@ -50,6 +51,7 @@ public final class ManifestUtils {
                 oneBasedLineRange.fileName() + ":" + oneBasedLineRange + "] " + diagnostic.message();
     }
 
+    @Nullable
     public static String getStringFromTomlTableNode(TopLevelNode topLevelNode) {
         if (topLevelNode.kind() != null && topLevelNode.kind() == TomlType.KEY_VALUE) {
             TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;

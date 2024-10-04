@@ -95,13 +95,10 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
 
     @Override
     public String toString() {
-        return new StringBuilder()
-                .append("<")
-                .append(annAttachments.isEmpty() ? "" : attachmentsToString())
-                .append(targetType != null ? targetType.toString() : "")
-                .append("> ")
-                .append(String.valueOf(expr))
-                .toString();
+        return "<%s%s> %s".formatted(
+                annAttachments.isEmpty() ? "" : attachmentsToString(),
+                targetType != null ? targetType.toString() : "",
+                expr);
     }
 
     private String attachmentsToString() {

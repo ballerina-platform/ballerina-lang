@@ -27,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,7 +84,8 @@ public class EvaluationImportResolver extends NodeVisitor {
      * @param resolvedImports a list of already resolved imports, to avoid redundant processing.
      * @return a map of detected imports within the given syntax node.
      */
-    public Map<String, BImport> detectUsedImports(NonTerminalNode syntaxNode, Map<String, BImport> resolvedImports)
+    public Map<String, BImport> detectUsedImports(NonTerminalNode syntaxNode,
+                                                  @Nullable Map<String, BImport> resolvedImports)
             throws EvaluationException {
 
         if (resolvedImports == null) {

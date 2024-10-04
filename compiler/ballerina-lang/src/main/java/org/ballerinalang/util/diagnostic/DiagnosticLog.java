@@ -21,6 +21,7 @@ import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A {@code DiagnosticLog} provides a way for the Ballerina compiler
@@ -57,7 +58,7 @@ public interface DiagnosticLog {
      * @param message   the message
      */
     void logDiagnostic(DiagnosticSeverity severity,
-                       ModuleDescriptor moduleDescriptor,
+                       @Nullable ModuleDescriptor moduleDescriptor,
                        Location location,
                        CharSequence message);
 }

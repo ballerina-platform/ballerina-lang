@@ -37,6 +37,7 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BTypeIdSet;
 import io.ballerina.runtime.internal.utils.CycleUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -95,7 +96,7 @@ public class ErrorValue extends BError implements RefValue {
                 message, null, details);
     }
 
-    public ErrorValue(BString message, BError cause) {
+    public ErrorValue(BString message, @Nullable BError cause) {
         this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TYPE_MAP), message, cause,
                 null);
     }
@@ -108,7 +109,7 @@ public class ErrorValue extends BError implements RefValue {
         this.details = details;
     }
 
-    public ErrorValue(Type type, BString message, BError cause, BMap<BString, Object> details,
+    public ErrorValue(Type type, BString message, @Nullable BError cause, BMap<BString, Object> details,
                       String typeIdName, Module typeIdPkg) {
         super(message);
         this.type = type;
@@ -121,7 +122,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     @Override
-    public String stringValue(BLink parent) {
+    public String stringValue(@Nullable BLink parent) {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
         BString errMessage = Objects.requireNonNullElse(message, StringUtils.fromString(""));
         if (isEmptyDetail()) {

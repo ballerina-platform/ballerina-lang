@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.XMLElementFilter;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
@@ -36,12 +37,13 @@ public class BLangXMLElementFilter extends BLangExpression implements XMLElement
     public final Location nsPos;
     public final String namespace;
     public final String name;
+    @Nullable
     public BSymbol namespaceSymbol;
 
     public BLangXMLElementFilter(Location pos, String ns,
-                                 Location nsPos,
+                                 @Nullable Location nsPos,
                                  String elementName,
-                                 Location elemNamePos) {
+                                 @Nullable Location elemNamePos) {
         this.namespace = ns;
         this.name = elementName;
         this.pos = pos;
@@ -49,11 +51,13 @@ public class BLangXMLElementFilter extends BLangExpression implements XMLElement
         this.elemNamePos = elemNamePos;
     }
 
+    @Nullable
     @Override
     public String getNamespace() {
         return null;
     }
 
+    @Nullable
     @Override
     public String getElementName() {
         return null;

@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.types.TableType;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -36,20 +37,22 @@ import java.util.List;
  */
 public class BTableType extends BType implements TableType {
     public BType constraint;
+    @Nullable
     public BType keyTypeConstraint;
     public List<String> fieldNameList = new ArrayList<>();
     public Location keyPos;
     public boolean isTypeInlineDefined;
     public Location constraintPos;
 
+    @Nullable
     public BTableType mutableType;
 
-    public BTableType(int tag, BType constraint, BTypeSymbol tSymbol) {
+    public BTableType(int tag, BType constraint, @Nullable BTypeSymbol tSymbol) {
         super(tag, tSymbol);
         this.constraint = constraint;
     }
 
-    public BTableType(int tag, BType constraint, BTypeSymbol tSymbol, long flags) {
+    public BTableType(int tag, @Nullable BType constraint, BTypeSymbol tSymbol, long flags) {
         super(tag, tSymbol, flags);
         this.constraint = constraint;
     }

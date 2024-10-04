@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -46,6 +47,7 @@ public class BallerinaErrorTypeBuilder implements TypeBuilder.ERROR {
 
     private final TypesFactory typesFactory;
     private final SymbolTable symTable;
+    @Nullable
     private TypeSymbol typeParam;
 
     public BallerinaErrorTypeBuilder(CompilerContext context) {

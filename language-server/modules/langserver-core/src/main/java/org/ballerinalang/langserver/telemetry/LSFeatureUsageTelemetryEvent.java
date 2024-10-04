@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.telemetry;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a telemetry event sent to gather feature usage statistics.
@@ -53,7 +54,8 @@ public class LSFeatureUsageTelemetryEvent extends LSTelemetryEvent {
         return featureMessage;
     }
 
-    public static LSFeatureUsageTelemetryEvent from(String featureName, String featureClass, String featureMessage) {
+    public static LSFeatureUsageTelemetryEvent from(
+            String featureName, @Nullable String featureClass, @Nullable String featureMessage) {
         return new LSFeatureUsageTelemetryEvent(LS_TELEMETRY_COMPONENT_NAME, CommonUtil.SDK_VERSION, featureName,
                 featureClass, featureMessage);
     }

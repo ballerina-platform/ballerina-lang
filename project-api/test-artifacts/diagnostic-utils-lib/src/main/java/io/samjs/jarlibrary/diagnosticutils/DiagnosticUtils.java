@@ -22,6 +22,7 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A dummy diagnostic related util class.
@@ -35,7 +36,7 @@ public final class DiagnosticUtils {
 
     public static Diagnostic createDiagnostic(String code,
                                               String messageFormat,
-                                              Location location,
+                                              @Nullable Location location,
                                               DiagnosticSeverity severity,
                                               Object... args) {
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(code, messageFormat, severity);

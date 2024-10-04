@@ -18,6 +18,7 @@
 package org.ballerinalang.repository;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -50,6 +51,7 @@ public abstract class HierarchicalPackageRepository implements PackageRepository
     
     public abstract Set<PackageID> lookupPackageIDs(int maxDepth);
 
+    @Nullable
     @Override
     public PackageEntity loadPackage(PackageID pkgId) {
         PackageEntity result = null;
@@ -68,6 +70,7 @@ public abstract class HierarchicalPackageRepository implements PackageRepository
         return result;
     }
 
+    @Nullable
     @Override
     public PackageEntity loadPackage(PackageID pkgId, String entryName) {
         PackageEntity result = null;

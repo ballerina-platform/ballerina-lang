@@ -23,6 +23,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -71,6 +72,7 @@ public class CompilerBadSadDiagnostic extends Diagnostic {
         return msg;
     }
 
+    @Nullable
     @Override
     public List<DiagnosticProperty<?>> properties() {
         return null;

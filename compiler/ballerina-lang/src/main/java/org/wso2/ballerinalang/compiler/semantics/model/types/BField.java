@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.types.Field;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -37,7 +38,7 @@ public class BField implements Field, NamedNode {
     //Position for BIR model
     public Location pos;
 
-    public BField(Name name, Location pos, BVarSymbol symbol) {
+    public BField(Name name, @Nullable Location pos, BVarSymbol symbol) {
         this.name = name;
         this.pos = pos;
         this.symbol = symbol;

@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -50,6 +51,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
     // BLangNodes
     public BLangIdentifier pkgAlias;
     public BLangIdentifier name;
+    @Nullable
     public BLangExpression expr;
     public List<BLangExpression> argExprs = new ArrayList<>();
     public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
@@ -309,7 +311,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
             
             StringJoiner joiner = new StringJoiner("/");
             resourceAccessPathSegments.exprs.forEach(item -> joiner.add(item.toString()));
-            br.append(joiner.toString());
+            br.append(joiner);
                     
             br.append(".");
             br.append(name == null ? String.valueOf(symbol.name) : String.valueOf(name));
@@ -317,7 +319,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
             br.append("(");
             StringJoiner joiner1 = new StringJoiner(",");
             argExprs.forEach(item -> joiner1.add(item.toString()));
-            br.append(joiner1.toString());
+            br.append(joiner1);
             br.append(")");
             
             return br.toString();

@@ -6,6 +6,7 @@ module io.ballerina.language.server.commons {
     requires org.eclipse.lsp4j.jsonrpc;
     requires com.google.gson;
     requires io.ballerina.toml;
+    requires static org.jetbrains.annotations;
     exports org.ballerinalang.langserver.commons;
     exports org.ballerinalang.langserver.commons.client;
     exports org.ballerinalang.langserver.commons.service.spi;

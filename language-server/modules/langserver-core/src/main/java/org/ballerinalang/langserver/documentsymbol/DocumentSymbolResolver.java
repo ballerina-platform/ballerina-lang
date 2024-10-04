@@ -50,6 +50,7 @@ import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.SymbolTag;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -437,7 +438,7 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
      * @return
      */
     private DocumentSymbol createDocumentSymbol(String name, SymbolKind kind,
-                                                String detail, Range range,
+                                                @Nullable String detail, Range range,
                                                 Range selectionRange, boolean isDeprecated,
                                                 List<DocumentSymbol> children) {
         DocumentSymbol documentSymbol = new DocumentSymbol();

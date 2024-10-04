@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.debugger.test.utils.client.connection;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * This interface represents a callback to report back a success or a
  * failure state back to the originator.
@@ -37,5 +39,5 @@ public interface Callback {
      * This should be called to notify the listener that your operation
      * failed with a specific error.
      */
-    void notifyFailure(Exception e);
+    void notifyFailure(@Nullable Exception e);
 }

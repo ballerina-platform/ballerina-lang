@@ -85,6 +85,6 @@ public class BLangExtendedXMLNavigationAccess extends BLangExpression implements
     public String toString() {
         StringJoiner extensionString = new StringJoiner("");
         this.extensions.forEach(extension -> extensionString.add(extension.toString()));
-        return stepExpr.toString() + extensionString.toString();
+        return stepExpr.toString() + extensionString;
     }
 }

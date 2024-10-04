@@ -20,6 +20,7 @@ package org.ballerinalang.debugger.test.utils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.SourceBreakpoint;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -53,15 +54,17 @@ public class BallerinaTestDebugPoint {
         this(filePathUri, line, null, null, false);
     }
 
-    public BallerinaTestDebugPoint(Path filePath, int line, String condition, String logMessage) {
+    public BallerinaTestDebugPoint(Path filePath, int line, @Nullable String condition, @Nullable String logMessage) {
         this(filePath.toAbsolutePath().toUri(), line, condition, logMessage, false);
     }
 
-    public BallerinaTestDebugPoint(Path filePath, int line, String condition, String logMessage, boolean verified) {
+    public BallerinaTestDebugPoint(Path filePath, int line, @Nullable String condition,
+                                   @Nullable String logMessage, boolean verified) {
         this(filePath.toAbsolutePath().toUri(), line, condition, logMessage, verified);
     }
 
-    public BallerinaTestDebugPoint(URI filePathUri, int line, String condition, String logMessage, boolean verified) {
+    public BallerinaTestDebugPoint(URI filePathUri, int line, @Nullable String condition,
+                                   @Nullable String logMessage, boolean verified) {
         this.filePathUri = filePathUri;
         this.line = line;
         this.condition = condition;

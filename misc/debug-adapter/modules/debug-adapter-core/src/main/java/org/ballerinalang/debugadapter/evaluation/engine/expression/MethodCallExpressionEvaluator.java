@@ -42,6 +42,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStati
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractMap;
 import java.util.List;
@@ -78,7 +79,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
     protected static final String QUALIFIED_TYPE_SIGNATURE_PREFIX = "L";
     protected static final String JNI_SIGNATURE_SEPARATOR = "/";
 
-    public MethodCallExpressionEvaluator(EvaluationContext context, ExpressionNode methodCallExpressionNode,
+    public MethodCallExpressionEvaluator(EvaluationContext context, @Nullable ExpressionNode methodCallExpressionNode,
                                          Evaluator expression, List<Map.Entry<String, Evaluator>> argEvaluators) {
         super(context);
         this.syntaxNode = methodCallExpressionNode;
@@ -184,11 +185,13 @@ public class MethodCallExpressionEvaluator extends Evaluator {
             // Returning an empty value, as returning `null` in here might lead to unexpected results, as the method
             // invocation can also return null if the program output is nil.
             return new VoidValue() {
+                @Nullable
                 @Override
                 public VirtualMachine virtualMachine() {
                     return null;
                 }
 
+                @Nullable
                 @Override
                 public Type type() {
                     return null;

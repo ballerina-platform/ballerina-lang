@@ -27,6 +27,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
@@ -217,6 +218,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
@@ -274,7 +276,7 @@ public class ReferenceFinder extends BaseVisitor {
                      .toList());
 
         if (!(pkgNode instanceof BLangTestablePackage)) {
-            find(pkgNode.getTestablePkg());
+            find(pkgNode.getTestablePkg().orElse(null));
         }
     }
 
@@ -1508,7 +1510,7 @@ public class ReferenceFinder extends BaseVisitor {
             }
             
             BLangLiteral literal = (BLangLiteral) expr;
-            if (literal.value.equals(pathSymbol.name.value) && addIfSameSymbol(pathSymbol, expr.pos)) {
+            if (Objects.equals(literal.value, pathSymbol.name.value) && addIfSameSymbol(pathSymbol, expr.pos)) {
                 return;
             }
         }
@@ -1520,7 +1522,7 @@ public class ReferenceFinder extends BaseVisitor {
         }
     }
 
-    private boolean addIfSameSymbol(BSymbol symbol, Location location) {
+    private boolean addIfSameSymbol(@Nullable BSymbol symbol, Location location) {
         if (symbol != null
                 && this.targetSymbol.name.equals(symbol.name)
                 && this.targetSymbol.pkgID.equals(symbol.pkgID)

@@ -18,6 +18,8 @@
 
 package io.ballerina.shell;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Return value after invoking snippet.
  * Contains result as an object &amp; exception status related to compilation
@@ -29,7 +31,7 @@ public class NotebookReturnValue {
     private final Object result;
     private final Enum<ExceptionStatus> exceptionStatus;
 
-    NotebookReturnValue(Object result, Enum<ExceptionStatus> exceptionStatus) {
+    NotebookReturnValue(@Nullable Object result, Enum<ExceptionStatus> exceptionStatus) {
         this.result = result;
         this.exceptionStatus = exceptionStatus;
     }
@@ -39,6 +41,7 @@ public class NotebookReturnValue {
         this.exceptionStatus = exceptionStatus;
     }
 
+    @Nullable
     public Object getResult() {
         return result;
     }

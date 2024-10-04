@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.InvokableType;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -34,17 +35,20 @@ import java.util.List;
 public class BInvokableType extends BType implements InvokableType {
 
     public List<BType> paramTypes;
+    @Nullable
     public BType restType;
+    @Nullable
     public BType retType;
 
-    public BInvokableType(List<BType> paramTypes, BType restType, BType retType, BTypeSymbol tsymbol) {
+    public BInvokableType(@Nullable List<BType> paramTypes, @Nullable BType restType, @Nullable BType retType,
+                          @Nullable BTypeSymbol tsymbol) {
         super(TypeTags.INVOKABLE, tsymbol, Flags.READONLY);
         this.paramTypes = paramTypes;
         this.restType = restType;
         this.retType = retType;
     }
 
-    public BInvokableType(List<BType> paramTypes, BType retType, BTypeSymbol tsymbol) {
+    public BInvokableType(List<BType> paramTypes, BType retType, @Nullable BTypeSymbol tsymbol) {
         this(paramTypes, null, retType, tsymbol);
     }
 

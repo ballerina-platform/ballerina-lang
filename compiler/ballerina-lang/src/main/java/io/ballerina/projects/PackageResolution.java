@@ -46,6 +46,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -385,13 +386,7 @@ public class PackageResolution {
             }
             moduleName = ModuleName.from(packageName, moduleNamePart);
         }
-        ModuleContext resolvedModule = resolvedPackage.moduleContext(moduleName);
-        if (resolvedModule == null) {
-            return Optional.empty();
-        }
-
-        // TODO convert this to a debug log
-        return Optional.of(resolvedModule);
+        return resolvedPackage.moduleContext(moduleName);
     }
 
     private DependencyGraph<ResolvedPackageDependency> buildPackageGraph(DependencyGraph<DependencyNode> depGraph,
@@ -622,7 +617,7 @@ public class PackageResolution {
                 && currentDistributionVersion.minor() > prevDistributionVersion.minor();
     }
 
-    private void addOlderSLUpdateDistributionDiagnostic(SemanticVersion prevDistributionVersion,
+    private void addOlderSLUpdateDistributionDiagnostic(@Nullable SemanticVersion prevDistributionVersion,
                                                         SemanticVersion currentDistributionVersion) {
         String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
         if (currentDistributionVersion.patch() != 0) {
@@ -704,10 +699,9 @@ public class PackageResolution {
 
             PackageName packageName;
             // TODO remove the null check and else block once the new resolution is fully done
-            packageName = importModuleResponse.packageDescriptor().name();
+            packageName = importModuleResponse.packageDescriptor().orElseThrow().name();
 
-            Optional<Package> optionalPackage = getPackage(packageOrg,
-                                                           packageName);
+            Optional<Package> optionalPackage = getPackage(packageOrg, packageName);
             if (optionalPackage.isEmpty()) {
                 return Optional.empty();
                 // This branch cannot be executed since the package is resolved before hand

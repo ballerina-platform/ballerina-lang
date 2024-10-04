@@ -33,6 +33,7 @@ import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.exceptions.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethod;
@@ -887,6 +888,7 @@ class JMethodResolver {
         }
     }
 
+    @Nullable
     private Executable tryResolveExactWithBalEnv(Class<?>[] paramTypes, Class<?> clazz, String name) {
         Class<?>[] paramTypesWithBalEnv = new Class<?>[paramTypes.length + 1];
         System.arraycopy(paramTypes, 0, paramTypesWithBalEnv, 1, paramTypes.length);
@@ -960,6 +962,7 @@ class JMethodResolver {
         }
     }
 
+    @Nullable
     private Executable resolveConstructor(Class<?> clazz, Class<?>... paramTypes) {
 
         try {
@@ -969,6 +972,7 @@ class JMethodResolver {
         }
     }
 
+    @Nullable
     private Executable resolveMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
 
         try {

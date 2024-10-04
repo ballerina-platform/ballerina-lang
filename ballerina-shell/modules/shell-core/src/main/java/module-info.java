@@ -6,6 +6,7 @@ module io.ballerina.shell {
     requires io.ballerina.runtime;
     requires io.ballerina.identifier;
     requires compiler;
+    requires static org.jetbrains.annotations;
 
     exports io.ballerina.shell.exceptions;
     exports io.ballerina.shell.invoker;

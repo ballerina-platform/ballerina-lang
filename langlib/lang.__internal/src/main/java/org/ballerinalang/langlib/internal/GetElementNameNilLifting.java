@@ -19,6 +19,7 @@ package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BXml;
+import org.jetbrains.annotations.Nullable;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.XML_OPERATION_ERROR;
@@ -33,6 +34,7 @@ public final class GetElementNameNilLifting {
     private GetElementNameNilLifting() {
     }
 
+    @Nullable
     public static Object getElementNameNilLifting(BXml xmlVal) {
         if (IsElement.isElement(xmlVal)) {
             String elementName = xmlVal.getElementName();

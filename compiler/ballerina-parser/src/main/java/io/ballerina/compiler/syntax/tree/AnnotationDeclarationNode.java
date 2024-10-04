@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -139,12 +140,17 @@ public class AnnotationDeclarationNode extends ModuleMemberDeclarationNode {
      */
     public static class AnnotationDeclarationNodeModifier {
         private final AnnotationDeclarationNode oldNode;
+        @Nullable
         private MetadataNode metadata;
+        @Nullable
         private Token visibilityQualifier;
+        @Nullable
         private Token constKeyword;
         private Token annotationKeyword;
+        @Nullable
         private Node typeDescriptor;
         private Token annotationTag;
+        @Nullable
         private Token onKeyword;
         private SeparatedNodeList<Node> attachPoints;
         private Token semicolonToken;

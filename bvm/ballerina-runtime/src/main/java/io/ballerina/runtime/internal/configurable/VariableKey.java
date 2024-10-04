@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.configurable;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.Type;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -45,7 +46,7 @@ public class VariableKey {
         this(module, variable, type, null, isRequired);
     }
 
-    public VariableKey(Module module, String variable, Type type, String location, boolean isRequired) {
+    public VariableKey(Module module, String variable, Type type, @Nullable String location, boolean isRequired) {
         this.module = module;
         this.variable = variable;
         this.type = type;

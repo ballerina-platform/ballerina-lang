@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -79,6 +80,7 @@ public class NonBmpStringValue extends StringValue {
         return surrogates.clone();
     }
 
+    @Nullable
     @Override
     public Long indexOf(BString str, int fromIndex) {
         int offset = getOffset(fromIndex);
@@ -95,6 +97,7 @@ public class NonBmpStringValue extends StringValue {
         return index;
     }
 
+    @Nullable
     @Override
     public Long lastIndexOf(BString str, int fromIndex) {
         int offset = getOffset(fromIndex);

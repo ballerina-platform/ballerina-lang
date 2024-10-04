@@ -13,6 +13,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
 import org.ballerinalang.testerina.natives.Executor;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public final class FunctionMock {
     private FunctionMock() {
     }
 
+    @Nullable
     public static BError thenReturn(BObject caseObj) {
         BObject mockFunctionObj = caseObj.getObjectValue(StringUtils.fromString("mockFuncObj"));
         BArray args = caseObj.getArrayValue(StringUtils.fromString("args"));
@@ -42,6 +44,7 @@ public final class FunctionMock {
         return null;
     }
 
+    @Nullable
     public static Object mockHandler(BObject mockFuncObj, Object... args) {
         List<String> caseIds = getCaseIds(mockFuncObj, args);
         String originalFunction =
@@ -92,6 +95,7 @@ public final class FunctionMock {
                 argsList.toArray());
     }
 
+    @Nullable
     private static Object callMockFunction(String originalFunction, String originalClassName,
                                            String[] mockFunctionClasses, String returnVal, Object... args) {
         int prefixPos = returnVal.indexOf(MockConstants.FUNCTION_CALL_PLACEHOLDER);
@@ -145,6 +149,7 @@ public final class FunctionMock {
     }
 
 
+    @Nullable
     private static Method getMockMethod(String orgName, String packageName, String version, String mockMethodName,
                                         String[] mockFunctionClasses, ClassLoader classLoader)
             throws ClassNotFoundException {
@@ -162,6 +167,7 @@ public final class FunctionMock {
         return mockMethod;
     }
     //Identify the class with the mockMethod(method within call)
+    @Nullable
     private static String resolveMockClass(String mockMethodName, String[] mockFunctionClasses, String orgName,
                                            String packageName, String version, ClassLoader classLoader)
             throws ClassNotFoundException {
@@ -179,7 +185,8 @@ public final class FunctionMock {
         return mockClass;
     }
 
-    private static void validateFunctionSignature(Method mockMethod, Method originalMethod, String mockMethodName) {
+    private static void validateFunctionSignature(Method mockMethod, @Nullable Method originalMethod,
+                                                  String mockMethodName) {
         // Validation
         if (mockMethod != null && originalMethod != null) {
             // Methods type and parameters
@@ -235,6 +242,7 @@ public final class FunctionMock {
         }
     }
 
+    @Nullable
     private static Method getClassDeclaredMethod(String className, String methodName, ClassLoader classLoader)
             throws ClassNotFoundException {
         Class<?> clazz = classLoader.loadClass(className);

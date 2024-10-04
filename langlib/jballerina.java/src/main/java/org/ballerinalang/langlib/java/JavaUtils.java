@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This class contains various utility functions required to provide the 'ballerina/jballerina.java' module API.
@@ -68,6 +69,7 @@ public final class JavaUtils {
         }
     }
 
+    @Nullable
     private static Class<?> getPrimitiveTypeClass(String name) {
         return switch (name) {
             case booleanTypeName -> Boolean.TYPE;

@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -93,6 +94,7 @@ public class AnnotationNode extends NonTerminalNode {
         private final AnnotationNode oldNode;
         private Token atToken;
         private Node annotReference;
+        @Nullable
         private MappingConstructorExpressionNode annotValue;
 
         public AnnotationNodeModifier(AnnotationNode oldNode) {

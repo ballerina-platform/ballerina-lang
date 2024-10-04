@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.WhileNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -36,6 +37,7 @@ public class BLangWhile extends BLangStatement implements WhileNode {
     // BLangNodes
     public BLangExpression expr;
     public BLangBlockStmt body;
+    @Nullable
     public BLangOnFailClause onFailClause;
 
     public BLangWhile() {

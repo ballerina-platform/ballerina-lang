@@ -22,6 +22,7 @@ import io.ballerina.compiler.internal.syntax.SyntaxUtils;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -132,6 +133,7 @@ public abstract class STNode {
         return (STToken) firstTokenInternal();
     }
 
+    @Nullable
     protected STNode firstTokenInternal() {
         for (STNode child : childBuckets) {
             if (SyntaxUtils.isToken(child)) {
@@ -156,6 +158,7 @@ public abstract class STNode {
         return (STToken) lastTokenInternal();
     }
 
+    @Nullable
     protected STNode lastTokenInternal() {
         for (int bucket = childBuckets.length - 1; bucket >= 0; bucket--) {
             STNode child = childInBucket(bucket);
@@ -198,7 +201,7 @@ public abstract class STNode {
         return (T) createFacade(0, null);
     }
 
-    public abstract Node createFacade(int position, NonTerminalNode parent);
+    public abstract Node createFacade(int position, @Nullable NonTerminalNode parent);
 
     /**
      * Accepts an instance of the {@code STNodeVisitor}, which can be used to

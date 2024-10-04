@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
@@ -43,7 +44,7 @@ import java.util.TreeSet;
 public abstract class BIRNode {
     public final Location pos;
 
-    protected BIRNode(Location pos) {
+    protected BIRNode(@Nullable Location pos) {
         this.pos = pos;
     }
 
@@ -99,7 +100,7 @@ public abstract class BIRNode {
     public static class BIRImportModule extends BIRNode {
         public final PackageID packageID;
 
-        public BIRImportModule(Location pos, Name org, Name name, Name version) {
+        public BIRImportModule(@Nullable Location pos, Name org, Name name, Name version) {
             super(pos);
             packageID = new PackageID(org, name, version);
         }
@@ -162,12 +163,12 @@ public abstract class BIRNode {
             this.jvmVarName = name.value.replace("%", "_");
         }
 
-        public BIRVariableDcl(Location pos, BType type, Name name, VarScope scope,
-                              VarKind kind, String metaVarName) {
+        public BIRVariableDcl(@Nullable Location pos, @Nullable BType type, Name name, VarScope scope,
+                              VarKind kind, @Nullable String metaVarName) {
             this(pos, type, name, name, scope, kind, metaVarName);
         }
 
-        public BIRVariableDcl(BType type, Name name, VarScope scope, VarKind kind) {
+        public BIRVariableDcl(BType type, Name name, @Nullable VarScope scope, VarKind kind) {
             this(null, type, name, scope, kind, null);
         }
 
@@ -211,7 +212,7 @@ public abstract class BIRNode {
         public long flags;
         public List<BIRAnnotationAttachment> annotAttachments;
 
-        public BIRParameter(Location pos, Name name, long flags) {
+        public BIRParameter(@Nullable Location pos, Name name, long flags) {
             super(pos);
             this.name = name;
             this.flags = flags;
@@ -238,8 +239,9 @@ public abstract class BIRNode {
         public SymbolOrigin origin;
         public List<BIRAnnotationAttachment> annotAttachments;
 
-        public BIRGlobalVariableDcl(Location pos, long flags, BType type, PackageID pkgId, Name name, Name originalName,
-                                    VarScope scope, VarKind kind, String metaVarName, SymbolOrigin origin) {
+        public BIRGlobalVariableDcl(@Nullable Location pos, long flags, BType type, @Nullable PackageID pkgId,
+                                    Name name, Name originalName, VarScope scope, VarKind kind, String metaVarName,
+                                    SymbolOrigin origin) {
             super(pos, type, name, originalName, scope, kind, metaVarName);
             this.flags = flags;
             this.pkgId = pkgId;
@@ -268,8 +270,8 @@ public abstract class BIRNode {
             this.hasDefaultExpr = hasDefaultExpr;
         }
 
-        public BIRFunctionParameter(Location pos, BType type, Name name, VarScope scope, VarKind kind,
-                                    String metaVarName, boolean hasDefaultExpr, boolean isPathParameter) {
+        public BIRFunctionParameter(@Nullable Location pos, BType type, Name name, VarScope scope, VarKind kind,
+                                    @Nullable String metaVarName, boolean hasDefaultExpr, boolean isPathParameter) {
             this(pos, type, name, scope, kind, metaVarName, hasDefaultExpr);
             this.isPathParameter = isPathParameter;
         }
@@ -378,7 +380,7 @@ public abstract class BIRNode {
         // Below fields will only be available on resource functions
         // TODO: consider creating a sub class for resource functions issue: #36964
         public List<BIRVariableDcl> pathParams;
-        
+
         public BIRVariableDcl restPathParam;
         
         public List<Name> resourcePath;
@@ -422,8 +424,8 @@ public abstract class BIRNode {
             this.dependentGlobalVars = dependentGlobalVars;
         }
 
-        public BIRFunction(Location pos, Name name, Name originalName, long flags, BInvokableType type, Name workerName,
-                           int sendInsCount, SymbolOrigin origin) {
+        public BIRFunction(@Nullable Location pos, Name name, Name originalName, long flags, BInvokableType type,
+                           Name workerName, int sendInsCount, SymbolOrigin origin) {
             super(pos);
             this.name = name;
             this.originalName = originalName;
@@ -441,8 +443,8 @@ public abstract class BIRNode {
             this.origin = origin;
         }
 
-        public BIRFunction(Location pos, Name name, long flags, BInvokableType type, Name workerName,
-                           int sendInsCount, SymbolOrigin origin) {
+        public BIRFunction(@Nullable Location pos, Name name, long flags, BInvokableType type,
+                           @Nullable Name workerName, int sendInsCount, SymbolOrigin origin) {
             this(pos, name, name, flags, type, workerName, sendInsCount, origin);
         }
 
@@ -480,6 +482,7 @@ public abstract class BIRNode {
         public int number;
         public Name id;
         public List<BIRNonTerminator> instructions;
+        // TODO add @Nullable
         public BIRTerminator terminator;
         public static final String BIR_BASIC_BLOCK_PREFIX = "bb";
 
@@ -965,9 +968,9 @@ public abstract class BIRNode {
         public SymbolOrigin origin;
         public long flags;
 
-        public BIRServiceDeclaration(List<String> attachPoint, String attachPointLiteral, List<BType> listenerTypes,
-                                     Name generatedName, Name associatedClassName, BType type, SymbolOrigin origin,
-                                     long flags, Location location) {
+        public BIRServiceDeclaration(@Nullable List<String> attachPoint, @Nullable String attachPointLiteral,
+                                     List<BType> listenerTypes, Name generatedName, Name associatedClassName,
+                                     BType type, SymbolOrigin origin, long flags, Location location) {
             super(location);
             this.attachPoint = attachPoint;
             this.attachPointLiteral = attachPointLiteral;

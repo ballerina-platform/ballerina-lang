@@ -18,6 +18,8 @@
 
 package io.ballerina.projects;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.nio.file.Path;
 
 /**
@@ -33,7 +35,7 @@ public class ResourceConfig {
     private final String name;
     private final byte[] content;
 
-    protected ResourceConfig(DocumentId documentId, Path path, String name, byte[] content) {
+    protected ResourceConfig(DocumentId documentId, @Nullable Path path, String name, byte[] content) {
         this.documentId = documentId;
         this.path = path;
         this.name = name;

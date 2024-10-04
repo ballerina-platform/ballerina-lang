@@ -19,6 +19,7 @@
 package io.ballerina.compiler.api.impl;
 
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -62,7 +63,7 @@ public class LangLibFunctionBinder {
      * @param boundType The type to bind the type param to
      * @return The type param resolved lang lib function symbol
      */
-    public BInvokableSymbol cloneAndBind(BInvokableSymbol original, BType type, BType boundType) {
+    public BInvokableSymbol cloneAndBind(BInvokableSymbol original, BType type, @Nullable BType boundType) {
         if (boundType == null || original.params.isEmpty()) {
             return original;
         }
@@ -89,6 +90,7 @@ public class LangLibFunctionBinder {
         return duplicate;
     }
 
+    @Nullable
     private BVarSymbol createNewVarSymbol(BVarSymbol param, BType boundType, TypeParamResolver resolver) {
         // The following null check is required since this method is also used for duplicating the rest param symbols.
         if (param == null) {

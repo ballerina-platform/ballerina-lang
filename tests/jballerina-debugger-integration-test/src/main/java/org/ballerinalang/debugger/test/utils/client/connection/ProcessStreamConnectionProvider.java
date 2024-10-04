@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.debugger.test.utils.client.connection;
 
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,11 +100,13 @@ public class ProcessStreamConnectionProvider implements StreamConnectionProvider
         envProperties.put(ENV_DEBUGGER_TEST_MODE, String.valueOf(true));
     }
 
+    @Nullable
     @Override
     public InputStream getInputStream() {
         return process != null ? process.getInputStream() : null;
     }
 
+    @Nullable
     @Override
     public OutputStream getOutputStream() {
         return process != null ? process.getOutputStream() : null;

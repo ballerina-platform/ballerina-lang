@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -115,6 +116,7 @@ public class JoinClauseNode extends IntermediateClauseNode {
      */
     public static class JoinClauseNodeModifier {
         private final JoinClauseNode oldNode;
+        @Nullable
         private Token outerKeyword;
         private Token joinKeyword;
         private TypedBindingPatternNode typedBindingPattern;

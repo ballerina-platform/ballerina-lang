@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.utils.ErrorUtils;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.MapValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -92,7 +93,7 @@ public final class AsyncUtils {
     /*
      * Used for codegen wait for all futures from given list.
      */
-    public static void handleWaitMultiple(Strand strand, Map<String, FutureValue> futureMap,
+    public static void handleWaitMultiple(@Nullable Strand strand, Map<String, FutureValue> futureMap,
                                           MapValue<BString, Object> target) {
         Collection<FutureValue> futures = futureMap.values();
         List<CompletableFuture<?>> cFutures = new ArrayList<>();

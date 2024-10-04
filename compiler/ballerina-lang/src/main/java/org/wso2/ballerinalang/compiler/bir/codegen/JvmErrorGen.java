@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
@@ -61,6 +62,7 @@ public class JvmErrorGen {
         this.jvmInstructionGen = jvmInstructionGen;
     }
 
+    @Nullable
     private BIRNode.BIRErrorEntry findErrorEntry(List<BIRNode.BIRErrorEntry> errors, BIRNode.BIRBasicBlock currentBB) {
 
         for (BIRNode.BIRErrorEntry err : errors) {

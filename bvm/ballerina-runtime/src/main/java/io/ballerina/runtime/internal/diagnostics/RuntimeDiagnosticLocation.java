@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.diagnostics;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represent the location of a diagnostic at runtime.
@@ -34,11 +35,13 @@ public class RuntimeDiagnosticLocation implements Location {
         this.location = location;
     }
 
+    @Nullable
     @Override
     public LineRange lineRange() {
         return null;
     }
 
+    @Nullable
     @Override
     public TextRange textRange() {
         return null;

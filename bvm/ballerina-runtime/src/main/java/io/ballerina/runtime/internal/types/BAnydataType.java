@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.values.RefValue;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * {@code BAnydataType} represents the data types in Ballerina.
@@ -59,11 +60,13 @@ public class BAnydataType extends BUnionType implements AnydataType {
         }
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getZeroValue() {
         return null;
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getEmptyValue() {
         return null;

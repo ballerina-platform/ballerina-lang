@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.toml.util;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * This class can be used to handle a singleton content with one element.
  *
@@ -24,6 +26,7 @@ package org.ballerinalang.toml.util;
  * @since 0.964
  */
 public class SingletonStack<T> {
+    @Nullable
     private T content;
 
     /**

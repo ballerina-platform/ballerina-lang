@@ -17,6 +17,8 @@
  */
 package io.ballerina.tools.diagnostics;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 
 /**
@@ -38,7 +40,7 @@ public class DiagnosticInfo {
      * @param messageFormat a pattern that can be formatted with the {@link java.text.MessageFormat} utility
      * @param severity      the severity of the diagnostic
      */
-    public DiagnosticInfo(String code,
+    public DiagnosticInfo(@Nullable String code,
                           String messageFormat,
                           DiagnosticSeverity severity) {
         this.code = code;

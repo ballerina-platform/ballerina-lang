@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -142,7 +143,8 @@ public final class NameUtil {
      * @param visibleNames Visible symbol names.
      * @return
      */
-    public static String generateParameterName(String arg, int position, TypeSymbol type, Set<String> visibleNames) {
+    public static String generateParameterName(String arg, int position, @Nullable TypeSymbol type,
+                                               Set<String> visibleNames) {
         String newName;
         if (arg.isEmpty() || !SyntaxInfo.isIdentifier(arg)) {
             String typeName = type != null ? type.typeKind().getName() : "";

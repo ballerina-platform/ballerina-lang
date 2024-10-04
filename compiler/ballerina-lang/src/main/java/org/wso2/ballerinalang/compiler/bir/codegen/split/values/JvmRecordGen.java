@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.split.values;
 
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -898,7 +899,7 @@ public class JvmRecordGen {
 
     private void createBasicTypeGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                           JvmCastGen jvmCastGen, TypeKind basicType, String methodName,
-                                          String methodDesc, boolean boxed, String boxedTypeDesc) {
+                                          String methodDesc, boolean boxed, @Nullable String boxedTypeDesc) {
         List<BField> sortedFields = getSortedFields(fields, basicType);
         if (sortedFields.isEmpty()) {
             return;

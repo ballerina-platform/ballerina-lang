@@ -44,6 +44,7 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BClientType;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ObjectValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,6 +120,7 @@ public final class ObjectMock {
      * @param caseObj ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
+    @Nullable
     public static BError validatePreparedObj(BObject caseObj) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj;
         BObject mockObj = genericMock.getMockObj();
@@ -140,6 +142,7 @@ public final class ObjectMock {
      * @param mockObject ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
+    @Nullable
     public static BError validateFunctionName(String functionName, BObject mockObject) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
         if (!validateFunctionName(functionName,
@@ -174,6 +177,7 @@ public final class ObjectMock {
      * @param mockObject ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
+    @Nullable
     public static BError validateResourcePath(String pathName, BObject mockObject) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
         if (!validateResourcePath(pathName,
@@ -195,6 +199,7 @@ public final class ObjectMock {
      * @param caseObj ballerina MemberResourceFunctionStub object containing information about the mock
      * @return an optional error if a validation fails
      */
+    @Nullable
     public static BError validateResourceMethod(BObject caseObj) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(
                 StringUtils.fromString(MockConstants.MOCK_OBJECT));
@@ -232,6 +237,7 @@ public final class ObjectMock {
      * @param pathParams path parameters map provided by the user
      * @return an optional error if a validation fails
      */
+    @Nullable
     public static BError validatePathParams(BObject caseObj, BMap<?, ?> pathParams) {
         String functionName = caseObj.getStringValue(StringUtils.fromString(MockConstants.FUNCTION_NAME)).toString();
         String[] pathSegments = functionName.split(MockConstants.PATH_SEPARATOR);
@@ -279,6 +285,7 @@ public final class ObjectMock {
      * @param mockObject ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
+    @Nullable
     public static BError validateFieldName(String fieldName, BObject mockObject) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
         if (!validateFieldName(fieldName,
@@ -300,6 +307,7 @@ public final class ObjectMock {
      * @param caseObj ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
+    @Nullable
     public static BError validateArguments(BObject caseObj) {
         String mockType = caseObj.getOriginalType().getName();
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(
@@ -370,6 +378,7 @@ public final class ObjectMock {
      * @param caseObj ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
+    @Nullable
     public static BError validatePathArgs(BObject caseObj) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(
                 StringUtils.fromString(MockConstants.MOCK_OBJECT));
@@ -451,6 +460,7 @@ public final class ObjectMock {
      * @param caseObj ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
+    @Nullable
     public static BError validateResourceArguments(BObject caseObj) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(
                 StringUtils.fromString(MockConstants.MOCK_OBJECT));
@@ -522,6 +532,7 @@ public final class ObjectMock {
      * @param caseObj ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
+    @Nullable
     public static BError thenReturn(BObject caseObj) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj
                 .get(StringUtils.fromString(MockConstants.MOCK_OBJECT));
@@ -640,6 +651,7 @@ public final class ObjectMock {
      * @param caseObj ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
+    @Nullable
     public static BError thenReturnSequence(BObject caseObj) {
         String mockType = caseObj.getOriginalType().getName();
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj
@@ -872,6 +884,7 @@ public final class ObjectMock {
      * @param attachedFunctions functions available in the mocked type
      * @return whether the function signature is valid
      */
+    @Nullable
     private static BError validateFunctionSignatures(MethodType func,
                                                      MethodType[] attachedFunctions) {
         String functionName = func.getName();
@@ -970,6 +983,7 @@ public final class ObjectMock {
      * @param fieldMap fields available in the mocked type
      * @return whether the field declaration is valid
      */
+    @Nullable
     private static BError validateField(Map.Entry<String, Field> mockField, Map<String, Field> fieldMap) {
         for (Map.Entry<String, Field> field : fieldMap.entrySet()) {
             if (field.getKey().equals(mockField.getKey())) {

@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ReadonlyType;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.values.RefValue;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * {@code BReadonlyType} represents the shapes that have their read-only bit on.
@@ -33,11 +34,13 @@ public class BReadonlyType extends BType implements ReadonlyType {
         super(typeName, pkg, RefValue.class);
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getZeroValue() {
         return null;
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getEmptyValue() {
         return null;

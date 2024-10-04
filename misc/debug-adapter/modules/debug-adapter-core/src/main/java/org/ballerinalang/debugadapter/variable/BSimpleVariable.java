@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter.variable;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.eclipse.lsp4j.debug.Variable;
+import org.jetbrains.annotations.Nullable;
 
 import static io.ballerina.identifier.Utils.decodeIdentifier;
 
@@ -31,6 +32,7 @@ public abstract class BSimpleVariable implements BVariable {
     private final String name;
     private final BVariableType type;
     protected final Value jvmValue;
+    @Nullable
     private Variable dapVariable;
 
     public BSimpleVariable(SuspendedContext context, String varName, BVariableType bVariableType, Value jvmValue) {

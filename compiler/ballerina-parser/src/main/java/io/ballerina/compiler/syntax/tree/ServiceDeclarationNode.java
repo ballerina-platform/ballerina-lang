@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -155,9 +156,11 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
      */
     public static class ServiceDeclarationNodeModifier {
         private final ServiceDeclarationNode oldNode;
+        @Nullable
         private MetadataNode metadata;
         private NodeList<Token> qualifiers;
         private Token serviceKeyword;
+        @Nullable
         private TypeDescriptorNode typeDescriptor;
         private NodeList<Node> absoluteResourcePath;
         private Token onKeyword;
@@ -165,6 +168,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         private Token openBraceToken;
         private NodeList<Node> members;
         private Token closeBraceToken;
+        @Nullable
         private Token semicolonToken;
 
         public ServiceDeclarationNodeModifier(ServiceDeclarationNode oldNode) {

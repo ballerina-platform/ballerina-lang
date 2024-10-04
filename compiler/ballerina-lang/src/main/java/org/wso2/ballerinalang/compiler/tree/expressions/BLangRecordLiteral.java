@@ -21,6 +21,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -249,12 +250,14 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
         // Semantic Data
         // This field is set only if the record type is struct.
+        @Nullable
         public BVarSymbol fieldSymbol;
 
         public BLangRecordKey(BLangExpression expr) {
             this.expr = expr;
         }
 
+        @Nullable
         @Override
         public NodeKind getKind() {
             return null;

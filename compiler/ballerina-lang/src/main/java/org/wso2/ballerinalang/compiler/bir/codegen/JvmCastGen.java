@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
@@ -1164,6 +1165,7 @@ public class JvmCastGen {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkCast", CHECK_CAST, false);
     }
 
+    @Nullable
     static String getTargetClass(BType targetType) {
         targetType = JvmCodeGenUtil.getImpliedType(targetType);
         if (TypeTags.isXMLTypeTag(targetType.tag)) {

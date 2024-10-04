@@ -30,6 +30,7 @@ import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.tracer.BSpan;
 import io.opentelemetry.api.common.Attributes;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -104,7 +105,7 @@ public final class ObserveUtils {
     private ObserveUtils() {
     }
 
-    private static <T> T readConfig(VariableKey specificKey, VariableKey inheritedKey, T defaultValue) {
+    private static <T> T readConfig(VariableKey specificKey, @Nullable VariableKey inheritedKey, T defaultValue) {
         T value;
         if (ConfigMap.containsKey(specificKey)) {
             value = (T) ConfigMap.get(specificKey);
@@ -457,6 +458,7 @@ public final class ObserveUtils {
      * @param env current env
      * @return observer context of the current frame
      */
+    @Nullable
     public static ObserverContext getObserverContextOfCurrentFrame(Environment env) {
         if (!enabled) {
             return null;

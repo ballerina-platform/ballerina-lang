@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -109,7 +110,9 @@ public class XMLNamespaceDeclarationNode extends StatementNode {
         private final XMLNamespaceDeclarationNode oldNode;
         private Token xmlnsKeyword;
         private ExpressionNode namespaceuri;
+        @Nullable
         private Token asKeyword;
+        @Nullable
         private IdentifierToken namespacePrefix;
         private Token semicolonToken;
 

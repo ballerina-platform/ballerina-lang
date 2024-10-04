@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.XmlType;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -38,6 +39,7 @@ import java.util.Optional;
 public class BXmlType extends BType implements XmlType {
 
     private final int tag;
+    @Nullable
     public Type constraint;
     private final boolean readonly;
     private IntersectionType immutableType;

@@ -21,6 +21,7 @@ package io.ballerina.projects.internal;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.util.ProjectConstants;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.Locale;
@@ -39,7 +40,7 @@ public class ProvidedResourceConfig extends ResourceConfig {
 
     public static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
-    private ProvidedResourceConfig(DocumentId documentId, Path path, String name, byte[] content) {
+    private ProvidedResourceConfig(DocumentId documentId, Path path, String name, @Nullable byte[] content) {
         super(documentId, path, name, content);
     }
 

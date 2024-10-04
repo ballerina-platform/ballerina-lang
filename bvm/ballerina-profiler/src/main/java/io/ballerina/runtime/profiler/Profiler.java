@@ -26,6 +26,7 @@ import io.ballerina.runtime.profiler.util.Constants;
 import io.ballerina.runtime.profiler.util.ProfilerException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -329,6 +330,7 @@ public class Profiler {
         return balJarArgs;
     }
 
+    @Nullable
     private String getFileNameWithoutExtension(String balJarName) {
         if (null != balJarName) {
             int index = FilenameUtils.indexOfExtension(balJarName);

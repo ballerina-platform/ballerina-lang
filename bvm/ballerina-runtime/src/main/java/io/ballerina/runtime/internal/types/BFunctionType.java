@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -36,6 +37,7 @@ import java.util.Arrays;
 public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     public Type restType;
+    @Nullable
     public Type retType;
     public long flags;
     public Parameter[] parameters;
@@ -49,7 +51,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     public BFunctionType(Module pkg, long flags) {
         super("function", pkg, Object.class);
-        this.parameters = null;
+        this.parameters = new Parameter[0];
         this.retType = null;
         this.flags = flags;
     }
@@ -84,11 +86,13 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return retType;
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getZeroValue() {
         return null;
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getEmptyValue() {
         return null;

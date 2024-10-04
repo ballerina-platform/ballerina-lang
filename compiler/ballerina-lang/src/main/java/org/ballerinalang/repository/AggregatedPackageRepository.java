@@ -18,6 +18,7 @@
 package org.ballerinalang.repository;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -44,6 +45,7 @@ public class AggregatedPackageRepository implements PackageRepository {
         return repos;
     }
     
+    @Nullable
     @Override
     public PackageEntity loadPackage(PackageID pkgId) {
         PackageEntity result = null;
@@ -56,6 +58,7 @@ public class AggregatedPackageRepository implements PackageRepository {
         return result;
     }
 
+    @Nullable
     @Override
     public PackageEntity loadPackage(PackageID pkgId, String entryName) {
         PackageEntity result = null;

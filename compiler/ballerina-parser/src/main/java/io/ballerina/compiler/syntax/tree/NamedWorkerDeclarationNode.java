@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -124,11 +125,14 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
     public static class NamedWorkerDeclarationNodeModifier {
         private final NamedWorkerDeclarationNode oldNode;
         private NodeList<AnnotationNode> annotations;
+        @Nullable
         private Token transactionalKeyword;
         private Token workerKeyword;
         private IdentifierToken workerName;
+        @Nullable
         private Node returnTypeDesc;
         private BlockStatementNode workerBody;
+        @Nullable
         private OnFailClauseNode onFailClause;
 
         public NamedWorkerDeclarationNodeModifier(NamedWorkerDeclarationNode oldNode) {
@@ -183,7 +187,7 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
         }
 
         public NamedWorkerDeclarationNodeModifier withOnFailClause(
-                OnFailClauseNode onFailClause) {
+                @Nullable OnFailClauseNode onFailClause) {
             this.onFailClause = onFailClause;
             return this;
         }

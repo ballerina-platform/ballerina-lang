@@ -33,6 +33,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
+import org.jetbrains.annotations.Nullable;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -53,6 +54,7 @@ public class DocCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final PrintStream errStream;
     private Path projectPath;
+    @Nullable
     private Path outputPath;
     private final boolean exitWhenFinish;
 

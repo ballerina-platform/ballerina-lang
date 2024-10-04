@@ -34,6 +34,7 @@ import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.RuntimeRegistry;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.values.FutureValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -63,7 +64,7 @@ public class BalRuntime extends Runtime {
     public boolean moduleStarted = false;
     public boolean moduleStopped = false;
 
-    public BalRuntime(Module rootModule) {
+    public BalRuntime(@Nullable Module rootModule) {
         this.scheduler = new Scheduler(this);
         this.rootModule = rootModule;
         this.runtimeRegistry = new RuntimeRegistry(this.scheduler);

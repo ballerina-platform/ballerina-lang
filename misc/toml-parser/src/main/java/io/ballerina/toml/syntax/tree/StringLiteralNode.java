@@ -18,6 +18,7 @@
 package io.ballerina.toml.syntax.tree;
 
 import io.ballerina.toml.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -92,6 +93,7 @@ public class StringLiteralNode extends ValueNode {
     public static class StringLiteralNodeModifier {
         private final StringLiteralNode oldNode;
         private Token startDoubleQuote;
+        @Nullable
         private Token content;
         private Token endDoubleQuote;
 

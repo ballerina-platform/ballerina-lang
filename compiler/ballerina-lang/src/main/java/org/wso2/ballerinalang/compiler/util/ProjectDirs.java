@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -142,6 +143,7 @@ public final class ProjectDirs {
      * @param projectDir project path
      * @return project root
      */
+    @Nullable
     public static Path findProjectRoot(Path projectDir) {
         Path path = projectDir.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
         if (Files.exists(path)) {

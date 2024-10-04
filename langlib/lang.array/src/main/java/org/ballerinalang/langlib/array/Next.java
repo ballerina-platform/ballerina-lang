@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Native implementation of lang.array.ArrayIterator:next().
@@ -36,6 +37,7 @@ public final class Next {
     }
 
     //TODO: refactor hard coded values
+    @Nullable
     public static Object next(BObject m) {
         BIterator<?> arrIterator = (BIterator<?>) m.getNativeData("&iterator&");
         BArray arr = (BArray) m.get(StringUtils.fromString("m"));

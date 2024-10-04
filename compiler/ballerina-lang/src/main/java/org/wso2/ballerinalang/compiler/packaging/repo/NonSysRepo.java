@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.packaging.repo;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 
@@ -32,7 +33,7 @@ import static org.wso2.ballerinalang.util.RepoUtils.COMPILE_BALLERINA_ORG;
 public abstract class NonSysRepo<I> implements Repo<I> {
     private final Converter<I> converter;
 
-    public NonSysRepo(Converter<I> converter) {
+    public NonSysRepo(@Nullable Converter<I> converter) {
         this.converter = converter;
     }
 

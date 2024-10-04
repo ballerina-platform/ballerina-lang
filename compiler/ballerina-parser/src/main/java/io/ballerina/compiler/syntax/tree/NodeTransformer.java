@@ -18,6 +18,8 @@
 package io.ballerina.compiler.syntax.tree;
 
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * The {@code NodeTransformer} transform each node in the syntax tree to
  * another object of type T.
@@ -970,6 +972,7 @@ public abstract class NodeTransformer<T> {
 
     // Tokens
 
+    @Nullable
     public T transform(Token token) {
         return null;
     }

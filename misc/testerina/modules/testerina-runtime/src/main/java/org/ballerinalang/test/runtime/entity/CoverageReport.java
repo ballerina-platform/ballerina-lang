@@ -46,6 +46,7 @@ import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.data.ExecutionData;
 import org.jacoco.core.data.SessionInfo;
 import org.jacoco.core.tools.ExecFileLoader;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -326,7 +327,7 @@ public class CoverageReport {
     }
 
     private void createReport(final IBundleCoverage bundleCoverage, Map<String, ModuleCoverage> moduleCoverageMap,
-                              List<DocumentId> exclusionList, Set<String> exclusionClassList) {
+                              @Nullable List<DocumentId> exclusionList, @Nullable Set<String> exclusionClassList) {
         boolean containsSourceFiles = true;
 
         for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
@@ -576,6 +577,7 @@ public class CoverageReport {
      * @param sourceFileName String
      * @return Document
      */
+    @Nullable
     private Document getDocument(String moduleName, String sourceFileName) {
         Document document = null;
         for (Module moduleInstance : module.packageInstance().modules()) {
@@ -596,6 +598,7 @@ public class CoverageReport {
      * @param sourceFileName String
      * @return Document
      */
+    @Nullable
     private Document getDocumentFromModule(Module moduleInstance, String sourceFileName) {
         Document document = null;
         for (DocumentId documentId : moduleInstance.documentIds()) {

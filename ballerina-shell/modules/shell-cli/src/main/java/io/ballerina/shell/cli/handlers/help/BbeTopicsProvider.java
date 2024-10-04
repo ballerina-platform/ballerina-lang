@@ -20,6 +20,7 @@ package io.ballerina.shell.cli.handlers.help;
 
 import com.google.gson.Gson;
 import io.ballerina.shell.DiagnosticReporter;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -85,6 +86,7 @@ public class BbeTopicsProvider extends DiagnosticReporter {
         return topicList;
     }
 
+    @Nullable
     private String readFileAsString(String file) {
         String content = null;
         try {

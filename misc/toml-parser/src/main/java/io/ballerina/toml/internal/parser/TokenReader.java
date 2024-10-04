@@ -18,6 +18,7 @@
 package io.ballerina.toml.internal.parser;
 
 import io.ballerina.toml.internal.parser.tree.STToken;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Reader that can read tokens from a given lexer. Supports k-lookahead
@@ -134,6 +135,7 @@ public class TokenReader extends AbstractTokenReader {
      *
      * @return Current mode
      */
+    @Nullable
     @Override
     public ParserMode getCurrentMode() {
         return this.lexer.modeStack.peek();

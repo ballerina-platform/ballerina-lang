@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * This class represents constraint for a single Java method parameter and this is used in resolving a
  * Java method for Ballerina external functions.
@@ -29,7 +31,7 @@ class ParamTypeConstraint {
 
     private final Class<?> constraint;
 
-    ParamTypeConstraint(Class<?> constraint) {
+    ParamTypeConstraint(@Nullable Class<?> constraint) {
 
         this.constraint = constraint;
     }

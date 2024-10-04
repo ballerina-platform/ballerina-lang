@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.diagnostics;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -38,14 +39,14 @@ public class RuntimeDiagnosticLog {
 
     private int warnCount = 0;
 
-    public void error(ErrorCodes errorCode, String location, Object... args) {
+    public void error(ErrorCodes errorCode, @Nullable String location, Object... args) {
         errorCount += 1;
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(errorCode.diagnosticId(), errorCode.messageKey(),
                                                            DiagnosticSeverity.ERROR);
         diagnosticList.add(new RuntimeDiagnostic(diagnosticInfo, location, args));
     }
 
-    public void warn(ErrorCodes errorCode, String location, Object... args) {
+    public void warn(ErrorCodes errorCode, @Nullable String location, Object... args) {
         warnCount += 1;
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(errorCode.diagnosticId(), errorCode.messageKey(),
                                                            DiagnosticSeverity.WARNING);

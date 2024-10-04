@@ -32,6 +32,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,10 +54,14 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
 
     //caches
     private int myFrameIndex = -1;
+    @Nullable
     private StackFrame myStackFrame;
+    @Nullable
     private ObjectReference myThisReference;
+    @Nullable
     private ClassLoaderReference myClassLoader;
     private ThreeState myIsObsolete = ThreeState.UNSURE;
+    @Nullable
     private Map<LocalVariable, Value> myAllValues;
     private static final int RETRY_COUNT = 20;
 
@@ -199,6 +204,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
         }
     }
 
+    @Nullable
     public ObjectReference thisObject() throws JdiProxyException {
         checkValid();
         try {
@@ -251,17 +257,20 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
         throw new JdiProxyException(error.getMessage(), error);
     }
 
+    @Nullable
     @Override
     public LocalVariableProxyImpl visibleVariableByName(String name) throws JdiProxyException {
         final LocalVariable variable = visibleVariableByNameInt(name);
         return variable != null ? new LocalVariableProxyImpl(this, variable) : null;
     }
 
+    @Nullable
     public Value visibleValueByName(String name) throws JdiProxyException {
         LocalVariable variable = visibleVariableByNameInt(name);
         return variable != null ? getValue(new LocalVariableProxyImpl(this, variable)) : null;
     }
 
+    @Nullable
     protected LocalVariable visibleVariableByNameInt(String name) throws JdiProxyException {
         InvalidStackFrameException error = null;
         for (int attempt = 0; attempt < RETRY_COUNT; attempt++) {
@@ -402,6 +411,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
         return myFrameFromBottomIndex;
     }
 
+    @Nullable
     private static Method getMethod(Location location) {
         try {
             return location.method();

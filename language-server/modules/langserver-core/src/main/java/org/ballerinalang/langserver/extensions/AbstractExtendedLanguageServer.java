@@ -30,6 +30,7 @@ import org.eclipse.lsp4j.jsonrpc.json.JsonRpcMethod;
 import org.eclipse.lsp4j.jsonrpc.json.JsonRpcMethodProvider;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 import org.eclipse.lsp4j.services.LanguageServer;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -111,6 +112,7 @@ public abstract class AbstractExtendedLanguageServer implements LanguageServer, 
         }
     }
 
+    @Nullable
     @Override
     public CompletableFuture<?> request(String method, Object parameter) {
         if (!extensionServices.containsKey(method)) {

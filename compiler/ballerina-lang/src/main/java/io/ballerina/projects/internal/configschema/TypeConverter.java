@@ -19,6 +19,7 @@ package io.ballerina.projects.internal.configschema;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -60,6 +61,7 @@ public class TypeConverter {
     // Stores already visited complex types against the type name
     private final Map<String, VisitedType> visitedTypeMap = new HashMap<>();
 
+    @Nullable
     private VisitedType getVisitedType(String typeName) {
         if (visitedTypeMap.containsKey(typeName)) {
             return visitedTypeMap.get(typeName);

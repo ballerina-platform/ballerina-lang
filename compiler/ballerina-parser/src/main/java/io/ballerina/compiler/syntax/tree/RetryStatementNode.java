@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -108,9 +109,12 @@ public class RetryStatementNode extends StatementNode {
     public static class RetryStatementNodeModifier {
         private final RetryStatementNode oldNode;
         private Token retryKeyword;
+        @Nullable
         private TypeParameterNode typeParameter;
+        @Nullable
         private ParenthesizedArgList arguments;
         private StatementNode retryBody;
+        @Nullable
         private OnFailClauseNode onFailClause;
 
         public RetryStatementNodeModifier(RetryStatementNode oldNode) {

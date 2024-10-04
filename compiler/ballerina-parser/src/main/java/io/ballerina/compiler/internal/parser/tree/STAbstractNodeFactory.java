@@ -18,6 +18,7 @@
 package io.ballerina.compiler.internal.parser.tree;
 
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -63,6 +64,7 @@ public abstract class STAbstractNodeFactory {
         return EMPTY_LIST;
     }
 
+    @Nullable
     public static STNode createEmptyNode() {
         return null;
     }

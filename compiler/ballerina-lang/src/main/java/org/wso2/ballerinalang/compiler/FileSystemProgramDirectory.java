@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.repository.CompilerOutputEntry;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
 import org.wso2.ballerinalang.compiler.util.FileUtils;
@@ -171,6 +172,7 @@ public class FileSystemProgramDirectory implements SourceDirectory {
         return new PathConverter(programDirPath);
     }
 
+    @Nullable
     private String getTopLevelDirNameInPackage(CompilerOutputEntry.Kind kind, FileSystem fs) {
         return switch (kind) {
             case SRC, BIR, OBJ -> kind.getValue();

@@ -82,7 +82,7 @@ public class ModuleCompilation {
         Collection<ModuleDescriptor> directDependencies = new HashSet<>(pkg.get().moduleDependencyGraph().
                 getDirectDependencies(moduleDescriptor));
 
-        ModuleContext moduleCtx = pkg.get().packageContext().moduleContext(moduleDescriptor.name());
+        ModuleContext moduleCtx = pkg.get().packageContext().moduleContext(moduleDescriptor.name()).orElseThrow();
         for (ModuleDependency moduleDependency : moduleCtx.dependencies()) {
             PackageId dependentPkgId = moduleDependency.packageDependency().packageId();
             if (dependentPkgId == pkg.get().packageId()) {

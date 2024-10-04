@@ -37,6 +37,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -140,6 +141,7 @@ public final class StackTrace {
             return "object " + type.toString();
         }
 
+        @Nullable
         @Override
         public String expressionStringValue(BLink parent) {
             return null;
@@ -173,6 +175,7 @@ public final class StackTrace {
             return 0;
         }
 
+        @Nullable
         @Override
         public BString getStringValue(BString fieldName) {
             return null;
@@ -183,16 +186,19 @@ public final class StackTrace {
             return false;
         }
 
+        @Nullable
         @Override
         public BMap<BString, Object> getMapValue(BString fieldName) {
             return null;
         }
 
+        @Nullable
         @Override
         public BObject getObjectValue(BString fieldName) {
             return null;
         }
 
+        @Nullable
         @Override
         public BArray getArrayValue(BString fieldName) {
             return null;
@@ -203,11 +209,13 @@ public final class StackTrace {
 
         }
 
+        @Nullable
         @Override
         public Object getNativeData(String key) {
             return null;
         }
 
+        @Nullable
         @Override
         public HashMap<String, Object> getNativeData() {
             return null;
@@ -218,11 +226,13 @@ public final class StackTrace {
             throw ErrorCreator.createError(StringUtils.fromString("No such field or method: callStack"));
         }
 
+        @Nullable
         @Override
         public Object copy(Map<Object, Object> refs) {
             return null;
         }
 
+        @Nullable
         @Override
         public Object frozenCopy(Map<Object, Object> refs) {
             return null;

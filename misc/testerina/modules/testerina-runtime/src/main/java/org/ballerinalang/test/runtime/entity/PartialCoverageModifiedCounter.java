@@ -18,6 +18,7 @@
 package org.ballerinalang.test.runtime.entity;
 
 import org.jacoco.core.analysis.ICounter;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a counter that eliminates partially covered counter status and coverts it to fully covered status.
@@ -29,7 +30,7 @@ public class PartialCoverageModifiedCounter implements ICounter {
     private int covered;
     private int missed;
 
-    public PartialCoverageModifiedCounter(ICounter prevCounter) {
+    public PartialCoverageModifiedCounter(@Nullable ICounter prevCounter) {
         if (prevCounter != null) {
             // Handles partial line coverage modification for ballerina sources
             this.covered = prevCounter.getCoveredCount();

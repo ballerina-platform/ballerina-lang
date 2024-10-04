@@ -23,6 +23,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -72,6 +73,7 @@ public class SyntaxDiagnostic extends Diagnostic {
         return DiagnosticMessageHelper.getDiagnosticMessage(nodeDiagnostic.diagnosticCode(), nodeDiagnostic.args());
     }
 
+    @Nullable
     @Override
     public List<DiagnosticProperty<?>> properties() {
         return null;

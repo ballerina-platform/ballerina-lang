@@ -53,6 +53,6 @@ public class BLangIgnoreExpr extends BLangExpression implements IgnoreNode {
 
     @Override
     public String toString() {
-        return ("_");
+        return "_";
     }
 }

@@ -35,14 +35,10 @@ public class BLangXMLProcInsLiteral extends BLangExpression implements XMLProces
 
     // BLangNodes
     public BLangLiteral target;
-    public List<BLangExpression> dataFragments;
+    public List<BLangExpression> dataFragments = new ArrayList<>();
 
     // Semantic Data
     public BLangExpression dataConcatExpr;
-
-    public BLangXMLProcInsLiteral() {
-        dataFragments = new ArrayList<BLangExpression>();
-    }
 
     @Override
     public LiteralNode getTarget() {

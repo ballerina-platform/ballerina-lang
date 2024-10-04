@@ -59,6 +59,7 @@ import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -101,6 +102,7 @@ public final class Utils {
         };
     }
 
+    @Nullable
     static Object getBalValueFromToml(TomlNode tomlNode, Set<TomlNode> visitedNodes, BUnionType unionType,
                                       Set<LineRange> invalidTomlLines, String variableName) {
         visitedNodes.add(tomlNode);
@@ -214,6 +216,7 @@ public final class Utils {
                 LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
     }
 
+    @Nullable
     public static Type getTypeFromTomlValue(TomlNode tomlNode) {
         return switch (tomlNode.kind()) {
             case STRING -> PredefinedTypes.TYPE_STRING;
@@ -371,6 +374,7 @@ public final class Utils {
         return false;
     }
 
+    @Nullable
     public static Object getFiniteBalValue(TomlNode tomlNode, Set<TomlNode> visitedNodes,
                                            BFiniteType finiteType, Set<LineRange> invalidTomlLines,
                                            String variableName) {

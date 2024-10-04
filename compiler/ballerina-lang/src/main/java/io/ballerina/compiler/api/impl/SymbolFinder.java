@@ -31,6 +31,7 @@ import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -244,9 +245,10 @@ import static org.ballerinalang.model.tree.NodeKind.RESOURCE_PATH_REST_PARAM_SEG
 class SymbolFinder extends BaseVisitor {
 
     private LinePosition cursorPos;
+    @Nullable
     private BSymbol symbolAtCursor;
 
-    BSymbol lookup(BLangCompilationUnit unit, LinePosition cursorPos) {
+    @Nullable BSymbol lookup(BLangCompilationUnit unit, LinePosition cursorPos) {
         this.cursorPos = cursorPos;
         this.symbolAtCursor = null;
 
@@ -1830,7 +1832,7 @@ class SymbolFinder extends BaseVisitor {
         }
     }
 
-    private boolean setEnclosingNode(BSymbol symbol, Location pos) {
+    private boolean setEnclosingNode(@Nullable BSymbol symbol, Location pos) {
         if (PositionUtil.withinBlock(this.cursorPos, pos)) {
             this.symbolAtCursor = symbol;
             return true;

@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -102,6 +103,7 @@ public class RestParameterNode extends ParameterNode {
         private NodeList<AnnotationNode> annotations;
         private Node typeName;
         private Token ellipsisToken;
+        @Nullable
         private Token paramName;
 
         public RestParameterNodeModifier(RestParameterNode oldNode) {

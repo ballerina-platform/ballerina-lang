@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +61,7 @@ public class BIntersectionType extends BType implements IntersectionType {
         this.effectiveType = effectiveType;
     }
 
-    public BIntersectionType(Module pkg, Type[] constituentTypes, IntersectableReferenceType effectiveType,
+    public BIntersectionType(@Nullable Module pkg, Type[] constituentTypes, IntersectableReferenceType effectiveType,
                              int typeFlags, boolean readonly) {
         this(TypeConstants.INTERSECTION_TNAME, pkg, constituentTypes, typeFlags, readonly);
         this.effectiveType = effectiveType;

@@ -284,6 +284,7 @@ import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -542,6 +543,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private final PackageID packageID;
     private final String currentCompUnitName;
 
+    @Nullable
     private BLangCompilationUnit currentCompilationUnit;
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private final BLangMissingNodesHelper missingNodesHelper;
@@ -586,15 +588,18 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return this.createIdentifier(getPosition(identifierToken), identifierToken);
     }
 
+    @Nullable
     private Optional<Node> getDocumentationString(Optional<MetadataNode> metadataNode) {
         return metadataNode.map(MetadataNode::documentationString).orElse(null);
     }
 
+    @Nullable
     private NodeList<AnnotationNode> getAnnotations(Optional<MetadataNode> metadataNode) {
         return metadataNode.map(MetadataNode::annotations).orElse(null);
     }
 
-    private Location getPosition(Node node) {
+    @Nullable
+    private Location getPosition(@Nullable Node node) {
         if (node == null) {
             return null;
         }
@@ -611,6 +616,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 textRange.length());
     }
 
+    @Nullable
     private Location getPosition(Node startNode, Node endNode) {
         if (startNode == null || endNode == null) {
             return null;
@@ -623,6 +629,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 startPos.offset(), endPos.offset(), startNodeTextRange.startOffset(), length);
     }
 
+    @Nullable
     private Location getPositionWithoutMetadata(Node node) {
         if (node == null) {
             return null;
@@ -795,7 +802,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                                                      NodeList<Token> qualifierList,
                                                      NodeList<Node> relativeResourcePath,
                                                      FunctionSignatureNode methodSignature,
-                                                     FunctionBodyNode functionBody) {
+                                                     @Nullable FunctionBodyNode functionBody) {
 
         BLangResourceFunction bLFunction = (BLangResourceFunction) TreeBuilder.createResourceFunctionNode();
 
@@ -1089,7 +1096,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), bLTypeDef.name);
     }
 
-    private BLangTypeDefinition createTypeDefinitionWithTypeNode(BLangType toIndirect, String originalName) {
+    private BLangTypeDefinition createTypeDefinitionWithTypeNode(BLangType toIndirect, @Nullable String originalName) {
         Location pos = toIndirect.pos;
         BLangTypeDefinition bLTypeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
 
@@ -1564,8 +1571,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return bLFunction;
     }
 
-    private BLangFunction createFunctionNode(IdentifierToken funcName, NodeList<Token> qualifierList,
-            FunctionSignatureNode functionSignature, FunctionBodyNode functionBody) {
+    private BLangFunction createFunctionNode(
+            IdentifierToken funcName, NodeList<Token> qualifierList,
+            FunctionSignatureNode functionSignature, @Nullable FunctionBodyNode functionBody) {
 
         BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
 
@@ -2347,6 +2355,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
     }
 
+    @Nullable
     private Iterator<FunctionArgumentNode> getArgumentNodesIterator(NewExpressionNode expression) {
         Iterator<FunctionArgumentNode> argumentsIter = null;
 
@@ -5463,7 +5472,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private BLangUnaryExpr createBLangUnaryExpr(Location location,
-                                                OperatorKind operatorKind,
+                                                @Nullable OperatorKind operatorKind,
                                                 BLangExpression expr) {
         BLangUnaryExpr bLUnaryExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
         bLUnaryExpr.pos = location;
@@ -5472,7 +5481,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return bLUnaryExpr;
     }
 
-    private BLangExpression createExpression(Node expression) {
+    private BLangExpression createExpression(@Nullable Node expression) {
         return (BLangExpression) createActionOrExpression(expression);
     }
 
@@ -5653,7 +5662,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return createStringLiteral(quantifier, getPosition(reBracedQuantifierNode));
     }
 
-    private void checkValidityOfOccurrences(String lhsValue, String rhsValue, Location pos) {
+    private void checkValidityOfOccurrences(String lhsValue, String rhsValue, @Nullable Location pos) {
         if (Long.parseLong(lhsValue) > Long.parseLong(rhsValue)) {
             dlog.error(pos, DiagnosticErrorCode.INVALID_QUANTIFIER_MINIMUM);
         }
@@ -5984,8 +5993,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return createSimpleVar(name, type, null, null, annotations);
     }
 
-    private BLangSimpleVariable createSimpleVar(Token name, Node typeName, Node initializer,
-                                                Token visibilityQualifier, NodeList<AnnotationNode> annotations) {
+    private BLangSimpleVariable createSimpleVar(
+            @Nullable Token name, Node typeName, @Nullable Node initializer,
+            @Nullable Token visibilityQualifier, NodeList<AnnotationNode> annotations) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(name));
         bLSimpleVar.name.pos = getPosition(name);
@@ -6023,11 +6033,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return false;
     }
 
-    private BLangIdentifier createIdentifier(Token token) {
+    private BLangIdentifier createIdentifier(@Nullable Token token) {
         return createIdentifier(getPosition(token), token);
     }
 
-    private BLangIdentifier createIdentifier(Location pos, Token token) {
+    private BLangIdentifier createIdentifier(@Nullable Location pos, @Nullable Token token) {
         return createIdentifier(pos, token, false);
     }
 
@@ -6047,7 +6057,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return createIdentifier(pos, identifierName);
     }
 
-    private BLangIdentifier createIdentifier(Location pos, String value) {
+    private BLangIdentifier createIdentifier(@Nullable Location pos, @Nullable String value) {
         return createIdentifier(pos, value, value);
     }
 
@@ -6250,7 +6260,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return strLiteral;
     }
 
-    private BLangType createTypeNode(Node type) {
+    @Nullable
+    private BLangType createTypeNode(@Nullable Node type) {
         if (type instanceof BuiltinSimpleNameReferenceNode || type.kind() == SyntaxKind.NIL_TYPE_DESC) {
             return createBuiltInTypeNode(type);
         } else if (type.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE || type.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
@@ -6279,6 +6290,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return (BLangType) type.apply(this);
     }
 
+    @Nullable
     private BLangType createBuiltInTypeNode(Node type) {
         String typeText;
         if (type.kind() == SyntaxKind.NIL_TYPE_DESC) {
@@ -6373,6 +6385,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return new BLangIdentifier[]{pkgAlias, name};
     }
 
+    @Nullable
     private BLangMarkdownDocumentation createMarkdownDocumentationAttachment(Optional<Node> markdownDocumentationNode) {
         if (markdownDocumentationNode == null || !markdownDocumentationNode.isPresent()) {
             return null;
@@ -6651,6 +6664,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         };
     }
 
+    @Nullable
     private Object getIntegerLiteral(Node literal, String nodeValue) {
         SyntaxKind literalTokenKind = ((BasicLiteralNode) literal).literalToken().kind();
         if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
@@ -6859,7 +6873,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return spreadOpExpr;
     }
 
-    private boolean withinByteRange(Object num) {
+    private boolean withinByteRange(@Nullable Object num) {
         if (num instanceof Long l) {
             return l <= 255 && l >= 0;
         }
@@ -6872,6 +6886,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         private boolean isDeclaredWithVar;
         private final Set<Flag> flags = new HashSet<>();
         private boolean isFinal;
+        @Nullable
         private ExpressionNode expr;
         private Location pos;
 
@@ -6905,7 +6920,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             return this;
         }
 
-        public SimpleVarBuilder setTypeByNode(Node typeName) {
+        public SimpleVarBuilder setTypeByNode(@Nullable Node typeName) {
             this.isDeclaredWithVar = typeName == null || typeName.kind() == SyntaxKind.VAR_TYPE_DESC;
             if (typeName == null) {
                 return this;
@@ -6940,7 +6955,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             return this;
         }
 
-        public SimpleVarBuilder setVisibility(Token visibilityQualifier) {
+        public SimpleVarBuilder setVisibility(@Nullable Token visibilityQualifier) {
             if (visibilityQualifier != null) {
                 if (visibilityQualifier.kind() == SyntaxKind.PRIVATE_KEYWORD) {
                     this.flags.add(Flag.PRIVATE);

@@ -33,6 +33,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.configurations.ConfigModuleDetails;
 import io.ballerina.projects.configurations.ConfigVariable;
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -192,7 +193,7 @@ public final class ConfigReader {
     }
 
     private static void getConfigVars(Module module, Collection<Scope.ScopeEntry> scopeEntries,
-                                      Set<BVarSymbol> validConfigs, List<ConfigVariable> configVariables) {
+                                      @Nullable Set<BVarSymbol> validConfigs, List<ConfigVariable> configVariables) {
         for (Scope.ScopeEntry entry : scopeEntries) {
             BSymbol symbol = entry.symbol;
             // Filter configurable variables
@@ -298,6 +299,7 @@ public final class ConfigReader {
      * @param syntaxTreeMap Syntax tree map for the specific module
      * @return Relevant syntax tree node for the variable
      */
+    @Nullable
     private static Node getVariableNode(int position, Map<Document, SyntaxTree> syntaxTreeMap) {
         for (Map.Entry<Document, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
             if (syntaxTreeEntry.getValue().containsModulePart()) {

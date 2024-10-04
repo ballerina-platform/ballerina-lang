@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.TypeChecker;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +52,7 @@ public final class Next {
     }
 
     //TODO: refactor hard coded values
+    @Nullable
     public static Object next(BObject t) {
         BIterator<?> tableIterator = (BIterator<?>) t.getNativeData("&iterator&");
         BTable<?, ?> table = (BTable<?, ?>) t.get(StringUtils.fromString("t"));

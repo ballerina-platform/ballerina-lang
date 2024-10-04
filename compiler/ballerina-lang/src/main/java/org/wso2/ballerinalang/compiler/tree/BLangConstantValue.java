@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
@@ -29,7 +30,7 @@ public class BLangConstantValue {
     public Object value;
     public BType type;
 
-    public BLangConstantValue(Object value, BType type) {
+    public BLangConstantValue(@Nullable Object value, BType type) {
         this.value = value;
         this.type = type;
     }

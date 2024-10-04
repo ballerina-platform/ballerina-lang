@@ -21,6 +21,7 @@ package io.ballerina.runtime.profiler.codegen;
 import io.ballerina.runtime.profiler.Main;
 import io.ballerina.runtime.profiler.util.Constants;
 import io.ballerina.runtime.profiler.util.ProfilerException;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -85,6 +86,7 @@ public class ProfilerMethodWrapper extends ClassLoader {
         process.waitFor();
     }
 
+    @Nullable
     public String mainClassFinder(URLClassLoader manifestClassLoader) {
         try {
             URL manifestURL = manifestClassLoader.findResource("META-INF/MANIFEST.MF");

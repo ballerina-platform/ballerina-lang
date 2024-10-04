@@ -29,6 +29,7 @@ import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -94,7 +95,7 @@ public class ModuleResolver {
 
             DirectPackageDependency newPkgDep;
             ImportModuleRequest importModuleRequest = importModResp.importModuleRequest();
-            PackageDescriptor pkgDesc = importModResp.packageDescriptor();
+            PackageDescriptor pkgDesc = importModResp.packageDescriptor().orElseThrow();
             Optional<DirectPackageDependency> pkgDepOptional = pkgContainer.get(pkgDesc.org(), pkgDesc.name());
             ModuleLoadRequest moduleLoadRequest = importModuleRequest.moduleLoadRequest();
             if (pkgDepOptional.isEmpty()) {
@@ -227,6 +228,7 @@ public class ModuleResolver {
         responseMap.put(importModuleRequest, new ImportModuleResponse(pkgDesc, importModuleRequest));
     }
 
+    @Nullable
     private PackageDescriptor findHierarchicalModule(String moduleName,
                                                      PackageOrg packageOrg,
                                                      Collection<PackageName> possiblePkgNames) {
@@ -248,6 +250,7 @@ public class ModuleResolver {
      * @param packageName Possible package name
      * @return PackageDescriptor or null
      */
+    @Nullable
     private PackageDescriptor findHierarchicalModule(String moduleName,
                                                      PackageOrg packageOrg,
                                                      PackageName packageName) {
@@ -259,6 +262,7 @@ public class ModuleResolver {
         return findModuleInBlendedManifest(moduleName, packageOrg, packageName);
     }
 
+    @Nullable
     private PackageDescriptor findModuleInRootPackage(String moduleName,
                                                       PackageOrg packageOrg,
                                                       PackageName packageName) {
@@ -277,6 +281,7 @@ public class ModuleResolver {
                 pkgName.equals(rootPkgDesc.name());
     }
 
+    @Nullable
     private PackageDescriptor findModuleInBlendedManifest(String moduleName,
                                                           PackageOrg packageOrg,
                                                           PackageName packageName) {
@@ -296,7 +301,7 @@ public class ModuleResolver {
 
     private PackageDescriptor createPkgDesc(PackageOrg packageOrg,
                                             PackageName packageName,
-                                            BlendedManifest.Dependency blendedDep) {
+                                            @Nullable BlendedManifest.Dependency blendedDep) {
         if (blendedDep != null && blendedDep.isFromLocalRepository()) {
             return PackageDescriptor.from(packageOrg, packageName, blendedDep.version(),
                     ProjectConstants.LOCAL_REPOSITORY_NAME);

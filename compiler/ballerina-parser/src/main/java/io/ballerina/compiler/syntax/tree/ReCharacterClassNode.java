@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -100,7 +101,9 @@ public class ReCharacterClassNode extends NonTerminalNode {
     public static class ReCharacterClassNodeModifier {
         private final ReCharacterClassNode oldNode;
         private Token openBracket;
+        @Nullable
         private Token negation;
+        @Nullable
         private Node reCharSet;
         private Token closeBracket;
 

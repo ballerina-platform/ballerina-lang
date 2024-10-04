@@ -52,6 +52,7 @@ import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Optional;
@@ -291,7 +292,7 @@ public final class DocumentationGenerator {
 
     private static DocAttachmentInfo getFunctionNodeDocumentation(FunctionSignatureNode signatureNode,
                                                                   NodeList<Node> resourceNodes,
-                                                                  MetadataNode metadata, Range functionRange,
+                                                                  @Nullable MetadataNode metadata, Range functionRange,
                                                                   SyntaxTree syntaxTree) {
         Position docStart = functionRange.getStart();
         boolean hasDeprecated = false;

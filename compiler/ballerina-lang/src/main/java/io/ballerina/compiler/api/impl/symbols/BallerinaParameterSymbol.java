@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -47,9 +48,10 @@ public class BallerinaParameterSymbol extends BallerinaSymbol implements Paramet
     private final TypeSymbol typeDescriptor;
     private final ParameterKind paramKind;
 
-    public BallerinaParameterSymbol(String parameterName, TypeSymbol typeDescriptor, List<Qualifier> qualifiers,
-                                    List<AnnotationSymbol> annots, List<AnnotationAttachmentSymbol> annotAttachments,
-                                    ParameterKind paramKind, BVarSymbol symbol, CompilerContext context) {
+    public BallerinaParameterSymbol(@Nullable String parameterName, TypeSymbol typeDescriptor,
+                                    List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
+                                    List<AnnotationAttachmentSymbol> annotAttachments, ParameterKind paramKind,
+                                    BVarSymbol symbol, CompilerContext context) {
         super(parameterName, PARAMETER, symbol, context);
         // TODO: Add the metadata
         this.typeDescriptor = typeDescriptor;

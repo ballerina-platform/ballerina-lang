@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
@@ -37,6 +38,7 @@ public class BLangBinaryExpr extends BLangExpression implements BinaryExpression
     public BLangExpression rhsExpr;
 
     // Parser Flags and Data
+    @Nullable
     public OperatorKind opKind;
 
     // Semantic Data
@@ -79,6 +81,6 @@ public class BLangBinaryExpr extends BLangExpression implements BinaryExpression
 
     @Override
     public String toString() {
-        return String.valueOf(lhsExpr) + " " + String.valueOf(opKind) + " " + String.valueOf(rhsExpr);
+        return lhsExpr + " " + opKind + " " + rhsExpr;
     }
 }

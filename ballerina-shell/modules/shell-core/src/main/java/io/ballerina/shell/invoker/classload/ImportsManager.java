@@ -27,6 +27,7 @@ import io.ballerina.shell.utils.Identifier;
 import io.ballerina.shell.utils.QuotedImport;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -133,6 +134,7 @@ public class ImportsManager {
      * @param prefix Prefix to search.
      * @return The import statement of the prefix.
      */
+    @Nullable
     public String getImport(Identifier prefix) {
         QuotedImport quotedImport = this.imports.get(prefix);
         if (quotedImport == null) {

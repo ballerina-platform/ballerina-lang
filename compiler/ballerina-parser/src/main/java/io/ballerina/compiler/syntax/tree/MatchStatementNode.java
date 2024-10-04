@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -120,6 +121,7 @@ public class MatchStatementNode extends StatementNode {
         private Token openBrace;
         private NodeList<MatchClauseNode> matchClauses;
         private Token closeBrace;
+        @Nullable
         private OnFailClauseNode onFailClause;
 
         public MatchStatementNodeModifier(MatchStatementNode oldNode) {

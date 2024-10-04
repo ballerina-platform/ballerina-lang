@@ -7,6 +7,7 @@ module io.ballerina.jsonmapper {
     requires io.ballerina.parser;
     requires io.ballerina.tools.api;
     requires org.apache.commons.lang3;
+    requires static org.jetbrains.annotations;
 
     exports io.ballerina.jsonmapper;
     exports io.ballerina.jsonmapper.diagnostic;

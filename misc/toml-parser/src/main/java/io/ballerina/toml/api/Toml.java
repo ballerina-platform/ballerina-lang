@@ -34,6 +34,7 @@ import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,6 +73,7 @@ public class Toml {
      * @return TOML Object
      * @throws IOException if file is not accessible
      */
+    @Nullable
     public static Toml read(Path path) throws IOException {
         Path fileNamePath = path.getFileName();
         if (fileNamePath == null) {
@@ -89,6 +91,7 @@ public class Toml {
      * @return TOML Object
      * @throws IOException if file is not accessible
      */
+    @Nullable
     public static Toml read(Path path, Schema schema) throws IOException {
         Path fileNamePath = path.getFileName();
         if (fileNamePath == null) {
@@ -127,7 +130,7 @@ public class Toml {
      * @param fileName file name of the TOML file
      * @return TOML Object
      */
-    public static Toml read(String content, String fileName) {
+    public static Toml read(String content, @Nullable String fileName) {
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument, fileName);
         TomlTransformer nodeTransformer = new TomlTransformer();
@@ -144,7 +147,7 @@ public class Toml {
      * @param fileName file name of the TOML file
      * @return TOML Object
      */
-    public static Toml read(String content, String fileName, Schema schema) {
+    public static Toml read(String content, @Nullable String fileName, Schema schema) {
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument, fileName);
         TomlTransformer nodeTransformer = new TomlTransformer();

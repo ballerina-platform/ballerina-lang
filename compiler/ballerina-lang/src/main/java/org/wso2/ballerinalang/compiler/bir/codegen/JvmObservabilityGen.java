@@ -23,6 +23,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodCallInstruction;
@@ -323,7 +324,8 @@ class JvmObservabilityGen {
      * @param attachedTypeDef The type definition to which the function was attached to or null
      * @param pkg The package containing the function
      */
-    private void rewriteAsyncInvocations(BIRFunction func, BIRTypeDefinition attachedTypeDef, BIRPackage pkg) {
+    private void rewriteAsyncInvocations(
+            BIRFunction func, @Nullable BIRTypeDefinition attachedTypeDef, BIRPackage pkg) {
         PackageID packageID = pkg.packageID;
         Name org = new Name(Utils.decodeIdentifier(packageID.orgName.getValue()));
         Name module = new Name(Utils.decodeIdentifier(packageID.name.getValue()));
@@ -451,9 +453,10 @@ class JvmObservabilityGen {
      * @param isMainEntryPoint True if the function is the main entry point
      * @param isWorker True if the function was a worker
      */
-    private void rewriteObservableFunctionBody(BIRFunction func, BIRPackage pkg, BIRTypeDefinition attachedTypeDef,
-                                               String functionName, String serviceName, boolean isResource,
-                                               boolean isRemote, boolean isMainEntryPoint, boolean isWorker) {
+    private void rewriteObservableFunctionBody(
+            BIRFunction func, BIRPackage pkg, @Nullable BIRTypeDefinition attachedTypeDef,
+            String functionName, @Nullable String serviceName, boolean isResource,
+            boolean isRemote, boolean isMainEntryPoint, boolean isWorker) {
         // Injecting observe start call at the start of the function body
         {
             BIRBasicBlock startBB = func.basicBlocks.getFirst(); // Every non-abstract function should have function
@@ -711,7 +714,7 @@ class JvmObservabilityGen {
      * @param originalInsPosition The source code position of the invocation
      */
     private void injectStartResourceObservationCall(BIRFunction func, BIRBasicBlock observeStartBB, String serviceName,
-                                                    String resourcePathOrFunction, String resourceAccessor,
+                                                    String resourcePathOrFunction, @Nullable String resourceAccessor,
                                                     boolean isResource, boolean isRemote, BIRPackage pkg,
                                                     Location originalInsPosition) {
         BIROperand serviceNameOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, serviceName);
@@ -750,7 +753,7 @@ class JvmObservabilityGen {
      * @param originalInsPosition The source code position of the invocation
      */
     private void injectStartCallableObservationCall(BIRFunction func, BIRBasicBlock observeStartBB,
-                                                    Location desugaredInsLocation, boolean isRemote,
+                                                    @Nullable Location desugaredInsLocation, boolean isRemote,
                                                     boolean isMainEntryPoint, boolean isWorker,
                                                     BIROperand objectOperand, String action,
                                                     BIRPackage pkg, Location originalInsPosition) {
@@ -785,7 +788,7 @@ class JvmObservabilityGen {
      * @param uniqueId A unique ID to identify the check error call
      */
     private void injectCheckErrorCalls(BIRFunction func, BIRBasicBlock errorCheckBB, BIRBasicBlock isErrorBB,
-                                       BIRBasicBlock noErrorBB, Location pos, BIROperand valueOperand,
+                                       BIRBasicBlock noErrorBB, @Nullable Location pos, BIROperand valueOperand,
                                        String uniqueId) {
         BIROperand isErrorOperand = tempLocalVarsMap.get(uniqueId + "$isError");
         addLocalVarIfAbsent(func, isErrorOperand.variableDcl);
@@ -803,7 +806,7 @@ class JvmObservabilityGen {
      * @param errorOperand Operand for passing the error
      * @param uniqueId A unique ID to identify the check error call
      */
-    private void injectReportErrorCall(BIRFunction func, BIRBasicBlock errorReportBB, Location pos,
+    private void injectReportErrorCall(BIRFunction func, BIRBasicBlock errorReportBB, @Nullable Location pos,
                                        BIROperand errorOperand, String uniqueId) {
         BIROperand castedErrorOperand = tempLocalVarsMap.get(uniqueId + "$castedError");
         addLocalVarIfAbsent(func, castedErrorOperand.variableDcl);
@@ -826,7 +829,7 @@ class JvmObservabilityGen {
      * @param observeEndBB The basic block to which the stop observation call should be injected
      * @param pos The position of all instructions, variables declarations, terminators, etc.
      */
-    private void injectStopObservationCall(BIRBasicBlock observeEndBB, Location pos) {
+    private void injectStopObservationCall(BIRBasicBlock observeEndBB, @Nullable Location pos) {
         JIMethodCall observeEndCallTerminator = new JIMethodCall(pos);
         observeEndCallTerminator.invocationType = INVOKESTATIC;
         observeEndCallTerminator.jClassName = OBSERVE_UTILS;
@@ -845,8 +848,9 @@ class JvmObservabilityGen {
      * @param errorOperand Operand for passing the error
      * @param uniqueId A unique ID to identify the check error call
      */
-    private void injectStopObservationWithErrorCall(BIRFunction func, BIRBasicBlock observeEndBB, Location pos,
-                                                    BIROperand errorOperand, String uniqueId) {
+    private void injectStopObservationWithErrorCall(
+            BIRFunction func, BIRBasicBlock observeEndBB, @Nullable Location pos,
+            BIROperand errorOperand, String uniqueId) {
         BIROperand castedErrorOperand = tempLocalVarsMap.get(uniqueId + "$castedError");
         addLocalVarIfAbsent(func, castedErrorOperand.variableDcl);
         TypeCast errorCastInstruction = new TypeCast(pos, castedErrorOperand, errorOperand, symbolTable.errorType,
@@ -870,7 +874,8 @@ class JvmObservabilityGen {
      * @param constantValue The constant value which should end up being passed in the operand
      * @return The generated operand which will pass the constant
      */
-    private BIROperand generateGlobalConstantOperand(BIRPackage pkg, BType constantType, Object constantValue) {
+    private BIROperand generateGlobalConstantOperand(
+            BIRPackage pkg, BType constantType, @Nullable Object constantValue) {
         return compileTimeConstants.computeIfAbsent(constantValue, k -> {
             PackageID pkgId = pkg.packageID;
             Name name = new Name("$observabilityConst" + constantIndex++);

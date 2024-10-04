@@ -30,6 +30,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +55,8 @@ public class CreateExecutableTask implements Task {
     private Target target;
     private final boolean isHideTaskOutput;
 
-    public CreateExecutableTask(PrintStream out, String output, Target target, boolean isHideTaskOutput) {
+    public CreateExecutableTask(PrintStream out, @Nullable String output, @Nullable Target target,
+                                boolean isHideTaskOutput) {
         this.out = out;
         this.target = target;
         this.isHideTaskOutput = isHideTaskOutput;

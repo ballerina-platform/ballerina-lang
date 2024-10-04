@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.TextDocumentChange;
 import io.ballerina.tools.text.TextEdit;
 import io.ballerina.tools.text.TextRange;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -45,7 +46,9 @@ public class HybridNodeStorage {
     private int consumedNodeIndex = 0;
     private int peekedNodeIndex = 0;
 
+    @Nullable
     private HybridNode currentToken = null;
+    @Nullable
     private HybridNode currentNode = null;
 
     // TODO Explain why we are adding the initial node

@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -102,6 +103,7 @@ public class WhileStatementNode extends StatementNode {
         private Token whileKeyword;
         private ExpressionNode condition;
         private BlockStatementNode whileBody;
+        @Nullable
         private OnFailClauseNode onFailClause;
 
         public WhileStatementNodeModifier(WhileStatementNode oldNode) {
@@ -134,7 +136,7 @@ public class WhileStatementNode extends StatementNode {
         }
 
         public WhileStatementNodeModifier withOnFailClause(
-                OnFailClauseNode onFailClause) {
+                @Nullable OnFailClauseNode onFailClause) {
             this.onFailClause = onFailClause;
             return this;
         }

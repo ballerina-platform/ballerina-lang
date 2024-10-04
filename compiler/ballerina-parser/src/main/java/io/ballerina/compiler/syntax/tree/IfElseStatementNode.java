@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -102,6 +103,7 @@ public class IfElseStatementNode extends StatementNode {
         private Token ifKeyword;
         private ExpressionNode condition;
         private BlockStatementNode ifBody;
+        @Nullable
         private Node elseBody;
 
         public IfElseStatementNodeModifier(IfElseStatementNode oldNode) {
@@ -134,7 +136,7 @@ public class IfElseStatementNode extends StatementNode {
         }
 
         public IfElseStatementNodeModifier withElseBody(
-                Node elseBody) {
+                @Nullable Node elseBody) {
             this.elseBody = elseBody;
             return this;
         }

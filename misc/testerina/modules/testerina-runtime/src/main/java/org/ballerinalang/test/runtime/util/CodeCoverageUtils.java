@@ -36,6 +36,7 @@ import org.jacoco.core.data.SessionInfo;
 import org.jacoco.core.internal.analysis.BundleCoverageImpl;
 import org.jacoco.report.IReportVisitor;
 import org.jacoco.report.xml.XMLFormatter;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -111,7 +112,7 @@ public final class CodeCoverageUtils {
      */
     public static void unzipCompiledSource(Path source, Path destination, String orgName,
                                            String moduleName, boolean enableIncludesFilter,
-                                           String includesInCoverage, Set<String> externalExclusionList)
+                                           @Nullable String includesInCoverage, Set<String> externalExclusionList)
                                             throws NoSuchFileException {
         String destJarDir = destination.toString();
         try (JarFile jarFile = new JarFile(source.toFile())) {

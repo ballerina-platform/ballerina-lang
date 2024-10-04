@@ -38,6 +38,7 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,8 +90,10 @@ public abstract class InvocationArgProcessor {
      */
     public abstract List<Value> process(List<Map.Entry<String, Evaluator>> argEvaluators) throws EvaluationException;
 
-    protected List<Value> getOrderedArgList(Map<String, Value> namedArgValues, FunctionSymbol definitionSymbol,
-                                            FunctionDefinitionNode definitionNode) throws EvaluationException {
+    protected List<Value> getOrderedArgList(
+            Map<String, Value> namedArgValues, @Nullable FunctionSymbol definitionSymbol,
+            @Nullable FunctionDefinitionNode definitionNode
+    ) throws EvaluationException {
         try {
             List<Value> argValueList = new ArrayList<>();
             List<LocalVariable> args = jdiMethodReference.arguments();

@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.bindgen.utils;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -39,6 +41,7 @@ public class ChildFirstClassLoader extends URLClassLoader {
         system = getSystemClassLoader();
     }
 
+    @Nullable
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Class<?> loadedClass = findLoadedClass(name);

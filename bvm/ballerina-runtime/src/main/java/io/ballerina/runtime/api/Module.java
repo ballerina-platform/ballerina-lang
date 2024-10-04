@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.api;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
@@ -46,7 +48,7 @@ public class Module {
         hashCode = Objects.hash(org, name, majorVersion);
     }
 
-    public Module(String org, String name, String majorVersion) {
+    public Module(@Nullable String org, @Nullable String name, @Nullable String majorVersion) {
         this(org, name, majorVersion, false);
     }
 

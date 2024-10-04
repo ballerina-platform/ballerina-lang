@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 
 /**
@@ -29,7 +31,7 @@ public class ModuleName {
     private final PackageName packageName;
     private final String moduleNamePart;
 
-    private ModuleName(PackageName packageName, String moduleNamePart) {
+    private ModuleName(PackageName packageName, @Nullable String moduleNamePart) {
         this.packageName = packageName;
         this.moduleNamePart = moduleNamePart;
     }
@@ -39,7 +41,7 @@ public class ModuleName {
         return new ModuleName(packageName, null);
     }
 
-    public static ModuleName from(PackageName packageName, String moduleNamePart) {
+    public static ModuleName from(PackageName packageName, @Nullable String moduleNamePart) {
         if (moduleNamePart != null && moduleNamePart.isEmpty()) {
             throw new IllegalArgumentException("moduleNamePart should be a non-empty string or null");
         }

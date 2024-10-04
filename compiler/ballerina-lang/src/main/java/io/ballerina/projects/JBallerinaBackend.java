@@ -37,6 +37,7 @@ import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
@@ -642,7 +643,8 @@ public class JBallerinaBackend extends CompilerBackend {
         Package pkg = packageCache.getPackageOrThrow(packageId);
         ProjectEnvironment projectEnvironment = pkg.project().projectEnvironmentContext();
         CompilationCache compilationCache = projectEnvironment.getService(CompilationCache.class);
-        String jarFileName = getJarFileName(pkg.packageContext().moduleContext(moduleName)) + fileNameSuffix;
+        String jarFileName = getJarFileName(pkg.packageContext().moduleContext(moduleName).orElseThrow())
+                + fileNameSuffix;
         Optional<Path> platformSpecificLibrary = compilationCache.getPlatformSpecificLibrary(
                 this, jarFileName);
         return new JarLibrary(platformSpecificLibrary.orElseThrow(
@@ -915,6 +917,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
     }
 
+    @Nullable
     private JarConflict getJarConflict(JarLibrary conflictingJar) {
         for (JarConflict jarConflict: this.conflictedJars) {
             if (jarConflict.firstJarLibrary().path() == conflictingJar.path()) {
@@ -936,6 +939,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
     }
 
+    @Nullable
     private PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId, PlatformLibraryScope scope) {
         Package pkg = packageCache.getPackageOrThrow(packageId);
         CompilationCache compilationCache = pkg.project().projectEnvironmentContext().getService(

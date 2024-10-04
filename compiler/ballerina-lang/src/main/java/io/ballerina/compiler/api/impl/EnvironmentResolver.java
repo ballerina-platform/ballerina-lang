@@ -304,8 +304,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
-        boolean isFuture = varDefNode.getVariable().expr != null
-                && varDefNode.getVariable().expr.getBType() instanceof BFutureType;
+        BLangExpression expr = varDefNode.getVariable().expr;
+        boolean isFuture = expr != null && expr.getBType() instanceof BFutureType;
         if (isFuture) {
             return;
         }

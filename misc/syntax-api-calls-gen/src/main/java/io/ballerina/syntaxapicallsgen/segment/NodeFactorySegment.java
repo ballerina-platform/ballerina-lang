@@ -18,6 +18,8 @@
 
 package io.ballerina.syntaxapicallsgen.segment;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -44,7 +46,7 @@ public class NodeFactorySegment extends Segment implements Iterable<Segment> {
     protected final String genericType;
     private final List<Segment> parameters;
 
-    public NodeFactorySegment(String methodName, String genericType) {
+    public NodeFactorySegment(String methodName, @Nullable String genericType) {
         this.methodName = methodName;
         this.parameters = new ArrayList<>();
         this.genericType = genericType;

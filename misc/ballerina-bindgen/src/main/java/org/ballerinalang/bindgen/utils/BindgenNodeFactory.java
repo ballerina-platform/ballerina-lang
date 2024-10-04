@@ -84,6 +84,7 @@ import org.ballerinalang.bindgen.model.JConstructor;
 import org.ballerinalang.bindgen.model.JField;
 import org.ballerinalang.bindgen.model.JMethod;
 import org.ballerinalang.bindgen.model.JParameter;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -139,7 +140,7 @@ final class BindgenNodeFactory {
      * @param moduleNames  - list of module names with separators
      * @return the import declaration node created
      */
-    static ImportDeclarationNode createImportDeclarationNode(String orgNameValue, String prefixValue,
+    static ImportDeclarationNode createImportDeclarationNode(@Nullable String orgNameValue, String prefixValue,
                                                              List<String> moduleNames) {
         Token importKeyword = createToken(SyntaxKind.IMPORT_KEYWORD, emptyML(), singleWSML());
         ImportOrgNameNode orgName = null;
@@ -287,6 +288,7 @@ final class BindgenNodeFactory {
         return parameterDocumentationLines;
     }
 
+    @Nullable
     private static String documentationParamDescription(BFunction.BFunctionKind functionKind, JParameter jParameter) {
         String paramDescription = null;
         if (functionKind == BFunction.BFunctionKind.CONSTRUCTOR) {
@@ -301,6 +303,7 @@ final class BindgenNodeFactory {
         return paramDescription;
     }
 
+    @Nullable
     private static String documentationReturnDescription(BFunction bFunction) {
         String paramDescription = null;
         if (bFunction.getReturnType() == null && bFunction.getErrorType() == null) {
@@ -372,6 +375,7 @@ final class BindgenNodeFactory {
                 returnTypeDescriptor);
     }
 
+    @Nullable
     private static ReturnTypeDescriptorNode getFunctionSignatureReturnType(BFunction bFunction)
             throws BindgenException {
         String returnType = null;
@@ -390,6 +394,7 @@ final class BindgenNodeFactory {
         return createReturnTypeDescriptorNode(createSimpleNameReferenceNode(returnType));
     }
 
+    @Nullable
     private static ReturnTypeDescriptorNode getExternalFunctionSignatureReturnType(BFunction bFunction) {
         if (bFunction.getKind() == BFunction.BFunctionKind.FIELD_SET) {
             return null;
@@ -881,7 +886,7 @@ final class BindgenNodeFactory {
         return statementNodes;
     }
 
-    private static NameReferenceNode createNameReferenceNode(String namespace, String name) {
+    private static NameReferenceNode createNameReferenceNode(@Nullable String namespace, String name) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("name must not be null, blank, or empty");
         }
@@ -1301,7 +1306,7 @@ final class BindgenNodeFactory {
      * Creates an if else statement node using the condition, if body and the else body provided.
      */
     private static IfElseStatementNode createIfElseStatementNode(ExpressionNode condition, BlockStatementNode ifBody,
-                                                                 Node elseBody) {
+                                                                 @Nullable Node elseBody) {
         Token ifKeyword = createToken(SyntaxKind.IF_KEYWORD, emptyML(), singleWSML());
         return NodeFactory.createIfElseStatementNode(ifKeyword, condition, ifBody, elseBody);
     }

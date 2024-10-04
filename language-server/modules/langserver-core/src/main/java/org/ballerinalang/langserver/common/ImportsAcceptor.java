@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -51,7 +52,8 @@ public class ImportsAcceptor {
         this(context, null);
     }
 
-    public ImportsAcceptor(DocumentServiceContext context, BiConsumer<String, CodeActionModuleId> onExistCallback) {
+    public ImportsAcceptor(DocumentServiceContext context,
+                           @Nullable BiConsumer<String, CodeActionModuleId> onExistCallback) {
         this.newImports = new HashSet<>();
         this.currentModuleImportsMap = context.currentDocImportsMap();
         this.onExistCallback = onExistCallback;

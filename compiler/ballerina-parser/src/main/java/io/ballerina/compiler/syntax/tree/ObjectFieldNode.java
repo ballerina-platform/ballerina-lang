@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -131,12 +132,16 @@ public class ObjectFieldNode extends NonTerminalNode {
      */
     public static class ObjectFieldNodeModifier {
         private final ObjectFieldNode oldNode;
+        @Nullable
         private MetadataNode metadata;
+        @Nullable
         private Token visibilityQualifier;
         private NodeList<Token> qualifierList;
         private Node typeName;
         private Token fieldName;
+        @Nullable
         private Token equalsToken;
+        @Nullable
         private ExpressionNode expression;
         private Token semicolonToken;
 

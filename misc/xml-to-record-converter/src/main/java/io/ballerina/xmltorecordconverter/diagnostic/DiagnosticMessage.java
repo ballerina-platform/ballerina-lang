@@ -19,6 +19,7 @@
 package io.ballerina.xmltorecordconverter.diagnostic;
 
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -57,22 +58,22 @@ public class DiagnosticMessage {
         return Objects.requireNonNullElse(this.args, new Object[0]).clone();
     }
 
-    public static DiagnosticMessage xmlToRecordConverter100(Object[] args) {
+    public static DiagnosticMessage xmlToRecordConverter100(@Nullable Object[] args) {
         return new DiagnosticMessage("XML_TO_RECORD_CONVERTER_100",
                 "XML parser configuration error: Unable to properly configure.", DiagnosticSeverity.ERROR, args);
     }
 
-    public static DiagnosticMessage xmlToRecordConverter101(Object[] args) {
+    public static DiagnosticMessage xmlToRecordConverter101(@Nullable Object[] args) {
         return new DiagnosticMessage("XML_TO_RECORD_CONVERTER_101",
                 "Error occurred while parsing the XML text.", DiagnosticSeverity.ERROR, args);
     }
 
-    public static DiagnosticMessage xmlToRecordConverter102(Object[] args) {
+    public static DiagnosticMessage xmlToRecordConverter102(@Nullable Object[] args) {
         return new DiagnosticMessage("XML_TO_RECORD_CONVERTER_102",
                 "Provided input is invalid.", DiagnosticSeverity.ERROR, args);
     }
 
-    public static DiagnosticMessage xmlToRecordConverter103(Object[] args) {
+    public static DiagnosticMessage xmlToRecordConverter103(@Nullable Object[] args) {
         return new DiagnosticMessage("XML_TO_RECORD_CONVERTER_103",
                 "Error occurred while formatting the Ballerina syntax tree.", DiagnosticSeverity.ERROR, args);
     }

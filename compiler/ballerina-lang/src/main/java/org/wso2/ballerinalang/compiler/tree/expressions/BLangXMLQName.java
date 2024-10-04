@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.XMLQNameNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
@@ -37,6 +38,7 @@ public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
     public BLangIdentifier prefix;
 
     // Semantic Data
+    @Nullable
     public String namespaceURI;
     public BXMLNSSymbol nsSymbol;
     public boolean isUsedInXML = true;
@@ -67,6 +69,7 @@ public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
         this.localname = (BLangIdentifier) localname;
     }
 
+    @Nullable
     @Override
     public String getNamespaceUri() {
         return null;

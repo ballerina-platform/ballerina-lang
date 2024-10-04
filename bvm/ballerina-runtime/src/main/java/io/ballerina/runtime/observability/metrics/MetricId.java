@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.observability.metrics;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +39,7 @@ public class MetricId {
         this(name, description, tags != null ? new HashSet<>(tags) : null);
     }
 
-    public MetricId(String name, String description, Set<Tag> tags) {
+    public MetricId(String name, String description, @Nullable Set<Tag> tags) {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Name is required.");
         }

@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.internal.utils.IteratorUtils;
 import io.ballerina.runtime.internal.xml.BallerinaXmlSerializer;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.OutputStream;
 import java.util.List;
@@ -56,6 +57,7 @@ import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
 public abstract class XmlValue implements RefValue, BXml, CollectionValue {
 
     Type type = PredefinedTypes.TYPE_XML;
+    @Nullable
     protected BTypedesc typedesc;
 
     protected Type iteratorNextReturnType;

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -31,11 +32,11 @@ import org.wso2.ballerinalang.util.Flags;
 public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
     private boolean nullable = true;
 
-    public BAnyType(int tag, BTypeSymbol tsymbol) {
+    public BAnyType(int tag, @Nullable BTypeSymbol tsymbol) {
         super(tag, tsymbol);
     }
 
-    public BAnyType(int tag, BTypeSymbol tsymbol, Name name, long flag) {
+    public BAnyType(int tag, @Nullable BTypeSymbol tsymbol, Name name, long flag) {
         super(tag, tsymbol);
         this.name = name;
         this.flags = flag;
@@ -46,7 +47,7 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
         this.nullable = nullable;
     }
 
-    public BAnyType(int tag, BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
+    public BAnyType(int tag, @Nullable BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
         super(tag, tsymbol);
         this.name = name;
         this.flags = flags;

@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import org.jetbrains.annotations.Nullable;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.FROM_BAL_STRING_ERROR;
@@ -36,6 +37,7 @@ public final class FromBalString {
     private FromBalString() {
     }
 
+    @Nullable
     public static Object fromBalString(BString value) {
         String str = value.getValue();
         if (str.equals("null")) {

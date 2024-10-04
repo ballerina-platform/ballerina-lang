@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import org.ballerinalang.langlib.xml.utils.XmlUtils;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Searches in children recursively for elements matching the name and returns a sequence containing them all.
@@ -37,6 +38,7 @@ public final class SelectDescendants {
     private SelectDescendants() {
     }
 
+    @Nullable
     public static BXml selectDescendants(Strand strand, BXml xml, BArray qnames) {
         try {
             // todo: this need to support list of qnames.

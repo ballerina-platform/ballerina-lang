@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.InvokableSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -40,11 +41,13 @@ import java.util.Set;
 public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
 
     public List<BVarSymbol> params;
+    @Nullable
     public BVarSymbol restParam;
     public BType retType;
     public Map<String, BType> paramDefaultValTypes;
 
     // This field is only applicable for functions at the moment.
+    @Nullable
     public BVarSymbol receiverSymbol;
     public boolean bodyExist;
 
@@ -63,7 +66,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
                             PackageID pkgID,
                             BType type,
                             BSymbol owner,
-                            Location pos,
+                            @Nullable Location pos,
                             SymbolOrigin origin) {
         this(tag, flags, name, name, pkgID, type, owner, pos, origin);
     }

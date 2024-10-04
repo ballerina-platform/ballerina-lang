@@ -77,7 +77,7 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
         List<String> keyValList = new ArrayList<>();
         for (BLangWaitKeyValue keyVal : keyValuePairs) {
             if (keyVal.valueExpr != null) {
-                keyValList.add(keyVal.key.value + ":" + keyVal.valueExpr.toString());
+                keyValList.add(keyVal.key.value + ":" + keyVal.valueExpr);
             } else {
                 keyValList.add(keyVal.key.value);
             }

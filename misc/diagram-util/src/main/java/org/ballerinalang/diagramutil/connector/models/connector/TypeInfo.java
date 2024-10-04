@@ -18,6 +18,7 @@
 package org.ballerinalang.diagramutil.connector.models.connector;
 
 import com.google.gson.annotations.Expose;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * TypeInfo model.
@@ -34,7 +35,7 @@ public class TypeInfo {
     @Expose
     public String version;
 
-    public TypeInfo(String name, String orgName, String moduleName, String packageName, String version) {
+    public TypeInfo(String name, String orgName, String moduleName, @Nullable String packageName, String version) {
         this.name = name;
         this.orgName = orgName;
         this.moduleName = moduleName;

@@ -63,6 +63,7 @@ import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -373,6 +374,7 @@ class AIDataMapperCodeActionUtil {
      * @param fileContentSymbols {@link List}
      * @return return the symbol
      */
+    @Nullable
     public Symbol findSymbol(List<TypeSymbol> fileContentSymbols) {
         for (Symbol symbol : fileContentSymbols) {
             if (!"ERROR".equals(symbol.getName().get())) {
@@ -772,8 +774,8 @@ class AIDataMapperCodeActionUtil {
      * @return - Generated mapping Function
      */
     private String generateMappingFunction(String mappingFromServer, String foundTypeLeft,
-                                           String foundTypeRight, String leftModule, String rightModule,
-                                           String rhsSignature, SyntaxTree syntaxTree) {
+                                           String foundTypeRight, @Nullable String leftModule,
+                                           @Nullable String rightModule, String rhsSignature, SyntaxTree syntaxTree) {
 
         String leftType = foundTypeLeft;
         String rightType;

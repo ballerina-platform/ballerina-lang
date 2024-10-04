@@ -18,6 +18,7 @@
 package org.ballerinalang.test.agent.server;
 
 import io.netty.handler.codec.http.HttpMethod;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -37,7 +38,7 @@ class RouteTable {
         this.routes.add(route);
     }
 
-    Route findRoute(final HttpMethod method, final String path) {
+    @Nullable Route findRoute(final HttpMethod method, final String path) {
         for (final Route route : routes) {
             if (route.matches(method, path)) {
                 return route;

@@ -57,6 +57,7 @@ import org.ballerinalang.debugadapter.evaluation.utils.FileUtils;
 import org.ballerinalang.debugadapter.evaluation.utils.VariableUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -344,6 +345,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
      * Detects all the import usages within the evaluation snippet and generates required import statements for
      * the detected import usages.
      */
+    @Nullable
     private String generateImportDeclarations(String functionSnippet) throws EvaluationException {
         ModuleMemberDeclarationNode functionNode = NodeParser.parseModuleMemberDeclaration(functionSnippet);
         if (functionNode.kind() != SyntaxKind.FUNCTION_DEFINITION) {

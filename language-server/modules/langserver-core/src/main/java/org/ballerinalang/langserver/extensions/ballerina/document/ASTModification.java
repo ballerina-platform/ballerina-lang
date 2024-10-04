@@ -19,6 +19,7 @@
 package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.JsonObject;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Pojo to modify AST.
@@ -38,7 +39,7 @@ public class ASTModification {
     }
 
     public ASTModification(int startLine, int startColumn, int endLine, int endColumn, boolean isImport, String type,
-                           JsonObject config) {
+                           @Nullable JsonObject config) {
         this.startLine = startLine;
         this.startColumn = startColumn;
         this.endLine = endLine;

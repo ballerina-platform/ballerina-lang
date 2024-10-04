@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -93,6 +94,7 @@ public class LockStatementNode extends StatementNode {
         private final LockStatementNode oldNode;
         private Token lockKeyword;
         private BlockStatementNode blockStatement;
+        @Nullable
         private OnFailClauseNode onFailClause;
 
         public LockStatementNodeModifier(LockStatementNode oldNode) {

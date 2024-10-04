@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -139,7 +140,7 @@ public class LangLibrary {
     }
 
     private void populateMethodList(List<FunctionSymbol> list, Map<String, BInvokableSymbol> langLib, BType type,
-                                    BType boundTypeParam) {
+                                    @Nullable BType boundTypeParam) {
         for (BInvokableSymbol symbol : langLib.values()) {
             String name = symbol.getOriginalName().getValue();
             BInvokableSymbol duplicate = methodBinder.cloneAndBind(symbol, type, boundTypeParam);

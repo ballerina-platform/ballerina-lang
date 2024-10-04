@@ -25,6 +25,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
@@ -201,6 +202,7 @@ public final class RepoUtils {
         return DEFAULT_TERMINAL_SIZE;
     }
 
+    @Nullable
     public static Path createAndGetLibsRepoPath() {
         String ballerinaHome = System.getProperty(ProjectDirConstants.BALLERINA_HOME);
         if (ballerinaHome == null || ballerinaHome.isEmpty()) {

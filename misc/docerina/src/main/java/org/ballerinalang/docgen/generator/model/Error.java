@@ -16,6 +16,7 @@
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class Error extends Construct {
     public boolean isDistinct;
 
     public Error(String name, String description, List<String> descriptionSections, boolean isDeprecated,
-                 Type detailType) {
+                 @Nullable Type detailType) {
         super(name, description, descriptionSections, isDeprecated);
         this.detailType = detailType;
     }

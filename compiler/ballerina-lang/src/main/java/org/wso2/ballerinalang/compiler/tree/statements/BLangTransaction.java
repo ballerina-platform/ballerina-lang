@@ -21,6 +21,7 @@ import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -34,6 +35,7 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
 
     // BLangNodes
     public BLangBlockStmt transactionBody;
+    @Nullable
     public BLangOnFailClause onFailClause;
 
     // Semantic Data

@@ -20,6 +20,7 @@ package io.ballerina.runtime.transactions;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
@@ -47,12 +48,14 @@ public class TransactionLocalContext {
     private static final TransactionResourceManager TRANSACTION_RESOURCE_MANAGER =
             TransactionResourceManager.getInstance();
     private boolean isResourceParticipant;
+    @Nullable
     private Object rollbackOnlyError;
     private Object transactionData;
     private final BArray transactionId;
     private boolean isTransactional;
 
-    private TransactionLocalContext(String globalTransactionId, String url, String protocol, Object infoRecord) {
+    private TransactionLocalContext(String globalTransactionId, String url, String protocol,
+                                    @Nullable Object infoRecord) {
         this.globalTransactionId = globalTransactionId;
         this.url = url;
         this.protocol = protocol;
@@ -211,6 +214,7 @@ public class TransactionLocalContext {
         transactionFailure.push(TransactionFailure.at(-1));
     }
 
+    @Nullable
     public TransactionFailure getAndClearFailure() {
         if (transactionFailure.isEmpty()) {
             return null;
@@ -220,6 +224,7 @@ public class TransactionLocalContext {
         return failure;
     }
 
+    @Nullable
     public TransactionFailure getFailure() {
         if (transactionFailure.isEmpty()) {
             return null;

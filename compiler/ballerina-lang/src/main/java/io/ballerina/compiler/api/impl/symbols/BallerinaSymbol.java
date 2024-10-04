@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -52,7 +53,7 @@ public class BallerinaSymbol implements Symbol {
     private ModuleSymbol module;
     private boolean moduleEvaluated;
 
-    protected BallerinaSymbol(String name, SymbolKind symbolKind, BSymbol symbol, CompilerContext context) {
+    protected BallerinaSymbol(@Nullable String name, SymbolKind symbolKind, BSymbol symbol, CompilerContext context) {
         this.name = name;
         this.symbolKind = symbolKind;
         this.context = context;
@@ -121,7 +122,7 @@ public class BallerinaSymbol implements Symbol {
     }
 
     @Override
-    public boolean nameEquals(String name) {
+    public boolean nameEquals(@Nullable String name) {
         Optional<String> symbolName = this.getName();
         if (symbolName.isEmpty() || name == null) {
             return false;
@@ -170,7 +171,7 @@ public class BallerinaSymbol implements Symbol {
         return this.internalSymbol;
     }
 
-    Documentation getDocAttachment(BSymbol symbol) {
+    @Nullable Documentation getDocAttachment(BSymbol symbol) {
         return symbol == null ? null : new BallerinaDocumentation(symbol.markdownDocumentation);
     }
 
@@ -210,7 +211,7 @@ public class BallerinaSymbol implements Symbol {
          * @param bSymbol    symbol to evaluate
          * @param context    context of the compilation
          */
-        public SymbolBuilder(String name, SymbolKind symbolKind, BSymbol bSymbol, CompilerContext context) {
+        public SymbolBuilder(@Nullable String name, SymbolKind symbolKind, BSymbol bSymbol, CompilerContext context) {
             this.name = name;
             this.ballerinaSymbolKind = symbolKind;
             this.bSymbol = bSymbol;

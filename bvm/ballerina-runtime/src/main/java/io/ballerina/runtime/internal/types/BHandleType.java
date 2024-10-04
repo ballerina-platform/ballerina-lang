@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.HandleType;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.values.RefValue;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * {@code BHandleType} represents a handle type in Ballerina.
@@ -39,11 +40,13 @@ public class BHandleType extends BType implements HandleType {
         super(typeName, pkg, RefValue.class);
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getZeroValue() {
         return null;
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getEmptyValue() {
         return null;

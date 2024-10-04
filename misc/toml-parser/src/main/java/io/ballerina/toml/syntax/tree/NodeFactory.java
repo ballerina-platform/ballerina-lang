@@ -19,6 +19,7 @@ package io.ballerina.toml.syntax.tree;
 
 import io.ballerina.toml.internal.parser.tree.STNode;
 import io.ballerina.toml.internal.parser.tree.STNodeFactory;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -163,7 +164,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static NumericLiteralNode createNumericLiteralNode(
             SyntaxKind kind,
-            Token sign,
+            @Nullable Token sign,
             Token value) {
         Objects.requireNonNull(value, "value must not be null");
 

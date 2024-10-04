@@ -33,6 +33,7 @@ import io.ballerina.semver.checker.comparator.ModuleConstantComparator;
 import io.ballerina.semver.checker.comparator.ModuleVariableComparator;
 import io.ballerina.semver.checker.comparator.ServiceComparator;
 import io.ballerina.semver.checker.comparator.TypeDefComparator;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -82,7 +83,7 @@ public class ModuleDiff extends DiffImpl {
 
         private final ModuleDiff moduleDiff;
 
-        public Builder(Module newModule, Module oldModule) {
+        public Builder(Module newModule, @Nullable Module oldModule) {
             moduleDiff = new ModuleDiff(newModule, oldModule);
         }
 

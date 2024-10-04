@@ -29,6 +29,7 @@ import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -57,9 +58,10 @@ public class Schema extends AbstractSchema {
 
     private static final String PROPERTY_HOLDER = "${property}";
 
-    public Schema(String schema, String title, Type type, Map<String, String> message, String description,
-                  boolean hasAdditionalProperties, Map<String, AbstractSchema> properties, List<String> required,
-                  CompositionSchema compositionSchemas) {
+    public Schema(
+            @Nullable String schema, @Nullable String title, Type type, Map<String, String> message,
+            @Nullable String description, boolean hasAdditionalProperties, Map<String, AbstractSchema> properties,
+            List<String> required, CompositionSchema compositionSchemas) {
         super(type, message, compositionSchemas, description);
         this.schema = schema;
         this.title = title;

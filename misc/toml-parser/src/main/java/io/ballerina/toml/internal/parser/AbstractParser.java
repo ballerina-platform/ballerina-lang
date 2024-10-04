@@ -26,6 +26,7 @@ import io.ballerina.toml.internal.parser.tree.STToken;
 import io.ballerina.toml.internal.syntax.NodeListUtils;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -41,6 +42,7 @@ public abstract class AbstractParser {
     protected final AbstractParserErrorHandler errorHandler;
     protected final AbstractTokenReader tokenReader;
     private final Deque<InvalidNodeInfo> invalidNodeInfoStack = new ArrayDeque<>(5);
+    @Nullable
     protected STToken insertedToken = null;
 
     public AbstractParser(AbstractTokenReader tokenReader, AbstractParserErrorHandler errorHandler) {

@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -45,7 +46,7 @@ public abstract class BType implements Type {
     private Type cachedReferredType = null;
     private Type cachedImpliedType = null;
 
-    protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
+    protected BType(@Nullable String typeName, @Nullable Module pkg, @Nullable Class<? extends Object> valueClass) {
         this.typeName = typeName;
         this.pkg = pkg;
         this.valueClass = valueClass;

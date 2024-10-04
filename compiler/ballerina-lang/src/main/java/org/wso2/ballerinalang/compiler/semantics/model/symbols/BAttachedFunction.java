@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
@@ -34,7 +35,7 @@ public class BAttachedFunction {
     public BInvokableSymbol symbol;
     public Location pos;
 
-    public BAttachedFunction(Name funcName, BInvokableSymbol symbol, BInvokableType type, Location pos) {
+    public BAttachedFunction(Name funcName, BInvokableSymbol symbol, BInvokableType type, @Nullable Location pos) {
         this.funcName = funcName;
         this.type = type;
         this.symbol = symbol;

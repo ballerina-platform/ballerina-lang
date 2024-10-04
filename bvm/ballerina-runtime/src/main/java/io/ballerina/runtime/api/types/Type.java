@@ -18,6 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 import io.ballerina.runtime.api.Module;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * {@code Type} represents a type in Ballerina.
@@ -49,6 +50,7 @@ public interface Type {
      *
      * @return Referred type of the type
      */
+    @Nullable
     default Type getCachedReferredType() {
         return null;
     }
@@ -70,6 +72,7 @@ public interface Type {
      *
      * @return Implied type of the type
      */
+    @Nullable
     default Type getCachedImpliedType() {
         return null;
     }

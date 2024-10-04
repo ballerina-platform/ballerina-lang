@@ -93,6 +93,7 @@ import org.ballerinalang.docgen.generator.model.types.ObjectType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
@@ -205,9 +206,9 @@ public final class Generator {
             case UNION_TYPE_DESC:
                 Type unionType = Type.fromNode(typeDescriptorNode, semanticModel, module);
                 if (unionType.memberTypes.stream().allMatch(type ->
-                        (type.category != null && type.category.equals("errors")) ||
-                                (type.category != null && type.category.equals("builtin")) &&
-                                        type.name.equals("error"))) {
+                        Objects.equals(type.category, "errors") ||
+                                Objects.equals(type.category, "builtin") &&
+                                        Objects.equals(type.name, "error"))) {
                     module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode),
                             getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode),
                             Type.fromNode(typeDescriptorNode, semanticModel, module)));

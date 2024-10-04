@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.diagramutil.connector.models.connector.Type;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a type info with the range identifier.
@@ -33,7 +34,7 @@ public class ResolvedTypeForExpression {
         return type;
     }
 
-    public void setType(Type type) {
+    public void setType(@Nullable Type type) {
         this.type = type;
     }
 

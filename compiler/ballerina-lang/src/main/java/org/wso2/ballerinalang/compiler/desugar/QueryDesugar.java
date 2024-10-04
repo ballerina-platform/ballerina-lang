@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -243,6 +244,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_PIPELINE_DISTINCT_ERROR_NAME = new Name("CompleteEarlyError");
     private static final Name QUERY_DISTINCT_UNION_ERROR_NAME = new Name("QueryErrorTypes");
     private static final CompilerContext.Key<QueryDesugar> QUERY_DESUGAR_KEY = new CompilerContext.Key<>();
+    @Nullable
     private BLangExpression onConflictExpr;
     private BVarSymbol currentFrameSymbol;
     private BLangBlockFunctionBody currentQueryLambdaBody;
@@ -259,6 +261,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private boolean withinQuery = false;
     private boolean withinLambdaOrArrowFunc = false;
     private HashSet<BType> checkedErrorList;
+    @Nullable
     private BLangNode result;
 
     private QueryDesugar(CompilerContext context) {
@@ -1143,7 +1146,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     private BLangLambdaFunction createLambdaFunction(Location pos,
                                                      TypeNode returnType,
-                                                     BLangReturn returnNode,
+                                                     @Nullable BLangReturn returnNode,
                                                      boolean isPassthrough) {
         // function(_Frame frame) ... and ref to frame
         BType frameType = getFrameTypeSymbol().type;
@@ -1218,7 +1221,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     private BLangVariableReference getStreamFunctionVariableRef(BLangBlockStmt blockStmt,
                                                                 Name functionName,
-                                                                BType type,
+                                                                @Nullable BType type,
                                                                 List<BLangExpression> requiredArgs,
                                                                 Location pos) {
         String name = getNewVarName();
@@ -2802,7 +2805,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         node.accept(this);
     }
 
-    <E extends BLangNode> E rewrite(E node) {
+    @Nullable <E extends BLangNode> E rewrite(E node) {
         if (node == null) {
             return null;
         }

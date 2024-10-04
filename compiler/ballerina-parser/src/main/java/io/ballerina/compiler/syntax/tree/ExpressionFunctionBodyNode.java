@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -93,6 +94,7 @@ public class ExpressionFunctionBodyNode extends FunctionBodyNode {
         private final ExpressionFunctionBodyNode oldNode;
         private Token rightDoubleArrow;
         private ExpressionNode expression;
+        @Nullable
         private Token semicolon;
 
         public ExpressionFunctionBodyNodeModifier(ExpressionFunctionBodyNode oldNode) {

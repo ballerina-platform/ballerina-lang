@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -99,6 +100,7 @@ public class BallerinaNameReferenceNode extends DocumentationNode {
      */
     public static class BallerinaNameReferenceNodeModifier {
         private final BallerinaNameReferenceNode oldNode;
+        @Nullable
         private Token referenceType;
         private Token startBacktick;
         private Node nameReference;

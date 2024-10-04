@@ -17,6 +17,7 @@
 package org.ballerinalang.debugadapter.config;
 
 import org.eclipse.lsp4j.debug.RunInTerminalRequestArgumentsKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Map;
@@ -113,6 +114,7 @@ public class ClientConfigHolder {
         return Optional.ofNullable(extendedClientCapabilities);
     }
 
+    @Nullable
     public RunInTerminalRequestArgumentsKind getRunInTerminalKind() {
         if (clientRequestArgs.get(ARG_TERMINAL_KIND) != null) {
             String terminalConfig = clientRequestArgs.get(ARG_TERMINAL_KIND).toString().toUpperCase(Locale.ENGLISH);

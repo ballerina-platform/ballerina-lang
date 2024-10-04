@@ -18,6 +18,8 @@
 
 package org.ballerinalang.central.client.model;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,8 +69,8 @@ public class PackageNameResolutionRequest {
         List<PossiblePackage> possiblePackages;
         PackageResolutionRequest.Mode mode;
 
-        Module(String organization, String moduleName, List<PossiblePackage> possiblePackages,
-                      PackageResolutionRequest.Mode mode) {
+        Module(String organization, String moduleName, @Nullable List<PossiblePackage> possiblePackages,
+               @Nullable PackageResolutionRequest.Mode mode) {
             this.organization = organization;
             this.moduleName = moduleName;
             this.possiblePackages = possiblePackages;

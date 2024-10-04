@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -73,7 +74,7 @@ public class Scope implements org.ballerinalang.model.Scope {
         public BSymbol symbol;
         public ScopeEntry next;
 
-        public ScopeEntry(BSymbol symbol, ScopeEntry next) {
+        public ScopeEntry(@Nullable BSymbol symbol, @Nullable ScopeEntry next) {
             this.symbol = symbol;
             this.next = next;
         }

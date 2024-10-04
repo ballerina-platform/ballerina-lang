@@ -18,6 +18,7 @@
 package io.ballerina.compiler.internal.parser.incremental;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Supplies unmodified/reusable {@code STNode}s from the previous {@code SyntaxTree}.
@@ -45,6 +46,7 @@ public class UnmodifiedSubtreeSupplier {
      *
      * @return reusable {@code SyntaxTree}
      */
+    @Nullable
     public STNode peek() {
         HybridNode hybridNode = this.hybridNodeStorage.peekSubtree();
         return hybridNode != null ? hybridNode.subtree() : null;

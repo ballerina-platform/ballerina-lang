@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -120,10 +122,10 @@ public class PackageConfig {
     }
 
     public static PackageConfig from(PackageId packageId, Path path, PackageManifest packageManifest,
-                                     DependencyManifest dependencyManifest, DocumentConfig ballerinaToml,
-                                     DocumentConfig dependenciesToml, DocumentConfig cloudToml,
-                                     DocumentConfig compilerPluginToml, DocumentConfig balToolToml,
-                                     DocumentConfig readmeMd, List<ModuleConfig> moduleConfigs,
+                                     DependencyManifest dependencyManifest, @Nullable DocumentConfig ballerinaToml,
+                                     @Nullable DocumentConfig dependenciesToml, @Nullable DocumentConfig cloudToml,
+                                     @Nullable DocumentConfig compilerPluginToml, @Nullable DocumentConfig balToolToml,
+                                     @Nullable DocumentConfig readmeMd, List<ModuleConfig> moduleConfigs,
                                      DependencyGraph<PackageDescriptor> packageDependencyGraph,
                                      boolean disableSyntaxTree, List<ResourceConfig> resources,
                                      List<ResourceConfig> testResources) {
@@ -177,6 +179,7 @@ public class PackageConfig {
         return Optional.ofNullable(balToolToml);
     }
 
+    @Nullable
     public CompilationOptions compilationOptions() {
         return null;
     }

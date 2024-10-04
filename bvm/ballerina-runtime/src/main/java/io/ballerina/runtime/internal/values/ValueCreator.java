@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -118,7 +119,7 @@ public abstract class ValueCreator {
 
     public abstract MapValue<BString, Object> createRecordValue(String recordTypeName) throws BError;
 
-    public abstract BObject createObjectValue(String objectTypeName, Strand parent, Object[] args) throws BError;
+    public abstract BObject createObjectValue(String objectTypeName, @Nullable Strand parent, Object[] args) throws BError;
 
     public abstract BError createErrorValue(String errorTypeName, BString message, BError cause, Object details)
             throws BError;

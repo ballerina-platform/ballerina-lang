@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.RefValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -57,6 +58,7 @@ public class BFiniteType extends BType implements FiniteType {
         this.originalName = originalName;
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getZeroValue() {
         if (valueSpace.stream().anyMatch(val -> val == null || TypeChecker.getType(val).isNilable())) {
@@ -90,6 +92,7 @@ public class BFiniteType extends BType implements FiniteType {
         return this.originalName;
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getEmptyValue() {
         if (valueSpace.stream().anyMatch(val -> val == null || TypeChecker.getType(val).isNilable())) {
