@@ -803,8 +803,13 @@ public class SymbolFactory {
                     symTable.pkgEnvMap.get(symTable.langAnnotationModuleSymbol), annotTagRef);
         }
 
+        boolean testable = annotPkgId.isTestPkg;
         for (Entry<BPackageSymbol, SymbolEnv> entry : symTable.pkgEnvMap.entrySet()) {
-            if (entry.getKey().pkgID.equals(annotPkgId)) {
+            BPackageSymbol pkgSymbol = entry.getKey();
+            if (pkgSymbol.pkgID.equals(annotPkgId)) {
+                if (testable && !pkgSymbol.pkgID.isTestPkg) {
+                    continue;
+                }
                 return (BAnnotationSymbol) symResolver.lookupSymbolInAnnotationSpace(entry.getValue(), annotTagRef);
             }
         }
