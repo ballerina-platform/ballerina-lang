@@ -240,4 +240,10 @@ public class BTableType extends BType implements TableType, TypeWithShape {
         }
         return createSemTypeWithConstraint(constraintType);
     }
+
+    @Override
+    public boolean shouldCache() {
+        // TODO: remove this once we have fixed equals
+        return false;
+    }
 }

@@ -24,6 +24,7 @@ import io.ballerina.runtime.internal.types.semtype.ListAtomicType;
 import io.ballerina.runtime.internal.types.semtype.MappingAtomicType;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,9 +44,22 @@ public final class Context {
     public final Map<Bdd, BddMemo> listMemo = new WeakHashMap<>();
     public final Map<Bdd, BddMemo> mappingMemo = new WeakHashMap<>();
     public final Map<Bdd, BddMemo> functionMemo = new WeakHashMap<>();
+    private static final int MAX_CACHE_SIZE = 100;
+    private final Map<CacheableTypeDescriptor, TypeCheckCache<CacheableTypeDescriptor>> typeCheckCacheMemo;
 
     private Context(Env env) {
         this.env = env;
+        this.typeCheckCacheMemo = createTypeCheckCacheMemo();
+    }
+
+    private static Map<CacheableTypeDescriptor, TypeCheckCache<CacheableTypeDescriptor>> createTypeCheckCacheMemo() {
+        return new LinkedHashMap<>(MAX_CACHE_SIZE, 1f, true) {
+            @Override
+            protected boolean removeEldestEntry(
+                    Map.Entry<CacheableTypeDescriptor, TypeCheckCache<CacheableTypeDescriptor>> eldest) {
+                return size() > MAX_CACHE_SIZE;
+            }
+        };
     }
 
     public static Context from(Env env) {
@@ -127,5 +141,9 @@ public final class Context {
         } else {
             return (FunctionAtomicType) ((TypeAtom) atom).atomicType();
         }
+    }
+
+    public TypeCheckCache<CacheableTypeDescriptor> getTypeCheckCache(CacheableTypeDescriptor typeDescriptor) {
+        return typeCheckCacheMemo.computeIfAbsent(typeDescriptor, TypeCheckCache::new);
     }
 }
