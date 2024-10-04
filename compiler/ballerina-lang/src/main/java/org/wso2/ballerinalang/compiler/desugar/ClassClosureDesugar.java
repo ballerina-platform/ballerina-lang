@@ -1268,16 +1268,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordLiteral.BLangChannelLiteral channelLiteral) {
-        channelLiteral.fields.forEach(field -> {
-            BLangRecordLiteral.BLangRecordKeyValueField keyValue = (BLangRecordLiteral.BLangRecordKeyValueField) field;
-            keyValue.key.expr = rewriteExpr(keyValue.key.expr);
-            keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
-        });
-        result = channelLiteral;
-    }
-
-    @Override
     public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
         xmlnsNode.namespaceURI = rewriteExpr(xmlnsNode.namespaceURI);
         result = xmlnsNode;

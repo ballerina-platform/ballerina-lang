@@ -338,27 +338,4 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
             return modifier.transform(this, props);
         }
     }
-
-    /**
-     * This class represents a channel type literal expression.
-     *
-     * @since 0.982.0
-     */
-    @Deprecated
-    public static class BLangChannelLiteral extends BLangRecordLiteral {
-
-        // TODO: #AST_CLEAN
-        public String channelName;
-
-        public BLangChannelLiteral(Location pos, BType channelType, String channelName) {
-            super(pos);
-            this.setBType(channelType);
-            this.channelName = channelName;
-        }
-
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
 }
