@@ -28,7 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * Represents indexed access on xml step expression extension.
  * Example: {@code x/*.[index], x/<name>[index]}
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public class BLangXMLIndexedStepExtend extends BLangXMLStepExtend {
     public BLangExpression indexExpr;

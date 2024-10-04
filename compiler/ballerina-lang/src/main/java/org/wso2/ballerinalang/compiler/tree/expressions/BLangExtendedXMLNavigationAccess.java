@@ -32,7 +32,7 @@ import java.util.StringJoiner;
  * Represents xml step expression with extensions.
  * Example: {@code x/*.<name>[index], x/<name>.get(0)}
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public class BLangExtendedXMLNavigationAccess extends BLangExpression implements XMLNavigationAccess {
 

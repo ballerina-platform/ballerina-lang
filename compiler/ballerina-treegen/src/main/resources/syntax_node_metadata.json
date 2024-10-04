@@ -1,11 +1,11 @@
 {
     "XMLStepMethodCallExtendNode": {
         "createdYear": "2024",
-        "since": "2201.10.0"
+        "since": "2201.11.0"
     },
     "XMLStepIndexedExtendNode": {
         "createdYear": "2024",
-        "since": "2201.10.0"
+        "since": "2201.11.0"
     },
     "AlternateReceiveNode": {
         "createdYear": "2024",

@@ -21,7 +21,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 /**
  *  Represents step extensions in xml step expression.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public abstract class BLangXMLStepExtend extends BLangExpression {
 }

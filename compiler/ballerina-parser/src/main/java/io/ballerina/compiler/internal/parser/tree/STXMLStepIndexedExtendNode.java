@@ -28,7 +28,7 @@ import java.util.Collections;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public class STXMLStepIndexedExtendNode extends STNode {
     public final STNode openBracket;
