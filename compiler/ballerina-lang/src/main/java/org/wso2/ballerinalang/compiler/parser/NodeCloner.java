@@ -2028,11 +2028,6 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordLiteral.BLangChannelLiteral channelLiteral) {
-        // Ignore
-    }
-
-    @Override
     public void visit(BLangInvocation.BFunctionPointerInvocation bFunctionPointerInvocation) {
         // Ignore
     }
