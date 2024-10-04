@@ -187,7 +187,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
                 "too many arguments in call to 'calculate'.");
 
         debugTestRunner.assertEvaluationError(context, "calculate(5, 6, 7, d = 8)", EvaluationExceptionKind.PREFIX +
-                "undefined defaultable parameter 'd'.");
+                "undefined parameter 'd'.");
 
         debugTestRunner.assertEvaluationError(context, "calculate(5, ...b, 7)", String.format(EvaluationExceptionKind
                 .SYNTAX_ERROR.getString(), "arguments not allowed after rest argument"));
