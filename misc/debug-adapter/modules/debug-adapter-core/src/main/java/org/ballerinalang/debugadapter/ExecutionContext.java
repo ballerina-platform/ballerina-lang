@@ -20,7 +20,6 @@ import com.sun.jdi.request.EventRequestManager;
 import io.ballerina.projects.Project;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -82,26 +81,23 @@ public class ExecutionContext {
         this.debuggeeVM = debuggeeVM;
     }
 
-    @Nullable
     public EventRequestManager getEventManager() {
         if (debuggeeVM == null) {
-            return null;
+            throw new IllegalStateException("Debuggee VM is not initialized.");
         }
         return debuggeeVM.eventRequestManager();
     }
 
-    @Nullable
     public BufferedReader getInputStream() {
         if (launchedProcess == null) {
-            return null;
+            throw new IllegalStateException("Launched process is not initialized.");
         }
         return new BufferedReader(new InputStreamReader(launchedProcess.getInputStream(), StandardCharsets.UTF_8));
     }
 
-    @Nullable
     public BufferedReader getErrorStream() {
         if (launchedProcess == null) {
-            return null;
+            throw new IllegalStateException("Launched process is not initialized.");
         }
         return new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream(), StandardCharsets.UTF_8));
     }

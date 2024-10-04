@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.List;
 
 /**
@@ -43,7 +44,7 @@ public abstract class AbstractLexer {
     protected CharReader reader;
     @Nullable
     protected ParserMode mode;
-    protected ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
+    protected Deque<ParserMode> modeStack = new ArrayDeque<>();
 
     public AbstractLexer(CharReader charReader, ParserMode initialParserMode) {
         this(charReader, initialParserMode, new ArrayList<>(INITIAL_TRIVIA_CAPACITY), new ArrayList<>());

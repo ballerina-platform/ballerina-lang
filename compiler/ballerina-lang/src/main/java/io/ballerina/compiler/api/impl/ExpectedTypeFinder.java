@@ -1189,7 +1189,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         if (langLibInvocation) {
-            if (bLangInvocation.expr.getBType().getKind() == TypeKind.ARRAY) {
+            if (bLangInvocation.expr != null && bLangInvocation.expr.getBType().getKind() == TypeKind.ARRAY) {
                 return Optional.ofNullable(typesFactory.getTypeDescriptor
                         (((BArrayType) bLangInvocation.expr.expectedType).eType));
             }

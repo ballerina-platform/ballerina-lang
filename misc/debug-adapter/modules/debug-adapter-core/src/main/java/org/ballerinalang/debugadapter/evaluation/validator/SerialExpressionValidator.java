@@ -26,7 +26,6 @@ import org.ballerinalang.debugadapter.evaluation.validator.impl.ExpressionValida
 import org.ballerinalang.debugadapter.evaluation.validator.impl.InvalidInputValidator;
 import org.ballerinalang.debugadapter.evaluation.validator.impl.StatementValidator;
 import org.ballerinalang.debugadapter.evaluation.validator.impl.TopLevelDeclarationValidator;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,15 +43,15 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationException.crea
  */
 public class SerialExpressionValidator extends Validator {
 
-    @Nullable
-    private ExpressionValidator expressionValidator;
-    @Nullable
-    private List<Validator> otherValidators;
+    private final ExpressionValidator expressionValidator = new ExpressionValidator(new ExpressionParser());
+    private final List<Validator> otherValidators = new ArrayList<>();
 
     public SerialExpressionValidator() {
         super(new DebugParser());
-        this.expressionValidator = null;
-        this.otherValidators = null;
+        // Validation order is important and should be preserved, to reduce the number of parser trials.
+        otherValidators.add(new InvalidInputValidator(debugParser));
+        otherValidators.add(new TopLevelDeclarationValidator(debugParser));
+        otherValidators.add(new StatementValidator());
     }
 
     /**
@@ -72,7 +71,6 @@ public class SerialExpressionValidator extends Validator {
 
     @Override
     public void validate(String source) throws Exception {
-        loadValidators();
         try {
             expressionValidator.validate(source);
         } catch (DebugParserException | ValidatorException e) {
@@ -105,17 +103,5 @@ public class SerialExpressionValidator extends Validator {
                 throw createEvaluationException("expression validation failed due to: " + e.getMessage());
             }
         }
-    }
-
-    /**
-     * Loads all validator types, which are required to process the user input.
-     * Note: validation order is important and should be preserved, to reduce the number of parser trials.
-     */
-    private void loadValidators() {
-        expressionValidator = new ExpressionValidator(new ExpressionParser());
-        otherValidators = new ArrayList<>();
-        otherValidators.add(new InvalidInputValidator(debugParser));
-        otherValidators.add(new TopLevelDeclarationValidator(debugParser));
-        otherValidators.add(new StatementValidator());
     }
 }

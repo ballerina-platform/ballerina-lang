@@ -71,7 +71,8 @@ public final class TomlCompletionUtil {
         context.setCursorPositionInTree(txtPos);
         TextRange range = TextRange.from(txtPos, 0);
         NonTerminalNode nonTerminalNode = ((DocumentNode) st.get().rootNode()).findNode(range);
-        while (nonTerminalNode.parent() != null && !TomlSyntaxTreeUtil.withinTextRange(txtPos, nonTerminalNode)) {
+        while (nonTerminalNode != null &&
+                nonTerminalNode.parent() != null && !TomlSyntaxTreeUtil.withinTextRange(txtPos, nonTerminalNode)) {
             //Takes the top-level Node of the immediate cursor position
             nonTerminalNode = nonTerminalNode.parent();
         }

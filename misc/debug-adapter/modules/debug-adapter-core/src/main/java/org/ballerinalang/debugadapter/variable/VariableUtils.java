@@ -24,6 +24,7 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractMap;
@@ -324,7 +325,7 @@ public final class VariableUtils {
      * @param typeValue JDI value instance.
      * @return referred type value.
      */
-    @Nullable
+    @Contract("null -> null")
     private static Value getReferredTypeFromTypeRefType(Value typeValue) throws DebugVariableException {
         while (typeValue != null && isTypeReferenceType(typeValue)) {
             typeValue = getFieldValue(typeValue, FIELD_REFERRED_TYPE).orElse(null);
@@ -339,7 +340,7 @@ public final class VariableUtils {
      * @param typeValue JDI value instance.
      * @return effective type value.
      */
-    @Nullable
+    @Contract("null -> null")
     private static Value getEffectiveTypeFromIntersectionType(Value typeValue) throws DebugVariableException {
         while (typeValue != null && isIntersectionType(typeValue)) {
             typeValue = getFieldValue(typeValue, FIELD_EFFECTIVE_TYPE).orElse(null);

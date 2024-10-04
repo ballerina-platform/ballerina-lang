@@ -19,6 +19,7 @@
 package io.ballerina.identifier;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Matcher;
@@ -140,10 +141,10 @@ public final class Utils {
      * @param encodedIdentifier encoded identifier string
      * @return decoded identifier
      */
-    @Nullable
-    public static String decodeIdentifier(@Nullable String encodedIdentifier) {
+    @Contract("null -> null; !null -> !null")
+    public static String decodeIdentifier(String encodedIdentifier) {
         if (encodedIdentifier == null) {
-            return encodedIdentifier;
+            return null;
         }
         StringBuilder sb = new StringBuilder();
         int index = 0;

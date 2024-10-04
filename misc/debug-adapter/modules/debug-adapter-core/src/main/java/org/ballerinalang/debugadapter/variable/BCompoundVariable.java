@@ -33,7 +33,7 @@ public abstract class BCompoundVariable implements BVariable {
     protected final BVariableType type;
     protected Value jvmValue;
     @Nullable
-    protected Variable dapVariable;
+    protected Variable dapVariable = null;
 
     public BCompoundVariable(SuspendedContext context, String varName, BVariableType bVariableType, Value jvmValue) {
         this.context = context;
@@ -41,7 +41,6 @@ public abstract class BCompoundVariable implements BVariable {
         this.name = decodeIdentifier(varName);
         this.type = bVariableType;
         this.jvmValue = jvmValue;
-        this.dapVariable = null;
     }
 
     /**

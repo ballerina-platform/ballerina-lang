@@ -181,7 +181,7 @@ public class EvaluatorBuilder extends NodeVisitor {
             unsupportedNodes.forEach(node -> errors.add(String.format("'%s' - %s", node.toString(), node.kind())));
             throw createEvaluationException(UNSUPPORTED_EXPRESSION, errors);
         }
-        if (result == null) {
+        if (result == null && builderException != null) {
             throw builderException;
         }
         return result;

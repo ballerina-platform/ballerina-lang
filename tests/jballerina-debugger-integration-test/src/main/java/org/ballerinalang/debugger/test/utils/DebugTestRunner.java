@@ -65,6 +65,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Timer;
 
@@ -169,7 +170,8 @@ public class DebugTestRunner {
             launchConfigs.put("terminal", terminalKind);
         }
         initDebugSession(executionKind, launchConfigs);
-        return debugClientConnector.getRequestManager().getDidRunInIntegratedTerminal();
+
+        return Objects.requireNonNull(debugClientConnector).getRequestManager().getDidRunInIntegratedTerminal();
     }
 
     /**
@@ -211,8 +213,9 @@ public class DebugTestRunner {
     public void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind,
                                  int port, Map<String, Object> launchArgs) throws BallerinaTestException {
 
-        debugClientConnector = new DAPClientConnector(balServer.getServerHome(), testProjectPath, testEntryFilePath,
-                port, clientSupportsRunInTerminal);
+        DAPClientConnector debugClientConnector =
+                new DAPClientConnector(balServer.getServerHome(), testProjectPath, testEntryFilePath, port,
+                        clientSupportsRunInTerminal);
         debugClientConnector.createConnection();
         if (debugClientConnector.isConnected()) {
             isConnected = true;
@@ -230,6 +233,7 @@ public class DebugTestRunner {
             debugClientConnector.getRequestManager().setIsProjectBasedTest(isProjectBasedTest);
             launchDebuggee(executionKind, launchArgs);
         }
+        this.debugClientConnector = debugClientConnector;
     }
 
     private void attachToDebuggee() throws BallerinaTestException {

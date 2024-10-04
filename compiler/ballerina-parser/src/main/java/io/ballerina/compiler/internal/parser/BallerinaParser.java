@@ -72,6 +72,7 @@ import io.ballerina.compiler.internal.syntax.SyntaxUtils;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.text.CharReader;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
@@ -19016,12 +19017,12 @@ public class BallerinaParser extends AbstractParser {
         return bindingPatterns;
     }
 
-    @Nullable
+    @Contract("null, _ -> null; !null, _ -> !null")
     private STNode getBindingPattern(STNode ambiguousNode, boolean isListBP) {
         DiagnosticCode errorCode = DiagnosticErrorCode.ERROR_INVALID_BINDING_PATTERN;
 
         if (isEmpty(ambiguousNode)) {
-            return ambiguousNode;
+            return null;
         }
 
         switch (ambiguousNode.kind) {

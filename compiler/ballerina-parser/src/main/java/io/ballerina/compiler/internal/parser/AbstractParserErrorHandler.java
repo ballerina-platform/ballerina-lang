@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class to be extended by any parser error handler class.
@@ -159,7 +160,7 @@ public abstract class AbstractParserErrorHandler {
         }
 
         Solution firstFix = bestMatch.popFix();
-        Solution secondFix = bestMatch.peekFix();
+        Solution secondFix = bestMatch.peekFix().orElseThrow();
         bestMatch.pushFix(firstFix);
 
         if (secondFix.action == Action.REMOVE && secondFix.depth == 1) {
@@ -314,9 +315,8 @@ public abstract class AbstractParserErrorHandler {
      *
      * @return head of the stack
      */
-    @Nullable
     protected ParserRuleContext getParentContext() {
-        return this.ctxStack.peek();
+        return Objects.requireNonNull(this.ctxStack.peek());
     }
 
     /**
@@ -324,12 +324,11 @@ public abstract class AbstractParserErrorHandler {
      *
      * @return second element of the stack
      */
-    @Nullable
     protected ParserRuleContext getGrandParentContext() {
         ParserRuleContext parent = this.ctxStack.pop();
         ParserRuleContext grandParent = this.ctxStack.peek();
         this.ctxStack.push(parent);
-        return grandParent;
+        return Objects.requireNonNull(grandParent);
     }
 
     /**
@@ -422,8 +421,8 @@ public abstract class AbstractParserErrorHandler {
             }
 
             if (currentMatchRemoveFixes == bestMatchRemoveFixes) {
-                Solution currentSol = bestMatch.peekFix();
-                Solution foundSol = currentMatch.peekFix();
+                Solution currentSol = bestMatch.peekFix().orElseThrow();
+                Solution foundSol = currentMatch.peekFix().orElseThrow();
                 if (currentSol.action == Action.REMOVE && foundSol.action == Action.INSERT) {
                     bestMatch = currentMatch;
                 }
@@ -480,7 +479,7 @@ public abstract class AbstractParserErrorHandler {
         // i.e: do not increment the match count by 1;
 
         if (isEntryPoint) {
-            fixedPathResult.solution = fixedPathResult.peekFix();
+            fixedPathResult.solution = fixedPathResult.peekFix().orElseThrow();
         } else {
             fixedPathResult.solution =
                     new Solution(Action.KEEP, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString());

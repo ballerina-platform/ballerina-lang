@@ -131,7 +131,8 @@ public final class AsyncUtils {
      * @param returnValueSupplier  Suppler used to set the final return value for the parent function invocation.
      * @param scheduler            The scheduler for invoking functions
      */
-    public static void invokeFunctionPointerAsyncIteratively(BFunctionPointer<Object[], ?> func, @Nullable String strandName,
+    public static void invokeFunctionPointerAsyncIteratively(BFunctionPointer<Object[], ?> func,
+                                                             @Nullable String strandName,
                                                              StrandMetadata metadata, int noOfIterations,
                                                              Supplier<Object[]> argsSupplier,
                                                              Consumer<Object> futureResultConsumer,

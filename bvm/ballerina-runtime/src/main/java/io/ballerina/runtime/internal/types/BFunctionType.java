@@ -40,7 +40,6 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     @Nullable
     public Type retType;
     public long flags;
-    @Nullable
     public Parameter[] parameters;
 
     public BFunctionType(Module pkg) {
@@ -52,7 +51,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     public BFunctionType(Module pkg, long flags) {
         super("function", pkg, Object.class);
-        this.parameters = null;
+        this.parameters = new Parameter[0];
         this.retType = null;
         this.flags = flags;
     }

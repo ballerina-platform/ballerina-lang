@@ -340,7 +340,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
         try {
-            activeThread = getAllThreads().get(args.getThreadId());
+            ThreadReferenceProxyImpl activeThread = getAllThreads().get(args.getThreadId());
             if (loadedThreadFrames.containsKey(activeThread.uniqueID())) {
                 stackTraceResponse.setStackFrames(loadedThreadFrames.get(activeThread.uniqueID()));
             } else {
@@ -351,6 +351,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 stackTraceResponse.setStackFrames(validFrames);
                 loadedThreadFrames.put(activeThread.uniqueID(), validFrames);
             }
+            this.activeThread = activeThread;
             return CompletableFuture.completedFuture(stackTraceResponse);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -798,7 +799,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private Variable[] computeStackFrameVariables(VariablesArguments args) throws Exception {
-        StackFrameProxyImpl stackFrame = suspendedContext.getFrame();
+        StackFrameProxyImpl stackFrame = Objects.requireNonNull(suspendedContext).getFrame();
         List<Variable> variables = new ArrayList<>();
         List<LocalVariableProxyImpl> localVariableProxies = stackFrame.visibleVariables();
         for (LocalVariableProxyImpl var : localVariableProxies) {
@@ -946,7 +947,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      */
     @Nullable Map<Integer, ThreadReferenceProxyImpl> getAllThreads() {
         if (context.getDebuggeeVM() == null) {
-            return null;
+            throw new IllegalStateException("Debuggee VM is not available");
         }
         Collection<ThreadReference> threadReferences = context.getDebuggeeVM().getVirtualMachine().allThreads();
         Map<Integer, ThreadReferenceProxyImpl> threadsMap = new HashMap<>();
