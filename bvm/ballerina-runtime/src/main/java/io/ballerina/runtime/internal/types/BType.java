@@ -20,7 +20,6 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
@@ -54,7 +53,6 @@ public abstract non-sealed class BType extends SemType
     private Type cachedReferredType = null;
     private Type cachedImpliedType = null;
     private volatile SemType cachedSemType = null;
-    private TypeCreator.TypeMemoKey lookupKey = null;
     private volatile TypeCheckCache<CacheableTypeDescriptor> typeCheckCache;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
@@ -286,10 +284,6 @@ public abstract non-sealed class BType extends SemType
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
-    }
-
-    public void setLookupKey(TypeCreator.TypeMemoKey lookupKey) {
-        this.lookupKey = lookupKey;
     }
 
     @Override
