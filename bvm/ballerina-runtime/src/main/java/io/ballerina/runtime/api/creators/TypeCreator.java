@@ -43,18 +43,13 @@ import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
-import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
 
 import java.util.Arrays;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Class @{@link TypeCreator} provides APIs to create ballerina type instances.
@@ -63,16 +58,6 @@ import java.util.function.Supplier;
  */
 public final class TypeCreator {
 
-    private static final Map<TypeMemoKey, BTupleType> tupleTypeMemo = new WeakHashMap<>(100);
-    private static final Map<TypeMemoKey, BMapType> mapTypeMemo = new WeakHashMap<>(100);
-    private static final Map<TypeMemoKey, BRecordType> recordTypeMemo = new WeakHashMap<>(100);
-    private static final Map<TypeMemoKey, BObjectType> objectTypeMemo = new WeakHashMap<>(100);
-    private static final Map<TypeMemoKey, BStreamType> streamTypeMemo = new WeakHashMap<>(100);
-    private static final Map<TypeMemoKey, BUnionType> unionTypeMemo = new WeakHashMap<>(100);
-    private static final Map<TypeMemoKey, BErrorType> errorTypeMemo = new WeakHashMap<>(100);
-    private static final Map<TypeMemoKey, BXmlType> xmlTypeMemo = new WeakHashMap<>(100);
-    private static final Map<TypeMemoKey, BJsonType> jsonTypeMemo = new WeakHashMap<>(100);
-    private static final Map<Type, BMapType> mapTypeCache = new IdentityHashMap<>();
     /**
      * Creates a new array type with given element type.
      *
@@ -162,7 +147,7 @@ public final class TypeCreator {
      * @return the new tuple type
      */
     public static TupleType createTupleType(List<Type> typeList, Type restType,
-                  int typeFlags, boolean isCyclic, boolean readonly) {
+                                            int typeFlags, boolean isCyclic, boolean readonly) {
         return new BTupleType(typeList, restType, typeFlags, isCyclic, readonly);
     }
 
@@ -177,20 +162,18 @@ public final class TypeCreator {
      * @return the new tuple type
      */
     public static TupleType createTupleType(String name, Module pkg,
-                  int typeFlags, boolean isCyclic, boolean readonly) {
-        TypeMemoKey key = new TypeMemoKey(name, pkg);
-        return tupleTypeMemo.computeIfAbsent(key,
-                createMappingFn(() -> new BTupleType(name, pkg, typeFlags, isCyclic, readonly)));
+                                            int typeFlags, boolean isCyclic, boolean readonly) {
+        return new BTupleType(name, pkg, typeFlags, isCyclic, readonly);
     }
 
     /**
-    * Create a {@code MapType} which represents the map type.
-    *
-    * @param constraint constraint type which particular map is bound to.
-    * @return the new map type
-    */
+     * Create a {@code MapType} which represents the map type.
+     *
+     * @param constraint constraint type which particular map is bound to.
+     * @return the new map type
+     */
     public static MapType createMapType(Type constraint) {
-        return mapTypeCache.computeIfAbsent(constraint, (ignore) -> new BMapType(constraint));
+        return new BMapType(constraint);
     }
 
     /**
@@ -213,9 +196,7 @@ public final class TypeCreator {
      * @return the new map type
      */
     public static MapType createMapType(String typeName, Type constraint, Module module) {
-        TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return mapTypeMemo.computeIfAbsent(key,
-                createMappingFn(() -> new BMapType(typeName, constraint, module)));
+        return new BMapType(typeName, constraint, module);
     }
 
     /**
@@ -228,9 +209,7 @@ public final class TypeCreator {
      * @return the new map type
      */
     public static MapType createMapType(String typeName, Type constraint, Module module, boolean readonly) {
-        TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return mapTypeMemo.computeIfAbsent(key,
-                createMappingFn(() -> new BMapType(typeName, constraint, module, readonly)));
+        return new BMapType(typeName, constraint, module, readonly);
     }
 
     /**
@@ -245,9 +224,7 @@ public final class TypeCreator {
      */
     public static RecordType createRecordType(String typeName, Module module, long flags, boolean sealed,
                                               int typeFlags) {
-        TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return recordTypeMemo.computeIfAbsent(key,
-                createMappingFn(() -> new BRecordType(typeName, typeName, module, flags, sealed, typeFlags)));
+        return new BRecordType(typeName, typeName, module, flags, sealed, typeFlags);
     }
 
     /**
@@ -263,7 +240,8 @@ public final class TypeCreator {
      * @return the new record type
      */
     public static RecordType createRecordType(String typeName, Module module, long flags, Map<String, Field> fields,
-                                              Type restFieldType, boolean sealed, int typeFlags) {
+                                              Type restFieldType,
+                                              boolean sealed, int typeFlags) {
         return new BRecordType(typeName, module, flags, fields, restFieldType, sealed, typeFlags);
     }
 
@@ -276,8 +254,7 @@ public final class TypeCreator {
      * @return the new object type
      */
     public static ObjectType createObjectType(String typeName, Module module, long flags) {
-        TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return objectTypeMemo.computeIfAbsent(key, createMappingFn(() -> new BObjectType(typeName, module, flags)));
+        return new BObjectType(typeName, module, flags);
     }
 
     /**
@@ -302,9 +279,7 @@ public final class TypeCreator {
      */
     public static StreamType createStreamType(String typeName, Type constraint,
                                               Type completionType, Module modulePath) {
-        TypeMemoKey key = new TypeMemoKey(typeName, modulePath);
-        return streamTypeMemo.computeIfAbsent(key,
-                createMappingFn(() -> new BStreamType(typeName, constraint, completionType, modulePath)));
+        return new BStreamType(typeName, constraint, completionType, modulePath);
     }
 
     /**
@@ -330,9 +305,7 @@ public final class TypeCreator {
      */
     @Deprecated
     public static StreamType createStreamType(String typeName, Type completionType, Module modulePath) {
-        TypeMemoKey key = new TypeMemoKey(typeName, modulePath);
-        return streamTypeMemo.computeIfAbsent(key,
-                createMappingFn(() -> new BStreamType(typeName, completionType, modulePath)));
+        return new BStreamType(typeName, completionType, modulePath);
     }
 
     /**
@@ -402,9 +375,7 @@ public final class TypeCreator {
      */
     public static UnionType createUnionType(List<Type> memberTypes, String name, Module pkg, int typeFlags,
                                             boolean isCyclic, long flags) {
-        TypeMemoKey key = new TypeMemoKey(name, pkg);
-        return unionTypeMemo.computeIfAbsent(key,
-                createMappingFn(() -> new BUnionType(memberTypes, name, pkg, typeFlags, isCyclic, flags)));
+        return new BUnionType(memberTypes, name, pkg, typeFlags, isCyclic, flags);
     }
 
     /**
@@ -415,8 +386,7 @@ public final class TypeCreator {
      * @return the new error type
      */
     public static ErrorType createErrorType(String typeName, Module module) {
-        TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return errorTypeMemo.computeIfAbsent(key, createMappingFn(() -> new BErrorType(typeName, module)));
+        return new BErrorType(typeName, module);
     }
 
     /**
@@ -428,8 +398,7 @@ public final class TypeCreator {
      * @return the new error type
      */
     public static ErrorType createErrorType(String typeName, Module module, Type detailType) {
-        TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return errorTypeMemo.computeIfAbsent(key, createMappingFn(() -> new BErrorType(typeName, module, detailType)));
+        return new BErrorType(typeName, module, detailType);
     }
 
     /**
@@ -488,8 +457,7 @@ public final class TypeCreator {
      * @return new xml type
      */
     public static XmlType createXMLType(String typeName, Type constraint, Module module) {
-        TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return xmlTypeMemo.computeIfAbsent(key, createMappingFn(() -> new BXmlType(typeName, constraint, module)));
+        return new BXmlType(typeName, constraint, module);
     }
 
     /**
@@ -502,8 +470,7 @@ public final class TypeCreator {
      * @return new xml type
      */
     public static XmlType createXMLType(String typeName, Module module, int tag, boolean readonly) {
-        TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return xmlTypeMemo.computeIfAbsent(key, createMappingFn(() -> new BXmlType(typeName, module, tag, readonly)));
+        return new BXmlType(typeName, module, tag, readonly);
     }
 
     /**
@@ -526,8 +493,7 @@ public final class TypeCreator {
      * @return new xml type
      */
     public static JsonType createJSONType(String typeName, Module module, boolean readonly) {
-        TypeMemoKey key = new TypeMemoKey(typeName, module);
-        return jsonTypeMemo.computeIfAbsent(key, createMappingFn(() -> new BJsonType(typeName, module, readonly)));
+        return new BJsonType(typeName, module, readonly);
     }
 
     /**
@@ -553,23 +519,5 @@ public final class TypeCreator {
     }
 
     private TypeCreator() {
-    }
-
-    public record TypeMemoKey(String typeName, Module module) {
-
-    }
-
-    public static void registerRecordType(String typeName, Module module, BRecordType recordType) {
-        TypeMemoKey key = new TypeMemoKey(typeName, module);
-        recordTypeMemo.put(key, recordType);
-        recordType.setLookupKey(key);
-    }
-
-    private static <E extends BType> Function<TypeMemoKey, E> createMappingFn(Supplier<E> innerSuppler) {
-        return (key) -> {
-            E bType = innerSuppler.get();
-            bType.setLookupKey(key);
-            return bType;
-        };
     }
 }
