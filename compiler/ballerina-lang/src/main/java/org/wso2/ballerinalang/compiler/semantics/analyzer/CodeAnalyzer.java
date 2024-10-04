@@ -1396,10 +1396,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 if (varBindingPattern.matchExpr == null) {
                     return;
                 }
-                varBindingPattern.isLastPattern = types.isSameType(varBindingPattern.matchExpr.getBType(),
-                                                                   varBindingPattern.getBType()) || types.isAssignable(
-                        varBindingPattern.matchExpr.getBType(),
-                        varBindingPattern.getBType());
+                varBindingPattern.isLastPattern = types.isAssignable(varBindingPattern.matchExpr.getBType(),
+                                                                     varBindingPattern.getBType());
         }
     }
 

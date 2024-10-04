@@ -4012,8 +4012,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 dlog.error(attachExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, LISTENER_NAME, exprType);
             } else if (exprType != symTable.semanticError && serviceNode.listenerType == null) {
                 serviceNode.listenerType = exprType;
-            } else if (exprType != symTable.semanticError) {
-                this.types.isSameType(exprType, serviceNode.listenerType);
             }
 
             if (attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
