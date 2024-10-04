@@ -20,7 +20,6 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
-import org.ballerinalang.testerina.test.utils.CommonUtils;
 import org.ballerinalang.testerina.test.utils.FileUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -95,16 +94,9 @@ public class BasicCasesTest extends BaseTestCase {
 
     @Test
     public void testAnnotationAccess() throws BallerinaTestException, IOException {
-        String endString = " SEVERE {b7a.log.crash} - ";
-        String firstString = "We thank you for helping make us better.";
-        String endString2 = "********";
-        String firstString2 = "unnamed module of loader 'app')";
         String[] args = mergeCoverageArgs(new String[]{"annotation-access"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        output = output + "********";
-        output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        output = CommonUtils.replaceVaryingString(firstString2, endString2, output);
         AssertionUtils.assertOutput("BasicCasesTest-testAnnotationAccess.txt", output);
     }
 
