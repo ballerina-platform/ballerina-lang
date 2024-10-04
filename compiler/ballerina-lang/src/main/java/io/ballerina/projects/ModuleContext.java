@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
+import org.testing.Assert;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -401,11 +402,12 @@ class ModuleContext {
             packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
             compilerPhaseRunner.performTypeCheckPhases(pkgNode);
         } catch (Throwable t) {
-            assert false : "Compilation failed due to " + ((Supplier<String>) () -> {
+            throw new AssertionError("Compilation failed due to " + ((Supplier<String>) () -> {
                 StringWriter errors = new StringWriter();
                 t.printStackTrace(new PrintWriter(errors));
                 return errors.toString();
-            }).get();
+            }).get(), t);
+        }
 
             compilerPhaseRunner.addDiagnosticForUnhandledException(pkgNode, t);
         }

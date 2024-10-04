@@ -22,6 +22,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.testing.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +73,7 @@ public class BServiceSymbol extends BSymbol {
     }
 
     public void addListenerType(BType type) {
-        assert type != null;
+        Assert.assertNotNull(type, "Provided type for listener cannot be null");
         this.listenerTypes.add(type);
     }
 }

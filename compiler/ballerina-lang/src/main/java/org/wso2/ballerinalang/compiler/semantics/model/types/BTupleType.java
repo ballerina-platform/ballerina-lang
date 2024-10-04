@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
+import org.testing.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -171,7 +172,7 @@ public class BTupleType extends BType implements TupleType {
     }
 
     public void setMembers(List<BTupleMember> members) {
-        assert members.isEmpty();
+        Assert.assertTrue(members.isEmpty());
         this.memberTypes = null;
         this.members = members;
     }

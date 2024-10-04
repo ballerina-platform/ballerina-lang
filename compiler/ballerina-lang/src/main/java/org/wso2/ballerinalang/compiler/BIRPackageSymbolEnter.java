@@ -125,6 +125,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.toOrigin;
 import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.ANON_PREFIX;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
+import org.testing.Assert; 
 
 /**
  * This class is responsible for reading the compiled package file (bir) and creating a package symbol.
@@ -1314,7 +1315,7 @@ public class BIRPackageSymbolEnter {
 //                    setDocumentation(varSymbol, attrData); // TODO fix
 
                     Object poppedRecordType = compositeStack.pop();
-                    assert poppedRecordType == recordType;
+                    org.testng.Assert.assertEquals(poppedRecordType, recordType, "Popped record type does not match the expected record type.");
 
                     if (pkgId.equals(env.pkgSymbol.pkgID)) {
                         return recordType;
@@ -1347,7 +1348,7 @@ public class BIRPackageSymbolEnter {
                     typeReferenceType.referredType = readTypeFromCp();
 
                     Object poppedRefType = compositeStack.pop();
-                    assert poppedRefType == typeReferenceType;
+                    Assert.assertEquals(poppedRefType, typeReferenceType, "Popped reference type does not match the expected type reference.");
                     return typeReferenceType;
                 case TypeTags.PARAMETERIZED_TYPE:
                     BParameterizedType type = new BParameterizedType(null, null, null, name, -1);
@@ -1475,7 +1476,7 @@ public class BIRPackageSymbolEnter {
                     unionType.setOriginalMemberTypes(originalMemberTypes);
 
                     Object poppedUnionType = compositeStack.pop();
-                    assert poppedUnionType == unionType;
+                    Assert.assertEquals(poppedUnionType, unionType, "Popped union type does not match the expected union type.");
 
                     boolean isEnum = inputStream.readBoolean();
                     if (isEnum) {
@@ -1551,7 +1552,7 @@ public class BIRPackageSymbolEnter {
                     errorSymbol.pkgID = pkgId;
                     errorSymbol.originalName = errorSymbol.name = Names.fromString(errorName);
                     Object poppedErrorType = compositeStack.pop();
-                    assert poppedErrorType == errorType;
+                    assert.assertEquals(poppedErrorType, errorType, "Popped error type does not match expected error type.");
                     if (!env.pkgSymbol.pkgID.equals(PackageID.ANNOTATIONS)
                             && Symbols.isFlagOn(flags, Flags.NATIVE)) {
                         // This is a workaround to avoid, getting no type for error detail field.
@@ -1682,7 +1683,7 @@ public class BIRPackageSymbolEnter {
                     objectType.typeIdSet = readTypeIdSet(inputStream);
 
                     Object poppedObjType = compositeStack.pop();
-                    assert poppedObjType == objectType;
+                    Assert.assertEquals(poppedObjType, objectType, "Popped object type does not match the expected object type.");
 
                     if (pkgId.equals(env.pkgSymbol.pkgID)) {
                         return objectType;

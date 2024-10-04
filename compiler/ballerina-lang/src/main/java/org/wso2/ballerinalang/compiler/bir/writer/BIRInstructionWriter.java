@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.testing.Assert;
 
 import java.util.HashSet;
 import java.util.List;
@@ -424,7 +425,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.NewInstance newInstance) {
         buf.writeBoolean(newInstance.isExternalDef);
         if (newInstance.isExternalDef) {
-            assert newInstance.externalPackageId != null;
+            Assert.assertNotNull(newInstance.externalPackageId, "External package ID is null");
             buf.writeInt(addPkgCPEntry(newInstance.externalPackageId));
             buf.writeInt(addStringCPEntry(newInstance.objectName));
         } else {

@@ -499,6 +499,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.testing.Assert;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -4836,7 +4837,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             case FIELD_BINDING_PATTERN -> transformFieldBindingPattern(bindingPattern, pos);
             case ERROR_BINDING_PATTERN -> transformErrorBindingPattern((ErrorBindingPatternNode) bindingPattern, pos);
             default -> {
-                assert patternKind == SyntaxKind.WILDCARD_BINDING_PATTERN;
+                Assert.assertEquals(patternKind, SyntaxKind.WILDCARD_BINDING_PATTERN, "Expected patternKind to be WILDCARD_BINDING_PATTERN");
                 yield transformWildCardBindingPattern(pos);
             }
         };

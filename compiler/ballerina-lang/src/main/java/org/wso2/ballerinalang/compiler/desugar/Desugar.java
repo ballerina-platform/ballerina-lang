@@ -306,6 +306,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
+import org.testing.Assert;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -3560,7 +3561,7 @@ public class Desugar extends BLangNodeVisitor {
             } else if (elseStmt.getKind() == NodeKind.BLOCK) {
                 ((BLangBlockStmt) elseStmt).stmts.add(0, generateChannelAutoCloseStmt(ifBlockChannels));
             } else {
-                assert elseStmt.getKind() == NodeKind.IF;
+                Assert.assertEquals(NodeKind.IF, elseStmt.getKind(), "Expected elseStmt to be of kind IF");
                 List<BLangStatement> stmts = new ArrayList<>(2);
                 stmts.add(generateChannelAutoCloseStmt(ifBlockChannels));
                 stmts.add(elseStmt);

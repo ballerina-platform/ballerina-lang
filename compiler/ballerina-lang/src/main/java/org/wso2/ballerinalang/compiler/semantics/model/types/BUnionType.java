@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
+import org.testing.Assert;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -110,7 +111,7 @@ public class BUnionType extends BType implements UnionType {
     }
 
     public void setMemberTypes(LinkedHashSet<BType> memberTypes) {
-        assert memberTypes.isEmpty();
+        Assert.assertTrue(memberTypes.isEmpty());
         this.memberTypes = memberTypes;
         this.originalMemberTypes = new LinkedHashSet<>(memberTypes);
     }

@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
+import org.testing.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -664,7 +665,7 @@ public class JvmPackageGen {
             return objectNewIns.def.type;
         } else {
             PackageID id = objectNewIns.externalPackageId;
-            assert id != null;
+            Assert.assertNull(id, "PackageID is null");
             BPackageSymbol symbol = packageCache.getSymbol(id.orgName + "/" + id.name);
             if (symbol != null) {
                 Name lookupKey = new Name(Utils.decodeIdentifier(objectNewIns.objectName));
