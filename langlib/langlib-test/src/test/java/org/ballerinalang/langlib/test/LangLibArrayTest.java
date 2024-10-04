@@ -563,6 +563,8 @@ public class LangLibArrayTest {
                 "testSort8",
                 "testSort9",
                 "testSort10",
+                "testSort11",
+                "testSortNegative",
                 "testReadOnlyArrayFilter",
                 "testTupleFilter",
                 "testTupleReverse",
