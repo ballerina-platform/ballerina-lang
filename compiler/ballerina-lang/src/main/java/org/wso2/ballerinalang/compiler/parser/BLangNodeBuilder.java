@@ -499,7 +499,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.testing.Assert;
+import org.testng.Assert;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

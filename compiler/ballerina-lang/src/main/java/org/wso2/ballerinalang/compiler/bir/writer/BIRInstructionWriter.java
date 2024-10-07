@@ -51,7 +51,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.testing.Assert;
+import org.testng.Assert;
 
 import java.util.HashSet;
 import java.util.List;

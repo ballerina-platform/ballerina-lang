@@ -42,7 +42,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
-import org.testing.Assert;
+import org.testng.Assert;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

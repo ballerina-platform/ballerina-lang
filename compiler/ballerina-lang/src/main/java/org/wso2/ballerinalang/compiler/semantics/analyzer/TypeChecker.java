@@ -186,7 +186,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
-import org.testing.Assert;
+import org.testng.Assert;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

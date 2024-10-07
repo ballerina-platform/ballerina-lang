@@ -56,7 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import org.testing.Assert;
+import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -69,7 +69,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
-import org.testing.Assert;
+import org.testng;
 
 import java.util.ArrayList;
 import java.util.Collections;

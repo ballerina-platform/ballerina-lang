@@ -125,7 +125,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.toOrigin;
 import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.ANON_PREFIX;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
-import org.testing.Assert; 
+import org.testng.Assert; 
 
 /**
  * This class is responsible for reading the compiled package file (bir) and creating a package symbol.

@@ -22,7 +22,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.testing.Assert;
+import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.List;

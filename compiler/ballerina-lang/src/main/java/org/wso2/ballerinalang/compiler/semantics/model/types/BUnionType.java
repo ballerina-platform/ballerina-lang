@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
-import org.testing.Assert;
+import org.testng.Assert;
 
 import java.util.Arrays;
 import java.util.Iterator;
