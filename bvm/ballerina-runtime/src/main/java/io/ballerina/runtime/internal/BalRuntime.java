@@ -201,6 +201,10 @@ public class BalRuntime extends Runtime {
         }
     }
 
+    public void gracefulExit() {
+        this.stopFuture.complete(null);
+    }
+
     private void invokeConfigInit() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
         Class<?> configClass = loadClass(CONFIGURATION_CLASS_NAME);
