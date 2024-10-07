@@ -193,6 +193,7 @@ public class MainMethodGen {
         // handle calling init and start during module initialization.
         generateSetModuleInitialedAndStarted(mv, runtimeVarIndex);
         generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable, schedulerVarIndex, futureVarIndex);
+        handleFutureValue(mv, initClass, isTestable, futureVarIndex);
         if (isTestable) {
             generateModuleStopCall(initClass, mv, runtimeVarIndex);
         } else {
@@ -326,12 +327,13 @@ public class MainMethodGen {
     }
 
     private void setListenerFound(MethodVisitor mv, boolean serviceEPAvailable, int runtimeVarIndex) {
-        // need to set immortal=true and start the scheduler again
+        mv.visitVarInsn(ALOAD, runtimeVarIndex);
         if (serviceEPAvailable) {
-            mv.visitVarInsn(ALOAD, runtimeVarIndex);
             mv.visitInsn(ICONST_1);
-            mv.visitMethodInsn(INVOKEVIRTUAL , BAL_RUNTIME, WAIT_ON_LISTENERS_METHOD_NAME, "(Z)V", false);
+         } else {
+            mv.visitInsn(ICONST_0);
         }
+        mv.visitMethodInsn(INVOKEVIRTUAL , BAL_RUNTIME, WAIT_ON_LISTENERS_METHOD_NAME, "(Z)V", false);
     }
 
     private void loadCLIArgsForMain(MethodVisitor mv, List<BIRNode.BIRFunctionParameter> params,
@@ -472,7 +474,6 @@ public class MainMethodGen {
         }
         mv.visitVarInsn(ASTORE, futureVarIndex);
         setDaemonStrand(mv, futureVarIndex);
-        handleFutureValue(mv, initClass, isTestable, futureVarIndex);
     }
 
     private void setDaemonStrand(MethodVisitor mv, int futureVarIndex) {
@@ -481,9 +482,9 @@ public class MainMethodGen {
         mv.visitFieldInsn(PUTSTATIC, SCHEDULER, DAEMON_STRAND_NAME, GET_STRAND);
     }
 
-    private void handleFutureValue(MethodVisitor mv, String initClass, boolean isTestFunction, int futureVarIndex) {
+    private void handleFutureValue(MethodVisitor mv, String initClass, boolean isTestable, int futureVarIndex) {
         mv.visitVarInsn(ALOAD, futureVarIndex);
-        if (isTestFunction) {
+        if (isTestable) {
             mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_FUTURE_AND_RETURN_IS_PANIC_METHOD,
                     HANDLE_FUTURE_AND_RETURN_IS_PANIC, false);
             Label ifLabel = new Label();
