@@ -143,6 +143,7 @@ public class Scheduler {
     public FutureValue startIsolatedWorker(BObject object, String methodName, Strand parentStrand, String strandName,
                                            StrandMetadata metadata, Map<String, Object> properties, Object... args) {
         strandName = getStrandName(object, methodName, strandName);
+
         ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
         MethodType methodType = getObjectMethodType(methodName, objectType);
         if (methodType == null) {
