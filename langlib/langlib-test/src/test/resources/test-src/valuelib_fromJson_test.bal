@@ -68,6 +68,24 @@ type Foo6 record {
     string x3;
 };
 
+public type EndpointSecurity record {
+    BasicEndpointSecurity|APIKeyEndpointSecurity securityType?;
+};
+
+public type BasicEndpointSecurity record {
+    string secretName;
+    string userNameKey;
+};
+
+public type APIKeyEndpointSecurity record {
+    string secretName;
+    string apiKeyNameKey;
+};
+
+public type EndpointConfiguration record {
+    EndpointSecurity endpointSecurity?;
+};
+
 function testFromJsonWithTypeRecord2() {
     string str = "{\"name\":\"Name\",\"age\":35}";
     json j = <json>checkpanic str.fromJsonString();
@@ -410,6 +428,20 @@ function testFromJsonStringWithTypeRecord() {
     assertEquality(studentOrError is Student3, true);
     Student3 student = checkpanic studentOrError;
     assertEquality(student.name, "Name");
+
+    string security = string `{"securityType":{"secretName":"backend-creds","userNameKey":"username"}}`;
+    EndpointSecurity|error securityOrError = security.fromJsonStringWithType();
+    assertEquality(securityOrError is EndpointSecurity, true);
+    EndpointSecurity epSecurity = <EndpointSecurity> checkpanic securityOrError;
+    assertEquality(epSecurity.securityType.toString(), "{\"secretName\":\"backend-creds\",\"userNameKey\":\"username\"}");
+
+    string epConfig = string `{"endpoint":{},"endpointSecurity":{"securityType":{"secretName":"backend-creds","userNameKey":"username"}}}`;
+    EndpointConfiguration|error epConfigOrError = epConfig.fromJsonStringWithType();
+    assertEquality(epConfigOrError is EndpointConfiguration, true);
+    EndpointConfiguration epConfiguration = <EndpointConfiguration> checkpanic epConfigOrError;
+    assertEquality(epConfiguration.endpointSecurity.toString(), string `{"securityType":{"secretName":"backend-creds","userNameKey":"username"}}`);
+    anydata ep = epConfiguration["endpoint"];
+    assertEquality(ep.toString(), "{}");
 }
 
 function testFromJsonStringWithAmbiguousType() {
