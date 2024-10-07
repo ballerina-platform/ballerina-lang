@@ -387,7 +387,6 @@ public class JvmPackageGen {
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc,
                         testExecuteFunc);
                 initMethodGen.generateLambdaForPackageInit(cw, module, moduleClass);
-                initMethodGen.generateGracefulExitMethod(cw);
                 if (isTestable) {
                     initMethodGen.generateGetTestExecutionState(cw, moduleClass);
                 }
@@ -705,7 +704,7 @@ public class JvmPackageGen {
 
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(birFunctionMap, jvmClassMapping, moduleInitClass, module,
-                immediateImports, serviceEPAvailable, mainFunc, testExecuteFunc);
+                immediateImports, mainFunc, testExecuteFunc);
         TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
         AsyncDataCollector asyncDataCollector = new AsyncDataCollector(module);
         JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass, types, typeHashVisitor);

@@ -180,8 +180,8 @@ public class MainMethodGen {
         generateJavaCompatibilityCheck(mv);
         generateBallerinaRuntimeInformation(mv);
         invokeConfigInit(mv, pkg.packageID);
-        // start all listeners and TRAP signal handler
-        startListenersAndSignalHandler(mv, serviceEPAvailable);
+        // TRAP signal handler
+        genStartTrapSignalHandler(mv);
 
         genRuntimeAndGetScheduler(mv, initClass, runtimeVarIndex, schedulerVarIndex);
         // register a shutdown hook to call package stop() method.
@@ -193,17 +193,16 @@ public class MainMethodGen {
         // handle calling init and start during module initialization.
         generateSetModuleInitialedAndStarted(mv, runtimeVarIndex);
         generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable, schedulerVarIndex, futureVarIndex);
-
-        if (hasInitFunction && !isTestable) {
-            setListenerFound(mv, serviceEPAvailable, runtimeVarIndex);
-        }
-        stopListeners(mv, serviceEPAvailable);
-        if (!serviceEPAvailable && !isTestable) {
-            JvmCodeGenUtil.generateExitRuntime(mv);
-        }
-
+        handleFutureValue(mv, initClass, isTestable, futureVarIndex);
         if (isTestable) {
             generateModuleStopCall(initClass, mv, runtimeVarIndex);
+        } else {
+            if (hasInitFunction) {
+                setListenerFound(mv, serviceEPAvailable, runtimeVarIndex);
+            }
+            if (!serviceEPAvailable) {
+                JvmCodeGenUtil.generateExitRuntime(mv);
+            }
         }
         mv.visitLabel(tryCatchEnd);
         mv.visitInsn(RETURN);
@@ -242,11 +241,6 @@ public class MainMethodGen {
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
         // invoke the module execute method
         genSubmitToScheduler(initClass, mv, userMainFunc, isTestable, futureVarIndex);
-    }
-
-    private void stopListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
-        mv.visitLdcInsn(isServiceEPAvailable);
-        mv.visitMethodInsn(INVOKESTATIC , LAUNCH_UTILS, "stopListeners", "(Z)V", false);
     }
 
     private void generateModuleStopCall(String initClass, MethodVisitor mv, int runtimeVarIndex) {
@@ -306,9 +300,8 @@ public class MainMethodGen {
         return Objects.requireNonNullElse(javaVersion, "");
     }
 
-    private void startListenersAndSignalHandler(MethodVisitor mv, boolean isServiceEPAvailable) {
-        mv.visitLdcInsn(isServiceEPAvailable);
-        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListenersAndSignalHandler", "(Z)V", false);
+    private void genStartTrapSignalHandler(MethodVisitor mv) {
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startTrapSignalHandler", VOID_METHOD_DESC, false);
     }
 
     private void genShutdownHook(MethodVisitor mv, String initClass, int runtimeVarIndex) {
@@ -334,12 +327,13 @@ public class MainMethodGen {
     }
 
     private void setListenerFound(MethodVisitor mv, boolean serviceEPAvailable, int runtimeVarIndex) {
-        // need to set immortal=true and start the scheduler again
+        mv.visitVarInsn(ALOAD, runtimeVarIndex);
         if (serviceEPAvailable) {
-            mv.visitVarInsn(ALOAD, runtimeVarIndex);
             mv.visitInsn(ICONST_1);
-            mv.visitMethodInsn(INVOKEVIRTUAL , BAL_RUNTIME, WAIT_ON_LISTENERS_METHOD_NAME, "(Z)V", false);
+         } else {
+            mv.visitInsn(ICONST_0);
         }
+        mv.visitMethodInsn(INVOKEVIRTUAL , BAL_RUNTIME, WAIT_ON_LISTENERS_METHOD_NAME, "(Z)V", false);
     }
 
     private void loadCLIArgsForMain(MethodVisitor mv, List<BIRNode.BIRFunctionParameter> params,
@@ -480,7 +474,6 @@ public class MainMethodGen {
         }
         mv.visitVarInsn(ASTORE, futureVarIndex);
         setDaemonStrand(mv, futureVarIndex);
-        handleFutureValue(mv, initClass, isTestable, futureVarIndex);
     }
 
     private void setDaemonStrand(MethodVisitor mv, int futureVarIndex) {
@@ -489,9 +482,9 @@ public class MainMethodGen {
         mv.visitFieldInsn(PUTSTATIC, SCHEDULER, DAEMON_STRAND_NAME, GET_STRAND);
     }
 
-    private void handleFutureValue(MethodVisitor mv, String initClass, boolean isTestFunction, int futureVarIndex) {
+    private void handleFutureValue(MethodVisitor mv, String initClass, boolean isTestable, int futureVarIndex) {
         mv.visitVarInsn(ALOAD, futureVarIndex);
-        if (isTestFunction) {
+        if (isTestable) {
             mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_FUTURE_AND_RETURN_IS_PANIC_METHOD,
                     HANDLE_FUTURE_AND_RETURN_IS_PANIC, false);
             Label ifLabel = new Label();

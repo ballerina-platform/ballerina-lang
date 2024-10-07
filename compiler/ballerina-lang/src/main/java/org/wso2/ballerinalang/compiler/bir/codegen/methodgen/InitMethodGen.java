@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCLICall;
-import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
@@ -82,7 +81,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TEST_EXECUTION_STATE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GRACEFUL_EXIT_METHOD_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
@@ -105,7 +103,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CURRENT_MODULE_STOP;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BAL_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAIN_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_REGISTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_SCHEDULER;
@@ -293,14 +290,14 @@ public class InitMethodGen {
 
     private void generateCallStopDynamicLambda(MethodVisitor mv, String lambdaName, String moduleInitClass,
                                                AsyncDataCollector asyncDataCollector, JvmConstantsGen jvmConstantsGen) {
-        addRuntimeRegistryAsParameter(mv, moduleInitClass);
+        addRuntimeRegistryAsParameter(mv);
         generateMethodBody(mv, moduleInitClass, lambdaName, asyncDataCollector, jvmConstantsGen);
         // handle future result
         mv.visitVarInsn(ALOAD, 3);
         mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_FUTURE_METHOD, HANDLE_FUTURE, false);
     }
 
-    private void addRuntimeRegistryAsParameter(MethodVisitor mv, String initClass) {
+    private void addRuntimeRegistryAsParameter(MethodVisitor mv) {
         mv.visitIntInsn(BIPUSH, 2);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
         mv.visitVarInsn(ASTORE, 2);
@@ -330,7 +327,7 @@ public class InitMethodGen {
     public void enrichPkgWithInitializers(Map<String, BIRFunctionWrapper> birFunctionMap,
                                           Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
                                           BIRNode.BIRPackage pkg, Set<PackageID> moduleImports,
-                                          boolean serviceEPAvailable, BIRNode.BIRFunction mainFunc,
+                                          BIRNode.BIRFunction mainFunc,
                                           BIRNode.BIRFunction testExecuteFunc) {
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
         BIRNode.BIRFunction initFunc = generateDefaultFunction(moduleImports, pkg, MODULE_INIT_METHOD,
@@ -347,17 +344,17 @@ public class InitMethodGen {
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_START_METHOD,
                 JvmPackageGen.getFunctionWrapper(startFunc, pkg.packageID, typeOwnerClass));
 
-        BIRNode.BIRFunction execFunc = generateExecuteFunction(pkg, serviceEPAvailable, mainFunc, testExecuteFunc,
-                typeOwnerClass);
+        BIRNode.BIRFunction execFunc = generateExecuteFunction(pkg, mainFunc, testExecuteFunc
+                                                              );
         javaClass.functions.add(execFunc);
         pkg.functions.add(execFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_EXECUTE_METHOD,
                 JvmPackageGen.getFunctionWrapper(execFunc, pkg.packageID, typeOwnerClass));
     }
 
-    private BIRNode.BIRFunction generateExecuteFunction(BIRNode.BIRPackage pkg, boolean serviceEPAvailable,
+    private BIRNode.BIRFunction generateExecuteFunction(BIRNode.BIRPackage pkg,
                                                         BIRNode.BIRFunction mainFunc,
-                                                        BIRNode.BIRFunction testExecuteFunc, String typeOwnerClass) {
+                                                        BIRNode.BIRFunction testExecuteFunc) {
         BIRNode.BIRVariableDcl retVar = new BIRNode.BIRVariableDcl(null, errorOrNilType,
                 new Name("%ret"), VarScope.FUNCTION, VarKind.RETURN, null);
         BIROperand retVarRef = new BIROperand(retVar);
@@ -441,9 +438,7 @@ public class InitMethodGen {
 
         if (testExecuteFunc != null) {
             lastBB = addTestExecuteInvocationWithGracefulExitCall(modExecFunc, pkg.packageID, retVarRef, functionArgs,
-                                                                  Collections.emptyList(), typeOwnerClass);
-        } else if (!serviceEPAvailable && !JvmPackageGen.isLangModule(pkg.packageID)) {
-            lastBB = addInvocationForGracefulExitCall(modExecFunc, typeOwnerClass);
+                                                                  Collections.emptyList());
         }
         lastBB.terminator = new BIRTerminator.Return(null);
         return modExecFunc;
@@ -555,32 +550,11 @@ public class InitMethodGen {
         return new Name(varIdPrefix + nextVarId);
     }
 
-    private BIRNode.BIRBasicBlock addInvocationForGracefulExitCall(BIRNode.BIRFunction func, String typeOwnerClass) {
-        BIRNode.BIRBasicBlock lastBB = func.basicBlocks.getLast();
-        BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
-        lastBB.terminator = getExitMethodCall(nextBB, typeOwnerClass);
-        return nextBB;
-    }
-
-    private static JIMethodCall getExitMethodCall(BIRNode.BIRBasicBlock nextBB, String typeOwnerClass) {
-        JIMethodCall jiMethodCall = new JIMethodCall(null);
-        jiMethodCall.args = new ArrayList<>();
-        jiMethodCall.varArgExist = false;
-        jiMethodCall.jClassName = typeOwnerClass;
-        jiMethodCall.jMethodVMSig = PASS_STRAND;
-        jiMethodCall.name = GRACEFUL_EXIT_METHOD_NAME;
-        jiMethodCall.invocationType = INVOKESTATIC;
-        jiMethodCall.thenBB = nextBB;
-        jiMethodCall.isInternal = true;
-        return jiMethodCall;
-    }
-
     private BIRNode.BIRBasicBlock addTestExecuteInvocationWithGracefulExitCall(BIRNode.BIRFunction func,
                                                                                PackageID modId, BIROperand retVar,
                                                                                List<BIROperand> args,
                                                                                List<BIRNode.BIRAnnotationAttachment>
-                                                                                       calleeAnnotAttachments,
-                                                                               String typeOwnerClass) {
+                                                                                       calleeAnnotAttachments) {
         BIRNode.BIRBasicBlock lastBB = func.basicBlocks.getLast();
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
         if (JvmCodeGenUtil.isBuiltInPackage(modId)) {
@@ -590,9 +564,7 @@ public class InitMethodGen {
         }
         lastBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId,
                 new Name(TEST_EXECUTE_METHOD), args, retVar, nextBB, calleeAnnotAttachments, Collections.emptySet());
-        BIRNode.BIRBasicBlock finalBB = addAndGetNextBasicBlock(func);
-        nextBB.terminator = getExitMethodCall(finalBB, typeOwnerClass);
-        return finalBB;
+        return nextBB;
     }
 
     private BIRNode.BIRBasicBlock addCheckedInvocationWithArgs(BIRNode.BIRFunction func, PackageID modId,
@@ -645,18 +617,6 @@ public class InitMethodGen {
 
     public int incrementAndGetNextId() {
         return nextId++;
-    }
-
-    public void generateGracefulExitMethod(ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, GRACEFUL_EXIT_METHOD_NAME, PASS_STRAND, null, null);
-        mv.visitCode();
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "scheduler", GET_SCHEDULER);
-        mv.visitFieldInsn(GETFIELD, SCHEDULER, "runtime", GET_BAL_RUNTIME);
-        mv.visitMethodInsn(INVOKEVIRTUAL, BAL_RUNTIME, GRACEFUL_EXIT_METHOD_NAME, "()V", false);
-        mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMaxStackForMethod(mv, GRACEFUL_EXIT_METHOD_NAME, SCHEDULER);
-        mv.visitEnd();
     }
 
     public void generateGetTestExecutionState(ClassWriter cw, String className) {

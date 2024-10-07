@@ -19,9 +19,11 @@ package org.ballerinalang.test.agent;
 
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.CtConstructor;
 import javassist.CtField;
-import javassist.CtMethod;
 import org.ballerinalang.test.agent.server.WebServer;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 
 import java.io.PrintStream;
 import java.lang.instrument.ClassFileTransformer;
@@ -37,7 +39,7 @@ import java.util.Map;
  * @since 0.982.0
  */
 public class BallerinaServerAgent {
-    private static PrintStream outStream = System.err;
+    private static final PrintStream outStream = System.err;
 
     /**
      * Argument name for exist status.
@@ -102,19 +104,17 @@ public class BallerinaServerAgent {
         if (agentPort == -1) {
             throw new RuntimeException("Invalid agent port - " + agentPort);
         }
-
         ClassFileTransformer transformer = new ClassFileTransformer() {
             @Override
             public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                                     ProtectionDomain protectionDomain, byte[] classfileBuffer) {
-                if ("io/ballerina/runtime/internal/scheduling/Scheduler".equals(className)) {
+                if (JvmConstants.BAL_RUNTIME.equals(className)) {
                     try {
                         ClassPool cp = ClassPool.getDefault();
-                        CtClass cc = cp.get("io.ballerina.runtime.internal.scheduling.Scheduler");
+                        CtClass cc = cp.get("io.ballerina.runtime.internal.BalRuntime");
                         cc.addField(CtField.make("boolean agentStarted;", cc));
-
-                        CtMethod m = cc.getDeclaredMethod("start");
-                        m.insertBefore("if (!agentStarted) {" +
+                        CtConstructor constructor = cc.getConstructor(JvmSignatures.INIT_RUNTIME);
+                        constructor.insertBeforeBody("if (!agentStarted) {" +
                                 "org.ballerinalang.test.agent.BallerinaServerAgent.startAgentServer();" +
                                 "agentStarted = true;" +
                                 " }");

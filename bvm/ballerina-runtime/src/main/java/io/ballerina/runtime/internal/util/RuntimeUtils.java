@@ -20,7 +20,6 @@ package io.ballerina.runtime.internal.util;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -54,7 +53,7 @@ public class RuntimeUtils {
     private static final String CRASH_LOGGER = "b7a.log.crash";
     private static final PrintStream errStream = System.err;
     public static final String USER_DIR = System.getProperty("user.dir");
-     private static final Logger crashLogger = Logger.getLogger(CRASH_LOGGER);
+    private static final Logger crashLogger = Logger.getLogger(CRASH_LOGGER);
     private static ConsoleHandler handler;
 
     /**
@@ -67,20 +66,31 @@ public class RuntimeUtils {
         return (intValue >= BBYTE_MIN_VALUE && intValue <= BBYTE_MAX_VALUE);
     }
 
-    public static void handleFuture(FutureValue future) {
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen. This will handle future value in main method.
+     */
+    public static void handleFutureAndExit(FutureValue future) {
         try {
-            handleErrorResult(getFutureValue(future));
+            Object result = future.get();
+            if (result instanceof ErrorValue error) {
+                errStream.println("error: " + error.getPrintableError());
+                Runtime.getRuntime().exit(1);
+            }
         } catch (ErrorValue error) {
             printToConsole(error);
+            Runtime.getRuntime().exit(1);
         }
     }
 
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen. This will handle future value in tests.
+     */
     public static boolean handleFutureAndReturnIsPanic(FutureValue future) {
         try {
-            Object result =  getFutureValue(future);
-            if (result instanceof ErrorValue errorValue) {
-                errStream.println("error: " + errorValue.getPrintableError());
-            }
+            Object result =  future.get();
+            handleErrorResult(result);
         } catch (ErrorValue error) {
             printToConsole(error);
             return true;
@@ -88,16 +98,22 @@ public class RuntimeUtils {
         return false;
     }
 
-    public static void handleFutureAndExit(FutureValue future) {
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen. This will handle future value in init and stop methods.
+     */
+    public static void handleFuture(FutureValue future) {
         try {
-            handleErrorResult(getFutureValue(future));
-            Runtime.getRuntime().exit(0);
+            handleErrorResult(future.get());
         } catch (ErrorValue error) {
             printToConsole(error);
-            Runtime.getRuntime().exit(1);
         }
     }
 
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen. This will handle throwable in main method.
+     */
     public static void handleThrowable(Throwable throwable) {
         logBadSad(throwable);
         Runtime.getRuntime().exit(1);
@@ -106,17 +122,6 @@ public class RuntimeUtils {
     public static void handleErrorResult(Object result) {
         if (result instanceof ErrorValue errorValue) {
             errStream.println("error: " + errorValue.getPrintableError());
-        }
-    }
-
-    public static Object getFutureValue(FutureValue future) {
-        try {
-            return future.completableFuture.get();
-        } catch (Throwable e) {
-            if (e.getCause() instanceof BError bError) {
-                throw bError;
-            }
-            throw ErrorCreator.createError(e);
         }
     }
 

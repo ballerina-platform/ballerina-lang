@@ -44,7 +44,7 @@ public class Strand {
     private Map<String, Object> globalProps;
 
     public final boolean isIsolated;
-    public State state = State.YIELD;
+    public boolean cancelled;
     public Scheduler scheduler;
     public Strand parent;
     public TransactionLocalContext currentTrxContext;
@@ -89,25 +89,29 @@ public class Strand {
 
     public void resume() {
         checkStrandCancelled();
-        if (!this.isIsolated && this.state == State.YIELD) {
+        if (!this.isIsolated && !scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
             this.scheduler.globalNonIsolatedLock.lock();
-            this.state = State.RUNNABLE;
+
         }
     }
 
     public void yield() {
         checkStrandCancelled();
-        if (!this.isIsolated && this.state == State.RUNNABLE) {
+        if (!this.isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
             scheduler.globalNonIsolatedLock.unlock();
-            this.state = State.YIELD;
         }
     }
 
     public void done() {
-        if (!isIsolated && this.state == State.RUNNABLE) {
+        if (!isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
             scheduler.globalNonIsolatedLock.unlock();
         }
     }
+
+    public boolean isRunnable() {
+        return isIsolated || this.scheduler.globalNonIsolatedLock.isHeldByCurrentThread();
+    }
+
 
     private TransactionLocalContext createTrxContextBranch(TransactionLocalContext currentTrxContext,
                                                            int strandName) {
@@ -181,20 +185,8 @@ public class Strand {
     }
 
     public void checkStrandCancelled() {
-        if (this.state == State.CANCELLED) {
+        if (this.cancelled) {
             throw ErrorUtils.createCancelledFutureError();
         }
     }
-
-    /**
-     * Maintains the Strand state.
-     *
-     * @since 2201.11.0
-     */
-    public enum State {
-        RUNNABLE,
-        YIELD,
-        CANCELLED
-    }
-
 }
