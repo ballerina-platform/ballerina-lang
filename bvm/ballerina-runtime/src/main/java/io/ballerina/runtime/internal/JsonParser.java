@@ -439,6 +439,7 @@ public class JsonParser {
         private void processJsonAnydataType() {
             if (this.nodesStackSizeWhenUnionStarts == this.nodesStack.size()) {
                 this.targetTypes.remove(this.targetTypes.size() - 1);
+                this.nodesStackSizeWhenUnionStarts = -1;
             }
         }
 
@@ -446,6 +447,7 @@ public class JsonParser {
             if (this.nodesStackSizeWhenUnionStarts == this.nodesStack.size()) {
                 this.targetTypes.remove(this.targetTypes.size() - 1);
                 this.currentJsonNode = convert(this.currentJsonNode, targetType);
+                this.nodesStackSizeWhenUnionStarts = -1;
             }
         }
 
