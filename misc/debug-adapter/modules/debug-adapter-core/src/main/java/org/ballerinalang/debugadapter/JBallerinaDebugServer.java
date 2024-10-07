@@ -1107,8 +1107,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         VirtualMachine attachedVm = executionManager.attach(hostName, portName);
         context.setDebuggeeVM(new VirtualMachineProxyImpl(attachedVm));
         EventRequestManager erm = context.getEventManager();
-        ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
-        classPrepareRequest.enable();
+        erm.createClassPrepareRequest().enable();
         erm.createThreadStartRequest().enable();
         erm.createThreadDeathRequest().enable();
         eventProcessor.startListening();

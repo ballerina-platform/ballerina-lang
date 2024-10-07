@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.ballerinalang.debugadapter.BreakpointProcessor.DynamicBreakpointMode;
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
@@ -59,8 +60,8 @@ public class JDIEventProcessor {
     private final BreakpointProcessor breakpointProcessor;
     private boolean isRemoteVmAttached = false;
     private final List<EventRequest> stepRequests = new ArrayList<>();
+    private static final List<ThreadReference> virtualThreads = new CopyOnWriteArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JDIEventProcessor.class);
-    private static final List<ThreadReference> virtualThreads = new ArrayList<>();
 
     JDIEventProcessor(ExecutionContext context) {
         this.context = context;
@@ -132,16 +133,13 @@ public class JDIEventProcessor {
         } else if (event instanceof ThreadStartEvent threadStartEvent) {
             ThreadReference thread = threadStartEvent.thread();
             if (thread.isVirtual()) {
-                synchronized (virtualThreads) {
-                    virtualThreads.add(thread);
-                }
+                virtualThreads.add(thread);
+
             }
             eventSet.resume();
         } else if (event instanceof ThreadDeathEvent threadDeathEvent) {
             ThreadReference thread = threadDeathEvent.thread();
-            synchronized (virtualThreads) {
-                virtualThreads.remove(thread);
-            }
+            virtualThreads.remove(thread);
             eventSet.resume();
         } else {
             eventSet.resume();
