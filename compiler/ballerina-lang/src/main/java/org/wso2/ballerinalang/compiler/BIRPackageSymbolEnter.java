@@ -1552,7 +1552,7 @@ public class BIRPackageSymbolEnter {
                     errorSymbol.pkgID = pkgId;
                     errorSymbol.originalName = errorSymbol.name = Names.fromString(errorName);
                     Object poppedErrorType = compositeStack.pop();
-                    assert.assertEquals(poppedErrorType, errorType, "Popped error type does not match expected error type.");
+                    Assert.assertEquals(poppedErrorType, errorType, "Popped error type does not match expected error type.");
                     if (!env.pkgSymbol.pkgID.equals(PackageID.ANNOTATIONS)
                             && Symbols.isFlagOn(flags, Flags.NATIVE)) {
                         // This is a workaround to avoid, getting no type for error detail field.
