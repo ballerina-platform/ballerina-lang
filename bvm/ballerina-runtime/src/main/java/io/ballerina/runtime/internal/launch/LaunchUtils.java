@@ -64,6 +64,10 @@ public class LaunchUtils {
     private LaunchUtils() {
     }
 
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen. This will handle trap signals for strand dump.
+     */
     public static void startTrapSignalHandler() {
         try {
             Signal.handle(new Signal("TRAP"), signal -> outStream.println(StrandDump.getStrandDump()));
@@ -73,6 +77,10 @@ public class LaunchUtils {
         }
     }
 
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen adding module configurable data.
+     */
     public static void addModuleConfigData(Map<Module, VariableKey[]> configurationData, Module m,
                                            VariableKey[] variableKeys) {
         VariableKey[] currKeys = configurationData.get(m);
@@ -87,6 +95,10 @@ public class LaunchUtils {
         configurationData.put(m, mergedKeyArray);
     }
 
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen initialize configurable variables.
+     */
     public static void initConfigurableVariables(Module rootModule, Map<Module, VariableKey[]> configurationData,
                                                  String[] args, Path[] configFilePaths, String configContent) {
 
@@ -139,6 +151,10 @@ public class LaunchUtils {
         return null;
     }
 
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen to get configurable input paths.
+     */
     public static ConfigDetails getTestConfigPaths(Module module, String pkgName, String sourceRoot) {
         String moduleName = module.getName();
         Path testConfigPath = Paths.get(sourceRoot);

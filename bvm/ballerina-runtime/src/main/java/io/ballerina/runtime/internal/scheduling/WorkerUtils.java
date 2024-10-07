@@ -78,7 +78,10 @@
          if (strand.isIsolated) {
              AsyncUtils.waitForAllFutureResult(futures);
          } else {
-             AsyncUtils.handleNonIsolatedStrand(strand, () -> isAllFuturesCompleted(futures), () -> null);
+             AsyncUtils.handleNonIsolatedStrand(strand, () -> {
+                 AsyncUtils.waitForAllFutureResult(futures);
+                 return null;
+             });
          }
 
          for (WorkerChannel channel : channels) {
@@ -95,7 +98,7 @@
          if (strand.isIsolated) {
              return channel.read();
          }
-         return AsyncUtils.handleNonIsolatedStrand(strand, channel.getResultFuture()::isDone, channel::read);
+         return AsyncUtils.handleNonIsolatedStrand(strand, channel::read);
      }
 
      /*
@@ -135,8 +138,11 @@
              AsyncUtils.waitForAllFutureResult(futures);
              return getMultipleReceiveResult(workerChannelMap, channelFieldNameMap, targetType, channels);
          }
-         return (BMap<BString, Object>) AsyncUtils.handleNonIsolatedStrand(strand, () -> isAllFuturesCompleted(futures),
-                 () -> getMultipleReceiveResult(workerChannelMap, channelFieldNameMap, targetType, channels));
+         return (BMap<BString, Object>) AsyncUtils.handleNonIsolatedStrand(strand,
+                 () -> {
+                     AsyncUtils.waitForAllFutureResult(futures);
+                     return getMultipleReceiveResult(workerChannelMap, channelFieldNameMap, targetType, channels);
+                 });
      }
 
      /*
@@ -205,18 +211,6 @@
              channel.read();
          }
          return result;
-     }
-
-     private static Boolean isAllFuturesCompleted(CompletableFuture<?>[] futures) {
-         for (CompletableFuture<?> future : futures) {
-             if (future.isCompletedExceptionally()) {
-                 AsyncUtils.getFutureResult(future);
-             }
-             if (!future.isDone()) {
-                 return false;
-             }
-         }
-         return true;
      }
 
      private static BMap<BString, Object> getMultipleReceiveResult(WorkerChannelMap workerChannelMap,
