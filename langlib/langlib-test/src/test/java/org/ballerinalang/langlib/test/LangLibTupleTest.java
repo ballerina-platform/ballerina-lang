@@ -113,7 +113,8 @@ public class LangLibTupleTest {
         BRunUtil.invoke(compileResult, "testRemove");
     }
 
-    @Test
+    @Test(expectedExceptions = RuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.array\\}OperationNotSupported.*")
     public void testSort() {
         BRunUtil.invoke(compileResult, "testSort");
     }
