@@ -43,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Ballerina Lang Artifacts
-          path: ~/.m2/
+          path: /home/runner/.m2/
 
     outputs:
       lang_version: ${{ steps.lang-version.outputs.version }}
@@ -79,7 +79,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: Ballerina Lang Artifacts
-          path: ~/.m2/
+          path: /home/runner/.m2/
 
       - name: Download Module Data
         run: |
@@ -142,7 +142,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: Ballerina Lang Artifacts
-          path: ~/.m2/
+          path: /home/runner/.m2/
 
       - name: Update Lang Version in Module
         run: |
