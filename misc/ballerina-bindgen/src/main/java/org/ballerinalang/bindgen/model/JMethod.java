@@ -48,8 +48,8 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticMethod;
  */
 public class JMethod extends BFunction {
 
-    private BindgenEnv env;
-    private boolean isStatic;
+    private final BindgenEnv env;
+    private final boolean isStatic;
     private boolean hasReturn = false;
     private boolean returnError = false;
     private boolean objectReturn = false;
@@ -59,17 +59,17 @@ public class JMethod extends BFunction {
     private boolean isStringReturn = false;
     private boolean isStringArrayReturn = false;
     private boolean javaArraysModule = false;
-    private boolean isOptionalReturnTypes;
-    private String parentPrefix;
+    private final boolean isOptionalReturnTypes;
+    private final String parentPrefix;
 
-    private Class<?> parentClass;
-    private Method method;
+    private final Class<?> parentClass;
+    private final Method method;
     private String methodName;
-    private String unescapedMethodName;
+    private final String unescapedMethodName;
     private String returnType;
     private String exceptionName;
     private String returnTypeJava;
-    private String javaMethodName;
+    private final String javaMethodName;
     private String exceptionConstName;
     private String returnComponentType;
 

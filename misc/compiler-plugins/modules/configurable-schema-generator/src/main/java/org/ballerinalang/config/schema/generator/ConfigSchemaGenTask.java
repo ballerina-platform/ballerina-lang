@@ -29,7 +29,6 @@ import io.ballerina.projects.util.ProjectConstants;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 
 /**
@@ -59,7 +58,7 @@ public class ConfigSchemaGenTask implements AnalysisTask<CompilationAnalysisCont
     private void writeConfigJSONSchema(String schema, Project project) {
         Path path;
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
-            path = Paths.get(System.getProperty("user.dir"));
+            path = Path.of(System.getProperty("user.dir"));
         } else {
             path = project.targetDir().resolve(ProjectConstants.BIN_DIR_NAME);
         }

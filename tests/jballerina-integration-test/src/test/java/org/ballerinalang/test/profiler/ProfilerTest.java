@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,14 +41,13 @@ import java.util.Map;
  * @since 2201.8.0
  */
 public class ProfilerTest extends BaseTest {
-    private static final String testFileLocation = Paths.get("src", "test", "resources", "profiler")
-            .toAbsolutePath().toString();
+    private static final String testFileLocation = Path.of("src/test/resources/profiler").toAbsolutePath().toString();
     private final String outputFile = "ProfilerReport.html";
     private BMainInstance bMainInstance;
     public static final String BALLERINA_HOME = "ballerina.home";
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         bMainInstance = new BMainInstance(balServer);
     }
 
@@ -57,7 +56,7 @@ public class ProfilerTest extends BaseTest {
         String packageName = "projectForProfile" + File.separator + "package_a";
         String sourceRoot = testFileLocation + File.separator;
         Map<String, String> envProperties = new HashMap<>();
-        String htmlFilePath = Paths.get(sourceRoot, packageName, "target", "profiler", outputFile).toString();
+        String htmlFilePath = Path.of(sourceRoot, packageName, "target", "profiler", outputFile).toString();
         List<LogLeecher> leechers = getProfilerLogLeechers(htmlFilePath);
         leechers.add(new LogLeecher("Is the array sorted? true"));
         bMainInstance.runMain("profile", new String[]{packageName}, envProperties,  null,

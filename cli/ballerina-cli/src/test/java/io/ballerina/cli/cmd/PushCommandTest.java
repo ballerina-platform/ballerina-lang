@@ -44,7 +44,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
@@ -70,8 +69,8 @@ public class PushCommandTest extends BaseCommandTest {
             this.testResources = super.tmpDir.resolve("build-test-resources");
             URI testResourcesURI = Objects.requireNonNull(getClass().getClassLoader().getResource("test-resources"))
                     .toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI),
-                               new BuildCommandTest.Copy(Paths.get(testResourcesURI), this.testResources));
+            Files.walkFileTree(Path.of(testResourcesURI),
+                               new BuildCommandTest.Copy(Path.of(testResourcesURI), this.testResources));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
         }
@@ -81,9 +80,9 @@ public class PushCommandTest extends BaseCommandTest {
     @Override
     public void afterMethod() throws IOException {
         super.afterMethod();
-        Path validBalProject = Paths.get("build").resolve("validProjectWithTarget");
+        Path validBalProject = Path.of("build/validProjectWithTarget");
         ProjectUtils.deleteDirectory(validBalProject);
-        validBalProject = Paths.get("build").resolve("tool-gayals");
+        validBalProject = Path.of("build/tool-gayals");
         ProjectUtils.deleteDirectory(validBalProject);
     }
 
@@ -109,9 +108,8 @@ public class PushCommandTest extends BaseCommandTest {
         String expected = "Successfully pushed src/test/resources/test-resources/custom-repo/" +
                 "luheerathan-pact1-any-0.1.0.bala to 'repo-push-pull' repository.\n";
 
-        Path mockRepo = Paths.get("build").resolve("ballerina-home").resolve("repositories").resolve("repo-push-pull");
-        Path balaPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
-                "luheerathan-pact1-any-0.1.0.bala");
+        Path mockRepo = Path.of("build/ballerina-home/repositories/repo-push-pull");
+        Path balaPath = Path.of("src/test/resources/test-resources/custom-repo/luheerathan-pact1-any-0.1.0.bala");
         PushCommand pushCommand = new PushCommand(null, printStream, printStream, false, balaPath);
         String[] args = { "--repository=repo-push-pull" };
         new CommandLine(pushCommand).parseArgs(args);
@@ -128,8 +126,8 @@ public class PushCommandTest extends BaseCommandTest {
         String pomFile = packageName + "-" + version + POM_EXTENSION;
         String pushPullPath = mockRepo.resolve(org).resolve(packageName).resolve(version).toAbsolutePath().toString();
         for (String ext : new String[]{".sha1", ".md5", ""}) {
-            Assert.assertTrue(Paths.get(pushPullPath, artifact + ext).toFile().exists());
-            Assert.assertTrue(Paths.get(pushPullPath, pomFile + ext).toFile().exists());
+            Assert.assertTrue(Path.of(pushPullPath, artifact + ext).toFile().exists());
+            Assert.assertTrue(Path.of(pushPullPath, pomFile + ext).toFile().exists());
         }
     }
 
@@ -138,15 +136,15 @@ public class PushCommandTest extends BaseCommandTest {
         String expected = "ballerina: unsupported repository 'repo-push-pul' found. " +
                 "Only 'local' repository and repositories mentioned in the Settings.toml are supported.\n";
 
-        Path mockRepo = Paths.get("build").resolve("ballerina-home").resolve("repositories").resolve("repo-push-pull");
-        Path balaPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
-                "luheerathan-pact1-any-0.1.0.bala");
+        Path mockRepo = Path.of("build/ballerina-home/repositories/repo-push-pull");
+        Path balaPath = Path.of("src/test/resources/test-resources/custom-repo/luheerathan-pact1-any-0.1.0.bala");
         PushCommand pushCommand = new PushCommand(null, printStream, printStream, false, balaPath);
         String[] args = { "--repository=repo-push-pul" };
         new CommandLine(pushCommand).parseArgs(args);
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
-            repoUtils.when(RepoUtils::readSettings).thenReturn(readSettings(testResources.resolve("custom-repo")
-                    .resolve("Settings.toml"), mockRepo.toAbsolutePath().toString()));
+            repoUtils.when(RepoUtils::readSettings).thenReturn(
+                    readSettings(testResources.resolve("custom-repo/Settings.toml"),
+                            mockRepo.toAbsolutePath().toString()));
             pushCommand.execute();
         }
         String buildLog = readOutput(true);
@@ -172,8 +170,7 @@ public class PushCommandTest extends BaseCommandTest {
     public void testPushWithInvalidFileExtension() throws IOException {
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
-        String invalidExtensionFilePath = this.testResources.resolve("non-bal-file")
-                .resolve("hello_world.txt").toString();
+        String invalidExtensionFilePath = this.testResources.resolve("non-bal-file/hello_world.txt").toString();
         new CommandLine(pushCommand).parseArgs(invalidExtensionFilePath);
         pushCommand.execute();
 
@@ -185,21 +182,20 @@ public class PushCommandTest extends BaseCommandTest {
 
     @Test(description = "Push package with custom path")
     public void testPushWithCustomPath() throws IOException {
-        Path validBalProject = Paths.get("build").resolve("validProjectWithTarget");
+        Path validBalProject = Path.of("build/validProjectWithTarget");
 
         FileUtils.copyDirectory(
                 this.testResources.resolve("validProjectWithTarget").toFile(), validBalProject.toFile());
         FileUtils.moveDirectory(
                 validBalProject.resolve("target-dir").toFile(), validBalProject.resolve("custom").toFile());
 
-        Path customTargetDirBalaPath = validBalProject.resolve("custom").resolve("bala")
-                .resolve("foo-winery-any-0.1.0.bala");
+        Path customTargetDirBalaPath = validBalProject.resolve("custom/bala/foo-winery-any-0.1.0.bala");
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false,
                 customTargetDirBalaPath);
         String[] args = { "--repository=local" };
         new CommandLine(pushCommand).parseArgs(args);
 
-        Path mockRepo = Paths.get("build").resolve("ballerina-home");
+        Path mockRepo = Path.of("build/ballerina-home");
 
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
             repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
@@ -214,8 +210,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(actual.contains(expected));
 
         try {
-            ProjectFiles.validateBalaProjectPath(mockRepo.resolve("repositories").resolve("local").resolve("bala")
-                    .resolve("foo").resolve("winery").resolve("0.1.0").resolve("any"));
+            ProjectFiles.validateBalaProjectPath(mockRepo.resolve("repositories/local/bala/foo/winery/0.1.0/any"));
         } catch (ProjectException e) {
             Assert.fail(e.getMessage());
         }
@@ -223,21 +218,21 @@ public class PushCommandTest extends BaseCommandTest {
 
     @Test(description = "Push a tool to local repository")
     public void testPushToolToLocal() throws IOException {
-        Path validBalProject = Paths.get("build").resolve("tool-gayals");
+        Path validBalProject = Path.of("build/tool-gayals");
 
         FileUtils.copyDirectory(
                 this.testResources.resolve("tool-gayals").toFile(), validBalProject.toFile());
         FileUtils.moveDirectory(
                 validBalProject.resolve("target-dir").toFile(), validBalProject.resolve("custom").toFile());
 
-        Path customTargetDirBalaPath = validBalProject.resolve("custom").resolve("bala")
-                .resolve("gayaldassanayake-tool_gayal-java17-1.1.0.bala");
+        Path customTargetDirBalaPath =
+                validBalProject.resolve("custom/bala/gayaldassanayake-tool_gayal-java17-1.1.0.bala");
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false,
                 customTargetDirBalaPath);
         String[] args = { "--repository=local" };
         new CommandLine(pushCommand).parseArgs(args);
 
-        Path mockRepo = Paths.get("build").resolve("ballerina-home");
+        Path mockRepo = Path.of("build/ballerina-home");
 
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
             repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
@@ -252,15 +247,13 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(actual.contains(expected));
 
         try {
-            ProjectFiles.validateBalaProjectPath(mockRepo.resolve("repositories").resolve("local")
-                    .resolve("bala").resolve("gayaldassanayake").resolve("tool_gayal")
-                    .resolve("1.1.0").resolve("java17"));
+            ProjectFiles.validateBalaProjectPath(
+                    mockRepo.resolve("repositories/local/bala/gayaldassanayake/tool_gayal/1.1.0/java17"));
         } catch (ProjectException e) {
             Assert.fail(e.getMessage());
         }
 
-        Path localToolJsonPath = mockRepo.resolve("repositories").resolve("local").resolve("bala")
-                .resolve("local-tools.json");
+        Path localToolJsonPath = mockRepo.resolve("repositories/local/bala/local-tools.json");
 
         Assert.assertTrue(Files.exists(localToolJsonPath));
 
@@ -300,12 +293,10 @@ public class PushCommandTest extends BaseCommandTest {
         packCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("compile-bal-project.txt"));
-        Assert.assertTrue(
-                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target/bala/foo-winery-any-0.1.0.bala").toFile().exists());
 
         // Delete bala
-        Assert.assertTrue(
-                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().delete());
+        Assert.assertTrue(projectPath.resolve("target/bala/foo-winery-any-0.1.0.bala").toFile().delete());
 
         // Push
         String expected = "cannot find bala file for the package: winery. Run "
@@ -345,13 +336,13 @@ public class PushCommandTest extends BaseCommandTest {
 
     @Test
     public void testPushToCustomRepo() throws IOException {
-        Path validBalProject = Paths.get("build").resolve("validProjectWithTarget");
+        Path validBalProject = Path.of("build/validProjectWithTarget");
         FileUtils.copyDirectory(
                 this.testResources.resolve("validProjectWithTarget").toFile(), validBalProject.toFile());
         FileUtils.moveDirectory(
                 validBalProject.resolve("target-dir").toFile(), validBalProject.resolve("target").toFile());
 
-        Path mockRepo = Paths.get("build").resolve("ballerina-home");
+        Path mockRepo = Path.of("build/ballerina-home");
         // Test if no arguments was passed in
         String[] args = { "--repository=local" };
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
@@ -364,8 +355,7 @@ public class PushCommandTest extends BaseCommandTest {
         }
 
         try {
-            ProjectFiles.validateBalaProjectPath(mockRepo.resolve("repositories").resolve("local").resolve("bala")
-                    .resolve("foo").resolve("winery").resolve("0.1.0").resolve("any"));
+            ProjectFiles.validateBalaProjectPath(mockRepo.resolve("repositories/local/bala/foo/winery/0.1.0/any"));
         } catch (ProjectException e) {
             Assert.fail(e.getMessage());
         }
@@ -380,8 +370,7 @@ public class PushCommandTest extends BaseCommandTest {
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
-        Assert.assertTrue(
-                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target/bala/foo-winery-any-0.1.0.bala").toFile().exists());
 
         // Push
         String expected = "Package.md is missing in bala file";
@@ -405,8 +394,7 @@ public class PushCommandTest extends BaseCommandTest {
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
-        Assert.assertTrue(
-                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target/bala/foo-winery-any-0.1.0.bala").toFile().exists());
 
         Files.delete(projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
 
@@ -429,8 +417,7 @@ public class PushCommandTest extends BaseCommandTest {
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
-        Assert.assertTrue(
-                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target/bala/foo-winery-any-0.1.0.bala").toFile().exists());
 
         String[] args = { "--repository=stdlib.local" };
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);

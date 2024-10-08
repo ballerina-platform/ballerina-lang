@@ -21,7 +21,6 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
@@ -44,8 +43,7 @@ public class ReturnStatementNodeContext extends AbstractCompletionProvider<Retur
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ReturnStatementNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ReturnStatementNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (node.expression().isPresent()

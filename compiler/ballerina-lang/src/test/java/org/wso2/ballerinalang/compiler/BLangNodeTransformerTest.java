@@ -34,7 +34,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,11 +49,11 @@ import java.util.StringJoiner;
  */
 public class BLangNodeTransformerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BLangNodeTransformerTest.class);
-    public static final Path RES_DIR = Paths.get("src/test/resources/node-tree/").toAbsolutePath();
+    public static final Path RES_DIR = Path.of("src/test/resources/node-tree/").toAbsolutePath();
 
     @Test(dataProvider = "testTransformationTestProvider", enabled = false)
     public void testTransformation(String configName, String sourcePackage)
-            throws IOException, IllegalAccessException {
+            throws IllegalAccessException {
         // Get expected result json
         JsonObject expJsonObj = fileContentAsObject(configName);
 
@@ -243,10 +242,10 @@ public class BLangNodeTransformerTest {
     }
 
     private static Project loadProject(String sourceFilePath) {
-        Path sourcePath = Paths.get(sourceFilePath);
+        Path sourcePath = Path.of(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = RES_DIR.resolve(sourcePath.getParent());
-        Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
+        Path projectPath = Path.of(sourceRoot.toString(), sourceFileName);
         return ProjectLoader.loadProject(projectPath);
     }
 }

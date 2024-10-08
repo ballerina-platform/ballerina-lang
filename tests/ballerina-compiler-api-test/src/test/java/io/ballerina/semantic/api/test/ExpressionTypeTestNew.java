@@ -603,7 +603,12 @@ public class ExpressionTypeTestNew {
                 // Group expr
                 {282, 12, 282, 34, INT},
                 {282, 14, 282, 28, INT},
-
+                // XML step expression with extension
+                {376, 17, 376, 18, INT},
+                {377, 13, 377, 19, UNION},
+                {377, 17, 377, 18, INT},
+                {378, 9, 378, 31, XML},
+                {378, 16, 378, 23, XML},
         };
     }
 

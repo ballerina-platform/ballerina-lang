@@ -32,7 +32,7 @@ public class BallerinaRecordResponse {
     private final String version;
     private final String name;
     private final String error;
-    private JsonElement ast;
+    private final JsonElement ast;
     private final Boolean beta;
 
     public BallerinaRecordResponse(String org, String module, String version, String name,

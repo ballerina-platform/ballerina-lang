@@ -34,27 +34,18 @@ public class BLangXMLNavigationAccess extends BLangExpression implements XMLNavi
 
     // BLangNodes
     public BLangExpression expr;
-    public BLangExpression childIndex;
     public final List<BLangXMLElementFilter> filters;
 
     // Parser Flags and Data
     public final NavAccessType navAccessType;
 
-    // Semantic Data
-    // Hack to avoid duplicate error messages in CodeAnalyzer, the reason for this flag is since we are adding
-    // the 'receiver' of a method invocation as the first parameter to langlib invocations, XMLNavigationAccess
-    // could be checked multiple times when used with langlib functions producing multiple error messages.
-    public boolean methodInvocationAnalyzed;
-
     public BLangXMLNavigationAccess(Location pos, BLangExpression expr,
                                     List<BLangXMLElementFilter> filters,
-                                    NavAccessType navAccessType,
-                                    BLangExpression childIndex) {
+                                    NavAccessType navAccessType) {
         this.pos = pos;
         this.expr = expr;
         this.filters = filters;
         this.navAccessType = navAccessType;
-        this.childIndex = childIndex;
     }
 
     @Override
@@ -93,20 +84,16 @@ public class BLangXMLNavigationAccess extends BLangExpression implements XMLNavi
     }
 
     @Override
-    public BLangExpression getChildIndex() {
-        return this.childIndex;
-    }
-
-    @Override
     public String toString() {
+        StringJoiner filters = new StringJoiner(" |");
+        this.filters.forEach(f -> filters.add(f.toString()));
         switch (navAccessType) {
             case CHILDREN:
                 return String.valueOf(expr) + "/*";
             case CHILD_ELEMS:
-                StringJoiner filters = new StringJoiner(" |");
-                this.filters.forEach(f -> filters.toString());
-                return String.valueOf(expr) + "/<" + filters.toString() + ">" +
-                        (childIndex != null ? "[" + String.valueOf(childIndex) + "]" : "");
+                return String.valueOf(expr) + "/<" + filters.toString() + ">";
+            case DESCENDANTS:
+                return String.valueOf(expr) + "/**/<" + filters.toString() + ">";
         }
         return null;
     }

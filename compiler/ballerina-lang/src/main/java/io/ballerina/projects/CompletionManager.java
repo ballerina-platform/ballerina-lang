@@ -226,7 +226,7 @@ public class CompletionManager {
      */
     static class ServiceDeclarationContextValidator extends NodeVisitor {
 
-        private CompletionContext context;
+        private final CompletionContext context;
         private boolean isValidContext = false;
 
         public ServiceDeclarationContextValidator(CompletionContext context) {

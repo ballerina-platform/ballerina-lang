@@ -1,21 +1,24 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2024, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 configurations {
     dist {
@@ -70,7 +73,7 @@ dependencies {
 }
 
 @CacheableTask
-class BallerinaLangLibBuildTask extends JavaExec {
+class BallerinaLangStdLibBuildTask extends JavaExec {
     @Internal def projectDir = project.layout.buildDirectory.dir("ballerina-src")
     @Internal def distCache = project.layout.buildDirectory
     @Internal def pkgName = project.name
@@ -92,7 +95,7 @@ class BallerinaLangLibBuildTask extends JavaExec {
         return super.getJvmArgumentProviders()
     }
 
-    BallerinaLangLibBuildTask() {
+    BallerinaLangStdLibBuildTask() {
         setMainClass('org.ballerinalang.stdlib.utils.BuildLangLib')
         standardOutput = System.out
         errorOutput = System.err
@@ -160,6 +163,8 @@ ext {
         modName = 'testobserve'
     } else if (project.projectDir.name == 'observe-internal') {
         modName = 'observe'
+    } else if (project.projectDir.name == 'io-internal') {
+        modName = 'io'
     } else {
         modName = project.projectDir.name
     }
@@ -168,7 +173,7 @@ ext {
 def ballerinaConfigFile = new File("${project.projectDir}/src/main/ballerina/Ballerina.toml")
 def ballerinaConfigFileContent = ballerinaConfigFile.text
 def modOrg = (ballerinaConfigFileContent =~ /org = "(.+)"/)[0][1]
-def modVersion = "0.0.0"
+def modVersion = (ballerinaConfigFileContent =~ /version = "(.+)"/)[0][1]
 def jarFileName = modOrg + "-" + modName + "-" + modVersion
 
 
@@ -177,7 +182,7 @@ tasks.register('copyBallerinaProject', Copy) {
     into project.buildDir.toString() + "/ballerina-src"
 }
 
-tasks.register('ballerinaLangLibBuild', BallerinaLangLibBuildTask) {
+tasks.register('ballerinaLangLibBuild', BallerinaLangStdLibBuildTask) {
     classpath = files(project.configurations.balaCreat, jar.archiveFile)
     outputJarFileName = jarFileName
     skipBootstrap = 'true'

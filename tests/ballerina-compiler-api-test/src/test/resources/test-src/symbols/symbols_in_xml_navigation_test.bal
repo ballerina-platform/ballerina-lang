@@ -44,3 +44,10 @@ function testXMLStepExpr() {
 int indx = 0;
 
 function getXML() returns xml => xml `<greet>Hello World!</greet>`;
+
+function testXmlStepExprWithExtension() {
+    xml x1 = xml `<item><ns:name>T-shirt</ns:name></item><item>text<name>Watch</name></item>`; 
+    xml x2 = x1/*.get(indx);
+    x2 = x1/<ns:name>.<ns:item>;
+    x2 = x1/**/<name>.<ns:item|name>[indx];
+}

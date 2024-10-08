@@ -1,3 +1,8 @@
+pluginManagement {
+    repositories.gradlePluginPortal()
+    includeBuild("gradle/plugins")
+}
+
 plugins {
     id "com.gradle.enterprise" version "3.13.2"
 }

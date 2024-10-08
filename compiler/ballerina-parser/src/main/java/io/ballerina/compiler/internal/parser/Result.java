@@ -40,7 +40,7 @@ public class Result {
     /**
      * List of solutions to recover from the error.
      */
-    private ArrayDeque<AbstractParserErrorHandler.Solution> fixes;
+    private final ArrayDeque<AbstractParserErrorHandler.Solution> fixes;
 
     /**
      * Represent the end solution to be applied to the next immediate token, to recover from the error.

@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
+plugins {
+    id 'ballerinaStdLibBuild'
+}
 
 configurations {
     dist {
@@ -31,18 +33,16 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang:jballerina.java')
-    implementation 'com.google.code.gson:gson'
-    implementation "com.google.code.gson:gson:${project.gsonVersion}"
-    implementation 'org.testng:testng'
+    implementation libs.gson
+    implementation libs.testng
+    implementation libs.java.diff.utils
 
-    interopImports "io.github.java-diff-utils:java-diff-utils:${project.javaDiffUtilsVersion}"
+    interopImports libs.java.diff.utils
 
-    testImplementation 'org.slf4j:slf4j-jdk14'
-    testImplementation 'io.swagger.core.v3:swagger-models'
-    testImplementation 'io.swagger.parser.v3:swagger-parser'
-    testImplementation 'com.github.jknack:handlebars'
-
-    implementation group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: "${project.javaDiffUtilsVersion}"
+    testImplementation libs.slf4j.jdk14
+    testImplementation libs.swagger.models
+    testImplementation libs.swagger.parser
+    testImplementation libs.jknack.handlebars
 }
 
 jar {

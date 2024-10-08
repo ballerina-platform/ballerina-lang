@@ -23,7 +23,7 @@ package org.ballerinalang.formatter.core.options;
  * @since 2201.3.0
  */
 public class ForceFormattingOptions {
-    private boolean forceFormatRecordFields;
+    private final boolean forceFormatRecordFields;
 
     private ForceFormattingOptions(boolean forceFormatRecordFields) {
         this.forceFormatRecordFields = forceFormatRecordFields;

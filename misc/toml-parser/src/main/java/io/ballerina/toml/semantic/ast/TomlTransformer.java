@@ -61,7 +61,7 @@ import java.util.Optional;
  */
 public class TomlTransformer extends NodeTransformer<TomlNode> {
 
-    private DiagnosticLog dlog;
+    private final DiagnosticLog dlog;
 
     public TomlTransformer() {
         this.dlog = DiagnosticLog.getInstance();

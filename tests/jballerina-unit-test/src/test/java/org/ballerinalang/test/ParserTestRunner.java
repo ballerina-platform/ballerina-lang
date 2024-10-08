@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
@@ -34,7 +33,7 @@ import java.util.stream.Stream;
  */
 public class ParserTestRunner {
 
-    private final Path ballerinaLangDir = Paths.get("").toAbsolutePath().getParent().getParent();
+    private final Path ballerinaLangDir = Path.of("").toAbsolutePath().getParent().getParent();
     private final Path parserDir = ballerinaLangDir.resolve("compiler").resolve("ballerina-parser");
 
     @Test(dataProvider = "parser-test-file-provider")

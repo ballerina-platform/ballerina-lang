@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of type cast actions.
@@ -43,6 +43,6 @@ public class TypeCastActionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("actions", "type-cast").toString();
+        return Path.of("actions", "type-cast").toString();
     }
 }

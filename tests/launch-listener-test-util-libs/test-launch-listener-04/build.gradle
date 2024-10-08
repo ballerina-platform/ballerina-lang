@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 dependencies {
     implementation project(':ballerina-runtime')

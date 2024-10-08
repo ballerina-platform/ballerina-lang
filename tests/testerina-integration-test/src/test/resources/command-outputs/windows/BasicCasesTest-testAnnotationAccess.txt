@@ -1,10 +1,22 @@
 Compiling source
 	intg_tests/annotation_access:0.0.0
 HINT [tests\main_test.bal:(73:5,73:5)] concurrent calls will not be made to this method since the service is not an 'isolated' service
-ballerina: Oh no, something really went wrong. Bad. Sad.
 
-We appreciate it if you can report the code that broke Ballerina in
-https://github.com/ballerina-platform/ballerina-lang/issues with the
-log you get below and your sample code.
+Running Tests with Coverage
 
-We thank you for helping make us better.***** SEVERE {b7a.log.crash} - class org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol cannot be cast to class org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol (org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol and org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol are in unnamed module of loader 'app')*************
+	annotation_access
+		[pass] testServiceAnnotReordering
+		[pass] testTestConstructSrcAnnotAccess
+		[pass] testTestConstructTestAnnotAccess
+		[pass] testTestSrcConstructSrcAnnotAccess
+
+
+		4 passing
+		0 failing
+		0 skipped
+
+		Test execution time :*****s
+
+Generating Test Report
+	annotation-access\target\report\test_results.json
+

@@ -33,7 +33,6 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,10 +55,10 @@ public final class LauncherUtils {
         // Get source root path.
         Path sourceRootPath;
         if (sourceRoot == null || sourceRoot.isEmpty()) {
-            sourceRootPath = Paths.get(System.getProperty("user.dir"));
+            sourceRootPath = Path.of(System.getProperty("user.dir"));
         } else {
             try {
-                sourceRootPath = Paths.get(sourceRoot).toRealPath(LinkOption.NOFOLLOW_LINKS);
+                sourceRootPath = Path.of(sourceRoot).toRealPath(LinkOption.NOFOLLOW_LINKS);
             } catch (IOException e) {
                 throw new RuntimeException("error reading from directory: " + sourceRoot + " reason: " +
                         e.getMessage(), e);

@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of query expressions.
@@ -43,6 +43,6 @@ public class QueryExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("expressions", "query").toString();
+        return Path.of("expressions", "query").toString();
     }
 }

@@ -32,7 +32,6 @@ import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -74,14 +73,14 @@ public class ZipConverter extends PathConverter {
                     pathToZip.getPath() + "!/",
                     pathToZip.getQuery(), pathToZip.getFragment());
             initFS(pathInZip);
-            return Paths.get(pathInZip);
+            return Path.of(pathInZip);
         } catch (URISyntaxException ignore) {
             // This exception occurs when trying to read the bala which is inside the package zip. An exception can
             // occur when creating the URI needed to create the zip file system provider which will be used to read the
             // content inside the zip/jar file. So if such an error occurs, we just return the path to the zip/jar file
             // instead of throwing the exception.
         }
-        return Paths.get(pathToZip);
+        return Path.of(pathToZip);
     }
 
     @SuppressWarnings("resource")

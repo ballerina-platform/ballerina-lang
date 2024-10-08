@@ -205,13 +205,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private static final BVarSymbol CLOSURE_MAP_NOT_FOUND;
 
     private SymbolResolver symResolver;
-    private SymbolTable symTable;
+    private final SymbolTable symTable;
     private SymbolEnv env;
     private BLangNode result;
-    private Types types;
-    private Desugar desugar;
-    private Names names;
-    private ClassClosureDesugar classClosureDesugar;
+    private final Types types;
+    private final Desugar desugar;
+    private final Names names;
+    private final ClassClosureDesugar classClosureDesugar;
     private int funClosureMapCount = 1;
     private int blockClosureMapCount = 1;
 
@@ -1895,7 +1895,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = xmlIndexAccessExpr;
     }
 
-
     @Override
     public void visit(BLangXMLElementAccess xmlElementAccess) {
         xmlElementAccess.expr = rewriteExpr(xmlElementAccess.expr);
@@ -1905,10 +1904,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         xmlNavigation.expr = rewriteExpr(xmlNavigation.expr);
-        xmlNavigation.childIndex = rewriteExpr(xmlNavigation.childIndex);
         result = xmlNavigation;
     }
-
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
@@ -2104,16 +2101,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
         result = typeLoad;
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral.BLangChannelLiteral channelLiteral) {
-        channelLiteral.fields.forEach(field -> {
-            BLangRecordLiteral.BLangRecordKeyValueField keyValue = (BLangRecordLiteral.BLangRecordKeyValueField) field;
-            keyValue.key.expr = rewriteExpr(keyValue.key.expr);
-            keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
-        });
-        result = channelLiteral;
     }
 
     @Override

@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * This class tests invoking an entry function in a balx via the Ballerina Run Command and the data binding
@@ -53,7 +52,7 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
         tempProjectDir = Files.createTempDirectory("temp-entry-func-test");
-        String[] clientArgs = {"-o", Paths.get(tempProjectDir.toString(), "entry").toString(),
+        String[] clientArgs = {"-o", Path.of(tempProjectDir.toString(), "entry").toString(),
                 (new File("src/test/resources/run/balx/multiple_params/test_main_with_multiple_typed_params.bal"))
                         .getAbsolutePath()};
         balClient.runMain("build", clientArgs, null, new String[0], new LogLeecher[0],
@@ -62,7 +61,7 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
         balxPath = generatedBalx.toString();
 
         tempProjectDirTwo = Files.createTempDirectory("temp-entry-func-test-two");
-        clientArgs = new String[]{"-o", Paths.get(tempProjectDirTwo.toString(), "entry").toString(),
+        clientArgs = new String[]{"-o", Path.of(tempProjectDirTwo.toString(), "entry").toString(),
                 (new File("src/test/resources/run/balx/no_params/test_main_with_no_params.bal")).getAbsolutePath()};
         balClient.runMain("build", clientArgs, null, new String[0], new LogLeecher[0], tempProjectDirTwo.toString());
         generatedBalx = tempProjectDirTwo.resolve("entry.balx");

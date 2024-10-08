@@ -27,7 +27,6 @@ import org.ballerinalang.bindgen.model.JError;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Locale;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -45,10 +44,10 @@ public class BindgenFileGenerator {
     private SyntaxTree syntaxTree;
 
     private final BindgenEnv env;
-    private final Path classTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "class.bal");
-    private final Path emptyClassTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "empty_class.bal");
-    private final Path errorTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "error.bal");
-    private final Path toStringFunctionTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "tostring_function.bal");
+    private final Path classTemplatePath = Path.of(DEFAULT_TEMPLATE_DIR, "class.bal");
+    private final Path emptyClassTemplatePath = Path.of(DEFAULT_TEMPLATE_DIR, "empty_class.bal");
+    private final Path errorTemplatePath = Path.of(DEFAULT_TEMPLATE_DIR, "error.bal");
+    private final Path toStringFunctionTemplatePath = Path.of(DEFAULT_TEMPLATE_DIR, "tostring_function.bal");
     private static final CharSequence UNIX_FS = "/";
 
     public BindgenFileGenerator(BindgenEnv env) {

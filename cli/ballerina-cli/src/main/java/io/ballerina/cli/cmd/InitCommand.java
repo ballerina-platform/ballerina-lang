@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,7 +55,7 @@ public class InitCommand implements BLauncherCmd {
     private List<String> argList;
 
     public InitCommand() {
-        this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.userDir = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.errStream = System.err;
         this.exitWhenFinish = true;
         CommandUtil.initJarFs();

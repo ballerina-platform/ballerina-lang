@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * File utils for reading the file content.
@@ -34,7 +33,7 @@ public final class FileUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
 
-    public static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+    public static final Path RES_DIR = Path.of("src/test/resources/").toAbsolutePath();
 
     private FileUtils() {
     }

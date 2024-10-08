@@ -101,11 +101,11 @@ public class TypeParamAnalyzer {
     private static final CompilerContext.Key<TypeParamAnalyzer> TYPE_PARAM_ANALYZER_KEY =
             new CompilerContext.Key<>();
 
-    private SymbolTable symTable;
-    private Types types;
-    private Names names;
-    private BLangDiagnosticLog dlog;
-    private BLangAnonymousModelHelper anonymousModelHelper;
+    private final SymbolTable symTable;
+    private final Types types;
+    private final Names names;
+    private final BLangDiagnosticLog dlog;
+    private final BLangAnonymousModelHelper anonymousModelHelper;
 
     public static TypeParamAnalyzer getInstance(CompilerContext context) {
 

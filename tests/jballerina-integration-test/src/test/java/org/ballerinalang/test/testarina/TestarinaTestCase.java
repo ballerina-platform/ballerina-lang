@@ -19,7 +19,6 @@ package org.ballerinalang.test.testarina;
 
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -28,7 +27,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -45,11 +43,11 @@ public class TestarinaTestCase extends BaseTest {
     private BMainInstance balClient;
 
     @BeforeClass(enabled = false)
-    public void setUp() throws IOException, BallerinaTestException {
+    public void setUp() throws IOException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-testarina-project-");
 
         // copy TestProject1 to a temp
-        Path originalTestProj1 = Paths.get("src", "test", "resources",
+        Path originalTestProj1 = Path.of("src", "test", "resources",
                 "testarina", "ServiceTestProject").toAbsolutePath();
         this.serviceProjectPath = this.tempProjectDirectory.resolve("ServiceTestProject");
         copyFolder(originalTestProj1, this.serviceProjectPath);

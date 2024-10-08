@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of send and receive actions.
@@ -43,6 +43,6 @@ public class SendReceiveActionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("actions", "send-receive").toString();
+        return Path.of("actions", "send-receive").toString();
     }
 }

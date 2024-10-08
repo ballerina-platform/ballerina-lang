@@ -34,7 +34,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -66,7 +66,7 @@ public class ProfilerMethodWrapper extends ClassLoader {
         if (debugArg != null) {
             commands.add(debugArg);
         }
-        commands.add(Paths.get(System.getProperty(USER_DIR), Constants.TEMP_JAR_FILE_NAME).toString());
+        commands.add(Path.of(System.getProperty(USER_DIR), Constants.TEMP_JAR_FILE_NAME).toString());
         if (balJarArgs != null) {
             commands.add(balJarArgs);
         }

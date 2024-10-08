@@ -59,7 +59,7 @@ public class JarResolver {
     private final PackageContext rootPackageContext;
     private final List<Diagnostic> diagnosticList;
     private DiagnosticResult diagnosticResult;
-    private List<PlatformLibrary> providedPlatformLibs;
+    private final List<PlatformLibrary> providedPlatformLibs;
 
     private ClassLoader classLoaderWithAllJars;
 

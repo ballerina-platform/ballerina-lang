@@ -43,7 +43,7 @@ public class SyntaxApiCallsGenTest {
     private Endpoint serviceEndpoint;
 
     @BeforeClass
-    public void startLanguageServer() throws Exception {
+    public void startLanguageServer() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 

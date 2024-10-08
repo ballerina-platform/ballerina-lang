@@ -43,6 +43,11 @@ public class QueryWithClosuresTest {
         BRunUtil.invoke(result, functionName);
     }
 
+    @Test
+    public void testQueriesWithinArrowFunctionsAndWithLet() {
+        BRunUtil.invoke(result, "testQueriesWithinArrowFunctionsAndWithLet");
+    }
+
     @DataProvider
     public Object[] dataToTestQueryWithClosures() {
         return new Object[]{

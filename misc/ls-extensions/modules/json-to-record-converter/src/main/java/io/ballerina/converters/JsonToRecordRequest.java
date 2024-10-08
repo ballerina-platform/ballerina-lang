@@ -31,7 +31,7 @@ public class JsonToRecordRequest {
     private boolean forceFormatRecordFields;
     private String filePathUri;
 
-    private boolean isNullAsOptional;
+    private final boolean isNullAsOptional;
 
     public JsonToRecordRequest(String jsonString, String recordName, boolean isRecordTypeDesc, boolean isClosed,
                                boolean forceFormatRecordFields, String filePathUri, boolean isNullAsOptional) {

@@ -89,16 +89,16 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private Type type;
     private TableType tableType;
     private Type iteratorNextReturnType;
-    private ConcurrentHashMap<Long, List<Map.Entry<K, V>>> entries;
-    private LinkedHashMap<Long, List<V>> values;
+    private final ConcurrentHashMap<Long, List<Map.Entry<K, V>>> entries;
+    private final LinkedHashMap<Long, List<V>> values;
     private String[] fieldNames;
     private ValueHolder valueHolder;
     private long maxIntKey = 0;
 
     //These are required to achieve the iterator behavior
-    private Map<Long, K> indexToKeyMap;
-    private Map<K, Long> keyToIndexMap;
-    private Map<K, V> keyValues;
+    private final Map<Long, K> indexToKeyMap;
+    private final Map<K, Long> keyToIndexMap;
+    private final Map<K, V> keyValues;
     private long noOfAddedEntries = 0;
 
     private boolean nextKeySupported;
@@ -594,7 +594,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     private class KeyHashValueHolder extends ValueHolder {
-        private DefaultKeyWrapper keyWrapper;
+        private final DefaultKeyWrapper keyWrapper;
         private Type keyType;
 
         public KeyHashValueHolder() {
