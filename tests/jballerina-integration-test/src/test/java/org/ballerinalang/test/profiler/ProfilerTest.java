@@ -137,8 +137,11 @@ public class ProfilerTest extends BaseTest {
             bMainInstance.waitForLeechers(List.of(beforeExecleechers), 20000);
             addLogLeechers(afterExecleechers, serverInfoLogReader);
             Thread.sleep(5000);
-            long processId = process.pid();
-            Runtime.getRuntime().exec("kill -SIGINT " + processId);
+            ProcessHandle profilerHandle = process.children().findFirst().get().children().findFirst().get();
+            long profileId = profilerHandle.pid();
+            long balProcessID = profilerHandle.children().findFirst().get().pid();
+            Runtime.getRuntime().exec("kill -SIGINT " + balProcessID);
+            Runtime.getRuntime().exec("kill -SIGINT " + profileId);
             bMainInstance.waitForLeechers(List.of(afterExecleechers), 20000);
             process.waitFor();
         } catch (InterruptedException | IOException e) {
