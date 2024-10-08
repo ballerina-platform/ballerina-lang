@@ -39,6 +39,9 @@ jobs:
         run: |
           ./gradlew clean build -x check publishToMavenLocal --stacktrace --scan
 
+      - name: List Maven local repository
+        run: ls -la ~/.m2/
+
       - name: Archive Lang Artifacts
         uses: actions/upload-artifact@v4
         with:
