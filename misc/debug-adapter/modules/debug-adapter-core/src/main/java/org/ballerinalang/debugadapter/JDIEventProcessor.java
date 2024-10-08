@@ -134,7 +134,6 @@ public class JDIEventProcessor {
             ThreadReference thread = threadStartEvent.thread();
             if (thread.isVirtual()) {
                 virtualThreads.add(thread);
-
             }
             eventSet.resume();
         } else if (event instanceof ThreadDeathEvent threadDeathEvent) {
