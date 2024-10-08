@@ -305,6 +305,11 @@ public class NewCommand implements BLauncherCmd {
                 packagePath = Paths.get(argList.get(0));
             }
             errStream.println("Created new package '" + packageName + "' at " + packagePath + ".");
+            errStream.println("What's next");
+            errStream.println("Execute the below command to run the program:")
+            errStream.println("\t bal run "+ packageName);
+            errStream.println("Else, execute the below command to build the executable JAR file:");
+            errStream.println("\t bal build "+ packageName);
         }
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
