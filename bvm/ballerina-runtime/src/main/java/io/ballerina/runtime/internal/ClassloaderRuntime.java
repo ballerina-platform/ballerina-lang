@@ -17,6 +17,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.internal.values.ValueCreator;
 
 /**
  * This class represents the Ballerina runtime that is created using a classloader for internal purposes.
@@ -36,5 +37,11 @@ public class ClassloaderRuntime extends BalRuntime {
     Class<?> loadClass(String className) throws ClassNotFoundException {
         String name = getFullQualifiedClassName(rootModule, className);
         return Class.forName(name, true, classLoader);
+    }
+
+    @Override
+    public void stop() {
+        super.stop();
+        ValueCreator.removeValueCreator(rootModule);
     }
 }

@@ -42,7 +42,8 @@ module io.ballerina.runtime {
             io.ballerina.lang.table, io.ballerina.lang.value, io.ballerina.lang.xml, ballerina.debug.adapter.core,
             io.ballerina.cli, io.ballerina.lang.integer, io.ballerina.lang.bool, io.ballerina.lang.decimal,
             io.ballerina.lang.floatingpoint, io.ballerina.lang.internal, io.ballerina.lang.function,
-            io.ballerina.lang.regexp, io.ballerina.runtime.profiler, io.ballerina.shell;
+            io.ballerina.lang.regexp, io.ballerina.runtime.profiler, io.ballerina.shell,
+            org.ballerinalang.debugadapter.runtime;
     exports io.ballerina.runtime.internal.commons to io.ballerina.lang.value;
     exports io.ballerina.runtime.internal.launch to io.ballerina.testerina.runtime, io.ballerina.packerina,
             ballerina.test.listener, io.ballerina.cli, org.ballerinalang.debugadapter.runtime;

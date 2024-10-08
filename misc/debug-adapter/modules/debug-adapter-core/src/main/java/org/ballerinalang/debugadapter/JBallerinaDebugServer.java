@@ -951,6 +951,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             threadsMap.put((int) threadReference.uniqueID(), new ThreadReferenceProxyImpl(context.getDebuggeeVM(),
                     threadReference));
         }
+        for (ThreadReference threadReference: eventProcessor.getVirtualThreads()) {
+            threadsMap.put((int) threadReference.uniqueID(), new ThreadReferenceProxyImpl(context.getDebuggeeVM(),
+                    threadReference));
+        }
         return threadsMap;
     }
 
@@ -1103,8 +1107,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         VirtualMachine attachedVm = executionManager.attach(hostName, portName);
         context.setDebuggeeVM(new VirtualMachineProxyImpl(attachedVm));
         EventRequestManager erm = context.getEventManager();
-        ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
-        classPrepareRequest.enable();
+        erm.createClassPrepareRequest().enable();
+        erm.createThreadStartRequest().enable();
+        erm.createThreadDeathRequest().enable();
         eventProcessor.startListening();
     }
 
