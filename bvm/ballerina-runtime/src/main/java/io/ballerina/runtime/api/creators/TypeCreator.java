@@ -59,8 +59,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class TypeCreator {
 
-    private static final Map<TypeIdentifier, BRecordType> registeredRecordTypes = new ConcurrentHashMap<>();
-
+    private static final RecordTypeCache registeredRecordTypes = new RecordTypeCache();
     /**
      * Creates a new array type with given element type.
      *
@@ -546,6 +545,19 @@ public final class TypeCreator {
         }
         TypeIdentifier typeIdentifier = new TypeIdentifier(name, pkg);
         registeredRecordTypes.put(typeIdentifier, recordType);
+    }
+
+    private static final class RecordTypeCache {
+
+        private static final Map<TypeIdentifier, BRecordType> cache = new ConcurrentHashMap<>();
+
+        BRecordType get(TypeIdentifier key) {
+            return cache.get(key);
+        }
+
+        void put(TypeIdentifier identifier, BRecordType value) {
+            cache.put(identifier, value);
+        }
     }
 
     public record TypeIdentifier(String typeName, Module pkg) {
