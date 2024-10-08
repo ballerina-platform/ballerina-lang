@@ -39,17 +39,12 @@ jobs:
         run: |
           ./gradlew clean build -x check publishToMavenLocal --stacktrace --scan
 
-      - name: List Maven local repository
-        run: ls -la ~/.m2/
-
-      - name: List Maven repository contents
-        run: ls -la ~/.m2/repository
-
       - name: Archive Lang Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Ballerina Lang Artifacts
-          path: /home/runner/.m2/
+          path: ~/.m2/
+          include-hidden-files: true
 
     outputs:
       lang_version: ${{ steps.lang-version.outputs.version }}
@@ -85,7 +80,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: Ballerina Lang Artifacts
-          path: /home/runner/.m2/
+          path: ~/.m2/
 
       - name: Download Module Data
         run: |
@@ -148,7 +143,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: Ballerina Lang Artifacts
-          path: /home/runner/.m2/
+          path: ~/.m2/
 
       - name: Update Lang Version in Module
         run: |
