@@ -32,7 +32,6 @@ import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -192,7 +191,7 @@ public class BRunUtil {
             final FutureValue future = runtime.scheduler.startNonIsolatedWorker(func, null,
                     PredefinedTypes.TYPE_ANY, "test",
                     new StrandMetadata(ANON_ORG, DOT, DEFAULT_MAJOR_VERSION.value, functionName), args);
-            return RuntimeUtils.getFutureValue(future);
+            return future.get();
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
         } catch (BError e) {
@@ -352,8 +351,8 @@ public class BRunUtil {
                         configurationDetails.paths, configurationDetails.configContent});
         FutureValue future = runOnSchedule(initClazz, "$moduleInit", runtime);
         Scheduler.daemonStrand = future.strand;
-        RuntimeUtils.getFutureValue(future);
-        RuntimeUtils.getFutureValue(runOnSchedule(initClazz, "$moduleStart", runtime));
+        future.get();
+        runOnSchedule(initClazz, "$moduleStart", runtime).get();
     }
 
     private static void callConfigInit(Class<?> initClazz, Class<?>[] paramTypes, Object[] args) {

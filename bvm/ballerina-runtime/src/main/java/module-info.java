@@ -25,7 +25,6 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.api.constants;
     exports io.ballerina.runtime.api.creators;
     exports io.ballerina.runtime.api.flags;
-    exports io.ballerina.runtime.api.launch;
     exports io.ballerina.runtime.api.types;
     exports io.ballerina.runtime.api.utils;
     exports io.ballerina.runtime.api.values;

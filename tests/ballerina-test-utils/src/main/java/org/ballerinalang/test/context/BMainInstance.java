@@ -172,9 +172,6 @@ public class BMainInstance implements BMain {
     public void runMain(String sourceRoot, String packagePath, String[] flags, String[] args,
                         LogLeecher[] leechers) throws BallerinaTestException {
         runMain(sourceRoot, packagePath, flags, args, null, new String[]{}, leechers);
-        for (LogLeecher leecher : leechers) {
-            leecher.waitForText(TIMEOUT);
-        }
     }
 
     @Override
