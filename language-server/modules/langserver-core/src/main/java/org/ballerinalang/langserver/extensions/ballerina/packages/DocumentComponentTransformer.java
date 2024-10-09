@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.tools.text.LineRange;
 
@@ -63,6 +64,11 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
 
     @Override
     public Optional<MapperObject> transform(FunctionDefinitionNode functionDefinitionNode) {
+        if (functionDefinitionNode.functionName().text().equals(PackageServiceConstants.MAIN_FUNCTION)) {
+            return Optional.of(new MapperObject(PackageServiceConstants.AUTOMATIONS,
+                    createDataObject(PackageServiceConstants.MAIN_FUNCTION, functionDefinitionNode)));
+        }
+
         return Optional.of(new MapperObject(PackageServiceConstants.FUNCTIONS,
                 createDataObject(functionDefinitionNode.functionName().text(), functionDefinitionNode)));
     }
@@ -80,8 +86,12 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
         DataObject dataObject = createDataObject(name, serviceDeclarationNode);
         serviceDeclarationNode.members().forEach(member -> {
             if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
-                dataObject.addResource(createDataObject(((FunctionDefinitionNode) member).functionName().text(),
-                        member));
+                FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) member;
+                String resourceName = functionDefinitionNode.functionName().text() + "-" +
+                        functionDefinitionNode.relativeResourcePath().stream()
+                                .map(Node::toSourceCode)
+                                .collect(Collectors.joining(""));
+                dataObject.addResource(createDataObject(resourceName, member));
             }
         });
         return Optional.of(new MapperObject(PackageServiceConstants.SERVICES, dataObject));
@@ -115,9 +125,17 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
 
     @Override
     public Optional<MapperObject> transform(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
+        Optional<Token> isConfigurable = moduleVariableDeclarationNode.qualifiers().stream()
+                .filter(qualifier -> qualifier.kind() == SyntaxKind.CONFIGURABLE_KEYWORD)
+                .findFirst();
+        if (isConfigurable.isPresent()) {
+            return Optional.of(new MapperObject(PackageServiceConstants.CONFIGURABLE_VARIABLES,
+                    createDataObject(moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().toString(),
+                            moduleVariableDeclarationNode)));
+        }
         return Optional.of(new MapperObject(PackageServiceConstants.MODULE_LEVEL_VARIABLE,
                 createDataObject(moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().toString(),
-                moduleVariableDeclarationNode)));
+                        moduleVariableDeclarationNode)));
     }
 
     @Override
