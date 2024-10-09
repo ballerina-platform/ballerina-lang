@@ -362,7 +362,7 @@ public class QueryExprWithQueryConstructTypeTest {
     @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
                     "\\{\"message\":\"cannot update 'readonly' field 'id' in record of type 'record " +
-                    "\\{\\| readonly int id; readonly string name; User user; \\|\\}'\".*")
+                    "\\{\\| readonly int id; readonly string name; UserX user; \\|\\}'\".*")
     public void testQueryConstructingTableUpdateKeyPanic1() {
         BRunUtil.invoke(result, "testQueryConstructingTableUpdateKeyPanic1");
     }
@@ -370,7 +370,7 @@ public class QueryExprWithQueryConstructTypeTest {
     @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
                     "\\{\"message\":\"cannot update 'readonly' field 'id' in record of type 'record " +
-                    "\\{\\| readonly int id; readonly string name; User user; \\|\\}'\".*")
+                    "\\{\\| readonly int id; readonly string name; UserX user; \\|\\}'\".*")
     public void testQueryConstructingTableUpdateKeyPanic2() {
         BRunUtil.invoke(result, "testQueryConstructingTableUpdateKeyPanic2");
     }

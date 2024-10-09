@@ -18,7 +18,7 @@
 
 package org.ballerinalang.debugadapter.runtime;
 
-import io.ballerina.runtime.internal.types.BMapType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 
 /**
@@ -46,7 +46,7 @@ public final class VariableUtils {
             return String.format(MAP_TYPE_TEMPLATE, UNKNOWN);
         }
 
-        if (!(mapValue.getType() instanceof BMapType type)) {
+        if (!(mapValue.getType() instanceof MapType type)) {
             return String.format(MAP_TYPE_TEMPLATE, UNKNOWN);
         }
 

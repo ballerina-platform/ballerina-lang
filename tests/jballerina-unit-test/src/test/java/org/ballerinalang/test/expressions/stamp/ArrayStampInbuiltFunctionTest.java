@@ -18,6 +18,7 @@
 package org.ballerinalang.test.expressions.stamp;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
@@ -66,10 +67,10 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals(results.size(), 2);
 
-        Assert.assertEquals(getType((mapValue0)).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BAnydataType.class);
-        Assert.assertEquals(getType((mapValue1)).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue1.getType()).getConstrainedType().getClass(), BAnydataType.class);
+        Assert.assertTrue(getType(mapValue0) instanceof MapType);
+        Assert.assertEquals(((MapType) mapValue0.getType()).getConstrainedType().getClass(), BAnydataType.class);
+        Assert.assertTrue(getType(mapValue1) instanceof MapType);
+        Assert.assertEquals(((MapType) mapValue1.getType()).getConstrainedType().getClass(), BAnydataType.class);
     }
 
     @Test

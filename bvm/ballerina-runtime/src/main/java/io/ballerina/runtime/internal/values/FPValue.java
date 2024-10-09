@@ -20,6 +20,9 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BLink;
@@ -28,6 +31,7 @@ import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -127,5 +131,15 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     @Override
     public String toString() {
         return RuntimeConstants.EMPTY;
+    }
+
+    @Override
+    public SemType widenedType() {
+        return Builder.getFunctionType();
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx) {
+        return Optional.of(SemType.tryInto(getType()));
     }
 }
