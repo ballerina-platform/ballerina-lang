@@ -32,6 +32,8 @@ public class ModuleObject {
     private final List<DataObject> enums = new ArrayList<>();
     private final List<DataObject> listeners = new ArrayList<>();
     private final List<DataObject> moduleVariables = new ArrayList<>();
+    private final List<DataObject> configurableVariables = new ArrayList<>();
+    private final List<DataObject> automations = new ArrayList<>();
 
     private String name;
 
@@ -102,6 +104,12 @@ public class ModuleObject {
                 break;
             case PackageServiceConstants.MODULE_LEVEL_VARIABLE:
                 this.moduleVariables.add(mapperObject.getDataObject());
+                break;
+            case PackageServiceConstants.CONFIGURABLE_VARIABLES:
+                this.configurableVariables.add(mapperObject.getDataObject());
+                break;
+            case PackageServiceConstants.AUTOMATIONS:
+                this.automations.add(mapperObject.getDataObject());
                 break;
             default:
                 break;
