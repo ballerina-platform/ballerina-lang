@@ -21,34 +21,33 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeLocation;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Finds references for the given symbol within documentation (parameters).
  *
  * @since 2201.6.0
  */
-public class DocumentationReferenceFinder extends NodeTransformer<List<Location>> {
+public class DocumentationReferenceFinder extends NodeTransformer<List<NodeLocation>> {
 
-    private Symbol symbol;
+    private final Symbol symbol;
 
     public DocumentationReferenceFinder(Symbol symbol) {
         this.symbol = symbol;
     }
 
     @Override
-    public List<Location> transform(RequiredParameterNode node) {
+    public List<NodeLocation> transform(RequiredParameterNode node) {
         Optional<FunctionDefinitionNode> fnDefNode = CodeActionUtil.getEnclosedFunction(node);
         if (fnDefNode.isEmpty()) {
             return Collections.emptyList();
@@ -64,7 +63,7 @@ public class DocumentationReferenceFinder extends NodeTransformer<List<Location>
     }
 
     @Override
-    public List<Location> transform(RecordFieldNode node) {
+    public List<NodeLocation> transform(RecordFieldNode node) {
         if (node.parent().parent().kind() != SyntaxKind.TYPE_DEFINITION) {
             return Collections.emptyList();
         }
@@ -84,18 +83,18 @@ public class DocumentationReferenceFinder extends NodeTransformer<List<Location>
      * @param mdNode Markdown documentation node
      * @return List of locations of the parameters within the documentation
      */
-    private List<Location> getParameterLocations(MarkdownDocumentationNode mdNode) {
+    private List<NodeLocation> getParameterLocations(MarkdownDocumentationNode mdNode) {
         return mdNode.documentationLines().stream()
                 .filter(line -> line.kind() == SyntaxKind.MARKDOWN_PARAMETER_DOCUMENTATION_LINE)
                 .map(line -> (MarkdownParameterDocumentationLineNode) line)
                 .map(line -> line.parameterName())
                 .filter(token -> token.text().equals(symbol.getName().get()))
                 .map(paramToken -> paramToken.location())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
-    protected List<Location> transformSyntaxNode(Node node) {
+    protected List<NodeLocation> transformSyntaxNode(Node node) {
         return Collections.emptyList();
     }
 }

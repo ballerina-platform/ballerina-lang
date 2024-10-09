@@ -64,6 +64,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
     public static final String NAME = "Extract To Local Variable";
     private static final String VARIABLE_NAME_PREFIX = "var";
 
+    @Override
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(SyntaxKind.BOOLEAN_LITERAL, SyntaxKind.NUMERIC_LITERAL, SyntaxKind.STRING_LITERAL,
                 SyntaxKind.BINARY_EXPRESSION, SyntaxKind.BRACED_EXPRESSION, SyntaxKind.XML_TEMPLATE_EXPRESSION,
@@ -255,9 +256,9 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                                 PositionUtil.isWithinLineRange(location.lineRange(), matchedNode.lineRange())))
                 .filter(symbol -> symbol.getLocation().isPresent() && PositionUtil.isWithinLineRange(
                         symbol.getLocation().get().lineRange(), getStatementNode(matchedNode).lineRange()))
-                .collect(Collectors.toList());
+                .toList();
 
-        if (symbolsWithinRange.size() == 0) {
+        if (symbolsWithinRange.isEmpty()) {
             return false;
         }
 

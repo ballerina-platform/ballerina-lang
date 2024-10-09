@@ -89,7 +89,7 @@ public class EnumDeclSymbolTest {
 
         // check qualifiers
         List<Qualifier> qualifiers = symbol.qualifiers();
-        if (expQuals.size() > 0) {
+        if (!expQuals.isEmpty()) {
             expQuals.forEach(expQual -> assertTrue(qualifiers.contains(expQual)));
         } else {
             assertTrue(qualifiers.isEmpty());
@@ -141,7 +141,7 @@ public class EnumDeclSymbolTest {
 
         // check qualifiers
         List<Qualifier> qualifiers = symbol.qualifiers();
-        if (expQuals.size() > 0) {
+        if (!expQuals.isEmpty()) {
             expQuals.forEach(expQual -> assertTrue(qualifiers.contains(expQual)));
         } else {
             assertTrue(qualifiers.isEmpty());

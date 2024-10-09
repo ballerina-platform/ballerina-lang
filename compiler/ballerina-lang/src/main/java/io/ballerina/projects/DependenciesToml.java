@@ -27,8 +27,8 @@ import io.ballerina.toml.semantic.ast.TomlTableNode;
  * @since 2.0.0
  */
 public class DependenciesToml {
-    private TomlDocumentContext dependenciesTomlContext;
-    private Package packageInstance;
+    private final TomlDocumentContext dependenciesTomlContext;
+    private final Package packageInstance;
 
     private DependenciesToml(Package aPackage, TomlDocumentContext dependenciesTomlContext) {
         this.packageInstance = aPackage;
@@ -72,7 +72,7 @@ public class DependenciesToml {
      */
     public static class Modifier {
         private TomlDocument tomlDocument;
-        private Package oldPackage;
+        private final Package oldPackage;
 
         private Modifier(DependenciesToml oldDocument) {
             this.tomlDocument = oldDocument.tomlDocument();

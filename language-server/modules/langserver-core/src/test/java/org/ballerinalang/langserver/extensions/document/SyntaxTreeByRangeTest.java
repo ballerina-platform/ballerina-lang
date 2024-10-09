@@ -39,7 +39,7 @@ public class SyntaxTreeByRangeTest {
             .resolve("empty.bal");
 
     @BeforeClass
-    public void startLanguageServer() throws Exception {
+    public void startLanguageServer() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 

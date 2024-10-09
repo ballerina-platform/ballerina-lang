@@ -62,6 +62,7 @@ public class STXMLAttributeValue extends STNode {
                 endQuote);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLAttributeValue(
                 this.startQuote,
@@ -88,6 +89,7 @@ public class STXMLAttributeValue extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLAttributeValue(this, position, parent);
     }

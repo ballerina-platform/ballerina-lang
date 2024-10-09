@@ -44,8 +44,8 @@ import java.util.HashSet;
  */
 public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
-    private HashSet<BType> visited;
-    private boolean isPureType;
+    private final HashSet<BType> visited;
+    private final boolean isPureType;
 
     public IsPureTypeUniqueVisitor() {
         visited = new HashSet<>();
@@ -58,31 +58,29 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
     }
 
     private boolean isAnyData(BType type) {
-        switch (Types.getImpliedType(type).tag) {
-            case TypeTags.INT:
-            case TypeTags.BYTE:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.STRING:
-            case TypeTags.BOOLEAN:
-            case TypeTags.JSON:
-            case TypeTags.XML:
-            case TypeTags.XML_TEXT:
-            case TypeTags.TABLE:
-            case TypeTags.NIL:
-            case TypeTags.NEVER:
-            case TypeTags.ANYDATA:
-            case TypeTags.SIGNED8_INT:
-            case TypeTags.SIGNED16_INT:
-            case TypeTags.SIGNED32_INT:
-            case TypeTags.UNSIGNED8_INT:
-            case TypeTags.UNSIGNED16_INT:
-            case TypeTags.UNSIGNED32_INT:
-            case TypeTags.CHAR_STRING:
-                return true;
-            default:
-                return false;
-        }
+        return switch (Types.getImpliedType(type).tag) {
+            case TypeTags.INT,
+                 TypeTags.BYTE,
+                 TypeTags.FLOAT,
+                 TypeTags.DECIMAL,
+                 TypeTags.STRING,
+                 TypeTags.BOOLEAN,
+                 TypeTags.JSON,
+                 TypeTags.XML,
+                 TypeTags.XML_TEXT,
+                 TypeTags.TABLE,
+                 TypeTags.NIL,
+                 TypeTags.NEVER,
+                 TypeTags.ANYDATA,
+                 TypeTags.SIGNED8_INT,
+                 TypeTags.SIGNED16_INT,
+                 TypeTags.SIGNED32_INT,
+                 TypeTags.UNSIGNED8_INT,
+                 TypeTags.UNSIGNED16_INT,
+                 TypeTags.UNSIGNED32_INT,
+                 TypeTags.CHAR_STRING -> true;
+            default -> false;
+        };
     }
 
     @Override
@@ -224,6 +222,7 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         return visit(type.effectiveType);
     }
 
+    @Override
     public Boolean visit(BTypeReferenceType type) {
         return visit(type.referredType);
     }
@@ -252,38 +251,26 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BType type) {
-        switch (type.tag) {
-            case TypeTags.TABLE:
-                return visit((BTableType) type);
-            case TypeTags.ANYDATA:
-                return visit((BAnydataType) type);
-            case TypeTags.RECORD:
-                return visit((BRecordType) type);
-            case TypeTags.ARRAY:
-                return visit((BArrayType) type);
-            case TypeTags.UNION:
-                return visit((BUnionType) type);
-            case TypeTags.TYPEDESC:
-                return visit((BTypedescType) type);
-            case TypeTags.MAP:
-                return visit((BMapType) type);
-            case TypeTags.FINITE:
-                return visit((BFiniteType) type);
-            case TypeTags.TUPLE:
-                return visit((BTupleType) type);
-            case TypeTags.INTERSECTION:
-                return visit((BIntersectionType) type);
-            case TypeTags.TYPEREFDESC:
-                return visit((BTypeReferenceType) type);
-            case TypeTags.SIGNED8_INT:
-            case TypeTags.SIGNED16_INT:
-            case TypeTags.SIGNED32_INT:
-            case TypeTags.UNSIGNED8_INT:
-            case TypeTags.UNSIGNED16_INT:
-            case TypeTags.UNSIGNED32_INT:
-                return visit((BIntSubType) type);
-        }
-        return isAnyData(type);
+        return switch (type.tag) {
+            case TypeTags.TABLE -> visit((BTableType) type);
+            case TypeTags.ANYDATA -> visit((BAnydataType) type);
+            case TypeTags.RECORD -> visit((BRecordType) type);
+            case TypeTags.ARRAY -> visit((BArrayType) type);
+            case TypeTags.UNION -> visit((BUnionType) type);
+            case TypeTags.TYPEDESC -> visit((BTypedescType) type);
+            case TypeTags.MAP -> visit((BMapType) type);
+            case TypeTags.FINITE -> visit((BFiniteType) type);
+            case TypeTags.TUPLE -> visit((BTupleType) type);
+            case TypeTags.INTERSECTION -> visit((BIntersectionType) type);
+            case TypeTags.TYPEREFDESC -> visit((BTypeReferenceType) type);
+            case TypeTags.SIGNED8_INT,
+                 TypeTags.SIGNED16_INT,
+                 TypeTags.SIGNED32_INT,
+                 TypeTags.UNSIGNED8_INT,
+                 TypeTags.UNSIGNED16_INT,
+                 TypeTags.UNSIGNED32_INT -> visit((BIntSubType) type);
+            default -> isAnyData(type);
+        };
     }
 
     @Override

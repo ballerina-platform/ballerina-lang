@@ -31,14 +31,11 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.Constants.GRAPH_COMMAND;
 
@@ -65,7 +62,7 @@ public class GraphCommand implements BLauncherCmd {
     private boolean helpFlag;
 
     @CommandLine.Option(names = {"--offline"}, description = "Print the dependency graph offline without downloading " +
-            "dependencies.", defaultValue = "false")
+            "dependencies.")
     private boolean offline;
 
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)",
@@ -73,7 +70,7 @@ public class GraphCommand implements BLauncherCmd {
     private boolean sticky;
 
     public GraphCommand() {
-        this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;
@@ -87,6 +84,7 @@ public class GraphCommand implements BLauncherCmd {
         this.offline = true;
     }
 
+    @Override
     public void execute() {
         if (this.helpFlag) {
             printHelpCommandInfo();
@@ -100,13 +98,7 @@ public class GraphCommand implements BLauncherCmd {
             return;
         }
 
-        if (ProjectUtils.isProjectEmpty(this.project)) {
-            printErrorAndExit("package is empty. Please add at least one .bal file.");
-            return;
-        }
-
         validateSettingsToml();
-
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(true, false), isSingleFileProject())
@@ -140,11 +132,7 @@ public class GraphCommand implements BLauncherCmd {
     }
 
     private void validateSettingsToml() {
-        try {
-            RepoUtils.readSettings();
-        } catch (SettingsTomlException e) {
-            this.outStream.println("warning: " + e.getMessage());
-        }
+        RepoUtils.readSettings();
     }
 
     private void exitIfRequired() {

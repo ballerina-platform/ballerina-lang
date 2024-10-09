@@ -21,12 +21,14 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @since 0.94
  */
-public class NodeUtils {
+public final class NodeUtils {
+
+    private NodeUtils() {
+    }
 
     /**
      * Return the {@code Name} from the give package name components.
@@ -39,8 +41,8 @@ public class NodeUtils {
     public static Name getName(Names names, List<BLangIdentifier> pkgNameComps) {
         String pkgName = String.join(".", pkgNameComps.stream()
                 .map(id -> id.value)
-                .collect(Collectors.toList()));
-        return names.fromString(pkgName);
+                .toList());
+        return Names.fromString(pkgName);
     }
 
     public static Name getName(String localname, String namespaceURI) {
@@ -50,7 +52,7 @@ public class NodeUtils {
 
     public static PackageID getPackageID(Names names, BLangIdentifier orgNameNode,
                                          List<BLangIdentifier> pkgNameComps, BLangIdentifier versionNode) {
-        List<Name> nameList = pkgNameComps.stream().map(names::fromIdNode).collect(Collectors.toList());
+        List<Name> nameList = pkgNameComps.stream().map(names::fromIdNode).toList();
         Name orgName = null;
         if (orgNameNode != null) {
             orgName = names.fromIdNode(orgNameNode);

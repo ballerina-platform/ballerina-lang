@@ -92,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -142,11 +143,15 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -209,10 +214,10 @@ import java.util.Queue;
 import java.util.Set;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isInParameterList;
 import static org.wso2.ballerinalang.compiler.util.Constants.DOLLAR;
 import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNDERSCORE;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isInParameterList;
 
 /**
  * ClosureGenerator for creating closures for default values.
@@ -223,12 +228,12 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private static final CompilerContext.Key<ClosureGenerator> CLOSURE_GENERATOR_KEY = new CompilerContext.Key<>();
     private Queue<BLangSimpleVariableDef> queue;
     private Queue<BLangSimpleVariableDef> annotationClosureReferences;
-    private SymbolTable symTable;
+    private final SymbolTable symTable;
     private SymbolEnv env;
     private BLangNode result;
-    private SymbolResolver symResolver;
-    private AnnotationDesugar annotationDesugar;
-    private Types types;
+    private final SymbolResolver symResolver;
+    private final AnnotationDesugar annotationDesugar;
+    private final Types types;
 
     public static ClosureGenerator getInstance(CompilerContext context) {
         ClosureGenerator closureGenerator = context.get(CLOSURE_GENERATOR_KEY);
@@ -421,36 +426,19 @@ public class ClosureGenerator extends BLangNodeVisitor {
             rewrite(field, recordTypeNode.typeDefEnv);
         }
         recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
-        // In the current implementation, closures generated for default values in inclusions defined in a
-        // separate module are unidentifiable.
-        // Due to that, if the inclusions are in different modules, we generate closures again.
-        // Will be fixed  with #41949 issue.
-        generateClosuresForDefaultValuesInTypeInclusionsFromDifferentModule(recordTypeNode);
+        generateClosuresForNonOverriddenFields(recordTypeNode);
         result = recordTypeNode;
     }
 
-    private List<String> getFieldNames(List<BLangSimpleVariable> fields) {
-        List<String> fieldNames = new ArrayList<>();
-        for (BLangSimpleVariable field : fields) {
-            fieldNames.add(field.name.getValue());
-        }
-        return fieldNames;
-    }
-
-    private void generateClosuresForDefaultValuesInTypeInclusionsFromDifferentModule(
-            BLangRecordTypeNode recordTypeNode) {
+    private void generateClosuresForNonOverriddenFields(BLangRecordTypeNode recordTypeNode) {
         if (recordTypeNode.typeRefs.isEmpty()) {
             return;
         }
         List<String> fieldNames = getFieldNames(recordTypeNode.fields);
         BTypeSymbol typeSymbol = recordTypeNode.getBType().tsymbol;
         String typeName = recordTypeNode.symbol.name.value;
-        PackageID packageID = typeSymbol.pkgID;
         for (BLangType type : recordTypeNode.typeRefs) {
             BType bType = type.getBType();
-            if (packageID.equals(bType.tsymbol.pkgID)) {
-                continue;
-            }
             BRecordType recordType = (BRecordType) Types.getReferredType(bType);
             Map<String, BInvokableSymbol> defaultValuesOfTypeRef =
                     ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
@@ -465,6 +453,14 @@ public class ClosureGenerator extends BLangNodeVisitor {
                 generateClosureForDefaultValues(closureName, name, invocation, symbol.retType, typeSymbol);
             }
         }
+    }
+
+    private List<String> getFieldNames(List<BLangSimpleVariable> fields) {
+        List<String> fieldNames = new ArrayList<>();
+        for (BLangSimpleVariable field : fields) {
+            fieldNames.add(field.name.getValue());
+        }
+        return fieldNames;
     }
 
     @Override
@@ -755,25 +751,21 @@ public class ClosureGenerator extends BLangNodeVisitor {
         if (parent == null) {
             return DOLLAR + name;
         }
-        switch (parent.getKind()) {
-            case CLASS_DEFN:
-                return generateName(((BLangClassDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
-            case FUNCTION:
-                name = ((BLangFunction) parent).symbol.name.value.replaceAll("\\.", UNDERSCORE) + UNDERSCORE + name;
-                return generateName(name, parent.parent);
-            case RESOURCE_FUNC:
-                return generateName(((BLangResourceFunction) parent).name.value + UNDERSCORE + name, parent.parent);
-            case VARIABLE:
-                return generateName(((BLangSimpleVariable) parent).name.getValue() + UNDERSCORE + name, parent.parent);
-            case TYPE_DEFINITION:
-                return generateName(((BLangTypeDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
-            case RECORD_TYPE:
-                name = RECORD_DELIMITER + ((BLangRecordTypeNode) parent).symbol.name.getValue() + RECORD_DELIMITER
-                        + name;
-                return generateName(name, parent.parent);
-            default:
-                return generateName(name, parent.parent);
-        }
+        return switch (parent.getKind()) {
+            case CLASS_DEFN ->
+                    generateName(((BLangClassDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
+            case FUNCTION -> generateName(((BLangFunction) parent).symbol.name.value.replace(".", UNDERSCORE)
+                    + UNDERSCORE + name, parent.parent);
+            case RESOURCE_FUNC ->
+                    generateName(((BLangResourceFunction) parent).name.value + UNDERSCORE + name, parent.parent);
+            case VARIABLE ->
+                    generateName(((BLangSimpleVariable) parent).name.getValue() + UNDERSCORE + name, parent.parent);
+            case TYPE_DEFINITION ->
+                    generateName(((BLangTypeDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
+            case RECORD_TYPE -> generateName(RECORD_DELIMITER + ((BLangRecordTypeNode) parent).symbol.name.getValue()
+                    + RECORD_DELIMITER + name, parent.parent);
+            default -> generateName(name, parent.parent);
+        };
     }
     @Override
     public void visit(BLangTupleVariable varNode) {
@@ -1401,8 +1393,34 @@ public class ClosureGenerator extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         xmlNavigation.expr = rewriteExpr(xmlNavigation.expr);
-        xmlNavigation.childIndex = rewriteExpr(xmlNavigation.childIndex);
         result = xmlNavigation;
+    }
+
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess) {
+        extendedXmlNavigationAccess.stepExpr = rewriteExpr(extendedXmlNavigationAccess.stepExpr);
+        List<BLangXMLStepExtend> extensions = extendedXmlNavigationAccess.extensions;
+        for (int i = 0; i < extensions.size(); i++) {
+            extensions.set(i, rewrite(extensions.get(i), env));
+        }
+        result = extendedXmlNavigationAccess;
+    }
+
+    @Override
+    public void visit(BLangXMLIndexedStepExtend xmlIndexedStepExtend) {
+        xmlIndexedStepExtend.indexExpr = rewriteExpr(xmlIndexedStepExtend.indexExpr);
+        result = xmlIndexedStepExtend;
+    }
+
+    @Override
+    public void visit(BLangXMLFilterStepExtend xmlFilterStepExtend) {
+        result = xmlFilterStepExtend;
+    }
+   
+    @Override
+    public void visit(BLangXMLMethodCallStepExtend xmlMethodCallStepExtend) {
+        xmlMethodCallStepExtend.invocation = rewriteExpr(xmlMethodCallStepExtend.invocation);
+        result = xmlMethodCallStepExtend;
     }
 
     @Override
@@ -1519,8 +1537,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
         result = isLikeExpr;
     }
 
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        result = nsPrefixedFieldBasedAccess;
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
+        result = prefixedFieldBasedAccess;
     }
 
     @Override
@@ -1604,16 +1622,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordLiteral.BLangChannelLiteral channelLiteral) {
-        channelLiteral.fields.forEach(field -> {
-            BLangRecordLiteral.BLangRecordKeyValueField keyValue = (BLangRecordLiteral.BLangRecordKeyValueField) field;
-            keyValue.key.expr = rewriteExpr(keyValue.key.expr);
-            keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
-        });
-        result = channelLiteral;
-    }
-
-    @Override
     public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
         xmlnsNode.namespaceURI = rewriteExpr(xmlnsNode.namespaceURI);
         result = xmlnsNode;
@@ -1639,6 +1647,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         result = queryExpr;
     }
 
+    @Override
     public void visit(BLangFromClause fromClause) {
         BLangExpression collection = fromClause.collection;
         rewrite(collection, env);
@@ -1693,6 +1702,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         result = groupByClause;
     }
 
+    @Override
     public void visit(BLangGroupingKey groupingKey) {
         rewrite((BLangNode) groupingKey.getGroupingKey(), env);
         result = groupingKey;

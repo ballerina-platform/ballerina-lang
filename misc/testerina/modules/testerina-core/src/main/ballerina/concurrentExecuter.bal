@@ -42,7 +42,7 @@ isolated function executeBeforeGroupFunctionsIsolated(TestFunction testFunction)
         TestFunction[]? beforeGroupFunctions = beforeGroupsRegistry.getFunctions('group);
         if beforeGroupFunctions != () && !groupStatusRegistry.firstExecuted('group) {
             handleBeforeGroupOutput(testFunction, 'group, executeFunctionsIsolated(beforeGroupFunctions,
-            getShouldSkip()));
+                            getShouldSkip()));
         }
     }
 }
@@ -93,7 +93,7 @@ isolated function executeNonDataDrivenTestIsolated(TestFunction testFunction,
         return true;
     }
     boolean failed = handleNonDataDrivenTestOutput(testFunction, executeTestFunctionIsolated(testFunction, "",
-    GENERAL_TEST));
+                    GENERAL_TEST));
     if executeAfterFunctionIsolated(testFunction) {
         return true;
     }

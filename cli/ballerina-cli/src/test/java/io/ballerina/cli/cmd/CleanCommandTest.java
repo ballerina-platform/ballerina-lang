@@ -29,7 +29,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
@@ -42,6 +41,7 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 public class CleanCommandTest extends BaseCommandTest {
     private Path testResources;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -49,7 +49,7 @@ public class CleanCommandTest extends BaseCommandTest {
             this.testResources = super.tmpDir.resolve("build-test-resources");
             URI testResourcesURI = Objects.requireNonNull(
                     getClass().getClassLoader().getResource("test-resources")).toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI), new BuildCommandTest.Copy(Paths.get(testResourcesURI),
+            Files.walkFileTree(Path.of(testResourcesURI), new BuildCommandTest.Copy(Path.of(testResourcesURI),
                     this.testResources));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
@@ -103,30 +103,29 @@ public class CleanCommandTest extends BaseCommandTest {
     @Test(description = "Test clean command on a ballerina project with custom target dir.")
     public void testCleanCommandNonExistentTargetAndGenerated() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTargetAndGenerated");
-        Path customTargetDir = Paths.get("customTargetDirNotExists");
+        Path customTargetDir = Path.of("customTargetDirNotExists");
         Path generatedDir = projectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT);
         Assert.assertTrue(Files.notExists(customTargetDir));
 
         CleanCommand cleanCommand = new CleanCommand(projectPath, printStream, false, customTargetDir);
         cleanCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("clean-non-existent-target.txt")
-                .replaceAll("%TARGET_LOCATION%", customTargetDir.toString()));
+                .replace("%TARGET_LOCATION%", customTargetDir.toString()));
     }
 
     @Test(description = "Test clean command on a regular file as the custom target dir.")
     public void testCleanCommandOnRegularFile() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTargetAndGenerated");
-        Path generatedDir = projectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT);
         Path customTargetDir = projectPath.resolve("main.bal");
         Assert.assertTrue(Files.exists(customTargetDir));
 
         CleanCommand cleanCommand = new CleanCommand(projectPath, printStream, false, customTargetDir);
         cleanCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("clean-regular-file.txt")
-                .replaceAll("%TARGET_LOCATION%", customTargetDir.toString()));
+                .replace("%TARGET_LOCATION%", customTargetDir.toString()));
     }
 }

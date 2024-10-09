@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
@@ -60,10 +59,9 @@ public class BTuple extends IndexedCompoundVariable {
     @Override
     public Either<Map<String, Value>, List<Value>> computeChildVariables(int start, int count) {
         try {
-            if (!(jvmValue instanceof ObjectReference)) {
+            if (!(jvmValue instanceof ObjectReference jvmValueRef)) {
                 return Either.forRight(new ArrayList<>());
             }
-            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Field valueField = jvmValueRef.referenceType().fieldByName("refValues");
 
             // If count > 0, returns a sublist of the child variables
@@ -105,9 +103,9 @@ public class BTuple extends IndexedCompoundVariable {
             List<Value> subValues = ((ArrayReference) typesArray.get()).getValues();
             StringJoiner tupleTypes = new StringJoiner(",");
             subValues.forEach(ref -> {
-                if (ref instanceof ObjectReference) {
-                    Field typeNameField = ((ObjectReference) ref).referenceType().fieldByName("typeName");
-                    Value typeNameRef = ((ObjectReference) ref).getValue(typeNameField);
+                if (ref instanceof ObjectReference objectRef) {
+                    Field typeNameField = objectRef.referenceType().fieldByName("typeName");
+                    Value typeNameRef = objectRef.getValue(typeNameField);
                     tupleTypes.add(getStringFrom(typeNameRef));
                 }
             });
@@ -135,7 +133,7 @@ public class BTuple extends IndexedCompoundVariable {
         Field arraySizeField = arrayRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
                 fieldValueEntry.getValue() != null &&
                         fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
-                .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+                .map(Map.Entry::getKey).toList().get(0);
         tupleSize = ((IntegerValue) arrayRef.getValue(arraySizeField)).value();
     }
 }

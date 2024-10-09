@@ -52,14 +52,11 @@ public abstract class SegmentFormatter {
      * @return Created formatter.
      */
     protected static SegmentFormatter getInternalFormatter(SyntaxApiCallsGenConfig config) {
-        switch (config.formatter()) {
-            case NONE:
-                return new NoFormatter();
-            case VARIABLE:
-                return new VariableFormatter();
-            default:
-                return new DefaultFormatter();
-        }
+        return switch (config.formatter()) {
+            case NONE -> new NoFormatter();
+            case VARIABLE -> new VariableFormatter();
+            default -> new DefaultFormatter();
+        };
     }
 
     /**

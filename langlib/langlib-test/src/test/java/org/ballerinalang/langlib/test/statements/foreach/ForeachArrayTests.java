@@ -37,12 +37,12 @@ public class ForeachArrayTests {
 
     private CompileResult program;
 
-    private int[] iValues = {1, -3, 5, -30, 4, 11, 25, 10};
-    private double[] fValues = {1.123, -3.35244, 5.23, -30.45, 4.32, 11.56, 25.967, 10.345};
-    private String[] sValues = {"foo", "bar", "bax", "baz"};
-    private boolean[] bValues = {true, false, false, false, true, false};
-    private String[] jValues = {"{\"name\":\"bob\", \"age\":10}", "{\"name\":\"tom\", \"age\":16}"};
-    private String[] tValues = {"name=bob,age=10", "name=tom,age=16"};
+    private final int[] iValues = {1, -3, 5, -30, 4, 11, 25, 10};
+    private final double[] fValues = {1.123, -3.35244, 5.23, -30.45, 4.32, 11.56, 25.967, 10.345};
+    private final String[] sValues = {"foo", "bar", "bax", "baz"};
+    private final boolean[] bValues = {true, false, false, false, true, false};
+    private final String[] jValues = {"{\"name\":\"bob\", \"age\":10}", "{\"name\":\"tom\", \"age\":16}"};
+    private final String[] tValues = {"name=bob,age=10", "name=tom,age=16"};
 
     @BeforeClass
     public void setup() {
@@ -96,8 +96,8 @@ public class ForeachArrayTests {
     @Test
     public void testFloatArrayWithArityOne() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < fValues.length; i++) {
-            sb.append(0).append(":").append(fValues[i]).append(" ");
+        for (double fValue : fValues) {
+            sb.append(0).append(":").append(fValue).append(" ");
         }
         Object returns = BRunUtil.invoke(program, "testFloatArrayWithArityOne");
         Assert.assertEquals(returns.toString(), sb.toString());
@@ -116,8 +116,8 @@ public class ForeachArrayTests {
     @Test
     public void testStringArrayWithArityOne() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < sValues.length; i++) {
-            sb.append(0).append(":").append(sValues[i]).append(" ");
+        for (String sValue : sValues) {
+            sb.append(0).append(":").append(sValue).append(" ");
         }
         Object returns = BRunUtil.invoke(program, "testStringArrayWithArityOne");
         Assert.assertEquals(returns.toString(), sb.toString());
@@ -136,8 +136,8 @@ public class ForeachArrayTests {
     @Test
     public void testBooleanArrayWithArityOne() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < bValues.length; i++) {
-            sb.append(0).append(":").append(bValues[i]).append(" ");
+        for (boolean bValue : bValues) {
+            sb.append(0).append(":").append(bValue).append(" ");
         }
         Object returns = BRunUtil.invoke(program, "testBooleanArrayWithArityOne");
         Assert.assertEquals(returns.toString(), sb.toString());
@@ -156,8 +156,8 @@ public class ForeachArrayTests {
     @Test
     public void testJSONArrayWithArityOne() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < jValues.length; i++) {
-            sb.append("0").append(":").append(jValues[i]).append(" ");
+        for (String jValue : jValues) {
+            sb.append("0").append(":").append(jValue).append(" ");
         }
         Object returns = BRunUtil.invoke(program, "testJSONArrayWithArityOne");
         Assert.assertEquals(returns.toString(), sb.toString());
@@ -176,8 +176,8 @@ public class ForeachArrayTests {
     @Test
     public void testStructArrayWithArityOne() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < tValues.length; i++) {
-            sb.append("0").append(":").append(tValues[i]).append(" ");
+        for (String tValue : tValues) {
+            sb.append("0").append(":").append(tValue).append(" ");
         }
         Object returns = BRunUtil.invoke(program, "testStructArrayWithArityOne");
         Assert.assertEquals(returns.toString(), sb.toString());

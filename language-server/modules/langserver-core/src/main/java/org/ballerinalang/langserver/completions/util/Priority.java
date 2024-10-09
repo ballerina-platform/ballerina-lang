@@ -36,7 +36,7 @@ public enum  Priority {
     PRIORITY230(230),
     PRIORITY240(240);
 
-    private int priority;
+    private final int priority;
 
     private Priority(int priority) {
         this.priority = priority;

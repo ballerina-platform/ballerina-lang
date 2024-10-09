@@ -49,7 +49,7 @@ public type Foo object {
 public class FooImpl1 {
     *Foo;
 
-    // param name mismatch
+    // no error - param name mismatch is OK
     function test1(string str, int anInt) returns string|error {
         return "";
     }
@@ -67,12 +67,12 @@ public class FooImpl1 {
         return "";
     }
 
-    // param name mismatch
+    // no error - param name mismatch is OK
     function test5(Status... stat) returns Bar {
         return {};
     }
 
-    // param name mismatch
+    // no error - param name mismatch is OK
     function test6([string, Status]... tupl) {}
 
     // param count mismatch
@@ -103,3 +103,26 @@ readonly class InvalidReadOnlyClassWithMissingImpls {
 
     public function toInt() returns int => 0;
 }
+
+public type FooObj client object {
+    isolated remote function execute(string aVar, int bVar);
+    public function pause(string aVar, int bVar);
+};
+
+client class BarClass {
+    *FooObj;
+
+    public isolated function execute(string aVar, int bVar) {
+    }
+
+    remote function pause(string aVar, int bVar) {
+    }
+}
+
+type BazObj client object {
+    *FooObj;
+
+    public isolated function execute(string aVar, int bVar);
+
+    remote function pause(string aVar, int bVar);
+};

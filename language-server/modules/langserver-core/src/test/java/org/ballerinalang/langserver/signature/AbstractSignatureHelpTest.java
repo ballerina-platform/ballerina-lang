@@ -36,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Test class for Signature help.
@@ -44,18 +45,16 @@ import java.util.List;
  */
 public abstract class AbstractSignatureHelpTest {
 
-    private final String configDir = "config";
+    private static final String CONFIG_DIR = "config";
 
     private Endpoint serviceEndpoint;
 
-    private JsonParser parser = new JsonParser();
+    private final Path testRoot = new File(getClass().getClassLoader().getResource("signature").getFile()).toPath();
 
-    private Path testRoot = new File(getClass().getClassLoader().getResource("signature").getFile()).toPath();
-
-    private static final Logger log = LoggerFactory.getLogger(AbstractSignatureHelpTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractSignatureHelpTest.class);
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
@@ -63,13 +62,13 @@ public abstract class AbstractSignatureHelpTest {
     public void test(String config, String source)
             throws WorkspaceDocumentException, IOException, InterruptedException {
         String configJsonPath =
-                "signature" + File.separator + source + File.separator + configDir + File.separator + config;
+                "signature" + File.separator + source + File.separator + CONFIG_DIR + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
         expected.remove("id");
         String response = this.getSignatureResponse(configJsonObject, sourcePath).replace("\\r\\n", "\\n");
-        JsonObject responseJson = parser.parse(response).getAsJsonObject();
+        JsonObject responseJson = JsonParser.parseString(response).getAsJsonObject();
         responseJson.remove("id");
         boolean result = expected.equals(responseJson);
         if (!result) {
@@ -81,7 +80,8 @@ public abstract class AbstractSignatureHelpTest {
 //            java.nio.file.Files.write(org.ballerinalang.langserver.util.FileUtils.RES_DIR.resolve(configJsonPath),
 //                                      obj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
-            Assert.fail("Failed Test for: " + configJsonPath);
+            Assert.fail("Failed Test for: " + configJsonPath + "\n Expected: " +
+                    expected + "\n Found: " + responseJson);
         }
     }
 
@@ -103,9 +103,9 @@ public abstract class AbstractSignatureHelpTest {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
-        try {
-            return Files.walk(this.testRoot.resolve(this.getTestResourceDir()).resolve(this.configDir))
-                    .filter(path -> {
+        try (Stream<Path> configPaths = Files.walk(
+                this.testRoot.resolve(this.getTestResourceDir()).resolve(this.CONFIG_DIR))) {
+            return configPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".json")
                                 && !skippedTests.contains(file.getName());

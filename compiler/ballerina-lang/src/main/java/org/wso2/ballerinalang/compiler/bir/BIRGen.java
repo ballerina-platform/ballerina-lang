@@ -236,27 +236,26 @@ public class BIRGen extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     public static final String DEFAULT_WORKER_NAME = "function";
-    public static final String CLONE_READ_ONLY = "cloneReadOnly";
     private BIRGenEnv env;
-    private Names names;
+    private final Names names;
     private final SymbolTable symTable;
-    private BIROptimizer birOptimizer;
+    private final BIROptimizer birOptimizer;
     private final Types types;
 
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
-    private Map<BSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
+    private final Map<BSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
     private BlockNode currentBlock;
     // This is a global variable cache
     public Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
 
     // This map is used to create dependencies for imported module global variables
-    private Map<BSymbol, BIRGlobalVariableDcl> dummyGlobalVarMapForLocks = new HashMap<>();
+    private final Map<BSymbol, BIRGlobalVariableDcl> dummyGlobalVarMapForLocks = new HashMap<>();
 
-    // This is to cache the lockstmt to BIR Lock
-    private Map<BLangLockStmt, BIRTerminator.Lock> lockStmtMap = new HashMap<>();
+    // This is to cache the lock statement to BIR Lock
+    private final Map<BLangLockStmt, BIRTerminator.Lock> lockStmtMap = new HashMap<>();
 
-    private Unifier unifier;
+    private final Unifier unifier;
 
     private BirScope currentScope;
 
@@ -433,7 +432,7 @@ public class BIRGen extends BLangNodeVisitor {
 
             BInvokableSymbol funcSymbol = func.symbol;
             BIRFunction birFunc = new BIRFunction(astTypeDefinition.pos, func.funcName, funcSymbol.flags, func.type,
-                                                  names.fromString(DEFAULT_WORKER_NAME), 0,
+                                                  Names.fromString(DEFAULT_WORKER_NAME), 0,
                                                   funcSymbol.origin.toBIROrigin());
 
             if (funcSymbol.receiverSymbol != null) {
@@ -496,7 +495,7 @@ public class BIRGen extends BLangNodeVisitor {
             BInvokableSymbol funcSymbol = func.symbol;
 
             BIRFunction birFunc = new BIRFunction(classDefinition.pos, func.funcName, funcSymbol.flags, func.type,
-                    names.fromString(DEFAULT_WORKER_NAME), 0, funcSymbol.origin.toBIROrigin());
+                    Names.fromString(DEFAULT_WORKER_NAME), 0, funcSymbol.origin.toBIROrigin());
 
             if (funcSymbol.receiverSymbol != null) {
                 birFunc.receiver = getSelf(funcSymbol.receiverSymbol);
@@ -582,12 +581,12 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.unlockVars.push(new BIRLockDetailsHolder());
         Name funcName;
         if (isTypeAttachedFunction) {
-            funcName = names.fromString(astFunc.symbol.name.value);
+            funcName = Names.fromString(astFunc.symbol.name.value);
         } else {
             funcName = getFuncName(astFunc.symbol);
         }
         BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName,
-                names.fromString(astFunc.symbol.getOriginalName().value), astFunc.symbol.flags, type, workerName,
+                Names.fromString(astFunc.symbol.getOriginalName().value), astFunc.symbol.flags, type, workerName,
                 astFunc.sendsToThis.size(), astFunc.symbol.origin.toBIROrigin());
         this.currentScope = new BirScope(0, null);
         if (astFunc.receiver != null) {
@@ -892,12 +891,12 @@ public class BIRGen extends BLangNodeVisitor {
 
     private Name getFuncName(BInvokableSymbol symbol) {
         if (symbol.receiverSymbol == null) {
-            return names.fromString(symbol.name.value);
+            return Names.fromString(symbol.name.value);
         }
 
         int offset = symbol.receiverSymbol.type.tsymbol.name.value.length() + 1;
         String attachedFuncName = symbol.name.value;
-        return names.fromString(attachedFuncName.substring(offset));
+        return Names.fromString(attachedFuncName.substring(offset));
     }
 
     private void addParam(BIRFunction birFunc, BLangVariable functionParam) {
@@ -968,7 +967,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         Set<ClosureVarSymbol> closureVarSymbols = lambdaExpr.function.closureVarSymbols;
-        if (closureVarSymbols.size() == 0) {
+        if (closureVarSymbols.isEmpty()) {
             return null;
         }
 
@@ -1085,7 +1084,7 @@ public class BIRGen extends BLangNodeVisitor {
         // This is required to pull the correct bir_variable declaration for variable references.
         this.env.symbolVarMap.put(astVarDefStmt.var.symbol, birVarDcl);
 
-        BirScope newScope = new BirScope(this.currentScope.id + 1, this.currentScope);
+        BirScope newScope = new BirScope(this.currentScope.id() + 1, this.currentScope);
         birVarDcl.insScope = newScope;
         this.currentScope = newScope;
 
@@ -1109,8 +1108,8 @@ public class BIRGen extends BLangNodeVisitor {
                                                                     ANNOTATION_DATA : varNode.name.originalValue;
         BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
                                                                   varNode.symbol.type, varNode.symbol.pkgID,
-                                                                  names.fromString(name),
-                                                                  names.fromString(originalName), VarScope.GLOBAL,
+                                                                  Names.fromString(name),
+                                                                  Names.fromString(originalName), VarScope.GLOBAL,
                                                                   VarKind.GLOBAL, varNode.name.value,
                                                                   varNode.symbol.origin.toBIROrigin());
         birVarDcl.setMarkdownDocAttachment(varNode.symbol.markdownDocumentation);
@@ -1243,7 +1242,7 @@ public class BIRGen extends BLangNodeVisitor {
         boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
 
         this.env.enclBB.terminator = new BIRTerminator.WorkerReceive(workerReceive.pos,
-                names.fromString(workerReceive.getChannel().channelId()), lhsOp, isOnSameStrand, thenBB,
+                Names.fromString(workerReceive.getChannel().channelId()), lhsOp, isOnSameStrand, thenBB,
                 this.currentScope);
 
         this.env.enclBasicBlocks.add(thenBB);
@@ -1265,7 +1264,7 @@ public class BIRGen extends BLangNodeVisitor {
         boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
 
         this.env.enclBB.terminator = new BIRTerminator.WorkerSend(
-                asyncSendExpr.pos, names.fromString(asyncSendExpr.getChannel().channelId()), dataOp, isOnSameStrand,
+                asyncSendExpr.pos, Names.fromString(asyncSendExpr.getChannel().channelId()), dataOp, isOnSameStrand,
                 false, lhsOp, thenBB, this.currentScope);
 
         this.env.enclBasicBlocks.add(thenBB);
@@ -1288,7 +1287,7 @@ public class BIRGen extends BLangNodeVisitor {
         boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
 
         this.env.enclBB.terminator = new BIRTerminator.WorkerSend(
-                syncSend.pos, names.fromString(syncSend.getChannel().channelId()), dataOp, isOnSameStrand, true, lhsOp,
+                syncSend.pos, Names.fromString(syncSend.getChannel().channelId()), dataOp, isOnSameStrand, true, lhsOp,
                 thenBB, this.currentScope);
 
         this.env.enclBasicBlocks.add(thenBB);
@@ -1762,7 +1761,7 @@ public class BIRGen extends BLangNodeVisitor {
                 keyRegIndex, varRefRegIndex, astMapAccessExpr.optionalFieldAccess,
                                               astMapAccessExpr.isLValue && !astMapAccessExpr.leafNode));
         this.env.targetOperand = tempVarRef;
-        this.varAssignment = variableStore;
+        this.varAssignment = false;
     }
 
     @Override
@@ -1789,7 +1788,7 @@ public class BIRGen extends BLangNodeVisitor {
         setScopeAndEmit(new BIRNonTerminator.FieldAccess(astTableAccessExpr.pos, InstructionKind.TABLE_LOAD, tempVarRef,
                 keyRegIndex, varRefRegIndex));
         this.env.targetOperand = tempVarRef;
-        this.varAssignment = variableStore;
+        this.varAssignment = false;
     }
 
     @Override
@@ -1936,7 +1935,8 @@ public class BIRGen extends BLangNodeVisitor {
             this.globalVarMap.put(symbol, globalVarDcl);
         }
 
-        if (!isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID)) {
+        if (!isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID) ||
+                env.enclPkg.packageID.isTestPkg) {
             this.env.enclPkg.importedGlobalVarsDummyVarDcls.add(globalVarDcl);
         }
         return globalVarDcl;
@@ -1959,7 +1959,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Create binary instruction
         BinaryOp binaryIns = new BinaryOp(astBinaryExpr.pos, getBinaryInstructionKind(astBinaryExpr.opKind),
-                                          astBinaryExpr.getBType(), lhsOp, rhsOp1, rhsOp2);
+                lhsOp, rhsOp1, rhsOp2);
         setScopeAndEmit(binaryIns);
     }
 
@@ -2069,7 +2069,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
-        // If the QName is use outside of XML, treat it as string.
+        // If the QName is use outside XML, treat it as string.
         if (!xmlQName.isUsedInXML) {
             String qName = xmlQName.namespaceURI == null ? xmlQName.localname.value
                     : ("{" + xmlQName.namespaceURI + "}" + xmlQName.localname);
@@ -2355,8 +2355,7 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBasicBlocks.add(unlockBB);
             BIRTerminator.Unlock unlock = new BIRTerminator.Unlock(null,  unlockBB, this.currentScope);
             this.env.enclBB.terminator = unlock;
-            BIRTerminator.Lock lock = toUnlock.getLock(numLocks - 1);
-            unlock.relatedLock = lock;
+            unlock.relatedLock = toUnlock.getLock(numLocks - 1);
             this.env.enclBB = unlockBB;
             numLocks--;
         }
@@ -2661,74 +2660,43 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private InstructionKind getBinaryInstructionKind(OperatorKind opKind) {
-        switch (opKind) {
-            case ADD:
-                return InstructionKind.ADD;
-            case SUB:
-                return InstructionKind.SUB;
-            case MUL:
-                return InstructionKind.MUL;
-            case DIV:
-                return InstructionKind.DIV;
-            case MOD:
-                return InstructionKind.MOD;
-            case EQUAL:
-            case EQUALS:
-                return InstructionKind.EQUAL;
-            case NOT_EQUAL:
-                return InstructionKind.NOT_EQUAL;
-            case GREATER_THAN:
-                return InstructionKind.GREATER_THAN;
-            case GREATER_EQUAL:
-                return InstructionKind.GREATER_EQUAL;
-            case LESS_THAN:
-                return InstructionKind.LESS_THAN;
-            case LESS_EQUAL:
-                return InstructionKind.LESS_EQUAL;
-            case AND:
-                return InstructionKind.AND;
-            case OR:
-                return InstructionKind.OR;
-            case REF_EQUAL:
-                return InstructionKind.REF_EQUAL;
-            case REF_NOT_EQUAL:
-                return InstructionKind.REF_NOT_EQUAL;
-            case CLOSED_RANGE:
-                return InstructionKind.CLOSED_RANGE;
-            case HALF_OPEN_RANGE:
-                return InstructionKind.HALF_OPEN_RANGE;
-            case ANNOT_ACCESS:
-                return InstructionKind.ANNOT_ACCESS;
-            case BITWISE_AND:
-                return InstructionKind.BITWISE_AND;
-            case BITWISE_OR:
-                return InstructionKind.BITWISE_OR;
-            case BITWISE_XOR:
-                return InstructionKind.BITWISE_XOR;
-            case BITWISE_LEFT_SHIFT:
-                return InstructionKind.BITWISE_LEFT_SHIFT;
-            case BITWISE_RIGHT_SHIFT:
-                return InstructionKind.BITWISE_RIGHT_SHIFT;
-            case BITWISE_UNSIGNED_RIGHT_SHIFT:
-                return InstructionKind.BITWISE_UNSIGNED_RIGHT_SHIFT;
-            default:
-                throw new IllegalStateException("unsupported binary operation: " + opKind.value());
-        }
+        return switch (opKind) {
+            case ADD -> InstructionKind.ADD;
+            case SUB -> InstructionKind.SUB;
+            case MUL -> InstructionKind.MUL;
+            case DIV -> InstructionKind.DIV;
+            case MOD -> InstructionKind.MOD;
+            case EQUAL, EQUALS -> InstructionKind.EQUAL;
+            case NOT_EQUAL -> InstructionKind.NOT_EQUAL;
+            case GREATER_THAN -> InstructionKind.GREATER_THAN;
+            case GREATER_EQUAL -> InstructionKind.GREATER_EQUAL;
+            case LESS_THAN -> InstructionKind.LESS_THAN;
+            case LESS_EQUAL -> InstructionKind.LESS_EQUAL;
+            case AND -> InstructionKind.AND;
+            case OR -> InstructionKind.OR;
+            case REF_EQUAL -> InstructionKind.REF_EQUAL;
+            case REF_NOT_EQUAL -> InstructionKind.REF_NOT_EQUAL;
+            case CLOSED_RANGE -> InstructionKind.CLOSED_RANGE;
+            case HALF_OPEN_RANGE -> InstructionKind.HALF_OPEN_RANGE;
+            case ANNOT_ACCESS -> InstructionKind.ANNOT_ACCESS;
+            case BITWISE_AND -> InstructionKind.BITWISE_AND;
+            case BITWISE_OR -> InstructionKind.BITWISE_OR;
+            case BITWISE_XOR -> InstructionKind.BITWISE_XOR;
+            case BITWISE_LEFT_SHIFT -> InstructionKind.BITWISE_LEFT_SHIFT;
+            case BITWISE_RIGHT_SHIFT -> InstructionKind.BITWISE_RIGHT_SHIFT;
+            case BITWISE_UNSIGNED_RIGHT_SHIFT -> InstructionKind.BITWISE_UNSIGNED_RIGHT_SHIFT;
+            default -> throw new IllegalStateException("unsupported binary operation: " + opKind.value());
+        };
     }
 
     private InstructionKind getUnaryInstructionKind(OperatorKind opKind) {
-        switch (opKind) {
-            case TYPEOF:
-                return InstructionKind.TYPEOF;
-            case NOT:
-                return InstructionKind.NOT;
-            case SUB:
-                return InstructionKind.NEGATE;
-            case ADD:
-                return InstructionKind.MOVE;
-            default:
-                throw new IllegalStateException("unsupported unary operator: " + opKind.value());
-        }
+        return switch (opKind) {
+            case TYPEOF -> InstructionKind.TYPEOF;
+            case NOT -> InstructionKind.NOT;
+            case SUB -> InstructionKind.NEGATE;
+            case ADD -> InstructionKind.MOVE;
+            default -> throw new IllegalStateException("unsupported unary operator: " + opKind.value());
+        };
     }
 
     private void generateListConstructorExpr(BLangListConstructorExpr listConstructorExpr) {
@@ -2812,7 +2780,7 @@ public class BIRGen extends BLangNodeVisitor {
                                               astArrayAccessExpr.isLValue && !astArrayAccessExpr.leafNode));
         this.env.targetOperand = tempVarRef;
 
-        this.varAssignment = variableStore;
+        this.varAssignment = false;
     }
 
     private void generateMappingAccess(BLangIndexBasedAccess astIndexBasedAccessExpr, boolean except) {
@@ -2862,7 +2830,7 @@ public class BIRGen extends BLangNodeVisitor {
             } else if (types.isAssignable(astAccessExprExprType, symTable.xmlType)) {
                 generateXMLAccess((BLangXMLAccessExpr) astIndexBasedAccessExpr, tempVarRef, varRefRegIndex,
                         keyRegIndex);
-                this.varAssignment = variableStore;
+                this.varAssignment = false;
                 return;
             } else if (astAccessExprExprType.tag == TypeTags.OBJECT ||
                     (astAccessExprExprType.tag == TypeTags.UNION &&

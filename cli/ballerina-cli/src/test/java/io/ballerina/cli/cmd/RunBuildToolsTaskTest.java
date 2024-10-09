@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
@@ -27,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -35,7 +37,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -49,21 +51,27 @@ import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
  */
 public class RunBuildToolsTaskTest extends BaseCommandTest {
     private Path buildToolResources;
-    private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath();
+    private static final Path testBuildDirectory = Path.of("build").toAbsolutePath();
     private static final Path testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
     Path mockCentralBalaDirPath = testDistCacheDirectory.resolve("bala");
 
     private static final long TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
     private static final long HALF_DAY = 12 * 60 * 60 * 1000;
 
+    private static final Path LOG_FILE = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
+            .toAbsolutePath();
+
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
+        Files.createDirectories(LOG_FILE.getParent());
+        Files.writeString(LOG_FILE, "");
         // copy all test resources
         try {
             Path testResources = super.tmpDir.resolve("build-tool-test-resources");
             this.buildToolResources = testResources.resolve("buildToolResources");
-            Path testResourcesPath = Paths.get(
+            Path testResourcesPath = Path.of(
                     Objects.requireNonNull(getClass().getClassLoader().getResource("test-resources")).toURI());
             Files.walkFileTree(testResourcesPath, new BuildCommandTest.Copy(testResourcesPath, testResources));
         } catch (Exception e) {
@@ -88,7 +96,7 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
     }
 
     @Test(description = "Resolve a tool offline", dataProvider = "buildToolOfflineProvider")
-    public void testOfflineToolResolution(String projectName, String outputFileName, boolean sticky)
+    public void testOfflineToolResolution(String projectName, String outputFileName, boolean sticky, boolean isError)
             throws IOException {
         Path projectPath = buildToolResources.resolve(projectName);
         Project project = BuildProject.load(projectPath,
@@ -97,10 +105,21 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
         try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
                 BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
             repoUtils.when(BuildToolUtils::getCentralBalaDirPath).thenReturn(mockCentralBalaDirPath);
-            runBuildToolsTask.execute(project);
+            try {
+                runBuildToolsTask.execute(project);
+            } catch (BLauncherException e) {
+                if (!isError) {
+                    String errorMsg = "Error executing build tools task for project: " + projectName
+                            + (sticky ? "with sticky." : "without sticky. ") + e.getMessage();
+                    Assert.fail(errorMsg);
+                }
+                List<String> messages = e.getMessages();
+                Assert.assertEquals(messages.size(), 1);
+                Assert.assertEquals(messages.get(0), "error: build tool execution contains errors");
+            }
         }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput(outputFileName));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput(outputFileName));
     }
 
     @Test(description = "Generate files using a project and find the generated file in project instance")
@@ -114,7 +133,7 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
             runBuildToolsTask.execute(project);
         }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-tool-generate-file.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-tool-generate-file.txt"));
         AtomicBoolean fileFound = new AtomicBoolean(false);
         project.currentPackage().modules().forEach(module -> {
             if (module.moduleName().toString().equals("winery.mod_generate")) {
@@ -135,83 +154,98 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
             {
                 "project-with-central-build-tool",
                 "build-tool-offline.txt",
+                false,
                 false
             },
             {
                 "project-with-non-existent-build-tool",
                 "build-tool-offline-resolve-failed.txt",
-                false
+                false,
+                true
             },
             {
                 "fresh-project-with-central-build-tool",
                 "build-tool-offline-resolve-failed-wo-version.txt",
-                false
+                false,
+                true,
             },
             {
                 "project-with-2.x-central-build-tool",
                 "build-tool-offline-with-new-major-version-locked.txt",
-                false
+                false,
+                true
             },
             {
                 "project-with-non-existent-subcommand",
                 "build-tool-non-existent-subcommand.txt",
+                false,
                 false
             },
             {
                 "project-with-invalid-name-build-tool",
                 "build-tool-invalid-name.txt",
+                false,
                 false
             },
             {
                 "project-with-multilevel-subcommands",
                 "build-tool-multilevel-subcommands.txt",
+                false,
                 false
             },
             {
                 "project-with-only-subcommands",
                 "build-tool-only-subcommands.txt",
+                false,
                 false
             },
             {
                 "project-with-hidden-commands",
                 "build-tool-hidden-commands.txt",
+                false,
                 false
             },
             {
                 "project-with-missing-interface-build-tool",
                 "build-tool-missing-interface.txt",
+                false,
                 false
             },
             {
                 "project-with-no-options-build-tool",
                 "build-tool-no-options.txt",
+                false,
                 false
             },
             {
                 "project-with-old-build-tool",
                 "build-tool-without-sticky.txt",
+                false,
                 false
             },
             {
                 "project-with-old-build-tool",
                 "build-tool-with-sticky.txt",
+                true,
                 true
             },
             {
                 "project-lt-24h-with-build-tool",
                 "build-tool-lt-24-build-file.txt",
-                false
+                false,
+                true
             },
             {
                 "project-gt-24h-with-build-tool",
                 "build-tool-gt-24-build-file.txt",
+                false,
                 false
             },
         };
     }
 
     private void addBuildJsonToProjects(String projectName, long time) {
-        Path buildJsonPath = buildToolResources.resolve(projectName).resolve("target").resolve("build");
+        Path buildJsonPath = buildToolResources.resolve(projectName).resolve("target/build");
         String buildJsonContent = "{\n" +
                 "  \"last_build_time\": 1710907945705,\n" +
                 "  \"last_update_time\": " + time + ",\n" +
@@ -226,5 +260,12 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
         } catch (IOException e) {
             Assert.fail("Error writing build.json file");
         }
+    }
+    
+    @AfterClass
+    public void cleanUp() throws IOException {
+        Files.deleteIfExists(LOG_FILE);
+        Files.deleteIfExists(LOG_FILE.getParent());
+        Files.deleteIfExists(LOG_FILE.getParent().getParent());
     }
 }

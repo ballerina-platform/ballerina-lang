@@ -89,6 +89,7 @@ public class HoverContextImpl extends PositionedOperationContextImpl implements 
             super(LSContextOperation.TXT_HOVER, serverContext);
         }
 
+        @Override
         public HoverContext build() {
             return new HoverContextImpl(this.operation,
                     this.fileUri,

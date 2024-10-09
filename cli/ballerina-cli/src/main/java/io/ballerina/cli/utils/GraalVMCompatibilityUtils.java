@@ -35,7 +35,10 @@ import java.util.Optional;
  *
  * @since 2201.7.0
  */
-public class GraalVMCompatibilityUtils {
+public final class GraalVMCompatibilityUtils {
+
+    private GraalVMCompatibilityUtils() {
+    }
 
     private static boolean hasExternalPlatformDependencies(io.ballerina.projects.Package pkg) {
         // Check if external platform dependencies are defined
@@ -57,6 +60,19 @@ public class GraalVMCompatibilityUtils {
         }
         return "";
     }
+
+    private static Boolean isAllPlatformDepsGraalvmCompatible(Map<String, PackageManifest.Platform> platforms) {
+        Boolean isAllDepsGraalvmCompatible = true;
+        for (PackageManifest.Platform platform: platforms.values()) {
+            if (platform.isPlatfromDepsGraalvmCompatible() == null) {
+                isAllDepsGraalvmCompatible = null;
+            } else if (!platform.isPlatfromDepsGraalvmCompatible()) {
+                return false;
+            }
+        }
+        return isAllDepsGraalvmCompatible;
+    }
+
     /**
      * Get the GraalVM compatibility warning message for the given package.
      *
@@ -68,11 +84,12 @@ public class GraalVMCompatibilityUtils {
         // Verify that Java dependencies (if exist) of this package are GraalVM compatible
         if (hasExternalPlatformDependencies(pkg)) {
             PackageManifest.Platform platform = pkg.manifest().platform(targetPlatform);
+            Boolean allDepsGraalvmCompatible = isAllPlatformDepsGraalvmCompatible(pkg.manifest().platforms());
             String packageName = pkg.manifest().name().value();
             if (platform == null || platform.graalvmCompatible() == null) {
                 String graalvmCompatiblePlatform = otherPlatformGraalvmCompatibleVerified(targetPlatform,
                         pkg.manifest().platforms());
-                if (graalvmCompatiblePlatform.equals("")) {
+                if (graalvmCompatiblePlatform.isEmpty() && allDepsGraalvmCompatible == null) {
                     return String.format(
                             "************************************************************%n" +
                                     "* WARNING: Package is not verified with GraalVM.           *%n" +
@@ -82,11 +99,14 @@ public class GraalVMCompatibilityUtils {
                                     "To resolve this warning, please ensure that all Java dependencies of " +
                                     "this package are compatible with GraalVM. Subsequently, update the " +
                                     "Ballerina.toml file under the section '[platform.%s]' with the " +
-                                    "attribute 'graalvmCompatible = true'.%n%n" +
+                                    "attribute 'graalvmCompatible = true'.Or, add 'graalvmCompatible = true' " +
+                                    "attribute to each Java dependency entry in Ballerina.toml.%n%n" +
                                     "************************************************************%n",
                             packageName, targetPlatform);
                 } else {
-                    if (!pkg.manifest().platform(graalvmCompatiblePlatform).graalvmCompatible()) {
+                    if ((!graalvmCompatiblePlatform.isEmpty() &&
+                            !pkg.manifest().platform(graalvmCompatiblePlatform).graalvmCompatible()) ||
+                            (allDepsGraalvmCompatible != null && !allDepsGraalvmCompatible)) {
                         return String.format(
                                 "************************************************************%n" +
                                         "* WARNING: Package is not compatible with GraalVM.         *%n" +
@@ -101,7 +121,8 @@ public class GraalVMCompatibilityUtils {
                                 packageName);
                     }
                 }
-            } else if (!platform.graalvmCompatible()) {
+            } else if (!platform.graalvmCompatible() ||
+                    (allDepsGraalvmCompatible != null && !allDepsGraalvmCompatible)) {
                 return String.format(
                         "************************************************************%n" +
                                 "* WARNING: Package is not compatible with GraalVM.         *%n" +
@@ -162,7 +183,7 @@ public class GraalVMCompatibilityUtils {
         // List all dependencies that are not GraalVM compatible
         String dependencyWarning = getWarningForDependencies(pkg, isTestExec);
         if (dependencyWarning != null) {
-            if (warnings.length() > 0) {
+            if (!warnings.isEmpty()) {
                 warnings.append(System.lineSeparator());
             }
             warnings.append(dependencyWarning);

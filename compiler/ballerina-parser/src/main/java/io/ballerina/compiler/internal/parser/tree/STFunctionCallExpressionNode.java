@@ -68,6 +68,7 @@ public class STFunctionCallExpressionNode extends STExpressionNode {
                 closeParenToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STFunctionCallExpressionNode(
                 this.functionName,
@@ -98,6 +99,7 @@ public class STFunctionCallExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionCallExpressionNode(this, position, parent);
     }

@@ -16,7 +16,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `PathParamType[]` path"
         }
       },
-      "sortText": "G",
+      "sortText": "GA",
       "filterText": "get",
       "insertText": "/[${1:\"path\"}];",
       "insertTextFormat": "Snippet",
@@ -46,7 +46,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `PathParamType[]` path"
         }
       },
-      "sortText": "G",
+      "sortText": "GB",
       "filterText": "get",
       "insertText": "/${1:path};",
       "insertTextFormat": "Snippet",
@@ -76,7 +76,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `PathParamType[]` path"
         }
       },
-      "sortText": "G",
+      "sortText": "GC",
       "filterText": "post",
       "insertText": "/[${1:\"path\"}].post;",
       "insertTextFormat": "Snippet",
@@ -106,7 +106,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `PathParamType[]` path"
         }
       },
-      "sortText": "G",
+      "sortText": "GD",
       "filterText": "post",
       "insertText": "/${1:path}.post;",
       "insertTextFormat": "Snippet",

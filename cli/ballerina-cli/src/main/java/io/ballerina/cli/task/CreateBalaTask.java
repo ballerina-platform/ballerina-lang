@@ -99,7 +99,7 @@ public class CreateBalaTask implements Task {
                 relativePathToExecutable.toString().contains("." + File.separator)) {
             this.out.println("\t" + emitResult.generatedArtifactPath().toString());
         } else {
-            this.out.println("\t" + relativePathToExecutable.toString());
+            this.out.println("\t" + relativePathToExecutable);
         }
     }
 

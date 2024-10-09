@@ -44,7 +44,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.cmd.Constants.ADD_COMMAND;
@@ -96,7 +95,8 @@ import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
  *
  * @since 2201.8.0
  */
-public class BalToolsUtil {
+public final class BalToolsUtil {
+
     private static final String TOOL = "tool";
     private static final String LIBS = "libs";
 
@@ -114,13 +114,16 @@ public class BalToolsUtil {
             UPDATE_COMMAND, START_LANG_SERVER_COMMAND, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND, HOME_COMMAND,
             GENCACHE_COMMAND);
     // if a command is a built-in tool command, add it to this list
-    private static final List<String> builtInToolCommands = Arrays.asList();
+    private static final List<String> builtInToolCommands = List.of();
 
     private static final Path balToolsTomlPath = RepoUtils.createAndGetHomeReposPath().resolve(
             Path.of(CONFIG_DIR, BAL_TOOLS_TOML));
     private static final Path balaCacheDirPath = ProjectUtils.createAndGetHomeReposPath()
             .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
             .resolve(ProjectConstants.BALA_DIR_NAME);
+
+    private BalToolsUtil() {
+    }
 
     public static boolean isNonBuiltInToolCommand(String commandName) {
         return isToolCommand(commandName) && !builtInToolCommands.contains(commandName);
@@ -185,7 +188,7 @@ public class BalToolsUtil {
                                             .resolve(TOOL).resolve(LIBS)
                         .toFile()))
                     .flatMap(List::stream)
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         Optional<BalToolsManifest.Tool> toolOpt = balToolsManifest.getActiveTool(commandName);
@@ -276,7 +279,7 @@ public class BalToolsUtil {
                     } catch (ProjectException ignore) {
                         return false;
                     }
-                })).map(File::getName).collect(Collectors.toList());
+                })).map(File::getName).toList();
 
                 Optional<String> latestVersion = getLatestVersion(versions);
                 versions.stream().forEach(version -> {

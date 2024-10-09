@@ -17,11 +17,10 @@
 
 plugins {
     id 'base'
+    id 'javaLibsProject'
 }
 
-apply from: "$rootDir/gradle/javaLibsProject.gradle"
-
-task copyDependencies(type: Copy) {
+tasks.register('copyDependencies', Copy) {
     from configurations.dist
     into 'libs'
 }

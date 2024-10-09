@@ -2212,9 +2212,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STXMLStepExpressionNode xMLStepExpressionNode) {
         STNode expression = modifyNode(xMLStepExpressionNode.expression);
         STNode xmlStepStart = modifyNode(xMLStepExpressionNode.xmlStepStart);
+        STNode xmlStepExtend = modifyNode(xMLStepExpressionNode.xmlStepExtend);
         return xMLStepExpressionNode.modify(
                 expression,
-                xmlStepStart);
+                xmlStepStart,
+                xmlStepExtend);
     }
 
     @Override
@@ -2227,6 +2229,30 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 startToken,
                 xmlNamePattern,
                 gtToken);
+    }
+
+    @Override
+    public STXMLStepIndexedExtendNode transform(
+            STXMLStepIndexedExtendNode xMLStepIndexedExtendNode) {
+        STNode openBracket = modifyNode(xMLStepIndexedExtendNode.openBracket);
+        STNode expression = modifyNode(xMLStepIndexedExtendNode.expression);
+        STNode closeBracket = modifyNode(xMLStepIndexedExtendNode.closeBracket);
+        return xMLStepIndexedExtendNode.modify(
+                openBracket,
+                expression,
+                closeBracket);
+    }
+
+    @Override
+    public STXMLStepMethodCallExtendNode transform(
+            STXMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
+        STNode dotToken = modifyNode(xMLStepMethodCallExtendNode.dotToken);
+        STNode methodName = modifyNode(xMLStepMethodCallExtendNode.methodName);
+        STNode parenthesizedArgList = modifyNode(xMLStepMethodCallExtendNode.parenthesizedArgList);
+        return xMLStepMethodCallExtendNode.modify(
+                dotToken,
+                methodName,
+                parenthesizedArgList);
     }
 
     @Override
@@ -2939,28 +2965,34 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
 
     // Tokens
 
+    @Override
     public STToken transform(STToken token) {
         return token;
     }
 
+    @Override
     public STIdentifierToken transform(STIdentifierToken identifier) {
         return identifier;
     }
 
+    @Override
     public STLiteralValueToken transform(STLiteralValueToken literalValueToken) {
         return literalValueToken;
     }
 
+    @Override
     public STDocumentationLineToken transform(STDocumentationLineToken documentationLineToken) {
         return documentationLineToken;
     }
 
+    @Override
     public STMissingToken transform(STMissingToken missingToken) {
         return missingToken;
     }
 
     // Misc
 
+    @Override
     public STNode transform(STNodeList nodeList) {
         if (nodeList.isEmpty()) {
             return nodeList;

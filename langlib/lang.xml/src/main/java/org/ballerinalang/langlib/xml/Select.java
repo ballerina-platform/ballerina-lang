@@ -34,13 +34,16 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class Select {
+public final class Select {
 
     private static final String OPERATION = "select elements from xml";
 
+    private Select() {
+    }
+
     public static BXml select(Strand strand, BXml xml, String qname) {
         try {
-            return (BXml) xml.elements(qname);
+            return xml.elements(qname);
         } catch (Throwable e) {
             ErrorHelper.handleXMLException(OPERATION, e);
         }

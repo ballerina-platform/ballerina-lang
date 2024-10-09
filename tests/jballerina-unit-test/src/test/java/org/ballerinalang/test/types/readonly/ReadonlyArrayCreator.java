@@ -28,7 +28,10 @@ import io.ballerina.runtime.api.values.BString;
 /**
  * Interop functions for readonly array creation.
  */
-public class ReadonlyArrayCreator {
+public final class ReadonlyArrayCreator {
+
+    private ReadonlyArrayCreator() {
+    }
 
     public static BArray createIntArray() {
         long[] numbers = {1000, 2000, 3000};
@@ -55,7 +58,7 @@ public class ReadonlyArrayCreator {
         return ValueCreator.createReadonlyArrayValue(numbers);
     }
 
-    public static BArray createArrayOfMaps(BMap map) {
+    public static BArray createArrayOfMaps(BMap<?, ?> map) {
         return ValueCreator.createArrayValue(TypeCreator.createArrayType(map.getType(), 0, true));
     }
 }

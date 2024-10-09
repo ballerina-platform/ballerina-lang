@@ -56,6 +56,19 @@ OPTIONS
            Target directory path. The directory path can be absolute or relative
            to the current package.
 
+       --show-dependency-diagnostics
+           Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console.
+
+       --optimize-dependency-compilation
+           [EXPERIMENTAL] Enables memory-efficient compilation of package dependencies
+           using separate processes. This can help prevent out-of-memory issues during
+           the initial compilation with a clean central cache.
+
+       --watch
+            [Experimental] Automatically re-run Ballerina service projects upon file
+            changes.
+
 
 ARGUMENTS
        --
@@ -83,5 +96,5 @@ EXAMPLES
        add, 10, and 5.
            $ bal run -- add 10 5
 
-       Run the test functions with values provided for configurable variables:
+       Run the 'main' function with values provided for configurable variables:
            $ bal run -- -Cval1=add -Cval2=10 -Cval3=5

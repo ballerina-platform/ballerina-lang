@@ -46,7 +46,6 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
@@ -172,8 +171,7 @@ public class RunBuildToolsTask implements Task {
             boolean hasOptionErrors = false;
             try {
                 // validate the options toml and report diagnostics
-                hasOptionErrors = validateOptionsToml(toolEntry.optionsToml(), toolEntry.id().value(),
-                        toolEntry.type());
+                hasOptionErrors = validateOptionsToml(toolEntry.optionsToml(), toolEntry.type());
                 if (hasOptionErrors) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_FAILED.diagnosticId(),
@@ -223,16 +221,16 @@ public class RunBuildToolsTask implements Task {
         this.outStream.println();
     }
 
-    private boolean validateOptionsToml(Toml optionsToml, String toolId, Tool.Field toolType) throws IOException {
+    private boolean validateOptionsToml(Toml optionsToml, Tool.Field toolType) throws IOException {
         if (optionsToml == null) {
-            return validateEmptyOptionsToml(toolId, toolType);
+            return validateEmptyOptionsToml(toolType);
         }
         FileUtils.validateToml(optionsToml, toolType.value(), toolClassLoader);
         optionsToml.diagnostics().forEach(outStream::println);
         return !Diagnostics.filterErrors(optionsToml.diagnostics()).isEmpty();
     }
 
-    private boolean validateEmptyOptionsToml(String toolId, Tool.Field toolType) throws IOException {
+    private boolean validateEmptyOptionsToml(Tool.Field toolType) throws IOException {
         Schema schema = Schema.from(FileUtils.readSchema(toolType.value(), toolClassLoader));
         List<String> requiredFields = schema.required();
         if (!requiredFields.isEmpty()) {
@@ -247,8 +245,6 @@ public class RunBuildToolsTask implements Task {
             }
             return true;
         }
-        this.outStream.printf("WARNING: Validation of tool options of '%s' for '%s' is skipped due to " +
-                "no tool options found%n", toolType.value(), toolId);
         return false;
     }
 
@@ -309,20 +305,16 @@ public class RunBuildToolsTask implements Task {
                 .collect(Collectors.joining(","));
         Path balaCacheDirPath = BuildToolUtils.getCentralBalaDirPath();
         Settings settings;
-        try {
-            settings = RepoUtils.readSettings();
-            // Ignore Settings.toml diagnostics in the pull command
-        } catch (SettingsTomlException e) {
-            // Ignore 'Settings.toml' parsing errors and return empty Settings object
-            settings = Settings.from();
-        }
+        settings = RepoUtils.readSettings();
+        // Ignore Settings.toml diagnostics in the pull command
+
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, Boolean.TRUE.toString());
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),
                 settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout());
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
         String[] toolInfo = client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
                 RepoUtils.getBallerinaVersion(), false);
         boolean isPulled = Boolean.parseBoolean(toolInfo[0]);
@@ -371,6 +363,6 @@ public class RunBuildToolsTask implements Task {
                         .resolve(TOOL).resolve(LIBS)
                         .toFile()))
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

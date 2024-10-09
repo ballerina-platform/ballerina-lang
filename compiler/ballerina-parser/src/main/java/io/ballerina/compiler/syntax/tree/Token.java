@@ -49,6 +49,7 @@ public class Token extends Node {
         return internalNode.leadingMinutiae().bucketCount() > 0;
     }
 
+    @Override
     public MinutiaeList leadingMinutiae() {
         if (leadingMinutiaeList != null) {
             return leadingMinutiaeList;
@@ -61,6 +62,7 @@ public class Token extends Node {
         return internalNode.trailingMinutiae().bucketCount() > 0;
     }
 
+    @Override
     public MinutiaeList trailingMinutiae() {
         if (trailingMinutiaeList != null) {
             return trailingMinutiaeList;

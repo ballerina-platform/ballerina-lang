@@ -64,7 +64,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Generates Service Template Snippet completion items.
@@ -75,8 +74,6 @@ public class ServiceTemplateGenerator {
 
     private static final LanguageServerContext.Key<ServiceTemplateGenerator> SERVICE_TEMPLATE_GENERATOR_KEY =
             new LanguageServerContext.Key<>();
-
-    private boolean isInitialized = false;
 
     private ServiceTemplateGenerator(LanguageServerContext context) {
         context.put(SERVICE_TEMPLATE_GENERATOR_KEY, this);
@@ -163,9 +160,8 @@ public class ServiceTemplateGenerator {
                     || moduleInfo.isModuleFromCurrentPackage()) {
                 return;
             }
-            moduleInfo.getListenerMetaData().forEach(listenerMetaData -> {
-                completionItems.add(generateServiceSnippet(listenerMetaData, ctx));
-            });
+            moduleInfo.getListenerMetaData().forEach(listenerMetaData ->
+                completionItems.add(generateServiceSnippet(listenerMetaData, ctx)));
             processedModuleList.add(moduleInfo.getModuleIdentifier());
         });
         return completionItems;
@@ -180,10 +176,6 @@ public class ServiceTemplateGenerator {
         String currentModuleName = currentModule.get().descriptor().name().toString();
         String currentVersion = currentModule.get().packageInstance().descriptor().version().value().toString();
         return CodeActionModuleId.from(currentOrg, currentModuleName, currentVersion);
-    }
-
-    public boolean initialized() {
-        return this.isInitialized;
     }
 
     public static Predicate<Symbol> listenerPredicate() {
@@ -222,7 +214,7 @@ public class ServiceTemplateGenerator {
 
         //Check if the first parameter of the attach method is a subtype of service object.
         Optional<List<ParameterSymbol>> params = attachMethod.typeDescriptor().params();
-        if (params.isEmpty() || params.get().size() == 0) {
+        if (params.isEmpty() || params.get().isEmpty()) {
             return Optional.empty();
         }
         TypeSymbol typeSymbol = CommonUtil.getRawType(params.get().get(0).typeDescriptor());
@@ -251,7 +243,7 @@ public class ServiceTemplateGenerator {
             List<String> args = new ArrayList<>();
             List<ParameterSymbol> requiredParams = initMethod.get().typeDescriptor().params().get().stream()
                     .filter(parameterSymbol ->
-                            parameterSymbol.paramKind() == ParameterKind.REQUIRED).collect(Collectors.toList());
+                            parameterSymbol.paramKind() == ParameterKind.REQUIRED).toList();
             for (ParameterSymbol parameterSymbol : requiredParams) {
                 args.add("${" + snippetIndex + ":" +
                         DefaultValueGenerationUtil.getDefaultPlaceholderForType(parameterSymbol.typeDescriptor())
@@ -274,7 +266,7 @@ public class ServiceTemplateGenerator {
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
         String modulePrefix = ModuleUtil.getModulePrefix(importsAcceptor, getCurrentModuleID(context),
                 serviceSnippet.moduleID, context);
-        Boolean shouldImport = importsAcceptor.getNewImports().size() > 0;
+        Boolean shouldImport = !importsAcceptor.getNewImports().isEmpty();
         String moduleAlias = modulePrefix.replace(":", "");
         String moduleName = ModuleUtil.escapeModuleName(serviceSnippet.moduleID.moduleName());
 

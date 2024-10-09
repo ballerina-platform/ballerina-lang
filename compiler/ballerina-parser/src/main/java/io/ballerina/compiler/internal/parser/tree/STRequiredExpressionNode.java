@@ -50,6 +50,7 @@ public class STRequiredExpressionNode extends STExpressionNode {
                 questionMarkToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRequiredExpressionNode(
                 this.questionMarkToken,
@@ -68,6 +69,7 @@ public class STRequiredExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RequiredExpressionNode(this, position, parent);
     }

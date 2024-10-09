@@ -55,6 +55,7 @@ public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
     public static final String UNUSED_IMPORT_DIAGNOSTIC_CODE = "BCE2002";
     public static final String REDECLARED_IMPORT_DIAGNOSTIC_CODE = "BCE2004";
 
+    @Override
     public List<SyntaxKind> getSyntaxKinds() {
         return Collections.singletonList(SyntaxKind.IMPORT_DECLARATION);
     }
@@ -78,7 +79,7 @@ public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
                 .collect(Collectors.toList());
 
         // Skip, when nothing to remove and only single import pending
-        if (fileImports.isEmpty() || (fileImports.size() <= 1 && toBeRemovedImportsLocations.size() == 0)) {
+        if (fileImports.isEmpty() || (fileImports.size() <= 1 && toBeRemovedImportsLocations.isEmpty())) {
             return actions;
         }
 
@@ -141,7 +142,7 @@ public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
         List<LineRange> reDeclaredImportLocations = context.diagnostics(context.filePath()).stream()
                 .filter(diag -> REDECLARED_IMPORT_DIAGNOSTIC_CODE.equals(diag.diagnosticInfo().code()))
                 .map(diag -> diag.location().lineRange())
-                .collect(Collectors.toList());
+                .toList();
 
         Iterator<ImportDeclarationNode> iterator = fileImports.iterator();
         while (iterator.hasNext()) {
@@ -179,7 +180,7 @@ public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
                         .thenComparing(
                                 o -> o.moduleName().stream().map(Token::text).collect(Collectors.joining(".")))
                         .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     protected static void buildEditText(StringBuilder editText, ImportDeclarationNode importNode) {

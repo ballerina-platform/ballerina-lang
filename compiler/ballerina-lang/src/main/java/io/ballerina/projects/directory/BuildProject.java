@@ -51,7 +51,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -254,7 +253,7 @@ public class BuildProject extends Project {
                 }
             }
         }
-        throw new ProjectException("provided path does not belong to the project");
+        throw new ProjectException("'" + file.toString() + "' does not belong to the current project");
     }
 
     private boolean isFilePathInProject(Path filepath) {
@@ -266,6 +265,7 @@ public class BuildProject extends Project {
         return true;
     }
 
+    @Override
     public void save() {
         Path buildFilePath = this.targetDir().resolve(BUILD_FILE);
         boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
@@ -522,7 +522,20 @@ public class BuildProject extends Project {
         if (this.buildOptions().getTargetPath() == null) {
             return this.sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
         } else {
-            return Paths.get(this.buildOptions().getTargetPath());
+            return Path.of(this.buildOptions().getTargetPath());
         }
+    }
+
+    @Override
+    public Path generatedResourcesDir() {
+        Path generatedResourcesPath = targetDir().resolve(ProjectConstants.RESOURCE_DIR_NAME);
+        if (!Files.exists(generatedResourcesPath)) {
+            try {
+                Files.createDirectories(generatedResourcesPath);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return generatedResourcesPath;
     }
 }

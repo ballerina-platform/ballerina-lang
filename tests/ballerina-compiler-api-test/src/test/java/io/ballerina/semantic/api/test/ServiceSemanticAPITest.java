@@ -49,7 +49,6 @@ import org.testng.internal.collections.Pair;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.Qualifier.FINAL;
@@ -180,7 +179,7 @@ public class ServiceSemanticAPITest {
         List<ServiceDeclarationSymbol> services = model.moduleSymbols().stream()
                 .filter(s -> s.kind() == SERVICE_DECLARATION)
                 .map(s -> (ServiceDeclarationSymbol) s)
-                .collect(Collectors.toList());
+                .toList();
 
         assertEquals(services.size(), expVals.length);
 
@@ -263,7 +262,7 @@ public class ServiceSemanticAPITest {
         SemanticModel model = getDefaultModulesSemanticModel("test-src/service_with_multiple_listeners.bal");
         List<Symbol> services = model.moduleSymbols().stream()
                 .filter(s -> s.kind() == SERVICE_DECLARATION)
-                .collect(Collectors.toList());
+                .toList();
         ServiceDeclarationSymbol service = (ServiceDeclarationSymbol) services.get(0);
         List<TypeSymbol> listenerTypes = service.listenerTypes();
         assertEquals(listenerTypes.size(), 3);
@@ -325,10 +324,10 @@ public class ServiceSemanticAPITest {
         return symbols.stream()
                 .filter(s -> s.getModule().isPresent() &&
                         !"ballerina".equals(s.getModule().get().getModule().get().id().orgName()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<String> concatSymbols(List<String> moduleSymbols, String... symbols) {
-        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).collect(Collectors.toList());
+        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).toList();
     }
 }

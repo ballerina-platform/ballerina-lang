@@ -475,3 +475,103 @@ function testSendWithEarlyReturnError() {
     test:assertEquals(mapResult["a"], false, "Invalid boolean result");
     test:assertEquals(mapResult["b"], 2, "Invalid int result");
 }
+
+public function testWorkerEarlyReturnWithinIf() {
+    int _ = foo(1);
+    worker w1 {
+        boolean b = true;
+        if b {
+            return;
+        } else {
+            30 -> w4;
+            if (b) {
+                return;
+            } else {
+                40 -> w4;
+                if (b) {
+                    return;
+                } else {
+                    50 -> w5;
+                }
+            }
+        }
+    }
+
+    worker w2 {
+        boolean b = true;
+        if (b) {
+            return;
+        } else {
+            60 -> w4;
+        }
+    }
+
+    worker w3 {
+        boolean b = true;
+        if (b) {
+            if (b) {
+                return;
+            } else {
+                70 -> w4;
+            }
+        } else if (b) {
+            80 -> w5;
+        } else {
+            90 -> w4;
+            if (b) {
+                return;
+            } else {
+                100 -> w5;
+            }
+        }
+    }
+
+    worker w4 {
+        map<int|errorLib:NoMessage> m = <- {w1, w2, w3};
+        test:assertTrue(m["w1"] is error);
+        error err = <error> m["w1"];
+        test:assertEquals(err.message(), "NoMessage", "Invalid error message");
+        test:assertEquals(err.detail().toString(), "{\"message\":\"no message received from worker 'w1' to worker 'w4'\"}", "Invalid error detail");
+        test:assertTrue(m["w2"] is error);
+        err = <error> m["w2"];
+        test:assertEquals(err.message(), "NoMessage", "Invalid error message");
+        test:assertEquals(err.detail().toString(), "{\"message\":\"no message received from worker 'w2' to worker 'w4'\"}", "Invalid error detail");
+
+        int|errorLib:NoMessage res1 = <- w1;
+        test:assertTrue(res1 is error);
+        error err1 = <error> res1;
+        test:assertEquals(err1.message(), "NoMessage", "Invalid error message");
+        test:assertEquals(err1.detail().toString(), "{\"message\":\"no message received from worker 'w1' to worker 'w4'\"}", "Invalid error detail");
+
+        int|errorLib:NoMessage res2 = <- w3;
+        test:assertTrue(res2 is error);
+        error err2 = <error> res2;
+        test:assertEquals(err2.message(), "NoMessage", "Invalid error message");
+        test:assertEquals(err2.detail().toString(), "{\"message\":\"no message received from worker 'w3' to worker 'w4'\"}", "Invalid error detail");
+    }
+
+    worker w5 {
+        map<int|errorLib:NoMessage> m = <- {w1, w3};
+        test:assertTrue(m["w1"] is error);
+        error err = <error> m["w1"];
+        test:assertEquals(err.message(), "NoMessage", "Invalid error message");
+        test:assertEquals(err.detail().toString(), "{\"message\":\"no message received from worker 'w1' to worker 'w5'\"}", "Invalid error detail");
+        test:assertTrue(m["w3"] is error);
+        err = <error> m["w3"];
+        test:assertEquals(err.message(), "NoMessage", "Invalid error message");
+        test:assertEquals(err.detail().toString(), "{\"message\":\"no message received from worker 'w3' to worker 'w5'\"}", "Invalid error detail");
+
+        int|errorLib:NoMessage res1 = <- w3;
+        test:assertTrue(res1 is error);
+        error err1 = <error> res1;
+        test:assertEquals(err1.message(), "NoMessage", "Invalid error message");
+        test:assertEquals(err1.detail().toString(), "{\"message\":\"no message received from worker 'w3' to worker 'w5'\"}", "Invalid error detail");
+    }
+
+    wait w4;
+    wait w5;
+}
+
+function foo(int i) returns int {
+    return i;
+}

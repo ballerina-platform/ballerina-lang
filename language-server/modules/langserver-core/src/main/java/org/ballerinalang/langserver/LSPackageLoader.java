@@ -40,8 +40,6 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
-import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.ProgressParams;
 import org.eclipse.lsp4j.WorkDoneProgressBegin;
 import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
@@ -73,10 +71,10 @@ public class LSPackageLoader {
     public static final LanguageServerContext.Key<LSPackageLoader> LS_PACKAGE_LOADER_KEY =
             new LanguageServerContext.Key<>();
 
-    private List<ModuleInfo> distRepoPackages = new ArrayList<>();
+    private final List<ModuleInfo> distRepoPackages = new ArrayList<>();
     private final List<ModuleInfo> remoteRepoPackages = new ArrayList<>();
     private final List<ModuleInfo> localRepoPackages = new ArrayList<>();
-    private List<ModuleInfo> centralPackages = new ArrayList<>();
+    private final List<ModuleInfo> centralPackages = new ArrayList<>();
     private final LSClientLogger clientLogger;
 
     ExtendedLanguageClient languageClient;
@@ -85,7 +83,7 @@ public class LSPackageLoader {
 
     private boolean initialized = false;
 
-    private CentralPackageDescriptorLoader centralPackageDescriptorLoader;
+    private final CentralPackageDescriptorLoader centralPackageDescriptorLoader;
 
     public static LSPackageLoader getInstance(LanguageServerContext context) {
         LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
@@ -121,9 +119,6 @@ public class LSPackageLoader {
                 if (languageClient == null) {
                     return;
                 }
-                this.languageClient.showMessage(
-                        new MessageParams(MessageType.Info, "Indexing Ballerina packages: " +
-                                "some completions may not be available until indexing is complete."));
                 // Initialize progress notification
                 WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
                 workDoneProgressCreateParams.setToken(taskId);
@@ -195,7 +190,6 @@ public class LSPackageLoader {
                 endNotification.setMessage("Initialized Successfully!");
                 languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
                         Either.forLeft(endNotification)));
-                languageClient.showMessage(new MessageParams(MessageType.Info, "Indexing completed successfully."));
             }).exceptionally(e -> {
                 WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
                 endNotification.setMessage("Initialization Failed!");
@@ -361,12 +355,12 @@ public class LSPackageLoader {
      */
     public static class ModuleInfo {
 
-        private PackageOrg packageOrg;
+        private final PackageOrg packageOrg;
         private PackageName packageName;
-        private PackageVersion packageVersion;
-        private Path sourceRoot;
+        private final PackageVersion packageVersion;
+        private final Path sourceRoot;
 
-        private String moduleIdentifier;
+        private final String moduleIdentifier;
 
         private boolean isModuleFromCurrentPackage = false;
 

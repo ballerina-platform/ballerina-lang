@@ -50,7 +50,8 @@ import static io.ballerina.runtime.internal.util.StringUtils.parseExpressionStri
  *
  * @since 2.0.0
  */
-public class BalStringUtils {
+public final class BalStringUtils {
+
     private static boolean hasCycles = false;
 
     private BalStringUtils() {}
@@ -146,14 +147,13 @@ public class BalStringUtils {
      */
     public static Object parseMapExpressionStringValue(String exprValue, BLink parent) {
         List<String> list = getElements(exprValue);
-        MapValueImpl eleMap = new MapValueImpl(new BMapType(TYPE_ANYDATA));
+        MapValueImpl<BString, Object> eleMap = new MapValueImpl<>(new BMapType(TYPE_ANYDATA));
         if (list.isEmpty()) {
             return eleMap;
         }
         CycleUtils.Node node = new CycleUtils.Node(eleMap, parent);
         Set<Type> typeSet = new HashSet<>();
-        for (int i = 0; i < list.size(); i++) {
-            String e = list.get(i);
+        for (String e : list) {
             int colonIndex = e.indexOf(':');
             int quotesCount = 0;
             for (int j = 0; j < e.length(); j++) {
@@ -176,12 +176,12 @@ public class BalStringUtils {
         }
         if (typeSet.size() > 1) {
             BUnionType type = new BUnionType(new ArrayList<>(typeSet));
-            MapValueImpl result = new MapValueImpl(new BMapType(type));
+            MapValueImpl<BString, Object> result = new MapValueImpl<>(new BMapType(type));
             result.putAll(eleMap);
             return result;
         } else {
             Type type = typeSet.iterator().next();
-            MapValueImpl result = new MapValueImpl(new BMapType(type));
+            MapValueImpl<BString, Object> result = new MapValueImpl<>(new BMapType(type));
             result.putAll(eleMap);
             return result;
         }
@@ -216,7 +216,7 @@ public class BalStringUtils {
 
         MapType mapType = TypeCreator.createMapType(TYPE_ANYDATA, false);
         BTableType tableType;
-        if (keyFieldNames.size() == 0) {
+        if (keyFieldNames.isEmpty()) {
             tableType =  (BTableType) TypeCreator.createTableType(mapType, false);
         } else {
             tableType =  (BTableType) TypeCreator.createTableType(mapType, keys, false);
@@ -302,7 +302,7 @@ public class BalStringUtils {
                 part = new StringBuilder();
             }
         }
-        if (part.length() > 0) {
+        if (!part.isEmpty()) {
             list.add(part.toString());
         }
         return list;

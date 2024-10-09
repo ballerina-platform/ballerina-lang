@@ -31,15 +31,18 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 2.0.0
  */
-public class Utils {
+public final class Utils {
 
     private static final int CORE_THREAD_POOL_SIZE = 1;
 
-    private static ScheduledExecutorService executor = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
+    private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
+
+    private Utils() {
+    }
 
     public static void sleep(Environment env, long delayMillis) {
         Future balFuture = env.markAsync();
-        executor.schedule(() -> balFuture.complete(null), delayMillis, TimeUnit.MILLISECONDS);
+        EXECUTOR.schedule(() -> balFuture.complete(null), delayMillis, TimeUnit.MILLISECONDS);
     }
 
     public static void print(Object... values) {

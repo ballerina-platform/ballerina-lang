@@ -56,6 +56,7 @@ public class STReAtomQuantifierNode extends STReTermNode {
                 reQuantifier);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReAtomQuantifierNode(
                 this.reAtom,
@@ -78,6 +79,7 @@ public class STReAtomQuantifierNode extends STReTermNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReAtomQuantifierNode(this, position, parent);
     }

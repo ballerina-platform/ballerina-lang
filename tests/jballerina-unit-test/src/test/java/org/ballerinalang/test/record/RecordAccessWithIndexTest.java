@@ -31,8 +31,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-;
-
 /**
  * Test cases for user defined record types in ballerina.
  */
@@ -55,7 +53,7 @@ public class RecordAccessWithIndexTest {
         Assert.assertEquals(returns.get(0).toString(), "Jack");
 
         Assert.assertTrue(returns.get(1) instanceof BMap);
-        BMap<String, ?> adrsMap = ((BMap) returns.get(1));
+        BMap<String, ?> adrsMap = ((BMap<String, ?>) returns.get(1));
         Assert.assertEquals(adrsMap.get(StringUtils.fromString("country")), StringUtils.fromString("USA"));
         Assert.assertEquals(adrsMap.get(StringUtils.fromString("state")), StringUtils.fromString("CA"));
 

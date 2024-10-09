@@ -28,6 +28,10 @@ configurable string recoveryLogDir = "";
 configurable int checkpointInterval = 10000;
 # Config to specify whether to delete logs or not
 configurable boolean deleteOldLogs = true;
+# Config to specify the timeout for auto commit.
+configurable int transactionAutoCommitTimeout = 120;
+# Config to specify the timeout for cleaning up dead transactions.
+configurable int transactionCleanupTimeout = 600;
 
 //TODO: remove this in Beta2 and use an anonymous record instead
 # Internally used record to hold information about a transaction.

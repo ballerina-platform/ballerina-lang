@@ -18,33 +18,72 @@ package org.ballerinalang.test.runtime.api;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
 
 import java.io.PrintStream;
+
+import static org.ballerinalang.test.runtime.api.RuntimeAPITestUtils.blockAndInvokeMethodAsync;
 
 /**
  * Source class to test the functionality of Ballerina runtime APIs for invoking functions.
  *
  * @since 2201.9.0
  */
-public class RuntimeAPICallNegative {
+public final class RuntimeAPICallNegative {
 
     private static final PrintStream out = System.out;
+
+    private RuntimeAPICallNegative() {
+    }
 
     public static void main(String[] args) {
         Module module = new Module("testorg", "function_invocation", "1");
         Runtime balRuntime = Runtime.from(module);
-        balRuntime.invokeMethodAsync("add", new Callback() {
-            @Override
-            public void notifySuccess(Object result) {
-                out.println(result);
-            }
 
-            @Override
-            public void notifyFailure(BError error) {
-                out.println("Error: " + error);
-            }
-        });
+        // Test function called before module initialization error for add, start and stop functions
+        try {
+            blockAndInvokeMethodAsync(balRuntime, "add");
+        } catch (BError e) {
+            out.println(e.getMessage());
+        }
+        try {
+            balRuntime.start();
+        } catch (BError e) {
+            out.println(e.getMessage());
+        }
+        try {
+            balRuntime.stop();
+        } catch (BError e) {
+            out.println(e.getMessage());
+        }
+
+        // Test already called error for init, start and stop functions
+        balRuntime.init();
+        try {
+            balRuntime.init();
+        } catch (BError e) {
+            out.println(e.getMessage());
+        }
+        balRuntime.start();
+        try {
+            balRuntime.start();
+        } catch (BError e) {
+            out.println(e.getMessage());
+        }
+        balRuntime.stop();
+        try {
+            balRuntime.stop();
+        } catch (BError e) {
+            out.println(e.getMessage());
+        }
+
+        // Test non-existing ballerina module
+        module = new Module("testorg", "non-exist", "1");
+        balRuntime = Runtime.from(module);
+        try {
+            balRuntime.init();
+        } catch (BError e) {
+            out.println(e.getMessage());
+        }
     }
 }

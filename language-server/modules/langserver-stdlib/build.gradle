@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
+plugins {
+    id 'ballerinaStdLibBuild'
+}
 
 dependencies {
     balaCreat project(':lib-creator')
@@ -23,8 +25,8 @@ dependencies {
     implementation project(':ballerina-cli')
     implementation project(':ballerina-runtime')
 
-    testImplementation 'org.testng:testng'
-    testImplementation 'org.slf4j:slf4j-jdk14'
+    testImplementation libs.testng
+    testImplementation libs.slf4j.jdk14
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     testImplementation project(':ballerina-cli')
 }
@@ -39,7 +41,7 @@ configurations.testCompileClasspath {
     }
 }
 
-task updateVersion {
+tasks.register('updateVersion') {
     doLast {
         ant.replaceregexp(
                 file: "${project.buildDir}/ballerina-src/Ballerina.toml",
@@ -58,4 +60,5 @@ configurations {
 }
 
 tasks.generateMetadataFileForMavenJavaPublication.dependsOn(":language-server:language-server-stdlib:copyInteropImports")
+tasks.javadoc.dependsOn(":language-server:language-server-stdlib:copyInteropImports")
 description = 'Language Server - Standard Libs'

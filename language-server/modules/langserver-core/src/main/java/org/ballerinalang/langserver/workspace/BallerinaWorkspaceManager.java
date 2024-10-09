@@ -171,6 +171,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @param filePath ballerina project or standalone file path
      * @return project root
      */
+    @Override
     public Path projectRoot(Path filePath) {
         return pathToSourceRootCache.computeIfAbsent(filePath, this::computeProjectRoot);
     }
@@ -276,7 +277,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * Returns syntax tree from the path provided.
      *
      * @param filePath file path of the document
-     * @return {@link io.ballerina.compiler.syntax.tree.SyntaxTree}
+     * @return {@link SyntaxTree}
      */
     @Override
     public Optional<SyntaxTree> syntaxTree(Path filePath) {
@@ -1421,23 +1422,19 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
     private boolean hasDocumentOrToml(Path filePath, Project project) {
         String fileName = Optional.of(filePath.getFileName()).get().toString();
-        switch (fileName) {
-            case ProjectConstants.BALLERINA_TOML:
-                return project.currentPackage().ballerinaToml().isPresent();
-            case ProjectConstants.CLOUD_TOML:
-                return project.currentPackage().cloudToml().isPresent();
-            case ProjectConstants.COMPILER_PLUGIN_TOML:
-                return project.currentPackage().compilerPluginToml().isPresent();
-            case ProjectConstants.BAL_TOOL_TOML:
-                return project.currentPackage().balToolToml().isPresent();
-            case ProjectConstants.DEPENDENCIES_TOML:
-                return project.currentPackage().dependenciesToml().isPresent();
-            default:
+        return switch (fileName) {
+            case ProjectConstants.BALLERINA_TOML -> project.currentPackage().ballerinaToml().isPresent();
+            case ProjectConstants.CLOUD_TOML -> project.currentPackage().cloudToml().isPresent();
+            case ProjectConstants.COMPILER_PLUGIN_TOML -> project.currentPackage().compilerPluginToml().isPresent();
+            case ProjectConstants.BAL_TOOL_TOML -> project.currentPackage().balToolToml().isPresent();
+            case ProjectConstants.DEPENDENCIES_TOML -> project.currentPackage().dependenciesToml().isPresent();
+            default -> {
                 if (fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
-                    return document(filePath, project, null).isPresent();
+                    yield document(filePath, project, null).isPresent();
                 }
-                return false;
-        }
+                yield false;
+            }
+        };
     }
 
     private void reloadProject(ProjectContext projectContext, Path filePath, String operationName) {
@@ -1608,7 +1605,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
     /**
      * Represents a map of Path to ProjectContext.
-     * <p>
      *
      * @param <K> cache key
      * @param <V> cache value
@@ -1632,6 +1628,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             return old;
         }
 
+        @Override
         public V remove(Object key) {
             V result = super.remove(key);
             // Clear dependent cache

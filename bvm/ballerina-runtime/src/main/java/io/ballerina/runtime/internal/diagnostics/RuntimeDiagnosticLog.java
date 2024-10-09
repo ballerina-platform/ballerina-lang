@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class RuntimeDiagnosticLog {
 
-    private List<RuntimeDiagnostic> diagnosticList = new LinkedList<>();
+    private final List<RuntimeDiagnostic> diagnosticList = new LinkedList<>();
 
     private int errorCount = 0;
 

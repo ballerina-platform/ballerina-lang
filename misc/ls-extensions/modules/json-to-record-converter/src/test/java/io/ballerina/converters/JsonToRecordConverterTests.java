@@ -29,19 +29,17 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 /**
  * Tests for JsonToRecordConverter.
  */
 public class JsonToRecordConverterTests {
-    private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+    private static final Path RES_DIR = Path.of("src/test/resources/").toAbsolutePath();
     private static final String JsonToRecordService = "jsonToRecord/convert";
 
     private final Path basicSchemaJson = RES_DIR.resolve("json")
@@ -400,7 +398,7 @@ public class JsonToRecordConverterTests {
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
         List<String> generatedDiagnosticMessages = response.getDiagnostics().stream()
-                .map(JsonToRecordMapperDiagnostic::toString).collect(Collectors.toList());
+                .map(JsonToRecordMapperDiagnostic::toString).toList();
         List<String> expectedCDiagnosticMessages = List.of("[ERROR] Provided JSON is invalid : " +
                 "Unterminated object at line 5 column 4 path $.position");
         Assert.assertEquals(generatedDiagnosticMessages, expectedCDiagnosticMessages);
@@ -417,7 +415,7 @@ public class JsonToRecordConverterTests {
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
         List<String> generatedDiagnosticMessages = response.getDiagnostics().stream()
-                .map(JsonToRecordMapperDiagnostic::toString).collect(Collectors.toList());
+                .map(JsonToRecordMapperDiagnostic::toString).toList();
         List<String> expectedCDiagnosticMessages =
                 List.of("[ERROR] Provided JSON is unsupported. It may be null or have missing types.");
         Assert.assertEquals(generatedDiagnosticMessages, expectedCDiagnosticMessages);

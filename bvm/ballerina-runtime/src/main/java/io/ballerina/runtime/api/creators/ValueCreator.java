@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
@@ -69,6 +70,7 @@ import io.ballerina.runtime.internal.values.XmlSequence;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -80,7 +82,7 @@ import javax.xml.namespace.QName;
  *
  * @since 1.1.0
  */
-public class ValueCreator {
+public final class ValueCreator {
 
     /**
      * Creates a new array with given array type.
@@ -318,8 +320,8 @@ public class ValueCreator {
      * @param type     {@code FunctionType} of the function pointer
      * @return         function pointer
      */
-    public static BFunctionPointer createFPValue(Function function, FunctionType type) {
-        return new FPValue(function, type, null, false);
+    public static BFunctionPointer<?, ?> createFPValue(Function<Object[], ?> function, FunctionType type) {
+        return new FPValue<>(function, type, null, false);
     }
 
     /**
@@ -330,8 +332,9 @@ public class ValueCreator {
      * @param strandName name for newly creating strand which is used to run the function pointer
      * @return           function pointer
      */
-    public static BFunctionPointer createFPValue(Function function, FunctionType type, String strandName) {
-        return new FPValue(function, type, strandName, false);
+    public static BFunctionPointer<?, ?> createFPValue(Function<Object[], ?> function,
+                                                       FunctionType type, String strandName) {
+        return new FPValue<>(function, type, strandName, false);
     }
 
     // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
@@ -578,7 +581,15 @@ public class ValueCreator {
      * @return         xml sequence
      */
     public static BXmlSequence createXmlSequence(List<BXml> sequence) {
-        return XmlFactory.createXmlSequence(sequence);
+        List<BXml> flattenedSequence = new ArrayList<>();
+        for (BXml item : sequence) {
+            if (item.getNodeType() == XmlNodeType.SEQUENCE) {
+                flattenedSequence.addAll(((XmlSequence) item).getChildrenList());
+            } else {
+                flattenedSequence.add(item);
+            }
+        }
+        return XmlFactory.createXmlSequence(flattenedSequence);
     }
 
     /**
@@ -776,7 +787,7 @@ public class ValueCreator {
      * @param mappingValue mapping value
      * @return             spread field entry
      */
-    public static BMapInitialValueEntry createSpreadFieldEntry(BMap mappingValue) {
+    public static BMapInitialValueEntry createSpreadFieldEntry(BMap<?, ?> mappingValue) {
         return new MappingInitialValueEntry.SpreadFieldEntry(mappingValue);
     }
 
@@ -947,8 +958,8 @@ public class ValueCreator {
      * @param tableType table type
      * @return          table value for given type
      */
-    public static BTable createTableValue(TableType tableType) {
-        return new TableValueImpl(tableType);
+    public static BTable<?, ?> createTableValue(TableType tableType) {
+        return new TableValueImpl<>(tableType);
     }
 
     /**
@@ -959,8 +970,8 @@ public class ValueCreator {
      * @param fieldNames table field names
      * @return           table value for given type
      */
-    public static BTable createTableValue(TableType tableType, BArray data, BArray fieldNames) {
-        return new TableValueImpl(tableType, (ArrayValue) data, (ArrayValue) fieldNames);
+    public static BTable<?, ?> createTableValue(TableType tableType, BArray data, BArray fieldNames) {
+        return new TableValueImpl<>(tableType, (ArrayValue) data, (ArrayValue) fieldNames);
     }
 
     private ValueCreator() {

@@ -23,6 +23,7 @@ import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.central.client.CentralClientConstants;
 
@@ -48,7 +49,9 @@ public class CreateDependencyGraphTask implements Task {
 
     @Override
     public void execute(Project project) {
-
+        if (ProjectUtils.isProjectEmpty(project)) {
+            throw createLauncherException("package is empty. Please add at least one .bal file.");
+        }
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
         try {

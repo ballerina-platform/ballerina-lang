@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,7 +42,7 @@ import java.util.List;
  */
 public class ProjectUtilsTests {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources");
     private static final Path PROJECT_UTILS_RESOURCES = RESOURCE_DIRECTORY.resolve("project-utils");
     private static Path tempDirectory;
     private static BuildJson buildJson;
@@ -71,17 +70,13 @@ public class ProjectUtilsTests {
     @Test()
     public void testReadBuildJsonForNonExistingBuildFile() {
         Path buildFilePath = PROJECT_UTILS_RESOURCES.resolve("xyz").resolve(ProjectConstants.BUILD_FILE);
-        Assert.assertThrows(IOException.class, () -> {
-            ProjectUtils.readBuildJson(buildFilePath);
-        });
+        Assert.assertThrows(IOException.class, () -> ProjectUtils.readBuildJson(buildFilePath));
     }
 
     @Test()
     public void testReadBuildJsonForInvalidBuildFile() {
         Path buildFilePath = PROJECT_UTILS_RESOURCES.resolve("invalid-build");
-        Assert.assertThrows(JsonSyntaxException.class, () -> {
-            ProjectUtils.readBuildJson(buildFilePath);
-        });
+        Assert.assertThrows(JsonSyntaxException.class, () -> ProjectUtils.readBuildJson(buildFilePath));
     }
 
     @Test()

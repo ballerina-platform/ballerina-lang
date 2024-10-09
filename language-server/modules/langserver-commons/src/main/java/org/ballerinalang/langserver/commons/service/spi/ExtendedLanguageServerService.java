@@ -105,7 +105,9 @@ public interface ExtendedLanguageServerService extends JsonRpcMethodProvider {
      * defined. Each client capability and server capability pair has unique and same name and MUST be the same as the
      * service name.
      *
-     * @return {@link 2.0.0}
+     * @return the name of the service
+     *
+     * @since 2.0.0
      */
     default String getName() {
         throw new RuntimeException("Method not implemented");

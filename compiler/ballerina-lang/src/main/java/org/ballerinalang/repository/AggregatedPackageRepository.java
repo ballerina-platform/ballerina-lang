@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  */
 public class AggregatedPackageRepository implements PackageRepository {
 
-    private List<PackageRepository> repos = new ArrayList<>();
+    private final List<PackageRepository> repos = new ArrayList<>();
     
     public void addRepository(PackageRepository repo) {
         this.repos.add(repo);

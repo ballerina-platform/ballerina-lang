@@ -184,7 +184,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                 rootNode.accept(testFunctionVisitor);
                 for (FunctionDefinitionNode func : testFunctionVisitor.getTestStaticFunctions()) {
                     FunctionBodyNode functionBodyNode = func.functionBody();
-                    NodeList statements = ((FunctionBodyBlockNode) functionBodyNode).statements();
+                    NodeList<StatementNode> statements = ((FunctionBodyBlockNode) functionBodyNode).statements();
                     for (int i = 0; i < statements.size(); i++) {
                         StatementNode statementNode = (StatementNode) statements.get(i);
 
@@ -248,7 +248,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
             if ("test".equals(modulePrefix) && "call".equals(methodName)
                     && "when".equals(identifier)) {
                 String mockedFunction = methodCallExpressionNode.arguments()
-                        .get(0).toString().replaceAll("\"", "");
+                        .get(0).toString().replace("\"", "");
                 mockedFunctionList.add(mockedFunction);
             }
         }

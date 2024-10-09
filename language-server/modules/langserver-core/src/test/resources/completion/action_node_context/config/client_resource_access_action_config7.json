@@ -16,7 +16,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
         }
       },
-      "sortText": "C",
+      "sortText": "CA",
       "filterText": "get",
       "insertText": "/[${1:\"path\"}];",
       "insertTextFormat": "Snippet",
@@ -46,7 +46,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
         }
       },
-      "sortText": "C",
+      "sortText": "CB",
       "filterText": "get",
       "insertText": "/${1:path};",
       "insertTextFormat": "Snippet",
@@ -76,7 +76,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1"
         }
       },
-      "sortText": "C",
+      "sortText": "CC",
       "filterText": "|get",
       "insertText": "/[${1:\"path\"}];",
       "insertTextFormat": "Snippet",
@@ -106,7 +106,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1"
         }
       },
-      "sortText": "C",
+      "sortText": "CD",
       "filterText": "|get",
       "insertText": "/${1:path};",
       "insertTextFormat": "Snippet",
@@ -136,7 +136,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "CE",
       "filterText": "path2|get",
       "insertText": "/[${1:\"path\"}]/path2;",
       "insertTextFormat": "Snippet",
@@ -166,7 +166,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "CF",
       "filterText": "path2|get",
       "insertText": "/${1:path}/path2;",
       "insertTextFormat": "Snippet",
@@ -196,7 +196,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string[]` ids  \n- `string` b  \n- `string[]` ids2"
         }
       },
-      "sortText": "C",
+      "sortText": "CG",
       "filterText": "path2|post",
       "insertText": "/[${1:\"path\"}]/path2/[${2:\"path\"}].post(${3});",
       "insertTextFormat": "Snippet",
@@ -230,7 +230,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string[]` ids  \n- `string` b  \n- `string[]` ids2"
         }
       },
-      "sortText": "C",
+      "sortText": "CH",
       "filterText": "path2|post",
       "insertText": "/${1:path}/path2/${2:path}.post(${3});",
       "insertTextFormat": "Snippet",

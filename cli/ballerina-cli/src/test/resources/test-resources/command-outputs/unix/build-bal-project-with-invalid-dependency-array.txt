@@ -1,0 +1,12 @@
+Compiling source
+	foo/winery:0.1.0
+ERROR [Ballerina.toml:(7:7,7:19)] invalid 'org' under [[dependency]]: 'org' can only contain alphanumerics and underscores
+ERROR [Ballerina.toml:(8:8,8:15)] invalid 'name' under [[dependency]]: 'name' can only contain alphanumerics, underscores and periods
+ERROR [Ballerina.toml:(9:11,9:19)] invalid 'version' under [[dependency]]: 'version' should be compatible with semver
+ERROR [Ballerina.toml:(12:1,16:21)] 'name' under [[dependency]] is missing
+ERROR [Ballerina.toml:(12:1,16:21)] 'org' under [[dependency]] is missing
+ERROR [Ballerina.toml:(12:1,16:21)] 'version' under [[dependency]] is missing
+ERROR [Ballerina.toml:(13:1,13:19)] key 'org1' not supported in schema 'dependency'
+ERROR [Ballerina.toml:(14:1,14:15)] key 'name2' not supported in schema 'dependency'
+ERROR [Ballerina.toml:(15:1,15:19)] key 'version3' not supported in schema 'dependency'
+ERROR [main.bal:(2:13,2:20)] incompatible types: expected 'int', found 'string'

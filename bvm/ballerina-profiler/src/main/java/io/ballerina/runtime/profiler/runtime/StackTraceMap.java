@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 2201.8.0
  */
-public class StackTraceMap {
+public final class StackTraceMap {
 
     private static final AtomicInteger localVarIndex = new AtomicInteger(0);
     private static final ConcurrentHashMap<String, Integer> stackTraceIndexMap = new ConcurrentHashMap<>();
@@ -62,6 +62,6 @@ public class StackTraceMap {
     }
 
     private static String decodeStackElement(String stackElement) {
-        return Utils.decodeIdentifier(stackElement.replaceAll("\\$value\\$", ""));
+        return Utils.decodeIdentifier(stackElement.replace("$value$", ""));
     }
 }

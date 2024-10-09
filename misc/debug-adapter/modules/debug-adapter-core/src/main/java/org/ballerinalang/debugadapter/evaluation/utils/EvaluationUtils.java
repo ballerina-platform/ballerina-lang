@@ -59,7 +59,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
@@ -75,7 +74,7 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
  *
  * @since 2.0.0
  */
-public class EvaluationUtils {
+public final class EvaluationUtils {
 
     // Debugger runtime helper classes
     private static final String DEBUGGER_HELPER_PREFIX = "ballerina.debugger_helpers.1.";
@@ -218,7 +217,7 @@ public class EvaluationUtils {
             throw createEvaluationException(HELPER_UTIL_NOT_FOUND, methodName);
         }
         methods = methods.stream().filter(method -> method.isPublic() && method.isStatic() &&
-                compare(method.argumentTypeNames(), argTypeNames)).collect(Collectors.toList());
+                compare(method.argumentTypeNames(), argTypeNames)).toList();
         if (methods.size() != 1) {
             throw createEvaluationException(HELPER_UTIL_NOT_FOUND, methodName);
         }
@@ -239,7 +238,7 @@ public class EvaluationUtils {
         }
         methods = methods.stream()
                 .filter(method -> method.isPublic() && method.isStatic())
-                .collect(Collectors.toList());
+                .toList();
 
         if (methods.size() != 1) {
             throw createEvaluationException(HELPER_UTIL_NOT_FOUND, methodName);
@@ -280,7 +279,7 @@ public class EvaluationUtils {
 
     /**
      * Converts java primitive types into their wrapper implementations, as some of the the JVM runtime util methods
-     * accepts only the sub classes of @{@link java.lang.Object}.
+     * accepts only the sub classes of @{@link Object}.
      */
     public static List<Value> getAsObjects(SuspendedContext context, List<Value> argValueList)
             throws EvaluationException {
@@ -292,7 +291,7 @@ public class EvaluationUtils {
     }
 
     /**
-     * As some of the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
+     * As some of the JVM runtime util method accepts only the sub classes of @{@link Object},
      * java primitive types need to be converted into their wrapper implementations.
      *
      * @param value JDI value instance.
@@ -311,7 +310,7 @@ public class EvaluationUtils {
      */
     public static Value unboxValue(SuspendedContext context, Value value) {
         try {
-            if (!(value instanceof ObjectReference)) {
+            if (!(value instanceof ObjectReference objRef)) {
                 return value;
             }
 
@@ -319,16 +318,16 @@ public class EvaluationUtils {
             List<Method> method;
             switch (typeName) {
                 case JAVA_INT_CLASS:
-                    method = ((ObjectReference) value).referenceType().methodsByName(INT_VALUE_METHOD);
+                    method = objRef.referenceType().methodsByName(INT_VALUE_METHOD);
                     break;
                 case JAVA_LONG_CLASS:
-                    method = ((ObjectReference) value).referenceType().methodsByName(LONG_VALUE_METHOD);
+                    method = objRef.referenceType().methodsByName(LONG_VALUE_METHOD);
                     break;
                 case JAVA_FLOAT_CLASS:
-                    method = ((ObjectReference) value).referenceType().methodsByName(FLOAT_VALUE_METHOD);
+                    method = objRef.referenceType().methodsByName(FLOAT_VALUE_METHOD);
                     break;
                 case JAVA_DOUBLE_CLASS:
-                    method = ((ObjectReference) value).referenceType().methodsByName(DOUBLE_VALUE_METHOD);
+                    method = objRef.referenceType().methodsByName(DOUBLE_VALUE_METHOD);
                     break;
                 default:
                     return value;
@@ -346,7 +345,7 @@ public class EvaluationUtils {
     }
 
     /**
-     * As some of the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
+     * As some of the JVM runtime util method accepts only the sub classes of @{@link Object},
      * java primitive types need to be converted into their wrapper implementations.
      *
      * @param variable ballerina variable instance.
@@ -519,13 +518,13 @@ public class EvaluationUtils {
     }
 
     /**
-     * Converts the user given string literal into a {@link com.sun.jdi.StringReference} instance.
+     * Converts the user given string literal into a {@link StringReference} instance.
      *
      * @param context suspended debug context
      * @param val     string value
-     * @return {@link com.sun.jdi.StringReference} instance
+     * @return {@link StringReference} instance
      */
-    public static Value getAsJString(SuspendedContext context, String val) throws EvaluationException {
+    public static Value getAsJString(SuspendedContext context, String val) {
         return context.getAttachedVm().mirrorOf(val);
     }
 
@@ -534,12 +533,12 @@ public class EvaluationUtils {
      * so, returns it as a JDI value instance.
      */
     public static Optional<Value> getBError(Exception e) {
-        if (!(e instanceof InvocationException)) {
+        if (!(e instanceof InvocationException e1)) {
             return Optional.empty();
         }
-        String typeName = ((InvocationException) e).exception().referenceType().name();
+        String typeName = e1.exception().referenceType().name();
         if (typeName.equals(B_ERROR_VALUE_CLASS)) {
-            return Optional.ofNullable(((InvocationException) e).exception());
+            return Optional.ofNullable(e1.exception());
         }
         return Optional.empty();
     }
@@ -604,8 +603,7 @@ public class EvaluationUtils {
      * @param name    name of the variable to be retrieved
      * @return the JDI value instance of the Ballerina variable
      */
-    public static Optional<BExpressionValue> fetchVariableReferenceValue(EvaluationContext context, String name)
-            throws EvaluationException {
+    public static Optional<BExpressionValue> fetchVariableReferenceValue(EvaluationContext context, String name) {
         Optional<BExpressionValue> bExpressionValue = searchLocalVariables(context.getSuspendedContext(), name);
         if (bExpressionValue.isPresent()) {
             return bExpressionValue;
@@ -633,7 +631,7 @@ public class EvaluationUtils {
             // during the runtime code generation, such local variables should be accessed in a different manner.
             List<LocalVariableProxyImpl> lambdaParamMaps = context.getFrame().visibleVariables().stream()
                     .filter(org.ballerinalang.debugadapter.variable.VariableUtils::isLambdaParamMap)
-                    .collect(Collectors.toList());
+                    .toList();
 
             Optional<Value> localVariableMatch = lambdaParamMaps.stream()
                     .map(localVariableProxy -> {
@@ -641,10 +639,10 @@ public class EvaluationUtils {
                             Value varValue = context.getFrame().getValue(localVariableProxy);
                             BVariable mapVar = VariableFactory.getVariable(context, varValue);
                             if (mapVar == null || mapVar.getBType() != BVariableType.MAP
-                                    || !(mapVar instanceof IndexedCompoundVariable)) {
+                                    || !(mapVar instanceof IndexedCompoundVariable indexedCompoundVariable)) {
                                 return null;
                             }
-                            return ((IndexedCompoundVariable) mapVar).getChildByName(nameReference);
+                            return indexedCompoundVariable.getChildByName(nameReference);
                         } catch (JdiProxyException | DebugVariableException e) {
                             return null;
                         }

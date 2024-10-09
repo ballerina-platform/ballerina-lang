@@ -18,7 +18,6 @@ package org.ballerinalang.docgen.generator.model;
 import com.google.gson.annotations.Expose;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Represent documentation for a Listener.
@@ -41,14 +40,15 @@ public class Listener extends BClass {
                 .filter(function -> function.name.equals("attach")
                     || function.name.equals("start")
                     || function.name.equals("stop"))
-                .collect(Collectors.toList());
+                .toList();
     }
 
+    @Override
     public List<Function> getOtherMethods(List<Function> methods) {
         return super.getOtherMethods(methods).stream()
                 .filter(function -> !(function.name.equals("attach")
                         || function.name.equals("start")
                         || function.name.equals("stop")))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

@@ -32,14 +32,12 @@ import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvide
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.troubleshoot.StrandDump;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import sun.misc.Signal;
 
 import java.io.File;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,7 +58,7 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.TomlCons
  * 
  * @since 1.0
  */
-public class LaunchUtils {
+public final class LaunchUtils {
 
     private static final PrintStream outStream = System.out;
 
@@ -96,11 +94,16 @@ public class LaunchUtils {
 
     public static void addModuleConfigData(Map<Module, VariableKey[]> configurationData, Module m,
                                            VariableKey[] variableKeys) {
-        VariableKey[] keys = configurationData.put(m, variableKeys);
-        if (keys == null) {
-            return;
+        VariableKey[] currKeys = configurationData.get(m);
+        VariableKey[] mergedKeyArray;
+        if (currKeys == null) {
+            mergedKeyArray = variableKeys;
+        } else {
+            mergedKeyArray = new VariableKey[currKeys.length + variableKeys.length];
+            System.arraycopy(currKeys, 0, mergedKeyArray, 0, currKeys.length);
+            System.arraycopy(variableKeys, 0, mergedKeyArray, currKeys.length, variableKeys.length);
         }
-        configurationData.put(m, ArrayUtils.addAll(keys, variableKeys));
+        configurationData.put(m, mergedKeyArray);
     }
 
     public static void initConfigurableVariables(Module rootModule, Map<Module, VariableKey[]> configurationData,
@@ -143,7 +146,7 @@ public class LaunchUtils {
         if (envVars.containsKey(CONFIG_FILES_ENV_VARIABLE)) {
             String[] configPathList = envVars.get(CONFIG_FILES_ENV_VARIABLE).split(File.pathSeparator);
             for (String pathString : configPathList) {
-                paths.add(Paths.get(pathString));
+                paths.add(Path.of(pathString));
             }
         } else if (envVars.containsKey(CONFIG_DATA_ENV_VARIABLE)) {
             return envVars.get(CONFIG_DATA_ENV_VARIABLE);
@@ -157,7 +160,10 @@ public class LaunchUtils {
 
     public static ConfigDetails getTestConfigPaths(Module module, String pkgName, String sourceRoot) {
         String moduleName = module.getName();
-        Path testConfigPath = Paths.get(sourceRoot);
+        Path testConfigPath = Path.of(sourceRoot);
+        if (!Files.exists(testConfigPath)) {
+            testConfigPath = getSourceRootInContainer();
+        }
         if (!moduleName.equals(pkgName)) {
             testConfigPath = testConfigPath.resolve(MODULES_ROOT)
                     .resolve(moduleName.substring(moduleName.indexOf(DOT) + 1));
@@ -170,4 +176,8 @@ public class LaunchUtils {
         }
     }
 
+    private static Path getSourceRootInContainer() {
+        // Since we are inside a docker container, it's current working directory is the source root.
+        return Path.of(RuntimeUtils.USER_DIR);
+    }
 }

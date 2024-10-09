@@ -49,7 +49,7 @@ public class StructTest {
         Assert.assertEquals(returns.get(0).toString(), "Jack");
 
         Assert.assertTrue(returns.get(1) instanceof BMap);
-        BMap<String, ?> adrsMap = ((BMap) returns.get(1));
+        BMap<String, ?> adrsMap = ((BMap<String, ?>) returns.get(1));
         Assert.assertEquals(adrsMap.get(StringUtils.fromString("country")), StringUtils.fromString("USA"));
         Assert.assertEquals(adrsMap.get(StringUtils.fromString("state")), StringUtils.fromString("CA"));
 

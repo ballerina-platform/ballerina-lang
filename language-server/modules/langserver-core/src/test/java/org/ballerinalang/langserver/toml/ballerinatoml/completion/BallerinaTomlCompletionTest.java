@@ -39,10 +39,12 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Completion Test Interface.
@@ -55,8 +57,6 @@ public abstract class BallerinaTomlCompletionTest {
 
     private final Path testRoot = FileUtils.RES_DIR.resolve("toml" + File.separator
             + "ballerina_toml" + File.separator + "completion");
-
-    private final JsonParser parser = new JsonParser();
 
     private final Gson gson = new Gson();
 
@@ -72,7 +72,7 @@ public abstract class BallerinaTomlCompletionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 
         String response = getResponse(configJsonObject);
-        JsonObject json = parser.parse(response).getAsJsonObject();
+        JsonObject json = JsonParser.parseString(response).getAsJsonObject();
         Type collectionType = new TypeToken<List<CompletionItem>>() { }.getType();
         JsonArray resultList = json.getAsJsonObject("result").getAsJsonArray("left");
         List<CompletionItem> responseItemList = gson.fromJson(resultList, collectionType);
@@ -132,9 +132,9 @@ public abstract class BallerinaTomlCompletionTest {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
-        try {
-            return Files.walk(this.testRoot.resolve("config").resolve(this.getTestResourceDir()))
-                    .filter(path -> {
+        try (Stream<Path> configPaths = Files.walk(
+                this.testRoot.resolve("config").resolve(this.getTestResourceDir()))) {
+            return configPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".json")
                                 && !skippedTests.contains(file.getName());
@@ -189,8 +189,7 @@ public abstract class BallerinaTomlCompletionTest {
             obj.add("triggerCharacter", configJsonObject.get("triggerCharacter"));
         }
         String objStr = obj.toString().concat(System.lineSeparator());
-        java.nio.file.Files.write(FileUtils.RES_DIR.resolve(configJsonPath),
-                objStr.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        Files.write(FileUtils.RES_DIR.resolve(configJsonPath), objStr.getBytes(StandardCharsets.UTF_8));
 
         //This will print nice comparable text in IDE
         Assert.assertEquals(responseItemList.toString(), expectedItemList.toString(),

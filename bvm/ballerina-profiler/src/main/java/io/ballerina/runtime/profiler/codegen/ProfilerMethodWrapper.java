@@ -34,7 +34,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -52,21 +52,30 @@ import static io.ballerina.runtime.profiler.util.Constants.USER_DIR;
  */
 public class ProfilerMethodWrapper extends ClassLoader {
 
+    public static final String JAVA_OPTS = "JAVA_OPTS";
+
     public void invokeMethods(String debugArg) throws IOException, InterruptedException {
         String balJarArgs = Main.getBalJarArgs();
         List<String> commands = new ArrayList<>();
+        String javaOpts = System.getenv().get(JAVA_OPTS);
         commands.add(System.getenv("java.command"));
+        if (javaOpts != null) {
+            commands.add(javaOpts.trim());
+        }
         commands.add("-jar");
         if (debugArg != null) {
             commands.add(debugArg);
         }
-        commands.add(Paths.get(System.getProperty(USER_DIR), Constants.TEMP_JAR_FILE_NAME).toString());
+        commands.add(Path.of(System.getProperty(USER_DIR), Constants.TEMP_JAR_FILE_NAME).toString());
         if (balJarArgs != null) {
             commands.add(balJarArgs);
         }
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
         processBuilder.inheritIO();
         processBuilder.directory(new File(System.getenv(CURRENT_DIR_KEY)));
+        if (javaOpts != null) {
+            processBuilder.environment().put(JAVA_OPTS, javaOpts.trim());
+        }
         Process process = processBuilder.start();
         OUT_STREAM.printf(Constants.ANSI_CYAN + "[5/6] Running executable..." + Constants.ANSI_RESET + "%n");
         try (InputStreamReader streamReader = new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8);

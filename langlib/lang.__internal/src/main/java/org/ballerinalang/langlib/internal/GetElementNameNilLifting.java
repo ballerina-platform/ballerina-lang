@@ -28,12 +28,15 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.XML_OPERATION_ER
  *
  * @since 1.2.0
  */
-public class GetElementNameNilLifting {
+public final class GetElementNameNilLifting {
+
+    private GetElementNameNilLifting() {
+    }
 
     public static Object getElementNameNilLifting(BXml xmlVal) {
         if (IsElement.isElement(xmlVal)) {
             String elementName = xmlVal.getElementName();
-            if (elementName.equals("")) {
+            if (elementName.isEmpty()) {
                 return null;
             }
             return elementName;

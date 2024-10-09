@@ -32,9 +32,12 @@ import io.ballerina.runtime.api.values.BIterator;
 //        returnType = {@ReturnType(type = TypeKind.OBJECT)},
 //        isPublic = true
 //)
-public class GetIterator {
+public final class GetIterator {
 
-    public static BIterator iterator(BArray arr) {
+    private GetIterator() {
+    }
+
+    public static BIterator<?> iterator(BArray arr) {
         return arr.getIterator();
     }
 }

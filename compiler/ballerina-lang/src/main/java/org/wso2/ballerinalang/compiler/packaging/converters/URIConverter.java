@@ -43,11 +43,11 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  */
 public class URIConverter implements Converter<URI> {
 
-    private HomeBalaRepo homeBalaRepo;
+    private final HomeBalaRepo homeBalaRepo;
     protected URI base;
     protected final Map<PackageID, Manifest> dependencyManifests;
     private boolean isBuild = true;
-    private PrintStream errStream = System.err;
+    private final PrintStream errStream = System.err;
 
     public URIConverter(URI base, Map<PackageID, Manifest> dependencyManifests) {
         this.base = URI.create(base.toString() + "/modules/");
@@ -103,6 +103,7 @@ public class URIConverter implements Converter<URI> {
 
     }
 
+    @Override
     public Stream<CompilerInput> finalize(URI remoteURI, PackageID moduleID) {
         // if path to bala is not given in the manifest file
         String orgName = moduleID.getOrgName().getValue();
@@ -121,7 +122,7 @@ public class URIConverter implements Converter<URI> {
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             String errorMessage = "";
 
-            if (!"".equals(errorMessage)) {
+            if (!errorMessage.isEmpty()) {
                 // removing the error stack
                 if (errorMessage.contains("\n\tat")) {
                     errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));

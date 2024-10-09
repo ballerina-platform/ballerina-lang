@@ -21,6 +21,7 @@ package io.ballerina.cli.cmd;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
@@ -48,7 +49,6 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.FileInputStream;
@@ -64,7 +64,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
@@ -103,7 +102,8 @@ import static org.wso2.ballerinalang.util.RepoUtils.readSettings;
  *
  * @since 2.0.0
  */
-public class CommandUtil {
+public final class CommandUtil {
+
     public static final String ORG_NAME = "ORG_NAME";
     public static final String PKG_NAME = "PKG_NAME";
     public static final String DIST_VERSION = "DIST_VERSION";
@@ -124,6 +124,9 @@ public class CommandUtil {
     private static Path homeCache;
     private static boolean exitWhenFinish;
     private static String platform;
+
+    private CommandUtil() {
+    }
 
     static void setPrintStream(PrintStream errStream) {
         CommandUtil.errStream = errStream;
@@ -294,7 +297,7 @@ public class CommandUtil {
         Path moduleMdDirRoot = balaPath.resolve("docs").resolve(ProjectConstants.MODULES_ROOT);
         List<Path> modulesList;
         try (Stream<Path> pathStream = Files.list(modulesRoot)) {
-            modulesList = pathStream.collect(Collectors.toList());
+            modulesList = pathStream.toList();
         }
         for (Path moduleRoot : modulesList) {
             Path moduleDir = Optional.of(moduleRoot.getFileName()).get();
@@ -326,7 +329,7 @@ public class CommandUtil {
         try (Stream<Path> pathStream = Files.walk(docsPath, 1)) {
             List<Path> icon = pathStream
                     .filter(FileSystems.getDefault().getPathMatcher("glob:**.png")::matches)
-                    .collect(Collectors.toList());
+                    .toList();
             if (!icon.isEmpty()) {
                 Path projectDocsDir = projectPath.resolve(ProjectConstants.BALA_DOCS_DIR);
                 Files.createDirectory(projectDocsDir);
@@ -379,9 +382,8 @@ public class CommandUtil {
             String destinationDirName = moduleDirName.split(templatePkgName + ProjectConstants.DOT, 2)[1];
             Path includePathRelativeToModuleRoot = modulesDirPath.resolve(moduleRootPath)
                     .relativize(absoluteIncludePath);
-            Path updatedIncludePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(destinationDirName)
+            return Path.of(ProjectConstants.MODULES_ROOT).resolve(destinationDirName)
                     .resolve(includePathRelativeToModuleRoot);
-            return updatedIncludePath;
         }
         return includePath;
     }
@@ -450,28 +452,20 @@ public class CommandUtil {
     private static void pullPackageFromRemote(String orgName, String packageName, String version, Path destination)
             throws CentralClientException {
         String supportedPlatform = Arrays.stream(JvmTarget.values())
-                .map(target -> target.code())
+                .map(JvmTarget::code)
                 .collect(Collectors.joining(","));
             Settings settings;
-        try {
-            settings = readSettings();
-            // Ignore Settings.toml diagnostics in the pull command
-        } catch (SettingsTomlException e) {
-            // Ignore 'Settings.toml' parsing errors and return empty Settings object
-            settings = Settings.from();
-        }
+        settings = readSettings();
+        // Ignore Settings.toml diagnostics in the pull command
+
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
                 settings.getProxy().password(),
                 getAccessTokenOfCLI(settings), settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout());
-        try {
-            client.pullPackage(orgName, packageName, version, destination, supportedPlatform,
-                    RepoUtils.getBallerinaVersion(), false);
-        } catch (CentralClientException e) {
-            throw e;
-        }
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
+        client.pullPackage(orgName, packageName, version, destination, supportedPlatform,
+                RepoUtils.getBallerinaVersion(), false);
     }
 
     public static void writeBallerinaToml(Path balTomlPath, PackageJson packageJson,
@@ -485,7 +479,7 @@ public class CommandUtil {
         Files.writeString(balTomlPath, "\nversion = \"" + packageJson.getVersion() + "\"",
                 StandardOpenOption.APPEND);
         List<String> newModuleNames = packageJson.getExport().stream().map(module ->
-                module.replaceFirst(packageJson.getName(), packageName)).collect(Collectors.toList());
+                module.replaceFirst(packageJson.getName(), packageName)).toList();
 
         StringJoiner stringJoiner = new StringJoiner(",");
         for (String newModuleName : newModuleNames) {
@@ -516,8 +510,8 @@ public class CommandUtil {
             JsonObject dependenciesObj = (JsonObject) dependencies;
             if (null == dependenciesObj.get("scope")) {
                 String libPath = dependenciesObj.get("path").getAsString();
-                Path libName = Optional.of(Paths.get(libPath).getFileName()).get();
-                Path libRelPath = Paths.get("libs", libName.toString());
+                Path libName = Optional.of(Path.of(libPath).getFileName()).get();
+                Path libRelPath = Path.of("libs", libName.toString());
                 Files.writeString(balTomlPath, "\npath = \"" + libRelPath + "\"", StandardOpenOption.APPEND);
             }
 
@@ -553,11 +547,13 @@ public class CommandUtil {
                                              PackageJson templatePackageJson)
             throws IOException {
         Path depsTomlPath = projectPath.resolve(DEPENDENCIES_TOML);
-        String autoGenCode = "# AUTO-GENERATED FILE. DO NOT MODIFY.\n" +
-                "\n" +
-                "# This file is auto-generated by Ballerina for managing dependency versions.\n" +
-                "# It should not be modified by hand.\n" +
-                "\n";
+        String autoGenCode = """
+                # AUTO-GENERATED FILE. DO NOT MODIFY.
+
+                # This file is auto-generated by Ballerina for managing dependency versions.
+                # It should not be modified by hand.
+
+                """;
         Files.writeString(depsTomlPath, autoGenCode, StandardOpenOption.APPEND);
         String balTomlVersion = "[ballerina]\n" +
                 "dependencies-toml-version = \"" + ProjectConstants.DEPENDENCIES_TOML_VERSION + "\"\n" +
@@ -776,11 +772,9 @@ public class CommandUtil {
     public static String findPkgName(String template) {
         // Split the template in to parts
         String[] orgSplit = template.split("/");
-        String packageName = "";
         String packagePart = (orgSplit.length > 1) ? orgSplit[1] : "";
         String[] pkgSplit = packagePart.split(":");
-        packageName = pkgSplit[0].trim();
-        return packageName;
+        return pkgSplit[0].trim();
     }
 
     /**
@@ -852,7 +846,7 @@ public class CommandUtil {
         }
         if (Files.size(gitignore) == 0) {
             String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
-            Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
+            Files.writeString(gitignore, defaultGitignore);
         }
     }
 
@@ -864,7 +858,7 @@ public class CommandUtil {
         if (Files.size(devContainer) == 0) {
             String defaultDevContainer = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + DEVCONTAINER);
             defaultDevContainer = defaultDevContainer.replace("latest", RepoUtils.getBallerinaVersion());
-            Files.write(devContainer, defaultDevContainer.getBytes(StandardCharsets.UTF_8));
+            Files.writeString(devContainer, defaultDevContainer);
         }
     }
 
@@ -876,21 +870,22 @@ public class CommandUtil {
     public static List<String> getTemplates() {
         try {
             Path templateDir = getTemplatePath();
-            Stream<Path> walk = Files.walk(templateDir, 1);
+            try (Stream<Path> walk = Files.walk(templateDir, 1)) {
 
-            List<String> templates = walk.filter(Files::isDirectory)
+                List<String> templates = walk.filter(Files::isDirectory)
                     .filter(directory -> !templateDir.equals(directory))
-                    .filter(directory -> directory.getFileName() != null)
                     .map(directory -> directory.getFileName())
-                    .map(fileName -> fileName.toString())
-                    .collect(Collectors.toList());
+                    .filter(Objects::nonNull)
+                    .map(Path::toString)
+                    .toList();
 
-            if (null != jarFs) {
-                return templates.stream().map(t -> t
-                        .replace(jarFs.getSeparator(), ""))
-                        .collect(Collectors.toList());
-            } else {
-                return templates;
+                if (null != jarFs) {
+                    return templates.stream().map(t -> t
+                            .replace(jarFs.getSeparator(), ""))
+                        .toList();
+                } else {
+                    return templates;
+                }
             }
 
         } catch (IOException | URISyntaxException e) {
@@ -911,7 +906,7 @@ public class CommandUtil {
             final String[] array = uri.toString().split("!");
             return jarFs.getPath(array[1]);
         } else {
-            return Paths.get(uri);
+            return Path.of(uri);
         }
     }
 
@@ -954,10 +949,10 @@ public class CommandUtil {
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-app.toml");
         // replace manifest distribution with a guessed value
         defaultManifest = defaultManifest
-                .replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
-                .replaceAll(PKG_NAME, guessPkgName(packageName, "app"))
-                .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
-        Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
+                .replace(ORG_NAME, ProjectUtils.guessOrgName())
+                .replace(PKG_NAME, guessPkgName(packageName, "app"))
+                .replace(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
+        Files.writeString(ballerinaToml, defaultManifest);
     }
 
     private static void initLibPackage(Path path, String packageName) throws IOException {
@@ -966,11 +961,11 @@ public class CommandUtil {
 
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-lib.toml");
         // replace manifest org and name with a guessed value.
-        defaultManifest = defaultManifest.replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
-                .replaceAll(PKG_NAME, guessPkgName(packageName, "lib"))
-                .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
+        defaultManifest = defaultManifest.replace(ORG_NAME, ProjectUtils.guessOrgName())
+                .replace(PKG_NAME, guessPkgName(packageName, "lib"))
+                .replace(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
 
-        write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
+        Files.writeString(ballerinaToml, defaultManifest);
 
         // Create Package.md
         String packageMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/Package.md");
@@ -990,21 +985,21 @@ public class CommandUtil {
 
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-app.toml");
         defaultManifest = defaultManifest
-                .replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
-                .replaceAll(PKG_NAME, guessPkgName(packageName, TOOL_DIR))
-                .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
-        Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
+                .replace(ORG_NAME, ProjectUtils.guessOrgName())
+                .replace(PKG_NAME, guessPkgName(packageName, TOOL_DIR))
+                .replace(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
+        Files.writeString(ballerinaToml, defaultManifest);
 
         Path balToolToml = path.resolve(ProjectConstants.BAL_TOOL_TOML);
         Files.createFile(balToolToml);
 
         String balToolManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-tool.toml");
-        balToolManifest = balToolManifest.replaceAll(TOOL_ID, guessPkgName(packageName, TOOL_DIR));
+        balToolManifest = balToolManifest.replace(TOOL_ID, guessPkgName(packageName, TOOL_DIR));
 
-        write(balToolToml, balToolManifest.getBytes(StandardCharsets.UTF_8));
+        Files.writeString(balToolToml, balToolManifest);
     }
 
-    protected static PackageVersion findLatest(List<PackageVersion> packageVersions) {
+    private static PackageVersion findLatest(List<PackageVersion> packageVersions) {
         if (packageVersions.isEmpty()) {
             return null;
         }
@@ -1015,7 +1010,7 @@ public class CommandUtil {
         return latestVersion;
     }
 
-    protected static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
+    private static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
         SemanticVersion semVer1 = v1.value();
         SemanticVersion semVer2 = v2.value();
         boolean isV1PreReleaseVersion = semVer1.isPreReleaseVersion();
@@ -1030,18 +1025,16 @@ public class CommandUtil {
     public static List<PackageVersion> getPackageVersions(Path balaPackagePath) {
         List<Path> versions = new ArrayList<>();
         if (Files.exists(balaPackagePath)) {
-            Stream<Path> collectVersions;
-            try {
-                collectVersions = Files.list(balaPackagePath);
+            try (Stream<Path> collectVersions = Files.list(balaPackagePath)) {
+                versions.addAll(collectVersions.toList());
             } catch (IOException e) {
                 throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
             }
-            versions.addAll(collectVersions.collect(Collectors.toList()));
         }
         return pathToVersions(versions);
     }
 
-    protected static List<PackageVersion> pathToVersions(List<Path> versions) {
+    private static List<PackageVersion> pathToVersions(List<Path> versions) {
         List<PackageVersion> availableVersions = new ArrayList<>();
         versions.stream().map(path -> Optional.ofNullable(path)
                 .map(Path::getFileName)
@@ -1090,11 +1083,13 @@ public class CommandUtil {
     public static String checkTemplateFilesExists(String template, Path packagePath) throws URISyntaxException,
             IOException {
         Path templateDir = getTemplatePath().resolve(template);
-        Stream<Path> paths = Files.list(templateDir);
-        List<Path> templateFilePathList = paths.collect(Collectors.toList());
+        List<Path> templateFilePathList;
+        try (Stream<Path> paths = Files.list(templateDir)) {
+            templateFilePathList = paths.toList();
+        }
         StringBuilder existingFiles = new StringBuilder();
         for (Path path : templateFilePathList) {
-            Optional<String> fileNameOptional = Optional.ofNullable(path.getFileName()).map(path1 -> path1.toString());
+            Optional<String> fileNameOptional = Optional.ofNullable(path.getFileName()).map(Path::toString);
             if (fileNameOptional.isPresent()) {
                 String fileName = fileNameOptional.get();
                 if (!fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT) &&
@@ -1131,7 +1126,9 @@ public class CommandUtil {
      */
     public static boolean balFilesExists(Path packagePath) throws IOException {
         //Only skip the bal file to be created if any other .bal files exists
-        return Files.list(packagePath).anyMatch(path -> path.toString().endsWith(ProjectConstants.BLANG_SOURCE_EXT));
+        try (Stream<Path> list = Files.list(packagePath)) {
+            return list.anyMatch(path -> path.toString().endsWith(ProjectConstants.BLANG_SOURCE_EXT));
+        }
     }
 
     /**
@@ -1156,12 +1153,14 @@ public class CommandUtil {
      * @param orgName org name of the dependent package
      * @param packageName name of the dependent package
      * @param version version of the dependent package
+     * @param buildOptions build options {sticky, offline}
      * @return true if the dependent package compilation has errors
      */
-    static boolean pullDependencyPackages(String orgName, String packageName, String version) {
+    static boolean pullDependencyPackages(String orgName, String packageName, String version,
+                                          BuildOptions buildOptions, String repository) {
         Path ballerinaUserHomeDirPath = ProjectUtils.createAndGetHomeReposPath();
         Path centralRepositoryDirPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
-                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
+                .resolve(repository);
         Path balaDirPath = centralRepositoryDirPath.resolve(ProjectConstants.BALA_DIR_NAME);
         Path balaPath = ProjectUtils.getPackagePath(balaDirPath, orgName, packageName, version);
         String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
@@ -1170,7 +1169,7 @@ public class CommandUtil {
 
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(new FileSystemCache.FileSystemCacheFactory(cacheDir));
-        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath, buildOptions);
 
         // Delete package cache if available
         Path packageCacheDir = cacheDir.resolve(orgName).resolve(packageName).resolve(version);

@@ -19,12 +19,10 @@ public class CompletionItemBuilder {
      * @return {@link CompletionItemKind}
      */
     protected final CompletionItemKind getKind(Symbol symbol) {
-        switch (symbol.kind()) {
-            case ENUM:
-                return CompletionItemKind.Enum;
-            default:
-                return CompletionItemKind.Unit;
-        }
+        return switch (symbol.kind()) {
+            case ENUM -> CompletionItemKind.Enum;
+            default -> CompletionItemKind.Unit;
+        };
     }
 
     /**
@@ -34,17 +32,11 @@ public class CompletionItemBuilder {
      * @return {@link CompletionItemKind}
      */
     protected final CompletionItemKind getKind(SnippetBlock snippetBlock) {
-        switch (snippetBlock.kind()) {
-            case KEYWORD:
-                return CompletionItemKind.Keyword;
-            case TYPE:
-                return CompletionItemKind.TypeParameter;
-            case VALUE:
-                return CompletionItemKind.Value;
-            case SNIPPET:
-            case STATEMENT:
-            default:
-                return CompletionItemKind.Snippet;
-        }
+        return switch (snippetBlock.kind()) {
+            case KEYWORD -> CompletionItemKind.Keyword;
+            case TYPE -> CompletionItemKind.TypeParameter;
+            case VALUE -> CompletionItemKind.Value;
+            default -> CompletionItemKind.Snippet;
+        };
     }
 }

@@ -36,10 +36,13 @@ import java.util.stream.Collectors;
 /**
  * Function generator utilities.
  */
-public class FunctionGenerator {
+public final class FunctionGenerator {
 
     public static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN =
             Pattern.compile("([\\w]+)\\/([\\w.]+):([^:]+):([\\w]+)[\\|]?");
+
+    private FunctionGenerator() {
+    }
 
     /**
      * Returns signature of the provided type.
@@ -89,7 +92,7 @@ public class FunctionGenerator {
         if (nextStart != 0) {
             newText.append(text.substring(nextStart));
         }
-        return newText.length() > 0 ? newText.toString() : text;
+        return !newText.isEmpty() ? newText.toString() : text;
     }
 
     /**
@@ -125,7 +128,7 @@ public class FunctionGenerator {
         if (nextStart != 0 && nextStart < text.length()) {
             newText.append(text.substring(nextStart));
         }
-        return newText.length() > 0 ? newText.toString() : text;
+        return !newText.isEmpty() ? newText.toString() : text;
     }
 
     /**

@@ -40,26 +40,26 @@ import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.math.BigInteger;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_DEV_CENTRAL;
@@ -72,18 +72,21 @@ import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_R
 import static org.ballerinalang.central.client.CentralClientConstants.SHA256;
 import static org.ballerinalang.central.client.CentralClientConstants.SHA256_ALGORITHM;
 import static org.ballerinalang.central.client.CentralClientConstants.STAGING_REPO;
+import static org.ballerinalang.central.client.CentralClientConstants.TEST_MODE_ACTIVE;
 import static org.ballerinalang.central.client.CentralClientConstants.UPDATE_INTERVAL_MILLIS;
 
 /**
  * Utils class for this package.
  */
-public class Utils {
+public final class Utils {
 
+    private static final int BUFFER_SIZE = 1024;
     public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";
     public static final boolean SET_BALLERINA_STAGE_CENTRAL = Boolean.parseBoolean(
             System.getenv(BALLERINA_STAGE_CENTRAL));
     public static final boolean SET_BALLERINA_DEV_CENTRAL = Boolean.parseBoolean(
             System.getenv(BALLERINA_DEV_CENTRAL));
+    public static final boolean SET_TEST_MODE_ACTIVE = Boolean.parseBoolean(System.getenv(TEST_MODE_ACTIVE));
 
     private Utils() {
     }
@@ -100,7 +103,7 @@ public class Utils {
      *
      * @param balaDownloadResponse http response for downloading the bala file
      * @param pkgPathInBalaCache   package path in bala cache,
-     *                             <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>
+     *                             {@literal <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>}
      * @param pkgOrg               package org
      * @param pkgName              package name
      * @param isNightlyBuild       is nightly build
@@ -143,29 +146,36 @@ public class Utils {
         // <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>/<pkg-version>
 
         try {
-            if (Files.isDirectory(balaCacheWithPkgPath) && Files.list(balaCacheWithPkgPath).findAny().isPresent()) {
-                // update the existing deprecation details
-                Path deprecatedFilePath = balaCacheWithPkgPath.resolve(DEPRECATED_META_FILE_NAME);
-                if (deprecatedFilePath.toFile().exists() && deprecationMsg == null) {
-                    // delete deprecated file if it exists
-                    Files.delete(deprecatedFilePath);
-                } else if (deprecationMsg != null) {
-                    // write deprecation details to the file
-                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(deprecatedFilePath.toFile(),
-                            Charset.defaultCharset()))) {
-                        writer.write(deprecationMsg);
-                    }
+            if (Files.isDirectory(balaCacheWithPkgPath)) {
+                boolean hasChildren;
+                try (Stream<Path> paths = Files.list(balaCacheWithPkgPath)) {
+                    hasChildren = paths.findAny().isPresent();
                 }
+                if (hasChildren) {
+                    // update the existing deprecation details
+                    Path deprecatedFilePath = balaCacheWithPkgPath.resolve(DEPRECATED_META_FILE_NAME);
+                    if (deprecatedFilePath.toFile().exists() && deprecationMsg == null) {
+                        // delete deprecated file if it exists
+                        Files.delete(deprecatedFilePath);
+                    } else if (deprecationMsg != null) {
+                        // write deprecation details to the file
+                        try (BufferedWriter writer = new BufferedWriter(new FileWriter(deprecatedFilePath.toFile(),
+                                Charset.defaultCharset()))) {
+                            writer.write(deprecationMsg);
+                        }
+                    }
 
-                downloadBody.ifPresent(ResponseBody::close);
-                throw new PackageAlreadyExistsException(
-                        logFormatter.formatLog("package already exists in the home repository: " +
-                                balaCacheWithPkgPath.toString()));
+                    downloadBody.ifPresent(ResponseBody::close);
+                    throw new PackageAlreadyExistsException(
+                            logFormatter.formatLog("package already exists in the home repository: " +
+                                    balaCacheWithPkgPath.toString()), validPkgVersion);
+                }
             }
         } catch (IOException e) {
             downloadBody.ifPresent(ResponseBody::close);
             throw new PackageAlreadyExistsException(
-                    logFormatter.formatLog("error accessing bala : " + balaCacheWithPkgPath.toString()));
+                    logFormatter.formatLog("error accessing bala : " + balaCacheWithPkgPath.toString()),
+                    validPkgVersion);
         }
 
         // Create the following temp path
@@ -225,7 +235,7 @@ public class Utils {
      * @return bala file name
      */
     private static String getBalaFileName(String contentDisposition, String balaFile) {
-        if (contentDisposition != null && !contentDisposition.equals("")) {
+        if (contentDisposition != null && !contentDisposition.isEmpty()) {
             return contentDisposition.substring("attachment; filename=".length());
         } else {
             return balaFile;
@@ -305,7 +315,7 @@ public class Utils {
             LogFormatter logFormatter) throws CentralClientException {
         if (isNightlyBuild) {
             // If its a nightly build tag the file as a module from nightly
-            Path nightlyBuildMetaFile = Paths.get(balaCacheWithPkgPath.toString(), "nightly.build");
+            Path nightlyBuildMetaFile = Path.of(balaCacheWithPkgPath.toString(), "nightly.build");
             if (!nightlyBuildMetaFile.toFile().exists()) {
                 createMetaFile(nightlyBuildMetaFile, logFormatter, "error occurred while creating nightly.build file.");
             }
@@ -323,7 +333,7 @@ public class Utils {
             LogFormatter logFormatter) throws CentralClientException {
         if (deprecateMsg != null) {
             // If its a deprecated package tag a file to denote as deprecated
-            Path deprecateMsgFile = Paths.get(balaCacheWithPkgPath.toString(), DEPRECATED_META_FILE_NAME);
+            Path deprecateMsgFile = Path.of(balaCacheWithPkgPath.toString(), DEPRECATED_META_FILE_NAME);
             if (!deprecateMsgFile.toFile().exists()) {
                 createMetaFile(deprecateMsgFile, logFormatter,
                         "error occurred while creating the file '" + DEPRECATED_META_FILE_NAME + "'");
@@ -347,7 +357,7 @@ public class Utils {
             long totalSizeInKB, String fullPkgName, PrintStream outStream, LogFormatter logFormatter,
             Path homeRepo) throws IOException {
         int count;
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[BUFFER_SIZE];
         String remoteRepo = getRemoteRepo();
         String progressBarTask = fullPkgName + " [" + remoteRepo + " ->" + homeRepo + "] ";
         try (ProgressBar progressBar = new ProgressBar(progressBarTask, totalSizeInKB, 1000,
@@ -364,7 +374,7 @@ public class Utils {
     private static void writeAndHandleProgressQuietly(InputStream inputStream, FileOutputStream outputStream)
             throws IOException {
         int count;
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[BUFFER_SIZE];
 
         while ((count = inputStream.read(buffer)) > 0) {
             outputStream.write(buffer, 0, count);
@@ -415,8 +425,7 @@ public class Utils {
      * @return converted list of strings
      */
     static List<String> getAsList(String arrayString) {
-        return new Gson().fromJson(arrayString, new TypeToken<List<String>>() {
-        }.getType());
+        return new Gson().fromJson(arrayString, new TypeToken<>() { });
     }
 
     /**
@@ -455,7 +464,11 @@ public class Utils {
 
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path packageRoot = zipFileSystem.getPath("/");
-            List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).collect(Collectors.toList());
+            List<Path> paths;
+            try (Stream<Path> pathStream = Files.walk(packageRoot)) {
+                paths = pathStream.filter(path -> path != packageRoot).toList();
+            }
+
             for (Path path : paths) {
                 Path destPath = balaFileDestPath.resolve(packageRoot.relativize(path).toString());
                 // Handle overwriting existing bala
@@ -468,13 +481,37 @@ public class Utils {
     }
 
     public static String checkHash(String filePath, String algorithm) throws CentralClientException {
+        MessageDigest md;
         try {
-            byte[] data = Files.readAllBytes(Paths.get(filePath));
-            byte[] hash = MessageDigest.getInstance(algorithm).digest(data);
-            return new BigInteger(1, hash).toString(16);
-        } catch (IOException | NoSuchAlgorithmException e) {
-            throw new CentralClientException("Unable to calculate the hash value of the file: " + filePath);
+            md = MessageDigest.getInstance(algorithm);
+        } catch (NoSuchAlgorithmException e) {
+            throw new CentralClientException("Unable to calculate the hash value of the file " + filePath + ": "
+                    + e.getMessage());
         }
+
+        try (InputStream is = new FileInputStream(filePath);
+             DigestInputStream dis = new DigestInputStream(is, md)) {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            while (dis.read(buffer) != -1) {
+            }
+            md = dis.getMessageDigest();
+            return bytesToHex(md.digest());
+        } catch (RuntimeException | IOException e) {
+            throw new CentralClientException("Unable to calculate the hash value of the file " + filePath + ": "
+                    + e.getMessage());
+        }
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
     static String getBearerToken(String accessToken) {
@@ -556,7 +593,7 @@ public class Utils {
      * A listener interface that allows tracking byte writing.
      */
     public interface ProgressListener {
-        void onRequestProgress(long bytesWritten, long contentLength) throws IOException;
+        void onRequestProgress(long bytesWritten, long contentLength);
     }
 
     /**

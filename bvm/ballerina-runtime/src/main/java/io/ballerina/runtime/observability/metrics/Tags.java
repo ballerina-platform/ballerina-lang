@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * Utility methods to add tags to an existing list of {@link Tag Tags}.
  */
-public class Tags {
+public final class Tags {
 
     private Tags() {
     }

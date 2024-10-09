@@ -37,7 +37,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.NamedArgCompletionItem;
 import org.ballerinalang.langserver.completions.builder.NamedArgCompletionItemBuilder;
@@ -65,8 +64,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, T node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, T node) {
         return Collections.emptyList();
     }
 
@@ -125,7 +123,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
         completionItem.getCompletionItem().setSortText(sortText);
     }
 
-    protected static void sortParameterlessCompletionItem(BallerinaCompletionContext context,
+    private static void sortParameterlessCompletionItem(BallerinaCompletionContext context,
                                                           LSCompletionItem completionItem) {
         completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(
                 SortingUtil.toRank(context, completionItem)));
@@ -209,7 +207,8 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
         return true;
     }
     
-    protected boolean isNotInNamedArgOnlyContext(BallerinaCompletionContext context, List<Node> arguments) {
+    protected boolean isNotInNamedArgOnlyContext(BallerinaCompletionContext context,
+                                                 List<? extends Node> arguments) {
         int cursorPosition = context.getCursorPositionInTree();
         for (Node child : arguments) {
             TextRange textRange = child.textRange();

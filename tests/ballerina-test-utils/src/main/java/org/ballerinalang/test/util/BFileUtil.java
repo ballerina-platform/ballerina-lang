@@ -35,16 +35,19 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Utility methods for doing file operations.
  *
  * @since 0.975.0
  */
-public class BFileUtil {
+public final class BFileUtil {
 
     private static final String IGNORE = ".gitignore";
+
+    private BFileUtil() {
+    }
 
     /**
      * Copy a file or directory to a target location.
@@ -111,7 +114,9 @@ public class BFileUtil {
                 @Override
                 public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                     if (Files.exists(dir)) {
-                        Files.list(dir).forEach(BFileUtil::delete);
+                        try (Stream<Path> paths = Files.list(dir)) {
+                            paths.forEach(BFileUtil::delete);
+                        }
                     }
                     return FileVisitResult.CONTINUE;
                 }
@@ -132,8 +137,12 @@ public class BFileUtil {
         if (!Files.exists(path)) {
             return;
         }
-        List<Path> files = Files.find(path, Integer.MAX_VALUE, (p, attribute) ->
-                p.toString().contains(pattern)).collect(Collectors.toList());
+        List<Path> files;
+        try (Stream<Path> paths = Files.find(path, Integer.MAX_VALUE, (p, attribute) ->
+                        p.toString().contains(pattern))) {
+            files = paths.toList();
+        }
+
         for (Path file : files) {
             BFileUtil.delete(file);
         }

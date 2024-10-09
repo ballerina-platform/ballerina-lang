@@ -62,6 +62,7 @@ public class STXMLQualifiedNameNode extends STXMLNameNode {
                 name);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLQualifiedNameNode(
                 this.prefix,
@@ -88,6 +89,7 @@ public class STXMLQualifiedNameNode extends STXMLNameNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLQualifiedNameNode(this, position, parent);
     }

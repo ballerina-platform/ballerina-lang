@@ -155,6 +155,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         this.trxBlockId = currentTrxBlockIdDef;
         return result;
     }
+    @Override
     public void visit(BLangTransaction transactionNode) {
         result = desugarTransactionBody(transactionNode, env, transactionNode.pos);
     }
@@ -216,7 +217,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         trapExpr.expr = statementExpression;
 
         //error? $trapResult = trap <Transaction Body>
-        BVarSymbol nillableErrorVarSymbol = new BVarSymbol(0, names.fromString("$trapResult"),
+        BVarSymbol nillableErrorVarSymbol = new BVarSymbol(0, Names.fromString("$trapResult"),
                 this.env.scope.owner.pkgID, transactionReturnType,
                 this.env.scope.owner, pos, VIRTUAL);
         BLangSimpleVariable trapResultVariable = ASTBuilderUtil.createVariable(pos, "$trapResult",
@@ -428,7 +429,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         onFailBodyBlock.stmts.add(stmtIndex, rollbackCheck);
 
         BSymbol transactionErrorSymbol = symTable.langTransactionModuleSymbol
-                .scope.lookup(names.fromString("Error")).symbol;
+                .scope.lookup(Names.fromString("Error")).symbol;
         BType errorType = transactionErrorSymbol.type;
 
         BLangErrorType trxErrorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
@@ -634,7 +635,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BInvokableType type = new BInvokableType(paramTypes, symTable.booleanType,
                                                  null);
         BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(
-                names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
+                Names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
                 symTable.builtinPos, VIRTUAL);
         failureValidationGroupExpr.expression = ASTBuilderUtil.createUnaryExpr(pos, failureValidationExprVarRef,
                 symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);

@@ -62,6 +62,7 @@ public class STReturnStatementNode extends STStatementNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReturnStatementNode(
                 this.returnKeyword,
@@ -88,6 +89,7 @@ public class STReturnStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReturnStatementNode(this, position, parent);
     }

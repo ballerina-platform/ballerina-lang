@@ -66,7 +66,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of Ballerina Document extension for Language Server.
@@ -336,7 +335,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 Optional<Project> project = workspaceManager.project(filePath.get());
 
                 // Loop through project modules to find the document of the function declaration
-                project.get().currentPackage().modules().forEach(module -> {
+                project.get().currentPackage().modules().forEach(module ->
                     module.documentIds().forEach(id -> {
                         Document document = module.document(id);
                         if (functionPath.equals(document.name())) {
@@ -375,8 +374,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                                 }
                             });
                         }
-                    });
-                });
+                    }));
                 return reply;
             } catch (Throwable e) {
                 reply.setParseSuccess(false);
@@ -404,6 +402,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 if (project.isEmpty()) {
                     return ballerinaProject;
                 }
+                ballerinaProject.setOrgName(project.get().currentPackage().packageOrg().value());
                 ballerinaProject.setPath(project.get().sourceRoot().toString());
                 ProjectKind projectKind = project.get().kind();
                 if (projectKind != ProjectKind.SINGLE_FILE_PROJECT) {
@@ -432,7 +431,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 return diagnosticsHelper.getLatestDiagnostics(context).entrySet().stream()
                         .filter(entry -> fileUri.equals(entry.getKey()))
                         .map((entry) -> new PublishDiagnosticsParams(entry.getKey(), entry.getValue()))
-                        .collect(Collectors.toList());
+                        .toList();
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/diagnostics' failed!";
                 this.clientLogger.logError(DocumentContext.DC_DIAGNOSTICS, msg, e, params.getDocumentIdentifier(),

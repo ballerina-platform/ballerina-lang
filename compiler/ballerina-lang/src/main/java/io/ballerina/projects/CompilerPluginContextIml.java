@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.projects.plugins.CodeAnalyzer;
 import io.ballerina.projects.plugins.CodeGenerator;
 import io.ballerina.projects.plugins.CodeModifier;
@@ -43,8 +44,8 @@ class CompilerPluginContextIml implements CompilerPluginContext {
     private final List<CodeModifierManager.CodeModifierInfo> codeModifiers = new ArrayList<>();
     private final List<CompilerLifecycleManager.LifecycleListenerInfo> lifecycleListeners = new ArrayList<>();
     private final List<CodeAction> codeActions = new ArrayList<>();
-    private Map<String, Object> compilerPluginUserData = new HashMap();
-    private final List<CompletionProvider> completionProviders = new ArrayList<>();
+    private Map<String, Object> compilerPluginUserData = new HashMap<>();
+    private final List<CompletionProvider<? extends Node>> completionProviders = new ArrayList<>();
 
     CompilerPluginContextIml(CompilerPluginInfo compilerPluginInfo) {
         this.compilerPluginInfo = compilerPluginInfo;
@@ -55,14 +56,17 @@ class CompilerPluginContextIml implements CompilerPluginContext {
         this.compilerPluginUserData = userData;
     }
 
+    @Override
     public void addCodeAnalyzer(CodeAnalyzer codeAnalyzer) {
         codeAnalyzers.add(new CodeAnalyzerManager.CodeAnalyzerInfo(codeAnalyzer, compilerPluginInfo));
     }
 
+    @Override
     public void addCodeGenerator(CodeGenerator codeGenerator) {
         codeGenerators.add(new CodeGeneratorManager.CodeGeneratorInfo(codeGenerator, compilerPluginInfo));
     }
 
+    @Override
     public void addCodeModifier(CodeModifier codeModifier) {
         codeModifiers.add(new CodeModifierManager.CodeModifierInfo(codeModifier, compilerPluginInfo));
     }
@@ -79,7 +83,7 @@ class CompilerPluginContextIml implements CompilerPluginContext {
     }
 
     @Override
-    public void addCompletionProvider(CompletionProvider completionProvider) {
+    public void addCompletionProvider(CompletionProvider<? extends Node> completionProvider) {
         completionProviders.add(completionProvider);
     }
 
@@ -103,7 +107,7 @@ class CompilerPluginContextIml implements CompilerPluginContext {
         return codeActions;
     }
 
-    public List<CompletionProvider> completionProviders() {
+    public List<CompletionProvider<? extends Node>> completionProviders() {
         return completionProviders;
     }
 
@@ -111,6 +115,7 @@ class CompilerPluginContextIml implements CompilerPluginContext {
         return compilerPluginInfo;
     }
 
+    @Override
     public Map<String, Object> userData() {
         return this.compilerPluginUserData;
     }

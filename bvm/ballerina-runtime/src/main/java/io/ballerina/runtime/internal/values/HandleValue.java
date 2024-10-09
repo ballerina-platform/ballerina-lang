@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class HandleValue implements BHandle, RefValue {
 
-    private Object value;
+    private final Object value;
     private BTypedesc typedesc;
 
     public HandleValue(Object value) {
@@ -48,6 +48,7 @@ public class HandleValue implements BHandle, RefValue {
      * Returns the internal value of the handle.
      * @return {@code Object} value
      */
+    @Override
     public Object getValue() {
         return value;
     }

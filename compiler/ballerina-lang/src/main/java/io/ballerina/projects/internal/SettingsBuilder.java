@@ -55,10 +55,11 @@ public class SettingsBuilder {
     private static final String READ_TIMEOUT = "readTimeout";
     private static final String WRITE_TIMEOUT = "writeTimeout";
     private static final String CALL_TIMEOUT = "callTimeout";
-    private TomlDocument settingsToml;
-    private Settings settings;
+    private static final String MAX_RETRIES = "maxRetries";
+    private final TomlDocument settingsToml;
+    private final Settings settings;
     private DiagnosticResult diagnostics;
-    private List<Diagnostic> diagnosticList;
+    private final List<Diagnostic> diagnosticList;
 
     private static final String PROXY = "proxy";
     private static final String CENTRAL = "central";
@@ -74,6 +75,7 @@ public class SettingsBuilder {
     private static final int DEFAULT_READ_TIMEOUT = 60;
     private static final int DEFAULT_WRITE_TIMEOUT = 60;
     private static final int DEFAULT_CALL_TIMEOUT = 0;
+    public static final int DEFAULT_MAX_RETRY = 1;
 
     private SettingsBuilder(TomlDocument settingsToml) {
         this.diagnosticList = new ArrayList<>();
@@ -123,6 +125,7 @@ public class SettingsBuilder {
         int readTimeout = DEFAULT_READ_TIMEOUT;
         int writeTimeout = DEFAULT_WRITE_TIMEOUT;
         int callTimeout = DEFAULT_CALL_TIMEOUT;
+        int maxRetries = DEFAULT_MAX_RETRY;
         String url = "";
         String id = "";
         String repoName = "";
@@ -146,6 +149,10 @@ public class SettingsBuilder {
                 readTimeout = getIntValueFromProxyNode(centralNode, READ_TIMEOUT, DEFAULT_READ_TIMEOUT);
                 writeTimeout = getIntValueFromProxyNode(centralNode, WRITE_TIMEOUT, DEFAULT_WRITE_TIMEOUT);
                 callTimeout = getIntValueFromProxyNode(centralNode, CALL_TIMEOUT, DEFAULT_CALL_TIMEOUT);
+                maxRetries = getIntValueFromProxyNode(centralNode, MAX_RETRIES, DEFAULT_MAX_RETRY);
+                if (maxRetries < 0) {
+                    maxRetries = DEFAULT_MAX_RETRY;
+                }
             }
 
             TomlTableNode repository = (TomlTableNode) tomlAstNode.entries().get(REPOSITORY);
@@ -170,7 +177,7 @@ public class SettingsBuilder {
         }
 
         return Settings.from(Proxy.from(host, port, proxyUsername, proxyPassword), Central.from(accessToken,
-                connectTimeout, readTimeout, writeTimeout, callTimeout), diagnostics(),
+                connectTimeout, readTimeout, writeTimeout, callTimeout, maxRetries), diagnostics(),
                 repositories.toArray(new Repository[0]));
     }
 

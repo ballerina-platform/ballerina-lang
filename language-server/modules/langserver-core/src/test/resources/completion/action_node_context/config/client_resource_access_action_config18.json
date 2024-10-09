@@ -16,7 +16,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` params  \n- `string` id"
         }
       },
-      "sortText": "G",
+      "sortText": "GA",
       "filterText": "get",
       "insertText": "(${1})",
       "insertTextFormat": "Snippet",
@@ -50,7 +50,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` params"
         }
       },
-      "sortText": "G",
+      "sortText": "GB",
       "filterText": "post",
       "insertText": ".post",
       "insertTextFormat": "Snippet",
@@ -80,7 +80,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` params"
         }
       },
-      "sortText": "G",
+      "sortText": "GC",
       "filterText": "put",
       "insertText": ".put",
       "insertTextFormat": "Snippet",

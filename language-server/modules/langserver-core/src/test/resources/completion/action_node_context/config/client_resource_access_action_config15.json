@@ -16,7 +16,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
         }
       },
-      "sortText": "C",
+      "sortText": "CA",
       "filterText": "get",
       "insertText": "/[${1:\"path\"}];",
       "insertTextFormat": "Snippet"
@@ -31,7 +31,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
         }
       },
-      "sortText": "C",
+      "sortText": "CB",
       "filterText": "get",
       "insertText": "/${1:path};",
       "insertTextFormat": "Snippet"
@@ -46,7 +46,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string[]` ids  \n- `string` b  \n- `string[]` ids2"
         }
       },
-      "sortText": "C",
+      "sortText": "CC",
       "filterText": "|post",
       "insertText": "/[${1:\"path\"}].post(${2});",
       "insertTextFormat": "Snippet",
@@ -65,7 +65,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string[]` ids  \n- `string` b  \n- `string[]` ids2"
         }
       },
-      "sortText": "C",
+      "sortText": "CD",
       "filterText": "|post",
       "insertText": "/${1:path}.post(${2});",
       "insertTextFormat": "Snippet",

@@ -36,7 +36,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -52,7 +51,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
@@ -75,8 +73,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ListenerDeclarationNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ListenerDeclarationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         Optional<ListenerDeclarationNode> listenerNode = listenerNode(context);
@@ -199,7 +196,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> listeners = visibleSymbols.stream()
                 .filter(SymbolUtil::isListener)
-                .collect(Collectors.toList());
+                .toList();
         completionItems.addAll(this.getCompletionItemList(listeners, context));
 
         return completionItems;
@@ -221,7 +218,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         Stream<Symbol> classesAndTypeDefs = Stream.concat(module.classes().stream(), module.typeDefinitions().stream());
         List<Symbol> listeners = classesAndTypeDefs
                 .filter(SymbolUtil::isListener)
-                .collect(Collectors.toList());
+                .toList();
         completionItems.addAll(this.getCompletionItemList(listeners, context));
 
         return completionItems;
@@ -330,7 +327,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         Optional<ClassSymbol> objectTypeDesc = getListenerTypeDesc(context, listenerNode);
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == VARIABLE || symbol.kind() == FUNCTION)
-                .collect(Collectors.toList());
+                .toList();
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getModuleCompletionItems(context));
         objectTypeDesc.ifPresent(tDesc -> completionItems.add(this.getImplicitNewCItemForClass(tDesc, context)));

@@ -3,18 +3,31 @@
 
 # See: https://help.github.com/articles/about-codeowners/
 
+*       @gimantha
+
 # Components
-/compiler/ @sameerajayasoma @hasithaa 
-/langlib/ @sameerajayasoma @hasithaa 
-/semtypes/ @sameerajayasoma @hasithaa 
-/language-server/ @mohanvive @IMS94
-/ballerina-shell/ @mohanvive
+/compiler/ @sameerajayasoma @hasithaa @gimantha @MaryamZi
+/ballerina-shell/ @KavinduZoysa
+/build-config/ @keizer619
 /bvm/ @warunalakshitha
-/observelib/ @nadundesilva
-/cli/ @hevayo
-/distribution/ @hevayo
-/misc/ @hevayo
-/project-api/ @hevayo @sameerajayasoma
+/cli/ @azinneera
+/distribution/ @keizer619
+/gradle/ @keizer619
+/langlib/ @sameerajayasoma @hasithaa @gimantha @MaryamZi
+/semtypes/ @gimantha @MaryamZi 
+/language-server/ @KavinduZoysa
+/misc/ballerina-bindgen/ @warunalakshitha
+/misc/compiler-plugins/ @azinneera
+/misc/debug-adapter/ @NipunaRanasinghe
+/misc/docerina/ @keizer619
+/misc/identifier-util/ @warunalakshitha
+/misc/json-to-record-converter/ @NipunaRanasinghe
+/misc/semver-checker/ @NipunaRanasinghe
+/misc/testerina/ @azinneera @Dilhasha
+/misc/xml-to-record-converter/ @NipunaRanasinghe
+/project-api/ @azinneera @sameerajayasoma
+/performance/ @anuruddhal
+/tests/ @gimantha @MaryamZi @KavinduZoysa @warunalakshitha @azinneera
 
 # CODEOWNERS file
-/.github/CODEOWNERS @sameerajayasoma @hasithaa @anupama-pathirage @warunalakshitha @mohanvive @manuranga @hevayo
+/.github/CODEOWNERS @sameerajayasoma @gimantha @MaryamZi @hasithaa

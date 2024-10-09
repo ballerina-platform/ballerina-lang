@@ -92,7 +92,6 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
 
         public BinaryOp(Location pos,
                         InstructionKind kind,
-                        BType type,
                         BIROperand lhsOp,
                         BIROperand rhsOp1,
                         BIROperand rhsOp2) {
@@ -237,8 +236,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             int i = 0;
             operands[i++] = rhsOp;
             for (BIRMappingConstructorEntry mappingEntry : initialValues) {
-                if (mappingEntry instanceof BIRMappingConstructorKeyValueEntry) {
-                    BIRMappingConstructorKeyValueEntry entry = (BIRMappingConstructorKeyValueEntry) mappingEntry;
+                if (mappingEntry instanceof BIRMappingConstructorKeyValueEntry entry) {
                     operands[i++] = entry.keyOp;
                     operands[i++] = entry.valueOp;
                 } else {
@@ -255,8 +253,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.rhsOp = operands[0];
             int i = 1;
             for (BIRMappingConstructorEntry mappingEntry : initialValues) {
-                if (mappingEntry instanceof BIRMappingConstructorKeyValueEntry) {
-                    BIRMappingConstructorKeyValueEntry entry = (BIRMappingConstructorKeyValueEntry) mappingEntry;
+                if (mappingEntry instanceof BIRMappingConstructorKeyValueEntry entry) {
                     entry.keyOp = operands[i++];
                     entry.valueOp = operands[i++];
                 } else {

@@ -64,14 +64,17 @@ public class FoldingRangeFinder extends NodeVisitor {
         this.lineFoldingOnly = lineFoldingOnly;
     }
 
+    @Override
     public void visit(ImportDeclarationNode importDeclarationNode) {
         imports.add(importDeclarationNode);
     }
 
+    @Override
     public void visit(RecordTypeDescriptorNode recordTypeDescriptorNode) {
         appendNodeFoldingRanges(recordTypeDescriptorNode);
     }
 
+    @Override
     public void visit(IfElseStatementNode ifElseStatementNode) {
         LineRange ifElseLineRange = ifElseStatementNode.lineRange();
         LineRange ifBodyLineRange = ifElseStatementNode.ifBody().lineRange();
@@ -81,16 +84,19 @@ public class FoldingRangeFinder extends NodeVisitor {
         visitSyntaxNode(ifElseStatementNode);
     }
 
+    @Override
     public void visit(ElseBlockNode elseBlockNode) {
         appendNodeFoldingRanges(elseBlockNode);
         visitSyntaxNode(elseBlockNode);
     }
 
+    @Override
     public void visit(FunctionBodyBlockNode functionBodyBlockNode) {
         appendNodeFoldingRanges(functionBodyBlockNode);
         visitSyntaxNode(functionBodyBlockNode);
     }
 
+    @Override
     public void visit(ClassDefinitionNode classDefinitionNode) {
         foldingRanges.add(createFoldingRange(classDefinitionNode.openBrace().lineRange().startLine().line(),
                 classDefinitionNode.closeBrace().lineRange().endLine().line() - 1,
@@ -99,6 +105,7 @@ public class FoldingRangeFinder extends NodeVisitor {
         visitSyntaxNode(classDefinitionNode);
     }
 
+    @Override
     public void visit(MethodDeclarationNode methodDeclarationNode) {
         int functionKeyWordLine = methodDeclarationNode.functionKeyword().lineRange().startLine().line();
         int semicolonLine = methodDeclarationNode.semicolon().lineRange().startLine().line();
@@ -108,6 +115,7 @@ public class FoldingRangeFinder extends NodeVisitor {
         visitSyntaxNode(methodDeclarationNode);
     }
 
+    @Override
     public void visit(ObjectTypeDescriptorNode objectTypeDescriptorNode) {
         foldingRanges.add(createFoldingRange(objectTypeDescriptorNode.openBrace().lineRange().startLine().line(),
                 objectTypeDescriptorNode.closeBrace().lineRange().endLine().line() - 1,
@@ -116,6 +124,7 @@ public class FoldingRangeFinder extends NodeVisitor {
         visitSyntaxNode(objectTypeDescriptorNode);
     }
 
+    @Override
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {
         foldingRanges.add(createFoldingRange(serviceDeclarationNode.openBraceToken().lineRange().startLine().line(),
                 serviceDeclarationNode.closeBraceToken().lineRange().endLine().line() - 1,
@@ -124,22 +133,26 @@ public class FoldingRangeFinder extends NodeVisitor {
         visitSyntaxNode(serviceDeclarationNode);
     }
 
+    @Override
     public void visit(MetadataNode metadataNode) {
         LineRange lineRange = metadataNode.lineRange();
         foldingRanges.add(createFoldingRange(lineRange.startLine().line(), lineRange.endLine().line(),
                 lineRange.startLine().offset(), lineRange.endLine().offset(), FoldingRangeKind.Comment));
     }
 
+    @Override
     public void visit(ForEachStatementNode forEachStatementNode) {
         appendBlockFoldingRanges(forEachStatementNode.blockStatement());
         visitSyntaxNode(forEachStatementNode);
     }
 
+    @Override
     public void visit(WhileStatementNode whileStatementNode) {
         appendBlockFoldingRanges(whileStatementNode.whileBody());
         visitSyntaxNode(whileStatementNode);
     }
 
+    @Override
     public void visit(EnumDeclarationNode enumDeclarationNode) {
         foldingRanges.add(createFoldingRange(enumDeclarationNode.openBraceToken().lineRange().startLine().line(),
                 enumDeclarationNode.closeBraceToken().lineRange().endLine().line() - 1,
@@ -148,16 +161,19 @@ public class FoldingRangeFinder extends NodeVisitor {
         visitSyntaxNode(enumDeclarationNode);
     }
 
+    @Override
     public void visit(TransactionStatementNode transactionStatementNode) {
         appendBlockFoldingRanges(transactionStatementNode.blockStatement());
         visitSyntaxNode(transactionStatementNode);
     }
 
+    @Override
     public void visit(ExternalFunctionBodyNode externalFunctionBodyNode) {
         appendNodeFoldingRanges(externalFunctionBodyNode);
         visitSyntaxNode(externalFunctionBodyNode);
     }
 
+    @Override
     public void visit(MatchStatementNode matchStatementNode) {
         foldingRanges.add(createFoldingRange(matchStatementNode.openBrace().lineRange().startLine().line(),
                 matchStatementNode.closeBrace().lineRange().endLine().line() - 1,
@@ -166,11 +182,13 @@ public class FoldingRangeFinder extends NodeVisitor {
         visitSyntaxNode(matchStatementNode);
     }
 
+    @Override
     public void visit(MatchClauseNode matchClauseNode) {
         appendBlockFoldingRanges(matchClauseNode.blockStatement());
         visitSyntaxNode(matchClauseNode);
     }
 
+    @Override
     public void visit(ForkStatementNode forkStatementNode) {
         foldingRanges.add(createFoldingRange(forkStatementNode.openBraceToken().lineRange().startLine().line(),
                 forkStatementNode.closeBraceToken().lineRange().endLine().line() - 1,
@@ -179,31 +197,37 @@ public class FoldingRangeFinder extends NodeVisitor {
         visitSyntaxNode(forkStatementNode);
     }
 
+    @Override
     public void visit(RetryStatementNode retryStatementNode) {
         appendNodeFoldingRanges(retryStatementNode.retryBody());
         visitSyntaxNode(retryStatementNode);
     }
 
+    @Override
     public void visit(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
         appendBlockFoldingRanges(namedWorkerDeclarationNode.workerBody());
         visitSyntaxNode(namedWorkerDeclarationNode);
     }
 
+    @Override
     public void visit(OnFailClauseNode onFailClauseNode) {
         appendBlockFoldingRanges(onFailClauseNode.blockStatement());
         visitSyntaxNode(onFailClauseNode);
     }
 
+    @Override
     public void visit(DoStatementNode doStatementNode) {
         appendBlockFoldingRanges(doStatementNode.blockStatement());
         visitSyntaxNode(doStatementNode);
     }
 
+    @Override
     public void visit(LockStatementNode lockStatementNode) {
         appendBlockFoldingRanges(lockStatementNode.blockStatement());
         visitSyntaxNode(lockStatementNode);
     }
 
+    @Override
     public void visit(ReturnStatementNode returnStatementNode) {
         LineRange lineRange = returnStatementNode.lineRange();
         foldingRanges.add(createFoldingRange(lineRange.startLine().line(), lineRange.endLine().line(),

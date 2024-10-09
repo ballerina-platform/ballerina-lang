@@ -61,7 +61,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Class to test annotation attachments.
@@ -221,7 +220,7 @@ public class AnnotationAttachmentTest {
                         .get().getAnnotationAttachments()
                         .stream()
                         .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
-                        .collect(Collectors.toList());
+                        .toList();
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v8", "val", "v82");
     }
@@ -377,7 +376,7 @@ public class AnnotationAttachmentTest {
                 .getClassDefinitions().get(0).getAnnotationAttachments()
                 .stream()
                 .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
-                .collect(Collectors.toList());
+                .toList();
         Assert.assertEquals(attachments.size(), 1);
         BLangAnnotationAttachment attachment = attachments.get(0);
         BLangRecordLiteral recordLiteral = getMappingConstructor(attachment, "v1");
@@ -459,7 +458,7 @@ public class AnnotationAttachmentTest {
                         .get().getAnnotationAttachments()
                         .stream()
                         .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
-                        .collect(Collectors.toList());
+                        .toList();
         validateEmptyMapConstructorExprInAnnot(attachments, "v20", "A", 1);
     }
 
@@ -527,10 +526,10 @@ public class AnnotationAttachmentTest {
 
    private BType getConstrainedTypeFromRef(BType type) {
        BType constraint = type;
-       if (type.tag == org.wso2.ballerinalang.compiler.util.TypeTags.TYPEREFDESC) {
+       if (type.tag == TypeTags.TYPEREFDESC) {
            constraint = ((BTypeReferenceType) type).referredType;
        }
-       return constraint.tag == org.wso2.ballerinalang.compiler.util.TypeTags.TYPEREFDESC ?
+       return constraint.tag == TypeTags.TYPEREFDESC ?
                getConstrainedTypeFromRef(constraint) : constraint;
    }
 
@@ -628,7 +627,7 @@ public class AnnotationAttachmentTest {
                 getServiceClassForServiceDecl(name).getAnnotationAttachments()
                         .stream()
                         .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
-                        .collect(Collectors.toList());
+                        .toList();
     }
 
     private ClassDefinition getServiceClassForServiceDecl(String name) {

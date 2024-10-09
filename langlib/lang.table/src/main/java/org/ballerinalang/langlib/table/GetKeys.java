@@ -39,9 +39,12 @@ import io.ballerina.runtime.api.values.BTable;
 //        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},
 //        isPublic = true
 //)
-public class GetKeys {
+public final class GetKeys {
 
-    public static BArray keys(BTable tbl) {
+    private GetKeys() {
+    }
+
+    public static BArray keys(BTable<?, ?> tbl) {
         Type tableKeyType = tbl.getKeyType();
         Object[] keys = tbl.getKeys();
         switch (tableKeyType.getTag()) {

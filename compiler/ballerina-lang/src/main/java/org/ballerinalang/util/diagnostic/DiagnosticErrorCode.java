@@ -251,7 +251,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INCOMPATIBLE_TYPES_CONVERSION_WITH_SUGGESTION("BCE2503", "incompatible.types.conversion.with.suggestion"),
     UNSAFE_CAST_ATTEMPT("BCE2504", "unsafe.cast.attempt"),
 
-    INVALID_LITERAL_FOR_TYPE("BCE2506", "invalid.literal.for.type"),
     INCOMPATIBLE_MAPPING_CONSTRUCTOR("BCE2507", "incompatible.mapping.constructor.expression"),
     MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND("BCE2508", "mapping.constructor.compatible.type.not.found"),
     CANNOT_INFER_TYPES_FOR_TUPLE_BINDING("BCE2509", "cannot.infer.types.for.tuple.binding"),
@@ -333,7 +332,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ANY_VAR_DEF("BCE2574", "invalid.any.var.def"),
     INVALID_RECORD_LITERAL("BCE2575", "invalid.record.literal"),
     INVALID_FIELD_IN_RECORD_BINDING_PATTERN("BCE2576", "invalid.field.in.record.binding.pattern"),
-    INVALID_RECORD_LITERAL_BINDING_PATTERN("BCE2577", "invalid.record.literal.in.binding.pattern"),
     DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR("BCE2578", "duplicate.key.in.mapping.constructor"),
     DUPLICATE_KEY_IN_TABLE_LITERAL("BCE2579", "duplicate.key.in.table.literal"),
     DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP("BCE2580", "duplicate.key.in.record.literal.spread.op"),
@@ -389,7 +387,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_NAMESPACE_DECLARATION("BCE2624", "invalid.namespace.declaration"),
     CANNOT_UPDATE_XML_SEQUENCE("BCE2625", "cannot.update.xml.sequence"),
     INVALID_XML_NS_INTERPOLATION("BCE2626", "invalid.xml.ns.interpolation"),
-    CANNOT_FIND_XML_NAMESPACE("BCE2627", "cannot.find.xml.namespace.prefix"),
+    CANNOT_FIND_XML_NAMESPACE("BCE2627", "cannot.find.xml.prefix"),
     UNSUPPORTED_METHOD_INVOCATION_XML_NAV("BCE2628", "method.invocation.in.xml.navigation.expressions.not.supported"),
     DEPRECATED_XML_ATTRIBUTE_ACCESS("BCE2629", "deprecated.xml.attribute.access.expression"),
     UNSUPPORTED_MEMBER_ACCESS_IN_XML_NAVIGATION("BCE2630",
@@ -426,6 +424,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "invalid.field.binding.pattern.with.non.required.field"),
     INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION("BCE2654", "infer.size.only.supported.in.the.first.dimension"),
     FUNCTION_CALL_SYNTAX_NOT_DEFINED("BCE2655", "function.call.syntax.not.defined"),
+    UNDEFINED_CONSTANT_SYMBOL("BCE2656", "undefined.constant.symbol"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
@@ -733,7 +732,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     CONTINUE_NOT_ALLOWED("BCE3992", "continue.not.allowed"),
     BREAK_NOT_ALLOWED("BCE3993", "break.not.allowed"),
-    XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3995", "xml.function.does.not.support.argument.type"),
 
     INTERSECTION_NOT_ALLOWED_WITH_TYPE("BCE3996", "intersection.not.allowed.with.type"),
     ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION("BCE3997", "async.send.action.not.yet.supported.as.expression"),
@@ -819,10 +817,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4057", "future.expression.expected"),
     INSTANTIATION_ERROR("BCE4058", "instantiation.error"),
     INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4059", "invalid.binding.pattern.in.on.fail"),
+    INVALID_USAGE_OF_CHECK_IN_PARAMETER_DEFAULT("BCE4060", "invalid.usage.of.check.in.parameter.default")
     ;
 
-    private String diagnosticId;
-    private String messageKey;
+    private final String diagnosticId;
+    private final String messageKey;
 
     DiagnosticErrorCode(String diagnosticId, String messageKey) {
         this.diagnosticId = diagnosticId;

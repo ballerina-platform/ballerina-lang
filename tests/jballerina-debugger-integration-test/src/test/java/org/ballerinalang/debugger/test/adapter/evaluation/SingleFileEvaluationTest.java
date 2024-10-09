@@ -37,7 +37,7 @@ public class SingleFileEvaluationTest extends ExpressionEvaluationTest {
         String testSingleFileName = "evaluation_main.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testSingleFileName, false);
 
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 406));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 407));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
         this.context = debugHitInfo.getRight();

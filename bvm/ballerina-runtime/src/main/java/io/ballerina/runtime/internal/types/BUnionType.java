@@ -201,6 +201,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         this.isCyclic = isCyclic;
     }
 
+    @Override
     public boolean isNilable() {
         if (memberTypes == null || memberTypes.isEmpty()) {
             return true;
@@ -268,6 +269,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         this.readonly = readonly;
     }
 
+    @Override
     public List<Type> getMemberTypes() {
         return memberTypes;
     }
@@ -361,11 +363,9 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
             return true;
         }
 
-        if (!(o instanceof BUnionType)) {
+        if (!(o instanceof BUnionType that)) {
             return false;
         }
-
-        BUnionType that = (BUnionType) o;
 
         if (this.isCyclic || that.isCyclic) {
             if (this.isCyclic != that.isCyclic) {
@@ -404,6 +404,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         return this.typeFlags;
     }
 
+    @Override
     public long getFlags() {
         return this.flags;
     }
@@ -439,28 +440,24 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         }
         this.isCyclic = true;
         for (Type member : unionType.getMemberTypes()) {
-            if (member instanceof BArrayType) {
-                BArrayType arrayType = (BArrayType) member;
+            if (member instanceof BArrayType arrayType) {
                 if (TypeUtils.getImpliedType(arrayType.getElementType()) == unionType) {
                     BArrayType newArrayType = new BArrayType(this, this.readonly);
                     this.addMember(newArrayType);
                     continue;
                 }
-            } else if (member instanceof BMapType) {
-                BMapType mapType = (BMapType) member;
+            } else if (member instanceof BMapType mapType) {
                 if (mapType.getConstrainedType() == unionType) {
                     BMapType newMapType = new BMapType(this, this.readonly);
                     this.addMember(newMapType);
                     continue;
                 }
-            } else if (member instanceof BTableType) {
-                BTableType tableType = (BTableType) member;
+            } else if (member instanceof BTableType tableType) {
                 if (tableType.getConstrainedType() == unionType) {
                     BTableType newTableType = new BTableType(this, tableType.isReadOnly());
                     this.addMember(newTableType);
                     continue;
-                } else if (tableType.getConstrainedType() instanceof BMapType) {
-                    BMapType mapType = (BMapType) tableType.getConstrainedType();
+                } else if (tableType.getConstrainedType() instanceof BMapType mapType) {
                     if (mapType.getConstrainedType() == unionType) {
                         BMapType newMapType = new BMapType(this);
                         BTableType newTableType = new BTableType(newMapType,

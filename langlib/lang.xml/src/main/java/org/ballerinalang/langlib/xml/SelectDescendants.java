@@ -37,15 +37,18 @@ import org.ballerinalang.langlib.xml.utils.XmlUtils;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class SelectDescendants {
+public final class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
+
+    private SelectDescendants() {
+    }
 
     public static BXml selectDescendants(Strand strand, BXml xml, BArray qnames) {
         try {
             // todo: this need to support list of qnames.
             String qname = qnames.getString(0);
-            return (BXml) xml.descendants(XmlUtils.getList(qname));
+            return xml.descendants(XmlUtils.getList(qname));
         } catch (Throwable e) {
             ErrorHelper.handleXMLException(OPERATION, e);
         }

@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,22 +51,26 @@ public class RunProfilerTask implements Task {
     private final PrintStream err;
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private static final String CURRENT_DIR_KEY = "current.dir";
-    private static final Path TARGET_OUTPUT_PATH = Paths.get(System.getProperty(USER_DIR));
+    private static final Path TARGET_OUTPUT_PATH = Path.of(System.getProperty(USER_DIR));
 
     public RunProfilerTask(PrintStream errStream) {
         this.err = errStream;
     }
 
     private void initiateProfiler(Project project) {
-        String profilerSource = Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
+        String profilerSource = Path.of(System.getProperty(BALLERINA_HOME), "bre", "lib",
                 "ballerina-profiler-1.0.jar").toString();
         Path sourcePath = Path.of(profilerSource);
         Path targetPath = getTargetProfilerPath(project);
         StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
+        String javaOpts = System.getenv().get(JAVA_OPTS);
         try {
             Files.copy(sourcePath, targetPath, copyOption);
             List<String> commands = new ArrayList<>();
             commands.add(System.getProperty("java.command"));
+            if (javaOpts != null) {
+                commands.add(javaOpts.trim());
+            }
             commands.add("-jar");
             if (isInDebugMode()) {
                 commands.add(getDebugArgs(err));
@@ -81,7 +84,9 @@ public class RunProfilerTask implements Task {
                 commands.add(getProfileDebugArg(err));
             }
             ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();
-            pb.environment().put(JAVA_OPTS, getAgentArgs());
+            if (javaOpts != null) {
+                pb.environment().put(JAVA_OPTS, javaOpts.trim());
+            }
             pb.environment().put(BALLERINA_HOME, System.getProperty(BALLERINA_HOME));
             pb.environment().put(CURRENT_DIR_KEY, System.getProperty(USER_DIR));
             pb.environment().put("java.command", System.getProperty("java.command"));
@@ -106,14 +111,6 @@ public class RunProfilerTask implements Task {
     @Override
     public void execute(Project project) {
         initiateProfiler(project);
-    }
-
-    private String getAgentArgs() {
-        // add jacoco agent
-        String jacocoArgLine = "-javaagent:" + Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
-                "jacocoagent.jar") + "=destfile=" + TARGET_OUTPUT_PATH.resolve("build").resolve("jacoco")
-                .resolve("test.exec");
-        return jacocoArgLine + " ";
     }
 
     private Path getTargetProfilerPath(Project project) {

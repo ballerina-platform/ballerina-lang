@@ -24,6 +24,7 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -122,9 +123,9 @@ public class PackageCompilation {
         return compilation;
     }
 
-    List<Diagnostic> notifyCompilationCompletion(Path filePath) {
+    List<Diagnostic> notifyCompilationCompletion(Path filePath, BalCommand balCommand) {
         CompilerLifecycleManager manager = this.compilerPluginManager.getCompilerLifecycleListenerManager();
-        List<Diagnostic> diagnostics = manager.runCodeGeneratedTasks(filePath);
+        List<Diagnostic> diagnostics = manager.runCodeGeneratedTasks(filePath, balCommand);
         this.pluginDiagnostics.addAll(diagnostics);
         return diagnostics;
     }
@@ -209,8 +210,11 @@ public class PackageCompilation {
             for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
                 moduleContext.compile(compilerContext);
                 for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
-                            moduleContext.project()));
+                    if (!ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) ||
+                            (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
+                        diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
+                                moduleContext.project()));
+                    }
                 }
             }
         }

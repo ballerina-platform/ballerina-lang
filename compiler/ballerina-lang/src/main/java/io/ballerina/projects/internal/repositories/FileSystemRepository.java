@@ -45,26 +45,25 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Package Repository stored in file system.
- * The structure of the repository is as bellow
+ * The structure of the repository is as below
+ * <pre>
  * - bala
  *     - org
  *         - package-name
  *             - version
  *                 - platform (contains extracted bala)
  *
- * - cache[-<distShortVersion>]
+ * - cache[-&lt;distShortVersion&gt;]
  *     - org
  *         - package-name
  *             - version
@@ -73,7 +72,7 @@ import java.util.stream.Stream;
  *                     - mod2.bir
  *                 - jar
  *                     - org-package-name-version.jar
- *
+ * </pre>
  * @since 2.0.0
  */
 public class FileSystemRepository extends AbstractPackageRepository {
@@ -123,7 +122,7 @@ public class FileSystemRepository extends AbstractPackageRepository {
         Path balaPath = getPackagePath(descriptor.org().value(), descriptor.name().value(),
                 descriptor.version().value().toString());
         if (balaPath != null && Files.exists(balaPath)) {
-            Path deprecateMsgMetaFile = Paths.get(balaPath.toString(), ProjectConstants.DEPRECATED_META_FILE_NAME);
+            Path deprecateMsgMetaFile = Path.of(balaPath.toString(), ProjectConstants.DEPRECATED_META_FILE_NAME);
             if (descriptor.getDeprecated() && !deprecateMsgMetaFile.toFile().exists()) {
                 FileUtils.addDeprecatedMetaFile(deprecateMsgMetaFile, descriptor.getDeprecationMsg());
             }
@@ -138,6 +137,9 @@ public class FileSystemRepository extends AbstractPackageRepository {
     public boolean isPackageExists(PackageOrg org,
                                    PackageName name,
                                    PackageVersion version) {
+        if (org.value() == null || name.value() == null) {
+            return false;
+        }
         Path balaPath = getPackagePath(org.value(), name.value(), version.value().toString());
         return Files.exists(balaPath);
     }
@@ -154,6 +156,7 @@ public class FileSystemRepository extends AbstractPackageRepository {
      *
      * @return {@link List} of package names
      */
+    @Override
     public Map<String, List<String>> getPackages() {
         Map<String, List<String>> packagesMap = new HashMap<>();
         File[] orgDirs = this.bala.toFile().listFiles();
@@ -203,13 +206,14 @@ public class FileSystemRepository extends AbstractPackageRepository {
         return packagesMap;
     }
 
+    @Override
     protected List<PackageVersion> getPackageVersions(PackageOrg org, PackageName name, PackageVersion version) {
         List<Path> versions = new ArrayList<>();
         try {
             Path balaPackagePath = bala.resolve(org.value()).resolve(name.value());
             if (Files.exists(balaPackagePath)) {
                 try (Stream<Path> collect = Files.list(balaPackagePath)) {
-                    versions.addAll(collect.collect(Collectors.toList()));
+                    versions.addAll(collect.toList());
                 }
             }
         } catch (IOException e) {

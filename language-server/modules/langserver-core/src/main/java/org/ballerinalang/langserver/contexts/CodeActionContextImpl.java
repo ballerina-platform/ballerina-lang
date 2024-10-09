@@ -41,7 +41,6 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Language server context implementation.
@@ -107,7 +106,7 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
                 project.sourceRoot();
         this.diagnostics = compilation.diagnosticResult().diagnostics().stream()
                 .filter(diag -> projectRoot.resolve(diag.location().lineRange().fileName()).equals(filePath))
-                .collect(Collectors.toList());
+                .toList();
         return this.diagnostics;
     }
 
@@ -146,6 +145,7 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
             this.params = params;
         }
 
+        @Override
         public CodeActionContext build() {
             return new CodeActionContextImpl(
                     this.operation,

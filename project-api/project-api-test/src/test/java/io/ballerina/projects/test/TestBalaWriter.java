@@ -49,7 +49,6 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -67,7 +66,7 @@ import static org.mockito.Mockito.when;
  * @since 2.0.0
  */
 public class TestBalaWriter {
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src", "test", "resources");
     private static final Path BALA_WRITER_RESOURCES = RESOURCE_DIRECTORY.resolve("balawriter");
     private static final String PACKAGE_PATH = "packagePath";
     private Path tmpDir;
@@ -77,7 +76,7 @@ public class TestBalaWriter {
     public void setUp() throws IOException {
         this.tmpDir = Files.createTempDirectory("b7a-bala-writer-test-" + System.nanoTime());
         this.balaExportPath = this.tmpDir.resolve("tmpBalaDir");
-        Files.createDirectory(Paths.get(String.valueOf(this.balaExportPath)));
+        Files.createDirectory(Path.of(String.valueOf(this.balaExportPath)));
     }
 
     @Test
@@ -156,7 +155,7 @@ public class TestBalaWriter {
             Assert.assertEquals(packageJson.getImplementationVendor(), "WSO2");
             Assert.assertEquals(packageJson.getLanguageSpecVersion(), RepoUtils.getBallerinaSpecVersion());
 
-            Assert.assertEquals(Paths.get(packageJson.getIcon()), Paths.get("docs/samplePng01.png"));
+            Assert.assertEquals(Path.of(packageJson.getIcon()), Path.of("docs/samplePng01.png"));
             Assert.assertTrue(balaExportPath.resolve(packageJson.getIcon()).toFile().exists());
         }
 
@@ -218,14 +217,14 @@ public class TestBalaWriter {
                 .resolve("modules/winery.services/non-default-module-include-dir/include_image.png");
         Assert.assertTrue(nonDefaultModuleIncludeImageFile.toFile().exists());
 
+        // package resources
+        Assert.assertTrue(balaExportPath.resolve(Path.of("resources", "main.json")).toFile().exists());
         // module sources
         // default module
         Path defaultModuleSrcPath = balaExportPath.resolve("modules").resolve("winery");
         Assert.assertTrue(defaultModuleSrcPath.toFile().exists());
-        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("main.bal")).toFile().exists());
-        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("utils.bal")).toFile().exists());
-        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("resources")).toFile().exists());
-        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("resources", "main.json")).toFile().exists());
+        Assert.assertTrue(defaultModuleSrcPath.resolve(Path.of("main.bal")).toFile().exists());
+        Assert.assertTrue(defaultModuleSrcPath.resolve(Path.of("utils.bal")).toFile().exists());
         Assert.assertFalse(defaultModuleSrcPath.resolve("modules").toFile().exists());
         Assert.assertFalse(defaultModuleSrcPath.resolve("tests").toFile().exists());
         Assert.assertFalse(defaultModuleSrcPath.resolve("targets").toFile().exists());
@@ -235,8 +234,6 @@ public class TestBalaWriter {
         // storage module
         Path storageModuleSrcPath = balaExportPath.resolve("modules").resolve("winery.storage");
         Assert.assertTrue(storageModuleSrcPath.resolve("db.bal").toFile().exists());
-        Assert.assertTrue(storageModuleSrcPath.resolve("resources").toFile().exists());
-        Assert.assertTrue(storageModuleSrcPath.resolve("resources").resolve("db.json").toFile().exists());
         Assert.assertFalse(storageModuleSrcPath.resolve("tests").toFile().exists());
         Assert.assertFalse(storageModuleSrcPath.resolve("Module.md").toFile().exists());
 
@@ -344,7 +341,7 @@ public class TestBalaWriter {
         // module sources
         Path defaultModuleSrcPath = balaExportPath.resolve("modules").resolve("winery");
         Assert.assertTrue(defaultModuleSrcPath.toFile().exists());
-        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("main.bal")).toFile().exists());
+        Assert.assertTrue(defaultModuleSrcPath.resolve(Path.of("main.bal")).toFile().exists());
     }
 
     @Test
@@ -443,7 +440,7 @@ public class TestBalaWriter {
         // module sources
         Path defaultModuleSrcPath = balaExportPath.resolve("modules").resolve("tool_test");
         Assert.assertTrue(defaultModuleSrcPath.toFile().exists());
-        Path mainFilePath = defaultModuleSrcPath.resolve(Paths.get("main.bal"));
+        Path mainFilePath = defaultModuleSrcPath.resolve(Path.of("main.bal"));
         Assert.assertTrue(mainFilePath.toFile().exists());
         String expectedMainContent = """
                 // AUTO-GENERATED FILE.
@@ -498,7 +495,7 @@ public class TestBalaWriter {
         // default module
         Path defaultModuleSrcPath = balaExportPath.resolve("modules").resolve("package_d");
         Assert.assertTrue(defaultModuleSrcPath.toFile().exists());
-        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("main.bal")).toFile().exists());
+        Assert.assertTrue(defaultModuleSrcPath.resolve(Path.of("main.bal")).toFile().exists());
 
         // dependencies.json
         Path dependencyGraphJsonPath = balaExportPath.resolve(DEPENDENCY_GRAPH_JSON);

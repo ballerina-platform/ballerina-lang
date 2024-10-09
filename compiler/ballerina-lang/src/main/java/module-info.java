@@ -1,6 +1,9 @@
 module io.ballerina.lang {
     uses io.ballerina.projects.plugins.CompilerPlugin;
     uses io.ballerina.projects.buildtools.CodeGeneratorTool;
+    uses org.ballerinalang.spi.CompilerBackendCodeGenerator;
+    uses org.ballerinalang.compiler.plugins.CompilerPlugin;
+    uses org.ballerinalang.spi.EmbeddedExecutor;
     requires java.compiler;
     requires com.google.gson;
     requires java.xml;
@@ -14,6 +17,8 @@ module io.ballerina.lang {
     requires io.ballerina.toml;
     requires io.ballerina.central.client;
     requires io.ballerina.identifier;
+    requires java.semver;
+    requires maven.resolver;
     exports io.ballerina.compiler.api;
     exports io.ballerina.compiler.api.symbols;
     exports io.ballerina.compiler.api.symbols.resourcepath;

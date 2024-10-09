@@ -40,9 +40,12 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERI
  *
  * @since 2.0.0
  */
-public class GetStackTrace {
+public final class GetStackTrace {
 
     private static final BString EMPTY_ERROR_MESSAGE = StringUtils.fromString("");
+
+    private GetStackTrace() {
+    }
 
     public static BArray getStackTrace() {
         List<StackTraceElement> filteredStack = ErrorCreator.createError(EMPTY_ERROR_MESSAGE).getCallStack();

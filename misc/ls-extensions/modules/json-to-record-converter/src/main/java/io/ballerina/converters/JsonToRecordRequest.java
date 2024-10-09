@@ -31,17 +31,17 @@ public class JsonToRecordRequest {
     private boolean forceFormatRecordFields;
     private String filePathUri;
 
-    private boolean isOptionalField;
+    private final boolean isNullAsOptional;
 
     public JsonToRecordRequest(String jsonString, String recordName, boolean isRecordTypeDesc, boolean isClosed,
-                               boolean forceFormatRecordFields, String filePathUri, boolean isOptionalField) {
+                               boolean forceFormatRecordFields, String filePathUri, boolean isNullAsOptional) {
         this.jsonString = jsonString;
         this.recordName = recordName;
         this.isRecordTypeDesc = isRecordTypeDesc;
         this.isClosed = isClosed;
         this.forceFormatRecordFields = forceFormatRecordFields;
         this.filePathUri = filePathUri;
-        this.isOptionalField = isOptionalField;
+        this.isNullAsOptional = isNullAsOptional;
     }
 
     public String getJsonString() {
@@ -92,11 +92,7 @@ public class JsonToRecordRequest {
         this.filePathUri = filePathUri;
     }
 
-    public boolean getIsOptionalField() {
-        return isOptionalField;
-    }
-
-    public void setIsOptionalField(boolean optionalField) {
-        this.isOptionalField = optionalField;
+    public boolean getIsNullAsOptional() {
+        return isNullAsOptional;
     }
 }

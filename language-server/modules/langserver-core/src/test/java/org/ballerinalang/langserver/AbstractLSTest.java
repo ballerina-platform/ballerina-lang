@@ -46,7 +46,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * An abstract class for LS unit tests.
@@ -79,10 +78,10 @@ public abstract class AbstractLSTest {
         try {
             REMOTE_PACKAGES.addAll(getPackages(REMOTE_PROJECTS,
                     languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.ModuleInfo::new)
-                    .collect(Collectors.toList()));
+                    .toList());
             LOCAL_PACKAGES.addAll(getPackages(LOCAL_PROJECTS,
                     languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.ModuleInfo::new)
-                    .collect(Collectors.toList()));
+                    .toList());
             DISTRIBUTION_PACKAGES.addAll(mockDistRepoPackages(LSPackageLoader.getInstance(context)));
             mockCentralPackages();
         } catch (Exception e) {
@@ -113,7 +112,7 @@ public abstract class AbstractLSTest {
     }
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         this.languageServer = new BallerinaLanguageServer();
         if (this.loadMockedPackages()) {
             setUp();

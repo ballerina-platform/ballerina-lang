@@ -33,7 +33,6 @@ import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
@@ -237,11 +236,10 @@ public class DAPClientConnector {
         if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
             processArgs.add("cmd.exe");
             processArgs.add("/c");
-            processArgs.add(balHome + File.separator + "bin" + File.separator + Constant.BALLERINA_SERVER_SCRIPT_NAME +
-                    ".bat");
+            processArgs.add(Path.of(balHome, "bin", Constant.BALLERINA_SERVER_SCRIPT_NAME + ".bat").toString());
         } else {
             processArgs.add("bash");
-            processArgs.add(balHome + File.separator + "bin" + File.separator + Constant.BALLERINA_SERVER_SCRIPT_NAME);
+            processArgs.add(Path.of(balHome, "bin", Constant.BALLERINA_SERVER_SCRIPT_NAME).toString());
         }
 
         processArgs.add(DebugUtils.JBAL_DEBUG_CMD_NAME);

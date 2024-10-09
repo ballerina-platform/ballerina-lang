@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A util class for creating type param resolved version of the lang lib functions.
@@ -64,7 +63,7 @@ public class LangLibFunctionBinder {
      * @return The type param resolved lang lib function symbol
      */
     public BInvokableSymbol cloneAndBind(BInvokableSymbol original, BType type, BType boundType) {
-        if (boundType == null || original.params.size() == 0) {
+        if (boundType == null || original.params.isEmpty()) {
             return original;
         }
 
@@ -126,7 +125,7 @@ public class LangLibFunctionBinder {
 
         List<BType> paramTypes = new ArrayList<>();
         if (newParams.size() == original.paramTypes.size()) {
-            paramTypes.addAll(newParams.stream().map(BSymbol::getType).collect(Collectors.toList()));
+            paramTypes.addAll(newParams.stream().map(BSymbol::getType).toList());
         } else {
             paramTypes.addAll(original.paramTypes);
         }

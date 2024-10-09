@@ -29,7 +29,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -53,8 +52,7 @@ public class FailStatementNodeContext extends AbstractCompletionProvider<FailSta
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FailStatementNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FailStatementNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode symbolAtCursor = context.getNodeAtCursor();
         if (symbolAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {

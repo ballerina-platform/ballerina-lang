@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -52,7 +53,7 @@ import java.util.function.Supplier;
 /**
  * Util functions for async invocations.
  */
-public class AsyncUtils {
+public final class AsyncUtils {
 
     /**
      * Block the current strand to execute asynchronously.
@@ -80,7 +81,7 @@ public class AsyncUtils {
      * @param scheduler            The scheduler for invoking functions
      * @return Future Value
      */
-    public static FutureValue invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, String strandName,
+    public static FutureValue invokeFunctionPointerAsync(BFunctionPointer<Object[], ?> func, String strandName,
                                                          StrandMetadata metadata, Object[] args,
                                                          Function<Object, Object> resultHandleFunction,
                                                          Scheduler scheduler) {
@@ -129,7 +130,7 @@ public class AsyncUtils {
      * @param returnValueSupplier  Suppler used to set the final return value for the parent function invocation.
      * @param scheduler            The scheduler for invoking functions
      */
-    public static void invokeFunctionPointerAsyncIteratively(BFunctionPointer<?, ?> func, String strandName,
+    public static void invokeFunctionPointerAsyncIteratively(BFunctionPointer<Object[], ?> func, String strandName,
                                                              StrandMetadata metadata, int noOfIterations,
                                                              Supplier<Object[]> argsSupplier,
                                                              Consumer<Object> futureResultConsumer,
@@ -215,7 +216,7 @@ public class AsyncUtils {
                                                  List<Object> argsWithDefaultValues,
                                                  Parameter parameter) {
         String funcName = parameter.defaultFunctionName;
-        Function<?, ?> defaultFunc = o -> valueCreator.call((Strand) (((Object[]) o)[0]), funcName,
+        Function<Object[], ?> defaultFunc = o -> valueCreator.call((Strand) (((Object[]) o)[0]), funcName,
                 argsWithDefaultValues.toArray());
         Callback defaultFunctionCallback = new Callback() {
             @Override
@@ -253,7 +254,7 @@ public class AsyncUtils {
         return methodTypesMap.get(methodName);
     }
 
-    private static void scheduleNextFunction(BFunctionPointer<?, ?> func, BFunctionType funcType, Strand parent,
+    private static void scheduleNextFunction(BFunctionPointer<Object[], ?> func, BFunctionType funcType, Strand parent,
                                              String strandName, StrandMetadata metadata, int noOfIterations,
                                              AtomicInteger callCount, Supplier<Object[]> argsSupplier,
                                              Consumer<Object> futureResultConsumer,
@@ -288,7 +289,7 @@ public class AsyncUtils {
         }, argsSupplier.get());
     }
 
-    private static void invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, Strand parent,
+    private static void invokeFunctionPointerAsync(BFunctionPointer<Object[], ?> func, Strand parent,
                                                    FutureValue future, Object[] args,
                                                    AsyncFunctionCallback callback, Scheduler scheduler) {
         future.callback = callback;
@@ -312,7 +313,7 @@ public class AsyncUtils {
         parent.scheduler.unblockStrand(parent);
     }
 
-    private static class Unblocker implements java.util.function.BiConsumer<Object, Throwable> {
+    private static class Unblocker implements BiConsumer<Object, Throwable> {
 
         private final Strand strand;
 

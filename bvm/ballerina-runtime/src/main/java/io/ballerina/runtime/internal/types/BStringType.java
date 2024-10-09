@@ -47,6 +47,7 @@ public class BStringType extends BType implements StringType {
         this.tag = tag;
     }
 
+    @Override
     public <V extends Object> V getZeroValue() {
         return (V) RuntimeConstants.STRING_EMPTY_VALUE;
     }

@@ -35,10 +35,10 @@ import java.nio.file.Path;
  */
 public class MetadataTest {
 
+    private static final String ORG_NAME = "orgName";
     private static final String PACKAGE_NAME = "packageName";
     private static final String PATH = "path";
     private static final String KIND = "kind";
-    private static final JsonParser JSON_PARSER = new JsonParser();
 
     private Path resourceRoot;
     private Endpoint serviceEndpoint;
@@ -67,7 +67,7 @@ public class MetadataTest {
         Path expectedPath = this.resourceRoot.resolve("metadata").resolve(projectName);
         JsonObject expectedJsonObject =
                 FileUtils.fileContentAsObject(expectedPath.toAbsolutePath().toString()).getAsJsonObject();
-        JsonObject responseJsonObject = JSON_PARSER.parse(response).getAsJsonObject().getAsJsonObject("result");
+        JsonObject responseJsonObject = JsonParser.parseString(response).getAsJsonObject().getAsJsonObject("result");
         JsonPrimitive packageName = expectedJsonObject.getAsJsonPrimitive(PACKAGE_NAME);
         if (packageName != null) {
             Assert.assertEquals(responseJsonObject.getAsJsonPrimitive(PACKAGE_NAME), packageName,
@@ -76,11 +76,21 @@ public class MetadataTest {
             Assert.assertNull(responseJsonObject.getAsJsonPrimitive(PACKAGE_NAME),
                     "Package MetadataTest " + PACKAGE_NAME + " fails with " + projectName + " test case.");
         }
-        Assert.assertEquals(responseJsonObject.getAsJsonPrimitive(KIND),
-                expectedJsonObject.getAsJsonPrimitive(KIND),
+
+        JsonPrimitive projectKind = expectedJsonObject.getAsJsonPrimitive(KIND);
+        Assert.assertEquals(responseJsonObject.getAsJsonPrimitive(KIND), projectKind,
                 "Package MetadataTest " + KIND + " fails with " + projectName + " test case.");
         Assert.assertNotNull(responseJsonObject.getAsJsonPrimitive(PATH),
                 "Package MetadataTest " + PATH + " fails with " + projectName + " test case.");
+
+        Assert.assertNotNull(responseJsonObject.getAsJsonPrimitive(ORG_NAME),
+                "Package MetadataTest " + ORG_NAME + " fails with " + projectName + " test case.");
+
+        if (projectKind != null && !"SINGLE_FILE_PROJECT".equals(projectKind.getAsString())) {
+            Assert.assertEquals(responseJsonObject.getAsJsonPrimitive(ORG_NAME),
+                    expectedJsonObject.getAsJsonPrimitive(ORG_NAME),
+                    "Package MetadataTest " + ORG_NAME + " fails with " + projectName + " test case.");
+        }
     }
 
     @AfterClass

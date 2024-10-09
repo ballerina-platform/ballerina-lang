@@ -32,7 +32,6 @@ import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -51,8 +50,8 @@ import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
 @CommandLine.Command(name = NEW_COMMAND, description = "Create a new Ballerina package")
 public class NewCommand implements BLauncherCmd {
 
-    private PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final PrintStream errStream;
+    private final boolean exitWhenFinish;
     Path homeCache = RepoUtils.createAndGetHomeReposPath();
 
     @CommandLine.Parameters
@@ -112,10 +111,10 @@ public class NewCommand implements BLauncherCmd {
             return;
         }
 
-        Path packagePath = Paths.get(argList.get(0));
-        Path currentDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        Path packagePath = Path.of(argList.get(0));
+        Path currentDir = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         if (!packagePath.isAbsolute()) {
-            packagePath = Paths.get(currentDir.toString(), packagePath.toString()).normalize();
+            packagePath = Path.of(currentDir.toString(), packagePath.toString()).normalize();
         }
         List<Path> filesInDir = new ArrayList<>();
 
@@ -156,7 +155,7 @@ public class NewCommand implements BLauncherCmd {
 
             // Check if package contains files/directories other than .bal files exist.
             String packageFiles = checkPackageFilesExists(packagePath);
-            if (!packageFiles.equals("") && !template.equals(DEFAULT_TEMPLATE)) {
+            if (!packageFiles.isEmpty() && !template.equals(DEFAULT_TEMPLATE)) {
                 CommandUtil.printError(errStream,
                         "existing " + packageFiles.substring(0, packageFiles.length() - 2) +
                                 " file/directory(s) were found. " +
@@ -257,7 +256,7 @@ public class NewCommand implements BLauncherCmd {
                 // create package with inbuilt template
                 if (Files.exists((packagePath))) {
                     String existingFiles = CommandUtil.checkTemplateFilesExists(template, packagePath);
-                    if (!existingFiles.equals("")) {
+                    if (!existingFiles.isEmpty()) {
                         CommandUtil.printError(errStream,
                                 "existing " + existingFiles.substring(0, existingFiles.length() - 2) +
                                         " file/directory(s) were found. " +
@@ -301,8 +300,8 @@ public class NewCommand implements BLauncherCmd {
         }
         if (Files.exists(packagePath)) {
             // If the provided path argument is relative, print it as it is
-            if (!Paths.get(argList.get(0)).isAbsolute()) {
-                packagePath = Paths.get(argList.get(0));
+            if (!Path.of(argList.get(0)).isAbsolute()) {
+                packagePath = Path.of(argList.get(0));
             }
             errStream.println("Created new package '" + packageName + "' at " + packagePath + ".");
         }

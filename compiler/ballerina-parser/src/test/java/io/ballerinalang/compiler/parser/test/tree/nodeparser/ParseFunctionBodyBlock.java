@@ -78,14 +78,15 @@ public class ParseFunctionBodyBlock {
 
     @Test
     public void testMultipleStmtsWithNewlines() {
-        String funcBodyBlock = "{\n" +
-                "int[] nums = [1, 2, 3, 4];\n" +
-                "int[] evenNums = from var i in nums\n" +
-                "                 where i % 2 == 0\n" +
-                "                 select i;\n" +
-                "int[] evenNums = from var i in nums\n" +
-                "                 select i * 10;\n" +
-                "}";
+        String funcBodyBlock = """
+                {
+                int[] nums = [1, 2, 3, 4];
+                int[] evenNums = from var i in nums
+                                 where i % 2 == 0
+                                 select i;
+                int[] evenNums = from var i in nums
+                                 select i * 10;
+                }""";
         FunctionBodyBlockNode funcBodyBlockNode = NodeParser.parseFunctionBodyBlock(funcBodyBlock);
         Assert.assertEquals(funcBodyBlockNode.kind(), SyntaxKind.FUNCTION_BODY_BLOCK);
         Assert.assertFalse(funcBodyBlockNode.hasDiagnostics());
@@ -102,12 +103,13 @@ public class ParseFunctionBodyBlock {
 
     @Test
     public void testNamedWorkerOnly() {
-        String funcBodyBlock = "{\n" +
-                "    @strand { thread:\"any\" }\n" +
-                "    worker w1 {\n" +
-                "        int sum = 0;\n" +
-                "    }\n" +
-                "}";
+        String funcBodyBlock = """
+                {
+                    @strand { thread:"any" }
+                    worker w1 {
+                        int sum = 0;
+                    }
+                }""";
         FunctionBodyBlockNode funcBodyBlockNode = NodeParser.parseFunctionBodyBlock(funcBodyBlock);
         Assert.assertEquals(funcBodyBlockNode.kind(), SyntaxKind.FUNCTION_BODY_BLOCK);
         Assert.assertFalse(funcBodyBlockNode.hasDiagnostics());
@@ -126,16 +128,19 @@ public class ParseFunctionBodyBlock {
 
     @Test
     public void testNamedWorkerAndStmts() {
-        String funcBodyBlock = "{\n" +
-                "    int x = 1;\n" +
-                "    int y = 1;\n\n" +
-                "    @strand { thread:\"any\" }\n" +
-                "    worker w1 {\n" +
-                "        x += x;\n" +
-                "        x *= 2;\n" +
-                "    }\n\n" +
-                "    boolean z = x == y;\n" +
-                "}";
+        String funcBodyBlock = """
+                {
+                    int x = 1;
+                    int y = 1;
+
+                    @strand { thread:"any" }
+                    worker w1 {
+                        x += x;
+                        x *= 2;
+                    }
+
+                    boolean z = x == y;
+                }""";
         FunctionBodyBlockNode funcBodyBlockNode = NodeParser.parseFunctionBodyBlock(funcBodyBlock);
         Assert.assertEquals(funcBodyBlockNode.kind(), SyntaxKind.FUNCTION_BODY_BLOCK);
         Assert.assertFalse(funcBodyBlockNode.hasDiagnostics());

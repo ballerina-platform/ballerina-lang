@@ -46,12 +46,15 @@ import static org.ballerinalang.langlib.xml.utils.Constants.XML_VERSION;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class Map {
+public final class Map {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                       XML_VERSION, "filter");
 
-    public static BXml map(BXml x, BFunctionPointer<Object, Object> func) {
+    private Map() {
+    }
+
+    public static BXml map(BXml x, BFunctionPointer<Object[], Object> func) {
         if (x.isSingleton()) {
             func.asyncCall(new Object[]{x, true}, METADATA);
             return null;

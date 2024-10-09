@@ -51,6 +51,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
@@ -251,6 +252,7 @@ public class TupleValueImpl extends AbstractArrayValue {
      * @param index array index
      * @return array element
      */
+    @Override
     public boolean getBoolean(long index) {
         return (Boolean) get(index);
     }
@@ -264,8 +266,8 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     public byte getByte(long index) {
         Object value = get(index);
-        if (value instanceof Long) {
-            return ((Long) value).byteValue();
+        if (value instanceof Long l) {
+            return l.byteValue();
         }
         return (Byte) value;
     }
@@ -421,7 +423,22 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     @Override
     public Object shift(long index) {
+        return shift(index, "shift");
+    }
+
+    @Override
+    public Object pop(long index) {
+        return shift(index, "pop");
+    }
+
+    @Override
+    public Object remove(long index) {
+        return shift(index, "remove");
+    }
+
+    public Object shift(long index, String operation) {
         handleImmutableArrayValue();
+        validateTupleSizeAndInherentType((int) index, operation);
         Object val = get(index);
         shiftArray((int) index);
         return val;
@@ -515,8 +532,8 @@ public class TupleValueImpl extends AbstractArrayValue {
         refs.put(this, refValueArray);
         IntStream.range(0, this.size).forEach(i -> {
             Object value = this.refValues[i];
-            if (value instanceof BRefValue) {
-                values[i] = ((BRefValue) value).copy(refs);
+            if (value instanceof BRefValue bRefValue) {
+                values[i] = bRefValue.copy(refs);
             } else {
                 values[i] = value;
             }
@@ -602,8 +619,8 @@ public class TupleValueImpl extends AbstractArrayValue {
         this.tupleType = (TupleType) TypeUtils.getImpliedType(type);
         for (int i = 0; i < this.size; i++) {
             Object value = this.get(i);
-            if (value instanceof BRefValue) {
-                ((BRefValue) value).freezeDirect();
+            if (value instanceof BRefValue bRefValue) {
+                bRefValue.freezeDirect();
             }
         }
         this.typedesc = null;
@@ -613,7 +630,7 @@ public class TupleValueImpl extends AbstractArrayValue {
      * {@inheritDoc}
      */
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<Object> getIterator() {
         return new ArrayIterator(this);
     }
 
@@ -652,24 +669,21 @@ public class TupleValueImpl extends AbstractArrayValue {
     protected void rangeCheckForGet(long index, int size) {
         rangeCheck(index, size);
         if (index < 0 || index >= size) {
-            throw ErrorHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    ErrorCodes.TUPLE_INDEX_OUT_OF_RANGE, index, size);
+            throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
+                            INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER), ErrorCodes.TUPLE_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 
     @Override
     protected void rangeCheck(long index, int size) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw ErrorHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    ErrorCodes.INDEX_NUMBER_TOO_LARGE, index);
+            throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
+                            INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER), ErrorCodes.INDEX_NUMBER_TOO_LARGE, index);
         }
 
         if ((this.tupleType.getRestType() == null && index >= this.maxSize) || (int) index < 0) {
-            throw ErrorHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    ErrorCodes.TUPLE_INDEX_OUT_OF_RANGE, index, size);
+            throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
+                            INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER), ErrorCodes.TUPLE_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 
@@ -724,12 +738,11 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     protected void checkFixedLength(long length) {
         if (this.tupleType.getRestType() == null) {
-            throw ErrorHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    ErrorCodes.ILLEGAL_TUPLE_SIZE, size, length);
+            throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
+                            INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorCodes.ILLEGAL_TUPLE_SIZE, size, length);
         } else if (this.tupleType.getTupleTypes().size() > length) {
-            throw ErrorHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+            throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
+                            INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     ErrorCodes.ILLEGAL_TUPLE_WITH_REST_TYPE_SIZE, this.tupleType.getTupleTypes().size(), length);
         }
     }
@@ -737,6 +750,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     protected void unshift(long index, Object[] vals) {
         handleImmutableArrayValue();
+        validateInherentTypeOfExistingMembers((int) index, vals.length);
         unshiftArray(index, vals.length, getCurrentArrayLength());
         addToRefArray(vals, (int) index);
     }
@@ -756,10 +770,9 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         if (!TypeChecker.checkIsType(value, elemType)) {
-            throw ErrorCreator.createError(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    ErrorHelper.getErrorDetails(ErrorCodes.INCOMPATIBLE_TYPE, elemType,
-                                                         TypeChecker.getType(value)));
+            throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
+                            INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                    ErrorHelper.getErrorDetails(ErrorCodes.INCOMPATIBLE_TYPE, elemType, TypeChecker.getType(value)));
         }
 
         prepareForAddWithoutTypeCheck(currentArraySize, intIndex);
@@ -806,16 +819,16 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     private void unshiftArray(long index, int unshiftByN, int arrLength) {
-        int lastIndex = size() + unshiftByN - 1;
+        int currSize = size();
+        int lastIndex = currSize + unshiftByN - 1;
         prepareForConsecutiveMultiAdd(lastIndex, arrLength);
         if (index > lastIndex) {
-            throw ErrorHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    ErrorCodes.INDEX_NUMBER_TOO_LARGE, index);
+            throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
+                            INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER), ErrorCodes.INDEX_NUMBER_TOO_LARGE, index);
         }
 
         int i = (int) index;
-        System.arraycopy(this.refValues, i, this.refValues, i + unshiftByN, this.size - i);
+        System.arraycopy(this.refValues, i, this.refValues, i + unshiftByN, currSize - i);
     }
 
     private int getCurrentArrayLength() {
@@ -825,6 +838,37 @@ public class TupleValueImpl extends AbstractArrayValue {
     private void resetSize(int index) {
         if (index >= size) {
             size = index + 1;
+        }
+    }
+
+    private void validateTupleSizeAndInherentType(int index, String operation) {
+        List<Type> tupleTypesList = this.tupleType.getTupleTypes();
+        int numOfMandatoryTypes = tupleTypesList.size();
+        if (numOfMandatoryTypes >= this.getLength()) {
+            throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
+                            OPERATION_NOT_SUPPORTED_IDENTIFIER), ErrorCodes.INVALID_TUPLE_MEMBER_SIZE, operation);
+        }
+        // Check if value belonging to i th type can be assigned to i-1 th type (Checking done by value, not type)
+        for (int i = index + 1; i <= numOfMandatoryTypes; i++) {
+            if (!TypeChecker.checkIsType(this.getRefValue(i), tupleTypesList.get(i - 1))) {
+                throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
+                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorCodes.INCOMPATIBLE_TYPE,
+                        tupleTypesList.get(i - 1), (i == numOfMandatoryTypes) ?
+                                this.tupleType.getRestType() : tupleTypesList.get(i));
+            }
+        }
+    }
+
+    private void validateInherentTypeOfExistingMembers(int index, int offset) {
+        Type targetType;
+        for (int i = index; i < this.size; i++) {
+            targetType = (i + offset >= this.tupleType.getTupleTypes().size()) ?
+                    this.tupleType.getRestType() : this.tupleType.getTupleTypes().get(i + offset);
+            if (!TypeChecker.checkIsType(this.getRefValue(i), targetType)) {
+                throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
+                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                        ErrorCodes.INCOMPATIBLE_TYPE, TypeChecker.getType(this.getRefValue(i)), targetType);
+            }
         }
     }
 }

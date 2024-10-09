@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import java.util.Arrays;
 
 /**
- * Implementation of {@link org.ballerinalang.model.tree.expressions.CollectContextInvocationNode}.
+ * Implementation of {@link CollectContextInvocationNode}.
  *
  * @since 2201.7.0
  */
@@ -65,7 +65,7 @@ public class BLangCollectContextInvocation extends BLangExpression implements Co
         }
         br.append(invocation.name == null ? String.valueOf(invocation.symbol.name) : String.valueOf(invocation.name));
         br.append("(");
-        if (invocation.argExprs.size() > 0) {
+        if (!invocation.argExprs.isEmpty()) {
             String s = Arrays.toString(invocation.argExprs.toArray());
             br.append(s, 1, s.length() - 1);
         }

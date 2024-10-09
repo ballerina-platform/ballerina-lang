@@ -80,6 +80,7 @@ public class STRemoteMethodCallActionNode extends STActionNode {
                 closeParenToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRemoteMethodCallActionNode(
                 this.expression,
@@ -118,6 +119,7 @@ public class STRemoteMethodCallActionNode extends STActionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RemoteMethodCallActionNode(this, position, parent);
     }

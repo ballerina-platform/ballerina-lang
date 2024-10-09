@@ -66,6 +66,7 @@ public class BalEnvironment extends Environment {
      *
      * @return function name
      */
+    @Override
     public String getFunctionName() {
         return funcName;
     }
@@ -75,6 +76,7 @@ public class BalEnvironment extends Environment {
      *
      * @return array of {@link Parameter}
      */
+    @Override
     public Parameter[] getFunctionPathParameters() {
         return funcPathParams;
     }
@@ -87,6 +89,7 @@ public class BalEnvironment extends Environment {
      *
      * @return BalFuture which will resume the current strand when completed.
      */
+    @Override
     public BalFuture markAsync() {
         strand.blockedOnExtern = true;
         strand.setState(State.BLOCK_AND_YIELD);
@@ -98,6 +101,7 @@ public class BalEnvironment extends Environment {
      *
      * @return Ballerina runtime instance.
      */
+    @Override
     public BalRuntime getRuntime() {
         return new BalRuntime(strand.scheduler, currentModule);
     }
@@ -107,6 +111,7 @@ public class BalEnvironment extends Environment {
      *
      * @return module of the environment.
      */
+    @Override
     public Module getCurrentModule() {
         return currentModule;
     }
@@ -116,6 +121,7 @@ public class BalEnvironment extends Environment {
      *
      * @return Strand id.
      */
+    @Override
     public int getStrandId() {
         return strand.getId();
     }
@@ -126,6 +132,7 @@ public class BalEnvironment extends Environment {
      *
      * @return Optional strand name.
      */
+    @Override
     public Optional<String> getStrandName() {
         return strand.getName();
     }
@@ -135,6 +142,7 @@ public class BalEnvironment extends Environment {
      *
      * @return metadata of the strand.
      */
+    @Override
     public StrandMetadata getStrandMetadata() {
         return strand.getMetadata();
     }
@@ -145,6 +153,7 @@ public class BalEnvironment extends Environment {
      * @param key   string key
      * @param value value to be store in the strand
      */
+    @Override
     public void setStrandLocal(String key, Object value) {
         strand.setProperty(key, value);
     }
@@ -155,10 +164,12 @@ public class BalEnvironment extends Environment {
      * @param key key
      * @return value stored in the strand.
      */
+    @Override
     public Object getStrandLocal(String key) {
         return strand.getProperty(key);
     }
 
+    @Override
     public Repository getRepository() {
         return this.repository;
     }

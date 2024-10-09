@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,7 +45,7 @@ import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
  */
 public class BallerinaTomlTests {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources");
     private static final Path BAL_TOML_REPO = RESOURCE_DIRECTORY.resolve("ballerina-toml");
 
     @Test
@@ -72,6 +71,8 @@ public class BallerinaTomlTests {
             Assert.assertEquals(library.get("version"), "0.7.2");
             Assert.assertTrue(library.get("groupId").equals("com.moandjiezana.toml")
                                       || library.get("groupId").equals("swagger.io"));
+            Assert.assertTrue(library.get("graalvmCompatible") == null
+                    || library.get("graalvmCompatible").equals(true));
         }
 
         Assert.assertEquals(packageManifest.license(), Collections.singletonList("Apache 2.0"));
@@ -544,7 +545,8 @@ public class BallerinaTomlTests {
         Assert.assertEquals(frequency.longValue(), 225);
 
         // other entry table array
-        List<Map<String, Object>> userContacts = (ArrayList) packageManifest.getValue("userContact");
+        ArrayList<Map<String, Object>> userContacts =
+                (ArrayList<Map<String, Object>>) packageManifest.getValue("userContact");
         Assert.assertEquals(userContacts.size(), 2);
         Map<String, Object> firstContact = userContacts.get(0);
         Assert.assertEquals(firstContact.get("name"), "hevayo");

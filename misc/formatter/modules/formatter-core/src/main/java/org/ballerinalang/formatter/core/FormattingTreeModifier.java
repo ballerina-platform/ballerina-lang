@@ -246,6 +246,8 @@ import io.ballerina.compiler.syntax.tree.XMLQualifiedNameNode;
 import io.ballerina.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLStepIndexedExtendNode;
+import io.ballerina.compiler.syntax.tree.XMLStepMethodCallExtendNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -261,11 +263,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
+import static org.ballerinalang.formatter.core.FormatterUtils.getConstDefWidth;
 import static org.ballerinalang.formatter.core.FormatterUtils.isInlineRange;
 import static org.ballerinalang.formatter.core.FormatterUtils.openBraceTrailingNLs;
-import static org.ballerinalang.formatter.core.FormatterUtils.getConstDefWidth;
 import static org.ballerinalang.formatter.core.FormatterUtils.sortImportDeclarations;
 import static org.ballerinalang.formatter.core.FormatterUtils.swapLeadingMinutiae;
 
@@ -2153,11 +2154,46 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public XMLStepExpressionNode transform(XMLStepExpressionNode xMLStepExpressionNode) {
         ExpressionNode expression = formatNode(xMLStepExpressionNode.expression(), 0, 0);
-        Node xmlStepStart = formatNode(xMLStepExpressionNode.xmlStepStart(), env.trailingWS, env.trailingNL);
+        NodeList<Node> xmlStepExtend = xMLStepExpressionNode.xmlStepExtend();
+        Node xmlStepStart;
+        if (xmlStepExtend.isEmpty()) {
+            xmlStepStart = formatNode(xMLStepExpressionNode.xmlStepStart(), env.trailingWS, env.trailingNL);
+        } else {
+            xmlStepStart = formatNode(xMLStepExpressionNode.xmlStepStart(), 0, 0);
+        }
+        xmlStepExtend = formatNodeList(xmlStepExtend, 0, 0, env.trailingWS, env.trailingNL);
 
         return xMLStepExpressionNode.modify()
                 .withExpression(expression)
                 .withXmlStepStart(xmlStepStart)
+                .withXmlStepExtend(xmlStepExtend)
+                .apply();
+    }
+
+    @Override
+    public XMLStepIndexedExtendNode transform(XMLStepIndexedExtendNode xMLStepIndexedExtendNode) {
+        Token openBracket = formatToken(xMLStepIndexedExtendNode.openBracket(), 0, 0);
+        ExpressionNode expression = formatNode(xMLStepIndexedExtendNode.expression(), 0, 0);
+        Token closeBracket = formatToken(xMLStepIndexedExtendNode.closeBracket(), env.trailingWS, env.trailingNL);
+
+        return xMLStepIndexedExtendNode.modify()
+                .withOpenBracket(openBracket)
+                .withExpression(expression)
+                .withCloseBracket(closeBracket)
+                .apply();
+    }
+
+    @Override
+    public XMLStepMethodCallExtendNode transform(XMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
+        Token dotToken = formatToken(xMLStepMethodCallExtendNode.dotToken(), 0, 0);
+        SimpleNameReferenceNode methodName = formatNode(xMLStepMethodCallExtendNode.methodName(), 0, 0);
+        ParenthesizedArgList parenthesizedArgList =
+                formatNode(xMLStepMethodCallExtendNode.parenthesizedArgList(), env.trailingWS, env.trailingNL);
+
+        return xMLStepMethodCallExtendNode.modify()
+                .withDotToken(dotToken)
+                .withMethodName(methodName)
+                .withParenthesizedArgList(parenthesizedArgList)
                 .apply();
     }
 
@@ -3974,21 +4010,15 @@ public class FormattingTreeModifier extends TreeModifier {
             return false;
         }
 
-        switch (node.kind()) {
-            case FUNCTION_DEFINITION:
-            case CLASS_DEFINITION:
-            case SERVICE_DECLARATION:
-            case TYPE_DEFINITION:
-            case ENUM_DECLARATION:
-            case ANNOTATION_DECLARATION:
-                return true;
-            case MODULE_VAR_DECL:
-            case MODULE_XML_NAMESPACE_DECLARATION:
-            case CONST_DECLARATION:
-            case LISTENER_DECLARATION:
-            default:
-                return false;
-        }
+        return switch (node.kind()) {
+            case FUNCTION_DEFINITION,
+                 CLASS_DEFINITION,
+                 SERVICE_DECLARATION,
+                 TYPE_DEFINITION,
+                 ENUM_DECLARATION,
+                 ANNOTATION_DECLARATION -> true;
+            default -> false;
+        };
     }
 
     private boolean isClassOrServiceMultiLineMember(Node node) {
@@ -3996,13 +4026,10 @@ public class FormattingTreeModifier extends TreeModifier {
             return false;
         }
 
-        switch (node.kind()) {
-            case OBJECT_METHOD_DEFINITION:
-            case RESOURCE_ACCESSOR_DEFINITION:
-                return true;
-            default:
-                return false;
-        }
+        return switch (node.kind()) {
+            case OBJECT_METHOD_DEFINITION, RESOURCE_ACCESSOR_DEFINITION -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -4418,7 +4445,7 @@ public class FormattingTreeModifier extends TreeModifier {
             addWhitespace(env.currentIndentation, leadingMinutiae);
         }
 
-        if (leadingMinutiae.size() > 0 &&
+        if (!leadingMinutiae.isEmpty() &&
                 leadingMinutiae.get(leadingMinutiae.size() - 1).kind().equals(SyntaxKind.COMMENT_MINUTIAE)) {
             leadingMinutiae.add(getNewline());
         }
@@ -4850,14 +4877,10 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     private boolean isClosingTypeToken(Token token) {
-        switch (token.kind()) {
-            case CLOSE_BRACE_TOKEN:
-            case CLOSE_BRACE_PIPE_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (token.kind()) {
+            case CLOSE_BRACE_TOKEN, CLOSE_BRACE_PIPE_TOKEN, CLOSE_BRACKET_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -4918,9 +4941,9 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatNodeList(NodeFactory.createNodeList(thirdPartyImports), 0, 1, 0, 2);
 
         List<ImportDeclarationNode> imports = new ArrayList<>();
-        imports.addAll(moduleImportNodes.stream().collect(Collectors.toList()));
-        imports.addAll(stdLibImportNodes.stream().collect(Collectors.toList()));
-        imports.addAll(thirdPartyImportNodes.stream().collect(Collectors.toList()));
+        imports.addAll(moduleImportNodes.stream().toList());
+        imports.addAll(stdLibImportNodes.stream().toList());
+        imports.addAll(thirdPartyImportNodes.stream().toList());
 
         if (hasLeadingComments(firstImport)) {
             // This is to ensure license header remains at top of the file

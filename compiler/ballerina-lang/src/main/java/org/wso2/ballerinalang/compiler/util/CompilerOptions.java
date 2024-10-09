@@ -33,7 +33,7 @@ public class CompilerOptions {
     private static final CompilerContext.Key<CompilerOptions> OPTIONS_KEY =
             new CompilerContext.Key<>();
 
-    private Map<CompilerOptionName, String> optionMap;
+    private final Map<CompilerOptionName, String> optionMap;
 
     public static CompilerOptions getInstance(CompilerContext context) {
         CompilerOptions options = context.get(OPTIONS_KEY);

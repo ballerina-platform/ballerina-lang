@@ -57,12 +57,13 @@ public class NodeParserLineRangeTest {
 
     @Test
     public void testParseActionOrExpression() {
-        String queryAction = "from var a in b\n" +
-                "where (c > d)\n" +
-                "do {\n" +
-                "int x;\n" +
-                "int y = 4;\n" +
-                "}";
+        String queryAction = """
+                from var a in b
+                where (c > d)
+                do {
+                int x;
+                int y = 4;
+                }""";
 
         ExpressionNode actionNode = NodeParser.parseActionOrExpression(queryAction);
         assertLineRange(actionNode, SyntaxKind.QUERY_ACTION, 0, 0, 5, 1);
@@ -70,15 +71,16 @@ public class NodeParserLineRangeTest {
 
     @Test
     public void testParseBindingPattern() {
-        String mappingBindingPatten = "{\n" +
-                "    a: {\n" +
-                "        x: a1, y: {\n" +
-                "            m: a2, n: {\n" +
-                "                p: a3, q: a4\n" +
-                "            }\n" +
-                "        }\n" +
-                "    }\n" +
-                "}";
+        String mappingBindingPatten = """
+                {
+                    a: {
+                        x: a1, y: {
+                            m: a2, n: {
+                                p: a3, q: a4
+                            }
+                        }
+                    }
+                }""";
 
         BindingPatternNode bindingPatternNode = NodeParser.parseBindingPattern(mappingBindingPatten);
         assertLineRange(bindingPatternNode, SyntaxKind.MAPPING_BINDING_PATTERN, 0, 0, 8, 1);
@@ -86,14 +88,15 @@ public class NodeParserLineRangeTest {
 
     @Test
     public void testParseBlockStatement() {
-        String blockStmt = "{\n" +
-                "int[] nums = [1, 2, 3, 4];\n" +
-                "int[] evenNums = from var i in nums\n" +
-                "                 where i % 2 == 0\n" +
-                "                 select i;\n" +
-                "int[] evenNums = from var i in nums\n" +
-                "                 select i * 10;\n" +
-                "}";
+        String blockStmt = """
+                {
+                int[] nums = [1, 2, 3, 4];
+                int[] evenNums = from var i in nums
+                                 where i % 2 == 0
+                                 select i;
+                int[] evenNums = from var i in nums
+                                 select i * 10;
+                }""";
 
         BlockStatementNode blockStmtNode = NodeParser.parseBlockStatement(blockStmt);
         assertLineRange(blockStmtNode, SyntaxKind.BLOCK_STATEMENT, 0, 0, 7, 1);
@@ -102,18 +105,19 @@ public class NodeParserLineRangeTest {
 
     @Test
     public void testParseExpression() {
-        String mappingConstructor = "{    age:20, \n" +
-                "  ...marks1,\n" +
-                "  \"name\":\"John\",\n" +
-                "  parent: { age:50,\n" +
-                "            ...marks2,\n" +
-                "            \"name\":\"Jane\",\n" +
-                "            address2,\n" +
-                "            [expr2]:\"value2\"\n" +
-                "           },\n" +
-                "  address,\n" +
-                "  [expr1]: \"value1\"\n" +
-                "}";
+        String mappingConstructor = """
+                {    age:20,\s
+                  ...marks1,
+                  "name":"John",
+                  parent: { age:50,
+                            ...marks2,
+                            "name":"Jane",
+                            address2,
+                            [expr2]:"value2"
+                           },
+                  address,
+                  [expr1]: "value1"
+                }""";
 
         ExpressionNode expressionNode = NodeParser.parseExpression(mappingConstructor);
         assertLineRange(expressionNode, SyntaxKind.MAPPING_CONSTRUCTOR, 0, 0, 11, 1);
@@ -121,14 +125,15 @@ public class NodeParserLineRangeTest {
 
     @Test
     public void testParseFunctionBodyBlock() {
-        String funcBodyBlock = "{\n" +
-                "int[] nums = [1, 2, 3, 4];\n" +
-                "int[] evenNums = from var i in nums\n" +
-                "                 where i % 2 == 0\n" +
-                "                 select i;\n" +
-                "int[] evenNums = from var i in nums\n" +
-                "                 select i * 10;\n" +
-                "}";
+        String funcBodyBlock = """
+                {
+                int[] nums = [1, 2, 3, 4];
+                int[] evenNums = from var i in nums
+                                 where i % 2 == 0
+                                 select i;
+                int[] evenNums = from var i in nums
+                                 select i * 10;
+                }""";
 
         FunctionBodyBlockNode funcBodyBlockNode = NodeParser.parseFunctionBodyBlock(funcBodyBlock);
         assertLineRange(funcBodyBlockNode, SyntaxKind.FUNCTION_BODY_BLOCK, 0, 0, 7, 1);
@@ -144,10 +149,11 @@ public class NodeParserLineRangeTest {
 
     @Test
     public void testParseModuleMemberDeclaration() {
-        String funcDef = "function foo() {\n" +
-                "    int n = 0;\n" +
-                "    n += 1;\n" +
-                "}";
+        String funcDef = """
+                function foo() {
+                    int n = 0;
+                    n += 1;
+                }""";
 
         ModuleMemberDeclarationNode funcBodyBlockNode = NodeParser.parseModuleMemberDeclaration(funcDef);
         assertLineRange(funcBodyBlockNode, SyntaxKind.FUNCTION_DEFINITION, 0, 0, 3, 1);
@@ -155,11 +161,12 @@ public class NodeParserLineRangeTest {
 
     @Test
     public void testParseStatement() {
-        String ifElseStmt = "if (a < b) {\n" +
-                "    a:b(\"a < b\");\n" +
-                "} else {\n" +
-                "    a:b(\"a >= b\");\n" +
-                "}";
+        String ifElseStmt = """
+                if (a < b) {
+                    a:b("a < b");
+                } else {
+                    a:b("a >= b");
+                }""";
 
         StatementNode statementNode = NodeParser.parseStatement(ifElseStmt);
         assertLineRange(statementNode, SyntaxKind.IF_ELSE_STATEMENT, 0, 0, 4, 1);
@@ -167,10 +174,12 @@ public class NodeParserLineRangeTest {
 
     @Test
     public void testParseTypeDescriptor() {
-        String recordTypeDesc = "record {|\n" +
-                "    string name;\n" +
-                "    boolean married;\n" +
-                "|}\n";
+        String recordTypeDesc = """
+                record {|
+                    string name;
+                    boolean married;
+                |}
+                """;
 
         TypeDescriptorNode recordTypeDescriptor = NodeParser.parseTypeDescriptor(recordTypeDesc);
         assertLineRange(recordTypeDescriptor, SyntaxKind.RECORD_TYPE_DESC, 0, 0, 3, 2);
@@ -244,10 +253,16 @@ public class NodeParserLineRangeTest {
 
     @Test
     public void testParseMarkdownAnnotation() {
-        String markdownDocText = "\n\n# This is the description\n" +
-                "#\n" +
-                "# + value - value input parameter\n" +
-                "# + return - return a integer value\n\n\n";
+        String markdownDocText = """
+
+
+                # This is the description
+                #
+                # + value - value input parameter
+                # + return - return a integer value
+
+
+                """;
 
         MarkdownDocumentationNode markdownDoc = NodeParser.parseMarkdownDocumentation(markdownDocText);
         assertLineRange(markdownDoc, SyntaxKind.MARKDOWN_DOCUMENTATION, 2, 0, 5, 35);

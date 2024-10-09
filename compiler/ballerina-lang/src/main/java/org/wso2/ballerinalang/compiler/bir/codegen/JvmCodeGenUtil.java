@@ -25,7 +25,6 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -36,8 +35,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -54,7 +53,6 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -98,10 +96,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAKE_CONCAT_WITH_CONSTANTS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_STRINGS_PER_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OVERFLOW_LINE_NUMBER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_OF_HEADING_WITH_SEMICOLON;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_CONCAT_FACTORY;
@@ -122,7 +121,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
@@ -131,7 +129,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_D
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ERROR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_TO_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_ARRAY_VALUE;
@@ -156,9 +153,10 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
 /**
  * The common functions used in CodeGen.
  */
-public class JvmCodeGenUtil {
+public final class JvmCodeGenUtil {
+
     public static final Unifier UNIFIER = new Unifier();
-    private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
+    private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
 
@@ -201,8 +199,24 @@ public class JvmCodeGenUtil {
         return name.replace(WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
     }
 
-    public static String rewriteVirtualCallTypeName(String value) {
-        return Utils.encodeFunctionIdentifier(cleanupObjectTypeName(value));
+    public static String rewriteVirtualCallTypeName(String value, BType objectType) {
+        objectType = getImpliedType(objectType);
+        String typeName = objectType.tsymbol.name.value;
+        Name originalName = objectType.tsymbol.originalName;
+        if (value.startsWith(typeName)) {
+            // The call name will be in the format of`objectTypeName.funcName` for attached functions of imported
+            // modules. Therefore, We need to remove the type name.
+            value = value.replace(typeName + ".", "").trim();
+        } else if (originalName != null && value.startsWith(originalName.value)) {
+            // The call name will be in the format of`objectTypeOriginalName.funcName` for attached functions of
+            // object definitions. Therefore, We need to remove it.
+            value = value.replace(originalName + ".", "").trim();
+        }
+        return Utils.encodeFunctionIdentifier(value);
+    }
+
+    public static boolean isModuleInitializerMethod(String methodName) {
+        return methodName.equals(MODULE_INIT_METHOD) || methodName.equals(MODULE_START_METHOD);
     }
 
     private static String cleanupBalExt(String name) {
@@ -221,53 +235,28 @@ public class JvmCodeGenUtil {
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             return GET_XML;
         } else {
-            switch (bType.tag) {
-                case TypeTags.BYTE:
-                    return "I";
-                case TypeTags.FLOAT:
-                    return "D";
-                case TypeTags.DECIMAL:
-                    return GET_BDECIMAL;
-                case TypeTags.BOOLEAN:
-                    return "Z";
-                case TypeTags.NIL:
-                case TypeTags.NEVER:
-                case TypeTags.ANY:
-                case TypeTags.ANYDATA:
-                case TypeTags.UNION:
-                case TypeTags.JSON:
-                case TypeTags.FINITE:
-                case TypeTags.READONLY:
-                    return GET_OBJECT;
-                case TypeTags.MAP:
-                case TypeTags.RECORD:
-                    return GET_MAP_VALUE;
-                case TypeTags.STREAM:
-                    return GET_STREAM_VALUE;
-                case TypeTags.TABLE:
-                    return GET_TABLE_VALUE;
-                case TypeTags.ARRAY:
-                case TypeTags.TUPLE:
-                    return GET_ARRAY_VALUE;
-                case TypeTags.ERROR:
-                    return GET_ERROR_VALUE;
-                case TypeTags.FUTURE:
-                    return GET_FUTURE_VALUE;
-                case TypeTags.OBJECT:
-                    return GET_BOBJECT;
-                case TypeTags.TYPEDESC:
-                    return GET_TYPEDESC;
-                case TypeTags.INVOKABLE:
-                    return GET_FUNCTION_POINTER;
-                case TypeTags.HANDLE:
-                    return GET_HANDLE_VALUE;
-                case JTypeTags.JTYPE:
-                    return InteropMethodGen.getJTypeSignature((JType) bType);
-                case TypeTags.REGEXP:
-                    return GET_REGEXP;
-                default:
-                    throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
-            }
+            return switch (bType.tag) {
+                case TypeTags.BYTE -> "I";
+                case TypeTags.FLOAT -> "D";
+                case TypeTags.DECIMAL -> GET_BDECIMAL;
+                case TypeTags.BOOLEAN -> "Z";
+                case TypeTags.NIL, TypeTags.NEVER, TypeTags.ANY, TypeTags.ANYDATA, TypeTags.UNION, TypeTags.JSON,
+                        TypeTags.FINITE, TypeTags.READONLY ->
+                        GET_OBJECT;
+                case TypeTags.MAP, TypeTags.RECORD -> GET_MAP_VALUE;
+                case TypeTags.STREAM -> GET_STREAM_VALUE;
+                case TypeTags.TABLE -> GET_TABLE_VALUE;
+                case TypeTags.ARRAY, TypeTags.TUPLE -> GET_ARRAY_VALUE;
+                case TypeTags.ERROR -> GET_ERROR_VALUE;
+                case TypeTags.FUTURE -> GET_FUTURE_VALUE;
+                case TypeTags.OBJECT -> GET_BOBJECT;
+                case TypeTags.TYPEDESC -> GET_TYPEDESC;
+                case TypeTags.INVOKABLE -> GET_FUNCTION_POINTER;
+                case TypeTags.HANDLE -> GET_HANDLE_VALUE;
+                case JTypeTags.JTYPE -> InteropMethodGen.getJTypeSignature((JType) bType);
+                case TypeTags.REGEXP -> GET_REGEXP;
+                default -> throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
+            };
         }
     }
 
@@ -281,42 +270,11 @@ public class JvmCodeGenUtil {
         mv.visitEnd();
     }
 
-    static void generateStrandMetadata(MethodVisitor mv, String moduleClass,
-                                       PackageID packageID, AsyncDataCollector asyncDataCollector) {
-        asyncDataCollector.getStrandMetadata().forEach(
-                (varName, metaData) -> genStrandMetadataField(mv, moduleClass, packageID, varName, metaData));
-    }
-
-    public static void genStrandMetadataField(MethodVisitor mv, String moduleClass, PackageID packageID,
-                                               String varName, ScheduleFunctionInfo metaData) {
-        mv.visitTypeInsn(Opcodes.NEW, STRAND_METADATA);
-        mv.visitInsn(Opcodes.DUP);
-        mv.visitLdcInsn(Utils.decodeIdentifier(packageID.orgName.value));
-        mv.visitLdcInsn(Utils.decodeIdentifier(packageID.name.value));
-        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
-        if (metaData.typeName == null) {
-            mv.visitInsn(Opcodes.ACONST_NULL);
-        } else {
-            mv.visitLdcInsn(metaData.typeName);
-        }
-        mv.visitLdcInsn(metaData.parentFunctionName);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, STRAND_METADATA,
-                           JVM_INIT_METHOD, INIT_STRAND_METADATA, false);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleClass, varName, GET_STRAND_METADATA);
-    }
-
-    static void visitStrandMetadataFields(ClassWriter cw, Map<String, ScheduleFunctionInfo> strandMetaDataMap) {
-        strandMetaDataMap.keySet().forEach(varName -> visitStrandMetadataField(cw, varName));
-    }
-
-    private static void visitStrandMetadataField(ClassWriter cw, String varName) {
-        FieldVisitor fv = cw.visitField(Opcodes.ACC_STATIC, varName,
-                                        GET_STRAND_METADATA, null, null);
-        fv.visitEnd();
-    }
-
-    public static String getStrandMetadataVarName(String parentFunction) {
-        return STRAND_METADATA_VAR_PREFIX + parentFunction + "$";
+    public static String setAndGetStrandMetadataVarName(String parentFunction, AsyncDataCollector asyncDataCollector) {
+        String metaDataVarName = STRAND_METADATA_VAR_PREFIX + parentFunction + "$";
+        asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName,
+                new ScheduleFunctionInfo(parentFunction));
+        return metaDataVarName;
     }
 
     public static boolean isExternFunc(BIRNode.BIRFunction func) {
@@ -328,20 +286,16 @@ public class JvmCodeGenUtil {
     }
 
     private static String getPackageNameWithSeparator(PackageID packageID, String separator) {
-        return getPackageNameWithSeparator(packageID, separator, false);
-    }
-
-    private static String getPackageNameWithSeparator(PackageID packageID, String separator, boolean isSource) {
         String packageName = "";
         String orgName = Utils.encodeNonFunctionIdentifier(packageID.orgName.value);
         String moduleName;
-        if (!packageID.isTestPkg || isSource) {
+        if (!packageID.isTestPkg) {
             moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value);
         } else {
             moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value) + Names.TEST_PACKAGE.value;
         }
         if (!moduleName.equals(ENCODED_DOT_CHARACTER)) {
-            if (!packageID.version.value.equals("")) {
+            if (!packageID.version.value.isEmpty()) {
                 packageName = getMajorVersion(packageID.version.value) + separator;
             }
             packageName = moduleName + separator + packageName;
@@ -371,6 +325,17 @@ public class JvmCodeGenUtil {
         }
         return getPackageNameWithSeparator(packageID, separator) + className;
     }
+
+    public static String getModuleLevelClassName(PackageID packageID, String prefix, String sourceFileName,
+                                                 String separator) {
+        String className = cleanupSourceFileName(sourceFileName);
+        // handle source file path start with '/'.
+        if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
+            className = className.substring(1);
+        }
+        return getPackageNameWithSeparator(packageID, separator) + prefix + className;
+    }
+
 
     private static String cleanupSourceFileName(String name) {
         return name.replace(".", FILE_NAME_PERIOD_SEPERATOR);
@@ -408,51 +373,27 @@ public class JvmCodeGenUtil {
             return GET_XML;
         }
 
-        switch (bType.tag) {
-            case TypeTags.BYTE:
-                return "I";
-            case TypeTags.FLOAT:
-                return "D";
-            case TypeTags.DECIMAL:
-                return GET_BDECIMAL;
-            case TypeTags.BOOLEAN:
-                return "Z";
-            case TypeTags.NIL:
-            case TypeTags.NEVER:
-            case TypeTags.ANYDATA:
-            case TypeTags.UNION:
-            case TypeTags.JSON:
-            case TypeTags.FINITE:
-            case TypeTags.ANY:
-            case TypeTags.READONLY:
-                return GET_OBJECT;
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE:
-                return GET_ARRAY_VALUE;
-            case TypeTags.ERROR:
-                return GET_ERROR_VALUE;
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
-                return GET_MAP_VALUE;
-            case TypeTags.FUTURE:
-                return GET_FUTURE_VALUE;
-            case TypeTags.STREAM:
-                return GET_STREAM_VALUE;
-            case TypeTags.TABLE:
-                return GET_TABLE_VALUE;
-            case TypeTags.INVOKABLE:
-                return GET_FUNCTION_POINTER;
-            case TypeTags.TYPEDESC:
-                return GET_TYPEDESC;
-            case TypeTags.OBJECT:
-                return GET_BOBJECT;
-            case TypeTags.HANDLE:
-                return GET_HANDLE_VALUE;
-            case TypeTags.REGEXP:
-                return GET_REGEXP;
-            default:
-                throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
-        }
+        return switch (bType.tag) {
+            case TypeTags.BYTE -> "I";
+            case TypeTags.FLOAT -> "D";
+            case TypeTags.DECIMAL -> GET_BDECIMAL;
+            case TypeTags.BOOLEAN -> "Z";
+            case TypeTags.NIL, TypeTags.NEVER, TypeTags.ANYDATA, TypeTags.UNION, TypeTags.JSON, TypeTags.FINITE,
+                    TypeTags.ANY, TypeTags.READONLY ->
+                    GET_OBJECT;
+            case TypeTags.ARRAY, TypeTags.TUPLE -> GET_ARRAY_VALUE;
+            case TypeTags.ERROR -> GET_ERROR_VALUE;
+            case TypeTags.MAP, TypeTags.RECORD -> GET_MAP_VALUE;
+            case TypeTags.FUTURE -> GET_FUTURE_VALUE;
+            case TypeTags.STREAM -> GET_STREAM_VALUE;
+            case TypeTags.TABLE -> GET_TABLE_VALUE;
+            case TypeTags.INVOKABLE -> GET_FUNCTION_POINTER;
+            case TypeTags.TYPEDESC -> GET_TYPEDESC;
+            case TypeTags.OBJECT -> GET_BOBJECT;
+            case TypeTags.HANDLE -> GET_HANDLE_VALUE;
+            case TypeTags.REGEXP -> GET_REGEXP;
+            default -> throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
+        };
     }
 
     public static String generateReturnType(BType bType) {
@@ -472,66 +413,27 @@ public class JvmCodeGenUtil {
             return RETURN_XML_VALUE;
         }
 
-        switch (bType.tag) {
-            case TypeTags.BYTE:
-                return ")I";
-            case TypeTags.FLOAT:
-                return ")D";
-            case TypeTags.DECIMAL:
-                return RETURN_DECIMAL_VALUE;
-            case TypeTags.BOOLEAN:
-                return ")Z";
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE:
-                return RETURN_ARRAY_VALUE;
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
-                return RETURN_MAP_VALUE;
-            case TypeTags.ERROR:
-                return RETURN_ERROR_VALUE;
-            case TypeTags.STREAM:
-                return RETURN_STREAM_VALUE;
-            case TypeTags.TABLE:
-                return RETURN_TABLE_VALUE;
-            case TypeTags.FUTURE:
-                return RETURN_FUTURE_VALUE;
-            case TypeTags.TYPEDESC:
-                return RETURN_TYPEDESC_VALUE;
-            case TypeTags.ANY:
-            case TypeTags.ANYDATA:
-            case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
-            case TypeTags.JSON:
-            case TypeTags.FINITE:
-            case TypeTags.READONLY:
-                return RETURN_JOBJECT;
-            case TypeTags.OBJECT:
-                return RETURN_B_OBJECT;
-            case TypeTags.INVOKABLE:
-                return RETURN_FUNCTION_POINTER;
-            case TypeTags.HANDLE:
-                return RETURN_HANDLE_VALUE;
-            case TypeTags.REGEXP:
-                return RETURN_REGEX_VALUE;
-            default:
-                throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
-        }
-    }
-
-    static String cleanupObjectTypeName(String typeName) {
-        int index = typeName.lastIndexOf("."); // Internal type names can contain dots hence use the `lastIndexOf`
-        int typeNameLength = typeName.length();
-        if (index > 1 && typeName.charAt(index - 1) == '\\') { // Methods can contain escaped characters
-            return typeName;
-        } else if (index > 0 && index != typeNameLength - 1) { // Resource method name can contain . at the end 
-            return typeName.substring(index + 1);
-        } else if (index > 0) {
-            // We will reach here for resource methods eg: (MyClient8.$get$.)
-            index = typeName.substring(0, typeNameLength - 1).lastIndexOf("."); // Index of the . before the last .
-            return typeName.substring(index + 1);
-        }
-        
-        return typeName;
+        return switch (bType.tag) {
+            case TypeTags.BYTE -> ")I";
+            case TypeTags.FLOAT -> ")D";
+            case TypeTags.DECIMAL -> RETURN_DECIMAL_VALUE;
+            case TypeTags.BOOLEAN -> ")Z";
+            case TypeTags.ARRAY, TypeTags.TUPLE -> RETURN_ARRAY_VALUE;
+            case TypeTags.MAP, TypeTags.RECORD -> RETURN_MAP_VALUE;
+            case TypeTags.ERROR -> RETURN_ERROR_VALUE;
+            case TypeTags.STREAM -> RETURN_STREAM_VALUE;
+            case TypeTags.TABLE -> RETURN_TABLE_VALUE;
+            case TypeTags.FUTURE -> RETURN_FUTURE_VALUE;
+            case TypeTags.TYPEDESC -> RETURN_TYPEDESC_VALUE;
+            case TypeTags.ANY, TypeTags.ANYDATA, TypeTags.UNION, TypeTags.INTERSECTION, TypeTags.JSON,
+                    TypeTags.FINITE, TypeTags.READONLY ->
+                    RETURN_JOBJECT;
+            case TypeTags.OBJECT -> RETURN_B_OBJECT;
+            case TypeTags.INVOKABLE -> RETURN_FUNCTION_POINTER;
+            case TypeTags.HANDLE -> RETURN_HANDLE_VALUE;
+            case TypeTags.REGEXP -> RETURN_REGEX_VALUE;
+            default -> throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
+        };
     }
 
     public static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels,
@@ -618,7 +520,7 @@ public class JvmCodeGenUtil {
         BirScope scope = instruction.scope;
         if (scope != null && scope != lastScope) {
             lastScope = scope;
-            Label scopeLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + scope.id);
+            Label scopeLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + scope.id());
             mv.visitLabel(scopeLabel);
             storeLabelForParentScopes(scope, scopeLabel, labelGen, funcName, visitedScopesSet);
             visitedScopesSet.add(scope);
@@ -629,9 +531,9 @@ public class JvmCodeGenUtil {
     private static void storeLabelForParentScopes(BirScope scope, Label scopeLabel, LabelGenerator labelGen,
                                                   String funcName, Set<BirScope> visitedScopesSet) {
 
-        BirScope parent = scope.parent;
+        BirScope parent = scope.parent();
         if (parent != null && !visitedScopesSet.contains(parent)) {
-            String labelName = funcName + SCOPE_PREFIX + parent.id;
+            String labelName = funcName + SCOPE_PREFIX + parent.id();
             labelGen.putLabel(labelName, scopeLabel);
             visitedScopesSet.add(parent);
 
@@ -645,7 +547,7 @@ public class JvmCodeGenUtil {
         BirScope scope = bb.terminator.scope;
         if (scope != null && scope != lastScope) {
             lastScope = scope;
-            Label scopeLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + scope.id);
+            Label scopeLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + scope.id());
             mv.visitLabel(scopeLabel);
             visitedScopesSet.add(scope);
         }
@@ -664,10 +566,10 @@ public class JvmCodeGenUtil {
         mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    protected static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,
-                                                   int yieldLocationVarIndex, Location terminatorPos,
-                                                   String fullyQualifiedFuncName, String yieldStatus,
-                                                   int yieldStatusVarIndex) {
+    static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,
+                                         int yieldLocationVarIndex, Location terminatorPos,
+                                         String fullyQualifiedFuncName, String yieldStatus,
+                                         int yieldStatusVarIndex) {
         Label yieldLocationLabel = new Label();
         mv.visitJumpInsn(IFEQ, yieldLocationLabel);
 
@@ -715,30 +617,18 @@ public class JvmCodeGenUtil {
 
     public static boolean isSimpleBasicType(BType bType) {
         bType = JvmCodeGenUtil.getImpliedType(bType);
-        switch (bType.tag) {
-            case TypeTags.BYTE:
-            case TypeTags.FLOAT:
-            case TypeTags.BOOLEAN:
-            case TypeTags.DECIMAL:
-            case TypeTags.NIL:
-            case TypeTags.NEVER:
-                return true;
-            default:
-                return (TypeTags.isIntegerTypeTag(bType.tag)) || (TypeTags.isStringTypeTag(bType.tag));
-        }
+        return switch (bType.tag) {
+            case TypeTags.BYTE, TypeTags.FLOAT, TypeTags.BOOLEAN, TypeTags.DECIMAL, TypeTags.NIL, TypeTags.NEVER ->
+                    true;
+            default -> (TypeTags.isIntegerTypeTag(bType.tag)) || (TypeTags.isStringTypeTag(bType.tag));
+        };
     }
 
     public static boolean needNoTypeGeneration(int bTypeTag) {
-        switch (bTypeTag) {
-            case TypeTags.RECORD:
-            case TypeTags.ERROR:
-            case TypeTags.OBJECT:
-            case TypeTags.UNION:
-            case TypeTags.TUPLE:
-                return false;
-            default:
-                return true;
-        }
+        return switch (bTypeTag) {
+            case TypeTags.RECORD, TypeTags.ERROR, TypeTags.OBJECT, TypeTags.UNION, TypeTags.TUPLE -> false;
+            default -> true;
+        };
     }
 
     /**
@@ -750,7 +640,6 @@ public class JvmCodeGenUtil {
      * else returns the original type
      */
     public static BType getImpliedType(BType type) {
-        BType constraint = type;
         if (type == null) {
             return null;
         }
@@ -763,7 +652,7 @@ public class JvmCodeGenUtil {
             return getImpliedType(((BIntersectionType) type).effectiveType);
         }
 
-        return constraint;
+        return type;
     }
 
     public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,
@@ -784,32 +673,28 @@ public class JvmCodeGenUtil {
         }
 
         switch (typeTag) {
-            case TypeTags.BYTE:
+            case TypeTags.BYTE -> {
                 int byteValue = ((Number) constVal).intValue();
                 mv.visitLdcInsn(byteValue);
-                break;
-            case TypeTags.FLOAT:
+            }
+            case TypeTags.FLOAT -> {
                 double doubleValue = constVal instanceof Double ? (double) constVal :
                         Double.parseDouble(String.valueOf(constVal));
                 mv.visitLdcInsn(doubleValue);
-                break;
-            case TypeTags.BOOLEAN:
+            }
+            case TypeTags.BOOLEAN -> {
                 boolean booleanVal = constVal instanceof Boolean ? (boolean) constVal :
                         Boolean.parseBoolean(String.valueOf(constVal));
                 mv.visitLdcInsn(booleanVal);
-                break;
-            case TypeTags.DECIMAL:
+            }
+            case TypeTags.DECIMAL -> {
                 mv.visitTypeInsn(NEW, DECIMAL_VALUE);
                 mv.visitInsn(DUP);
                 mv.visitLdcInsn(removeDecimalDiscriminator(String.valueOf(constVal)));
                 mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, JVM_INIT_METHOD, INIT_WITH_STRING, false);
-                break;
-            case TypeTags.NIL:
-            case TypeTags.NEVER:
-                mv.visitInsn(ACONST_NULL);
-                break;
-            default:
-                throw new BLangCompilerException("JVM generation is not supported for type : " + bType);
+            }
+            case TypeTags.NIL, TypeTags.NEVER -> mv.visitInsn(ACONST_NULL);
+            default -> throw new BLangCompilerException("JVM generation is not supported for type : " + bType);
         }
     }
 
@@ -876,6 +761,52 @@ public class JvmCodeGenUtil {
             throw new BLangCompilerException(
                     "error while generating method '" + Utils.decodeIdentifier(funcName) + "' in class '" +
                             Utils.decodeIdentifier(className) + "'", e);
+        }
+    }
+
+    public static String getMethodSig(Class<?> returnType, Class<?>... parameterTypes) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append('(');
+        for (Class<?> type : parameterTypes) {
+            sb.append(getSig(type));
+        }
+        sb.append(')');
+        return sb.append(getSig(returnType)).toString();
+    }
+
+    public static String getSig(Class<?> c) {
+
+        if (c.isPrimitive()) {
+            if (int.class == c) {
+                return "I";
+            } else if (long.class == c) {
+                return "J";
+            } else if (boolean.class == c) {
+                return "Z";
+            } else if (byte.class == c) {
+                return "B";
+            } else if (short.class == c) {
+                return "S";
+            } else if (char.class == c) {
+                return "C";
+            } else if (float.class == c) {
+                return "F";
+            } else if (double.class == c) {
+                return "D";
+            } else {
+                // This is void
+                return "V";
+            }
+        } else if (void.class == c || Void.class == c) {
+            return "V";
+        } else {
+            String className = c.getName().replace('.', '/');
+            if (c.isArray()) {
+                return className;
+            } else {
+                return 'L' + className + ';';
+            }
         }
     }
 }

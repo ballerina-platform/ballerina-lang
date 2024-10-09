@@ -89,23 +89,16 @@ public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
     }
 
     private boolean isValidValueType(Object value, TypeSymbol typeSymbol) {
-        switch (typeSymbol.typeKind()) {
-            case STRING:
-                return value instanceof String || value instanceof Character;
-            case INT:
-                return value instanceof Integer;
-            case DECIMAL:
-            case FLOAT:
-                return value instanceof Float || value instanceof Double;
-            case BYTE:
-                return value instanceof Byte;
-            case BOOLEAN:
-                return value instanceof Boolean;
-            case NIL:
-                return value.equals("()");
-        }
+        return switch (typeSymbol.typeKind()) {
+            case STRING -> value instanceof String || value instanceof Character;
+            case INT -> value instanceof Integer;
+            case DECIMAL, FLOAT -> value instanceof Float || value instanceof Double;
+            case BYTE -> value instanceof Byte;
+            case BOOLEAN -> value instanceof Boolean;
+            case NIL -> value.equals("()");
+            default -> false;
+        };
 
-        return false;
     }
 
     private BType getValueBType(TypeSymbol typeSymbol) {
@@ -113,8 +106,8 @@ public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
             return symTable.noType;
         }
 
-        if (typeSymbol instanceof AbstractTypeSymbol) {
-            return ((AbstractTypeSymbol) typeSymbol).getBType();
+        if (typeSymbol instanceof AbstractTypeSymbol abstractTypeSymbol) {
+            return abstractTypeSymbol.getBType();
         }
 
         return symTable.anyType;

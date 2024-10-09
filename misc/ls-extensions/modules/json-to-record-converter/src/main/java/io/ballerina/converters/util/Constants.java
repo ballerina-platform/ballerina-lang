@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class Constants {
+public final class Constants {
 
     private Constants() {}
 

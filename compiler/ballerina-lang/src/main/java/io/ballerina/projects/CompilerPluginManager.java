@@ -22,11 +22,9 @@ import io.ballerina.projects.internal.plugins.CompilerPlugins;
 import io.ballerina.projects.plugins.CompilerPlugin;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Responsible for loading and maintaining engaged compiler plugins.
@@ -51,6 +49,12 @@ class CompilerPluginManager {
     }
 
     static CompilerPluginManager from(PackageCompilation compilation) {
+        // Skip initialization if the compiler plugins are already initialized for the project
+        if (!compilation.packageContext().project().compilerPluginContexts().isEmpty()) {
+            List<CompilerPluginContextIml> compilerPluginContexts =
+                    compilation.packageContext().project().compilerPluginContexts();
+            return new CompilerPluginManager(compilation, compilerPluginContexts);
+        }
         // TODO We need to update the DependencyGraph API. Right now it is a mess
         PackageResolution packageResolution = compilation.getResolution();
         ResolvedPackageDependency rootPkgNode = new ResolvedPackageDependency(
@@ -164,8 +168,8 @@ class CompilerPluginManager {
         String pluginClassName = pluginDescriptor.plugin().getClassName();
         List<Path> jarLibraryPaths = pluginDescriptor.getCompilerPluginDependencies()
                 .stream()
-                .map(Paths::get)
-                .collect(Collectors.toList());
+                .map(Path::of)
+                .toList();
 
         CompilerPlugin compilerPlugin;
         try {
@@ -186,15 +190,11 @@ class CompilerPluginManager {
         return dependencyGraph.getDirectDependencies(rootPkgNode)
                 .stream()
                 .map(ResolvedPackageDependency::packageInstance)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static List<CompilerPluginContextIml> initializePlugins(List<CompilerPluginInfo> compilerPlugins,
                                                                     PackageCompilation compilation) {
-        // Skip initialization if the compiler plugins are already initialized for the project
-        if (!compilation.packageContext().project().compilerPluginContexts().isEmpty()) {
-            return compilation.packageContext().project().compilerPluginContexts();
-        }
         List<CompilerPluginContextIml> compilerPluginContexts = new ArrayList<>(compilerPlugins.size());
         for (CompilerPluginInfo compilerPluginInfo : compilerPlugins) {
             CompilerPluginCache pluginCache =

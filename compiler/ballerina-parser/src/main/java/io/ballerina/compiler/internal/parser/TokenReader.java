@@ -32,8 +32,8 @@ public class TokenReader extends AbstractTokenReader {
 
     private static final int BUFFER_SIZE = 20;
 
-    private AbstractLexer lexer;
-    private TokenBuffer tokensAhead = new TokenBuffer(BUFFER_SIZE);
+    private final AbstractLexer lexer;
+    private final TokenBuffer tokensAhead = new TokenBuffer(BUFFER_SIZE);
     private STToken currentToken = null;
 
     TokenReader(AbstractLexer lexer) {
@@ -45,6 +45,7 @@ public class TokenReader extends AbstractTokenReader {
      * 
      * @return Next token in the input
      */
+    @Override
     public STToken read() {
         if (this.tokensAhead.size > 0) {
             // cache the head
@@ -63,6 +64,7 @@ public class TokenReader extends AbstractTokenReader {
      * 
      * @return Next token in the input
      */
+    @Override
     public STToken peek() {
         if (this.tokensAhead.size > 0) {
             return this.tokensAhead.peek();
@@ -81,6 +83,7 @@ public class TokenReader extends AbstractTokenReader {
      * @param k Position of the character to peek
      * @return Token at the k-position from the current position
      */
+    @Override
     public STToken peek(int k) {
         STToken nextToken;
         TokenBuffer tokensAhead = this.tokensAhead;
@@ -105,6 +108,7 @@ public class TokenReader extends AbstractTokenReader {
      * 
      * @return The current token.
      */
+    @Override
     public STToken head() {
         return this.currentToken;
     }
@@ -114,6 +118,7 @@ public class TokenReader extends AbstractTokenReader {
      * 
      * @param mode Mode to start
      */
+    @Override
     public void startMode(ParserMode mode) {
         this.lexer.startMode(mode);
     }
@@ -123,6 +128,7 @@ public class TokenReader extends AbstractTokenReader {
      *
      * @param mode Mode to switch on to
      */
+    @Override
     public void switchMode(ParserMode mode) {
         this.lexer.switchMode(mode);
     }
@@ -130,6 +136,7 @@ public class TokenReader extends AbstractTokenReader {
     /**
      * End the mode of the token reader.
      */
+    @Override
     public void endMode() {
         this.lexer.endMode();
     }
@@ -140,6 +147,7 @@ public class TokenReader extends AbstractTokenReader {
      *
      * @param keywordMode mode to add
      */
+    @Override
     public void startKeywordMode(KeywordMode keywordMode) {
         this.lexer.startKeywordMode(keywordMode);
     }
@@ -148,6 +156,7 @@ public class TokenReader extends AbstractTokenReader {
      * End the current keyword mode in the token reader.
      *
      */
+    @Override
     public void endKeywordMode() {
         this.lexer.endKeywordMode();
     }
@@ -157,6 +166,7 @@ public class TokenReader extends AbstractTokenReader {
      *
      * @return Current mode
      */
+    @Override
     public ParserMode getCurrentMode() {
         return this.lexer.modeStack.peek();
     }
@@ -166,6 +176,7 @@ public class TokenReader extends AbstractTokenReader {
      *
      * @return current token index
      */
+    @Override
     public int getCurrentTokenIndex() {
         return tokensAhead.getCurrentTokenIndex();
     }

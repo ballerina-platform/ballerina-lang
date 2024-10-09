@@ -143,12 +143,11 @@ public class DeclarativeAuthDesugar {
         // `function authenticateResource(service object {} serviceRef)`
         // The function is expected to panic with a distinct error when fail to authenticate.
         // Relevant listener will handle this error.
-        BSymbol methodSym = symResolver.lookupMethodInModule(packageSymbol, names.fromString(AUTHENTICATE_RESOURCE),
+        BSymbol methodSym = symResolver.lookupMethodInModule(packageSymbol, Names.fromString(AUTHENTICATE_RESOURCE),
                                                              env);
-        if (methodSym == symTable.notFoundSymbol || !(methodSym instanceof BInvokableSymbol)) {
+        if (methodSym == symTable.notFoundSymbol || !(methodSym instanceof BInvokableSymbol invocationSymbol)) {
             return;
         }
-        BInvokableSymbol invocationSymbol = (BInvokableSymbol) methodSym;
         Location pos = functionNode.getPosition();
 
         // Create method invocation.

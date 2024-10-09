@@ -47,7 +47,7 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
     private Token tokenAtCursor;
     private NonTerminalNode nodeAtCursor;
     private boolean isContextTypeCaptured = false;
-    private Optional<TypeSymbol> contextType = Optional.empty();;
+    private Optional<TypeSymbol> contextType = Optional.empty();
     private boolean isCapturedEnclosingNode = false;
     private ModuleMemberDeclarationNode enclosingNode = null;
     private final CompletionParams completionParams;

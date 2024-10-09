@@ -34,6 +34,7 @@ public class ProviderFactory {
     private static final ProviderFactory INSTANCE = new ProviderFactory();
 
     private ProviderFactory() {
+        @SuppressWarnings("rawtypes")
         ServiceLoader<BallerinaCompletionProvider> providerServices =
                 ServiceLoader.load(BallerinaCompletionProvider.class);
         for (BallerinaCompletionProvider<Node> provider : providerServices) {

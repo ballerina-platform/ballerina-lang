@@ -20,18 +20,21 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Provides the set of Ballerina Reserved Keywords to be used at the symbol factory.
  *
  * @since 2.0.0
  */
-public class BallerinaKeywordsProvider {
+public final class BallerinaKeywordsProvider {
+
     public static final List<String> BALLERINA_KEYWORDS;
 
     static {
         BALLERINA_KEYWORDS = getBallerinaKeywords();
+    }
+
+    private BallerinaKeywordsProvider() {
     }
 
     private static List<String> getBallerinaKeywords() {
@@ -51,7 +54,7 @@ public class BallerinaKeywordsProvider {
                         }
                     })
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (ClassNotFoundException e) {
             return Collections.emptyList();
         }

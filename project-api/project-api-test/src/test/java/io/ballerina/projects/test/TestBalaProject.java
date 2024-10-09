@@ -52,7 +52,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -65,7 +64,7 @@ import java.util.Optional;
  */
 public class TestBalaProject {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src", "test", "resources");
 
     @Test(description = "tests loading a valid bala project")
     public void testBalaProjectAPI() {
@@ -229,7 +228,7 @@ public class TestBalaProject {
 
         // try to get id of a non-existing file
         try {
-            balaProject.documentId(Paths.get("foo.bal"));
+            balaProject.documentId(Path.of("foo.bal"));
             Assert.fail("expected a ProjectException");
         } catch (ProjectException e) {
             // ignore
@@ -334,36 +333,19 @@ public class TestBalaProject {
     public void testLoadResourcesFromBala() {
         Path balaPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("foo-winery-any-0.1.0.bala");
         Project balaProject = TestUtils.loadProject(balaPath);
-        for (ModuleId moduleId : balaProject.currentPackage().moduleIds()) {
-            Module module = balaProject.currentPackage().module(moduleId);
-            if (module.moduleName().toString().equals("winery")) {
-                Assert.assertEquals(module.resourceIds().size(), 1);
-                Assert.assertEquals(module.resource(module.resourceIds().stream().findFirst().orElseThrow()).name(),
-                        "main.json");
-            } else if (module.moduleName().toString().equals("winery.storage")) {
-                Assert.assertEquals(module.resourceIds().size(), 1);
-                Assert.assertEquals(module.resource(module.resourceIds().stream().findFirst().orElseThrow()).name(),
-                        "db.json");
-            } else {
-                Assert.assertEquals(module.resourceIds().size(), 4);
-            }
-        }
+        // Ignores module level resources
+        Assert.assertEquals(balaProject.currentPackage().resourceIds().size(), 1);
     }
 
     @Test
     public void testLoadResourcesFromExtractedBala() {
         Path balaPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("extracted-bala");
         Project balaProject = TestUtils.loadProject(balaPath);
-        for (ModuleId moduleId : balaProject.currentPackage().moduleIds()) {
-            Module module = balaProject.currentPackage().module(moduleId);
-            if (module.moduleName().toString().equals("a")) {
-                Assert.assertEquals(module.resourceIds().size(), 1);
-                Assert.assertEquals(module.resource(module.resourceIds().stream().findFirst().orElseThrow()).name(),
-                        "config/default.conf");
-            } else {
-                Assert.assertEquals(module.resourceIds().size(), 0);
-            }
-        }
+        Package pkg = balaProject.currentPackage();
+        Assert.assertEquals(pkg.resourceIds().size(), 1);
+        Assert.assertEquals(pkg.resource(
+                        pkg.resourceIds().stream().findFirst().orElseThrow()).name(),
+                "config/default.conf");
     }
 
     @Test(description = "tests calling targetDir for balaProjects")

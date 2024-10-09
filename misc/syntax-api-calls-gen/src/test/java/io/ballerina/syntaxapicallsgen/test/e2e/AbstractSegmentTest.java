@@ -65,8 +65,7 @@ public abstract class AbstractSegmentTest {
      * @param templateFile Template to use for dynamic class loading.
      */
     protected void testForGeneratedCode(String sourceCode, SyntaxApiCallsGenConfig.Formatter formatter,
-                                        File templateFile)
-            throws URISyntaxException {
+                                        File templateFile) {
         sourceCode = sourceCode.trim();
         SyntaxApiCallsGenConfig config = new SyntaxApiCallsGenConfig.Builder()
                 .templateFile(templateFile)
@@ -131,9 +130,8 @@ public abstract class AbstractSegmentTest {
 
         @Override
         public TemplateCode run() {
-            try {
+            try (CachedCompiler compiler = new CachedCompiler(null, null)) {
                 ClassLoader classLoader = new SegmentClassLoader();
-                CachedCompiler compiler = new CachedCompiler(null, null);
                 Class<?> templateCodeImpl = compiler.loadFromJava(classLoader, TEMPLATE_PACKAGE_NAME, javaCode);
                 return (TemplateCode) templateCodeImpl.getDeclaredConstructor().newInstance();
             } catch (ReflectiveOperationException e) {

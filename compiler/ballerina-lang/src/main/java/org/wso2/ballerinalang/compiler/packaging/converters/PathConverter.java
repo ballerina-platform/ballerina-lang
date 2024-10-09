@@ -33,12 +33,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -47,8 +45,8 @@ import java.util.stream.Stream;
 public class PathConverter implements Converter<Path> {
 
     private final Path root;
-    private PathMatcher isResourceFile;
-    private PathMatcher isTestResourceFile;
+    private final PathMatcher isResourceFile;
+    private final PathMatcher isTestResourceFile;
 
     public PathConverter(Path root) {
         this.root = root;
@@ -89,11 +87,11 @@ public class PathConverter implements Converter<Path> {
                             .sorted(Comparator.reverseOrder())
                             .limit(1)
                             .map(SortablePath::getPath)
-                            .collect(Collectors.toList());
+                            .toList();
                 }
                 if (packageID != null) {
                     if (packageID.version.value.isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)
-                            && !packageID.orgName.equals(Names.ANON_ORG) && pathList.size() > 0) {
+                            && !packageID.orgName.equals(Names.ANON_ORG) && !pathList.isEmpty()) {
                         packageID.version = new Name(pathList.get(0).toFile().getName());
                     }
                 }
@@ -108,8 +106,8 @@ public class PathConverter implements Converter<Path> {
     @Override
     public Stream<Path> expandBalWithTest(Path path) {
         if (Files.isDirectory(path)) {
-            try {
-                return Files.find(path, Integer.MAX_VALUE, this::isBalWithTest).sorted();
+            try (Stream<Path> paths = Files.find(path, Integer.MAX_VALUE, this::isBalWithTest)) {
+                return paths.sorted();
             } catch (IOException ignore) {
             }
         }
@@ -121,9 +119,9 @@ public class PathConverter implements Converter<Path> {
         if (Files.isDirectory(path)) {
             try {
                 List<Path> excludePaths = new ArrayList<>();
-                excludePaths.add(Paths.get(ProjectDirConstants.TEST_DIR_NAME));
-                excludePaths.add(Paths.get(ProjectDirConstants.RESOURCE_DIR_NAME));
-                FilterSearch filterSearch = new FilterSearch(excludePaths);
+                excludePaths.add(Path.of(ProjectDirConstants.TEST_DIR_NAME));
+                excludePaths.add(Path.of(ProjectDirConstants.RESOURCE_DIR_NAME));
+                FilterSearch<Object> filterSearch = new FilterSearch<>(excludePaths);
                 Files.walkFileTree(path, filterSearch);
                 return filterSearch.getPathList().stream().sorted();
             } catch (IOException ignore) {

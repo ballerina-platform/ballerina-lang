@@ -78,7 +78,7 @@ public class RemotePackageRepository implements PackageRepository {
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),
                 settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout());
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
         return new RemotePackageRepository(fileSystemRepository, client);
     }
 
@@ -260,6 +260,7 @@ public class RemotePackageRepository implements PackageRepository {
         return request;
     }
 
+    @Override
     public Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
                                                                   ResolutionOptions options) {
         if (requests.isEmpty()) {
@@ -415,18 +416,11 @@ public class RemotePackageRepository implements PackageRepository {
     private PackageResolutionRequest toPackageResolutionRequest(Collection<ResolutionRequest> resolutionRequests) {
         PackageResolutionRequest packageResolutionRequest = new PackageResolutionRequest();
         for (ResolutionRequest resolutionRequest : resolutionRequests) {
-            PackageResolutionRequest.Mode mode = PackageResolutionRequest.Mode.HARD;
-            switch (resolutionRequest.packageLockingMode()) {
-                case HARD:
-                    mode = PackageResolutionRequest.Mode.HARD;
-                    break;
-                case MEDIUM:
-                    mode = PackageResolutionRequest.Mode.MEDIUM;
-                    break;
-                case SOFT:
-                    mode = PackageResolutionRequest.Mode.SOFT;
-                    break;
-            }
+            PackageResolutionRequest.Mode mode = switch (resolutionRequest.packageLockingMode()) {
+                case HARD -> PackageResolutionRequest.Mode.HARD;
+                case MEDIUM -> PackageResolutionRequest.Mode.MEDIUM;
+                case SOFT -> PackageResolutionRequest.Mode.SOFT;
+            };
             String version = resolutionRequest.version().map(v -> v.value().toString()).orElse("");
             packageResolutionRequest.addPackage(resolutionRequest.orgName().value(),
                     resolutionRequest.packageName().value(),

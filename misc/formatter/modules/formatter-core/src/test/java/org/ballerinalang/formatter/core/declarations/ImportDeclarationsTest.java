@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of import declarations.
@@ -32,11 +32,13 @@ import java.nio.file.Paths;
  */
 public class ImportDeclarationsTest extends FormatterTest {
 
+    @Override
     @Test(dataProvider = "test-file-provider-custom")
     public void test(String source, String sourcePath) throws IOException {
         super.test(source, sourcePath);
     }
 
+    @Override
     @Test(dataProvider = "test-file-provider-custom")
     public void testWithCustomOptions(String source, String sourcePath, FormattingOptions formattingOptions)
             throws IOException {
@@ -87,6 +89,6 @@ public class ImportDeclarationsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("declarations", "import").toString();
+        return Path.of("declarations", "import").toString();
     }
 }

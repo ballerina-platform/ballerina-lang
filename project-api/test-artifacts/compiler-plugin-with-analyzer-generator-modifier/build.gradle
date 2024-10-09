@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 description = 'Compiler Plugin Tests - Plugin with Code Generator, Code Modifier, Code Analyzer'
 version = '1.0.0'
@@ -26,12 +28,3 @@ dependencies {
 }
 
 ext.moduleName = 'compiler.plugin.with.analyzer.generator.modifier'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}

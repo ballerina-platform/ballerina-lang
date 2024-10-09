@@ -49,22 +49,22 @@ public class STMissingToken extends STToken {
         super(kind, 0,  leadingMinutiae, trailingMinutiae, diagnostics, true);
     }
 
+    @Override
     public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMissingToken(this.kind, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
     }
 
+    @Override
     public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
         return new STMissingToken(this.kind, leadingMinutiae, trailingMinutiae, this.diagnostics);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        switch (kind) {
-            case IDENTIFIER_TOKEN:
-                return new IdentifierToken(this, position, parent);
-            default:
-                return new Token(this, position, parent);
-        }
+        return switch (kind) {
+            case IDENTIFIER_TOKEN -> new IdentifierToken(this, position, parent);
+            default -> new Token(this, position, parent);
+        };
     }
 
     @Override

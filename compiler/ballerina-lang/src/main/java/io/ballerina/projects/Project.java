@@ -42,7 +42,7 @@ public abstract class Project {
     protected ProjectEnvironment projectEnvironment;
     private final ProjectKind projectKind;
     private Map<PackageManifest.Tool.Field, ToolContext> toolContextMap;
-    private List<CompilerPluginContextIml> compilerPluginContexts;
+    private final List<CompilerPluginContextIml> compilerPluginContexts;
 
     protected Project(ProjectKind projectKind,
                       Path projectPath,
@@ -87,6 +87,8 @@ public abstract class Project {
     }
 
     public abstract Path targetDir();
+
+    public abstract Path generatedResourcesDir();
 
     protected void setCurrentPackage(Package currentPackage) {
         // TODO Handle concurrent read/write to the currentPackage variable

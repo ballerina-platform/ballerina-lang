@@ -88,7 +88,7 @@ public class LSCodeLensesProviderHolder {
      */
     public List<LSCodeLensesProvider> getProviders() {
         List<LSCodeLensesProvider> activeProviders = new ArrayList<>();
-        for (LSCodeLensesProvider provider : this.codeLenses) {
+        for (LSCodeLensesProvider provider : codeLenses) {
             if (provider != null && provider.isEnabled(this.serverContext)) {
                 activeProviders.add(provider);
             }

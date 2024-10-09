@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
@@ -58,7 +59,7 @@ public class JarResolver {
     private final PackageContext rootPackageContext;
     private final List<Diagnostic> diagnosticList;
     private DiagnosticResult diagnosticResult;
-    private List<PlatformLibrary> providedPlatformLibs;
+    private final List<PlatformLibrary> providedPlatformLibs;
 
     private ClassLoader classLoaderWithAllJars;
 
@@ -110,10 +111,16 @@ public class JarResolver {
                 });
 
         // 3) Add the runtime library path
+        String packageName = getPackageName(rootPackageContext);
         jarFiles.add(new JarLibrary(jBalBackend.runtimeLibrary().path(),
                 PlatformLibraryScope.DEFAULT,
-                getPackageName(rootPackageContext)));
+                packageName));
 
+        // Add resources
+        Optional.ofNullable(jBalBackend.codeGeneratedResourcesLibrary(rootPackageContext.packageId()))
+                .ifPresent(library -> jarFiles.add(
+                        new JarLibrary(library.path(), PlatformLibraryScope.DEFAULT,
+                                packageName)));
         // TODO Filter out duplicate jar entries
         return jarFiles;
     }

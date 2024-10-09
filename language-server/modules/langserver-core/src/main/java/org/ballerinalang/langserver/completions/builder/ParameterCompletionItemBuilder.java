@@ -43,7 +43,7 @@ public final class ParameterCompletionItemBuilder {
         item.setLabel(label);
         String insertText = CommonUtil.escapeSpecialCharsInInsertText(label);
         item.setInsertText(insertText);
-        item.setDetail((type.equals("")) ? ItemResolverConstants.NONE : type);
+        item.setDetail((type.isEmpty()) ? ItemResolverConstants.NONE : type);
         item.setKind(CompletionItemKind.Variable);
         return item;
     }

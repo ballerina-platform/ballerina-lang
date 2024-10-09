@@ -25,7 +25,7 @@ import io.ballerina.compiler.internal.parser.tree.STNode;
  * @since 1.3.0
  */
 public class UnmodifiedSubtreeSupplier {
-    private HybridNodeStorage hybridNodeStorage;
+    private final HybridNodeStorage hybridNodeStorage;
 
     public UnmodifiedSubtreeSupplier(HybridNodeStorage hybridNodeStorage) {
         this.hybridNodeStorage = hybridNodeStorage;

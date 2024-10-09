@@ -118,6 +118,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * @param values values to add to the start of the array
      */
 
+    @Override
     public void unshift(Object[] values) {
         unshift(0, values);
     }
@@ -127,6 +128,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
         return size;
     }
 
+    @Override
     public boolean isEmpty() {
         return size == 0;
     }
@@ -162,7 +164,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * {@inheritDoc}
      */
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<Object> getIterator() {
         return new ArrayIterator(this);
     }
 
@@ -205,6 +207,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
         iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(type);
     }
 
+    @Override
     public Type getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
             initializeIteratorNextReturnType();
@@ -276,7 +279,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
      *
      * @since 0.995.0
      */
-    static class ArrayIterator implements IteratorValue {
+    static class ArrayIterator implements IteratorValue<Object> {
         ArrayValue array;
         long cursor = 0;
         long length;

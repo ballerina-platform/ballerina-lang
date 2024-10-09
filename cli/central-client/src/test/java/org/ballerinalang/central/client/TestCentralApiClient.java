@@ -39,6 +39,8 @@ import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
 import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
 import org.ballerinalang.central.client.model.ToolSearchResult;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -55,7 +57,6 @@ import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -71,6 +72,8 @@ import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.TestUtils.cleanDirectory;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -81,7 +84,8 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     private ByteArrayOutputStream console;
 
-    private static final Path UTILS_TEST_RESOURCES = Paths.get("src/test/resources/test-resources/utils");
+    public static final String ERROR_CONNECTION_RESET = "error: Connection reset";
+    private static final Path UTILS_TEST_RESOURCES = Path.of("src/test/resources/test-resources/utils");
     private static final Path TMP_DIR = UTILS_TEST_RESOURCES.resolve("temp-test-central-api-client");
     private static final String TEST_BAL_VERSION = "slp5";
     private static final String ANY_PLATFORM = "any";
@@ -96,7 +100,8 @@ public class TestCentralApiClient extends CentralAPIClient {
     private final OkHttpClient client = mock(OkHttpClient.class);
 
     public TestCentralApiClient() {
-        super("https://localhost:9090/registry", null, ACCESS_TOKEN);
+        super("https://localhost:9090/registry", null, ACCESS_TOKEN, true, 3,
+                System.out);
     }
 
     @Override
@@ -430,7 +435,7 @@ public class TestCentralApiClient extends CentralAPIClient {
 
         this.getPackage("bar", WINERY, "v2", ANY_PLATFORM, TEST_BAL_VERSION);
     }
-    
+
     @Test(description = "Test get package versions")
     public void testGetPackageVersions() throws IOException, CentralClientException {
         Request mockRequest = new Request.Builder()
@@ -447,20 +452,20 @@ public class TestCentralApiClient extends CentralAPIClient {
                         "[\"2.3.4\", \"1.2.3\"]"
                 ))
                 .build();
-        
+
         when(this.remoteCall.execute()).thenReturn(mockResponse);
         when(this.client.newCall(any())).thenReturn(this.remoteCall);
-        
+
         List<String> versions = this.getPackageVersions("foo", WINERY, ANY_PLATFORM, TEST_BAL_VERSION);
         Assert.assertEquals(versions.size(), 2);
         Assert.assertEquals(versions.get(0), "2.3.4");
         Assert.assertEquals(versions.get(1), "1.2.3");
     }
-    
+
     @Test(description = "Test get versions of non existing package")
     public void testGetNonExistingPackageVersions() throws IOException, CentralClientException {
         String resString = "{\"message\":\"package not found: ballerina/jballerina:*_any\"}";
-        
+
         Request mockRequest = new Request.Builder()
                 .get()
                 .url("https://localhost:9090/registry/packages/bar/" + WINERY)
@@ -475,10 +480,10 @@ public class TestCentralApiClient extends CentralAPIClient {
                         resString
                 ))
                 .build();
-        
+
         when(this.remoteCall.execute()).thenReturn(mockResponse);
         when(this.client.newCall(any())).thenReturn(this.remoteCall);
-    
+
         List<String> versions = this.getPackageVersions("bar", WINERY, ANY_PLATFORM, TEST_BAL_VERSION);
         Assert.assertEquals(versions.size(), 0);
     }
@@ -644,7 +649,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     private void setBallerinaHome() {
         final String ballerinaInstallDirProp = "ballerina.home";
         if (System.getProperty(ballerinaInstallDirProp) == null) {
-            System.setProperty(ballerinaInstallDirProp, String.valueOf(Paths.get("build")));
+            System.setProperty(ballerinaInstallDirProp, String.valueOf(Path.of("build")));
         }
     }
 
@@ -870,14 +875,14 @@ public class TestCentralApiClient extends CentralAPIClient {
                     "    \"name\": \"toolbox\",\n" +
                     "    \"version\": \"0.1.0\",\n" +
                     "    \"balaURL\": \"" + toolBalaUrl + "\",\n" +
-                    "    \"platform\": \"java17\"\n}");
+                    "    \"platform\": \"java17\",\n" +
+                    "    \"digest\": \"sha-256=623bae28884bbc9cd61eb684acf7921cf43cb1d19ed0e36766bf6a75b0cdb15b\"\n}");
             Response mockResponse = new Response.Builder()
                     .request(mockRequest)
                     .protocol(Protocol.HTTP_1_1)
                     .code(HttpURLConnection.HTTP_OK)
                     .addHeader(LOCATION, this.balaUrl)
                     .addHeader(CONTENT_DISPOSITION, balaFileName)
-                    .addHeader(DIGEST, "sha-256=47e043c80d516234b1e6bd93140f126c9d9e79b5c7c0600cc6316d12504c2cf4")
                     .message("")
                     .body(mockResponseBody)
                     .build();
@@ -914,6 +919,279 @@ public class TestCentralApiClient extends CentralAPIClient {
             Assert.assertTrue(balaDir.resolve("tool").resolve("bal-tool.json").toFile().exists());
             Assert.assertTrue(balaDir.resolve("tool").resolve("libs").resolve("CompPluginRunnerCommand-1.0.0.jar")
                     .toFile().exists());
+        } finally {
+            cleanTmpDir();
+        }
+    }
+
+    @Test(description = "Test pull package with lower connection reset than retries")
+    public void testPullPackageConnectionReset1() throws CentralClientException, IOException {
+        String retryOutput = "* Retrying to pull the package: foo/sf:1.3.5 due to: error" +
+                ": Connection reset. Retry attempt: ";
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        File balaFile = new File(String.valueOf(balaPath));
+        String balaFileName = "attachment; filename=sf-2020r2-any-1.3.5.bala";
+        try (InputStream ignored = new FileInputStream(balaFile)) {
+            Request mockRequest = new Request.Builder()
+                    .get()
+                    .url("https://localhost:9090/registry/packages/foo/sf/1.3.5")
+                    .addHeader(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                    .build();
+            Response mockResponse = new Response.Builder()
+                    .request(mockRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(HttpURLConnection.HTTP_MOVED_TEMP)
+                    .addHeader(LOCATION, this.balaUrl)
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .message("")
+                    .body(null)
+                    .build();
+            Request mockDownloadBalaRequest = new Request.Builder()
+                    .get()
+                    .url(this.balaUrl)
+                    .header(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .build();
+            Response mockDownloadBalaResponse = new Response.Builder()
+                    .request(mockDownloadBalaRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(HttpURLConnection.HTTP_OK)
+                    .message("")
+                    .body(ResponseBody.create(
+                            MediaType.get(APPLICATION_OCTET_STREAM),
+                            Files.readAllBytes(balaPath)
+                    ))
+                    .build();
+            try (MockedStatic<Utils> utils = Mockito.mockStatic(Utils.class, CALLS_REAL_METHODS)) {
+                utils.when(() -> Utils.writeBalaFile(any(), any(), any(),
+                                anyLong(), any(), any(), any(), any()))
+                        .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
+                        .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
+                        .thenCallRealMethod();
+                when(this.remoteCall.execute()).thenReturn(mockResponse, mockDownloadBalaResponse,
+                        mockResponse, mockDownloadBalaResponse, mockResponse, mockDownloadBalaResponse,
+                        mockResponse, mockDownloadBalaResponse);
+                when(this.client.newCall(any())).thenReturn(this.remoteCall);
+                System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
+                this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
+                String buildLog = readOutput();
+                Assert.assertTrue(buildLog.contains(retryOutput + "1"));
+                Assert.assertTrue(buildLog.contains(retryOutput + "2"));
+                Assert.assertFalse(buildLog.contains(retryOutput + "3"));
+                Assert.assertTrue(buildLog.contains("foo/sf:1.3.5 pulled from central successfully"));
+            }
+        } finally {
+            cleanTmpDir();
+        }
+    }
+
+    @Test(description = "Test pull package with higher connection reset than retries")
+    public void testPullPackageConnectionReset2() throws  IOException {
+        String retryOutput = "* Retrying to pull the package: foo/sf:1.3.5 due to: error" +
+                ": Connection reset. Retry attempt: ";
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        File balaFile = new File(String.valueOf(balaPath));
+        String balaFileName = "attachment; filename=sf-2020r2-any-1.3.5.bala";
+        try (InputStream ignored = new FileInputStream(balaFile)) {
+            Request mockRequest = new Request.Builder()
+                    .get()
+                    .url("https://localhost:9090/registry/packages/foo/sf/1.3.5")
+                    .addHeader(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                    .build();
+            Response mockResponse = new Response.Builder()
+                    .request(mockRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(HttpURLConnection.HTTP_MOVED_TEMP)
+                    .addHeader(LOCATION, this.balaUrl)
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .message("")
+                    .body(null)
+                    .build();
+            Request mockDownloadBalaRequest = new Request.Builder()
+                    .get()
+                    .url(this.balaUrl)
+                    .header(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .build();
+            Response mockDownloadBalaResponse = new Response.Builder()
+                    .request(mockDownloadBalaRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(HttpURLConnection.HTTP_OK)
+                    .message("")
+                    .body(ResponseBody.create(
+                            MediaType.get(APPLICATION_OCTET_STREAM),
+                            Files.readAllBytes(balaPath)
+                    ))
+                    .build();
+            try (MockedStatic<Utils> utils = Mockito.mockStatic(Utils.class, CALLS_REAL_METHODS)) {
+                utils.when(() -> Utils.writeBalaFile(any(), any(), any(),
+                                anyLong(), any(), any(), any(), any()))
+                        .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
+                        .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
+                        .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
+                        .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
+                        .thenCallRealMethod();
+                when(this.remoteCall.execute()).thenReturn(mockResponse, mockDownloadBalaResponse,
+                        mockResponse, mockDownloadBalaResponse, mockResponse, mockDownloadBalaResponse,
+                        mockResponse, mockDownloadBalaResponse, mockResponse, mockDownloadBalaResponse);
+                when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+                System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
+                this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
+            } catch (CentralClientException centralClientException) {
+                Assert.assertTrue(centralClientException.getMessage().contains("Connection reset"));
+                String buildLog = readOutput();
+                Assert.assertTrue(buildLog.contains(retryOutput + "1"));
+                Assert.assertTrue(buildLog.contains(retryOutput + "2"));
+                Assert.assertTrue(buildLog.contains(retryOutput + "3"));
+                Assert.assertFalse(buildLog.contains(retryOutput + "4"));
+                Assert.assertFalse(buildLog.contains("foo/sf:1.3.5 pulled from central successfully"));
+            }
+        } finally {
+            cleanTmpDir();
+        }
+    }
+
+    @Test(description = "Test pull tool with lower connection reset than retries")
+    public void testPullToolConnectionReset1() throws CentralClientException, IOException {
+        String retryOutput = "* Retrying to pull the tool: foosf:1.3.5 due to: error" +
+                ": Connection reset. Retry attempt: ";
+        String responseBody = "{\"id\":14069, \"organization\":\"foo\", \"name\":\"sf\", \"version\":\"1.3.5\", " +
+                "\"platform\":\"java17\", \"balaURL\":\"" + this.balaUrl + "\", " +
+                "\"digest\":\"sha-256=47e043c80d516234b1e6bd93140f126c9d9e79b5c7c0600cc6316d12504c2cf4\"}";
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        File balaFile = new File(String.valueOf(balaPath));
+        String balaFileName = "attachment; filename=sf-2020r2-any-1.3.5.bala";
+        try (InputStream ignored = new FileInputStream(balaFile)) {
+            Request mockRequest = new Request.Builder()
+                    .get()
+                    .url("https://localhost:9090/registry/tools/foosf/1.3.5")
+                    .addHeader(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                    .build();
+            Response.Builder mockResponse = new Response.Builder()
+                    .request(mockRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(HttpURLConnection.HTTP_OK)
+                    .addHeader(LOCATION, this.balaUrl)
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .message("");
+            Request mockDownloadBalaRequest = new Request.Builder()
+                    .get()
+                    .url(this.balaUrl)
+                    .header(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .build();
+            Response mockDownloadBalaResponse = new Response.Builder()
+                    .request(mockDownloadBalaRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(HttpURLConnection.HTTP_OK)
+                    .message("")
+                    .body(ResponseBody.create(
+                            MediaType.get(APPLICATION_OCTET_STREAM),
+                            Files.readAllBytes(balaPath)
+                    ))
+                    .build();
+            try (MockedStatic<Utils> utils = Mockito.mockStatic(Utils.class, CALLS_REAL_METHODS)) {
+                utils.when(() -> Utils.writeBalaFile(any(), any(), any(),
+                                anyLong(), any(), any(), any(), any()))
+                        .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
+                        .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
+                        .thenCallRealMethod();
+                when(this.remoteCall.execute()).thenReturn(mockResponse.body(ResponseBody.create(
+                                MediaType.get(APPLICATION_JSON), responseBody)).build(), mockDownloadBalaResponse,
+                        mockResponse.body(ResponseBody.create(MediaType.get(APPLICATION_JSON), responseBody)).build(),
+                        mockDownloadBalaResponse, mockResponse.body(ResponseBody.create(MediaType.get(APPLICATION_JSON),
+                                responseBody)).build(), mockDownloadBalaResponse,
+                        mockResponse.body(ResponseBody.create(MediaType.get(APPLICATION_JSON),
+                                responseBody)).build(), mockDownloadBalaResponse);
+                when(this.client.newCall(any())).thenReturn(this.remoteCall);
+                System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
+                this.pullTool("foosf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
+                String buildLog = readOutput();
+                Assert.assertTrue(buildLog.contains(retryOutput + "1"));
+                Assert.assertTrue(buildLog.contains(retryOutput + "2"));
+                Assert.assertFalse(buildLog.contains(retryOutput + "3"));
+                Assert.assertTrue(buildLog.contains("foo/sf:1.3.5 pulled from central successfully"));
+            }
+        } finally {
+            cleanTmpDir();
+        }
+    }
+
+    @Test(description = "Test pull tool with higher connection reset than retries")
+    public void testPullToolConnectionReset2() throws  IOException {
+        String retryOutput = "* Retrying to pull the tool: foosf:1.3.5 due to: error" +
+                ": Connection reset. Retry attempt: ";
+        String responseBody = "{\"id\":14069, \"organization\":\"foo\", \"name\":\"sf\", \"version\":\"1.3.5\", " +
+                "\"platform\":\"java17\", \"balaURL\":\"" + this.balaUrl + "\", " +
+                "\"digest\":\"sha-256=47e043c80d516234b1e6bd93140f126c9d9e79b5c7c0600cc6316d12504c2cf4\"}";
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        File balaFile = new File(String.valueOf(balaPath));
+        String balaFileName = "attachment; filename=sf-2020r2-any-1.3.5.bala";
+        try (InputStream ignored = new FileInputStream(balaFile)) {
+            Request mockRequest = new Request.Builder()
+                    .get()
+                    .url("https://localhost:9090/registry/tools/foosf/1.3.5")
+                    .addHeader(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                    .build();
+            Response.Builder mockResponse = new Response.Builder()
+                    .request(mockRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(HttpURLConnection.HTTP_OK)
+                    .addHeader(LOCATION, this.balaUrl)
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .message("");
+            Request mockDownloadBalaRequest = new Request.Builder()
+                    .get()
+                    .url(this.balaUrl)
+                    .header(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .build();
+            Response mockDownloadBalaResponse = new Response.Builder()
+                    .request(mockDownloadBalaRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(HttpURLConnection.HTTP_OK)
+                    .message("")
+                    .body(ResponseBody.create(
+                            MediaType.get(APPLICATION_OCTET_STREAM),
+                            Files.readAllBytes(balaPath)
+                    ))
+                    .build();
+            try (MockedStatic<Utils> utils = Mockito.mockStatic(Utils.class, CALLS_REAL_METHODS)) {
+                utils.when(() -> Utils.writeBalaFile(any(), any(), any(),
+                                anyLong(), any(), any(), any(), any()))
+                        .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
+                        .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
+                        .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
+                        .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
+                        .thenCallRealMethod();
+                when(this.remoteCall.execute()).thenReturn(mockResponse.body(ResponseBody.create(
+                                MediaType.get(APPLICATION_JSON), responseBody)).build(), mockDownloadBalaResponse,
+                        mockResponse.body(ResponseBody.create(
+                                MediaType.get(APPLICATION_JSON), responseBody)).build(), mockDownloadBalaResponse,
+                        mockResponse.body(ResponseBody.create(
+                                MediaType.get(APPLICATION_JSON), responseBody)).build(), mockDownloadBalaResponse,
+                        mockResponse.body(ResponseBody.create(
+                                MediaType.get(APPLICATION_JSON), responseBody)).build(), mockDownloadBalaResponse,
+                        mockResponse.body(ResponseBody.create(
+                                MediaType.get(APPLICATION_JSON), responseBody)).build(), mockDownloadBalaResponse);
+                when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+                System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
+                this.pullTool("foosf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
+            } catch (CentralClientException centralClientException) {
+                Assert.assertTrue(centralClientException.getMessage().contains("Connection reset"));
+                String buildLog = readOutput();
+                Assert.assertTrue(buildLog.contains(retryOutput + "1"));
+                Assert.assertTrue(buildLog.contains(retryOutput + "2"));
+                Assert.assertTrue(buildLog.contains(retryOutput + "3"));
+                Assert.assertFalse(buildLog.contains(retryOutput + "4"));
+                Assert.assertFalse(buildLog.contains("foo/sf:1.3.5 pulled from central successfully"));
+            }
         } finally {
             cleanTmpDir();
         }

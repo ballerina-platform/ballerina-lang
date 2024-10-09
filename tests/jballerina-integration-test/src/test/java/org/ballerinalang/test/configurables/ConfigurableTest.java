@@ -28,7 +28,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Map;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
@@ -41,7 +41,7 @@ import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
  */
 public class ConfigurableTest extends BaseTest {
 
-    private static final String testFileLocation = Paths.get("src", "test", "resources", "configurables")
+    private static final String testFileLocation = Path.of("src/test/resources/configurables")
             .toAbsolutePath().toString();
     private BMainInstance bMainInstance;
     private final String testsPassed = "Tests passed";
@@ -50,20 +50,8 @@ public class ConfigurableTest extends BaseTest {
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
         // Build and push config Lib project.
-        compilePackageAndPushToLocal(Paths.get(testFileLocation, "configLibProject").toString(), "testOrg-configLib" +
-                "-java17-0.1.0");
-    }
-
-    private void compilePackageAndPushToLocal(String packagPath, String balaFileName) throws BallerinaTestException {
-        LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
-                                                        "'local' repository.");
-        bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
-                              packagPath);
-        buildLeecher.waitForText(5000);
-        bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
-                              packagPath);
-        pushLeecher.waitForText(5000);
+        bMainInstance.compilePackageAndPushToLocal(Path.of(testFileLocation, "configLibProject").toString(),
+                "testOrg-configLib-java17-0.1.0");
     }
 
     @Test
@@ -151,8 +139,8 @@ public class ConfigurableTest extends BaseTest {
     public void testFileEnvVariableBasedConfigurable() throws BallerinaTestException {
 
         // test config file location through `BAL_CONFIG_FILES` env variable
-        String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-A.toml") +
-                File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-B.toml");
+        String configFilePaths = Path.of(testFileLocation, "config_files", "Config-A.toml") +
+                File.pathSeparator + Path.of(testFileLocation, "config_files", "Config-B.toml");
         executeBalCommand("", "envVarPkg",
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePaths))));
     }
@@ -199,10 +187,18 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testDataEnvVariableBasedConfigurableWithNewLine() throws BallerinaTestException {
-        String configData = "[envVarPkg]\nintVar = 42\nfloatVar = 3.5\nstringVar = \"abc\"\nbooleanVar = true\n" +
-                "decimalVar = 24.87\nintArr = [1,2,3]\nfloatArr = [9.0, 5.6]\n" +
-                "stringArr = [\"red\", \"yellow\", \"green\"]\nbooleanArr = [true, false,false, true]\n" +
-                "decimalArr = [8.9, 4.5, 6.2]";
+        String configData = """
+                [envVarPkg]
+                intVar = 42
+                floatVar = 3.5
+                stringVar = "abc"
+                booleanVar = true
+                decimalVar = 24.87
+                intArr = [1,2,3]
+                floatArr = [9.0, 5.6]
+                stringArr = ["red", "yellow", "green"]
+                booleanArr = [true, false,false, true]
+                decimalArr = [8.9, 4.5, 6.2]""";
         executeBalCommand("", "envVarPkg",
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
 
@@ -224,8 +220,8 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testConfigOverriding() throws BallerinaTestException {
         // Check multiple cases of TOML values getting overridden
-        String configFilePath1 =  Paths.get(testFileLocation, "config_files", "Config.toml").toString();
-        String configFilePath2 =  Paths.get(testFileLocation, "config_files", "Config-override.toml").toString();
+        String configFilePath1 =  Path.of(testFileLocation, "config_files", "Config.toml").toString();
+        String configFilePath2 =  Path.of(testFileLocation, "config_files", "Config-override.toml").toString();
 
 
         // test config file overriding another config file
@@ -306,16 +302,16 @@ public class ConfigurableTest extends BaseTest {
                 "creates an ambiguity with module 'testOrg/subModuleClash.test:0.1.0'", ERROR);
         bMainInstance.runMain("pack", new String[]{}, null, new String[]{},
                 new LogLeecher[]{errorLog},
-                Paths.get(testFileLocation, "testAmbiguousCases", "subModuleClash").toString());
+                Path.of(testFileLocation, "testAmbiguousCases", "subModuleClash").toString());
         errorLog.waitForText(5000);
     }
 
     @Test
     public void testMapVariableAndModuleAmbiguityImportedModule() throws BallerinaTestException {
-        String projectPath = Paths.get(testFileLocation, "testAmbiguousCases").toString();
+        String projectPath = Path.of(testFileLocation, "testAmbiguousCases").toString();
         LogLeecher errorLog = new LogLeecher("[main.bal:(19:26,19:30)] configurable variable name 'test' creates an " +
                 "ambiguity with module 'testOrg/test:0.1.0'", ERROR);
-        compilePackageAndPushToLocal(Paths.get(projectPath, "importedModuleClash", "test").toString(),
+        bMainInstance.compilePackageAndPushToLocal(Path.of(projectPath, "importedModuleClash", "test").toString(),
                 "testOrg-test-any-0.1.0");
         bMainInstance.runMain("pack", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLog}, projectPath + "/importedModuleClash");
@@ -328,7 +324,7 @@ public class ConfigurableTest extends BaseTest {
                 "ambiguity with module 'testOrg/multipleSubModuleClash.mod1.test:0.1.0'", ERROR);
         bMainInstance.runMain("pack", new String[]{}, null, new String[]{},
                 new LogLeecher[]{errorLog},
-                Paths.get(testFileLocation, "testAmbiguousCases", "multipleSubModuleClash").toString());
+                Path.of(testFileLocation, "testAmbiguousCases", "multipleSubModuleClash").toString());
         errorLog.waitForText(5000);
     }
 
@@ -418,7 +414,7 @@ public class ConfigurableTest extends BaseTest {
                 "with an imported organization name. Please provide the module name as '[ballerina.ballerina]'", ERROR);
         bMainInstance.runMain("run", new String[]{}, null, new String[]{},
                 new LogLeecher[]{errorLog},
-                Paths.get(testFileLocation, "testAmbiguousCases", "moduleNamedBallerina").toString());
+                Path.of(testFileLocation, "testAmbiguousCases", "moduleNamedBallerina").toString());
         errorLog.waitForText(5000);
     }
 

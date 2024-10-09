@@ -56,7 +56,6 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,6 +68,7 @@ import java.util.regex.Pattern;
 
 import static io.ballerina.projects.internal.ManifestUtils.ToolNodeValueType;
 import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToString;
+import static io.ballerina.projects.internal.ManifestUtils.getBooleanFromTomlTableNode;
 import static io.ballerina.projects.internal.ManifestUtils.getBuildToolTomlValueType;
 import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
 import static io.ballerina.projects.util.ProjectUtils.defaultName;
@@ -420,7 +420,7 @@ public class ManifestBuilder {
 
     private void validateIconPathForPng(String icon, TomlTableNode pkgNode) {
         if (icon != null && hasPngExtension(icon)) {
-            Path iconPath = Paths.get(icon);
+            Path iconPath = Path.of(icon);
             if (!iconPath.isAbsolute()) {
                 iconPath = this.projectPath.resolve(iconPath);
             }
@@ -552,7 +552,7 @@ public class ManifestBuilder {
                         Map<String, Object> platformEntryMap = new HashMap<>();
                         String pathValue = getStringValueFromPlatformEntry(platformEntryTable, PATH);
                         if (pathValue != null) {
-                            Path path = Paths.get(pathValue);
+                            Path path = Path.of(pathValue);
                             if (!path.isAbsolute()) {
                                 path = this.projectPath.resolve(path);
                             }
@@ -566,6 +566,8 @@ public class ManifestBuilder {
                         String artifactId = getStringValueFromPlatformEntry(platformEntryTable, ARTIFACT_ID);
                         String version = getStringValueFromPlatformEntry(platformEntryTable, VERSION);
                         String scope = getStringValueFromPlatformEntry(platformEntryTable, SCOPE);
+                        Boolean graalvmCompatibility = getBooleanValueFromPlatformEntry(platformEntryTable,
+                                GRAALVM_COMPATIBLE);
                         if (PlatformLibraryScope.PROVIDED.getStringValue().equals(scope)
                                 && !providedPlatformDependencyIsValid(artifactId, groupId, version)) {
                             reportDiagnostic(platformEntryTable,
@@ -579,6 +581,7 @@ public class ManifestBuilder {
                         platformEntryMap.put(ARTIFACT_ID, artifactId);
                         platformEntryMap.put(VERSION, version);
                         platformEntryMap.put(SCOPE, scope);
+                        platformEntryMap.put(GRAALVM_COMPATIBLE, graalvmCompatibility);
                         platformEntry.add(platformEntryMap);
                     }
                 }
@@ -693,6 +696,10 @@ public class ManifestBuilder {
                 BuildOptions.OptionName.GRAAL_VM_BUILD_OPTIONS.toString());
         Boolean remoteManagement = getBooleanFromBuildOptionsTableNode(tableNode,
                 CompilerOptionName.REMOTE_MANAGEMENT.toString());
+        Boolean showDependencyDiagnostics = getBooleanFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.SHOW_DEPENDENCY_DIAGNOSTICS.toString());
+        Boolean optimizeDependencyCompilation = getBooleanFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.OPTIMIZE_DEPENDENCY_COMPILATION.toString());
 
         buildOptionsBuilder
                 .setOffline(offline)
@@ -707,7 +714,9 @@ public class ManifestBuilder {
                 .setNativeImage(nativeImage)
                 .setExportComponentModel(exportComponentModel)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
-                .setRemoteManagement(remoteManagement);
+                .setRemoteManagement(remoteManagement)
+                .setShowDependencyDiagnostics(showDependencyDiagnostics)
+                .setOptimizeDependencyCompilation(optimizeDependencyCompilation);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir);
@@ -833,6 +842,14 @@ public class ManifestBuilder {
             return null;
         }
         return getStringFromTomlTableNode(topLevelNode);
+    }
+
+    private Boolean getBooleanValueFromPlatformEntry(TomlTableNode pkgNode, String key) {
+        TopLevelNode topLevelNode = pkgNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            return null;
+        }
+        return getBooleanFromTomlTableNode(topLevelNode);
     }
 
     private String getStringValueFromDependencyNode(TomlTableNode pkgNode, String key) {

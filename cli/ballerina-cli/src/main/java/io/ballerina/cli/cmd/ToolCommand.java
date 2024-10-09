@@ -40,7 +40,6 @@ import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.central.client.model.Tool;
 import org.ballerinalang.central.client.model.ToolSearchResult;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -514,20 +513,16 @@ public class ToolCommand implements BLauncherCmd {
 
     private void pullToolFromCentral(String supportedPlatform, Path balaCacheDirPath) throws CentralClientException {
         Settings settings;
-        try {
-            settings = RepoUtils.readSettings();
-            // Ignore Settings.toml diagnostics in the pull command
-        } catch (SettingsTomlException e) {
-            // Ignore 'Settings.toml' parsing errors and return empty Settings object
-            settings = Settings.from();
-        }
+        settings = RepoUtils.readSettings();
+        // Ignore Settings.toml diagnostics in the pull command
+
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),
                 settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout());
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
         String[] toolInfo = client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
                 RepoUtils.getBallerinaVersion(), false);
         boolean isPulled = Boolean.parseBoolean(toolInfo[0]);
@@ -655,19 +650,15 @@ public class ToolCommand implements BLauncherCmd {
     private void searchToolsInCentral(String keyword) {
         try {
             Settings settings;
-            try {
-                settings = RepoUtils.readSettings();
-                // Ignore Settings.toml diagnostics in the search command
-            } catch (SettingsTomlException e) {
-                // Ignore 'Settings.toml' parsing errors and return empty Settings object
-                settings = Settings.from();
-            }
+            settings = RepoUtils.readSettings();
+            // Ignore Settings.toml diagnostics in the search command
+
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
                     settings.getProxy().password(), getAccessTokenOfCLI(settings),
                     settings.getCentral().getConnectTimeout(),
                     settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                    settings.getCentral().getCallTimeout());
+                    settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
             boolean foundTools = false;
             String supportedPlatform = Arrays.stream(JvmTarget.values())
                     .map(JvmTarget::code)
@@ -675,7 +666,7 @@ public class ToolCommand implements BLauncherCmd {
             ToolSearchResult toolSearchResult = client.searchTool(keyword, supportedPlatform,
                     RepoUtils.getBallerinaVersion());
             List<Tool> tools = toolSearchResult.getTools();
-            if (tools != null && tools.size() > 0) {
+            if (tools != null && !tools.isEmpty()) {
                 foundTools = true;
                 printTools(toolSearchResult.getTools(), RepoUtils.getTerminalWidth());
             }
@@ -817,20 +808,16 @@ public class ToolCommand implements BLauncherCmd {
     private String getLatestVersionForUpdateCommand(String supportedPlatforms, BalToolsManifest.Tool tool)
             throws CentralClientException {
         Settings settings;
-        try {
-            settings = RepoUtils.readSettings();
-            // Ignore Settings.toml diagnostics in the pull command
-        } catch (SettingsTomlException e) {
-            // Ignore 'Settings.toml' parsing errors and return empty Settings object
-            settings = Settings.from();
-        }
+        settings = RepoUtils.readSettings();
+        // Ignore Settings.toml diagnostics in the pull command
+
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),
                 settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout());
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
         List<String> versions = client.getPackageVersions(tool.org(), tool.name(), supportedPlatforms,
                 RepoUtils.getBallerinaVersion());
         return getLatestVersion(versions, tool.version());

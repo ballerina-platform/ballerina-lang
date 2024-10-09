@@ -29,7 +29,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static io.ballerina.cli.utils.OsUtils.isWindows;
 
@@ -38,17 +37,16 @@ import static io.ballerina.cli.utils.OsUtils.isWindows;
  *
  * @since 2.0.0
  */
-public class CommandOutputUtils {
+public final class CommandOutputUtils {
 
-    private static final Path commandOutputsDir = Paths
-            .get("src", "test", "resources", "test-resources", "command-outputs");
+    private static final Path commandOutputsDir = Path.of("src/test/resources/test-resources/command-outputs");
 
     private CommandOutputUtils() {
     }
 
     static String readFileAsString(Path filePath) throws IOException {
         if (isWindows()) {
-            return Files.readString(filePath).replaceAll("\r", "");
+            return Files.readString(filePath).replace("\r", "");
         } else {
             return Files.readString(filePath);
         }
@@ -57,7 +55,7 @@ public class CommandOutputUtils {
     static String getOutput(String outputFileName) throws IOException {
         if (isWindows()) {
             return Files.readString(commandOutputsDir.resolve("windows").resolve(outputFileName))
-                    .replaceAll("\r", "");
+                    .replace("\r", "");
         } else {
             return Files.readString(commandOutputsDir.resolve("unix").resolve(outputFileName));
         }

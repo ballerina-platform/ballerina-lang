@@ -33,14 +33,15 @@ import org.testng.annotations.Test;
 public class ForeachXMLTest {
 
     private CompileResult program;
-    private final String payload = "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\">\n" +
-            "        <p:name>bob</p:name>\n" +
-            "        <p:address>\n" +
-            "            <p:city>NY</p:city>\n" +
-            "            <q:country>US</q:country>\n" +
-            "        </p:address>\n" +
-            "        <q:ID>1131313</q:ID>\n" +
-            "    </p:person>";
+    private final String payload = """
+            <p:person xmlns:p="foo" xmlns:q="bar">
+                    <p:name>bob</p:name>
+                    <p:address>
+                        <p:city>NY</p:city>
+                        <q:country>US</q:country>
+                    </p:address>
+                    <q:ID>1131313</q:ID>
+                </p:person>""";
 
     @BeforeClass
     public void setup() {
@@ -66,10 +67,11 @@ public class ForeachXMLTest {
 
     @Test
     public void testXMLWithArityChildren() {
-        String payload = "0:<p:name xmlns:p=\"foo\">bob</p:name> 1:<p:address xmlns:p=\"foo\">\n" +
-                "            <p:city>NY</p:city>\n" +
-                "            <q:country xmlns:q=\"bar\">US</q:country>\n" +
-                "        </p:address> 2:<q:ID xmlns:q=\"bar\">1131313</q:ID> ";
+        String payload = """
+                0:<p:name xmlns:p="foo">bob</p:name> 1:<p:address xmlns:p="foo">
+                            <p:city>NY</p:city>
+                            <q:country xmlns:q="bar">US</q:country>
+                        </p:address> 2:<q:ID xmlns:q="bar">1131313</q:ID>\s""";
         Object returns = BRunUtil.invoke(program, "testXMLWithArityChildren");
         Assert.assertEquals(returns.toString(), payload);
     }

@@ -36,7 +36,11 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class FileUtils {
+public final class FileUtils {
+
+    private FileUtils() {
+    }
+
     /**
      * Get the name of the without the extension.
      *
@@ -59,7 +63,7 @@ public class FileUtils {
         if (null == fileName) {
             return "";
         }
-        Optional<String> extension = Optional.ofNullable(fileName.toString())
+        Optional<String> extension = Optional.of(fileName.toString())
                 .filter(f -> f.contains("."))
                 .map(f -> f.substring(fileName.toString().lastIndexOf(".") + 1));
         return extension.orElse("");
@@ -109,11 +113,11 @@ public class FileUtils {
         StringBuilder sb = new StringBuilder();
         try (
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-                BufferedReader br = new BufferedReader(inputStreamReader);
+                BufferedReader br = new BufferedReader(inputStreamReader)
         ) {
             String content;
             while ((content = br.readLine()) != null) {
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     sb.append('\n');
                 }
                 sb.append(content);

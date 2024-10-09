@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 dependencies {
     implementation project(':ballerina-runtime')
@@ -28,13 +30,3 @@ jar {
 description = 'Ballerina - Test - Launch Listener - 04'
 
 ext.moduleName = 'ballerina.test.listener'
-
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}

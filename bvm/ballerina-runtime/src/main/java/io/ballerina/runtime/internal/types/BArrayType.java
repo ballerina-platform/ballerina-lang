@@ -101,6 +101,7 @@ public class BArrayType extends BType implements ArrayType {
         }
     }
 
+    @Override
     public Type getElementType() {
         return elementType;
     }
@@ -127,8 +128,7 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BArrayType) {
-            BArrayType other = (BArrayType) obj;
+        if (obj instanceof BArrayType other) {
             if (other.state == ArrayState.CLOSED && this.size != other.size) {
                 return false;
             }
@@ -160,14 +160,17 @@ public class BArrayType extends BType implements ArrayType {
         return this.dimensions;
     }
 
+    @Override
     public int getSize() {
         return size;
     }
 
+    @Override
     public boolean hasFillerValue() {
         return hasFillerValue;
     }
 
+    @Override
     public ArrayState getState() {
         return state;
     }

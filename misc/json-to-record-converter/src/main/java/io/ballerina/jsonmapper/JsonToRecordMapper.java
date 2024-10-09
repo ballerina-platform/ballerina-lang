@@ -82,7 +82,7 @@ import static io.ballerina.jsonmapper.util.ListOperationUtils.intersection;
  *
  * @since 2201.2.0
  */
-public class JsonToRecordMapper {
+public final class JsonToRecordMapper {
 
     private JsonToRecordMapper() {}
 
@@ -93,7 +93,8 @@ public class JsonToRecordMapper {
      * @deprecated
      * This method returns the Ballerina code for the provided JSON value or the diagnostics.
      *
-     * <p> Use {@link JsonToRecordMapper#convert(String, String, boolean, boolean, boolean, String, WorkspaceManager)}}
+     * <p> Use {@link
+     * JsonToRecordMapper#convert(String, String, boolean, boolean, boolean, String, WorkspaceManager, boolean)}}
      * instead.
      *
      * @param jsonString JSON string of the JSON value to be converted to Ballerina record
@@ -102,6 +103,7 @@ public class JsonToRecordMapper {
      * @param isClosed To denote whether the response record is closed or not
      * @return {@link JsonToRecordResponse} Ballerina code block or the Diagnostics
      */
+    @Deprecated
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed, boolean forceFormatRecordFields, String filePathUri,
                                                WorkspaceManager workspaceManager) {
@@ -119,11 +121,12 @@ public class JsonToRecordMapper {
      * @param forceFormatRecordFields To denote whether the inline records to be formatted for multi-line or in-line
      * @param filePathUri FilePath URI of the/a file in a singleFileProject or module
      * @param workspaceManager Workspace manager instance
+     * @param isNullAsOptional To denote whether the null values in the JSON should be considered as optional fields
      * @return {@link JsonToRecordResponse} Ballerina code block or the Diagnostics
      */
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed, boolean forceFormatRecordFields, String filePathUri,
-                                               WorkspaceManager workspaceManager, boolean isOptionalField) {
+                                               WorkspaceManager workspaceManager, boolean isNullAsOptional) {
         List<String> existingFieldNames = getExistingTypeNames(workspaceManager, filePathUri);
         Map<String, String> updatedFieldNames = new HashMap<>();
         Map<String, NonTerminalNode> recordToTypeDescNodes = new LinkedHashMap<>();
@@ -141,13 +144,13 @@ public class JsonToRecordMapper {
             if (parsedJson.isJsonObject()) {
                 generateRecords(parsedJson.getAsJsonObject(), null, isClosed, recordToTypeDescNodes, null,
                         jsonFieldToElements, existingFieldNames, updatedFieldNames,
-                        diagnosticMessages, isOptionalField);
+                        diagnosticMessages, isNullAsOptional);
             } else if (parsedJson.isJsonArray()) {
                 JsonObject object = new JsonObject();
-                object.add(((recordName == null) || recordName.equals("")) ? StringUtils.uncapitalize(NEW_RECORD_NAME) :
+                object.add(((recordName == null) || recordName.isEmpty()) ? StringUtils.uncapitalize(NEW_RECORD_NAME) :
                         StringUtils.uncapitalize(recordName), parsedJson);
                 generateRecords(object, null, isClosed, recordToTypeDescNodes, null, jsonFieldToElements,
-                        existingFieldNames, updatedFieldNames, diagnosticMessages, isOptionalField);
+                        existingFieldNames, updatedFieldNames, diagnosticMessages, isNullAsOptional);
             } else {
                 DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter101(null);
                 diagnosticMessages.add(message);
@@ -169,7 +172,7 @@ public class JsonToRecordMapper {
                 .map(entry -> {
                     Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
                     String recordTypeName = entry.getKey() == null ?
-                            (recordName == null || recordName.equals("")) ?
+                            (recordName == null || recordName.isEmpty()) ?
                                     getAndUpdateFieldNames(NEW_RECORD_NAME, false,
                                             existingFieldNames, updatedFieldNames)
                                     : escapeIdentifier(StringUtils.capitalize(recordName)) : entry.getKey();
@@ -178,7 +181,7 @@ public class JsonToRecordMapper {
                     Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
                     return NodeFactory.createTypeDefinitionNode(null, null, typeKeyWord, typeName,
                             entry.getValue(), semicolon);
-                }).collect(Collectors.toList());
+                }).toList();
 
         NodeList<ModuleMemberDeclarationNode> moduleMembers;
         if (isRecordTypeDesc) {
@@ -224,6 +227,7 @@ public class JsonToRecordMapper {
      * @param existingFieldNames The list of already existing record names in the ModulePartNode
      * @param updatedFieldNames The map of updated record names for already existing record names in the ModulePartNode
      * @param diagnosticMessages The list of diagnostic messages generated by the method
+     * @param isNullAsOptional To denote whether the null values in the JSON should be considered as optional fields
      */
     private static void generateRecords(JsonObject jsonObject, String recordName, boolean isClosed,
                                         Map<String, NonTerminalNode> recordToTypeDescNodes, String moveBefore,
@@ -231,7 +235,7 @@ public class JsonToRecordMapper {
                                         List<String> existingFieldNames,
                                         Map<String, String> updatedFieldNames,
                                         List<DiagnosticMessage> diagnosticMessages,
-                                        boolean isOptionalField) {
+                                        boolean isNullAsOptional) {
         Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
         Token bodyStartDelimiter = AbstractNodeFactory.createToken(isClosed ? SyntaxKind.OPEN_BRACE_PIPE_TOKEN :
                 SyntaxKind.OPEN_BRACE_TOKEN);
@@ -242,18 +246,18 @@ public class JsonToRecordMapper {
                 if (entry.getValue().isJsonObject() || entry.getValue().isJsonArray()) {
                     generateRecordForObjAndArray(entry.getValue(), entry.getKey(), isClosed, recordToTypeDescNodes,
                             recordName, jsonNodes, existingFieldNames, updatedFieldNames, diagnosticMessages, false,
-                            isOptionalField);
+                            isNullAsOptional);
                 }
                 jsonNodes.put(entry.getKey(), entry.getValue());
             }
             prepareAndUpdateRecordFields(jsonObject, recordName, jsonNodes, recordToTypeDescNodes,
-                    diagnosticMessages, recordFields, existingFieldNames, updatedFieldNames, false, isOptionalField);
+                    diagnosticMessages, recordFields, existingFieldNames, updatedFieldNames, false, isNullAsOptional);
         } else {
             for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
                 if (entry.getValue().isJsonObject() || entry.getValue().isJsonArray()) {
                     generateRecordForObjAndArray(entry.getValue(), entry.getKey(), isClosed, recordToTypeDescNodes,
                             null, jsonNodes, existingFieldNames, updatedFieldNames, diagnosticMessages, false,
-                            isOptionalField);
+                            isNullAsOptional);
                 }
                 jsonNodes.put(entry.getKey(), entry.getValue());
                 Node recordField = getRecordField(entry, existingFieldNames, updatedFieldNames, false);
@@ -262,7 +266,8 @@ public class JsonToRecordMapper {
             if (recordToTypeDescNodes.containsKey(recordName)) {
                 recordFields.clear();
                 prepareAndUpdateRecordFields(jsonObject, recordName, jsonNodes, recordToTypeDescNodes,
-                        diagnosticMessages, recordFields, existingFieldNames, updatedFieldNames, true, isOptionalField);
+                        diagnosticMessages, recordFields, existingFieldNames, updatedFieldNames, true,
+                        isNullAsOptional);
             }
         }
         NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFields);
@@ -276,7 +281,7 @@ public class JsonToRecordMapper {
             recordToTypeDescNodes.put(recordName, recordTypeDescriptorNode);
         } else {
             List<Map.Entry<String, NonTerminalNode>> typeDescNodes = new ArrayList<>(recordToTypeDescNodes.entrySet());
-            List<String> recordNames = typeDescNodes.stream().map(Map.Entry::getKey).collect(Collectors.toList());
+            List<String> recordNames = typeDescNodes.stream().map(Map.Entry::getKey).toList();
             Map.Entry<String, NonTerminalNode> mapEntry =
                     new AbstractMap.SimpleEntry<>(recordName, recordTypeDescriptorNode);
             typeDescNodes.add(recordNames.indexOf(moveBefore), mapEntry);
@@ -292,17 +297,17 @@ public class JsonToRecordMapper {
                                                      Map<String, String> updatedFieldNames,
                                                      List<DiagnosticMessage> diagnosticMessages,
                                                      boolean arraySuffixAdded,
-                                                     boolean isOptionalField) {
+                                                     boolean isNullAsOptional) {
         if (jsonElement.isJsonObject()) {
             String type = escapeIdentifier(StringUtils.capitalize(elementKey));
             String updatedType = getAndUpdateFieldNames(type, arraySuffixAdded, existingFieldNames, updatedFieldNames);
             generateRecords(jsonElement.getAsJsonObject(), updatedType, isClosed, recordToTypeDescNodes,
-                    moveBefore, jsonNodes, existingFieldNames, updatedFieldNames, diagnosticMessages, isOptionalField);
+                    moveBefore, jsonNodes, existingFieldNames, updatedFieldNames, diagnosticMessages, isNullAsOptional);
         } else if (jsonElement.isJsonArray()) {
             for (JsonElement element : jsonElement.getAsJsonArray()) {
                 String arrayElementKey = elementKey + (arraySuffixAdded ? "" : ARRAY_RECORD_SUFFIX);
                 generateRecordForObjAndArray(element, arrayElementKey, isClosed, recordToTypeDescNodes, moveBefore,
-                        jsonNodes, existingFieldNames, updatedFieldNames, diagnosticMessages, true, isOptionalField);
+                        jsonNodes, existingFieldNames, updatedFieldNames, diagnosticMessages, true, isNullAsOptional);
             }
         }
     }
@@ -320,6 +325,7 @@ public class JsonToRecordMapper {
      * @param updatedFieldNames The map of updated record names for already existing record names in the ModulePartNode
      * @param prepareForNestedSameField To denote if the fields are being prepared for normal processing or
      *                                  for nested JSON with same field
+     * @param isNullAsOptional To denote whether the null values in the JSON should be considered as optional fields
      */
     private static void prepareAndUpdateRecordFields(JsonObject jsonObject, String recordName,
                                                     Map<String, JsonElement> jsonNodes,
@@ -327,26 +333,26 @@ public class JsonToRecordMapper {
                                                     List<DiagnosticMessage> diagnosticMessages,
                                                     List<Node> recordFields, List<String> existingFieldNames,
                                                     Map<String, String> updatedFieldNames,
-                                                    boolean prepareForNestedSameField, boolean isOptionalField) {
+                                                    boolean prepareForNestedSameField, boolean isNullAsOptional) {
         RecordTypeDescriptorNode previousRecordTypeDescriptorNode =
                 (RecordTypeDescriptorNode) recordToTypeDescNodes.get(recordName);
         List<RecordFieldNode> previousRecordFields = previousRecordTypeDescriptorNode.fields().stream()
-                .map(node -> (RecordFieldNode) node).collect(Collectors.toList());
+                .map(node -> (RecordFieldNode) node).toList();
         Map<String, RecordFieldNode> previousRecordFieldToNodes = previousRecordFields.stream()
                 .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity(),
                         (val1, val2) -> val1, LinkedHashMap::new));
         Map<String, RecordFieldNode> newRecordFieldToNodes = jsonObject.entrySet().stream()
                 .map(entry ->
                         (RecordFieldNode) getRecordField(entry, existingFieldNames, updatedFieldNames, false))
-                .collect(Collectors.toList()).stream()
+                .toList().stream()
                 .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity(),
                         (val1, val2) -> val1, LinkedHashMap::new));
         if (prepareForNestedSameField) {
             updateRecordFields(jsonObject, jsonNodes, diagnosticMessages, recordFields, existingFieldNames,
-                    updatedFieldNames, newRecordFieldToNodes, previousRecordFieldToNodes, isOptionalField);
+                    updatedFieldNames, newRecordFieldToNodes, previousRecordFieldToNodes, isNullAsOptional);
         } else {
             updateRecordFields(jsonObject, jsonNodes, diagnosticMessages, recordFields, existingFieldNames,
-                    updatedFieldNames, previousRecordFieldToNodes, newRecordFieldToNodes, isOptionalField);
+                    updatedFieldNames, previousRecordFieldToNodes, newRecordFieldToNodes, isNullAsOptional);
         }
     }
 
@@ -361,6 +367,7 @@ public class JsonToRecordMapper {
      * @param updatedFieldNames The map of updated record names for already existing record names in the ModulePartNode
      * @param previousRecordFieldToNodes The list of already generated field nodes
      * @param newRecordFieldToNodes The list of newly generated field nodes for the same record
+     * @param isNullAsOptional To denote whether the null values in the JSON should be considered as optional fields
      */
     private static void updateRecordFields(JsonObject jsonObject, Map<String, JsonElement> jsonNodes,
                                            List<DiagnosticMessage> diagnosticMessages, List<Node> recordFields,
@@ -368,7 +375,7 @@ public class JsonToRecordMapper {
                                            Map<String, String> updatedFieldNames,
                                            Map<String, RecordFieldNode> previousRecordFieldToNodes,
                                            Map<String, RecordFieldNode> newRecordFieldToNodes,
-                                           boolean isOptionalField) {
+                                           boolean isNullAsOptional) {
         Map<String, Pair<RecordFieldNode, RecordFieldNode>> intersectingRecordFields =
                 intersection(previousRecordFieldToNodes, newRecordFieldToNodes);
         Map<String, RecordFieldNode> differencingRecordFields =
@@ -399,7 +406,7 @@ public class JsonToRecordMapper {
                     alreadyOptionalTypeDesc = true;
                 } else if ((node1.kind().equals(SyntaxKind.ANYDATA_KEYWORD) ||
                             node2.kind().equals(SyntaxKind.ANYDATA_KEYWORD))) {
-                    if (isOptionalField) {
+                    if (isNullAsOptional) {
                         nonAnyDataNode = NodeParser.parseTypeDescriptor(node1.kind().equals(SyntaxKind.ANYDATA_KEYWORD)
                                 ? node2.toSourceCode() : node1.toSourceCode());
                         optionalFieldName = AbstractNodeFactory.createIdentifierToken(entry.getKey() +
@@ -514,7 +521,7 @@ public class JsonToRecordMapper {
         for (TypeDefinitionNode typeDefNode : typeDefNodes) {
             RecordTypeDescriptorNode recordTypeDescNode = (RecordTypeDescriptorNode) typeDefNode.typeDescriptor();
             List<RecordFieldNode> recordFieldNodes = recordTypeDescNode.fields().stream()
-                    .map(node -> (RecordFieldNode) node).collect(Collectors.toList());
+                    .map(node -> (RecordFieldNode) node).toList();
             List<Node> intermediateRecordFieldNodes = new ArrayList<>();
             for (RecordFieldNode recordFieldNode : recordFieldNodes) {
                 TypeDescriptorNode fieldTypeName = (TypeDescriptorNode) recordFieldNode.typeName();
@@ -573,7 +580,7 @@ public class JsonToRecordMapper {
                 TypeDescriptorNode tempTypeNode =
                         NodeFactory.createBuiltinSimpleNameReferenceNode(tempTypeName.kind(), tempTypeName);
                 if (!typeDescriptorNodes.stream().map(Node::toSourceCode)
-                        .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
+                        .toList().contains(tempTypeNode.toSourceCode())) {
                     typeDescriptorNodes.add(tempTypeNode);
                 }
             } else if (element.isJsonNull()) {
@@ -581,7 +588,7 @@ public class JsonToRecordMapper {
                 TypeDescriptorNode tempTypeNode =
                         NodeFactory.createBuiltinSimpleNameReferenceNode(tempTypeName.kind(), tempTypeName);
                 if (!typeDescriptorNodes.stream().map(Node::toSourceCode)
-                        .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
+                        .toList().contains(tempTypeNode.toSourceCode())) {
                     typeDescriptorNodes.add(tempTypeNode);
                 }
             } else if (element.isJsonObject()) {
@@ -593,7 +600,7 @@ public class JsonToRecordMapper {
                 TypeDescriptorNode tempTypeNode =
                         NodeFactory.createBuiltinSimpleNameReferenceNode(tempTypeName.kind(), tempTypeName);
                 if (!typeDescriptorNodes.stream().map(Node::toSourceCode)
-                        .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
+                        .toList().contains(tempTypeNode.toSourceCode())) {
                     typeDescriptorNodes.add(tempTypeNode);
                 }
             } else if (element.isJsonArray()) {
@@ -602,7 +609,7 @@ public class JsonToRecordMapper {
                 TypeDescriptorNode tempTypeNode =
                         getArrayTypeDescriptorNode(arrayEntry, existingFieldNames, updatedFieldNames);
                 if (!typeDescriptorNodes.stream().map(Node::toSourceCode)
-                        .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
+                        .toList().contains(tempTypeNode.toSourceCode())) {
                     typeDescriptorNodes.add(tempTypeNode);
                 }
             }
@@ -626,7 +633,7 @@ public class JsonToRecordMapper {
      */
     private static TypeDescriptorNode createUnionTypeDescriptorNode(List<TypeDescriptorNode> typeNames,
                                                                     boolean isOptional) {
-        if (typeNames.size() == 0) {
+        if (typeNames.isEmpty()) {
             Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANYDATA_KEYWORD);
             return NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
         } else if (typeNames.size() == 1) {

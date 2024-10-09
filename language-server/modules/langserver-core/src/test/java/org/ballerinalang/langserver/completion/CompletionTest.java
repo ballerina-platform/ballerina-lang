@@ -40,13 +40,12 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Completion Test Interface.
@@ -68,19 +67,17 @@ public abstract class CompletionTest extends AbstractLSTest {
         TestConfig testConfig = gson.fromJson(Files.newBufferedReader(configJsonPath), TestConfig.class);
         String response = getResponse(testConfig);
         JsonObject json = JsonParser.parseString(response).getAsJsonObject();
-        Type collectionType = new TypeToken<List<CompletionItem>>() {
-        }.getType();
         JsonArray resultList = json.getAsJsonObject("result").getAsJsonArray("left");
-        List<CompletionItem> responseItemList = gson.fromJson(resultList, collectionType);
+        List<CompletionItem> responseItemList = gson.fromJson(resultList, new TypeToken<>() { });
 
         boolean result = CompletionTestUtil.isSubList(testConfig.getItems(), responseItemList);
         if (!result) {
             // Fix test cases replacing expected using responses
 //            updateConfig(configJsonPath, testConfig, responseItemList);
             List<CompletionItem> mismatchedList1 = responseItemList.stream()
-                    .filter(item -> !testConfig.getItems().contains(item)).collect(Collectors.toList());
+                    .filter(item -> !testConfig.getItems().contains(item)).toList();
             List<CompletionItem> mismatchedList2 = testConfig.getItems().stream()
-                    .filter(item -> !responseItemList.contains(item)).collect(Collectors.toList());
+                    .filter(item -> !responseItemList.contains(item)).toList();
             LOG.info("Completion items which are in response but not in test config : " + mismatchedList1);
             LOG.info("Completion items which are in test config but not in response : " + mismatchedList2);
             Assert.fail(String.format("Failed test: '%s' (%s)", testConfig.getDescription(), configPath));
@@ -125,9 +122,9 @@ public abstract class CompletionTest extends AbstractLSTest {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
-        try {
-            return Files.walk(this.testRoot.resolve(this.getTestResourceDir()).resolve(this.configDir))
-                    .filter(path -> {
+        try (Stream<Path> configPaths = Files.walk(
+                this.testRoot.resolve(this.getTestResourceDir()).resolve(this.configDir))) {
+            return configPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".json")
                                 && !skippedTests.contains(file.getName());

@@ -79,9 +79,12 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createIdent
  *
  * @since 1.2.0
  */
-public class TypeDefBuilderHelper {
+public final class TypeDefBuilderHelper {
 
     public static final String INTERSECTED_ERROR_DETAIL = "$IntersectedErrorDetail$";
+
+    private TypeDefBuilderHelper() {
+    }
 
     public static BLangRecordTypeNode createRecordTypeNode(BRecordType recordType, PackageID packageID,
                                                            SymbolTable symTable, Location pos) {
@@ -165,7 +168,7 @@ public class TypeDefBuilderHelper {
         initFunction.setBType(new BInvokableType(new ArrayList<>(), returnType, null));
 
         // Create the function symbol
-        Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
+        Name funcSymbolName = Names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, funcSymbolName,
                                       env.enclPkg.symbol.pkgID, initFunction.getBType(), symbol,

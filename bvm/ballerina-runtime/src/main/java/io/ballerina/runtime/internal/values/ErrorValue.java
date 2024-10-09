@@ -66,7 +66,6 @@ import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
  */
 public class ErrorValue extends BError implements RefValue {
 
-    private static final long serialVersionUID = 1L;
     private static final PrintStream outStream = System.err;
 
     private final Type type;
@@ -75,8 +74,7 @@ public class ErrorValue extends BError implements RefValue {
     private final BError cause;
     private final Object details;
 
-    private static final String GENERATE_OBJECT_CLASS_PREFIX = "$value$";
-    private static final String SPLIT_CLASS_SUFFIX_REGEX = "\\$split\\$\\d";
+    private static final String GENERATED_CLASS_TEXTS_REGEX = "\\$value\\$|\\$split\\$\\d|lambdas.\\$_generated\\d*";
     private static final String GENERATE_PKG_INIT = "___init_";
     private static final String GENERATE_PKG_START = "___start_";
     private static final String GENERATE_PKG_STOP = "___stop_";
@@ -145,8 +143,8 @@ public class ErrorValue extends BError implements RefValue {
 
     private String getDetailsToString(BLink parent) {
         StringJoiner sj = new StringJoiner(",");
-        for (Object key : ((MapValue) details).getKeys()) {
-            Object value = ((MapValue) details).get(key);
+        for (Object key : ((MapValue<?, ?>) details).getKeys()) {
+            Object value = ((MapValue<?, ?>) details).get(key);
             if (value == null) {
                 sj.add(key + "=null");
             } else {
@@ -177,8 +175,8 @@ public class ErrorValue extends BError implements RefValue {
 
     private String getDetailsToBalString(BLink parent) {
         StringJoiner sj = new StringJoiner(",");
-        for (Object key : ((MapValue) details).getKeys()) {
-            Object value = ((MapValue) details).get(key);
+        for (Object key : ((MapValue<?, ?>) details).getKeys()) {
+            Object value = ((MapValue<?, ?>) details).get(key);
             sj.add(key + "=" + getExpressionStringVal(value, parent));
         }
         return "," + sj;
@@ -261,9 +259,10 @@ public class ErrorValue extends BError implements RefValue {
      *
      * @return detail record
      */
+    @Override
     public Object getDetails() {
-        if (details instanceof BRefValue) {
-            return ((BRefValue) details).frozenCopy(new HashMap<>());
+        if (details instanceof BRefValue bRefValue) {
+            return bRefValue.frozenCopy(new HashMap<>());
         }
         return details;
     }
@@ -304,6 +303,7 @@ public class ErrorValue extends BError implements RefValue {
      * Returns error stack trace as a string.
      * @return stack trace string
      */
+    @Override
     public String getPrintableStackTrace() {
         String errorMsg = getPrintableError();
         StringBuilder sb = new StringBuilder();
@@ -401,7 +401,7 @@ public class ErrorValue extends BError implements RefValue {
         if (details == null) {
             return true;
         }
-        return (details instanceof MapValue) && ((MapValue<?, ?>) details).isEmpty();
+        return (details instanceof MapValue<?, ?> mapValue) && mapValue.isEmpty();
     }
 
     private Optional<StackTraceElement> filterStackTraceElement(StackTraceElement stackFrame, int currentIndex) {
@@ -444,7 +444,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String cleanupClassName(String className) {
-        return className.replace(GENERATE_OBJECT_CLASS_PREFIX, "").replaceAll(SPLIT_CLASS_SUFFIX_REGEX, "");
+        return className.replaceAll(GENERATED_CLASS_TEXTS_REGEX, "");
     }
 
     private boolean isCompilerAddedName(String name) {

@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 description = 'Compiler Plugin Tests - Plugin with BuildContext usage'
 version = '1.0.0'
@@ -27,10 +29,3 @@ dependencies {
 }
 
 ext.moduleName = 'io.context.plugins'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = ['--module-path', classpath.asPath,]
-        classpath = files()
-    }
-}

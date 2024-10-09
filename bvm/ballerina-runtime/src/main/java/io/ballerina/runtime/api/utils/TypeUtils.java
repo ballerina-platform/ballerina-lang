@@ -50,75 +50,54 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_XML_ATTRIBUTES;
  *
  * @since 2.0.0
  */
-public class TypeUtils {
+public final class TypeUtils {
 
     private TypeUtils() {
     }
 
     public static boolean isValueType(Type type) {
         Type referredType = TypeUtils.getImpliedType(type);
-        switch (referredType.getTag()) {
-            case TypeTags.INT_TAG:
-            case TypeTags.BYTE_TAG:
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
-            case TypeTags.BOOLEAN_TAG:
-            case TypeTags.STRING_TAG:
-                return true;
-            case TypeTags.FINITE_TYPE_TAG:
+        return switch (referredType.getTag()) {
+            case TypeTags.INT_TAG,
+                 TypeTags.BYTE_TAG,
+                 TypeTags.FLOAT_TAG,
+                 TypeTags.DECIMAL_TAG,
+                 TypeTags.BOOLEAN_TAG,
+                 TypeTags.STRING_TAG -> true;
+            case TypeTags.FINITE_TYPE_TAG -> {
                 for (Object value : ((BFiniteType) referredType).valueSpace) {
                     if (!isValueType(TypeChecker.getType(value))) {
-                        return false;
+                        yield false;
                     }
                 }
-                return true;
-            default:
-                return false;
-
-        }
+                yield true;
+            }
+            default -> false;
+        };
     }
 
     public static Type getTypeFromName(String typeName) {
-        switch (typeName) {
-            case TypeConstants.INT_TNAME:
-                return TYPE_INT;
-            case TypeConstants.BYTE_TNAME:
-                return TYPE_BYTE;
-            case TypeConstants.FLOAT_TNAME:
-                return TYPE_FLOAT;
-            case TypeConstants.DECIMAL_TNAME:
-                return TYPE_DECIMAL;
-            case TypeConstants.STRING_TNAME:
-                return TYPE_STRING;
-            case TypeConstants.BOOLEAN_TNAME:
-                return TYPE_BOOLEAN;
-            case TypeConstants.JSON_TNAME:
-                return TYPE_JSON;
-            case TypeConstants.XML_TNAME:
-                return TYPE_XML;
-            case TypeConstants.MAP_TNAME:
-                return TYPE_MAP;
-            case TypeConstants.FUTURE_TNAME:
-                return TYPE_FUTURE;
-            case TypeConstants.STREAM_TNAME:
-                return TYPE_STREAM;
-            case TypeConstants.ANY_TNAME:
-                return TYPE_ANY;
-            case TypeConstants.TYPEDESC_TNAME:
-                return TYPE_TYPEDESC;
-            case TypeConstants.NULL_TNAME:
-                return TYPE_NULL;
-            case TypeConstants.XML_ATTRIBUTES_TNAME:
-                return TYPE_XML_ATTRIBUTES;
-            case TypeConstants.ERROR:
-                return TYPE_ERROR;
-            case TypeConstants.ANYDATA_TNAME:
-                return TYPE_ANYDATA;
-            case TypeConstants.NEVER_TNAME:
-                return TYPE_NEVER;
-            default:
-                throw new IllegalStateException("Unknown type name");
-        }
+        return switch (typeName) {
+            case TypeConstants.INT_TNAME -> TYPE_INT;
+            case TypeConstants.BYTE_TNAME -> TYPE_BYTE;
+            case TypeConstants.FLOAT_TNAME -> TYPE_FLOAT;
+            case TypeConstants.DECIMAL_TNAME -> TYPE_DECIMAL;
+            case TypeConstants.STRING_TNAME -> TYPE_STRING;
+            case TypeConstants.BOOLEAN_TNAME -> TYPE_BOOLEAN;
+            case TypeConstants.JSON_TNAME -> TYPE_JSON;
+            case TypeConstants.XML_TNAME -> TYPE_XML;
+            case TypeConstants.MAP_TNAME -> TYPE_MAP;
+            case TypeConstants.FUTURE_TNAME -> TYPE_FUTURE;
+            case TypeConstants.STREAM_TNAME -> TYPE_STREAM;
+            case TypeConstants.ANY_TNAME -> TYPE_ANY;
+            case TypeConstants.TYPEDESC_TNAME -> TYPE_TYPEDESC;
+            case TypeConstants.NULL_TNAME -> TYPE_NULL;
+            case TypeConstants.XML_ATTRIBUTES_TNAME -> TYPE_XML_ATTRIBUTES;
+            case TypeConstants.ERROR -> TYPE_ERROR;
+            case TypeConstants.ANYDATA_TNAME -> TYPE_ANYDATA;
+            case TypeConstants.NEVER_TNAME -> TYPE_NEVER;
+            default -> throw new IllegalStateException("Unknown type name");
+        };
     }
 
     public static Type fromString(String typeName) {

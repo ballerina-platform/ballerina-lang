@@ -86,7 +86,7 @@ import static io.ballerina.runtime.internal.ValueUtils.createRecordValueWithDefa
  *
  * @since 2201.9.0
  */
-public class JsonParser {
+public final class JsonParser {
 
     private static final ThreadLocal<JsonStateMachine> tlStateMachine =
             ThreadLocal.withInitial(JsonStateMachine::new);
@@ -324,6 +324,7 @@ public class JsonParser {
             }
         }
 
+        @Override
         protected State finalizeObject() throws ParserException {
             Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
             switch (targetType.getTag()) {
@@ -438,6 +439,7 @@ public class JsonParser {
         private void processJsonAnydataType() {
             if (this.nodesStackSizeWhenUnionStarts == this.nodesStack.size()) {
                 this.targetTypes.remove(this.targetTypes.size() - 1);
+                this.nodesStackSizeWhenUnionStarts = -1;
             }
         }
 
@@ -445,9 +447,11 @@ public class JsonParser {
             if (this.nodesStackSizeWhenUnionStarts == this.nodesStack.size()) {
                 this.targetTypes.remove(this.targetTypes.size() - 1);
                 this.currentJsonNode = convert(this.currentJsonNode, targetType);
+                this.nodesStackSizeWhenUnionStarts = -1;
             }
         }
 
+        @Override
         protected State initNewObject() throws ParserException {
             if (charBuffIndex != 0) {
                 throw new ParserException(UNRECOGNIZED_TOKEN +  "{'");
@@ -537,6 +541,7 @@ public class JsonParser {
             }
         }
 
+        @Override
         protected State initNewArray() throws ParserException {
             if (charBuffIndex != 0) {
                 throw new ParserException(UNRECOGNIZED_TOKEN +  "['");
@@ -920,6 +925,7 @@ public class JsonParser {
             setValueToJsonType(type, getNonStringValueAsJson(str));
         }
 
+        @Override
         void processNonStringValue(ValueType type) throws ParserException {
             String str = value();
             Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
@@ -996,6 +1002,7 @@ public class JsonParser {
             this.listIndices.set(this.listIndices.size() - 1, listIndex + 1);
         }
 
+        @Override
         void setValueToJsonType(ValueType type, Object value) {
             switch (type) {
                 case ARRAY_ELEMENT:

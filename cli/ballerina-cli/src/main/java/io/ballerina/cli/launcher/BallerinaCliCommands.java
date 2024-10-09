@@ -22,12 +22,14 @@ package io.ballerina.cli.launcher;
  * 
  * @since 0.970.0
  */
-public class BallerinaCliCommands {
+public final class BallerinaCliCommands {
 
     public static final String DEFAULT = "default";
     public static final String HELP = "help";
     public static final String VERSION = "version";
     public static final String RUN = "run";
-    public static final String ENCRYPT = "encrypt";
     public static final String HOME = "home";
+
+    private BallerinaCliCommands() {
+    }
 }

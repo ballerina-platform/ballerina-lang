@@ -56,7 +56,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,7 +68,8 @@ import java.util.stream.Collectors;
 /**
  * Class that contains the util functions used by the formatting tree modifier.
  */
-public class FormatterUtils {
+public final class FormatterUtils {
+
     static final String NEWLINE_SYMBOL = System.getProperty("line.separator");
     private static final String FORMAT_FILE_FIELD = "configPath";
     private static final String FORMAT_OPTION_FILE_EXT = ".toml";
@@ -200,7 +200,7 @@ public class FormatterUtils {
 
     private static Optional<Path> convertConfigurationPath(String path) {
         try {
-            return Optional.of(Paths.get(path));
+            return Optional.of(Path.of(path));
         } catch (InvalidPathException ex) {
             return Optional.empty();
         }
@@ -297,7 +297,7 @@ public class FormatterUtils {
                 errMessages.add(diagnostic.message());
             }
         }
-        if (errMessages.size() > 0) {
+        if (!errMessages.isEmpty()) {
             throw new FormatterException("invalid formatting configuration file" + System.lineSeparator() +
                     String.join(System.lineSeparator(), errMessages));
         }

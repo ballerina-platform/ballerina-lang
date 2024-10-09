@@ -31,7 +31,10 @@ import io.ballerina.runtime.api.values.BXml;
 //        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
 //        isPublic = true
 //)
-public class IsElement {
+public final class IsElement {
+
+    private IsElement() {
+    }
 
     public static boolean isElement(BXml xmlValue) {
         return org.ballerinalang.langlib.internal.IsElement.isElement(xmlValue);

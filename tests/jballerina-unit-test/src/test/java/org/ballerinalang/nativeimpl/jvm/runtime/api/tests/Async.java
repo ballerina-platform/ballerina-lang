@@ -37,7 +37,10 @@ import io.ballerina.runtime.internal.types.BServiceType;
  *
  * @since 2.0.0
  */
-public class Async {
+public final class Async {
+
+    private Async() {
+    }
 
     public static long getFieldValWithNoArgs(Environment env, BObject obj) {
         invokeMethodAsyncSequentially(env, obj, "getFieldValWithNoArgs");
@@ -99,7 +102,7 @@ public class Async {
     }
 
     public static boolean isolatedClassIsIsolated(BObject obj) {
-        return ((ObjectType) obj.getType()).isIsolated();
+        return obj.getType().isIsolated();
     }
 
     public static boolean isolatedClassIsIsolatedFunction(BObject obj) {
@@ -127,7 +130,7 @@ public class Async {
     }
 
     public static boolean nonIsolatedClassIsIsolated(BObject obj) {
-        return ((ObjectType) obj.getType()).isIsolated();
+        return obj.getType().isIsolated();
     }
 
     public static boolean nonIsolatedClassIsIsolatedFunction(BObject obj) {
@@ -140,7 +143,7 @@ public class Async {
     }
 
     public static boolean isolatedServiceIsIsolated(BObject obj) {
-        return ((ObjectType) obj.getType()).isIsolated();
+        return obj.getType().isIsolated();
     }
 
     public static boolean isolatedServiceIsIsolatedFunction(BObject obj) {
@@ -153,7 +156,7 @@ public class Async {
     }
 
     public static boolean nonIsolatedServiceIsIsolated(BObject obj) {
-        return ((ObjectType) obj.getType()).isIsolated();
+        return obj.getType().isIsolated();
     }
 
     public static boolean nonIsolatedServiceIsIsolatedFunction(BObject obj) {
@@ -261,7 +264,7 @@ public class Async {
     }
 
     private static boolean isRemoteMethodIsolated(BObject obj) {
-        MethodType[] methods = ((ObjectType) obj.getType()).getMethods();
+        MethodType[] methods = obj.getType().getMethods();
         for (MethodType method : methods) {
             if (method.getName().equals("getA")) {
                 return method.isIsolated();

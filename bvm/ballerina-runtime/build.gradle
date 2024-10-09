@@ -15,30 +15,32 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 dependencies {
-    implementation("org.apache.ws.commons.axiom:axiom-impl:${project.apacheCommonsAxiomImplVersion}") {
+    implementation(libs.apache.commons.axiom.impl) {
         exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-api'
     }
 
-    implementation('org.apache.ws.commons.axiom:axiom-api') {
+    implementation(libs.apache.commons.axiom.api) {
         exclude group: 'org.apache.geronimo.specs', module: 'geronimo-stax-api_1.0_spec'
         exclude group: 'jaxen', module: 'jaxen'
     }
-    implementation 'org.apache.commons:commons-text'
-    implementation 'io.opentelemetry:opentelemetry-api'
-    implementation("com.atomikos:transactions-jta:${project.atomikosTransactionsJtaVersion}") {
+    implementation libs.apache.commons.text
+    implementation libs.open.telemetry.api
+    implementation(libs.atomikos.transactions.jta) {
         exclude group: 'org.hibernate', module: 'hibernate'
     }
-    implementation "javax.transaction:javax.transaction-api:${project.javaxTransactionApiVersion}"
+    implementation libs.javax.transaction.api
     implementation project(':toml-parser')
     implementation project(':ballerina-tools-api')
     implementation project(':identifier-util')
 
-    testImplementation 'org.testng:testng'
-    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
-    testImplementation 'org.mockito:mockito-testng'
+    testImplementation libs.testng
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.testng
 }
 
 
@@ -67,9 +69,14 @@ ext.moduleName = 'ballerina.runtime'
 compileJava {
     inputs.property("moduleName", moduleName)
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
         classpath = files()
     }
 }

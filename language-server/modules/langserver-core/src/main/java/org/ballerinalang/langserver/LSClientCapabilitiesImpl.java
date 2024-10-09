@@ -44,8 +44,8 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
     LSClientCapabilitiesImpl(TextDocumentClientCapabilities textDocCapabilities,
                              WorkspaceClientCapabilities workspaceCapabilities,
-                             Map experimentalClientCapabilities,
-                             Map initializationOptionsMap) {
+                             Map<String, Object> experimentalClientCapabilities,
+                             Map<String, Object> initializationOptionsMap) {
         this.textDocCapabilities = (textDocCapabilities != null) ?
                 textDocCapabilities : new TextDocumentClientCapabilities();
 
@@ -236,6 +236,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
             this.supportBalaScheme = supportBalaScheme;
         }
 
+        @Override
         public boolean isEnableSemanticTokens() {
             return enableSemanticTokens;
         }

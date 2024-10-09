@@ -32,7 +32,7 @@ import io.ballerina.tools.text.TextDocuments;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,9 +100,10 @@ public class DiagnosticsAPITest extends AbstractSyntaxTreeAPITest {
 
     @Test(description = "This is a test case for https://github.com/ballerina-platform/ballerina-lang/issues/24304")
     public void testLocationWithInvalidMissingNodes() {
-        String input = "public function main() {\n" +
-                "    string s = string ```;\n" +
-                "}";
+        String input = """
+                public function main() {
+                    string s = string ```;
+                }""";
         int expectedLength = input.length();
         TextDocument textDocument = TextDocuments.from(input);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
@@ -115,7 +116,8 @@ public class DiagnosticsAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertFalse(lineRangeList.isEmpty());
     }
 
+    @Override
     protected SyntaxTree parseFile(String sourceFileName) {
-        return super.parseFile(Paths.get("diagnostics").resolve(sourceFileName));
+        return super.parseFile(Path.of("diagnostics", sourceFileName));
     }
 }

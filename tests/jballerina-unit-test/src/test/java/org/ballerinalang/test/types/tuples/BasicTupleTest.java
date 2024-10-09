@@ -55,11 +55,14 @@ public class BasicTupleTest {
     public void testTupleTypeBasics() {
         Object returns = BRunUtil.invoke(result, "basicTupleTest", new Object[]{});
 
-        Assert.assertEquals(returns.toString(), " test1 expr \n" +
-                " test2 \n" +
-                " test3 3 \n" +
-                " test4 4 \n" +
-                " test5 foo test5 \n ");
+        Assert.assertEquals(returns.toString(), """
+                 test1 expr\s
+                 test2\s
+                 test3 3\s
+                 test4 4\s
+                 test5 foo test5\s
+                 \
+                """);
     }
 
     @Test(description = "Test Function invocation using tuples")

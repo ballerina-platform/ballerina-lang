@@ -52,7 +52,7 @@ public class DataMapperNodeVisitor extends NodeVisitor {
     public final HashMap<String, String> restFields;
     public final HashMap<String, Map<String, RecordFieldSymbol>> spreadFields;
     public final ArrayList<String> specificFieldList;
-    private String rhsSymbolName;
+    private final String rhsSymbolName;
     private SemanticModel model;
 
     public DataMapperNodeVisitor(String rhsSymbolName) {
@@ -95,7 +95,7 @@ public class DataMapperNodeVisitor extends NodeVisitor {
                     SpecificFieldNode specificFieldNode = (SpecificFieldNode) field;
                     if (specificFieldNode.fieldName().kind() == SyntaxKind.STRING_LITERAL) {
                         String fieldName = ((BasicLiteralNode) specificFieldNode.fieldName()).literalToken().text();
-                        fieldName = fieldName.replaceAll("\"", "");
+                        fieldName = fieldName.replace("\"", "");
                         Optional<Symbol> symbol = this.model.symbol(variableDeclarationNode);
                         if (symbol.isPresent()) {
                             TypeSymbol typeSymbol = ((VariableSymbol) symbol.get()).typeDescriptor();

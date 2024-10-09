@@ -36,10 +36,12 @@ public class BallerinaConstantValue implements ConstantValue {
         this.valueType = valueType;
     }
 
+    @Override
     public Object value() {
         return value;
     }
 
+    @Override
     public TypeSymbol valueType() {
         return valueType;
     }
@@ -59,8 +61,7 @@ public class BallerinaConstantValue implements ConstantValue {
             return false;
         }
 
-        if (o instanceof BallerinaConstantValue) {
-            BallerinaConstantValue that = (BallerinaConstantValue) o;
+        if (o instanceof BallerinaConstantValue that) {
 
             if (this.valueType != that.valueType) {
                 return false;

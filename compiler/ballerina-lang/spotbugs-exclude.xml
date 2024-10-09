@@ -33,6 +33,9 @@
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen.interop" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.model" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen.internal" />
     </Match>
     <Match>
@@ -418,6 +421,11 @@
     <Match>
         <Class name="io.ballerina.projects.internal.ManifestBuilder"/>
         <Method name="getBooleanFromBuildOptionsTableNode"/>
+        <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.ManifestBuilder"/>
+        <Method name="getBooleanValueFromPlatformEntry"/>
         <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
     </Match>
     <Match>

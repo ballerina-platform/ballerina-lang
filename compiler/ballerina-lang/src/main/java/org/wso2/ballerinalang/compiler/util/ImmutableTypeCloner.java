@@ -86,9 +86,12 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
  *
  * @since 1.3.0
  */
-public class ImmutableTypeCloner {
+public final class ImmutableTypeCloner {
 
     private static final String AND_READONLY_SUFFIX = " & readonly";
+
+    private ImmutableTypeCloner() {
+    }
 
     public static BType getEffectiveImmutableType(Location pos, Types types,
                                                   BType type, SymbolEnv env,
@@ -220,7 +223,7 @@ public class ImmutableTypeCloner {
                 // TODO: 4/28/20 Check tsymbol
                 BXMLSubType immutableXmlSubType =
                         new BXMLSubType(origXmlSubType.tag,
-                                        names.fromString(origXmlSubType.name.getValue().concat(AND_READONLY_SUFFIX)),
+                                        Names.fromString(origXmlSubType.name.getValue().concat(AND_READONLY_SUFFIX)),
                                         origXmlSubType.flags | Flags.READONLY);
 
                 BIntersectionType immutableXmlSubTypeIntersectionType =
@@ -583,7 +586,7 @@ public class ImmutableTypeCloner {
         BRecordTypeSymbol recordSymbol =
                 Symbols.createRecordSymbol(recordTypeSymbol.flags | Flags.READONLY,
                         getImmutableTypeName(names,  getSymbolFQN(recordTypeSymbol)),
-                        pkgID, null, env.scope.owner, pos, recordTypeSymbol.origin);
+                        pkgID, null, env.scope.owner, pos, VIRTUAL);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
@@ -680,7 +683,7 @@ public class ImmutableTypeCloner {
 
         List<BAttachedFunction> immutableFuncs = new ArrayList<>();
         for (BAttachedFunction origFunc : originalObjectAttachedFuncs) {
-            Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(immutableObjectSymbol.name.value,
+            Name funcName = Names.fromString(Symbols.getAttachedFuncSymbolName(immutableObjectSymbol.name.value,
                                                                                origFunc.funcName.value));
             BInvokableSymbol immutableFuncSymbol =
                     ASTBuilderUtil.duplicateFunctionDeclarationSymbol(origFunc.symbol, immutableObjectSymbol,
@@ -887,7 +890,7 @@ public class ImmutableTypeCloner {
             return Names.EMPTY;
         }
 
-        return names.fromString("(".concat(origName).concat(AND_READONLY_SUFFIX).concat(")"));
+        return Names.fromString("(".concat(origName).concat(AND_READONLY_SUFFIX).concat(")"));
     }
 
     private static BIntersectionType createImmutableIntersectionType(SymbolEnv env, BType nonReadOnlyType,

@@ -16,13 +16,19 @@
  * under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
+
+configurations {
+    runtimeClasspath.transitive = false
+}
 
 dependencies {
-    implementation "org.ow2.asm:asm:${project.ow2AsmVersion}"
-    implementation "org.ow2.asm:asm-commons:${project.ow2AsmCommonsVersion}"
-    implementation "com.google.code.gson:gson:${project.gsonVersion}"
-    implementation "commons-io:commons-io:${project.commonsIoVersion}"
+    implementation libs.ow2.asm
+    implementation libs.ow2.asm.commons
+    implementation libs.gson
+    implementation libs.commons.io
     implementation project(':identifier-util')
     implementation project(':ballerina-runtime')
 }
@@ -30,20 +36,8 @@ dependencies {
 version = 1.0
 
 jar {
-    dependsOn(':identifier-util:jar')
-    dependsOn(':ballerina-runtime:jar')
-    from(sourceSets.main.output)
-    from(sourceSets.main.java) {
-        include "**/*.java"
-    }
-
-    from(configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }) {
-        exclude "META-INF/*.SF"
-        exclude "META-INF/*.DSA"
-        exclude "META-INF/*.RSA"
-    }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     manifest {
         attributes 'Main-Class': 'io.ballerina.runtime.profiler.Main'
     }

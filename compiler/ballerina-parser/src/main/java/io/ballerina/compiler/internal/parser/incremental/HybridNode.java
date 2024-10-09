@@ -20,8 +20,9 @@ package io.ballerina.compiler.internal.parser.incremental;
 import io.ballerina.compiler.internal.parser.BallerinaLexer;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STToken;
-import io.ballerina.compiler.internal.parser.utils.PersistentStack;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
+
+import java.util.Deque;
 
 /**
  * Represents a {@code STNode} retrieved either from the old syntax tree or from the new text document.
@@ -69,7 +70,7 @@ class HybridNode {
          * Represents a token retrived either from the old syntax tree
          * or from the new text document.
          */
-        TOKEN;
+        TOKEN
     }
 
     /**
@@ -81,7 +82,7 @@ class HybridNode {
      */
     enum Source {
         OLD_SYNTAX_TREE,
-        NEW_TEXT_DOCUMENT;
+        NEW_TEXT_DOCUMENT
     }
 
     /**
@@ -94,13 +95,13 @@ class HybridNode {
         int newTextOffset;
         BallerinaLexer lexer;
         NodePointer oldTreePtr;
-        PersistentStack<TextEditRange> textEditRanges;
+        Deque<TextEditRange> textEditRanges;
 
         State(int oldTextOffset,
               int newTextOffset,
               BallerinaLexer lexer,
               NodePointer oldTreePtr,
-              PersistentStack<TextEditRange> textEditRanges) {
+              Deque<TextEditRange> textEditRanges) {
             this.oldTextOffset = oldTextOffset;
             this.newTextOffset = newTextOffset;
             this.lexer = lexer;

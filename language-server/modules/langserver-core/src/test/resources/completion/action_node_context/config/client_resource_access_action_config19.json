@@ -16,7 +16,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` id  \n- `string[]` params"
         }
       },
-      "sortText": "G",
+      "sortText": "GA",
       "filterText": "post",
       "insertText": ".post",
       "insertTextFormat": "Snippet",

@@ -4414,6 +4414,55 @@ function testTableToJsonConversion() {
                                 "\"c\":\"xyz\"}, {\"a\":5, \"b\":{\"x\":[45.6, \"asd\"]}, \"d\":10.0, \"e\":12.5}]");
 }
 
+type Basic record {|
+    int id?;
+|};
+
+type PersonRec record {|
+    string name;
+    int age?;
+    Basic ...;
+|};
+
+type StudentRec record {|
+    *PersonRec;
+    int studentId;
+    string code?;
+|};
+
+type PartTimeStudent record {|
+    *PersonRec;
+    string:Char code?;
+    StudentRec s;
+|};
+
+type StudentResearcher record {|
+    *PersonRec;
+    string code?;
+|};
+
+type StudentTutor record {|
+    *PersonRec;
+|};
+
+type S StudentTutor|StudentResearcher|PartTimeStudent;
+
+function testCloneWithTypeWithUnionOfRecordsWithTypeInclusion() returns error? {
+    json student = {
+        name: "Anne",
+        code: "A",
+        s: {
+            name: "Anne",
+            studentId: 1001
+        }
+    };
+    S s = check student.cloneWithType();
+    assertTrue(s is PartTimeStudent);
+    assertFalse(s is StudentResearcher);
+    assertFalse(s is StudentTutor);
+    assert(s.toString(), "{\"code\":\"A\",\"s\":{\"studentId\":1001,\"name\":\"Anne\"},\"name\":\"Anne\"}");
+}
+
 ///////////////////////// Tests for `ensureType()` ///////////////////////////
 
 json p = {
@@ -4516,6 +4565,13 @@ function testEnsureTypeWithJson6() returns json|error {
     return isMarried;
 }
 
+function testEnsureTypeWithXMLSequence() returns xml:Text|error {
+    xml text1 = xml `<a>abc</a><b>def</b>`;
+    xml text2 = xml:map(xml:elements(text1), y => y.getChildren());
+    xml:Text|error t1 =  text2.ensureType();
+    return t1;
+}
+
 function testEnsureTypeWithCast1() returns boolean|error {
     boolean isMarried = <boolean>check p.married;
     return isMarried;
@@ -4589,6 +4645,7 @@ function testEnsureType() {
     ]);
     assert(<json>(checkpanic testEnsureTypeWithJson5()), 72.5);
     assert(<json>(checkpanic testEnsureTypeWithJson6()), false);
+    assert(<xml:Text>(checkpanic testEnsureTypeWithXMLSequence()), xml `abcdef`);
     assert(<boolean>(checkpanic testEnsureTypeWithCast1()), false);
     assert(<json[]>(checkpanic testEnsureTypeWithCast2()), [
         125.0 / 3.0,
@@ -4732,6 +4789,14 @@ function testXMLWithAngleBrackets() {
         return;
     }
     panic error("AssertionError : expected: " + expected + " found: " + exy.toString());
+}
+
+function testXMLSequenceWithOneTextElement() {
+    xml text1 = xml `<a>abc</a><b>def</b>`;
+    xml text2 = xml:map(xml:elements(text1), y => y.getChildren());
+    var item = text2.cloneWithType(xml:Text);
+    assertTrue(item is xml:Text);
+    assertEquality(xml `abcdef`, item);
 }
 
 public type KeyVals record {|

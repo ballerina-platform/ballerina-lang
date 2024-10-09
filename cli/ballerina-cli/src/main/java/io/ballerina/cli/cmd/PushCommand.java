@@ -42,7 +42,6 @@ import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -54,7 +53,6 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Optional;
@@ -100,13 +98,13 @@ public class PushCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--skip-source-check"}, description = "skip checking if source has changed")
     private boolean skipSourceCheck;
 
-    private Path userDir;
-    private PrintStream errStream;
-    private PrintStream outStream;
-    private boolean exitWhenFinish;
+    private final Path userDir;
+    private final PrintStream errStream;
+    private final PrintStream outStream;
+    private final boolean exitWhenFinish;
 
     public PushCommand() {
-        this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.userDir = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.errStream = System.err;
         this.outStream = System.out;
         this.exitWhenFinish = true;
@@ -234,7 +232,7 @@ public class PushCommand implements BLauncherCmd {
                         settings.getProxy().password(), getAccessTokenOfCLI(settings),
                         settings.getCentral().getConnectTimeout(),
                         settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                        settings.getCentral().getCallTimeout());
+                        settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
                 if (balaPath == null) {
                     pushPackage(project, client);
                 } else {
@@ -249,7 +247,7 @@ public class PushCommand implements BLauncherCmd {
                     pushBalaToRemote(balaPath, client);
                 }
             }
-        } catch (ProjectException | CentralClientException | SettingsTomlException e) {
+        } catch (ProjectException | CentralClientException e) {
             CommandUtil.printError(this.errStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -484,25 +482,20 @@ public class PushCommand implements BLauncherCmd {
             Path ballerinaHomePath = RepoUtils.createAndGetHomeReposPath();
             Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
 
-            try {
-                authenticate(errStream, getBallerinaCentralCliTokenUrl(), settingsTomlFilePath, client);
-            } catch (SettingsTomlException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-                return;
-            }
+            authenticate(errStream, getBallerinaCentralCliTokenUrl(), settingsTomlFilePath, client);
 
             try {
                 client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_17.code(),
                                    RepoUtils.getBallerinaVersion());
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();
-                if (null != errorMessage && !"".equals(errorMessage.trim())) {
+                if (null != errorMessage && !errorMessage.trim().isEmpty()) {
                     // removing the error stack
                     if (errorMessage.contains("\n\tat")) {
                         errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
                     }
 
-                    errorMessage = errorMessage.replaceAll("error: ", "");
+                    errorMessage = errorMessage.replace("error: ", "");
 
                     // when unauthorized access token for organization is given
                     if (errorMessage.contains("subject claims missing in the user info repsonse")) {
