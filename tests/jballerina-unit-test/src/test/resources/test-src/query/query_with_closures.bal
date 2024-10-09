@@ -434,6 +434,99 @@ function testQueriesWithinArrowFunctionsAndWithLet() {
     // function () returns int[] f9 = q5[0].f;
 }
 
+type Grade record {|
+    string course;
+    string grade;
+    int[] sections;
+|};
+
+type Student record {|
+    string name;
+    Grade[] grades;
+|};
+
+type GradeSection record {|
+    string course;
+    int[] sections;
+|};
+
+Student[] students = [
+    {
+        name: "john",
+        grades: [
+            {course: "Ma", grade: "A+", sections: [10, 9, 6, 5]},
+            {course: "Bal", grade: "A+", sections: [8, 8, 2, 5]}
+        ]
+    },
+    {
+        name: "bob",
+        grades: [
+            {course: "Sci", grade: "A", sections: [8, 3, 4, 5]},
+            {course: "Com", grade: "B", sections: [2, 6, 5, 7]}
+        ]
+    }
+];
+
+function testNestedQueryAndClosureFieldInQuerySelect() {
+    record {|string name; string[] courses;|}[] studentCourses = from Student student in students
+        select {
+            courses: from Grade grade in student.grades
+                select grade.course,
+            name: student.name
+        };
+    assertEquality([{name: "john", courses: ["Ma", "Bal"]}, {name: "bob", courses: ["Sci", "Com"]}], studentCourses);
+
+    record {|string name; function () returns Grade[] getGrades;|}[] studentCourse2 = from Student student in students
+        select {
+            getGrades: function() returns Grade[] {
+                return student.grades;
+            },
+            name: student.name
+        };
+
+    assertEquality(studentCourse2[0].name, "john");
+    function () returns Grade[] getGrades = studentCourse2[0].getGrades;
+    assertEquality([
+                {course: "Ma", grade: "A+", sections: [10, 9, 6, 5]},
+                {course: "Bal", grade: "A+", sections: [8, 8, 2, 5]}
+            ], getGrades());
+
+    assertEquality(studentCourse2[1].name, "bob");
+    getGrades = studentCourse2[1].getGrades;
+    assertEquality([
+                {course: "Sci", grade: "A", sections: [8, 3, 4, 5]},
+                {course: "Com", grade: "B", sections: [2, 6, 5, 7]}
+            ], getGrades());
+
+    GradeSection[][] studentGradeSections = from Student student in students
+        let GradeSection[] gradeSections = from Grade ge in student.grades
+            select {
+                sections: from int section in ge.sections
+                    where section > 5
+                    select section,
+                course: ge.course
+            }
+        select gradeSections;
+    assertEquality([
+                [{course: "Ma", sections: [10, 9, 6]}, {course: "Bal", sections: [8, 8]}],
+                [{course: "Sci", sections: [8]}, {course: "Com", sections: [6, 7]}]
+            ], studentGradeSections);
+
+    record {|int[] total; string name;|}[] totals = from Student s in students
+        select {
+            total: from Grade g in s.grades
+                select from int mark in g.sections
+                    collect sum(mark),
+            name: s.name
+        };
+
+    assertEquality([
+                {total: [30, 23], name: "john"},
+                {total: [20, 20], name: "bob"}
+            ], totals);
+
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata expected, anydata actual) {
