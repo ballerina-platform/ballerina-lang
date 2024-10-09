@@ -142,6 +142,7 @@ public class Names {
     public static final Name CLEAN_UP_TRANSACTION = new Name("cleanupTransactionContext");
     public static final Name BEGIN_REMOTE_PARTICIPANT = new Name("beginRemoteParticipant");
     public static final Name START_TRANSACTION_COORDINATOR = new Name("startTransactionCoordinator");
+    public static final Name STARTUP_CRASH_RECOVERY = new Name("startupCrashRecovery");
 
     // Names related to streams
     public static final Name CONSTRUCT_STREAM = new Name("construct");

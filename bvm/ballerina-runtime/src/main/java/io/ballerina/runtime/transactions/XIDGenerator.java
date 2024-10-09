@@ -17,8 +17,6 @@
 */
 package io.ballerina.runtime.transactions;
 
-import java.security.SecureRandom;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Generates XID for the distributed transactions.
@@ -26,20 +24,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 1.0
  */
 public final class XIDGenerator {
+    // DEFAULT_FORMAT will be unique for ballerina but same for each transaction
+    private static final int DEFAULT_FORMAT = ('B' << 24) + ('A' << 16) + ('L' << 8);
 
-    private static final SecureRandom secureRand = new SecureRandom();
-    private static final AtomicInteger formatIdIdGenerator = new AtomicInteger();
-
-    private static byte[] randomBytes() {
-        final byte[] bytes = new byte[48];
-        secureRand.nextBytes(bytes);
-        return bytes;
+    static XATransactionID createXID(String combinedId) {
+        String[] trxId = (combinedId.split("_")[0]).split(":");
+        final byte[] branchQualifier = trxId[1].getBytes();
+        final byte[] globalTransactionId = trxId[0].getBytes();
+        return new XATransactionID(DEFAULT_FORMAT, branchQualifier, globalTransactionId);
     }
 
-    static XATransactionID createXID() {
-        final byte[] branchQualifier = randomBytes();
-        final byte[] globalTransactionId = randomBytes();
-        return new XATransactionID(formatIdIdGenerator.incrementAndGet(), branchQualifier, globalTransactionId);
+    public static int getDefaultFormat() {
+        return DEFAULT_FORMAT;
     }
 
     private XIDGenerator() {
