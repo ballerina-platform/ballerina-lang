@@ -20,6 +20,14 @@ import ballerina/jballerina.java;
 configurable boolean managerEnabled = false;
 # Config to specify transaction log directory.
 configurable string logBase = "transaction_log_dir";
+# Config to recovery log directory.
+configurable string recoveryLogName = "recoveryLog";
+# Config to recovery log directory.
+configurable string recoveryLogDir = "";
+# Config to specify the checkpoint interval.
+configurable int checkpointInterval = 10000;
+# Config to specify whether to delete logs or not
+configurable boolean deleteOldLogs = true;
 # Config to specify the timeout for auto commit.
 configurable int transactionAutoCommitTimeout = 120;
 # Config to specify the timeout for cleaning up dead transactions.
