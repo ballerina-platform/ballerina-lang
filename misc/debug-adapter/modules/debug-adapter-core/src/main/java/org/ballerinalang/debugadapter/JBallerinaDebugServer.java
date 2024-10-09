@@ -22,7 +22,6 @@ import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
-import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import io.ballerina.compiler.syntax.tree.Node;
