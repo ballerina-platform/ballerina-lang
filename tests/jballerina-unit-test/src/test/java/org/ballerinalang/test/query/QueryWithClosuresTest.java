@@ -62,7 +62,8 @@ public class QueryWithClosuresTest {
                 "testClosureInQueryActionInDo4",
                 "testClosureInQueryActionInDo5",
                 "testClosureInQueryActionInDo6",
-                "testClosureInQueryActionInDo7"
+                "testClosureInQueryActionInDo7",
+                "testNestedQueryAndClosureFieldInQuerySelect"
         };
     }
 
