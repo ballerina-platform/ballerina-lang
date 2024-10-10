@@ -38,6 +38,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -236,8 +237,7 @@ public final class JsonToRecordMapper {
                                         List<DiagnosticMessage> diagnosticMessages,
                                         boolean isNullAsOptional) {
         Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
-        Token bodyStartDelimiter = AbstractNodeFactory.createToken(isClosed ? SyntaxKind.OPEN_BRACE_PIPE_TOKEN :
-                SyntaxKind.OPEN_BRACE_TOKEN);
+        Token bodyStartDelimiter = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_PIPE_TOKEN);
 
         List<Node> recordFields = new ArrayList<>();
         if (recordToTypeDescNodes.containsKey(recordName)) {
@@ -269,12 +269,18 @@ public final class JsonToRecordMapper {
                         isNullAsOptional);
             }
         }
+
         NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFields);
-        Token bodyEndDelimiter = AbstractNodeFactory.createToken(isClosed ? SyntaxKind.CLOSE_BRACE_PIPE_TOKEN :
-                SyntaxKind.CLOSE_BRACE_TOKEN);
+        Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_PIPE_TOKEN);
+        RecordRestDescriptorNode restDescriptorNode = isClosed ? null :
+                NodeFactory.createRecordRestDescriptorNode(
+                        NodeFactory.createBuiltinSimpleNameReferenceNode(SyntaxKind.JSON_KEYWORD,
+                                AbstractNodeFactory.createToken(SyntaxKind.JSON_KEYWORD)),
+                        AbstractNodeFactory.createToken(SyntaxKind.ELLIPSIS_TOKEN),
+                        AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN));
         RecordTypeDescriptorNode recordTypeDescriptorNode =
                 NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
-                        fieldNodes, null, bodyEndDelimiter);
+                        fieldNodes, restDescriptorNode, bodyEndDelimiter);
 
         if (moveBefore == null || moveBefore.equals(recordName)) {
             recordToTypeDescNodes.put(recordName, recordTypeDescriptorNode);

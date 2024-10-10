@@ -481,7 +481,7 @@ public class JsonToRecordMapperTests {
         for (Map.Entry<Path, Path> sample : samples.entrySet()) {
             String jsonFileContent = Files.readString(sample.getKey());
             JsonToRecordResponse jsonToRecordResponse =
-                    JsonToRecordMapper.convert(jsonFileContent, null, false, false, false, null, null);
+                    JsonToRecordMapper.convert(jsonFileContent, null, false, false, false, null, null, false);
             if (jsonToRecordResponse.getCodeBlock() != null) {
                 String generatedCodeBlock = jsonToRecordResponse.getCodeBlock().replaceAll("\\s+", "");
                 String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
