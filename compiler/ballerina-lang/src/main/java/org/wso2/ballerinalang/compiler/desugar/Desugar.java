@@ -870,19 +870,30 @@ public class Desugar extends BLangNodeVisitor {
             type = typeNode.getBType();
         }
 
+        String typeSymbolName = type.tsymbol.name.value;
+        if ((Types.getReferredType(type).tag != TypeTags.INTERSECTION && this.env.enclPkg.typeDefinitions.stream()
+                .anyMatch(typeDef ->
+                        (Types.getReferredType(typeDef.typeNode.getBType()).tag == TypeTags.INTERSECTION) &&
+                        typeDef.symbol.name.value.equals(typeSymbolName)))) {
+            // This is a workaround for an issue where we create two type defs with same name for the below sample
+            // type T1 [T1] & readonly;
+            return;
+        }
+
         Name name = generateTypedescVariableName(type);
         Location pos = typeNode.pos;
         BType typedescType = new BTypedescType(type, symTable.typeDesc.tsymbol);
         BSymbol owner = this.env.scope.owner;
         BVarSymbol varSymbol  = new BVarSymbol(0, name, owner.pkgID, typedescType, owner, pos, VIRTUAL);
+//        varSymbol.closure = true;
         BLangTypedescExpr typedescExpr = ASTBuilderUtil.createTypedescExpr(pos, typedescType, type);
-        typedescExpr.typeNode = typeNode;
         BLangSimpleVariableDef simpleVariableDef = createSimpleVariableDef(pos, name.value, typedescType, typedescExpr,
                                                                            varSymbol);
         typedescList.add(simpleVariableDef);
     }
 
     private Name generateTypedescVariableName(BType targetType) {
+        // tsymbol.name.value is empty for anonymous types except for record types
         return targetType.tsymbol.name.value.isEmpty()? new Name(TYPEDESC + typedescCount++) :
                 new Name(TYPEDESC + targetType.tsymbol.name.value);
     }
@@ -1333,6 +1344,11 @@ public class Desugar extends BLangNodeVisitor {
 
         for (BLangType constituentTypeNode : intersectionTypeNode.constituentTypeNodes) {
             rewrittenConstituents.add(rewrite(constituentTypeNode, env));
+        }
+
+        int tag = Types.getImpliedType(intersectionTypeNode.getBType()).tag;
+        if (tag == TypeTags.RECORD || tag == TypeTags.TUPLE) {
+            createTypedescVariableDef(intersectionTypeNode);
         }
 
         intersectionTypeNode.constituentTypeNodes = rewrittenConstituents;
@@ -8914,9 +8930,10 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangConstant constant) {
 
         BConstantSymbol constSymbol = constant.symbol;
-        BType refType = Types.getImpliedType(constSymbol.literalType);
-        if (refType.tag <= TypeTags.BOOLEAN || refType.tag == TypeTags.NIL) {
-            if (refType.tag != TypeTags.NIL && (constSymbol.value == null ||
+        BType impliedType = Types.getImpliedType(constSymbol.literalType);
+        int tag = impliedType.tag;
+        if (tag <= TypeTags.BOOLEAN || tag == TypeTags.NIL) {
+            if (tag != TypeTags.NIL && (constSymbol.value == null ||
                             constSymbol.value.value == null)) {
                 throw new IllegalStateException();
             }
@@ -8926,6 +8943,26 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             constant.expr = rewriteExpr(constant.expr);
         }
+
+        if ((tag == TypeTags.RECORD && constant.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) ||
+                (tag == TypeTags.TUPLE && constant.expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR)) {
+            // Literal type will have a typedesc var created via the associated type def.
+            // The issue is that type def has the effective type not the original intersection.
+            // Hence, create the typedesc var here.
+            // Todo: In the below sample, `a` and `b` will have the same literal type. Then the typedesc will be
+            // created with the same type. ATM in the BIRGen we lookup the typedesc given the type. Hence that
+            // logic will fail to identify the correct typedesc and it will fail when there are large methods.
+            // Need to find a fix for this. ATM we create only one typedesc for the
+            // following sample to overcome that issue.
+            //
+            // const string[] a = ["apple", "orange"];
+            // const string[] b = a;
+            BLangType blangIntersection = (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
+            blangIntersection.setBType(constSymbol.literalType);
+            blangIntersection.pos = constSymbol.literalType.tsymbol.pos;
+            createTypedescVariableDef(blangIntersection);
+        }
+
         constant.annAttachments.forEach(attachment ->  rewrite(attachment, env));
         result = constant;
     }
