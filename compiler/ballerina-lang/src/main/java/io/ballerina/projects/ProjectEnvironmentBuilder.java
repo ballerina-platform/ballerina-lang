@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import io.ballerina.projects.internal.environment.DefaultProjectEnvironment;
 import io.ballerina.projects.repos.BuildProjectCompilationCache;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -60,7 +61,13 @@ public class ProjectEnvironmentBuilder {
             compilationCache = compilationCacheFactory.createCompilationCache(project);
         } else {
             compilationCache = switch (project.kind()) {
-                case BUILD_PROJECT -> BuildProjectCompilationCache.from(project);
+                case BUILD_PROJECT -> {
+                    compilationCache = BuildProjectCompilationCache.from(project);
+                    if (environment instanceof DefaultEnvironment defaultEnvironment) {
+                        defaultEnvironment.buildProjectTargetDir = project.targetDir();
+                    }
+                    yield compilationCache;
+                }
                 case SINGLE_FILE_PROJECT -> TempDirCompilationCache.from(project);
                 case BALA_PROJECT ->
                         throw new IllegalStateException("BALAProject should always be created with a CompilationCache");

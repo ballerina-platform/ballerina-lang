@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.types;
 
+import org.wso2.ballerinalang.compiler.semantics.model.BTypeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 /**
  * {@code Type} represents a type in Ballerina.
@@ -27,4 +28,5 @@ public interface Type {
     TypeKind getKind();
 
     <T> void accept(TypeVisitor visitor);
+    <T> void accept(BTypeAnalyzer<T> analyzer, T props);
 }

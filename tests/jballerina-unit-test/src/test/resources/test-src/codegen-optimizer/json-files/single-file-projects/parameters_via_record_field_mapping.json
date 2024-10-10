@@ -1,0 +1,35 @@
+{
+  ".": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "main",
+        "foo"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [],
+      "virtualFunctions": []
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "RecA",
+        "B",
+        "C"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "D",
+        "RecE"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}

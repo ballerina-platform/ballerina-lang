@@ -37,9 +37,9 @@ public abstract class CompilationCache {
 
     public abstract void cacheBir(ModuleName moduleName, ByteArrayOutputStream birContent);
 
-    public abstract Optional<Path> getPlatformSpecificLibrary(CompilerBackend compilerBackend, String libraryName);
+    public abstract Optional<Path> getPlatformSpecificLibrary(CompilerBackend compilerBackend, String libraryName,
+                                                              boolean isOptimizedLibrary);
 
-    public abstract void cachePlatformSpecificLibrary(CompilerBackend compilerBackend,
-                                                      String libraryName,
-                                                      ByteArrayOutputStream libraryContent);
+    public abstract void cachePlatformSpecificLibrary(CompilerBackend compilerBackend, String libraryName,
+                                                      ByteArrayOutputStream libraryContent, boolean isOptimizedLibrary);
 }

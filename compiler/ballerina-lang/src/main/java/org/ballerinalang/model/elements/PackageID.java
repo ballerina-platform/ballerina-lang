@@ -271,6 +271,19 @@ public class PackageID {
         return org + this.name + Names.VERSION_SEPARATOR.value + this.version;
     }
 
+    public String getPackageNameWithOrg() {
+        if (Names.DOT.equals(this.name)) {
+            return this.name.value;
+        }
+
+        String org = "";
+        if (this.orgName != null && !this.orgName.equals(Names.ANON_ORG)) {
+            org = this.orgName + Names.ORG_NAME_SEPARATOR.value;
+        }
+
+        return org + this.name;
+    }
+
     public Name getOrgName() {
         return orgName;
     }

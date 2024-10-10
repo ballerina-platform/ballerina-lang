@@ -23,6 +23,7 @@ import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.projects.internal.ModuleContextDataHolder;
+import io.ballerina.projects.util.CodegenOptimizationUtils;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
@@ -267,8 +268,8 @@ class ModuleContext {
         // TODO This logic needs to be updated. We need a proper way to decide on the initial state
         if (compilationCache.getBir(moduleDescriptor.name()).length == 0) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
-        } else if (this.project().kind() == ProjectKind.BUILD_PROJECT
-                && !this.project.buildOptions().enableCache()) {
+        } else if ((this.project().kind() == ProjectKind.BUILD_PROJECT
+                && !this.project.buildOptions().enableCache()) || this.shouldOptimizeCodegen()) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
         } else {
             moduleCompState = ModuleCompilationState.LOADED_FROM_CACHE;
@@ -311,6 +312,18 @@ class ModuleContext {
         }
 
         this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
+    }
+
+    /**
+     *
+     * Returns true if at least one method or type def is connected to one of the root methods of the root pkg.
+     */
+    public boolean isUsed() {
+        return this.bLangPackage().symbol.invocationData.moduleIsUsed;
+    }
+
+    public CompilationCache getCompilationCache() {
+        return this.compilationCache;
     }
 
     private void addModuleDependency(PackageOrg org,
@@ -450,8 +463,13 @@ class ModuleContext {
             return;
         }
 
+        boolean shouldNotOptimizeModule =
+                moduleContext.isWhiteListedModule() || !moduleContext.project.buildOptions().optimizeCodegen();
+
         // Generate and write the thin JAR to the file system
-        compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
+        if (shouldNotOptimizeModule) {
+            compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
+        }
 
         // Skip bir caching if jar generation is not successful
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
@@ -465,7 +483,17 @@ class ModuleContext {
         // Write the bir to the file system
         // This code will execute only if JAR caching is successful
         // TODO: check the filesystem cache and delete if the cache is incomplete (if BIR or JAR is missing)
-        moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
+        if (shouldNotOptimizeModule) {
+            moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
+        }
+    }
+
+    public boolean isWhiteListedModule() {
+        return CodegenOptimizationUtils.isWhiteListedModule(this.moduleDescriptor.moduleCompilationId());
+    }
+
+    private boolean shouldOptimizeCodegen() {
+        return this.project().buildOptions().optimizeCodegen() && !isWhiteListedModule();
     }
 
     private static boolean shouldGenerateBir(ModuleContext moduleContext, CompilerContext compilerContext) {

@@ -1,0 +1,6 @@
+[package]
+org = "thushara_piyasekara"
+name = "global_value_initialization"
+version = "0.1.0"
+distribution = "2201.9.0-SNAPSHOT"
+
