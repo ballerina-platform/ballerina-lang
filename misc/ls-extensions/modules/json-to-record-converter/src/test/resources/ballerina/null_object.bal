@@ -1,3 +1,3 @@
 type NewRecord record {
-    any id;
+    json id;
 };
