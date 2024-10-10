@@ -198,6 +198,11 @@ public class NewCommandTest extends BaseCommandTest {
                 """;
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
+        Assert.assertTrue(output.contains("What's next"));
+        Assert.assertTrue(output.contains("Execute the below command to run the program:"));
+        Assert.assertTrue(output.contains("\t bal run " + name));
+        Assert.assertTrue(output.contains("Else, execute the below command to build the executable JAR file:"));
+        Assert.assertTrue(output.contains("\t bal build " + name));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(".devcontainer.json")));
         String devcontainerContent = Files.readString(packageDir.resolve(".devcontainer.json"));
