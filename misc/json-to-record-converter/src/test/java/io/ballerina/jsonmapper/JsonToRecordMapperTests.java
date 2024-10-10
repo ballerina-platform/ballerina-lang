@@ -20,7 +20,6 @@ package io.ballerina.jsonmapper;
 
 
 import io.ballerina.jsonmapper.diagnostic.JsonToRecordMapperDiagnostic;
-import org.javatuples.Pair;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -507,23 +506,23 @@ public class JsonToRecordMapperTests {
 
     @Test(description = "Test for conflicting record names in single bal file project")
     public void testForConflictingRecordNamesInSingleBalFileProject() throws IOException {
-        Map<String, Pair<Path, Path>> existingRecordsToJsonSamples = new HashMap<>() {{
-            put("sample_4.bal", new Pair<>(sample4Bal, sample4Json));
-            put("sample_8.bal", new Pair<>(sample8Bal, sample8Json));
-            put("sample_10.bal", new Pair<>(sample10Bal, sample10Json));
-            put("sample_11.bal", new Pair<>(sample11Bal, sample11Json));
+        Map<String, Map.Entry<Path, Path>> existingRecordsToJsonSamples = new HashMap<>() {{
+            put("sample_4.bal", Map.entry(sample4Bal, sample4Json));
+            put("sample_8.bal", Map.entry(sample8Bal, sample8Json));
+            put("sample_10.bal", Map.entry(sample10Bal, sample10Json));
+            put("sample_11.bal", Map.entry(sample11Bal, sample11Json));
         }};
-        Map<String, Pair<Path, Path>> existingRecordsToJsonTypeDescSamples = new HashMap<>() {{
-            put("sample_4_type_desc.bal", new Pair<>(sample4Bal, sample4Json));
-            put("sample_9_type_desc.bal", new Pair<>(sample9Bal, sample9Json));
-            put("sample_10_type_desc.bal", new Pair<>(sample10Bal, sample10Json));
+        Map<String, Map.Entry<Path, Path>> existingRecordsToJsonTypeDescSamples = new HashMap<>() {{
+            put("sample_4_type_desc.bal", Map.entry(sample4Bal, sample4Json));
+            put("sample_9_type_desc.bal", Map.entry(sample9Bal, sample9Json));
+            put("sample_10_type_desc.bal", Map.entry(sample10Bal, sample10Json));
         }};
 
-        for (Map.Entry<String, Pair<Path, Path>> entry : existingRecordsToJsonSamples.entrySet()) {
-            Path jsonFilePath = entry.getValue().getValue1();
+        for (Map.Entry<String, Map.Entry<Path, Path>> entry : existingRecordsToJsonSamples.entrySet()) {
+            Path jsonFilePath = entry.getValue().getValue();
             Path balFilePath = RES_DIR.resolve(PROJECT_DIR).resolve(ASSERT_DIR).resolve("singleFileProject")
                     .resolve(entry.getKey());
-            String balExistingFilePath = entry.getValue().getValue0().toUri().toString();
+            String balExistingFilePath = entry.getValue().getKey().toUri().toString();
             String jsonFileContent = Files.readString(jsonFilePath);
             JsonToRecordResponse jsonToRecordResponse = JsonToRecordMapper
                     .convert(jsonFileContent, null, false, false, false, balExistingFilePath, null);
@@ -531,11 +530,11 @@ public class JsonToRecordMapperTests {
             String expectedCodeBlock = Files.readString(balFilePath).replaceAll("\\s+", "");
             Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
         }
-        for (Map.Entry<String, Pair<Path, Path>> entry : existingRecordsToJsonTypeDescSamples.entrySet()) {
-            Path jsonFilePath = entry.getValue().getValue1();
+        for (Map.Entry<String, Map.Entry<Path, Path>> entry : existingRecordsToJsonTypeDescSamples.entrySet()) {
+            Path jsonFilePath = entry.getValue().getValue();
             Path balFilePath = RES_DIR.resolve(PROJECT_DIR).resolve(ASSERT_DIR).resolve("singleFileProject")
                     .resolve(entry.getKey());
-            String balExistingFilePath = entry.getValue().getValue0().toUri().toString();
+            String balExistingFilePath = entry.getValue().getKey().toUri().toString();
             String jsonFileContent = Files.readString(jsonFilePath);
             JsonToRecordResponse jsonToRecordResponse =
                     JsonToRecordMapper.convert(jsonFileContent, null, true, false, false, balExistingFilePath, null);

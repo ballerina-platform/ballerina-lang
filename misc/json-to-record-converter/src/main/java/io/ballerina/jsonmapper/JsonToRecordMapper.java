@@ -52,7 +52,6 @@ import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.options.ForceFormattingOptions;
 import org.ballerinalang.formatter.core.options.FormattingOptions;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.javatuples.Pair;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -376,21 +375,21 @@ public final class JsonToRecordMapper {
                                            Map<String, RecordFieldNode> previousRecordFieldToNodes,
                                            Map<String, RecordFieldNode> newRecordFieldToNodes,
                                            boolean isNullAsOptional) {
-        Map<String, Pair<RecordFieldNode, RecordFieldNode>> intersectingRecordFields =
+        Map<String, Map.Entry<RecordFieldNode, RecordFieldNode>> intersectingRecordFields =
                 intersection(previousRecordFieldToNodes, newRecordFieldToNodes);
         Map<String, RecordFieldNode> differencingRecordFields =
                 difference(previousRecordFieldToNodes, newRecordFieldToNodes);
 
-        for (Map.Entry<String, Pair<RecordFieldNode, RecordFieldNode>> entry : intersectingRecordFields.entrySet()) {
-            boolean isOptional = entry.getValue().getValue0().questionMarkToken().isPresent();
+        for (Map.Entry<String, Map.Entry<RecordFieldNode, RecordFieldNode>> entry : intersectingRecordFields.entrySet()) {
+            boolean isOptional = entry.getValue().getKey().questionMarkToken().isPresent();
             Map<String, String> jsonEscapedFieldToFields = jsonNodes.entrySet().stream()
                     .collect(Collectors.toMap(jsonEntry -> escapeIdentifier(jsonEntry.getKey()), Map.Entry::getKey));
             Map.Entry<String, JsonElement> jsonEntry = new AbstractMap.SimpleEntry<>(jsonEscapedFieldToFields
                     .get(entry.getKey()), jsonNodes.get(jsonEscapedFieldToFields.get(entry.getKey())));
-            if (!entry.getValue().getValue0().typeName().toSourceCode()
-                    .equals(entry.getValue().getValue1().typeName().toSourceCode())) {
-                TypeDescriptorNode node1 = (TypeDescriptorNode) entry.getValue().getValue0().typeName();
-                TypeDescriptorNode node2 = (TypeDescriptorNode) entry.getValue().getValue1().typeName();
+            if (!entry.getValue().getKey().typeName().toSourceCode()
+                    .equals(entry.getValue().getValue().typeName().toSourceCode())) {
+                TypeDescriptorNode node1 = (TypeDescriptorNode) entry.getValue().getKey().typeName();
+                TypeDescriptorNode node2 = (TypeDescriptorNode) entry.getValue().getValue().typeName();
 
                 TypeDescriptorNode nonAnyDataNode = null;
                 IdentifierToken optionalFieldName = null;
@@ -497,8 +496,7 @@ public final class JsonToRecordMapper {
                     fieldTypeName, fieldName,
                     optionalFieldToken, semicolonToken);
         } else if (entry.getValue().isJsonArray()) {
-            Map.Entry<String, JsonArray> jsonArrayEntry =
-                    new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue().getAsJsonArray());
+            Map.Entry<String, JsonArray> jsonArrayEntry = Map.entry(entry.getKey(), entry.getValue().getAsJsonArray());
             ArrayTypeDescriptorNode arrayTypeName =
                     getArrayTypeDescriptorNode(jsonArrayEntry, existingFieldNames, updatedFieldNames);
             recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
