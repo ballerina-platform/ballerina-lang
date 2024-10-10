@@ -27,6 +27,7 @@ import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,7 +80,7 @@ public class BindgenMvnResolver {
         }
     }
 
-    private void dependencyTraversal(Dependency dependency, String mvnRepository, Path projectRoot,
+    private void dependencyTraversal(Dependency dependency, String mvnRepository, @Nullable Path projectRoot,
                                      JvmTarget parentJvmTarget)
             throws BindgenException {
         if (dependency.getDepedencies() == null) {
@@ -104,7 +105,8 @@ public class BindgenMvnResolver {
     }
 
     private void handleDependency(String groupId, String artifactId, String version, String mvnRepository,
-                                  Path projectRoot, String parent, JvmTarget parentJvmTarget) throws BindgenException {
+                                  @Nullable Path projectRoot, @Nullable String parent, JvmTarget parentJvmTarget
+    ) throws BindgenException {
         Path mvnPath = Path.of(mvnRepository, getPathFromGroupId(groupId), artifactId, version);
         this.env.addClasspath(mvnPath.toString());
         if (projectRoot != null) {
@@ -179,6 +181,7 @@ public class BindgenMvnResolver {
         return combined.getPath();
     }
 
+    @Nullable
     private static String getModuleName(Path projectRoot, String outputPath) {
         if (outputPath == null) {
             outputPath = Path.of(System.getProperty(USER_DIR)).toString();

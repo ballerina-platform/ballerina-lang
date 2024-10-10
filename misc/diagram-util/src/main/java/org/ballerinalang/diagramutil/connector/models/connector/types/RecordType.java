@@ -19,6 +19,7 @@ package org.ballerinalang.diagramutil.connector.models.connector.types;
 
 import com.google.gson.annotations.Expose;
 import org.ballerinalang.diagramutil.connector.models.connector.Type;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +44,7 @@ public class RecordType extends Type {
         }
     }
 
-    public RecordType(List<Type> fields, Type restType) {
+    public RecordType(List<Type> fields, @Nullable Type restType) {
         this.typeName = "record";
         this.fields = fields;
         this.restType = restType;

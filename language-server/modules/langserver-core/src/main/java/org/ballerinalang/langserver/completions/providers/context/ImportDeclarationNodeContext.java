@@ -43,6 +43,7 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -180,7 +181,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
      * @param modulePart The module name user has already written
      * @return {@link Integer} rank
      */
-    private int rankModuleName(String label, String modulePart) {
+    private int rankModuleName(String label, @Nullable String modulePart) {
         // If there's a module part partially written, check if the label starts with that.
         if (modulePart != null && label.startsWith(modulePart)) {
             return 1;

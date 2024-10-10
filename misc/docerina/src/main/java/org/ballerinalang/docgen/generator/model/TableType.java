@@ -18,6 +18,7 @@
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class TableType extends Construct {
     public Type keyConstraint;
 
     public TableType(String name, String description, List<String> descriptionSections, boolean isDeprecated,
-                     Type rowParameterType, Type keyConstraint) {
+                     @Nullable Type rowParameterType, @Nullable Type keyConstraint) {
         super(name, description, descriptionSections, isDeprecated);
         this.rowParameterType = rowParameterType;
         this.keyConstraint = keyConstraint;

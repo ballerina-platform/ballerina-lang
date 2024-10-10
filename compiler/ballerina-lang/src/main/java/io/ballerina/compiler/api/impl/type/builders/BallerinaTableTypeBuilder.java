@@ -28,6 +28,7 @@ import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -61,6 +62,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
     private final TypesFactory typesFactory;
     private final SymbolTable symTable;
     private final Types types;
+    @Nullable
     private TypeSymbol rowType;
     private final List<TypeSymbol> keyTypes = new ArrayList<>();
     private final List<String> fieldNames = new ArrayList<>();
@@ -242,6 +244,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
         return false;
     }
 
+    @Nullable
     private BType getBType(TypeSymbol typeSymbol) {
         if (typeSymbol != null) {
             if (typeSymbol instanceof AbstractTypeSymbol abstractTypeSymbol

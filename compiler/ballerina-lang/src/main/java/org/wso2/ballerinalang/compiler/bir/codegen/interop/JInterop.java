@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.codegen.exceptions.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodKind;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
@@ -88,6 +89,7 @@ final class JInterop {
         return jRefType;
     }
 
+    @Nullable
     static ParamTypeConstraint[] buildParamTypeConstraints(List<JType> javaTypeConstraints, ClassLoader classLoader) {
 
         if (javaTypeConstraints == null) {

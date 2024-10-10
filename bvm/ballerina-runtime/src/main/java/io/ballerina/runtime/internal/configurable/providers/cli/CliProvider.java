@@ -35,6 +35,7 @@ import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -306,7 +307,7 @@ public class CliProvider implements ConfigProvider {
     }
 
     private CliArg checkAmbiguitiesAndGetCliArg(VariableKey variableKey, String key, String moduleKey,
-                                                String rootOrgValue, String rootModuleValue) {
+                                                @Nullable String rootOrgValue, String rootModuleValue) {
         if (rootOrgValue == null && rootModuleValue == null) {
             return markAndGetCliArg(key, variableKey, null);
         }
@@ -329,7 +330,7 @@ public class CliProvider implements ConfigProvider {
 
     }
 
-    private CliArg markAndGetCliArg(String key, VariableKey variableKey, String value) {
+    private CliArg markAndGetCliArg(String key, VariableKey variableKey, @Nullable String value) {
         // Handle cli args and module ambiguities
         VariableKey existingKey = markedCliKeyVariableMap.get(key);
         if (existingKey != null) {

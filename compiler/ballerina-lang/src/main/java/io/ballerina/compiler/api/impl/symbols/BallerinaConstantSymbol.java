@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
@@ -119,6 +120,7 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
         return transformer.transform(this);
     }
 
+    @Nullable
     private String stringValueOf(BallerinaConstantValue value) {
         if (value == null) {
             return null;

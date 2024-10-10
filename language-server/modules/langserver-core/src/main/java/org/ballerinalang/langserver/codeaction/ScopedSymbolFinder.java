@@ -38,6 +38,7 @@ import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -54,6 +55,7 @@ import java.util.stream.Collectors;
  */
 public class ScopedSymbolFinder extends NodeVisitor {
     private final Range range;
+    @Nullable
     private LinePosition currentIdentifierPos;
     private NonTerminalNode currentNode;
     private static final Map<Class<?>, Method> SCOPED_NODE_TO_VISIT_METHOD = Arrays.stream(
@@ -161,6 +163,7 @@ public class ScopedSymbolFinder extends NodeVisitor {
         }
     }
 
+    @Nullable
     private LinePosition nameRefPosition(NameReferenceNode nameRef) {
         if (nameRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qualifiedNameRef = (QualifiedNameReferenceNode) nameRef;

@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.ballerina.compiler.syntax.tree.Node;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,6 +53,7 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
     protected DiffKind diffKind;
     protected SemverImpact versionImpact;
     protected final List<Diff> childDiffs;
+    @Nullable
     private String message;
 
     private NodeListDiffImpl(List<T> newNodes, List<T> oldNodes) {
@@ -250,6 +252,7 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
             return this;
         }
 
+        @Nullable
         @Override
         public NodeDiffBuilder withChildDiffs(Collection<? extends Diff> childDiffs) {
             nodeListDiff.childDiffs.addAll(childDiffs);

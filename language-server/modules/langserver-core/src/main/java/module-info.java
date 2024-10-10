@@ -42,4 +42,5 @@ module io.ballerina.language.server.core {
     requires io.ballerina.syntaxapicallsgen;
     requires io.ballerina.central.client;
     requires java.management;
+    requires static org.jetbrains.annotations;
 }

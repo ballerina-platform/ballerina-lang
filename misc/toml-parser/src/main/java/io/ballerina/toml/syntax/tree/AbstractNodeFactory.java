@@ -23,6 +23,7 @@ import io.ballerina.toml.internal.parser.tree.STNode;
 import io.ballerina.toml.internal.parser.tree.STNodeFactory;
 import io.ballerina.toml.internal.parser.tree.STToken;
 import io.ballerina.toml.internal.syntax.NodeListUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -208,6 +209,7 @@ public abstract class AbstractNodeFactory {
                         .toList()).createUnlinkedFacade());
     }
 
+    @Nullable
     protected static STNode getOptionalSTNode(Node node) {
         return node != null ? node.internalNode() : null;
     }

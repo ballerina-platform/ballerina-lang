@@ -46,6 +46,7 @@ import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -104,6 +105,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private boolean nextKeySupported;
 
     private final Map<String, Object> nativeData = new HashMap<>();
+    @Nullable
     private BTypedesc typedesc;
 
     public TableValueImpl(TableType tableType) {
@@ -127,7 +129,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.type = type;
     }
 
-    public TableValueImpl(TableType tableType, ArrayValue data, ArrayValue fieldNames) {
+    public TableValueImpl(TableType tableType, @Nullable ArrayValue data, ArrayValue fieldNames) {
         this(tableType);
         if (this.fieldNames == null) {
             this.fieldNames = fieldNames.getStringArray();
@@ -373,7 +375,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     @Override
-    public String stringValue(BLink parent) {
+    public String stringValue(@Nullable BLink parent) {
         Iterator<Map.Entry<Long, List<V>>> itr = values.entrySet().iterator();
         return createStringValueDataEntry(itr, parent);
     }
@@ -426,6 +428,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return "table key(" + keyJoiner + ") [" + sj + "]";
     }
 
+    @Nullable
     private Type getTableConstraintField(Type constraintType, String fieldName) {
         switch (constraintType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
@@ -595,6 +598,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     private class KeyHashValueHolder extends ValueHolder {
         private final DefaultKeyWrapper keyWrapper;
+        @Nullable
         private Type keyType;
 
         public KeyHashValueHolder() {
@@ -636,6 +640,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             putNewData(key, data, entry, hash);
         }
 
+        @Nullable
         @Override
         public V getData(K key) {
             List<Map.Entry<K, V>> entryList = entries.get(TableUtils.hash(key, null));
@@ -710,6 +715,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return data;
         }
 
+        @Nullable
         @Override
         public V remove(K key) {
             keyValues.remove(key);

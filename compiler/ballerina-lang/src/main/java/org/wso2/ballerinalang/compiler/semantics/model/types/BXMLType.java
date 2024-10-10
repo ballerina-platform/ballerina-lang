@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -31,14 +32,15 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
     public BType constraint;
+    @Nullable
     public BXMLType mutableType;
 
-    public BXMLType(BType constraint, BTypeSymbol tsymbol) {
+    public BXMLType(BType constraint, @Nullable BTypeSymbol tsymbol) {
         super(TypeTags.XML, tsymbol);
         this.constraint = constraint;
     }
 
-    public BXMLType(BType constraint, BTypeSymbol tsymbol, long flags) {
+    public BXMLType(@Nullable BType constraint, BTypeSymbol tsymbol, long flags) {
         super(TypeTags.XML, tsymbol, flags);
         this.constraint = constraint;
     }

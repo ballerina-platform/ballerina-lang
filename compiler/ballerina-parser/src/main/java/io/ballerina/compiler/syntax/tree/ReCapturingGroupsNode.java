@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -100,6 +101,7 @@ public class ReCapturingGroupsNode extends NonTerminalNode {
     public static class ReCapturingGroupsNodeModifier {
         private final ReCapturingGroupsNode oldNode;
         private Token openParenthesis;
+        @Nullable
         private ReFlagExpressionNode reFlagExpression;
         private NodeList<Node> reSequences;
         private Token closeParenthesis;

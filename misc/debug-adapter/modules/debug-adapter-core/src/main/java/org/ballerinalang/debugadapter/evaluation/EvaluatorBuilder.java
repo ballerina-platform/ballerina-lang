@@ -87,6 +87,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.expression.UnaryExpressi
 import org.ballerinalang.debugadapter.evaluation.engine.expression.XMLFilterExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.XMLStepExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.XMLTemplateExpressionEvaluator;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -156,7 +157,9 @@ public class EvaluatorBuilder extends NodeVisitor {
     private final Set<SyntaxKind> capturedSyntax = new HashSet<>();
     private final List<Node> unsupportedNodes = new ArrayList<>();
     private final EvaluationContext context;
+    @Nullable
     private Evaluator result = null;
+    @Nullable
     private EvaluationException builderException = null;
 
     public EvaluatorBuilder(EvaluationContext context) {
@@ -178,7 +181,7 @@ public class EvaluatorBuilder extends NodeVisitor {
             unsupportedNodes.forEach(node -> errors.add(String.format("'%s' - %s", node.toString(), node.kind())));
             throw createEvaluationException(UNSUPPORTED_EXPRESSION, errors);
         }
-        if (result == null) {
+        if (result == null && builderException != null) {
             throw builderException;
         }
         return result;

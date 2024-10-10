@@ -35,6 +35,7 @@ import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.VoidValue;
 import com.sun.jdi.event.EventQueue;
 import com.sun.jdi.request.EventRequestManager;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +67,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     private final Map<ThreadReference, ThreadReferenceProxyImpl> myAllThreads = new ConcurrentHashMap<>();
     private final Map<ThreadGroupReference, ThreadGroupReferenceProxyImpl> myThreadGroups = new HashMap<>();
     private boolean myAllThreadsDirty = true;
+    @Nullable
     private List<ReferenceType> myAllClasses;
     private Map<ReferenceType, List<ReferenceType>> myNestedClassesCache = new HashMap<>();
 
@@ -549,6 +551,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
         return myGetMethodReturnValues.isAvailable();
     }
 
+    @Nullable
     public String getDefaultStratum() {
         return myVersionHigher14 ? myVirtualMachine.getDefaultStratum() : null;
     }
@@ -569,6 +572,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
         myVirtualMachine.setDebugTraceMode(i);
     }
 
+    @Nullable
     public ThreadReferenceProxyImpl getThreadReferenceProxy(ThreadReference thread) {
         if (thread == null) {
             return null;
@@ -576,7 +580,8 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
         return myAllThreads.computeIfAbsent(thread, t -> new ThreadReferenceProxyImpl(this, t));
     }
 
-    public ThreadGroupReferenceProxyImpl getThreadGroupReferenceProxy(ThreadGroupReference group) {
+    @Nullable
+    public ThreadGroupReferenceProxyImpl getThreadGroupReferenceProxy(@Nullable ThreadGroupReference group) {
         if (group == null) {
             return null;
         }
@@ -590,6 +595,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
         return proxy;
     }
 
+    @Nullable
     public ObjectReferenceProxyImpl getObjectReferenceProxy(ObjectReference objectReference) {
         if (objectReference != null) {
             if (objectReference instanceof ThreadReference threadReference) {
@@ -685,6 +691,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     }
 
     static final class JNITypeParserReflect {
+        @Nullable
         static Method typeNameToSignatureMethod;
 
         static {
@@ -704,6 +711,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
         private JNITypeParserReflect() {
         }
 
+        @Nullable
         static String typeNameToSignature(String name) {
             if (typeNameToSignatureMethod != null) {
                 try {
@@ -714,6 +722,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
             return null;
         }
 
+        @Nullable
         private static Method getDeclaredMethod(Class<?> aClass, String name, Class<?>... parameters) {
             try {
                 Method declaredMethod = aClass.getDeclaredMethod(name, parameters);

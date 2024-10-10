@@ -25,6 +25,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -510,7 +511,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         analyzeOnFailClause(transactionNode.onFailClause, data);
     }
 
-    private void analyzeOnFailClause(BLangOnFailClause onFailClause, AnalyzerData data) {
+    private void analyzeOnFailClause(@Nullable BLangOnFailClause onFailClause, AnalyzerData data) {
         if (onFailClause == null) {
             return;
         }

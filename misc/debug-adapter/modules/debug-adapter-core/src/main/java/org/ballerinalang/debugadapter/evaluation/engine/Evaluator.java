@@ -21,6 +21,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.BImport;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -52,7 +53,7 @@ public abstract class Evaluator {
      * @return a modifier object allowing to set a value in case the expression is lvalue,
      * otherwise null is returned.
      */
-    Modifier getModifier() {
+    @Nullable Modifier getModifier() {
         return null;
     }
 

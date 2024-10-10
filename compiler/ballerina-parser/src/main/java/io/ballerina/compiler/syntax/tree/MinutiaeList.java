@@ -22,6 +22,7 @@ import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeList;
 import io.ballerina.compiler.internal.syntax.NodeListUtils;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +45,7 @@ public final class MinutiaeList implements Iterable<Minutiae> {
     private final int size;
     private final Minutiae[] minutiaeNodes;
 
-    MinutiaeList(Token token, STNode internalMinutiae, int position) {
+    MinutiaeList(@Nullable Token token, STNode internalMinutiae, int position) {
         if (!NodeListUtils.isSTNodeList(internalMinutiae)) {
             throw new IllegalArgumentException("An STNodeList instance is expected");
         }

@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeMapInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodCallInstruction;
@@ -241,7 +242,7 @@ public class BIROptimizer {
             birPackage.functions.forEach(func -> this.optimizeNode(func, this.env));
         }
 
-        public void optimizeNode(BIRNode node, OptimizerEnv env) {
+        public void optimizeNode(BIRNode node, @Nullable OptimizerEnv env) {
             if (node == null) {
                 return;
             }

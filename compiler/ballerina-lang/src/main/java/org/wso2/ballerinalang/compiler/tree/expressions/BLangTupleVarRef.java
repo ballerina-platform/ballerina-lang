@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TupleVariableReferenceNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
@@ -49,6 +50,7 @@ public class BLangTupleVarRef extends BLangVariableReference implements TupleVar
         this.expressions = new ArrayList<>();
     }
 
+    @Nullable
     @Override
     @Deprecated
     public BLangIdentifier getPackageAlias() {

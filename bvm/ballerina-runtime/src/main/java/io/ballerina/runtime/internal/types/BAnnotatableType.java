@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 
@@ -35,7 +36,7 @@ public abstract class BAnnotatableType extends BType implements AnnotatableType 
 
     protected BMap<BString, Object> annotations = ValueCreator.createMapValue();
 
-    BAnnotatableType(String typeName, Module pkg, Class<?> valueClass) {
+    BAnnotatableType(@Nullable String typeName, @Nullable Module pkg, Class<?> valueClass) {
         super(typeName, pkg, valueClass);
     }
 

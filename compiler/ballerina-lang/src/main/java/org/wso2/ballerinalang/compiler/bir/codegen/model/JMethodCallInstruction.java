@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 
@@ -36,7 +37,7 @@ public class JMethodCallInstruction extends JInstruction {
     public String name;
     public int invocationType;
 
-    public JMethodCallInstruction(Location pos) {
+    public JMethodCallInstruction(@Nullable Location pos) {
         super(pos);
         jKind = JInsKind.CALL;
     }

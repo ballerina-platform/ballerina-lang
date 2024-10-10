@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Replaces internal tree nodes with the given replacements.
  * <p>
@@ -44,6 +46,7 @@ class STNodeReplacer extends STTreeModifier {
         return true;
     }
 
+    @Nullable
     @Override
     protected <T extends STNode> T modifyNode(T node) {
         if (node == null) {

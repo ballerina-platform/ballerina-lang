@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
 import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
@@ -130,7 +131,7 @@ public final class MethodGenUtils {
     private MethodGenUtils() {
     }
 
-    static String getFrameClassName(String pkgName, String funcName, BType attachedType) {
+    static String getFrameClassName(String pkgName, String funcName, @Nullable BType attachedType) {
         String frameClassName = pkgName + FRAME_CLASS_PREFIX;
         if (isValidType(attachedType)) {
             frameClassName += JvmCodeGenUtil.toNameString(attachedType) + "_";

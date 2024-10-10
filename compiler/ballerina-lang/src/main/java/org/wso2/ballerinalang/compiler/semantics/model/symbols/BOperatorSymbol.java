@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
@@ -29,7 +30,7 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BOperatorSymbol extends BInvokableSymbol {
 
-    public BOperatorSymbol(Name name, PackageID pkgID, BType type, BSymbol owner, Location pos,
+    public BOperatorSymbol(Name name, @Nullable PackageID pkgID, BType type, @Nullable BSymbol owner, Location pos,
                            SymbolOrigin origin) {
         super(SymTag.INVOKABLE, Flags.PUBLIC, name, pkgID, type, owner, pos, origin);
     }

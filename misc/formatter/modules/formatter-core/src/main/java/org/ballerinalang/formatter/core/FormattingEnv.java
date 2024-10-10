@@ -18,6 +18,7 @@
 package org.ballerinalang.formatter.core;
 
 import io.ballerina.compiler.syntax.tree.Node;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Environment that holds a set of properties related to the currently formatting node.
@@ -94,5 +95,5 @@ public class FormattingEnv {
     /**
      * Reference to the next node that needs to be wrapped.
      */
-    Node nodeToWrap = null;
+    @Nullable Node nodeToWrap = null;
 }

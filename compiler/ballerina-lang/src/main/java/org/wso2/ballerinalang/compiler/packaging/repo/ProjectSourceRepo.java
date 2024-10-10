@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.packaging.repo;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.toml.model.Manifest;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
@@ -34,7 +35,7 @@ public class ProjectSourceRepo extends NonSysRepo<Path> {
     private final boolean testEnabled;
     private final Manifest manifest;
 
-    public ProjectSourceRepo(Converter<Path> converter, Manifest manifest, boolean testEnabled) {
+    public ProjectSourceRepo(@Nullable Converter<Path> converter, Manifest manifest, boolean testEnabled) {
         super(converter);
         this.testEnabled = testEnabled;
         this.manifest = manifest;

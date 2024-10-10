@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -84,6 +85,7 @@ public class ReCharSetRangeWithReCharSetNode extends NonTerminalNode {
     public static class ReCharSetRangeWithReCharSetNodeModifier {
         private final ReCharSetRangeWithReCharSetNode oldNode;
         private ReCharSetRangeNode reCharSetRange;
+        @Nullable
         private Node reCharSet;
 
         public ReCharSetRangeWithReCharSetNodeModifier(ReCharSetRangeWithReCharSetNode oldNode) {

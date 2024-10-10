@@ -35,6 +35,7 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BObjectType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -194,6 +195,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
         return typedesc;
     }
 
+    @Nullable
     private String getStringValue(Object value) {
         if (value == null) {
             return null;

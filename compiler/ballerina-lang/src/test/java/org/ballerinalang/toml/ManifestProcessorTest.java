@@ -167,7 +167,7 @@ public class ManifestProcessorTest {
 
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
                 "string-utils = {path = '" + balaPath + "', version = \"1.1.5\"} \n");
-        Path manifestPath = manifest.getDependencies().get(0).getMetadata().getPath();
+        Path manifestPath = manifest.getDependencies().get(0).getMetadata().getPath().orElseThrow();
         if (manifestPath.toString().contains("\\")) {
             manifestPath = Path.of(manifestPath.toString().replace("\\", "/"));
         } else {

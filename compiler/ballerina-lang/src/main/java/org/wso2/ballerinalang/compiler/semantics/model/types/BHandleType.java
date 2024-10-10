@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.util.Flags;
@@ -31,7 +32,7 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BHandleType extends BBuiltInRefType {
 
-    public BHandleType(int tag, BTypeSymbol tsymbol) {
+    public BHandleType(int tag, @Nullable BTypeSymbol tsymbol) {
         super(tag, tsymbol, Flags.READONLY);
     }
 

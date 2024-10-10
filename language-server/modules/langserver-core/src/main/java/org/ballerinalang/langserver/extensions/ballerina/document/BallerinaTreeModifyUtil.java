@@ -36,6 +36,7 @@ import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedSymbolsVisitor;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ public final class BallerinaTreeModifyUtil {
         put("INSERT", "$STATEMENT");
     }};
 
+    @Nullable
     public static String resolveMapping(String type, JsonObject config) {
         if (type == null || type.isEmpty()) {
             return null;
@@ -94,6 +96,7 @@ public final class BallerinaTreeModifyUtil {
         return mapping;
     }
 
+    @Nullable
     public static String getImport(JsonObject config) {
         JsonElement value = config.get("TYPE");
         if (value != null) {
@@ -121,7 +124,7 @@ public final class BallerinaTreeModifyUtil {
     }
 
     public static TextEdit createTextEdit(TextDocument oldTextDocument,
-                                          JsonObject config,
+                                          @Nullable JsonObject config,
                                           String type,
                                           int startLine,
                                           int startColumn,
@@ -243,6 +246,7 @@ public final class BallerinaTreeModifyUtil {
                 || unusedSymbolsVisitor.getUnusedImports().containsKey(importValue));
     }
 
+    @Nullable
     private static TextEdit constructEdit(
             UnusedSymbolsVisitor unusedSymbolsVisitor, TextDocument oldTextDocument,
             ASTModification astModification) {

@@ -21,6 +21,7 @@ package io.ballerina.shell.cli.jline.validator;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.shell.cli.utils.IncompleteInputFinder;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Validates user input as a complete statement.
@@ -29,6 +30,7 @@ import io.ballerina.shell.cli.utils.IncompleteInputFinder;
  */
 public class StatementValidator implements Validator {
 
+    @Nullable
     private Validator nextInValidator;
 
     public StatementValidator() {
@@ -45,6 +47,6 @@ public class StatementValidator implements Validator {
         IncompleteInputFinder incompleteInputFinder = new IncompleteInputFinder();
         Node parsedNode = NodeParser.parseBlockStatement("{" + source + "}");
         return !parsedNode.hasDiagnostics() || !parsedNode.apply(incompleteInputFinder)
-                || nextInValidator.evaluate(source);
+                || (nextInValidator != null && nextInValidator.evaluate(source));
     }
 }

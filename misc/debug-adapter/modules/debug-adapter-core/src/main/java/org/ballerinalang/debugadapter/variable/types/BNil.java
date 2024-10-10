@@ -20,13 +20,14 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Ballerina nil variable type.
  */
 public class BNil extends BSimpleVariable {
 
-    public BNil(SuspendedContext context, String name, Value value) {
+    public BNil(SuspendedContext context, String name, @Nullable Value value) {
         super(context, name, BVariableType.NIL, value);
     }
 

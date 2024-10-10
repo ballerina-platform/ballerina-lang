@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -92,6 +93,7 @@ public class ReturnStatementNode extends StatementNode {
     public static class ReturnStatementNodeModifier {
         private final ReturnStatementNode oldNode;
         private Token returnKeyword;
+        @Nullable
         private ExpressionNode expression;
         private Token semicolonToken;
 

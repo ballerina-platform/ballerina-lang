@@ -16,6 +16,8 @@
 
 package org.ballerinalang.debugadapter.evaluation;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Error type definition for debug expression evaluation related exceptions.
  *
@@ -27,7 +29,7 @@ public class EvaluationException extends Exception {
         this(message, null);
     }
 
-    private EvaluationException(String message, Throwable cause) {
+    private EvaluationException(String message, @Nullable Throwable cause) {
         super(message, cause);
     }
 

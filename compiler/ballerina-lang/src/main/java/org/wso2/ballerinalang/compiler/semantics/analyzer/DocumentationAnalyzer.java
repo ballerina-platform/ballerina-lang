@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -431,7 +432,7 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
 
     private void validateParameters(DocumentableNode documentableNode,
                                     List<BLangSimpleVariable> actualParameters,
-                                    BLangSimpleVariable restParam,
+                                    @Nullable BLangSimpleVariable restParam,
                                     DiagnosticCode undocumentedParameter, DiagnosticCode noSuchParameter,
                                     DiagnosticCode parameterAlreadyDefined) {
         BLangMarkdownDocumentation documentation = documentableNode.getMarkdownDocumentationAttachment();
@@ -503,7 +504,8 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
                         DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER, parameter));
     }
 
-    private void validateReturnParameter(DocumentableNode documentableNode, BLangNode node, boolean isExpected) {
+    private void validateReturnParameter(DocumentableNode documentableNode, @Nullable BLangNode node,
+                                         boolean isExpected) {
         BLangMarkdownDocumentation documentationAttachment = documentableNode.getMarkdownDocumentationAttachment();
         if (documentationAttachment == null) {
             return;

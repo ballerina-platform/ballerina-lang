@@ -14,4 +14,5 @@ module io.ballerina.LSExtensions.PerformanceAnalyzerService {
     requires com.google.gson;
     requires org.apache.commons.lang3;
     requires java.net.http;
+    requires static org.jetbrains.annotations;
 }

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ErrorType;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -36,7 +37,7 @@ public class BErrorType extends BType implements ErrorType {
     private static final String ERROR = "error<";
     private static final String CLOSE_ERROR = ">";
 
-    public BErrorType(BTypeSymbol tSymbol, BType detailType) {
+    public BErrorType(@Nullable BTypeSymbol tSymbol, @Nullable BType detailType) {
         super(TypeTags.ERROR, tSymbol, Flags.READONLY);
         this.detailType = detailType;
         this.typeIdSet = BTypeIdSet.emptySet();

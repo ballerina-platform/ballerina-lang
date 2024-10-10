@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.command.docs;
 import io.ballerina.compiler.api.symbols.Documentation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,8 +42,8 @@ public class DocAttachmentInfo implements Documentation {
     private final Position docStart;
     private final String padding;
 
-    public DocAttachmentInfo(String description, LinkedHashMap<String, String> parameters, String returnDesc,
-                             String deprecatedDesc, Position docStart, String padding) {
+    public DocAttachmentInfo(String description, LinkedHashMap<String, String> parameters, @Nullable String returnDesc,
+                             @Nullable String deprecatedDesc, Position docStart, String padding) {
         this.description = description;
         this.parameters = parameters;
         this.returnDesc = returnDesc;

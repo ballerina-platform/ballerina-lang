@@ -66,7 +66,7 @@ public class PathBalaRepo implements Repo<Path> {
                 this.manifest.getDependencies().stream()
                         .filter(dep -> dep.getOrgName().equals(moduleID.orgName.value) &&
                                        dep.getModuleName().equals(moduleID.name.value) &&
-                                       null != dep.getMetadata().getPath())
+                                dep.getMetadata().getPath().isPresent())
                         .findFirst();
         
         // if dependency is not found in toml
@@ -75,18 +75,18 @@ public class PathBalaRepo implements Repo<Path> {
         }
         
         Dependency dep = tomlDependency.get();
-        Path balaPath = dep.getMetadata().getPath();
+        Path balaPath = dep.getMetadata().getPath().orElseThrow();
         
         // if bala file does not exists
         if (Files.notExists(balaPath)) {
             throw new BLangCompilerException("bala file for dependency [" + dep.getModuleID() + "] does not exists: " +
-                                             dep.getMetadata().getPath().toAbsolutePath().normalize());
+                                             dep.getMetadata().getPath().orElseThrow().toAbsolutePath().normalize());
         }
     
         // if bala file is not a file
         if (!Files.isRegularFile(balaPath)) {
             throw new BLangCompilerException("bala file for dependency [" + dep.getModuleID() + "] is not a file: " +
-                                             dep.getMetadata().getPath().toAbsolutePath().normalize());
+                                             dep.getMetadata().getPath().orElseThrow().toAbsolutePath().normalize());
         }
         
         // update version of the dependency from the current(root) project

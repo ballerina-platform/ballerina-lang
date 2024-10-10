@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -95,9 +96,10 @@ public abstract class Runtime {
      * This method needs to be called if object.getType().isIsolated() or
      * object.getType().isIsolated(methodName) returns false.
      */
-    public abstract BFuture invokeMethodAsyncSequentially(BObject object, String methodName, String strandName,
-                                          StrandMetadata metadata, Callback callback, Map<String, Object> properties,
-                                          Type returnType, Object... args);
+    public abstract BFuture invokeMethodAsyncSequentially(
+            BObject object, String methodName, @Nullable String strandName,
+            @Nullable StrandMetadata metadata, Callback callback, @Nullable Map<String, Object> properties,
+            Type returnType, Object... args);
 
     /**
      * Invoke Object method asynchronously and concurrently. Caller needs to ensure that no data race is possible for
@@ -118,9 +120,10 @@ public abstract class Runtime {
      * This method needs to be called if both object.getType().isIsolated() and
      * object.getType().isIsolated(methodName) returns true.
      */
-    public abstract BFuture invokeMethodAsyncConcurrently(BObject object, String methodName, String strandName,
-                                          StrandMetadata metadata, Callback callback, Map<String, Object> properties,
-                                          Type returnType, Object... args);
+    public abstract BFuture invokeMethodAsyncConcurrently(
+            BObject object, String methodName, @Nullable String strandName,
+            @Nullable StrandMetadata metadata, @Nullable Callback callback, @Nullable Map<String, Object> properties,
+            Type returnType, Object... args);
 
     /**
      * Invoke Object method asynchronously. This will schedule the function and block the strand.
@@ -171,8 +174,8 @@ public abstract class Runtime {
      * object.getType().isIsolated(methodName) returns true.
      */
     @Deprecated
-    public abstract Object invokeMethodAsync(BObject object, String methodName, String strandName,
-                                             StrandMetadata metadata, Callback callback, Object... args);
+    public abstract Object invokeMethodAsync(BObject object, String methodName, @Nullable String strandName,
+                                             @Nullable StrandMetadata metadata, Callback callback, Object... args);
 
     public abstract void registerListener(BObject listener);
 

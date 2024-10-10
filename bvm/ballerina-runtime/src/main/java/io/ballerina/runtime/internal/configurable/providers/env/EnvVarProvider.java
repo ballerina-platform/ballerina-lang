@@ -33,6 +33,7 @@ import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -287,7 +288,7 @@ public class EnvVarProvider implements ConfigProvider {
     }
 
     private EnvVar checkAmbiguitiesAndGetEnvVar(VariableKey variableKey, String key, String moduleKey,
-                                                String rootOrgValue, String rootModuleValue) {
+                                                @Nullable String rootOrgValue, String rootModuleValue) {
         if (rootOrgValue == null && rootModuleValue == null) {
             return markAndGetEnvVar(key, variableKey, null);
         }
@@ -310,7 +311,7 @@ public class EnvVarProvider implements ConfigProvider {
         throw new ConfigException(CONFIG_ENV_VARS_AMBIGUITY, variableKey.variable, errorString);
     }
 
-    private EnvVar markAndGetEnvVar(String key, VariableKey variableKey, String value) {
+    private EnvVar markAndGetEnvVar(String key, VariableKey variableKey, @Nullable String value) {
         // Handle env vars and module ambiguities
         VariableKey existingKey = visitedEnvVariableMap.get(key);
         if (existingKey != null) {

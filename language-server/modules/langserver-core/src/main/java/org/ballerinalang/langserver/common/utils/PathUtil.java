@@ -34,6 +34,7 @@ import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.net.URI;
@@ -61,7 +62,7 @@ public final class PathUtil {
      * @param fileUri file uri
      * @return {@link Optional} Path from the URI
      */
-    public static Optional<Path> getPathFromURI(String fileUri) {
+    public static Optional<Path> getPathFromURI(@Nullable String fileUri) {
         URI uri = URI.create(fileUri);
         String scheme = uri.getScheme();
         try {

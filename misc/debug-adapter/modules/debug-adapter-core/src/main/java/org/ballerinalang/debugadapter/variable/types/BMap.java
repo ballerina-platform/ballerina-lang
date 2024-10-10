@@ -26,6 +26,7 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -39,6 +40,7 @@ import java.util.Optional;
 public class BMap extends IndexedCompoundVariable {
 
     private int mapSize = -1;
+    @Nullable
     private ArrayReference loadedKeys = null;
     private Value[] loadedValues = null;
 
@@ -99,8 +101,11 @@ public class BMap extends IndexedCompoundVariable {
         if (loadedKeys == null) {
             loadAllKeys();
         }
-        Map<Value, Value> entries = new LinkedHashMap<>();
+        if (loadedKeys == null) {
+            return Collections.emptyMap();
+        }
         List<Value> keysRange = loadedKeys.getValues(startIndex, count);
+        Map<Value, Value> entries = new LinkedHashMap<>();
         for (int i = startIndex; i < startIndex + count; i++) {
             Value key = keysRange.get(i - startIndex);
             if (loadedValues[i] == null) {
@@ -111,6 +116,7 @@ public class BMap extends IndexedCompoundVariable {
         return entries;
     }
 
+    @Nullable
     private Value getValueFor(Value key) {
         try {
             Optional<Method> getMethod = VariableUtils.getMethod(jvmValue, METHOD_GET);

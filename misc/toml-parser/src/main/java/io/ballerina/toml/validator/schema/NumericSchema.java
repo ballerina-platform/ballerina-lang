@@ -25,6 +25,7 @@ import io.ballerina.toml.semantic.ast.TomlNode;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +45,9 @@ public class NumericSchema extends PrimitiveValueSchema<Double> {
     private final Double minimum;
     private final Double maximum;
 
-    public NumericSchema(Type type, Map<String, String> message, Double minimum, Double maximum, Double defaultValue,
-                         CompositionSchema compositionSchemas, String description) {
+    public NumericSchema(Type type, Map<String, String> message,
+                         @Nullable Double minimum, @Nullable Double maximum, @Nullable Double defaultValue,
+                         CompositionSchema compositionSchemas, @Nullable String description) {
         super(type, message, defaultValue, compositionSchemas, description);
         this.minimum = minimum;
         this.maximum = maximum;

@@ -27,6 +27,7 @@ import io.ballerina.semver.checker.exception.SemverToolException;
 import io.ballerina.semver.checker.util.DiffUtils;
 import io.ballerina.semver.checker.util.PackageUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -48,7 +49,7 @@ public class SemverChecker {
     private final PrintStream outStream;
     private final PrintStream errStream;
 
-    public SemverChecker(Path projectPath, SemanticVersion releaseVersion, PrintStream out, PrintStream err) {
+    public SemverChecker(Path projectPath, @Nullable SemanticVersion releaseVersion, PrintStream out, PrintStream err) {
         this.projectPath = projectPath;
         this.releaseVersion = releaseVersion;
         this.outStream = out;

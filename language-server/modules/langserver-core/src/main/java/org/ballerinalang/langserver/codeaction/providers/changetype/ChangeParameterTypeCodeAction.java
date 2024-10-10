@@ -44,6 +44,7 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -152,6 +153,7 @@ public class ChangeParameterTypeCodeAction implements DiagnosticBasedCodeActionP
         return NAME;
     }
 
+    @Nullable
     private VariableDeclarationNode getVariableDeclarationNode(NonTerminalNode node) {
         while (node != null && node.kind() != SyntaxKind.LOCAL_VAR_DECL) {
             node = node.parent();

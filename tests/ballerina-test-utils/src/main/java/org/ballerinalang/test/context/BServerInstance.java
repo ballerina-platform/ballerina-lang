@@ -20,6 +20,7 @@ package org.ballerinalang.test.context;
 import org.apache.commons.lang3.ArrayUtils;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,19 +122,21 @@ public class BServerInstance implements BServer {
     }
 
     @Override
-    public void startServer(String balFile,  String[] buildArgs, String[] runtimeArgs, int[] requiredPorts) 
+    public void startServer(String balFile, String[] buildArgs, @Nullable String[] runtimeArgs, int[] requiredPorts)
             throws BallerinaTestException {
         startServer(balFile, buildArgs, runtimeArgs, null, requiredPorts);
     }
 
     @Override
-    public void startServer(String balFile, String[] buildArgs, String[] runtimeArgs, Map<String, String> envProperties,
-                            int[] requiredPorts) throws BallerinaTestException {
+    public void startServer(String balFile, @Nullable String[] buildArgs, @Nullable String[] runtimeArgs,
+                            @Nullable Map<String, String> envProperties, int[] requiredPorts
+    ) throws BallerinaTestException {
         startServer(balFile, buildArgs, runtimeArgs, envProperties, requiredPorts, false);
     }
 
     @Override
-    public void startServer(String balFile, String[] buildArgs, String[] runtimeArgs, Map<String, String> envProperties,
+    public void startServer(String balFile, String[] buildArgs, @Nullable String[] runtimeArgs,
+                            @Nullable Map<String, String> envProperties,
                             int[] requiredPorts, boolean useBallerinaRunCommand) throws BallerinaTestException {
         if (balFile == null || balFile.isEmpty()) {
             throw new IllegalArgumentException("Invalid ballerina program file name provided, name - " + balFile);
@@ -174,14 +177,16 @@ public class BServerInstance implements BServer {
     }
 
     @Override
-    public void startServer(String sourceRoot, String packagePath, String[] buildArgs, String[] runtimeArgs,
-                            int[] requiredPorts) throws BallerinaTestException {
+    public void startServer(String sourceRoot, String packagePath, @Nullable String[] buildArgs,
+                            @Nullable String[] runtimeArgs,
+                            int @Nullable [] requiredPorts) throws BallerinaTestException {
         startServer(sourceRoot, packagePath, buildArgs, runtimeArgs, null, requiredPorts);
     }
 
     @Override
     public void startServer(String sourceRoot, String packagePath, String[] buildArgs, String[] runtimeArgs,
-                            Map<String, String> envProperties, int[] requiredPorts) throws BallerinaTestException {
+                            @Nullable Map<String, String> envProperties, int[] requiredPorts
+    ) throws BallerinaTestException {
         startServer(sourceRoot, packagePath, buildArgs, runtimeArgs, envProperties, requiredPorts, false);
     }
 
@@ -367,7 +372,7 @@ public class BServerInstance implements BServer {
      * @param envProperties - environmental properties to be appended to the environment
      * @throws BallerinaTestException if starting services failed
      */
-    private void runBuildTool(String command, String[] args, Map<String, String> envProperties)
+    private void runBuildTool(String command, String[] args, @Nullable Map<String, String> envProperties)
             throws BallerinaTestException {
 
         String[] cmdArray;

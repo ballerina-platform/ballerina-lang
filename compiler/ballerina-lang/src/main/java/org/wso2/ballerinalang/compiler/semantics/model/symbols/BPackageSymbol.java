@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.repository.CompiledPackage;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -53,12 +54,13 @@ public class BPackageSymbol extends BTypeSymbol {
 
     // TODO Temporary mechanism to hold a reference to the generated bir model
     public BIRNode.BIRPackage bir;   // TODO try to remove this
+    @Nullable
     public BIRPackageFile birPackageFile;
 
     // TODO Refactor following two flags
     public boolean entryPointExists = false;
 
-    public BPackageSymbol(PackageID pkgID, BSymbol owner, Location pos, SymbolOrigin origin) {
+    public BPackageSymbol(PackageID pkgID, @Nullable BSymbol owner, @Nullable Location pos, SymbolOrigin origin) {
         super(PACKAGE, 0, pkgID.name, pkgID, null, owner, pos, origin);
         this.type = new BPackageType(this);
     }

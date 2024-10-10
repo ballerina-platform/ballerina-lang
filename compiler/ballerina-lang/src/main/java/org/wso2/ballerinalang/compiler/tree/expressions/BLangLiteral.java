@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
@@ -30,7 +31,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangLiteral extends BLangExpression implements LiteralNode {
 
     // Parser Flags and Data
+    @Nullable
     public Object value;
+    @Nullable
     public String originalValue;
     public boolean isConstant;
 

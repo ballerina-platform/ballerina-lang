@@ -19,6 +19,7 @@ package io.ballerina.shell.service;
 
 import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,9 +31,11 @@ import java.util.List;
  * @since 2201.1.1
  */
 public class BalShellGetResultResponse {
+    @Nullable
     private ShellValue shellValue;
     private final ArrayList<String> errors;
     private final ArrayList<String> diagnostics;
+    @Nullable
     private MetaInfo metaInfo;
     private String consoleOut;
 

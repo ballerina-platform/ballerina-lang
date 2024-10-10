@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.internal.configurable.providers;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.nio.file.Path;
 
 /**
@@ -30,7 +32,7 @@ public class ConfigDetails {
     public final Path[] paths;
     public final String configContent;
 
-    public ConfigDetails(Path[] paths, String configContent) {
+    public ConfigDetails(Path[] paths, @Nullable String configContent) {
         this.paths = paths;
         this.configContent = configContent;
     }

@@ -27,6 +27,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
@@ -1520,7 +1521,7 @@ public class ReferenceFinder extends BaseVisitor {
         }
     }
 
-    private boolean addIfSameSymbol(BSymbol symbol, Location location) {
+    private boolean addIfSameSymbol(@Nullable BSymbol symbol, Location location) {
         if (symbol != null
                 && this.targetSymbol.name.equals(symbol.name)
                 && this.targetSymbol.pkgID.equals(symbol.pkgID)

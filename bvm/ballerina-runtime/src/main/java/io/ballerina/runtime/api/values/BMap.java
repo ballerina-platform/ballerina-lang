@@ -18,6 +18,7 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -63,7 +64,7 @@ public interface BMap<K, V> extends BRefValue, BCollection {
      *         {@code key}. (A {@code null} return can also indicate that the map previously associated
      *         {@code null} with {@code key}, if the implementation supports {@code null} values.)
      */
-    V put(K key, V value);
+    V put(K key, @Nullable V value);
 
     /**
      * Removes the mapping for a key from this map if it is present (optional operation). Returns the value

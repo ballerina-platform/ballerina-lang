@@ -38,6 +38,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.util.StAXParserConfiguration;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -240,7 +241,8 @@ public final class XmlFactory {
      * @return XMLValue Element type XMLValue
      */
     @Deprecated
-    public static XmlValue createXMLElement(BXmlQName startTagName, BXmlQName endTagName, String defaultNsUri) {
+    public static XmlValue createXMLElement(
+            BXmlQName startTagName, BXmlQName endTagName, @Nullable String defaultNsUri) {
         if (!isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
                 !isEqual(startTagName.getUri(), endTagName.getUri()) ||
                 !isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
@@ -259,7 +261,7 @@ public final class XmlFactory {
      * @return XMLValue Element type XMLValue
      */
     @Deprecated
-    public static XmlValue createXMLElement(BXmlQName startTagName, String defaultNsUri) {
+    public static XmlValue createXMLElement(BXmlQName startTagName, @Nullable String defaultNsUri) {
         return createXMLElement(startTagName, defaultNsUri, false);
     }
 
@@ -491,6 +493,7 @@ public final class XmlFactory {
      * @param xmlFragment the well-formed XML fragment
      * @return The OMElement created out of the string XML fragment.
      */
+    @Nullable
     private static OMElement stringToOM(OMFactory omFactory, String xmlFragment) {
         return xmlFragment != null
                 ? OMXMLBuilderFactory

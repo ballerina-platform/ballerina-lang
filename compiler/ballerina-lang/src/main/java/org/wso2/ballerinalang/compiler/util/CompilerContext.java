@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.util;
 
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,7 +43,7 @@ public class CompilerContext {
         return (V) props.get(key);
     }
 
-    public <V> void put(Class<V> clazz, V value) {
+    public <V> void put(Class<V> clazz, @Nullable V value) {
         objects.put(clazz, value);
     }
 
