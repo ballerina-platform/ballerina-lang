@@ -174,8 +174,7 @@ public class PackCommand implements BLauncherCmd {
             }
         } catch (ProjectException e) {
             CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-            CommandUtil.printError(this.errStream, "What's Next", null, false);
-            CommandUtil.printError(this.errStream, "Execute bal push to publish the package to Ballerina Central.", null, false);
+            
             
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -267,6 +266,10 @@ public class PackCommand implements BLauncherCmd {
                 .addTask(new CreateBalaTask(outStream))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
+
+                outStream.println("What's Next");
+                outStream.println("Execute the below command to publish the package to Ballerina Central.");
+                outStream.println("\t bal push ");
 
         taskExecutor.executeTasks(project);
         if (this.exitWhenFinish) {
