@@ -306,10 +306,30 @@ public class NewCommand implements BLauncherCmd {
             }
             errStream.println("Created new package '" + packageName + "' at " + packagePath + ".");
             errStream.println("What's next");
-            errStream.println("Execute the below command to run the program:")
-            errStream.println("\t bal run "+ packageName);
-            errStream.println("Else, execute the below command to build the executable JAR file:");
-            errStream.println("\t bal build "+ packageName);
+             switch (template) {
+                case "main":
+                    errStream.println("Execute the below command to build the executable JAR file:");
+                    errStream.println("\t bal build " + packageName);
+                    break;
+
+                case "service":
+                    errStream.println("Execute the below command to run the service:");
+                    errStream.println("\t bal run " + packageName);
+                    errStream.println("Else, execute the below command to build the executable JAR file:");
+                    errStream.println("\t bal build " + packageName);
+                    break;
+
+                case "lib":
+                    errStream.println("Execute the below command to create the Ballerina archive:");
+                    errStream.println("\t bal pack " + packageName);
+                    break;
+
+                default:
+                    errStream.println("Execute the below command to run the program:");
+                    errStream.println("\t bal run " + packageName);
+                    
+                    break;
+            }
         }
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
