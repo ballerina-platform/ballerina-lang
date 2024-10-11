@@ -21,6 +21,12 @@ package io.ballerina.runtime.api.types.semtype;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * A thread-safe lazy supplier that initializes the value on the first call to {@link #get()} and calls the callback.
+ *
+ * @param <E> the type of the value
+ * @since 2201.11.0
+ */
 public class ConcurrentLazySupplierWithCallback<E> implements Supplier<E> {
 
     private volatile E value = null;

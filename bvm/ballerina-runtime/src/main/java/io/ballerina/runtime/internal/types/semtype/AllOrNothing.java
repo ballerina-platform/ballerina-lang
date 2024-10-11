@@ -20,11 +20,12 @@
 package io.ballerina.runtime.internal.types.semtype;
 
 /**
- * Represent cases where a subtype is either all or nothing of the basic type. For example if StringSubType has All as
- * it's subtype data that means subtype is actually String basic type and nothing means it doesn't have any string
+ * Represent cases where a subtype is either all or nothing of the basic type.
+ * For example if StringSubType has All as it's subtype data that means subtype
+ * is actually String basic type and nothing means it doesn't have any string
  * subtype
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public enum AllOrNothing implements SubTypeData {
     ALL,

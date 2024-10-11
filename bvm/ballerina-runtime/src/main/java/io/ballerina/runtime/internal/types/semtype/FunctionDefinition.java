@@ -27,6 +27,11 @@ import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.RecAtom;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+/**
+ * {@code Definition} used to create function subtypes.
+ *
+ * @since 2201.11.0
+ */
 public class FunctionDefinition implements Definition {
 
     private RecAtom rec;

@@ -23,6 +23,17 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 
 import static io.ballerina.runtime.api.types.semtype.Builder.getStringConst;
 
+/**
+ * Represents a member of an object type.
+ *
+ * @param name       the name of the member. For methods, this is the method name, and for fields, this is the field
+ *                   name.
+ * @param valueTy    the type of the member
+ * @param kind       the kind of the member (either {@link Kind#Field} or {@link Kind#Method})
+ * @param visibility the visibility of the member (either {@link Visibility#Public} or {@link Visibility#Private})
+ * @param immutable  whether the member is immutable
+ * @since 2201.11.0
+ */
 public record Member(String name, SemType valueTy, Kind kind, Visibility visibility, boolean immutable) {
 
     public enum Kind {

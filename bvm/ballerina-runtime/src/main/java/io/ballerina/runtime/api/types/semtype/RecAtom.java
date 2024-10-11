@@ -22,7 +22,7 @@ package io.ballerina.runtime.api.types.semtype;
 /**
  * Represent a recursive type atom.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class RecAtom implements Atom {
 

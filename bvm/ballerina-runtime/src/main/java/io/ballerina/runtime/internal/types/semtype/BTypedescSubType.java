@@ -28,6 +28,11 @@ import java.util.Objects;
 
 import static io.ballerina.runtime.api.types.semtype.Bdd.bddEveryPositive;
 
+/**
+ * Represents the subtype of a typedesc type.
+ *
+ * @since 2201.11.0
+ */
 public class BTypedescSubType extends SubType implements DelegatedSubType {
 
     private final Bdd inner;

@@ -49,7 +49,7 @@ public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTyp
      * @param typeName string name of the type
      */
     public BDecimalType(String typeName, Module pkg) {
-        this(() -> new BDecimalTypeImpl(typeName, pkg), typeName, pkg, Builder.decimalType());
+        this(() -> new BDecimalTypeImpl(typeName, pkg), typeName, pkg, Builder.getDecimalType());
     }
 
     public static BDecimalType singletonType(BigDecimal value) {

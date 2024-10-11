@@ -55,7 +55,7 @@ import static io.ballerina.runtime.internal.types.semtype.BListSubType.listSampl
 /**
  * utility class for list type projection.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class BListProj {
 
@@ -64,11 +64,11 @@ public final class BListProj {
 
     public static SemType listProjInnerVal(Context cx, SemType t, SemType k) {
         if (t.some() == 0) {
-            return t == Builder.listType() ? Builder.getValType() : Builder.neverType();
+            return t == Builder.getListType() ? Builder.getValType() : Builder.getNeverType();
         } else {
             SubTypeData keyData = Core.intSubtype(k);
             if (isNothingSubtype(keyData)) {
-                return Builder.neverType();
+                return Builder.getNeverType();
             }
             return listProjBddInnerVal(cx, keyData, (Bdd) getComplexSubtypeData(t, BasicTypeCode.BT_LIST), null,
                     null);
@@ -77,7 +77,7 @@ public final class BListProj {
 
     private static SemType listProjBddInnerVal(Context cx, SubTypeData k, Bdd b, Conjunction pos, Conjunction neg) {
         if (b instanceof BddAllOrNothing allOrNothing) {
-            return allOrNothing.isAll() ? listProjPathInnerVal(cx, k, pos, neg) : Builder.neverType();
+            return allOrNothing.isAll() ? listProjPathInnerVal(cx, k, pos, neg) : Builder.getNeverType();
         } else {
             BddNode bddNode = (BddNode) b;
             return union(listProjBddInnerVal(cx, k, bddNode.left(), and(bddNode.atom(), pos), neg),
@@ -91,7 +91,7 @@ public final class BListProj {
         SemType rest;
         if (pos == null) {
             members = FixedLengthArray.empty();
-            rest = Builder.getRwCellContaining(cx.env, union(Builder.getValType(), Builder.undef()));
+            rest = Builder.getRwCellContaining(cx.env, union(Builder.getValType(), Builder.getUndefType()));
         } else {
             // combine all the positive tuples using intersection
             ListAtomicType lt = cx.listAtomType(pos.atom());
@@ -113,18 +113,18 @@ public final class BListProj {
                     Pair<FixedLengthArray, SemType>
                             intersected = listIntersectWith(cx.env, members, rest, lt.members(), lt.rest());
                     if (intersected == null) {
-                        return Builder.neverType();
+                        return Builder.getNeverType();
                     }
                     members = intersected.first();
                     rest = intersected.second();
                 }
             }
             if (fixedArrayAnyEmpty(cx, members)) {
-                return Builder.neverType();
+                return Builder.getNeverType();
             }
             // Ensure that we can use isNever on rest in listInhabited
             if (!isNever(cellInnerVal(rest)) && isEmpty(cx, rest)) {
-                rest = getRoCellContaining(cx.env, Builder.neverType());
+                rest = getRoCellContaining(cx.env, Builder.getNeverType());
             }
         }
         Integer[] indices = listSamples(cx, members, rest, neg);
@@ -139,7 +139,7 @@ public final class BListProj {
 
     private static SemType listProjExcludeInnerVal(Context cx, Integer[] indices, Integer[] keyIndices,
                                                    SemType[] memberTypes, int nRequired, Conjunction neg) {
-        SemType p = Builder.neverType();
+        SemType p = Builder.getNeverType();
         if (neg == null) {
             int len = memberTypes.length;
             for (int k : keyIndices) {

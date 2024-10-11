@@ -31,10 +31,12 @@ import java.util.Objects;
 import java.util.WeakHashMap;
 
 /**
- * Context in which type checking operations are performed. Note context is not thread safe, and multiple type check
- * operations should not use the same context concurrently. Multiple contexts may share same environment without issue.
+ * Context in which type checking operations are performed. Note context is not
+ * thread safe, and multiple type check operations should not use the same
+ * context concurrently. Multiple contexts may share same environment without
+ * issue.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class Context {
 
@@ -53,6 +55,8 @@ public final class Context {
     }
 
     private static Map<CacheableTypeDescriptor, TypeCheckCache<CacheableTypeDescriptor>> createTypeCheckCacheMemo() {
+        // This is fine since this map is not going to get leaked out of the context and
+        // context is unique to a thread. So there will be no concurrent modifications
         return new LinkedHashMap<>(MAX_CACHE_SIZE, 1f, true) {
             @Override
             protected boolean removeEldestEntry(
@@ -87,11 +91,14 @@ public final class Context {
     }
 
     private boolean memoSubTypeIsEmptyInner(BddIsEmptyPredicate isEmptyPredicate, Bdd bdd, BddMemo m) {
+        // We are staring the type check with the assumption our type is empty (see: inductive type)
         m.isEmpty = BddMemo.Status.PROVISIONAL;
         int initStackDepth = memoStack.size();
         memoStack.add(m);
         boolean isEmpty = isEmptyPredicate.apply(this, bdd);
         boolean isLoop = m.isEmpty == BddMemo.Status.LOOP;
+        // if not empty our assumption is wrong so we need to reset the memoized values, otherwise we cleanup the stack
+        // at the end
         if (!isEmpty || initStackDepth == 0) {
             resetMemoizedValues(initStackDepth, isEmpty, isLoop, m);
         }
@@ -103,16 +110,19 @@ public final class Context {
             BddMemo.Status memoStatus = memoStack.get(i).isEmpty;
             if (Objects.requireNonNull(memoStatus) == BddMemo.Status.PROVISIONAL ||
                     memoStatus == BddMemo.Status.LOOP || memoStatus == BddMemo.Status.CYCLIC) {
+                // We started with the assumption our type is empty. Now we know for sure if we are empty or not
+                // if we are empty all of these who don't have anything except us should be empty as well.
+                // Otherwise, we don't know if they are empty or not
                 memoStack.get(i).isEmpty = isEmpty ? BddMemo.Status.TRUE : BddMemo.Status.NULL;
             }
         }
         if (memoStack.size() > initStackDepth) {
             memoStack.subList(initStackDepth, memoStack.size()).clear();
         }
-        // The only way that we have found that this can be empty is by going through a loop.
-        // This means that the shapes in the type would all be infinite.
-        // But we define types inductively, which means we only consider finite shapes.
         if (isLoop && isEmpty) {
+            // The only way that we have found that this can be empty is by going through a loop.
+            // This means that the shapes in the type would all be infinite.
+            // But we define types inductively, which means we only consider finite shapes.
             m.isEmpty = BddMemo.Status.CYCLIC;
         } else {
             m.isEmpty = isEmpty ? BddMemo.Status.TRUE : BddMemo.Status.FALSE;

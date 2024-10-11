@@ -9,6 +9,11 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.SubType;
 import io.ballerina.runtime.api.types.semtype.TypeAtom;
 
+/**
+ * Represents a subtype of a Cell.
+ *
+ * @since 2201.11.0
+ */
 public abstract sealed class BCellSubType extends SubType implements DelegatedSubType
         permits BCellSubTypeImpl, BCellSubTypeSimple {
 
@@ -38,7 +43,7 @@ public abstract sealed class BCellSubType extends SubType implements DelegatedSu
         SemType ty = atomicType.ty();
         // We have special logic when it comes to handling undef that needs to be updated to deal with simple cell
         // TODO: probably we can also handle immutable cells as well
-        if (Core.containsBasicType(ty, Builder.undef()) || ty.some() != 0 ||
+        if (Core.containsBasicType(ty, Builder.getUndefType()) || ty.some() != 0 ||
                 atomicType.mut() != CellAtomicType.CellMutability.CELL_MUT_LIMITED) {
             return new BCellSubTypeImpl(bdd);
         }

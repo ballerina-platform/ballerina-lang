@@ -42,7 +42,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.ballerina.runtime.api.types.semtype.Builder.neverType;
+import static io.ballerina.runtime.api.types.semtype.Builder.getNeverType;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
 
@@ -57,7 +57,9 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     private Type restType;
     private int typeFlags;
     private final boolean readonly;
-    private boolean flagsPoisoned = false;
+    // This is used avoid unnecessary flag updates when we change the members. If this
+    // is set before accessing flags you must call {@code checkAllMembers}.
+    private volatile boolean flagsPoisoned = false;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
     public boolean isCyclic = false;
@@ -283,8 +285,12 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     @Override
     public int getTypeFlags() {
         if (flagsPoisoned) {
-            checkAllMembers();
-            flagsPoisoned = false;
+            synchronized (this) {
+                if (flagsPoisoned) {
+                    checkAllMembers();
+                    flagsPoisoned = false;
+                }
+            }
         }
         return this.typeFlags;
     }
@@ -343,11 +349,11 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
         for (int i = 0; i < tupleTypes.size(); i++) {
             SemType memberType = semTypeFunction.apply(tupleTypes.get(i));
             if (Core.isNever(memberType)) {
-                return neverType();
+                return getNeverType();
             }
             memberTypes[i] = memberType;
         }
-        SemType rest = restType != null ? semTypeFunction.apply(restType) : neverType();
+        SemType rest = restType != null ? semTypeFunction.apply(restType) : getNeverType();
         return ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, rest, mut);
     }
 
@@ -409,7 +415,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
             assert memberType.isPresent();
             memberTypes[i] = memberType.get();
         }
-        SemType semType = ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, neverType(), mut());
+        SemType semType = ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, getNeverType(), mut());
         value.resetReadonlyShapeDefinition();
         return semType;
     }

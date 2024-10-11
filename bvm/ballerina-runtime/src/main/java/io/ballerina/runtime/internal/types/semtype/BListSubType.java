@@ -44,7 +44,11 @@ import static io.ballerina.runtime.api.types.semtype.Core.getCellContainingInner
 import static io.ballerina.runtime.api.types.semtype.Core.intersectCellMemberSemTypes;
 import static io.ballerina.runtime.internal.types.semtype.BIntSubType.intSubtypeContains;
 
-// TODO: this has lot of common code with cell (and future mapping), consider refactoring (problem is createDelegate)
+/**
+ * Runtime representation of a subtype of list type.
+ *
+ * @since 2201.11.0
+ */
 public class BListSubType extends SubType implements DelegatedSubType {
 
     public final Bdd inner;
@@ -383,7 +387,7 @@ public class BListSubType extends SubType implements DelegatedSubType {
 
     public static SemType bddListMemberTypeInnerVal(Context cx, Bdd b, SubTypeData key, SemType accum) {
         if (b instanceof BddAllOrNothing allOrNothing) {
-            return allOrNothing.isAll() ? accum : Builder.neverType();
+            return allOrNothing.isAll() ? accum : Builder.getNeverType();
         } else {
             BddNode bddNode = (BddNode) b;
             return Core.union(bddListMemberTypeInnerVal(cx, bddNode.left(), key,
@@ -394,7 +398,7 @@ public class BListSubType extends SubType implements DelegatedSubType {
     }
 
     private static SemType listAtomicMemberTypeInnerVal(ListAtomicType atomic, SubTypeData key) {
-        return Core.diff(listAtomicMemberTypeInner(atomic, key), Builder.undef());
+        return Core.diff(listAtomicMemberTypeInner(atomic, key), Builder.getUndefType());
     }
 
     private static SemType listAtomicMemberTypeInner(ListAtomicType atomic, SubTypeData key) {
@@ -403,7 +407,7 @@ public class BListSubType extends SubType implements DelegatedSubType {
 
     static SemType listAtomicMemberTypeAtInner(FixedLengthArray fixedArray, SemType rest, SubTypeData key) {
         if (key instanceof BIntSubType.IntSubTypeData intSubtype) {
-            SemType m = Builder.neverType();
+            SemType m = Builder.getNeverType();
             int initLen = fixedArray.initial().length;
             int fixedLen = fixedArray.fixedLength();
             if (fixedLen != 0) {

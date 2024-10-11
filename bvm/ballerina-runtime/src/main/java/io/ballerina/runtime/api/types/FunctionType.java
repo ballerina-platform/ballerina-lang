@@ -40,5 +40,4 @@ public interface FunctionType extends AnnotatableType {
     Type getRestType();
 
     Parameter[] getParameters();
-
 }

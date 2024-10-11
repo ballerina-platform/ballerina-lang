@@ -112,12 +112,6 @@ public class XMLQueryExpressionTest {
         BRunUtil.invoke(result, "testSimpleQueryExprForXML4");
     }
 
-    @Test
-    public void test() {
-        Object restult = BRunUtil.invoke(result, "simpleQueryExprForXML5");
-        assert restult == null;
-    }
-
     @Test(description = "Test simple query expression with limit clause for XMLs")
     public void testQueryExprWithLimitForXML() {
         Object returnValues = BRunUtil.invoke(result, "testQueryExprWithLimitForXML");

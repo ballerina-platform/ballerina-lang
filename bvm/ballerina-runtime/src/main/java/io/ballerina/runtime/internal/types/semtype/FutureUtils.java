@@ -27,7 +27,11 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import static io.ballerina.runtime.api.types.semtype.Core.createBasicSemType;
 import static io.ballerina.runtime.api.types.semtype.Core.subTypeData;
 
-// TODO: this should be part of the public API
+/**
+ * Utility methods for creating future types.
+ *
+ * @since 2201.11.0
+ */
 public final class FutureUtils {
 
     private static final MappingDefinition.Field[] EMPTY_FIELDS = new MappingDefinition.Field[0];

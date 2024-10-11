@@ -27,14 +27,13 @@ import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import org.testng.annotations.Test;
 
-// These are temporary sanity checks until we have actual types using cell types are implemented
 public class CoreTests {
 
     @Test
     public void testCellTypes() {
         Env env = Env.getInstance();
         Context cx = Context.from(env);
-        SemType intTy = Builder.intType();
+        SemType intTy = Builder.getIntType();
         SemType readonlyInt = Builder.getCellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
         assert Core.isSubType(cx, readonlyInt, readonlyInt);
         SemType mutableInt = Builder.getCellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
@@ -46,7 +45,7 @@ public class CoreTests {
     @Test
     public void testCellTypeCaching() {
         Env env = Env.getInstance();
-        SemType intTy = Builder.intType();
+        SemType intTy = Builder.getIntType();
         SemType readonlyInt1 = Builder.getCellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
         SemType readonlyInt2 = Builder.getCellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
         assert readonlyInt1 == readonlyInt2;
@@ -55,7 +54,7 @@ public class CoreTests {
     @Test
     public void testSimpleList() {
         Env env = Env.getInstance();
-        SemType intTy = Builder.intType();
+        SemType intTy = Builder.getIntType();
         // int[]
         ListDefinition ld = new ListDefinition();
         SemType intListTy =
@@ -66,7 +65,7 @@ public class CoreTests {
         ListDefinition ld1 = new ListDefinition();
         SemType[] members = {intTy};
         SemType intListTy1 =
-                ld1.defineListTypeWrapped(env, members, 1, Builder.neverType(),
+                ld1.defineListTypeWrapped(env, members, 1, Builder.getNeverType(),
                         CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
 
         Context cx = Context.from(env);

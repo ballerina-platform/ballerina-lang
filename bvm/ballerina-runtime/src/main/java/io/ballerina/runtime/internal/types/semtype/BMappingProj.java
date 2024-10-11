@@ -36,13 +36,18 @@ import static io.ballerina.runtime.api.types.semtype.Core.getComplexSubtypeData;
 import static io.ballerina.runtime.api.types.semtype.Core.isNothingSubtype;
 import static io.ballerina.runtime.api.types.semtype.Core.stringSubtype;
 
+/**
+ * Utility class for doing mapping type projection.
+ *
+ * @since 2201.11.0
+ */
 public final class BMappingProj {
 
     private BMappingProj() {
     }
 
     public static SemType mappingMemberTypeInnerVal(Context cx, SemType t, SemType k) {
-        return diff(mappingMemberTypeInner(cx, t, k), Builder.undef());
+        return diff(mappingMemberTypeInner(cx, t, k), Builder.getUndefType());
     }
 
     // This computes the spec operation called "member type of K in T",
@@ -50,20 +55,20 @@ public final class BMappingProj {
     // This is what Castagna calls projection.
     public static SemType mappingMemberTypeInner(Context cx, SemType t, SemType k) {
         if (t.some() == 0) {
-            return (t.all() & Builder.getMappingType().all()) != 0 ? Builder.getValType() : Builder.undef();
+            return (t.all() & Builder.getMappingType().all()) != 0 ? Builder.getValType() : Builder.getUndefType();
         } else {
             SubTypeData keyData = stringSubtype(k);
             if (isNothingSubtype(keyData)) {
-                return Builder.undef();
+                return Builder.getUndefType();
             }
             return bddMappingMemberTypeInner(cx, (Bdd) getComplexSubtypeData(t, BT_MAPPING), keyData,
-                    Builder.inner());
+                    Builder.getInnerType());
         }
     }
 
     static SemType bddMappingMemberTypeInner(Context cx, Bdd b, SubTypeData key, SemType accum) {
         if (b instanceof BddAllOrNothing allOrNothing) {
-            return allOrNothing.isAll() ? accum : Builder.neverType();
+            return allOrNothing.isAll() ? accum : Builder.getNeverType();
         } else {
             BddNode bdd = (BddNode) b;
             return Core.union(
@@ -84,7 +89,7 @@ public final class BMappingProj {
                 memberType = Core.union(memberType, ty);
             }
         }
-        return memberType == null ? Builder.undef() : memberType;
+        return memberType == null ? Builder.getUndefType() : memberType;
     }
 
     static List<SemType> mappingAtomicApplicableMemberTypesInner(MappingAtomicType atomic, SubTypeData key) {

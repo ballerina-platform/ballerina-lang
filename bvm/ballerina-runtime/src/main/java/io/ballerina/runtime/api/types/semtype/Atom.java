@@ -21,9 +21,15 @@ package io.ballerina.runtime.api.types.semtype;
 /**
  * Represent the BDD atom.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public sealed interface Atom permits RecAtom, TypeAtom {
 
+    /**
+     * Get the index of the atom. For {@code TypeAtoms} this is a unique index within the {@code Env}. Each
+     * {@code RecAtom} that points to the same {@code TypeAtom} will have the same index.
+     *
+     * @return index of the atom
+     */
     int index();
 }

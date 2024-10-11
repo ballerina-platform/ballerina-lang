@@ -22,6 +22,11 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+/**
+ * Represents the qualifiers of a function.
+ *
+ * @since 2201.11.0
+ */
 public final class FunctionQualifiers {
 
     private static final FunctionQualifiers DEFAULT = new FunctionQualifiers(false, false);
@@ -45,10 +50,10 @@ public final class FunctionQualifiers {
         if (semType == null) {
             ListDefinition ld = new ListDefinition();
             SemType[] members = {
-                    isolated ? Builder.getBooleanConst(true) : Builder.booleanType(),
-                    transactional ? Builder.booleanType() : Builder.getBooleanConst(false)
+                    isolated ? Builder.getBooleanConst(true) : Builder.getBooleanType(),
+                    transactional ? Builder.getBooleanType() : Builder.getBooleanConst(false)
             };
-            semType = ld.defineListTypeWrapped(env, members, 2, Builder.neverType(),
+            semType = ld.defineListTypeWrapped(env, members, 2, Builder.getNeverType(),
                     CellAtomicType.CellMutability.CELL_MUT_NONE);
         }
         return semType;

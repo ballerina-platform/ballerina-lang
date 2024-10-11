@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Runtime representation of FloatSubType.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class BFloatSubType extends SubType {
 

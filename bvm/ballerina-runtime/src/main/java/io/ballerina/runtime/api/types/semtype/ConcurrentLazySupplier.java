@@ -2,6 +2,12 @@ package io.ballerina.runtime.api.types.semtype;
 
 import java.util.function.Supplier;
 
+/**
+ * A thread-safe single lazy supplier that initialize the value only once.
+ *
+ * @param <E> type of the value
+ * @since 2201.11.0
+ */
 public class ConcurrentLazySupplier<E> implements Supplier<E> {
 
     private Supplier<E> initializer;

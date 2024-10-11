@@ -31,14 +31,13 @@ import io.ballerina.runtime.internal.types.semtype.ImmutableSemType;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-// TODO: make this a sealed class with clearly defined extensions
-
 /**
- * Decorator on {@code BTypes} allowing them to behave as {@code SemType}. All {@code Types} that needs to behave as
- * both a {@code BType} and a {@code SemType} should extend this class.
+ * Decorator on {@code BTypes} allowing them to behave as {@code SemType}. All
+ * {@code Types} that needs to behave as both a {@code BType} and a
+ * {@code SemType} should extend this class.
  *
  * @param <E> The type of the {@code BType} that is being wrapped.
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType implements Type
         permits BAnyType, BBooleanType, BByteType, BDecimalType, BFloatType, BHandleType, BIntegerType, BNullType,
@@ -94,7 +93,7 @@ public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType im
 
     @Override
     public final boolean isNilable() {
-        return Core.containsBasicType(this, Builder.nilType());
+        return Core.containsBasicType(this, Builder.getNilType());
     }
 
     @Override
@@ -147,7 +146,7 @@ public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType im
     @Override
     public boolean isReadOnly() {
         Context cx = TypeChecker.context();
-        return Core.isSubType(cx, this, Builder.readonlyType());
+        return Core.isSubType(cx, this, Builder.getReadonlyType());
     }
 
     @Override

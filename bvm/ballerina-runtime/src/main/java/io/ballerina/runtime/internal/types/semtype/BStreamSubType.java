@@ -26,6 +26,11 @@ import io.ballerina.runtime.api.types.semtype.SubType;
 
 import static io.ballerina.runtime.api.types.semtype.Bdd.bddEvery;
 
+/**
+ * Runtime representation of a subtype of stream type.
+ *
+ * @since 2201.11.0
+ */
 public class BStreamSubType extends SubType implements DelegatedSubType {
 
     public final Bdd inner;

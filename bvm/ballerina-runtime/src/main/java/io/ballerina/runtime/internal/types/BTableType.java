@@ -188,7 +188,7 @@ public class BTableType extends BType implements TableType, TypeWithShape {
         }
 
         if (isReadOnly()) {
-            semType = Core.intersect(semType, Builder.readonlyType());
+            semType = Core.intersect(semType, Builder.getReadonlyType());
         }
         return semType;
     }
@@ -233,7 +233,7 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     }
 
     private SemType valueShape(Context cx, ShapeSupplier shapeSupplier, BTable<?, ?> table) {
-        SemType constraintType = Builder.neverType();
+        SemType constraintType = Builder.getNeverType();
         for (var value : table.values()) {
             SemType valueShape = shapeSupplier.get(cx, value).orElse(SemType.tryInto(constraint));
             constraintType = Core.union(constraintType, valueShape);

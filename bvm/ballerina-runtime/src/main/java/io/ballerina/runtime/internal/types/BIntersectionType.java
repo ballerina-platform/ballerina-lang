@@ -234,22 +234,29 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
 
     private SemType createSemTypeInner(Function<Type, SemType> semTypeFunction) {
         if (constituentTypes.isEmpty()) {
-            return Builder.neverType();
+            return Builder.getNeverType();
         }
         SemType result = constituentTypes.stream().map(semTypeFunction).reduce(Core::intersect).orElseThrow();
-        // TODO:refactor this
+        Optional<SemType> distinctPart = distinctTypePart(result);
+        if (distinctPart.isPresent()) {
+            result = Core.intersect(result, distinctPart.get());
+        }
+        return result;
+    }
+
+    private Optional<SemType> distinctTypePart(SemType result) {
         if (Core.isSubtypeSimple(result, Builder.getErrorType())) {
             BErrorType effectiveErrorType = (BErrorType) getImpliedType(effectiveType);
             DistinctIdSupplier distinctIdSupplier =
                     new DistinctIdSupplier(TypeChecker.context().env, effectiveErrorType.getTypeIdSet());
-            result = distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct).reduce(result, Core::intersect);
+            return distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct).reduce(Core::intersect);
         } else if (Core.isSubtypeSimple(result, Builder.getObjectType())) {
             BObjectType effectiveObjectType = (BObjectType) getImpliedType(effectiveType);
             DistinctIdSupplier distinctIdSupplier =
                     new DistinctIdSupplier(TypeChecker.context().env, effectiveObjectType.getTypeIdSet());
-            result = distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(result, Core::intersect);
+            return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(Core::intersect);
         }
-        return result;
+        return Optional.empty();
     }
 
     @Override

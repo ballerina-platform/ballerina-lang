@@ -32,7 +32,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 
-// TODO: this should be a part of the public API
+/**
+ * Utility class for creating semtypes of XML type.
+ *
+ * @since 2201.11.0
+ */
 public final class XmlUtils {
 
     public static final int XML_PRIMITIVE_NEVER = 1;
@@ -73,7 +77,7 @@ public final class XmlUtils {
 
     private static SemType createXmlSemtype(SubTypeData xmlSubtype) {
         if (xmlSubtype instanceof AllOrNothing) {
-            return xmlSubtype == AllOrNothing.ALL ? Builder.getXmlType() : Builder.neverType();
+            return xmlSubtype == AllOrNothing.ALL ? Builder.getXmlType() : Builder.getNeverType();
         }
         assert xmlSubtype instanceof BXmlSubType : "subtype must be wrapped by delegate by now";
         return Builder.basicSubType(BasicTypeCode.BT_XML, (SubType) xmlSubtype);

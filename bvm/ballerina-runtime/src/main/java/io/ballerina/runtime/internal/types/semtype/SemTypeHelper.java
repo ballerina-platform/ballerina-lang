@@ -44,7 +44,7 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_XML;
 /**
  * Collection of utility function on {@code SemType}.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class SemTypeHelper {
 

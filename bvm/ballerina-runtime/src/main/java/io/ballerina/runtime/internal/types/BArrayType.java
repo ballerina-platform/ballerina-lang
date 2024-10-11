@@ -36,7 +36,7 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.Optional;
 
-import static io.ballerina.runtime.api.types.semtype.Builder.neverType;
+import static io.ballerina.runtime.api.types.semtype.Builder.getNeverType;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
@@ -243,7 +243,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
             return defn.defineListTypeWrapped(env, EMPTY_SEMTYPE_ARR, 0, elementType, mut);
         } else {
             SemType[] initial = {elementType};
-            return defn.defineListTypeWrapped(env, initial, size, neverType(), mut);
+            return defn.defineListTypeWrapped(env, initial, size, getNeverType(), mut);
         }
     }
 
@@ -305,7 +305,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
             memberTypes[i] = memberType.get();
         }
         CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE : CELL_MUT_LIMITED;
-        SemType semType = ld.defineListTypeWrapped(cx.env, memberTypes, memberTypes.length, neverType(), mut);
+        SemType semType = ld.defineListTypeWrapped(cx.env, memberTypes, memberTypes.length, getNeverType(), mut);
         value.resetReadonlyShapeDefinition();
         return semType;
     }

@@ -32,7 +32,7 @@ import java.util.Map;
  *
  * @param ty  Type "wrapped" by this cell
  * @param mut Mutability of the cell
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicType {
 

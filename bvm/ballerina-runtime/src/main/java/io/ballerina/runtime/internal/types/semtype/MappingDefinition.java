@@ -33,10 +33,15 @@ import java.util.Comparator;
 
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 import static io.ballerina.runtime.api.types.semtype.Builder.basicSubType;
-import static io.ballerina.runtime.api.types.semtype.Builder.undef;
+import static io.ballerina.runtime.api.types.semtype.Builder.getUndefType;
 import static io.ballerina.runtime.api.types.semtype.Core.isNever;
 import static io.ballerina.runtime.api.types.semtype.Core.union;
 
+/**
+ * {@code Definition} used to create a mapping type.
+ *
+ * @since 2201.11.0
+ */
 public class MappingDefinition implements Definition {
 
     private RecAtom rec = null;
@@ -68,7 +73,7 @@ public class MappingDefinition implements Definition {
             BCellField cellField = BCellField.from(env, field, mut);
             cellFields[i] = cellField;
         }
-        SemType restCell = Builder.getCellContaining(env, union(rest, undef()),
+        SemType restCell = Builder.getCellContaining(env, union(rest, getUndefType()),
                 isNever(rest) ? CellAtomicType.CellMutability.CELL_MUT_NONE : mut);
         return define(env, cellFields, restCell);
     }
@@ -106,7 +111,7 @@ public class MappingDefinition implements Definition {
 
         static BCellField from(Env env, Field field, CellAtomicType.CellMutability mut) {
             SemType type = field.ty;
-            SemType cellType = Builder.getCellContaining(env, field.optional ? union(type, undef()) : type,
+            SemType cellType = Builder.getCellContaining(env, field.optional ? union(type, getUndefType()) : type,
                     field.readonly ? CellAtomicType.CellMutability.CELL_MUT_NONE : mut);
             BCellField cellField = new BCellField(field.name, cellType);
             return cellField;

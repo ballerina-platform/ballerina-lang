@@ -56,7 +56,7 @@ public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTyp
      */
     public BIntegerType(String typeName, Module pkg) {
         this(() -> new BIntegerTypeImpl(typeName, pkg, TypeTags.INT_TAG), typeName, pkg, TypeTags.INT_TAG,
-                Builder.intType());
+                Builder.getIntType());
     }
 
     public BIntegerType(String typeName, Module pkg, int tag) {
@@ -70,7 +70,7 @@ public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTyp
 
     private static SemType pickSemType(int tag) {
         return switch (tag) {
-            case TypeTags.INT_TAG -> Builder.intType();
+            case TypeTags.INT_TAG -> Builder.getIntType();
             case TypeTags.SIGNED8_INT_TAG -> Builder.createIntRange(SIGNED8_MIN_VALUE, SIGNED8_MAX_VALUE);
             case TypeTags.SIGNED16_INT_TAG -> Builder.createIntRange(SIGNED16_MIN_VALUE, SIGNED16_MAX_VALUE);
             case TypeTags.SIGNED32_INT_TAG -> Builder.createIntRange(SIGNED32_MIN_VALUE, SIGNED32_MAX_VALUE);

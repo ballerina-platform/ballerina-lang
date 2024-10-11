@@ -30,6 +30,11 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+/**
+ * A supplier that provides a list of distinct ids for a given type id set.
+ *
+ * @since 2201.11.0
+ */
 final class DistinctIdSupplier implements Supplier<Collection<Integer>> {
 
     private List<Integer> ids = null;

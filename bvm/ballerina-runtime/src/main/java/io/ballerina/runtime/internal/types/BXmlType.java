@@ -169,7 +169,7 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
             }
             semType = XmlUtils.xmlSequence(contraintSemtype);
         }
-        return isReadOnly() ? Core.intersect(Builder.readonlyType(), semType) : semType;
+        return isReadOnly() ? Core.intersect(Builder.getReadonlyType(), semType) : semType;
     }
 
     private SemType pickTopType() {
@@ -204,7 +204,7 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
 
     @Override
     public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
-        return readonlyShapeOf(object).map(semType -> Core.intersect(semType, Builder.readonlyType()));
+        return readonlyShapeOf(object).map(semType -> Core.intersect(semType, Builder.getReadonlyType()));
     }
 
     @Override
@@ -243,7 +243,7 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
 
     private static Optional<SemType> getSemType(XmlValue xml, SemType baseType) {
         if (isReadOnly(xml)) {
-            return Optional.of(Core.intersect(baseType, Builder.readonlyType()));
+            return Optional.of(Core.intersect(baseType, Builder.getReadonlyType()));
         }
         return Optional.of(baseType);
     }

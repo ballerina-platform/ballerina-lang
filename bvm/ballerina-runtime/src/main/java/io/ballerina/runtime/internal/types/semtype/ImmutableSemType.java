@@ -26,11 +26,11 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Runtime representation of SemType.
+ * Runtime representation of an immutable semtype.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
-public abstract sealed class ImmutableSemType extends SemType permits BSemTypeWrapper, PureSemType {
+public abstract sealed class ImmutableSemType extends SemType permits BSemTypeWrapper {
 
     private static final SubType[] EMPTY_SUBTYPE_DATA = new SubType[0];
 
@@ -78,4 +78,13 @@ public abstract sealed class ImmutableSemType extends SemType permits BSemTypeWr
         return Objects.hash(all(), some(), Arrays.hashCode(subTypeData()));
     }
 
+    @Override
+    protected void setAll(int all) {
+        throw new UnsupportedOperationException("Immutable semtypes cannot be modified");
+    }
+
+    @Override
+    protected void setSome(int some, SubType[] subTypeData) {
+        throw new UnsupportedOperationException("Immutable semtypes cannot be modified");
+    }
 }

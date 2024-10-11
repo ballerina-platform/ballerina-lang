@@ -33,6 +33,11 @@ import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMut
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
 
+/**
+ * Utility class for creating semtypes of table type.
+ *
+ * @since 2201.11.0
+ */
 public final class TableUtils {
 
     private static final SemType[] EMPTY_SEMTYPE_ARR = new SemType[0];
@@ -60,10 +65,10 @@ public final class TableUtils {
 
         SemType normalizedKs =
                 new ListDefinition().defineListTypeWrapped(cx.env, fieldNameSingletons, fieldNameSingletons.length,
-                        Builder.neverType(), CELL_MUT_NONE);
+                        Builder.getNeverType(), CELL_MUT_NONE);
 
         SemType normalizedKc = fieldNames.length > 1 ? new ListDefinition().defineListTypeWrapped(cx.env, fieldTypes,
-                fieldTypes.length, Builder.neverType(), CELL_MUT_NONE) : fieldTypes[0];
+                fieldTypes.length, Builder.getNeverType(), CELL_MUT_NONE) : fieldTypes[0];
 
         return tableContaining(cx.env, tableConstraint, normalizedKc, normalizedKs, cellMutLimited);
     }
@@ -112,7 +117,7 @@ public final class TableUtils {
         ListDefinition listDef = new ListDefinition();
         SemType tupleType =
                 listDef.defineListTypeWrapped(env, new SemType[]{typeParamArray, normalizedKc, normalizedKs}, 3,
-                        Builder.neverType(),
+                        Builder.getNeverType(),
                         CELL_MUT_LIMITED);
         Bdd bdd = (Bdd) Core.subTypeData(tupleType, BasicTypeCode.BT_LIST);
         return Core.createBasicSemType(BasicTypeCode.BT_TABLE, bdd);

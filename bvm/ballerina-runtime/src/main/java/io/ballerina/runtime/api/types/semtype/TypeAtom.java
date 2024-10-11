@@ -18,6 +18,15 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+/**
+ * Represent a TypeAtom. Each operand of a type operation could be thought of as
+ * an atom
+ *
+ * @param index      unique index within the {@code Env}
+ * @param atomicType atomic type representing the actual type represented by
+ *                   this atom.
+ * @since 2201.11.0
+ */
 public record TypeAtom(int index, AtomicType atomicType) implements Atom {
 
     public TypeAtom {

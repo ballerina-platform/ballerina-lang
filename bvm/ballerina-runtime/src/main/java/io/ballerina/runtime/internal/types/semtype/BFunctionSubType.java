@@ -30,6 +30,11 @@ import java.util.Objects;
 
 import static io.ballerina.runtime.api.types.semtype.Bdd.bddEvery;
 
+/**
+ * Runtime representation of a subtype of function type.
+ *
+ * @since 2201.11.0
+ */
 public class BFunctionSubType extends SubType implements DelegatedSubType {
 
     public final Bdd inner;
@@ -126,14 +131,14 @@ public class BFunctionSubType extends SubType implements DelegatedSubType {
 
     private static SemType functionUnionParams(Context cx, Conjunction pos) {
         if (pos == null) {
-            return Builder.neverType();
+            return Builder.getNeverType();
         }
         return Core.union(cx.functionAtomicType(pos.atom()).paramType(), functionUnionParams(cx, pos.next()));
     }
 
     private static SemType functionUnionQualifiers(Context cx, Conjunction pos) {
         if (pos == null) {
-            return Builder.neverType();
+            return Builder.getNeverType();
         }
         return Core.union(cx.functionAtomicType(pos.atom()).qualifiers(), functionUnionQualifiers(cx, pos.next()));
     }

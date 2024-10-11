@@ -5,6 +5,11 @@ import io.ballerina.runtime.internal.types.semtype.ImmutableSemType;
 import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 import io.ballerina.runtime.internal.types.semtype.SemTypeHelper;
 
+/**
+ * Represent a type in runtime.
+ *
+ * @since 2201.11.0
+ */
 public sealed class SemType extends BasicTypeBitSet
         permits io.ballerina.runtime.internal.types.BType, ImmutableSemType {
 
@@ -57,12 +62,6 @@ public sealed class SemType extends BasicTypeBitSet
             mutableSemType.updateInnerSemTypeIfNeeded();
         }
         return (SemType) type;
-    }
-
-    public enum CachedResult {
-        TRUE,
-        FALSE,
-        NOT_FOUND
     }
 
     @Override

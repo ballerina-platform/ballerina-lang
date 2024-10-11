@@ -23,8 +23,15 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * Represents required member part of a list atom.
+ *
+ * @since 2201.11.0
+ */
 public final class FixedLengthArray {
 
+    // We have a separate fixedLength so types such as {@code byte[500]} don't need to store 500 elements
+    // in {@code initial}.
     private final SemType[] initial;
     private final int fixedLength;
     private Integer hashCode;

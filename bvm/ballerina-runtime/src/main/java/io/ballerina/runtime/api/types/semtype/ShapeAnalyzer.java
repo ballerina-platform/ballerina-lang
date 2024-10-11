@@ -9,6 +9,11 @@ import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.util.Optional;
 
+/**
+ * Utility class for performing shape related operations.
+ *
+ * @since 2201.11.0
+ */
 public class ShapeAnalyzer {
 
     private ShapeAnalyzer() {
@@ -23,7 +28,7 @@ public class ShapeAnalyzer {
 
     public static Optional<SemType> shapeOf(Context cx, Object object) {
         if (object == null) {
-            return Optional.of(Builder.nilType());
+            return Optional.of(Builder.getNilType());
         } else if (object instanceof DecimalValue decimalValue) {
             return Optional.of(Builder.getDecimalConst(decimalValue.value()));
         } else if (object instanceof Double doubleValue) {
@@ -52,7 +57,7 @@ public class ShapeAnalyzer {
             return bValue.inherentTypeOf(cx);
         }
         if (object == null) {
-            return Optional.of(Builder.nilType());
+            return Optional.of(Builder.getNilType());
         } else if (object instanceof Double doubleValue) {
             return Optional.of(Builder.getFloatConst(doubleValue));
         } else if (object instanceof Number intValue) {

@@ -24,6 +24,11 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.Optional;
 
+/**
+ * Function that can be used to get the shape of a value.
+ *
+ * @since 2201.11.0
+ */
 @FunctionalInterface
 public interface ShapeSupplier {
 

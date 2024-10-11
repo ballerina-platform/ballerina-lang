@@ -26,6 +26,11 @@ import io.ballerina.runtime.api.types.semtype.SubType;
 
 import java.util.Objects;
 
+/**
+ * Represents the subtype of an XML type.
+ *
+ * @since 2201.11.0
+ */
 public class BXmlSubType extends SubType implements DelegatedSubType {
 
     public final Bdd inner;

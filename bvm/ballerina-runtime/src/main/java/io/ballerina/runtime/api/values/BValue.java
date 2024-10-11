@@ -68,6 +68,9 @@ public interface BValue {
      * @return {@code SemType} representing the value's basic type
      */
     default SemType widenedType() {
+        // This is wrong since we are actually returning the actual (narrowed) type of the value. But since this is
+        // used only as an optimization (to avoid recalculating singleton type) in the type checker this is better
+        // than caching the widened types as well.
         return SemType.tryInto(getType());
     }
 

@@ -29,6 +29,8 @@ import java.util.Optional;
  * must implement this interface. Note that multiple values could share the same instance of TypeWithShape. Ideally
  * different objects should be able to do their shape calculations in a non-blocking manner, even when they share the
  * same instance of {@code TypeWithShape}.
+ *
+ * @since 2201.11.0
  */
 public interface TypeWithShape extends TypeWithAcceptedType {
 

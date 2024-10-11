@@ -32,7 +32,19 @@ import static io.ballerina.runtime.api.types.semtype.Core.cellInner;
 import static io.ballerina.runtime.api.types.semtype.Core.intersectCellMemberSemTypes;
 import static io.ballerina.runtime.api.types.semtype.Core.isNever;
 
+/**
+ * Represent mapping atomic type.
+ *
+ * @param names required member names of the mapping
+ * @param types required member types of the mapping
+ * @param rest  rest of member type of the mapping
+ * @since 2201.11.0
+ */
 public record MappingAtomicType(String[] names, SemType[] types, SemType rest) implements AtomicType {
+
+    public MappingAtomicType {
+        assert names.length == types.length;
+    }
 
     public MappingAtomicType intersectMapping(Env env, MappingAtomicType other) {
         int expectedSize = Integer.min(types().length, other.types().length);

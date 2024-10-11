@@ -23,10 +23,12 @@ import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 import static io.ballerina.runtime.api.types.semtype.Conjunction.and;
 
 /**
- * Represent BDD node. Subtypes that uses BDDs to represent subtypes such as list, mapping and cell should implement
- * their own {@code SubType} implementation that wraps an implementation of this class.
+ * Represent BDD node. Subtypes that uses BDDs to represent subtypes such as
+ * list, mapping and cell should implement
+ * their own {@code SubType} implementation that wraps an implementation of this
+ * class.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public abstract sealed class Bdd extends SubType implements SubTypeData permits BddAllOrNothing, BddNode {
 

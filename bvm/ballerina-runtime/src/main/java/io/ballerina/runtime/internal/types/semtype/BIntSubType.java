@@ -29,9 +29,9 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_MIN_VALUE;
 
 /**
- * Runtime representation of IntSubType.
+ * Runtime representation of a int subtype.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class BIntSubType extends SubType {
 

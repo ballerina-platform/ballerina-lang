@@ -28,6 +28,11 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import static io.ballerina.runtime.api.types.semtype.Core.createBasicSemType;
 import static io.ballerina.runtime.api.types.semtype.Core.subTypeData;
 
+/**
+ * Utility class for creating semtypes of typedesc type.
+ *
+ * @since 2201.11.0
+ */
 public final class TypedescUtils {
 
     private static final MappingDefinition.Field[] EMPTY_FIELDS = new MappingDefinition.Field[0];

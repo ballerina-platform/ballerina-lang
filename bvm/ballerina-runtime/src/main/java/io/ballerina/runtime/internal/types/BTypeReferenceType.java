@@ -159,7 +159,7 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
         if (referredType instanceof TypeWithShape typeWithShape) {
             return typeWithShape.shapeOf(cx, shapeSupplierFn, object);
         }
-        return Optional.empty();
+        return ShapeAnalyzer.shapeOf(cx, referredType);
     }
 
     @Override

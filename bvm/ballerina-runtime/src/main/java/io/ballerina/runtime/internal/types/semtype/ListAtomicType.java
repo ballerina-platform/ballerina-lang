@@ -21,6 +21,13 @@ package io.ballerina.runtime.internal.types.semtype;
 import io.ballerina.runtime.api.types.semtype.AtomicType;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+/**
+ * Represent list atomic type.
+ *
+ * @param members required member types of the list
+ * @param rest    rest of member type of the list
+ * @since 2201.11.0
+ */
 public record ListAtomicType(FixedLengthArray members, SemType rest) implements AtomicType {
 
 }

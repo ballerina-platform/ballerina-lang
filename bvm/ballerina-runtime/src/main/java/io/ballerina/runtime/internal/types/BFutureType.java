@@ -105,4 +105,10 @@ public class BFutureType extends BType implements FutureType {
         }
         return FutureUtils.futureContaining(TypeChecker.context().env, tryInto(constraint));
     }
+
+    @Override
+    public boolean shouldCache() {
+        // {@code equals} depends on the type checker this is to avoid a possible infinite recursion
+        return false;
+    }
 }

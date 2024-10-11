@@ -26,6 +26,11 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * {@code Iterable} over the matching fields of two mapping atomic types.
+ *
+ * @since 2201.11.0
+ */
 public class FieldPairs implements Iterable<FieldPair> {
 
     MappingAtomicType m1;

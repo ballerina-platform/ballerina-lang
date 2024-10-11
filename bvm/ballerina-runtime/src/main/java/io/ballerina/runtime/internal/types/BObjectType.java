@@ -242,6 +242,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     public void setTypeIdSet(BTypeIdSet typeIdSet) {
         this.typeIdSet = typeIdSet;
         this.distinctIdSupplier = null;
+        resetSemType();
     }
 
     public BObjectType duplicate() {
@@ -500,14 +501,14 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             if (restType instanceof BArrayType arrayType) {
                 rest = tryInto(arrayType.getElementType());
             } else {
-                rest = Builder.neverType();
+                rest = Builder.getNeverType();
             }
 
             SemType returnType;
             if (innerFn.getReturnType() != null) {
                 returnType = tryInto(innerFn.getReturnType());
             } else {
-                returnType = Builder.nilType();
+                returnType = Builder.getNilType();
             }
             ListDefinition paramListDefinition = new ListDefinition();
             Env env = TypeChecker.context().env;

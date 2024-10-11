@@ -36,6 +36,16 @@ import static io.ballerina.runtime.api.types.semtype.Core.createBasicSemType;
 import static io.ballerina.runtime.api.types.semtype.Core.union;
 import static io.ballerina.runtime.api.types.semtype.RecAtom.createDistinctRecAtom;
 
+/**
+ * {@code Definition} used to create an object type.
+ * <p>
+ * Each object type is represented as mapping type (with its basic type set to object) as fallows
+ * {@code { "$qualifiers": { boolean isolated, "client"|"service" network }, [field_name]: { "field"|"method" kind,
+ * "public"|"private" visibility, VAL value; } ...{ "field" kind, "public"|"private" visibility, VAL value; } | {
+ * "method" kind, "public"|"private" visibility, FUNCTION value; } }}
+ *
+ * @since 2201.11.0
+ */
 public class ObjectDefinition implements Definition {
 
     private final MappingDefinition mappingDefinition = new MappingDefinition();
@@ -64,16 +74,18 @@ public class ObjectDefinition implements Definition {
     private SemType restMemberType(Env env, CellAtomicType.CellMutability mut, boolean readonly) {
         MappingDefinition fieldDefn = new MappingDefinition();
         SemType fieldMemberType = fieldDefn.defineMappingTypeWrapped(env, new MappingDefinition.Field[]{
-                        new MappingDefinition.Field("value", readonly ? Builder.readonlyType() : Builder.getValType(),
+                        new MappingDefinition.Field(
+                                "value",
+                                readonly ? Builder.getReadonlyType() : Builder.getValType(),
                                 readonly,
                                 false),
-                        Member.Kind.Field.field(), Member.Visibility.ALL}, Builder.neverType(),
+                        Member.Kind.Field.field(), Member.Visibility.ALL}, Builder.getNeverType(),
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED);
         MappingDefinition methodDefn = new MappingDefinition();
 
         SemType methodMemberType = methodDefn.defineMappingTypeWrapped(env, new MappingDefinition.Field[]{
                         new MappingDefinition.Field("value", Builder.getFunctionType(), true, false),
-                        Member.Kind.Method.field(), Member.Visibility.ALL}, Builder.neverType(),
+                        Member.Kind.Method.field(), Member.Visibility.ALL}, Builder.getNeverType(),
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED);
         return Builder.getCellContaining(env, union(fieldMemberType, methodMemberType), mut);
     }
@@ -82,7 +94,7 @@ public class ObjectDefinition implements Definition {
         MappingDefinition md = new MappingDefinition();
         SemType semtype = md.defineMappingTypeWrapped(env, new MappingDefinition.Field[]{
                         new MappingDefinition.Field("value", member.valueTy(), member.immutable(), false),
-                        member.kind().field(), member.visibility().field()}, Builder.neverType(),
+                        member.kind().field(), member.visibility().field()}, Builder.getNeverType(),
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED);
         return new MappingDefinition.Field(member.name(), semtype, immutableObject | member.immutable(), false);
     }

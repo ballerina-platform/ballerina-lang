@@ -22,6 +22,11 @@ import io.ballerina.runtime.api.types.semtype.BasicTypeCode;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+/**
+ * Utility class for creating semtypes of regex tagged basic type.
+ *
+ * @since 2201.11.0
+ */
 public final class RegexUtils {
 
     private RegexUtils() {
