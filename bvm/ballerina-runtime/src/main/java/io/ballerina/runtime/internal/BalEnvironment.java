@@ -70,7 +70,7 @@ public class BalEnvironment extends Environment {
     }
 
     @Override
-    public Object yieldAndRun(Supplier<Object> supplier) {
+    public <T> T yieldAndRun(Supplier<T> supplier) {
         try {
             strand.yield();
             return supplier.get();
