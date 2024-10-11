@@ -49,8 +49,10 @@ public abstract class Environment {
      * Yield the current execution and run some operation so other non isolated functions can run in asynchronously.
      *
      * @param supplier operation to be executed.
+     * @param <T>      supplier type.
+     * @return results supplied by this supplier.
      */
-    public abstract Object yieldAndRun(Supplier<Object> supplier);
+    public abstract <T> T yieldAndRun(Supplier<T> supplier);
 
     /**
      * Gets an instance of Ballerina runtime.
