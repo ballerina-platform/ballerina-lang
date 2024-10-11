@@ -57,7 +57,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import static io.ballerina.runtime.api.types.semtype.Builder.neverType;
+import static io.ballerina.runtime.api.types.semtype.Builder.getNeverType;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
 
@@ -267,17 +267,15 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
             boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
             SemType fieldType = semTypeFunction.apply(field.getFieldType());
             if (!isOptional && Core.isNever(fieldType)) {
-                return neverType();
+                return getNeverType();
             }
-            boolean isReadonly = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
-            if (Core.isNever(fieldType)) {
-                isReadonly = true;
-            }
+            boolean isReadonly =
+                    SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY) || Core.isNever(fieldType);
             mappingFields[i] = new MappingDefinition.Field(field.getFieldName(), fieldType,
                     isReadonly, isOptional);
         }
         SemType rest;
-        rest = restFieldType != null ? semTypeFunction.apply(restFieldType) : neverType();
+        rest = restFieldType != null ? semTypeFunction.apply(restFieldType) : getNeverType();
         return md.defineMappingTypeWrapped(env, mappingFields, rest, mut);
     }
 
@@ -306,7 +304,6 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
                                  boolean takeFieldShape) {
         Env env = cx.env;
         int nFields = value.size();
-        List<MappingDefinition.Field> fields = new ArrayList<>(nFields);
         Map.Entry<?, ?>[] entries = value.entrySet().toArray(Map.Entry[]::new);
         Set<String> handledFields = new HashSet<>(nFields);
         MappingDefinition md;
@@ -321,51 +318,41 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         } else {
             md = new MappingDefinition();
         }
+        List<MappingDefinition.Field> fields = new ArrayList<>(nFields);
         for (int i = 0; i < nFields; i++) {
             String fieldName = entries[i].getKey().toString();
             Object fieldValue = entries[i].getValue();
             handledFields.add(fieldName);
-            boolean readonlyField = fieldIsReadonly(fieldName);
-            boolean optionalField = fieldIsOptional(fieldName);
-            Optional<SemType> fieldType;
-            if (takeFieldShape || readonlyField) {
-                optionalField = false;
-                fieldType = shapeSupplier.get(cx, fieldValue);
-            } else {
-                fieldType = Optional.of(SemType.tryInto(fieldType(fieldName)));
-            }
-            assert fieldType.isPresent();
-            fields.add(new MappingDefinition.Field(fieldName, fieldType.get(), readonlyField,
-                    optionalField));
+            fields.add(fieldShape(cx, shapeSupplier, fieldName, fieldValue, takeFieldShape));
         }
         if (!takeFieldShape) {
-            for (var field : getFields().values()) {
-                String name = field.getFieldName();
-                if (handledFields.contains(name)) {
-                    continue;
-                }
-                boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
-                boolean isReadonly = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
-                // TODO: refactor this
-                SemType fieldType = SemType.tryInto(field.getFieldType());
-                if (isReadonly && isOptional && value.get(StringUtils.fromString(name)) == null) {
-                    fieldType = Builder.undef();
-                }
-                fields.add(new MappingDefinition.Field(field.getFieldName(), fieldType,
-                        isReadonly, isOptional));
-            }
+            getFields().values().stream()
+                    .filter(field -> !handledFields.contains(field.getFieldName()))
+                    .map(field -> fieldShapeWithoutValue(field, field.getFieldName()))
+                    .forEach(fields::add);
         }
-        SemType semTypePart;
         MappingDefinition.Field[] fieldsArray = fields.toArray(MappingDefinition.Field[]::new);
         SemType rest;
         if (takeFieldShape) {
-            rest = Builder.neverType();
+            rest = Builder.getNeverType();
         } else {
-            rest = restFieldType != null ? SemType.tryInto(restFieldType) : neverType();
+            rest = restFieldType != null ? SemType.tryInto(restFieldType) : getNeverType();
         }
-        semTypePart = md.defineMappingTypeWrapped(env, fieldsArray, rest, mut());
+        SemType shape = md.defineMappingTypeWrapped(env, fieldsArray, rest, mut());
         value.resetReadonlyShapeDefinition();
-        return semTypePart;
+        return shape;
+    }
+
+    private MappingDefinition.Field fieldShapeWithoutValue(Field field, String fieldName) {
+        boolean isOptional = fieldIsOptional(fieldName);
+        boolean isReadonly = fieldIsReadonly(fieldName);
+        SemType fieldType = SemType.tryInto(field.getFieldType());
+        if (isReadonly && isOptional) {
+            fieldType = Builder.getUndefType();
+        }
+        MappingDefinition.Field field1 = new MappingDefinition.Field(field.getFieldName(), fieldType,
+                isReadonly, isOptional);
+        return field1;
     }
 
     @Override
@@ -415,5 +402,19 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     private boolean fieldIsOptional(String fieldName) {
         Field field = fields.get(fieldName);
         return field != null && SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
+    }
+
+    private MappingDefinition.Field fieldShape(Context cx, ShapeSupplier shapeSupplier, String fieldName,
+                                               Object fieldValue, boolean alwaysTakeValueShape) {
+        boolean readonlyField = fieldIsReadonly(fieldName);
+        boolean optionalField = fieldIsOptional(fieldName);
+        SemType fieldType;
+        if (alwaysTakeValueShape || readonlyField) {
+            optionalField = false;
+            fieldType = shapeSupplier.get(cx, fieldValue).orElseThrow();
+        } else {
+            fieldType = SemType.tryInto(fieldType(fieldName));
+        }
+        return new MappingDefinition.Field(fieldName, fieldType, readonlyField, optionalField);
     }
 }

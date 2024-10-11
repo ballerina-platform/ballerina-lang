@@ -37,9 +37,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
 /**
- * Represent the environment in which {@code SemTypes} are defined in. Type checking types defined in different
- * environments with each other in undefined. This is safe to be shared between multiple threads.
- * @since 2201.10.0
+ * Represent the environment in which {@code SemTypes} are defined in. Type
+ * checking types defined in different
+ * environments with each other in undefined. This is safe to be shared between
+ * multiple threads.
+ * 
+ * @since 2201.11.0
  */
 public final class Env {
     // Currently there is no reason to worry about above restrictions since Env is a singleton, but strictly speaking
@@ -48,7 +51,8 @@ public final class Env {
     private static final Env INSTANCE = new Env();
 
     // Each atom is created once but will be accessed multiple times during type checking. Also in perfect world we
-    //  will create atoms at the beginning of the execution and will eventually reach a steady state.
+    // will create atoms at the beginning of the execution and will eventually reach
+    // a steady state.
     private final ReadWriteLock atomLock = new ReentrantReadWriteLock();
     private final Map<AtomicType, Reference<TypeAtom>> atomTable;
 

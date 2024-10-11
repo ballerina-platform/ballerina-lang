@@ -21,6 +21,12 @@ package io.ballerina.runtime.internal.types.semtype;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.BType;
 
+/**
+ * Represents a mutable semantic type. Note in the current implementation we assume after type checking this is to be
+ * immutable.
+ *
+ * @since 2201.11.0
+ */
 public sealed interface MutableSemType permits BType {
 
     SemType createSemType();

@@ -38,6 +38,7 @@ import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_ERROR;
@@ -60,7 +61,7 @@ import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMut
 /**
  * Utility class for creating semtypes.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class Builder {
 
@@ -90,16 +91,16 @@ public final class Builder {
                 ListDefinition listDef = new ListDefinition();
                 MappingDefinition mapDef = new MappingDefinition();
                 SemType tableTy = TableUtils.tableContaining(env, mapDef.getSemType(env));
-                SemType accum =
-                        unionOf(getSimpleOrStringType(), getXmlType(), listDef.getSemType(env), mapDef.getSemType(env),
-                                tableTy);
+                SemType accum = Stream.of(getSimpleOrStringType(), getXmlType(), listDef.getSemType(env),
+                        mapDef.getSemType(env),
+                        tableTy).reduce(Builder.getNeverType(), Core::union);
                 listDef.defineListTypeWrapped(env, EMPTY_TYPES_ARR, 0, accum, CELL_MUT_LIMITED);
                 mapDef.defineMappingTypeWrapped(env, new MappingDefinition.Field[0], accum, CELL_MUT_LIMITED);
                 return accum;
             }
     );
     private static final ConcurrentLazySupplier<SemType> INNER_RO =
-            new ConcurrentLazySupplier<>(() -> union(readonlyType(), inner()));
+            new ConcurrentLazySupplier<>(() -> union(getReadonlyType(), getInnerType()));
 
     private static final ConcurrentLazySupplier<ListAtomicType> LIST_ATOMIC_INNER =
             new ConcurrentLazySupplier<>(() -> new ListAtomicType(
@@ -133,61 +134,61 @@ public final class Builder {
         return SemType.from(1 << typeCode.code());
     }
 
-    public static SemType neverType() {
+    public static SemType getNeverType() {
         return SemType.from(0);
     }
 
-    public static SemType nilType() {
+    public static SemType getNilType() {
         return from(BasicTypeCode.BT_NIL);
     }
 
-    public static SemType undef() {
+    public static SemType getUndefType() {
         return from(BasicTypeCode.BT_UNDEF);
     }
 
-    public static SemType cell() {
+    public static SemType getCellType() {
         return from(BT_CELL);
     }
 
-    public static SemType inner() {
+    public static SemType getInnerType() {
         return INNER;
     }
 
-    public static SemType intType() {
+    public static SemType getIntType() {
         return from(BasicTypeCode.BT_INT);
     }
 
-    public static SemType decimalType() {
+    public static SemType getDecimalType() {
         return from(BasicTypeCode.BT_DECIMAL);
     }
 
-    public static SemType floatType() {
+    public static SemType getFloatType() {
         return from(BasicTypeCode.BT_FLOAT);
     }
 
-    public static SemType booleanType() {
+    public static SemType getBooleanType() {
         return from(BasicTypeCode.BT_BOOLEAN);
     }
 
-    public static SemType stringType() {
+    public static SemType getStringType() {
         return from(BasicTypeCode.BT_STRING);
     }
 
-    public static SemType charType() {
+    public static SemType getCharType() {
         return StringTypeCache.charType;
     }
 
-    public static SemType listType() {
+    public static SemType getListType() {
         return from(BT_LIST);
     }
 
-    public static SemType readonlyType() {
+    public static SemType getReadonlyType() {
         return PREDEFINED_TYPE_ENV.readonlyType();
     }
 
     static SemType getBasicTypeUnion(int bitset) {
         return switch (bitset) {
-            case 0 -> neverType();
+            case 0 -> getNeverType();
             case VT_MASK -> VAL;
             default -> {
                 if (Integer.bitCount(bitset) == 1) {
@@ -204,7 +205,7 @@ public final class Builder {
 
     public static SemType basicSubType(BasicTypeCode basicTypeCode, SubType subType) {
         assert !(subType instanceof Bdd) : "BDD should always be wrapped with a delegate";
-        assert checkDelegate(basicTypeCode, subType);
+        assert checkDelegate(basicTypeCode, subType) : "BDd is wrapped in wrong delegate";
         int some = 1 << basicTypeCode.code();
         SubType[] subTypes = initializeSubtypeArray(some);
         subTypes[0] = subType;
@@ -248,6 +249,7 @@ public final class Builder {
         return basicSubType(BasicTypeCode.BT_FLOAT, BFloatSubType.createFloatSubType(true, values));
     }
 
+    // TODO: consider caching small strings
     public static SemType getStringConst(String value) {
         BStringSubType subType;
         String[] values = {value};
@@ -349,14 +351,6 @@ public final class Builder {
 
     public static SemType getAnyDataType() {
         return ANYDATA.get();
-    }
-
-    private static SemType unionOf(SemType... types) {
-        SemType accum = types[0];
-        for (int i = 1; i < types.length; i++) {
-            accum = union(accum, types[i]);
-        }
-        return accum;
     }
 
     public static SemType getObjectType() {

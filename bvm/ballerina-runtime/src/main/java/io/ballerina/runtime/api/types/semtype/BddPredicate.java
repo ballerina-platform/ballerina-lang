@@ -22,7 +22,7 @@ package io.ballerina.runtime.api.types.semtype;
 /**
  * Represents a predicate that can be applied to a BDD conjunction.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 @FunctionalInterface
 public interface BddPredicate {

@@ -35,7 +35,7 @@ public final class BNeverType extends BNullType implements NeverType {
      * @param pkg package path
      */
     public BNeverType(Module pkg) {
-        super(TypeConstants.NEVER_TNAME, pkg, Builder.neverType(), TypeTags.NEVER_TAG);
+        super(TypeConstants.NEVER_TNAME, pkg, Builder.getNeverType(), TypeTags.NEVER_TAG);
     }
 
     @Override

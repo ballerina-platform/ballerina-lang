@@ -29,6 +29,12 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import static io.ballerina.runtime.api.types.semtype.Core.createBasicSemType;
 import static io.ballerina.runtime.api.types.semtype.Core.subTypeData;
 
+/**
+ * {@code Definition} used to create a stream type. Stream is represented as a
+ * tuple of {@code [valueType, completionType]}
+ *
+ * @since 2201.11.0
+ */
 public class StreamDefinition implements Definition {
 
     private final ListDefinition listDefinition = new ListDefinition();
@@ -43,7 +49,7 @@ public class StreamDefinition implements Definition {
             return Builder.getStreamType();
         }
         SemType tuple = listDefinition.defineListTypeWrapped(env, new SemType[]{valueType, completionType}, 2,
-                Builder.neverType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED);
+                Builder.getNeverType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED);
         return streamContaining(tuple);
     }
 

@@ -29,11 +29,16 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 import static io.ballerina.runtime.api.types.semtype.Builder.basicSubType;
-import static io.ballerina.runtime.api.types.semtype.Builder.undef;
+import static io.ballerina.runtime.api.types.semtype.Builder.getUndefType;
 import static io.ballerina.runtime.api.types.semtype.Core.isNever;
 import static io.ballerina.runtime.api.types.semtype.Core.union;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 
+/**
+ * {@code Definition} used to create a list type.
+ *
+ * @since 2201.11.0
+ */
 public class ListDefinition implements Definition {
 
     private RecAtom rec = null;
@@ -56,7 +61,8 @@ public class ListDefinition implements Definition {
         for (int i = 0; i < initial.length; i++) {
             initialCells[i] = Builder.getCellContaining(env, initial[i], mut);
         }
-        SemType restCell = Builder.getCellContaining(env, union(rest, undef()), isNever(rest) ? CELL_MUT_NONE : mut);
+        SemType restCell =
+                Builder.getCellContaining(env, union(rest, getUndefType()), isNever(rest) ? CELL_MUT_NONE : mut);
         return define(env, initialCells, fixedLength, restCell);
     }
 

@@ -23,8 +23,9 @@ package io.ballerina.runtime.api.types.semtype;
  * Represents the Conjunction in the BDD.
  *
  * @param atom Atom of this node
- * @param next Next node in the conjunction, will be {@code null} if this is the last node
- * @since 2201.10.0
+ * @param next Next node in the conjunction, will be {@code null} if this is the
+ *             last node
+ * @since 2201.11.0
  */
 public record Conjunction(Atom atom, Conjunction next) {
 

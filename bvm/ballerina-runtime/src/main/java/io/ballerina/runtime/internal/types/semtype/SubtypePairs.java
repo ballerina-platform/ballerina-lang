@@ -25,7 +25,7 @@ import java.util.Iterator;
 /**
  * Implements the iterable for `SubtypePairIteratorImpl`.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public class SubtypePairs implements Iterable<SubtypePair> {
 

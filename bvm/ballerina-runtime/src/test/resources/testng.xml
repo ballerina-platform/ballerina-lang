@@ -20,7 +20,7 @@
 
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-runtime-test-suite" time-out="120000000000000">
+<suite name="ballerina-runtime-test-suite" time-out="120000">
     <test name="ballerina-runtime-test">
         <packages>
             <package name="io.ballerina.runtime.test.*"/>

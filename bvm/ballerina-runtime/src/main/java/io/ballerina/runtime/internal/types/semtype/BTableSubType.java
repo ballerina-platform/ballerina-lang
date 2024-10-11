@@ -28,6 +28,11 @@ import java.util.Objects;
 
 import static io.ballerina.runtime.api.types.semtype.Bdd.bddEvery;
 
+/**
+ * Represents the subtype of a table type.
+ *
+ * @since 2201.11.0
+ */
 public final class BTableSubType extends SubType implements DelegatedSubType {
 
     private final Bdd inner;

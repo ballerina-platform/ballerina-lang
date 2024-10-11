@@ -21,6 +21,11 @@ package io.ballerina.runtime.internal.types.semtype;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Represents the memoization emptiness of a BDD used in Context.
+ *
+ * @since 2201.11.0
+ */
 public final class BddMemo {
 
     public Status isEmpty;
@@ -30,11 +35,15 @@ public final class BddMemo {
     }
 
     public enum Status {
+        // We know where this BDD is empty or not
         TRUE,
         FALSE,
+        // There is some recursive part in this type
         LOOP,
         CYCLIC,
+        // We are in the process of determining if this BDD is empty or not
         PROVISIONAL,
+        // We just initialized the node, treated to be same as not having a memo
         NULL
     }
 
@@ -56,9 +65,12 @@ public final class BddMemo {
 
     public Optional<Boolean> isEmpty() {
         return switch (isEmpty) {
+            // Cyclic types are empty because we define types inductively
             case TRUE, CYCLIC -> Optional.of(true);
             case FALSE -> Optional.of(false);
             case LOOP, PROVISIONAL -> {
+                // If it was provisional we came from a back edge
+                // Again we treat the loop part as empty
                 isEmpty = Status.LOOP;
                 yield Optional.of(true);
             }

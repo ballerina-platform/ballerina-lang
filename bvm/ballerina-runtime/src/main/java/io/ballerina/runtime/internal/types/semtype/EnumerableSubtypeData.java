@@ -25,11 +25,12 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * All {@code SubTypeData} where we can enumerate individual values must extend this class. It will provide common
- * operations such as {@code union}, {@code intersect} and {@code diff} for all such data.
+ * All {@code SubTypeData} where we can enumerate individual values must extend
+ * this class. It will provide common operations such as {@code union},
+ * {@code intersect} and {@code diff} for all such data.
  *
  * @param <E> type individual value in the subset
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public abstract class EnumerableSubtypeData<E extends Comparable<E>> {
 

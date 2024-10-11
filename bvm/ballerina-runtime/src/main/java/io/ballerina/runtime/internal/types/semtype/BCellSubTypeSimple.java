@@ -19,6 +19,11 @@ import java.util.stream.Stream;
 
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 
+/**
+ * Simplified representation of cell if the type is only basic type union and mutability is limited.
+ *
+ * @since 2201.11.0
+ */
 final class BCellSubTypeSimple extends BCellSubType implements DelegatedSubType {
 
     private final List<SemType> pos;
@@ -80,7 +85,7 @@ final class BCellSubTypeSimple extends BCellSubType implements DelegatedSubType 
         if (pos.isEmpty()) {
             return true;
         }
-        SemType posUnion = pos.stream().reduce(Builder.neverType(), Core::union);
+        SemType posUnion = pos.stream().reduce(Builder.getNeverType(), Core::union);
         if (neg.isEmpty()) {
             return Core.isEmpty(cx, posUnion);
         }

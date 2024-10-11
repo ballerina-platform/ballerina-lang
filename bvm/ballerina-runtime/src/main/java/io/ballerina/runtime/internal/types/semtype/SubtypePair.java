@@ -20,6 +20,16 @@ package io.ballerina.runtime.internal.types.semtype;
 
 import io.ballerina.runtime.api.types.semtype.SubType;
 
+/**
+ * Represents the corresponding subtype pairs of two semtypes.
+ *
+ * @param typeCode the type code of the semtype
+ * @param subType1 the first subtype. This will if the first semtype don't have
+ *                 this subtype
+ * @param subType2 the second subtype. This will if the second semtype don't
+ *                 have this subtype
+ * @since 2201.11.0
+ */
 public record SubtypePair(int typeCode, SubType subType1, SubType subType2) {
 
     public SubtypePair {

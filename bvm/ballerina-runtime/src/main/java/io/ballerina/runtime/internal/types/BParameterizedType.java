@@ -84,10 +84,6 @@ public class BParameterizedType extends BType implements ParameterizedType {
 
     @Override
     public SemType createSemType() {
-        Type paramValueType = this.paramValueType;
-        if (paramValueType instanceof BType bType) {
-            return bType.createSemType();
-        }
-        return SemType.tryInto(paramValueType);
+        return SemType.tryInto(this.paramValueType);
     }
 }

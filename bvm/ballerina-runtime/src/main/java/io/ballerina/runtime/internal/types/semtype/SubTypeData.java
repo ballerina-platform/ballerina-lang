@@ -21,9 +21,8 @@ package io.ballerina.runtime.internal.types.semtype;
 /**
  * Marker interface for SubTypeData.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
-// TODO: move this to api
 public interface SubTypeData {
 
 }

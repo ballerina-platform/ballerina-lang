@@ -97,7 +97,7 @@ final class PredefinedTypeEnv {
     // TypeAtoms related to (map<any|error>)[]. This is to avoid passing down env argument when doing
     // tableSubtypeComplement operation.
     private final Supplier<CellAtomicType> cellAtomicInnerMapping = new ConcurrentLazySupplierWithCallback<>(
-            () -> CellAtomicType.from(union(Builder.getMappingType(), Builder.undef()),
+            () -> CellAtomicType.from(union(Builder.getMappingType(), Builder.getUndefType()),
                     CellAtomicType.CellMutability.CELL_MUT_LIMITED),
             this::addInitializedCellAtom
     );
@@ -114,7 +114,7 @@ final class PredefinedTypeEnv {
     // CELL_ATOMIC_INNER_MAPPING_RO & LIST_ATOMIC_MAPPING_RO are typeAtoms required to construct
     // readonly & (map<readonly>)[] which is then used for readonly table type when constructing VAL_READONLY
     private final Supplier<CellAtomicType> cellAtomicInnerMappingRO = new ConcurrentLazySupplierWithCallback<>(
-            () -> CellAtomicType.from(union(Builder.mappingRO(), Builder.undef()),
+            () -> CellAtomicType.from(union(Builder.mappingRO(), Builder.getUndefType()),
                     CellAtomicType.CellMutability.CELL_MUT_LIMITED),
             this::addInitializedCellAtom
     );
@@ -153,7 +153,7 @@ final class PredefinedTypeEnv {
             createTypeAtomSupplierFromCellAtomicSupplier(listAtomicMappingRO, this::listAtomIndex);
 
     private final Supplier<CellAtomicType> cellAtomicUndef = new ConcurrentLazySupplierWithCallback<>(
-            () -> CellAtomicType.from(Builder.undef(), CellAtomicType.CellMutability.CELL_MUT_NONE),
+            () -> CellAtomicType.from(Builder.getUndefType(), CellAtomicType.CellMutability.CELL_MUT_NONE),
             this::addInitializedCellAtom
     );
     private final Supplier<TypeAtom> atomCellUndef =

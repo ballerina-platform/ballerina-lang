@@ -20,6 +20,11 @@ package io.ballerina.runtime.internal.types.semtype;
 
 import io.ballerina.runtime.api.types.semtype.SubType;
 
+/**
+ * Represents the subtype implemented by BDDs.
+ *
+ * @since 2201.11.0
+ */
 public interface DelegatedSubType extends SubTypeData {
 
     SubType inner();

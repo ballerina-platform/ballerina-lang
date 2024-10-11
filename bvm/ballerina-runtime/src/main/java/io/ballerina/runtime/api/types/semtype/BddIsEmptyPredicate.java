@@ -18,8 +18,20 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+/**
+ * Predicate to check if a BDD is empty.
+ *
+ * @since 2201.11.0
+ */
 @FunctionalInterface
 public interface BddIsEmptyPredicate {
 
+    /**
+     * Check if the given BDD is empty.
+     *
+     * @param cx  Type check context
+     * @param bdd BDD to check
+     * @return true if the BDD is empty, false otherwise
+     */
     boolean apply(Context cx, Bdd bdd);
 }

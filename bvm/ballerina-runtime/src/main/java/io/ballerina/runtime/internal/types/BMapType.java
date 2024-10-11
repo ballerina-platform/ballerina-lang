@@ -255,7 +255,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         }
         CellAtomicType.CellMutability mut = value.getType().isReadOnly() ? CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        SemType semType = md.defineMappingTypeWrapped(cx.env, fields, Builder.neverType(), mut);
+        SemType semType = md.defineMappingTypeWrapped(cx.env, fields, Builder.getNeverType(), mut);
         value.cacheShape(semType);
         value.resetReadonlyShapeDefinition();
         return Optional.of(semType);

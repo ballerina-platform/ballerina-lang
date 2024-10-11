@@ -18,8 +18,17 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
-// NOTE: definitions are not thread safe
+/**
+ * Represent a type definition which will act as a layer of indirection between {@code Env} and the type descriptor.
+ *
+ * @since 2201.11.0
+ */
 public interface Definition {
 
+    /**
+     * Get the {@code SemType} of this definition in the given environment.
+     *
+     * @param env type environment
+     */
     SemType getSemType(Env env);
 }

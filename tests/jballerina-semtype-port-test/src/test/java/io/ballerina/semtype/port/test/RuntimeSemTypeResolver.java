@@ -90,6 +90,11 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 
+/**
+ * Resolves sem-types for module definitions using runtime side semtype implementation.
+ *
+ * @since 2201.11.0
+ */
 class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
 
     private static final SemType[] EMPTY_SEMTYPE_ARR = {};
@@ -172,7 +177,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         attachedDefinitions.put(td, sd);
 
         SemType valueType = resolveTypeDesc(cx, mod, defn, depth + 1, td.constraint);
-        SemType completionType = td.error == null ? Builder.nilType() :
+        SemType completionType = td.error == null ? Builder.getNilType() :
                 resolveTypeDesc(cx, mod, defn, depth + 1, td.error);
         return sd.define(env, valueType, completionType);
     }
@@ -285,7 +290,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         SemType[] params = getParameters(cx, mod, paramScope, defn, depth, functionType);
         SemType rest;
         if (functionType.getRestParameters() == null) {
-            rest = Builder.neverType();
+            rest = Builder.getNeverType();
         } else {
             ArrayTypeNode arrayType = (ArrayTypeNode) functionType.getRestParameters().getTypeNode();
             rest = resolveTypeDesc(cx, mod, defn, depth + 1, arrayType.getElementType());
@@ -328,7 +333,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         if (isFunctionTop(td)) {
             if (td.flagSet.contains(Flag.ISOLATED) || td.flagSet.contains(Flag.TRANSACTIONAL)) {
                 FunctionDefinition fd = new FunctionDefinition();
-                return fd.define(env, Builder.neverType(), Builder.getValType(),
+                return fd.define(env, Builder.getNeverType(), Builder.getValType(),
                         FunctionQualifiers.create(
                                 td.flagSet.contains(Flag.ISOLATED),
                                 td.flagSet.contains(Flag.TRANSACTIONAL)));
@@ -353,7 +358,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         }
         SemType rest;
         if (td.restParam == null) {
-            rest = Builder.neverType();
+            rest = Builder.getNeverType();
         } else {
             BLangArrayType restArrayType = (BLangArrayType) td.restParam.typeNode;
             rest = resolveTypeDesc(cx, mod, defn, depth + 1, restArrayType.elemtype);
@@ -373,7 +378,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
                                       BLangTypeDefinition defn,
                                       int depth, BLangType returnTypeNode) {
         if (returnTypeNode == null) {
-            return Builder.nilType();
+            return Builder.getNilType();
         }
         SemType innerType;
         // Dependently typed function are quite rare so doing it via exception handling should be faster than actually
@@ -389,8 +394,8 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         }
         ListDefinition ld = new ListDefinition();
         return ld.defineListTypeWrapped((Env) cx.getInnerEnv(),
-                new SemType[]{!isDependentlyType ? Builder.booleanType() : Builder.getBooleanConst(true),
-                        innerType}, 2, Builder.neverType(),
+                new SemType[]{!isDependentlyType ? Builder.getBooleanType() : Builder.getBooleanConst(true),
+                        innerType}, 2, Builder.getNeverType(),
                 CELL_MUT_LIMITED);
     }
 
@@ -438,7 +443,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             rest = resolveTypeDesc(cx, mod, defn, depth + 1, td.getRestFieldType());
         }
         if (rest == null) {
-            rest = Builder.neverType();
+            rest = Builder.getNeverType();
         }
         return md.defineMappingTypeWrapped((Env) cx.getInnerEnv(), fields, rest, CELL_MUT_LIMITED);
     }
@@ -504,7 +509,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
                 .toArray(SemType[]::new);
         SemType rest =
                 td.restParamType != null ? resolveTypeDesc(cx, mod, defn, depth + 1, td.restParamType) :
-                        Builder.neverType();
+                        Builder.getNeverType();
         return ld.defineListTypeWrapped(env, memberSemTypes, memberSemTypes.length, rest, CELL_MUT_LIMITED);
     }
 
@@ -540,7 +545,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         Env env = (Env) cx.getInnerEnv();
         if (size != -1) {
             SemType[] members = {eType};
-            return ld.defineListTypeWrapped(env, members, Math.abs(size), Builder.neverType(), CELL_MUT_LIMITED);
+            return ld.defineListTypeWrapped(env, members, Math.abs(size), Builder.getNeverType(), CELL_MUT_LIMITED);
         } else {
             return ld.defineListTypeWrapped(env, EMPTY_SEMTYPE_ARR, 0, eType, CELL_MUT_LIMITED);
         }
@@ -550,12 +555,12 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
     private SemType resolveSingletonType(BLangFiniteTypeNode td) {
         return td.valueSpace.stream().map(each -> (BLangLiteral) each)
                 .map(literal -> resolveSingletonType(literal.value, literal.getDeterminedType().getKind()).get())
-                .reduce(Builder.neverType(), Core::union);
+                .reduce(Builder.getNeverType(), Core::union);
     }
 
     private Optional<SemType> resolveSingletonType(Object value, TypeKind targetTypeKind) {
         return switch (targetTypeKind) {
-            case NIL -> Optional.of(Builder.nilType());
+            case NIL -> Optional.of(Builder.getNilType());
             case BOOLEAN -> Optional.of(Builder.getBooleanConst((Boolean) value));
             case INT, BYTE -> {
                 assert !(value instanceof Byte);
@@ -609,7 +614,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         if (td.pkgAlias.value.equals("int")) {
             return resolveIntSubtype(name);
         } else if (td.pkgAlias.value.equals("string") && name.equals("Char")) {
-            return Builder.charType();
+            return Builder.getCharType();
         } else if (td.pkgAlias.value.equals("xml")) {
             return resolveXmlSubType(name);
         } else if (td.pkgAlias.value.equals("regexp") && name.equals("RegExp")) {
@@ -688,7 +693,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
 
     private SemType resolveTypeDesc(BLangBuiltInRefTypeNode td) {
         return switch (td.typeKind) {
-            case NEVER -> Builder.neverType();
+            case NEVER -> Builder.getNeverType();
             case XML -> Builder.getXmlType();
             case FUTURE -> Builder.getFutureType();
             // TODO: implement json type
@@ -699,14 +704,14 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
 
     private SemType resolveTypeDesc(TypeTestContext<SemType> cx, BLangValueType td) {
         return switch (td.typeKind) {
-            case NIL -> Builder.nilType();
-            case BOOLEAN -> Builder.booleanType();
+            case NIL -> Builder.getNilType();
+            case BOOLEAN -> Builder.getBooleanType();
             case BYTE -> Builder.createIntRange(0, UNSIGNED8_MAX_VALUE);
-            case INT -> Builder.intType();
-            case FLOAT -> Builder.floatType();
-            case DECIMAL -> Builder.decimalType();
-            case STRING -> Builder.stringType();
-            case READONLY -> Builder.readonlyType();
+            case INT -> Builder.getIntType();
+            case FLOAT -> Builder.getFloatType();
+            case DECIMAL -> Builder.getDecimalType();
+            case STRING -> Builder.getStringType();
+            case READONLY -> Builder.getReadonlyType();
             case ANY -> Builder.getAnyType();
             case ANYDATA -> Builder.getAnyDataType();
             case ERROR -> Builder.getErrorType();

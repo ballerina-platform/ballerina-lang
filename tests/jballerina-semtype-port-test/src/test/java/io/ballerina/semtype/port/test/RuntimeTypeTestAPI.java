@@ -52,7 +52,7 @@ public class RuntimeTypeTestAPI implements TypeTestAPI<SemType> {
 
     @Override
     public boolean isListType(SemType t) {
-        return Core.isSubtypeSimple(t, Builder.listType());
+        return Core.isSubtypeSimple(t, Builder.getListType());
     }
 
     @Override
