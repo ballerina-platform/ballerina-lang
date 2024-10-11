@@ -26,6 +26,11 @@ import java.util.Objects;
 
 import static io.ballerina.runtime.api.types.semtype.Bdd.bddEvery;
 
+/**
+ * Runtime representation of a subtype of future type.
+ *
+ * @since 2201.11.0
+ */
 public final class BFutureSubType extends SubType implements DelegatedSubType {
 
     private final Bdd inner;

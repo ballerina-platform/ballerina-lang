@@ -92,10 +92,10 @@ public class BNetworkObjectType extends BObjectType implements NetworkObjectType
         Stream<MethodData> remoteMethodStream =
                 Arrays.stream(getRemoteMethods())
                         .map(MethodData::fromRemoteMethod);
-        Stream<MethodData> resoucrMethodStream =
+        Stream<MethodData> resourceMethodStream =
                 Arrays.stream(getResourceMethods())
                         .map(method -> MethodData.fromResourceMethod(
                                 (BResourceMethodType) method));
-        return Stream.concat(methodStream, Stream.concat(remoteMethodStream, resoucrMethodStream)).toList();
+        return Stream.concat(methodStream, Stream.concat(remoteMethodStream, resourceMethodStream)).toList();
     }
 }

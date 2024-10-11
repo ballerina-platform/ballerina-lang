@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Runtime representation of StringSubType.
+ * Runtime representation of subtype of string type.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class BStringSubType extends SubType {
 

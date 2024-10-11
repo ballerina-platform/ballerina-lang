@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Runtime representation of DecimalSubType.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class BDecimalSubType extends SubType {
 

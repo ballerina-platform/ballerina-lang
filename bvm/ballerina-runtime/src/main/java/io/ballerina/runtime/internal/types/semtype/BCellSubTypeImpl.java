@@ -30,14 +30,10 @@ import io.ballerina.runtime.api.types.semtype.SubType;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-// TODO: would making this a child class of say BddNode be faster than making this a delegate
-//   -- Problem with this is modeling type operations (union, intersect, complement) since parent must return a Cell
-//   as well
-
 /**
  * Runtime representation of CellSubType.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 final class BCellSubTypeImpl extends BCellSubType implements DelegatedSubType {
 
@@ -156,7 +152,7 @@ final class BCellSubTypeImpl extends BCellSubType implements DelegatedSubType {
     }
 
     private static SemType filteredCellListUnion(Conjunction negList, Predicate<Conjunction> predicate) {
-        SemType negUnion = Builder.neverType();
+        SemType negUnion = Builder.getNeverType();
         Conjunction neg = negList;
         while (neg != null) {
             if (predicate.test(neg)) {

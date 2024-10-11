@@ -20,7 +20,6 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -104,11 +103,6 @@ public class FPValue implements BFunctionPointer, RefValue {
     @Override
     public String toString() {
         return RuntimeConstants.EMPTY;
-    }
-
-    @Override
-    public SemType widenedType() {
-        return Builder.getFunctionType();
     }
 
     @Override

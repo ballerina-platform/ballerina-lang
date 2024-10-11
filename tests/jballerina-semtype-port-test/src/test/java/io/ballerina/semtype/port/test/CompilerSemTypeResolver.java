@@ -83,9 +83,9 @@ import static org.ballerinalang.model.tree.NodeKind.CONSTANT;
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.getTypeOrClassName;
 
 /**
- * Resolves sem-types for module definitions.
+ * Resolves sem-types for module definitions using compiler side semtype implementation.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public class CompilerSemTypeResolver extends SemTypeResolver<SemType> {
 

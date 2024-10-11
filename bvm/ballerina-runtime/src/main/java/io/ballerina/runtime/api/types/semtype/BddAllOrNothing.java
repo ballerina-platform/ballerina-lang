@@ -21,7 +21,7 @@ package io.ballerina.runtime.api.types.semtype;
 /**
  * Represent the leaf node of a Bdd.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public final class BddAllOrNothing extends Bdd {
 

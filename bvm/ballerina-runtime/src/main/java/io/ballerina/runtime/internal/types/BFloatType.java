@@ -44,7 +44,7 @@ public final class BFloatType extends BSemTypeWrapper<BFloatType.BFloatTypeImpl>
      * @param typeName string name of the type
      */
     public BFloatType(String typeName, Module pkg) {
-        this(() -> new BFloatTypeImpl(typeName, pkg), typeName, pkg, Builder.floatType());
+        this(() -> new BFloatTypeImpl(typeName, pkg), typeName, pkg, Builder.getFloatType());
     }
 
     private BFloatType(Supplier<BFloatTypeImpl> bType, String typeName, Module pkg, SemType semType) {

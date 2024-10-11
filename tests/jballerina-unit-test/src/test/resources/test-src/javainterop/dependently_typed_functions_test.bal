@@ -554,11 +554,6 @@ public function testSubtypingWithDependentlyTypedMethods() {
     assert(false, <any>new Garply() is Grault);
 }
 
-function test() {
-    Baz baz = new;
-    assert(false, <any>baz is Bar);
-}
-
 function getWithDefaultableParams(int|string x, int|string y = 1, typedesc<int|string> z = int) returns z =
     @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
@@ -823,7 +818,7 @@ function testDependentlyTypedFunctionWithIncludedRecordParam() {
 
     int p6 = cl->post();
     assert(0, p6);
-
+    
     string p7 = cl.calculate(0, mediaType = "application/json", header = "active", targetType = string);
     assert("application/json active0", p7);
 

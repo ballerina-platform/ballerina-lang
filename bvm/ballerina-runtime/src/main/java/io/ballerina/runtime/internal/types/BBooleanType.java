@@ -48,7 +48,7 @@ public final class BBooleanType extends BSemTypeWrapper<BBooleanType.BBooleanTyp
      * @param typeName string name of the type
      */
     public BBooleanType(String typeName, Module pkg) {
-        this(() -> new BBooleanTypeImpl(typeName, pkg), typeName, pkg, Builder.booleanType());
+        this(() -> new BBooleanTypeImpl(typeName, pkg), typeName, pkg, Builder.getBooleanType());
     }
 
     public static BBooleanType singletonType(boolean value) {

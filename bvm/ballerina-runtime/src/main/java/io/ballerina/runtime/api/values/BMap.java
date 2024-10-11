@@ -18,7 +18,6 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.internal.types.TypeWithShape;
 
 import java.util.Collection;
 import java.util.Map;
@@ -34,7 +33,7 @@ import java.util.Set;
  *
  * @since 1.1.0
  */
-public interface BMap<K, V> extends BRefValue, BCollection, PatternMatchableValue {
+public interface BMap<K, V> extends BRefValue, BCollection {
 
     /**
      * Returns the value to which the specified key is mapped, or {@code null} if this map contains no
@@ -194,9 +193,4 @@ public interface BMap<K, V> extends BRefValue, BCollection, PatternMatchableValu
     Object merge(BMap<?, ?> v2, boolean checkMergeability);
 
     void populateInitialValue(K key, V value);
-
-    @Override
-    default TypeWithShape getTypeWithShape() {
-        return (TypeWithShape) getType();
-    }
 }

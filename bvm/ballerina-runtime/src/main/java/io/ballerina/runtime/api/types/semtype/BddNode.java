@@ -1,5 +1,10 @@
 package io.ballerina.runtime.api.types.semtype;
 
+/**
+ * Internal node of a BDD, which represents a disjunction of conjunctions of atoms.
+ *
+ * @since 2201.11.0
+ */
 public abstract sealed class BddNode extends Bdd permits BddNodeImpl, BddNodeSimple {
 
     private volatile Integer hashCode = null;

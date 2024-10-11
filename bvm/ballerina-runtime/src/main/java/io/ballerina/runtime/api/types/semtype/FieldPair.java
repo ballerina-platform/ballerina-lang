@@ -18,6 +18,17 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+/**
+ * Represent the matching fields types of two mapping atomic types.
+ *
+ * @param name   name of the field
+ * @param type1  type of the field in the first mapping
+ * @param type2  type of the field in teh second mapping
+ * @param index1 corresponding index of the field in the first mapping. If matching field is rest value is {@code null}
+ * @param index2 corresponding index of the field in the second mapping. If matching field is rest value is
+ *               {@code null}
+ * @since 2201.11.0
+ */
 public record FieldPair(String name, SemType type1, SemType type2, Integer index1, Integer index2) {
 
 }

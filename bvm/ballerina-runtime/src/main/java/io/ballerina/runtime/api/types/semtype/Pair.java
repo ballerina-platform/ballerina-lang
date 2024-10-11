@@ -25,7 +25,7 @@ package io.ballerina.runtime.api.types.semtype;
  * @param <E2>   type of second value
  * @param first  first values
  * @param second second value
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public record Pair<E1, E2>(E1 first, E2 second) {
 

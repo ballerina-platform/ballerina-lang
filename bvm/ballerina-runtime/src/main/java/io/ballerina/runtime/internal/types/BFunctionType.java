@@ -217,7 +217,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     private static SemType createIsolatedTop(Env env) {
         FunctionDefinition fd = new FunctionDefinition();
         SemType ret = Builder.getValType();
-        return fd.define(env, Builder.neverType(), ret, FunctionQualifiers.create(true, false));
+        return fd.define(env, Builder.getNeverType(), ret, FunctionQualifiers.create(true, false));
     }
 
     @Override
@@ -239,14 +239,14 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         if (restType instanceof BArrayType arrayType) {
             rest = getSemType(arrayType.getElementType());
         } else {
-            rest = Builder.neverType();
+            rest = Builder.getNeverType();
         }
 
         SemType returnType;
         if (retType != null) {
             returnType = getSemType(retType);
         } else {
-            returnType = Builder.nilType();
+            returnType = Builder.getNilType();
         }
         ListDefinition paramListDefinition = new ListDefinition();
         SemType paramType = paramListDefinition.defineListTypeWrapped(env, params, params.length, rest,
@@ -261,11 +261,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return Builder.getFunctionType();
     }
 
-    private record SemTypeResult(boolean hasBTypePart, SemType pureSemTypePart) {
-
-    }
-
-    public FunctionQualifiers getQualifiers() {
+    FunctionQualifiers getQualifiers() {
         return FunctionQualifiers.create(SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED),
                 SymbolFlags.isFlagOn(flags, SymbolFlags.TRANSACTIONAL));
     }

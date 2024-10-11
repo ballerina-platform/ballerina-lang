@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Describe set of operation supported by each basic Type.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public abstract class SubType {
 

@@ -122,18 +122,6 @@ function testInferringForReadOnly() {
     assertEquality("modification not allowed on readonly value", err.detail()["message"]);
 }
 
-function test() {
-    FooListInfer & readonly foo = {
-        s: "May",
-        i: 20
-    };
-    boolean b = true;
-    readonly rd2 = [1, [b, false], foo, foo];
-
-    assertEquality(true, rd2 is [int, [boolean, boolean], FooListInfer, FooListInfer & readonly] & readonly);
-    assertEquality(false, rd2 is [int, [boolean, boolean], object {} & readonly, FooListInfer & readonly] & readonly);
-}
-
 function testInferringForReadOnlyInUnion() {
     FooListInfer & readonly foo = {
         s: "May",

@@ -31,6 +31,11 @@ import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 import static io.ballerina.runtime.api.types.semtype.Builder.basicSubType;
 import static io.ballerina.runtime.api.types.semtype.RecAtom.createDistinctRecAtom;
 
+/**
+ * Utility methods for creating error types.
+ *
+ * @since 2201.11.0
+ */
 public final class ErrorUtils {
 
     private ErrorUtils() {
@@ -41,7 +46,7 @@ public final class ErrorUtils {
         if (data == AllOrNothing.ALL) {
             return Builder.getErrorType();
         } else if (data == AllOrNothing.NOTHING) {
-            return Builder.neverType();
+            return Builder.getNeverType();
         }
 
         assert data instanceof Bdd;

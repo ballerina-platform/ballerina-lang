@@ -22,13 +22,13 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.RefValue;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Optional;
@@ -61,16 +61,6 @@ public class BFiniteType extends BType implements FiniteType {
         this.valueSpace = values;
         this.typeFlags = typeFlags;
         this.originalName = originalName;
-    }
-
-    BFiniteType cloneWithValueSpace(Set<Object> valueSpace) {
-        BFiniteType newFiniteType = new BFiniteType(typeName, originalName, valueSpace, typeFlags);
-        newFiniteType.valueSpace = valueSpace;
-
-        newFiniteType.typeName = typeName;
-        newFiniteType.pkg = pkg;
-
-        return newFiniteType;
     }
 
     @Override
@@ -221,17 +211,9 @@ public class BFiniteType extends BType implements FiniteType {
 
     @Override
     public SemType createSemType() {
-        Set<Object> bTypeValueSpace = new HashSet<>();
-        SemType result = Builder.neverType();
-        for (Object each : this.valueSpace) {
-            Optional<SemType> semType = ShapeAnalyzer.inherentTypeOf(TypeChecker.context(), each);
-            if (semType.isPresent()) {
-                result = Core.union(result, semType.get());
-            } else {
-                bTypeValueSpace.add(each);
-            }
-        }
-        assert bTypeValueSpace.isEmpty() : "All values must be semtypes";
-        return result;
+        Context cx = TypeChecker.context();
+        return this.valueSpace.stream().map(each -> ShapeAnalyzer.inherentTypeOf(cx, each))
+                .map(Optional::orElseThrow)
+                .reduce(Builder.getNeverType(), Core::union);
     }
 }

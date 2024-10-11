@@ -33,7 +33,7 @@ public final class BReadonlyType extends BSemTypeWrapper<BReadonlyType.BReadonly
 
     public BReadonlyType(String typeName, Module pkg) {
         super(new ConcurrentLazySupplier<>(() -> new BReadonlyTypeImpl(typeName, pkg)), typeName, pkg,
-                TypeTags.READONLY_TAG, Builder.readonlyType());
+                TypeTags.READONLY_TAG, Builder.getReadonlyType());
     }
 
     protected static final class BReadonlyTypeImpl extends BType implements ReadonlyType {

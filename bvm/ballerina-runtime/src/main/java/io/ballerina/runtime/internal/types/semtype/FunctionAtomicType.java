@@ -21,6 +21,14 @@ package io.ballerina.runtime.internal.types.semtype;
 import io.ballerina.runtime.api.types.semtype.AtomicType;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+/**
+ * Represents a function atomic type.
+ *
+ * @param paramType  function parameters. This is a list type
+ * @param retType    return type
+ * @param qualifiers function qualifiers. This is a list type
+ * @since 2201.11.0
+ */
 public record FunctionAtomicType(SemType paramType, SemType retType, SemType qualifiers) implements AtomicType {
 
 }

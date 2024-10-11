@@ -142,7 +142,7 @@ public final class TypeConverter {
 
     private static Object castValueToInt(SemType targetType, Object inputValue) {
         Context cx = TypeChecker.context();
-        assert Core.isSubType(cx, targetType, Builder.intType());
+        assert Core.isSubType(cx, targetType, Builder.getIntType());
         if (targetType instanceof BByteType) {
             return anyToByteCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BYTE));
@@ -177,22 +177,22 @@ public final class TypeConverter {
 
     static Object castValuesInner(SemType targetType, Object inputValue, Supplier<BError> errorSupplier) {
         Context cx = TypeChecker.context();
-        if (Core.isSubType(cx, targetType, Builder.intType())) {
+        if (Core.isSubType(cx, targetType, Builder.getIntType())) {
             return castValueToInt(targetType, inputValue);
         }
-        if (Core.isSubType(cx, targetType, Builder.decimalType())) {
+        if (Core.isSubType(cx, targetType, Builder.getDecimalType())) {
             return anyToDecimalCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_DECIMAL));
         }
-        if (Core.isSubType(cx, targetType, Builder.floatType())) {
+        if (Core.isSubType(cx, targetType, Builder.getFloatType())) {
             return anyToFloatCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_FLOAT));
         }
-        if (Core.isSubType(cx, targetType, Builder.stringType())) {
+        if (Core.isSubType(cx, targetType, Builder.getStringType())) {
             return anyToStringCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_STRING));
         }
-        if (Core.isSubType(cx, targetType, Builder.booleanType())) {
+        if (Core.isSubType(cx, targetType, Builder.getBooleanType())) {
             return anyToBooleanCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BOOLEAN));
         }

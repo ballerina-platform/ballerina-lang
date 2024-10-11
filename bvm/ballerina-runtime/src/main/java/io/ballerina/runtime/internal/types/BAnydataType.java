@@ -35,6 +35,7 @@ import io.ballerina.runtime.internal.values.RefValue;
  * @since 0.995.0
  */
 public class BAnydataType extends BUnionType implements AnydataType {
+
     /**
      * Create a {@code BAnydataType} which represents the anydata type.
      *
@@ -89,12 +90,14 @@ public class BAnydataType extends BUnionType implements AnydataType {
         return super.toString();
     }
 
-    // TODO: this type don't have mutable parts so this should be a immutable semtype
+    // TODO: this type don't have mutable parts so this should be a immutable
+    // semtype. But some things could depend on this being a union type descriptor
+    // as well (which has to be mutable)
     @Override
     public SemType createSemType() {
         SemType semType = Builder.getAnyDataType();
         if (isReadOnly()) {
-            semType = Core.intersect(semType, Builder.readonlyType());
+            semType = Core.intersect(semType, Builder.getReadonlyType());
         }
         return semType;
     }

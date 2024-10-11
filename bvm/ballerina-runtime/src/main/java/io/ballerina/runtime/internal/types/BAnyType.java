@@ -137,7 +137,7 @@ public final class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> imple
     private static SemType pickSemType(boolean readonly) {
         SemType semType = Builder.getAnyType();
         if (readonly) {
-            semType = Core.intersect(semType, Builder.readonlyType());
+            semType = Core.intersect(semType, Builder.getReadonlyType());
         }
         return semType;
     }

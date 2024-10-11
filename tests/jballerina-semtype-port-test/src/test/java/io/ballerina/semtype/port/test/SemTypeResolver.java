@@ -32,6 +32,12 @@ import java.util.Map;
 
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.getTypeOrClassName;
 
+/**
+ * Abstract implementation of a type resolver that can be used for type tests.
+ *
+ * @param <SemType> SemType implementation used
+ * @since 2201.11.0
+ */
 public abstract class SemTypeResolver<SemType> {
 
     protected static int from(Map<String, BLangNode> mod, BLangNode expr) {

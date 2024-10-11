@@ -1,5 +1,11 @@
 package io.ballerina.runtime.api.types.semtype;
 
+/**
+ * Represent a Bdd node that contains a single atom as positive. This is used to reduce the memory overhead of
+ * BddNodeImpl in representing such nodes
+ *
+ * @since 2201.11.0
+ */
 final class BddNodeSimple extends BddNode {
 
     private final Atom atom;

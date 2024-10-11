@@ -26,16 +26,25 @@ import static io.ballerina.runtime.api.types.semtype.Builder.getBooleanConst;
 import static io.ballerina.runtime.api.types.semtype.Builder.getStringConst;
 import static io.ballerina.runtime.api.types.semtype.Core.union;
 
+/**
+ * Represents the qualifiers of an object type.
+ *
+ * @param isolated         whether the object is isolated
+ * @param readonly         whether the object is readonly
+ * @param networkQualifier the network qualifier of the object (either {@link NetworkQualifier#Client},
+ *                         {@link NetworkQualifier#Service}, or {@link NetworkQualifier#None})
+ * @since 2201.11.0
+ */
 public record ObjectQualifiers(boolean isolated, boolean readonly, NetworkQualifier networkQualifier) {
 
     public MappingDefinition.Field field(Env env) {
         MappingDefinition md = new MappingDefinition();
         MappingDefinition.Field isolatedField =
-                new MappingDefinition.Field("isolated", isolated ? getBooleanConst(true) : Builder.booleanType(),
+                new MappingDefinition.Field("isolated", isolated ? getBooleanConst(true) : Builder.getBooleanType(),
                         true, false);
         MappingDefinition.Field networkField = networkQualifier.field();
         SemType ty = md.defineMappingTypeWrapped(env, new MappingDefinition.Field[]{isolatedField, networkField},
-                Builder.neverType(), CellAtomicType.CellMutability.CELL_MUT_NONE);
+                Builder.getNeverType(), CellAtomicType.CellMutability.CELL_MUT_NONE);
         return new MappingDefinition.Field("$qualifiers", ty, true, false);
     }
 

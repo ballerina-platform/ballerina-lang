@@ -26,7 +26,7 @@ import io.ballerina.runtime.internal.types.semtype.MappingAtomicType;
 /**
  * Marker type representing AtomicType.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 public sealed interface AtomicType permits CellAtomicType, FunctionAtomicType, ListAtomicType, MappingAtomicType {
 

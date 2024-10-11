@@ -27,7 +27,7 @@ import java.util.Iterator;
 /**
  * Iteration implementation of `SubtypePairIterator`.
  *
- * @since 2201.10.0
+ * @since 2201.11.0
  */
 final class SubtypePairIterator implements Iterator<SubtypePair> {
 

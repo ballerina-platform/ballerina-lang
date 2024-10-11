@@ -40,7 +40,7 @@ public sealed class BNullType extends BSemTypeWrapper<BNullType.BNullTypeImpl> i
      * @param pkg package path
      */
     public BNullType(String typeName, Module pkg) {
-        this(() -> new BNullTypeImpl(typeName, pkg), typeName, pkg, TypeTags.NULL_TAG, Builder.nilType());
+        this(() -> new BNullTypeImpl(typeName, pkg), typeName, pkg, TypeTags.NULL_TAG, Builder.getNilType());
     }
 
     protected BNullType(String typeName, Module pkg, SemType semType, int tag) {

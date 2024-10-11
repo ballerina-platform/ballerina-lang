@@ -26,6 +26,11 @@ import java.util.Objects;
 
 import static io.ballerina.runtime.api.types.semtype.Bdd.bddEveryPositive;
 
+/**
+ * Runtime representation of a subtype of object type.
+ *
+ * @since 2201.11.0
+ */
 public final class BObjectSubType extends SubType implements DelegatedSubType {
 
     public final Bdd inner;

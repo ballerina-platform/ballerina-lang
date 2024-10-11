@@ -33,7 +33,7 @@ import java.util.Optional;
  *
  * @since 1.1.0
  */
-public abstract class BError extends RuntimeException implements BValue, PatternMatchableValue {
+public abstract class BError extends RuntimeException implements BValue {
 
     public static final String ERROR_PRINT_PREFIX = "error: ";
 
@@ -90,13 +90,8 @@ public abstract class BError extends RuntimeException implements BValue, Pattern
     public abstract List<StackTraceElement> getCallStack();
 
     @Override
-    public TypeWithShape getTypeWithShape() {
-        return (TypeWithShape) getType();
-    }
-
-    @Override
     public Optional<SemType> inherentTypeOf(Context cx) {
-        TypeWithShape type = getTypeWithShape();
+        TypeWithShape type = (TypeWithShape) getType();
         return type.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
     }
 }

@@ -19,6 +19,11 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
+/**
+ * Utility class for various operations related to semantic types.
+ *
+ * @since 2201.11.0
+ */
 public final class Common {
 
     private Common() {
