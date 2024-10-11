@@ -49,6 +49,7 @@ public class Sleep {
         env.yieldAndRun(() -> {
             try {
                 Thread.sleep(delay);
+                return null;
             } catch (InterruptedException e) {
                 throw ErrorCreator.createError(StringUtils.fromString("error occurred during sleep"), e);
             }

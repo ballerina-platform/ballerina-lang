@@ -72,7 +72,10 @@ public class Scheduler {
         if (strand != null) {
             return strand;
         }
-        return daemonStrand;
+        if (daemonStrand == null) {
+            return null;
+        }
+        return new Strand(null, null, daemonStrand.scheduler, daemonStrand, false, null, null);
     }
     public Object call(Module module, String functionName, Strand parentStrand, Object... args) {
         boolean runnable = parentStrand.isRunnable();

@@ -35,6 +35,7 @@ public class Utils {
         env.yieldAndRun(() -> {
             try {
                 Thread.sleep(delayMillis);
+                return null;
             } catch (InterruptedException e) {
                 throw ErrorCreator.createError(e);
             }
