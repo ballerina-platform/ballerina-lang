@@ -91,7 +91,6 @@ public class Strand {
         checkStrandCancelled();
         if (!this.isIsolated && !scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
             this.scheduler.globalNonIsolatedLock.lock();
-
         }
     }
 
@@ -103,7 +102,7 @@ public class Strand {
     }
 
     public void done() {
-        if (!isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
+        if (!this.isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
             scheduler.globalNonIsolatedLock.unlock();
         }
     }

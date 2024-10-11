@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.types.Parameter;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * When this class is used as the first argument of an interop method, Ballerina will inject an instance of
@@ -47,9 +48,9 @@ public abstract class Environment {
     /**
      * Yield the current execution and run some operation so other non isolated functions can run in asynchronously.
      *
-     * @param runnable operation to be executed.
+     * @param supplier operation to be executed.
      */
-    public abstract void yieldAndRun(Runnable runnable);
+    public abstract Object yieldAndRun(Supplier<Object> supplier);
 
     /**
      * Gets an instance of Ballerina runtime.

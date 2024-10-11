@@ -40,10 +40,10 @@ import java.util.function.Supplier;
 public class AsyncUtils {
 
     public static Object handleNonIsolatedStrand(Strand strand, Supplier<?> resultSupplier) {
+        // This check required for non strand Threads.
         boolean runnable = strand.isRunnable();
         if (runnable) {
             strand.yield();
-
         }
         Object result = resultSupplier.get();
         if (runnable) {

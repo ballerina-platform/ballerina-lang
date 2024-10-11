@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * When {@link Environment} is used as the first argument of an interop method, Ballerina will inject an instance
@@ -69,10 +70,10 @@ public class BalEnvironment extends Environment {
     }
 
     @Override
-    public void yieldAndRun(Runnable runnable) {
+    public Object yieldAndRun(Supplier<Object> supplier) {
         try {
             strand.yield();
-            runnable.run();
+            return supplier.get();
         } finally {
             strand.resume();
         }
