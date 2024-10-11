@@ -113,201 +113,112 @@ public class JsonToRecordMapperTests {
 
     @Test(description = "Test for primitive and null types")
     public void testForPrimitiveAndNullTypes() throws IOException {
-        String jsonFileContent = Files.readString(sample0Json);
-        String generatedCodeBlock =
-                JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null, null, false)
-                .getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample0Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample0Json, sample0Bal, "", false, false, false);
     }
 
     @Test(description = "Test for all number types")
     public void testForJsonNumberTypes() throws IOException {
-        String jsonFileContent = Files.readString(sample1Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", false, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample1Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample1Json, sample1Bal, "", false, false, false);
     }
 
     @Test(description = "Test for differencing fields in same JSON object")
     public void testForDifferencingFields() throws IOException {
-        String jsonFileContent = Files.readString(sample2Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", false, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample2Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample2Json, sample2Bal, "", false, false, false);
     }
 
     @Test(description = "Test for differencing fields in same JSON object - inline")
     public void testForDifferencingFieldsInLine() throws IOException {
-        String jsonFileContent = Files.readString(sample2Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", true, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample2TypeDescBal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample2Json, sample2TypeDescBal, "", true, false, false);
     }
 
     @Test(description = "Test for differencing field values in same JSON object")
     public void testForDifferencingFieldValues() throws IOException {
-        String jsonFileContent = Files.readString(sample3Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", false, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample3Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample3Json, sample3Bal, "", false, false, false);
     }
 
     @Test(description = "Test for differencing field values in same JSON object - inline")
     public void testForDifferencingFieldValuesInLIne() throws IOException {
-        String jsonFileContent = Files.readString(sample3Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", true, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample3TypeDescBal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample3Json, sample3TypeDescBal, "", true, false, false);
     }
 
     @Test(description = "Test for empty and non-empty JSON array")
     public void testForEmptyNonEmptyJsonArray() throws IOException {
-        String jsonFileContent = Files.readString(sample4Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", false, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample4Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample4Json, sample4Bal, "", false, false, false);
     }
 
     @Test(description = "Test for empty and non-empty JSON array - inline")
     public void testForEmptyNonEmptyJsonArrayInLIne() throws IOException {
-        String jsonFileContent = Files.readString(sample4Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", true, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample4TypeDescBal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample4Json, sample4TypeDescBal, "", true, false, false);
     }
 
     @Test(description = "Test for JSON array with values of same and different type")
     public void testForSameAndDifferentTypeValuesInArray() throws IOException {
-        String jsonFileContent = Files.readString(sample5Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", false, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample5Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample5Json, sample5Bal, "", false, false, false);
     }
 
     @Test(description = "Test for different objects in JSON array")
     public void testForDifferentObjectsInJsonArray() throws IOException {
-        String jsonFileContent = Files.readString(sample6Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", false, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample6Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample6Json, sample6Bal, "", false, false, false);
     }
 
     @Test(description = "Test for different objects in JSON array - inline")
     public void testForDifferentObjectsInJsonArrayInLIne() throws IOException {
-        String jsonFileContent = Files.readString(sample6Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", true, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample6TypeDescBal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample6Json, sample6TypeDescBal, "", true, false, false);
     }
 
     @Test(description = "Test for different objects in JSON array - closed")
     public void testForDifferentObjectsInJsonArrayClosed() throws IOException {
-        String jsonFileContent = Files.readString(sample6Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", false, true, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample6ClosedBal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample6Json, sample6ClosedBal, "", false, true, false);
     }
 
     @Test(description = "Test for different objects in JSON array - inline/closed")
     public void testForDifferentObjectsInJsonArrayInLineClosed() throws IOException {
-        String jsonFileContent = Files.readString(sample6Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", true, true, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample6TypeDescClosedBal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample6Json, sample6TypeDescClosedBal, "", true, true, false);
     }
 
     @Test(description = "Test for different objects in JSON array - inline/closed/forceFormatRecField")
     public void testForDifferentObjectsInJsonArrayInLineClosedForceFormatRecFields() throws IOException {
-        String jsonFileContent = Files.readString(sample6Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", true, true, true, null, null, false).getCodeBlock();
-        String expectedCodeBlock = Files.readString(sample6TypeDescClosedBal);
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample6Json, sample6TypeDescClosedBal, "", true, true, true);
     }
 
     @Test(description = "Test for multi dimensional JSON array")
     public void testForMultiDimensionalJsonArray() throws IOException {
-        String jsonFileContent = Files.readString(sample7Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", false, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample7Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample7Json, sample7Bal, "", false, false, false);
     }
 
     @Test(description = "Test for complex JSON object")
     public void testForComplexJsonObject() throws IOException {
-        String jsonFileContent = Files.readString(sample8Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", false, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample8Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample8Json, sample8Bal, "", false, false, false);
     }
 
     @Test(description = "Test for complex JSON object - inline")
     public void testForComplexJsonObjectInLIne() throws IOException {
-        String jsonFileContent = Files.readString(sample8Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", true, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample8TypeDescBal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample8Json, sample8TypeDescBal, "", true, false, false);
     }
 
     @Test(description = "Test for many types in JSON array")
     public void testForMultipleItemsJsonArray() throws IOException {
-        String jsonFileContent = Files.readString(sample9Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", false, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample9Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample9Json, sample9Bal, "", false, false, false);
     }
 
     @Test(description = "Test for many types in JSON array - inline")
     public void testForMultipleItemsJsonArrayInLIne() throws IOException {
-        String jsonFileContent = Files.readString(sample9Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", true, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample9TypeDescBal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample9Json, sample9TypeDescBal, "", true, false, false);
     }
 
     @Test(description = "Test for JSON array of objects")
     public void testForJsonArrayOfObjects() throws IOException {
-        String jsonFileContent = Files.readString(sample10Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", false, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample10Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample10Json, sample10Bal, "", false, false, false);
     }
 
     @Test(description = "Test for JSON array of objects - inline")
     public void testForJsonArrayOfObjectsInLIne() throws IOException {
-        String jsonFileContent = Files.readString(sample10Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", true, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample10TypeDescBal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample10Json, sample10TypeDescBal, "", true, false, false);
     }
 
     @Test(description = "Test for JSON field names with special characters")
     public void testForJsonFieldsOfSpecialChars() throws IOException {
-        String jsonFileContent = Files.readString(sample11Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", false, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample11Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample11Json, sample11Bal, "", false, false, false);
     }
 
     @Test(description = "Test for Invalid JSON")
@@ -334,40 +245,22 @@ public class JsonToRecordMapperTests {
 
     @Test(description = "Test for JSON with user defined record name")
     public void testForUserDefinedRecordName() throws IOException {
-        String jsonFileContent = Files.readString(sample3Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "Person", false, false, false, null, null, false)
-                .getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample3PersonBal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample3Json, sample3PersonBal, "Person", false, false, false);
     }
 
     @Test(description = "Test for JSON with user defined record name - inline")
     public void testForUserDefinedRecordNameInLIne() throws IOException {
-        String jsonFileContent = Files.readString(sample3Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "Person", true, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample3PersonTypeDescBal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample3Json, sample3PersonTypeDescBal, "Person", true, false, false);
     }
 
     @Test(description = "Test for JSON with user defined record name with special chars")
     public void testForUserDefinedRecordNameWithSpecialChars() throws IOException {
-        String jsonFileContent = Files.readString(sample3Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "Special Person", false, false, false, null, null, false)
-                .getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample3SpecialCharBal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample3Json, sample3SpecialCharBal, "Special Person", false, false, false);
     }
 
     @Test(description = "Test for nested JSON with same recurring field")
     public void testForJsonWithRecurringFieldName() throws IOException {
-        String jsonFileContent = Files.readString(sample14Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", false, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample14Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample14Json, sample14Bal, "", false, false, false);
     }
 
     @Test(description = "Test for nested JSON with same recurring field to generate inline record")
@@ -394,11 +287,7 @@ public class JsonToRecordMapperTests {
 
     @Test(description = "Test for JSON array of nested objects - inline")
     public void testForJsonArrayOfNestedObjectsInLIne() throws IOException {
-        String jsonFileContent = Files.readString(sample15Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(
-                jsonFileContent, "", true, false, false, null, null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample15TypeDescBal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        runPositiveTest(sample15Json, sample15TypeDescBal, "", true, false, false);
     }
 
     @Test(description = "Test for JSON with optional fields")
@@ -534,5 +423,19 @@ public class JsonToRecordMapperTests {
         Assert.assertEquals(diagnostics.size(), 2);
         Assert.assertEquals(diagnostics.get(0).message(), diagnosticMessage0);
         Assert.assertEquals(diagnostics.get(1).message(), diagnosticMessage1);
+    }
+
+    private void runPositiveTest(Path json, Path bal, String recordName, boolean isRecordTypeDesc, boolean closed, boolean forceFormatRecField)
+            throws IOException {
+        String jsonFileContent = Files.readString(json);
+        String generatedCodeBlock = JsonToRecordMapper.convert(
+                jsonFileContent, recordName, isRecordTypeDesc, closed, forceFormatRecField, null, null, false)
+                .getCodeBlock();
+        String expectedCodeBlock = Files.readString(bal);
+        if (!forceFormatRecField) {
+            generatedCodeBlock = generatedCodeBlock.replaceAll("\\s+", "");
+            expectedCodeBlock = expectedCodeBlock.replaceAll("\\s+", "");
+        }
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 }
