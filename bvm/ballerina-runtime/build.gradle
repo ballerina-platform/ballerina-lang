@@ -39,6 +39,8 @@ dependencies {
     implementation project(':identifier-util')
 
     testImplementation libs.testng
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.testng
 }
 
 
