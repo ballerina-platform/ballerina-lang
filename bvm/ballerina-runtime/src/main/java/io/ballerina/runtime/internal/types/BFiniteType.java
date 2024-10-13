@@ -21,11 +21,17 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.FiniteType;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.RefValue;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -187,6 +193,27 @@ public class BFiniteType extends BType implements FiniteType {
         if (!(o instanceof BFiniteType that)) {
             return false;
         }
-        return this.valueSpace.size() == that.valueSpace.size() && this.valueSpace.containsAll(that.valueSpace);
+        if (this.valueSpace.size() != that.valueSpace.size()) {
+            return false;
+        }
+        for (var each : this.valueSpace) {
+            try {
+                if (!that.valueSpace.contains(each)) {
+                    return false;
+                }
+            } catch (NullPointerException ex) {
+                // If one of the sets is an immutable collection this can happen
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public SemType createSemType() {
+        Context cx = TypeChecker.context();
+        return this.valueSpace.stream().map(each -> ShapeAnalyzer.inherentTypeOf(cx, each))
+                .map(Optional::orElseThrow)
+                .reduce(Builder.getNeverType(), Core::union);
     }
 }

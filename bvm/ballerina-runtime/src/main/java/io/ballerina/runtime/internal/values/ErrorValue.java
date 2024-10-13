@@ -46,7 +46,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
@@ -83,7 +82,7 @@ public class ErrorValue extends BError implements RefValue {
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
 
     public ErrorValue(BString message) {
-        this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TYPE_MAP),
+        this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), PredefinedTypes.TYPE_DETAIL),
              message, null,  new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
@@ -460,7 +459,9 @@ public class ErrorValue extends BError implements RefValue {
      */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        ErrorValue errorValue = (ErrorValue) o;
+        if (!(o instanceof ErrorValue errorValue)) {
+            return false;
+        }
         return isEqual(this.getMessage(), errorValue.getMessage(), visitedValues) &&
                 ((MapValueImpl<?, ?>) this.getDetails()).equals(errorValue.getDetails(), visitedValues) &&
                 isEqual(this.getCause(), errorValue.getCause(), visitedValues);

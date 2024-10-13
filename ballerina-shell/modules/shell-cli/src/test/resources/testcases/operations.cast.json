@@ -1,15 +1,15 @@
 [
   {
     "description": "Define types.",
-    "code": "type Person record { string name; int age; }; type Employee record { string name; int age; int empNo; }; type Department record { string code; };"
+    "code": "type PersonOP record { string name; int age; }; type EmployeeOP record { string name; int age; int empNo; }; type DepartmentOP record { string code; };"
   },
   {
     "description": "Define employee.",
-    "code": "Employee employee = {name: \"Jane Doe\", age: 25, empNo: 1};"
+    "code": "EmployeeOP employee = {name: \"Jane Doe\", age: 25, empNo: 1};"
   },
   {
     "description": "Cas employee to person.",
-    "code": "Person person = <Person>employee;"
+    "code": "PersonOP person = <PersonOP>employee;"
   },
   {
     "description": "Cas employee to person - get value.",
@@ -18,7 +18,7 @@
   },
   {
     "description": "Recast back to employee.",
-    "code": "Employee employeeTwo = <Employee>person;"
+    "code": "EmployeeOP employeeTwo = <EmployeeOP>person;"
   },
   {
     "description": "Recast back to employee - get value.",
