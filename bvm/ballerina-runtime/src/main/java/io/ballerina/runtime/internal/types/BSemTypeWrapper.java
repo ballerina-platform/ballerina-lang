@@ -29,6 +29,7 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.ImmutableSemType;
 
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -39,7 +40,7 @@ import java.util.function.Supplier;
  * @param <E> The type of the {@code BType} that is being wrapped.
  * @since 2201.11.0
  */
-public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType implements Type
+public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType implements Type, MayBeDependentType
         permits BAnyType, BBooleanType, BByteType, BDecimalType, BFloatType, BHandleType, BIntegerType, BNullType,
         BReadonlyType, BStringType {
 
@@ -191,5 +192,15 @@ public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType im
 
     protected E getbType() {
         return bTypeSupplier.get();
+    }
+
+    @Override
+    public boolean isDependentlyTyped() {
+        return false;
+    }
+
+    @Override
+    public boolean isDependentlyTyped(Set<MayBeDependentType> visited) {
+        return isDependentlyTyped();
     }
 }

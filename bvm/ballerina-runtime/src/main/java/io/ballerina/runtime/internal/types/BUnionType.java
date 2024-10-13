@@ -558,6 +558,13 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return memberTypes.stream()
+                .filter(each -> each instanceof MayBeDependentType)
+                .anyMatch(type -> ((MayBeDependentType) type).isDependentlyTyped(visited));
+    }
+
+    @Override
     public Optional<SemType> acceptedTypeOf(Context cx) {
         return Optional.of(memberTypes.stream().map(each -> ShapeAnalyzer.acceptedTypeOf(cx, each).orElseThrow())
                 .reduce(Builder.getNeverType(), Core::union));

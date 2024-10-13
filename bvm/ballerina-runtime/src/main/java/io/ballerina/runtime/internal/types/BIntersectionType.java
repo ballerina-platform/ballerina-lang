@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
@@ -230,6 +231,12 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
     @Override
     public SemType createSemType() {
         return createSemTypeInner(SemType::tryInto);
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return constituentTypes.stream().filter(each -> each instanceof MayBeDependentType)
+                .anyMatch(type -> ((MayBeDependentType) type).isDependentlyTyped(visited));
     }
 
     private SemType createSemTypeInner(Function<Type, SemType> semTypeFunction) {
