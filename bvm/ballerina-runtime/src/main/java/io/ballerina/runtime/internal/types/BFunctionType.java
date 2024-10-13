@@ -35,6 +35,7 @@ import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * {@code {@link BFunctionType }} represents a function type in ballerina.
@@ -231,7 +232,6 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         FunctionDefinition fd = new FunctionDefinition();
         this.defn = fd;
         SemType[] params = new SemType[parameters.length];
-        boolean hasBType = false;
         for (int i = 0; i < parameters.length; i++) {
             params[i] = getSemType(parameters[i].type);
         }
@@ -242,12 +242,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
             rest = Builder.getNeverType();
         }
 
-        SemType returnType;
-        if (retType != null) {
-            returnType = getSemType(retType);
-        } else {
-            returnType = Builder.getNilType();
-        }
+        SemType returnType = resolveReturnType();
         ListDefinition paramListDefinition = new ListDefinition();
         SemType paramType = paramListDefinition.defineListTypeWrapped(env, params, params.length, rest,
                 CellAtomicType.CellMutability.CELL_MUT_NONE);
@@ -278,5 +273,34 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     public synchronized void resetSemType() {
         defn = null;
         super.resetSemType();
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return (restType instanceof BType rest && rest.isDependentlyTyped(visited)) ||
+                (retType instanceof BType ret && ret.isDependentlyTyped(visited)) ||
+                isDependentlyTypeParameters(visited);
+    }
+
+    private boolean isDependentlyTypeParameters(Set<MayBeDependentType> visited) {
+        if (parameters == null) {
+            return false;
+        }
+        return Arrays.stream(parameters).map(each -> each.type).filter(each -> each instanceof MayBeDependentType)
+                .anyMatch(each -> ((MayBeDependentType) each).isDependentlyTyped(visited));
+    }
+
+    private SemType resolveReturnType() {
+        if (retType == null) {
+            return Builder.getNilType();
+        }
+        MayBeDependentType retBType = (MayBeDependentType) retType;
+        SemType returnType = getSemType(retType);
+        ListDefinition ld = new ListDefinition();
+        SemType dependentlyTypedBit =
+                retBType.isDependentlyTyped() ? Builder.getBooleanConst(true) : Builder.getBooleanType();
+        SemType[] innerType = new SemType[]{dependentlyTypedBit, returnType};
+        return ld.defineListTypeWrapped(env, innerType, 2, Builder.getNeverType(),
+                CellAtomicType.CellMutability.CELL_MUT_NONE);
     }
 }

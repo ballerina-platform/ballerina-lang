@@ -35,6 +35,7 @@ import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static io.ballerina.runtime.api.types.semtype.Builder.getNeverType;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
@@ -251,6 +252,11 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     public void resetSemType() {
         defn = null;
         super.resetSemType();
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return elementType instanceof MayBeDependentType eType && eType.isDependentlyTyped(visited);
     }
 
     @Override

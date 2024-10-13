@@ -37,6 +37,7 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
@@ -271,5 +272,10 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         BMapType clone = (BMapType) super.clone();
         clone.defn = null;
         return clone;
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return constraint instanceof MayBeDependentType constraintType && constraintType.isDependentlyTyped(visited);
     }
 }

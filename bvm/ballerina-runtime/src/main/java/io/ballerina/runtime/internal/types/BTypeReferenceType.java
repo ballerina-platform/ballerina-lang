@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * {@code TypeReferencedType} represents a type description which refers to another type.
@@ -134,6 +135,11 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     public SemType createSemType() {
         Type referredType = getReferredType();
         return tryInto(referredType);
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return getReferredType() instanceof MayBeDependentType refType && refType.isDependentlyTyped(visited);
     }
 
     @Override

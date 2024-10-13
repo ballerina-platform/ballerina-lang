@@ -231,7 +231,7 @@ public class DependentlyTypedFunctionsTest {
                 {"testComplexTypes"},
                 {"testObjectExternFunctions"},
                 {"testDependentlyTypedMethodsWithObjectTypeInclusion"},
-                // {"testSubtypingWithDependentlyTypedMethods"},
+                {"testSubtypingWithDependentlyTypedMethods"},
                 {"testDependentlyTypedFunctionWithDefaultableParams"},
                 {"testStartActionWithDependentlyTypedFunctions"},
                 {"testArgsForDependentlyTypedFunctionViaTupleRestArg"},
