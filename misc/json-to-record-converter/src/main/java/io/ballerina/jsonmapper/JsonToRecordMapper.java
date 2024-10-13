@@ -384,7 +384,8 @@ public final class JsonToRecordMapper {
         Map<String, RecordFieldNode> differencingRecordFields =
                 difference(previousRecordFieldToNodes, newRecordFieldToNodes);
 
-        for (Map.Entry<String, Map.Entry<RecordFieldNode, RecordFieldNode>> entry : intersectingRecordFields.entrySet()) {
+        for (Map.Entry<String, Map.Entry<RecordFieldNode, RecordFieldNode>> entry :
+                intersectingRecordFields.entrySet()) {
             boolean isOptional = entry.getValue().getKey().questionMarkToken().isPresent();
             Map<String, String> jsonEscapedFieldToFields = jsonNodes.entrySet().stream()
                     .collect(Collectors.toMap(jsonEntry -> escapeIdentifier(jsonEntry.getKey()), Map.Entry::getKey));
