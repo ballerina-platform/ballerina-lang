@@ -35,6 +35,7 @@ import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * {@code BTableType} represents tabular data in Ballerina.
@@ -245,5 +246,10 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     public boolean shouldCache() {
         // TODO: remove this once we have fixed equals
         return false;
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return constraint instanceof MayBeDependentType constraintType && constraintType.isDependentlyTyped(visited);
     }
 }

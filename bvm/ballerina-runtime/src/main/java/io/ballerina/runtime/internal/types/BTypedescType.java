@@ -32,6 +32,8 @@ import io.ballerina.runtime.internal.types.semtype.TypedescUtils;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 
+import java.util.Set;
+
 /**
  * {@code BTypedescType} represents a type of a type in the Ballerina type system.
  *
@@ -100,5 +102,11 @@ public class BTypedescType extends BType implements TypedescType {
         SemType constraint = tryInto(getConstraint());
         Context cx = TypeChecker.context();
         return TypedescUtils.typedescContaining(cx.env, constraint);
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return constraint instanceof MayBeDependentType constraintType &&
+                constraintType.isDependentlyTyped(visited);
     }
 }

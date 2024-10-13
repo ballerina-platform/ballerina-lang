@@ -32,6 +32,7 @@ import io.ballerina.runtime.internal.types.semtype.StreamDefinition;
 import io.ballerina.runtime.internal.values.StreamValue;
 
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * {@link BStreamType} represents streaming data in Ballerina.
@@ -154,5 +155,13 @@ public class BStreamType extends BType implements StreamType {
         StreamDefinition sd = new StreamDefinition();
         definition = sd;
         return sd.define(env, tryInto(constraint), tryInto(completionType));
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return (constraint instanceof MayBeDependentType constrainedType &&
+                constrainedType.isDependentlyTyped(visited)) ||
+                (completionType instanceof MayBeDependentType completionType &&
+                        completionType.isDependentlyTyped(visited));
     }
 }

@@ -534,7 +534,7 @@ public function testSubtypingWithDependentlyTypedMethods() {
     assert(true, <any>bar is Baz);
     assert(true, <any>qux is Bar);
     assert(true, <any>bar is Qux);
-    assert(true, <any>baz is Bar);
+    assert(false, <any>baz is Bar);
     assert(false, <any>new Quux() is Qux);
     assert(false, <any>qux is Quux);
 
@@ -548,10 +548,10 @@ public function testSubtypingWithDependentlyTypedMethods() {
 
     assert(true, <any>new Corge() is Grault);
     assert(true, <any>new Grault() is Corge);
-    assert(false, <any>new Corge() is Garply);
-    assert(false, <any>new Garply() is Corge);
-    assert(false, <any>new Grault() is Garply);
-    assert(false, <any>new Garply() is Grault);
+    assert(true, <any>new Corge() is Garply);
+    assert(true, <any>new Garply() is Corge);
+    assert(true, <any>new Grault() is Garply);
+    assert(true, <any>new Garply() is Grault);
 }
 
 function getWithDefaultableParams(int|string x, int|string y = 1, typedesc<int|string> z = int) returns z =

@@ -19,18 +19,16 @@
 
 package io.ballerina.runtime.internal.types;
 
-import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.SemType;
-
-import java.util.Optional;
+import java.util.Set;
 
 /**
- * Any {@code Type} that contains selectively immutable types must implement this interface. It represents the type
- * against which {@code isLikeType} operation is performed.
+ * Represents a type that may be dependently typed.
  *
  * @since 2201.11.0
  */
-public interface TypeWithAcceptedType {
+public interface MayBeDependentType {
 
-    Optional<SemType> acceptedTypeOf(Context cx);
+    boolean isDependentlyTyped();
+
+    boolean isDependentlyTyped(Set<MayBeDependentType> visited);
 }

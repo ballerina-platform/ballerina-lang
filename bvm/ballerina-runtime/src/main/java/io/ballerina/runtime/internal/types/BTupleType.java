@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -361,6 +362,12 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     public void resetSemType() {
         defn = null;
         super.resetSemType();
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return tupleTypes.stream().filter(each -> each instanceof MayBeDependentType)
+                .anyMatch(each -> ((MayBeDependentType) each).isDependentlyTyped(visited));
     }
 
     @Override

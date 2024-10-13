@@ -286,6 +286,12 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     }
 
     @Override
+    public boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return fields.values().stream().map(Field::getFieldType).filter(each -> each instanceof MayBeDependentType)
+                .anyMatch(each -> ((MayBeDependentType) each).isDependentlyTyped(visited));
+    }
+
+    @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         if (!couldInherentTypeBeDifferent()) {
             return Optional.of(getSemType());

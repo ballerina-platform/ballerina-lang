@@ -30,8 +30,10 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * {@code BType} represents a type in Ballerina.
@@ -44,7 +46,7 @@ import java.util.Optional;
  * @since 0.995.0
  */
 public abstract non-sealed class BType extends SemType
-        implements Type, MutableSemType, Cloneable, CacheableTypeDescriptor {
+        implements Type, MutableSemType, Cloneable, CacheableTypeDescriptor, MayBeDependentType {
 
     protected String typeName;
     protected Module pkg;
@@ -309,4 +311,20 @@ public abstract non-sealed class BType extends SemType
         typeCheckCache.cacheTypeCheckResult(other, result);
     }
 
+    @Override
+    public final boolean isDependentlyTyped() {
+        return isDependentlyTyped(new HashSet<>());
+    }
+
+    @Override
+    public final boolean isDependentlyTyped(Set<MayBeDependentType> visited) {
+        if (!visited.add(this)) {
+            return false;
+        }
+        return isDependentlyTypedInner(visited);
+    }
+
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return false;
+    }
 }

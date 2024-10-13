@@ -27,6 +27,8 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.FutureUtils;
 
+import java.util.Set;
+
 /**
  * {@code BFutureType} represents a future value in Ballerina.
  *
@@ -110,5 +112,10 @@ public class BFutureType extends BType implements FutureType {
     public boolean shouldCache() {
         // {@code equals} depends on the type checker this is to avoid a possible infinite recursion
         return false;
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return constraint instanceof MayBeDependentType constraintType && constraintType.isDependentlyTyped(visited);
     }
 }

@@ -519,4 +519,10 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             return new MethodData(methodName, method.getFlags(), semType);
         }
     }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return fields.values().stream().map(Field::getFieldType).filter(each -> each instanceof MayBeDependentType)
+                .anyMatch(each -> ((MayBeDependentType) each).isDependentlyTyped(visited));
+    }
 }

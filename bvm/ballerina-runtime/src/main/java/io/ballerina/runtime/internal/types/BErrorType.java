@@ -35,6 +35,7 @@ import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * {@code BErrorType} represents error type in Ballerina.
@@ -137,6 +138,12 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
             distinctIdSupplier = new DistinctIdSupplier(TypeChecker.context().env, getTypeIdSet());
         }
         return distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct).reduce(err, Core::intersect);
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return detailType instanceof MayBeDependentType mayBeDependentType &&
+                mayBeDependentType.isDependentlyTyped(visited);
     }
 
     private boolean isTopType() {
