@@ -425,7 +425,8 @@ public class JsonToRecordMapperTests {
         Assert.assertEquals(diagnostics.get(1).message(), diagnosticMessage1);
     }
 
-    private void runPositiveTest(Path json, Path bal, String recordName, boolean isRecordTypeDesc, boolean closed, boolean forceFormatRecField)
+    private void runPositiveTest(Path json, Path bal, String recordName, boolean isRecordTypeDesc, 
+                                 boolean closed, boolean forceFormatRecField)
             throws IOException {
         String jsonFileContent = Files.readString(json);
         String generatedCodeBlock = JsonToRecordMapper.convert(
