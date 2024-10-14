@@ -39,9 +39,9 @@ public final class ListOperationUtils {
      */
     public static <K, V> Map<K, Map.Entry<V, V>> intersection(Map<K, V> mapOne, Map<K, V> mapTwo) {
         Map<K, Map.Entry<V, V>> intersection = new LinkedHashMap<>();
-        for (K key: mapOne.keySet()) {
-            if (mapTwo.containsKey(key)) {
-                intersection.put(key, Map.entry(mapOne.get(key), mapTwo.get(key)));
+        for (Map.Entry<K, V> entry: mapOne.entrySet()) {
+            if (mapTwo.containsKey(entry.getKey())) {
+                intersection.put(entry.getKey(), Map.entry(entry.getValue(), mapTwo.get(entry.getKey())));
             }
         }
         return intersection;
@@ -56,9 +56,9 @@ public final class ListOperationUtils {
      */
     public static <K, V> Map<K, V> union(Map<K, V> mapOne, Map<K, V> mapTwo) {
         Map<K, V> union = new LinkedHashMap<>(mapOne);
-        for (Map.Entry<K, V> key: mapTwo.entrySet()) {
-            if (!mapOne.containsKey(key.getKey())) {
-                union.put(key.getKey(), mapTwo.get(key.getKey()));
+        for (Map.Entry<K, V> entry: mapTwo.entrySet()) {
+            if (!mapOne.containsKey(entry.getKey())) {
+                union.put(entry.getKey(), entry.getValue());
             }
         }
         return union;
