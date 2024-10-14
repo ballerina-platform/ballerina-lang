@@ -800,6 +800,8 @@ public class Desugar extends BLangNodeVisitor {
         annotationDesugar.rewritePackageAnnotations(pkgNode, env);
 
         rewrite(pkgNode.xmlnsList, env);
+        rewrite(pkgNode.constants, env);
+        rewrite(pkgNode.globalVars, env);
         rewrite(pkgNode.classDefinitions, env);
 
         // Add invocation for user specified module init function (`init()`) if present and return.
@@ -848,7 +850,29 @@ public class Desugar extends BLangNodeVisitor {
         if (constType.tag != TypeTags.INTERSECTION) {
             return;
         }
-        rewrite(constant, initFunctionEnv);
+
+        BConstantSymbol constSymbol = constant.symbol;
+        BType impliedType = Types.getImpliedType(constSymbol.literalType);
+        int tag = impliedType.tag;
+        if ((tag == TypeTags.RECORD && constant.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) ||
+                (tag == TypeTags.TUPLE && constant.expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR)) {
+            // Literal type will have a typedesc var created via the associated type def.
+            // The issue is that type def has the effective type not the original intersection.
+            // Hence, create the typedesc var here.
+            // Todo: In the below sample, `a` and `b` will have the same literal type. Then the typedesc will be
+            // created with the same type. ATM in the BIRGen we lookup the typedesc given the type. Hence that
+            // logic will fail to identify the correct typedesc and it will fail when there are large methods.
+            // Need to find a fix for this. ATM we create only one typedesc for the
+            // following sample to overcome that issue.
+            //
+            // const string[] a = ["apple", "orange"];
+            // const string[] b = a;
+            BLangType blangIntersection = (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
+            blangIntersection.setBType(constSymbol.literalType);
+            blangIntersection.pos = constSymbol.literalType.tsymbol.pos;
+            createTypedescVariableDef(blangIntersection);
+        }
+
         addTypeDescStmtsToInitFunction(initFunctionEnv, desugaredGlobalVarList, initFnBody);
         BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
         BLangAssignment constInit = ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef, constant.expr);
@@ -1064,7 +1088,12 @@ public class Desugar extends BLangNodeVisitor {
         if (Symbols.isFlagOn(globalVarFlags, Flags.LISTENER) && containsErrorType(globalVar.expr.getBType())) {
             handleListenerWithErrorType(globalVar);
         }
-        rewrite(simpleGlobalVar, initFunctionEnv);
+
+        BLangType typeNode = simpleGlobalVar.typeNode;
+        if (typeNode != null && typeNode.getKind() != null) {
+            rewrite(typeNode, initFunctionEnv);
+        }
+
         addTypeDescStmtsToInitFunction(initFunctionEnv, desugaredGlobalVarList, initFnBody);
         // Add variable to the initialization function
         addToInitFunction(simpleGlobalVar, initFnBody);
@@ -8928,7 +8957,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-
         BConstantSymbol constSymbol = constant.symbol;
         BType impliedType = Types.getImpliedType(constSymbol.literalType);
         int tag = impliedType.tag;
@@ -8942,25 +8970,6 @@ public class Desugar extends BLangNodeVisitor {
             constant.expr = rewriteExpr(literal);
         } else {
             constant.expr = rewriteExpr(constant.expr);
-        }
-
-        if ((tag == TypeTags.RECORD && constant.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) ||
-                (tag == TypeTags.TUPLE && constant.expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR)) {
-            // Literal type will have a typedesc var created via the associated type def.
-            // The issue is that type def has the effective type not the original intersection.
-            // Hence, create the typedesc var here.
-            // Todo: In the below sample, `a` and `b` will have the same literal type. Then the typedesc will be
-            // created with the same type. ATM in the BIRGen we lookup the typedesc given the type. Hence that
-            // logic will fail to identify the correct typedesc and it will fail when there are large methods.
-            // Need to find a fix for this. ATM we create only one typedesc for the
-            // following sample to overcome that issue.
-            //
-            // const string[] a = ["apple", "orange"];
-            // const string[] b = a;
-            BLangType blangIntersection = (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
-            blangIntersection.setBType(constSymbol.literalType);
-            blangIntersection.pos = constSymbol.literalType.tsymbol.pos;
-            createTypedescVariableDef(blangIntersection);
         }
 
         constant.annAttachments.forEach(attachment ->  rewrite(attachment, env));
