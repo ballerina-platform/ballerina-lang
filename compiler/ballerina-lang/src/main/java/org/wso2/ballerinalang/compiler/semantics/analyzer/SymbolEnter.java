@@ -3955,7 +3955,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (restFieldType == symTable.noType) {
                 continue;
             }
-            if (recordType.restFieldType != null && !types.isSameType2(recordType.restFieldType, restFieldType)) {
+            if (recordType.restFieldType != null && !types.isSameType(recordType.restFieldType, restFieldType)) {
                 recordType.restFieldType = symTable.noType;
                 dlog.error(recordTypeNode.pos, DiagnosticErrorCode.
                     CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES);
