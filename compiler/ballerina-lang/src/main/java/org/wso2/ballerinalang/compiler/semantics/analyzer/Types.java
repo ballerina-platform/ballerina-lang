@@ -386,6 +386,26 @@ public class Types {
         return isSameType(SemTypeHelper.semType(source), SemTypeHelper.semType(target));
     }
 
+    public boolean isSameTypeIncludingTags(BType source, BType target) {
+        if (source.tag != target.tag) {
+            return false;
+        }
+
+        if (source.tag == UNION) {
+            boolean notSameType = ((BUnionType) source).getMemberTypes()
+                    .stream()
+                    .map(sT -> ((BUnionType) target).getMemberTypes()
+                            .stream()
+                            .anyMatch(it -> Types.getReferredType(it).tag == Types.getReferredType(sT).tag))
+                    .anyMatch(foundSameType -> !foundSameType);
+            if (notSameType) {
+                return false;
+            }
+        }
+
+        return isSameType(SemTypeHelper.semType(source), SemTypeHelper.semType(target));
+    }
+
     public boolean isSameType(SemType source, SemType target) {
         return SemTypes.isSameType(semTypeCtx, source, target);
     }

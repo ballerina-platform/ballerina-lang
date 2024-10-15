@@ -2175,7 +2175,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 for (int i = 0; i < typeList.size(); i++) {
                     BType t = Types.getImpliedType(typeList.get(i));
                     if ((t.getKind() == TypeKind.UNION) && (opType.paramTypes.get(i).getKind() == TypeKind.UNION)) {
-                        if (!this.types.isSameType(t, opType.paramTypes.get(i))) {
+                        if (!this.types.isSameTypeIncludingTags(t, opType.paramTypes.get(i))) {
                             match = false;
                         }
                     } else if (t.tag != opType.paramTypes.get(i).tag) {

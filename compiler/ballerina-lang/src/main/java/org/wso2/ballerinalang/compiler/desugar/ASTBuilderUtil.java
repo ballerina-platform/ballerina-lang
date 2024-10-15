@@ -180,7 +180,7 @@ public final class ASTBuilderUtil {
 
     static BLangExpression wrapToConversionExpr(BType sourceType, BLangExpression exprToWrap,
                                                 SymbolTable symTable, Types types) {
-        if (types.isSameType(sourceType, exprToWrap.getBType()) || !isValueType(exprToWrap.getBType())) {
+        if (types.isSameTypeIncludingTags(sourceType, exprToWrap.getBType()) || !isValueType(exprToWrap.getBType())) {
             // No conversion needed.
             return exprToWrap;
         }
