@@ -113,7 +113,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
@@ -2475,104 +2474,6 @@ public class Types {
             }
             BType target = getImpliedType(t.referredType);
             return equality.test(target, constraint, new HashSet<>());
-        }
-    }
-
-    @Deprecated
-    public boolean isSameBIRShape(BType source, BType target) {
-        return isSameBIRShape(source, target, new HashSet<>());
-    }
-
-    private boolean isSameBIRShape(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        // If we encounter two types that we are still resolving, then skip it.
-        // This is done to avoid recursive checking of the same type.
-        TypePair pair = new TypePair(source, target);
-        if (!unresolvedTypes.add(pair)) {
-            return true;
-        }
-
-        BIRSameShapeVisitor birSameShapeVisitor = new BIRSameShapeVisitor(unresolvedTypes, this::isSameBIRShape);
-
-        if (target.accept(birSameShapeVisitor, source)) {
-            return true;
-        }
-
-        unresolvedTypes.remove(pair);
-        return false;
-    }
-
-    @Deprecated
-    private class BIRSameShapeVisitor extends BSameTypeVisitor {
-
-        BIRSameShapeVisitor(Set<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
-            super(unresolvedTypes, equality);
-        }
-
-        @Override
-        public Boolean visit(BType target, BType source) {
-            if (source.tag == TypeTags.TYPEREFDESC || target.tag == TypeTags.TYPEREFDESC) {
-                if (source.tag != target.tag) {
-                    return false;
-                }
-
-                BTypeReferenceType sourceRefType = (BTypeReferenceType) source;
-                BTypeReferenceType targetRefType = (BTypeReferenceType) target;
-
-                BTypeSymbol sourceTSymbol = sourceRefType.tsymbol;
-                BTypeSymbol targetTSymbol = targetRefType.tsymbol;
-                String sourcePkgId = CompilerUtils.getPackageIDStringWithMajorVersion(sourceTSymbol.pkgID);
-                String targetPkgId = CompilerUtils.getPackageIDStringWithMajorVersion(targetTSymbol.pkgID);
-                return sourcePkgId.equals(targetPkgId) && sourceTSymbol.name.equals(targetTSymbol.name);
-            }
-
-            BType t = getImpliedType(target);
-            BType s = getImpliedType(source);
-            if (t == s) {
-                return true;
-            }
-            return switch (t.tag) {
-                case TypeTags.INT,
-                     TypeTags.BYTE,
-                     TypeTags.FLOAT,
-                     TypeTags.DECIMAL,
-                     TypeTags.STRING,
-                     TypeTags.BOOLEAN -> t.tag == s.tag &&
-                        ((TypeParamAnalyzer.isTypeParam(t) || TypeParamAnalyzer.isTypeParam(s)) ||
-                        (t.tag == TypeTags.TYPEREFDESC || s.tag == TypeTags.TYPEREFDESC));
-                case TypeTags.ANY,
-                     TypeTags.ANYDATA -> t.tag == s.tag && hasSameReadonlyFlag(s, t) &&
-                        (TypeParamAnalyzer.isTypeParam(t) || TypeParamAnalyzer.isTypeParam(s));
-                default -> false;
-            };
-
-        }
-
-        @Override
-        public Boolean visit(BFiniteType t, BType s) {
-            s = getImpliedType(s);
-            if (s.tag != TypeTags.FINITE) {
-                return false;
-            }
-
-            SemType semSource = s.semType();
-            SemType semTarget = t.semType();
-            return SemTypes.isSameType(semTypeCtx, semSource, semTarget);
-        }
-
-        @Override
-        public Boolean visit(BTypeReferenceType t, BType s) {
-            s = getImpliedType(s);
-            if (s.tag != TypeTags.TYPEREFDESC) {
-                return false;
-            }
-
-            BTypeReferenceType sTypeRefType = (BTypeReferenceType) s;
-
-            BTypeSymbol sourceTSymbol = sTypeRefType.tsymbol;
-            BTypeSymbol targetTSymbol = t.tsymbol;
-            String sourcePkgId = CompilerUtils.getPackageIDStringWithMajorVersion(sourceTSymbol.pkgID);
-            String targetPkgId = CompilerUtils.getPackageIDStringWithMajorVersion(targetTSymbol.pkgID);
-            return sourcePkgId.equals(targetPkgId) && sourceTSymbol.name.equals(targetTSymbol.name);
         }
     }
 
