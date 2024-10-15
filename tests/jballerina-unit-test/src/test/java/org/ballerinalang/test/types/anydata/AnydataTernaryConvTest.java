@@ -19,6 +19,7 @@
 package org.ballerinalang.test.types.anydata;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.types.BArrayType;
 import org.ballerinalang.test.BCompileUtil;
@@ -73,7 +74,7 @@ public class AnydataTernaryConvTest {
     @Test(description = "Test anydata to record conversion")
     public void testAnydataToRecord() {
         BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToRecord");
-        assertEquals(getType(returns.get(0)).getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(TypeUtils.getReferredType(getType(returns.get(0))).getTag(), TypeTags.RECORD_TYPE_TAG);
         assertEquals(returns.get(0).toString(), "{\"a\":15}");
     }
 
@@ -97,8 +98,8 @@ public class AnydataTernaryConvTest {
         BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToUnion2");
         assertEquals(getType(returns.get(0)).getTag(), TypeTags.MAP_TAG);
         assertEquals(getType(returns.get(1)).getTag(), TypeTags.XML_ELEMENT_TAG);
-        assertEquals(getType(returns.get(2)).getTag(), TypeTags.RECORD_TYPE_TAG);
-        assertEquals(getType(returns.get(3)).getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(TypeUtils.getReferredType(getType(returns.get(2))).getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(TypeUtils.getReferredType(getType(returns.get(3))).getTag(), TypeTags.RECORD_TYPE_TAG);
         assertEquals(returns.get(0).toString(), "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
         assertEquals(returns.get(1).toString(), "<book>The Lost World</book>");
         assertEquals(returns.get(2).toString(), "{\"a\":15}");

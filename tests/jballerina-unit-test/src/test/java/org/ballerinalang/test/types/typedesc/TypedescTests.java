@@ -17,6 +17,7 @@
 package org.ballerinalang.test.types.typedesc;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BTypedesc;
 import org.ballerinalang.test.BCompileUtil;
@@ -124,7 +125,8 @@ public class TypedescTests {
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "typedesc RecordA");
         Assert.assertTrue(returns.get(1) instanceof BTypedesc);
-        Assert.assertEquals(TypeTags.RECORD_TYPE_TAG, ((BTypedesc) returns.get(1)).getDescribingType().getTag());
+        Assert.assertEquals(TypeTags.RECORD_TYPE_TAG,
+                TypeUtils.getReferredType(((BTypedesc) returns.get(1)).getDescribingType()).getTag());
     }
 
     @Test(description = "Test any to typedesc cast")
