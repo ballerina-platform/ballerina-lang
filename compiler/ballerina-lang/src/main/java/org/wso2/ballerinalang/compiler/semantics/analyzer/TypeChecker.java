@@ -4354,7 +4354,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         for (BType member : tupleType.getTupleTypes()) {
-            if (!types.isSameType2(tupleType.restType, member)) {
+            if (!types.isSameType(tupleType.restType, member)) {
                 return true;
             }
         }
