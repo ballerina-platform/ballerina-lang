@@ -209,6 +209,12 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--optimize-dependency-compilation", hidden = true,
             description = "experimental memory optimization for large projects")
     private Boolean optimizeDependencyCompilation;
+    @CommandLine.Option(names = "--optimize", description = "generate optimized executable jar", defaultValue = "false")
+    private Boolean optimizeCodegen;
+
+    @CommandLine.Option(names = "--optimize-report", description = "generate code generation optimization reports",
+            defaultValue = "false")
+    private Boolean optimizeReport;
 
     @Override
     public void execute() {
@@ -291,8 +297,8 @@ public class BuildCommand implements BLauncherCmd {
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, true,
-                        isPackageModified, buildOptions.enableCache()))
+                .addTask(new CompileTask(outStream, errStream, false, true, false, isPackageModified,
+                        buildOptions.enableCache()))
                 .addTask(new CreateExecutableTask(outStream, this.output, null, false))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
@@ -326,7 +332,10 @@ public class BuildCommand implements BLauncherCmd {
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
-                .setOptimizeDependencyCompilation(optimizeDependencyCompilation);
+                .setOptimizeDependencyCompilation(optimizeDependencyCompilation)
+                .setShowDependencyDiagnostics(showDependencyDiagnostics)
+                .setOptimizeCodegen(optimizeCodegen)
+                .setOptimizeReport(optimizeReport);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

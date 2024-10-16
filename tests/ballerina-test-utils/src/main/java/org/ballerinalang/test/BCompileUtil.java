@@ -18,6 +18,7 @@
 package org.ballerinalang.test;
 
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.CompilationOptions;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.NullBackend;
@@ -39,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
@@ -116,6 +118,39 @@ public final class BCompileUtil {
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
         return compileResult;
+    }
+
+    public static CompileResult compileOptimized(String sourceFilePath) {
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        BuildOptions buildOptions =
+                buildOptionsBuilder.setOptimizeCodegen(Boolean.TRUE).setOptimizeReport(Boolean.TRUE).build();
+        Project project = ProjectLoader.loadProject(TEST_SOURCES_DIRECTORY.resolve(sourceFilePath), buildOptions);
+
+        Package currentPackage = project.currentPackage();
+        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
+        jBallerinaBackend.diagnosticResult().hasErrors();
+
+        // Since all the unit tests are running on the same JVM, we have to reset the static fields used to store the
+        // compilationOptions. This is not a problem in production environments because they run on dedicated JVMs.
+        resetStaticCompilationOptions();
+        return new CompileResult(currentPackage, jBallerinaBackend);
+    }
+
+    private static void resetStaticCompilationOptions() {
+        // Reflection is used here because if we were to provide a dedicated public method for resetting the static
+        // fields, future developers could use it for other unintended purposes.
+        Class<?> clazz = CompilationOptions.CompilationOptionsBuilder.class;
+        try {
+            Field optimizeCodegenField = clazz.getDeclaredField("optimizeCodegen");
+            Field optimizeReportField = clazz.getDeclaredField("optimizeReport");
+            optimizeCodegenField.setAccessible(true);
+            optimizeReportField.setAccessible(true);
+
+            optimizeCodegenField.set(null, null);
+            optimizeReportField.set(null, null);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static BIRCompileResult generateBIR(String sourceFilePath) {

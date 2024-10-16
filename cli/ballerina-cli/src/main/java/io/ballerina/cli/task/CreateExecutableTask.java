@@ -40,6 +40,7 @@ import java.nio.file.Path;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
+import static io.ballerina.projects.util.ProjectConstants.BYTECODE_OPTIMIZED_JAR_SUFFIX;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 
 /**
@@ -92,6 +93,8 @@ public class CreateExecutableTask implements Task {
                     out.println(warnings);
                 }
                 emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.GRAAL_EXEC, executablePath);
+            } else if (project.buildOptions().optimizeCodegen()) {
+                emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.OPTIMIZE_CODEGEN, executablePath);
             } else {
                 emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
             }
@@ -118,7 +121,7 @@ public class CreateExecutableTask implements Task {
             throw createLauncherException(e.getMessage());
         }
 
-        if (!project.buildOptions().nativeImage() && !isHideTaskOutput) {
+        if (!project.buildOptions().nativeImage() && !isHideTaskOutput && !project.buildOptions().optimizeCodegen()) {
             Path relativePathToExecutable = currentDir.relativize(executablePath);
 
             if (project.buildOptions().getTargetPath() != null) {
@@ -130,6 +133,24 @@ public class CreateExecutableTask implements Task {
                 } else {
                     this.out.println("\t" + relativePathToExecutable);
                 }
+            }
+        }
+
+        // TODO: this has lot of common code with default case, refactor to common method
+        if (project.buildOptions().optimizeCodegen()) {
+            Path relativePathToExecutable = currentDir.relativize(executablePath);
+            String relativePathToExecutableString =
+                    relativePathToExecutable.toString().replace(BLANG_COMPILED_JAR_EXT, BYTECODE_OPTIMIZED_JAR_SUFFIX);
+            String executablePathString =
+                    executablePath.toString().replace(BLANG_COMPILED_JAR_EXT, BYTECODE_OPTIMIZED_JAR_SUFFIX);
+
+            if (project.buildOptions().getTargetPath() != null) {
+                this.out.println("\t" + relativePathToExecutableString);
+            } else if (relativePathToExecutableString.contains("..")
+                    || relativePathToExecutableString.contains("." + File.separator)) {
+                this.out.println("\t" + executablePathString);
+            } else {
+                this.out.println("\t" + relativePathToExecutableString);
             }
         }
 
