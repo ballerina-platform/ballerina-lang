@@ -120,7 +120,8 @@ public class BallerinaRunnerService implements ExtendedLanguageServerService {
                     for (ModuleMemberDeclarationNode member : modulePartNode.members()) {
                         if (member.kind() == SyntaxKind.FUNCTION_DEFINITION) {
                             FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) member;
-                            if (functionDefinitionNode.functionName().text().equals("main")) {
+                            if (functionDefinitionNode.functionName().text()
+                                    .equals(BallerinaRunnerServiceConstants.MAIN_FUNCTION)) {
                                 List<String> params = new ArrayList<>();
                                 functionDefinitionNode.functionSignature().parameters().forEach(param -> {
                                     params.add(param.toString());
