@@ -259,6 +259,7 @@ public class VariableReturnType {
     }
 
     private static Object getValue(Type type) {
+        type = TypeUtils.getImpliedType(type);
         switch (type.getTag()) {
             case INT_TAG:
                 return 150L;
