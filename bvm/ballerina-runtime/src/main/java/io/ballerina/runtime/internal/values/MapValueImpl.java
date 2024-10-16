@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -319,8 +320,9 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     protected void populateInitialValues(BMapInitialValueEntry[] initialValues) {
         Map<String, BFunctionPointer<Object, ?>> defaultValues = new HashMap<>();
-        if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            defaultValues.putAll(((BRecordType) type).getDefaultValues());
+        Type impliedType = TypeUtils.getImpliedType(type);
+        if (impliedType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            defaultValues.putAll(((BRecordType) impliedType).getDefaultValues());
         }
 
         for (BMapInitialValueEntry initialValue : initialValues) {
