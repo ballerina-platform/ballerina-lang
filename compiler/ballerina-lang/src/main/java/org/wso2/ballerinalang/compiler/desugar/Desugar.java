@@ -917,9 +917,9 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private Name generateTypedescVariableName(BType targetType) {
-        // tsymbol.name.value is empty for anonymous types except for record types
-        return targetType.tsymbol.name.value.isEmpty()? new Name(TYPEDESC + typedescCount++) :
-                new Name(TYPEDESC + targetType.tsymbol.name.value);
+        // tsymbol.name.value is empty for anonymous types except for record types and map types
+        return targetType.tag == TypeTags.MAP || targetType.tsymbol.name.value.isEmpty()?
+                new Name(TYPEDESC + typedescCount++) : new Name(TYPEDESC + targetType.tsymbol.name.value);
     }
 
     private BLangSimpleVariableDef createSimpleVariableDef(Location pos, String name, BType type, BLangExpression expr,
@@ -1326,6 +1326,9 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstrainedType constrainedType) {
         constrainedType.constraint = rewrite(constrainedType.constraint, env);
+        if (constrainedType.getBType() != null && constrainedType.getBType().tag == TypeTags.MAP) {
+            createTypedescVariableDef(constrainedType);
+        }
         result = constrainedType;
     }
 
