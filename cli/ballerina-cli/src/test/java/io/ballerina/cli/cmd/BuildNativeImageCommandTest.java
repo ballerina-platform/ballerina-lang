@@ -86,7 +86,7 @@ public class BuildNativeImageCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("nativeimageProject");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
-                false, true, "-H:Name=hoo");
+                false, true, "-o " + projectPath + "/hoo");
         // non existing bal file
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
@@ -124,7 +124,7 @@ public class BuildNativeImageCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("nativeimageSingleFile").resolve("main.bal");
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
-                false, true, "-H:Name=hoo");
+                false, true, "-o " + projectPath + "/hoo");
         new CommandLine(buildCommand).parseArgs(projectPath.toString());
         buildCommand.execute();
         String buildLog = readOutput(true);
