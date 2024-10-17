@@ -69,7 +69,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
     public void testNativeImageTestsWithAdditionalArgs() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
-        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true, "-H:Name=foo");
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true, "-o " + projectPath + "/foo");
         new CommandLine(testCommand).parseArgs();
         try {
             testCommand.execute();
@@ -126,7 +126,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream,
-                false, true, "-H:Name=foo");
+                false, true, "-o " + this.testResources.resolve("valid-test-bal-file") + "/foo");
         new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
         try {
             testCommand.execute();

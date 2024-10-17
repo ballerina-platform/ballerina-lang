@@ -716,14 +716,13 @@ public class JBallerinaBackend extends CompilerBackend {
             nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
             nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
                     executableFilePath.toString(),
-                    "-H:Name=" + nativeImageName,
+                    "-o " + executableFilePath.getParent() + "/" + nativeImageName,
                     "--no-fallback"));
         } else {
             nativeImageName = project.currentPackage().packageName().toString();
             nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
                     executableFilePath.toString(),
-                    "-H:Name=" + nativeImageName,
-                    "-H:Path=" + executableFilePath.getParent(),
+                    "-o " + executableFilePath.getParent() + "/" + nativeImageName,
                     "-H:IncludeResources=" + getResourcesPath(),
                     "--no-fallback"));
         }
