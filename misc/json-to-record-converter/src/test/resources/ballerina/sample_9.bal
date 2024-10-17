@@ -1,26 +1,30 @@
-type BatterItem record {
+type BatterItem record {|
     string id;
     string 'type;
     boolean fresh?;
-};
+    json...;
+|};
 
-type Batters record {
+type Batters record {|
     (BatterItem|decimal|int|string)[] batter;
-};
+    json...;
+|};
 
-type ToppingItem record {
+type ToppingItem record {|
     string id;
     string 'type;
     string color?;
-};
+    json...;
+|};
 
-type BaseItem record {
+type BaseItem record {|
     string id;
     string 'type;
     string color?;
-};
+    json...;
+|};
 
-type NewRecord record {
+type NewRecord record {|
     string id;
     string 'type;
     string name;
@@ -28,4 +32,5 @@ type NewRecord record {
     Batters batters;
     (ToppingItem|string|ToppingItem[]|string[])[] topping;
     BaseItem[][] base;
-};
+    json...;
+|};

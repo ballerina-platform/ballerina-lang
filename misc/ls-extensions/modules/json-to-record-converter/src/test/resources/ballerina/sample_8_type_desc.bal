@@ -1,124 +1,155 @@
-type Person record {
-    record {
-        record {
+type Person record {|
+    record {|
+        record {|
             string reference;
-        } coverage;
+            json...;
+        |} coverage;
         int sequence;
         boolean focal;
-    }[] insurance;
+        json...;
+    |}[] insurance;
 
-    record {
+    record {|
         string system;
         string value;
-    }[] identifier;
+        json...;
+    |}[] identifier;
 
-    record {
-        record {
+    record {|
+        record {|
             string currency;
             decimal value;
-        } unitPrice;
+            json...;
+        |} unitPrice;
         int sequence;
         int[] careTeamSequence;
 
-        record {
-            record {
+        record {|
+            record {|
                 string system;
                 string code;
-            }[] coding;
-        } productOrService;
+                json...;
+            |}[] coding;
+            json...;
+        |} productOrService;
 
         string servicedDate;
 
-        record {
-            record {
+        record {|
+            record {|
                 string currency;
                 decimal value;
-            } unitPrice;
+                json...;
+            |} unitPrice;
             int sequence;
 
-            record {
-                record {
+            record {|
+                record {|
                     string system;
                     string code;
-                }[] coding;
-            } productOrService;
+                    json...;
+                |}[] coding;
+                json...;
+            |} productOrService;
 
-            record {
+            record {|
                 string currency;
                 decimal value;
-            } net;
-        }[] detail;
+                json...;
+            |} net;
+            json...;
+        |}[] detail;
 
-        record {
+        record {|
             string currency;
             decimal value;
-        } net;
-    }[] item;
+            json...;
+        |} net;
+        json...;
+    |}[] item;
 
     string use;
     string created;
 
-    record {
+    record {|
         int sequence;
 
-        record {
-            record {
+        record {|
+            record {|
                 string code;
-            }[] coding;
-        } diagnosisCodeableConcept;
-    }[] diagnosis;
+                json...;
+            |}[] coding;
+            json...;
+        |} diagnosisCodeableConcept;
+        json...;
+    |}[] diagnosis;
 
-    record {
-        record {
+    record {|
+        record {|
             string system;
             string code;
-        }[] coding;
-    } 'type;
+            json...;
+        |}[] coding;
+        json...;
+    |} 'type;
 
-    record {
-        record {
+    record {|
+        record {|
             string code;
-        }[] coding;
-    } priority;
+            json...;
+        |}[] coding;
+        json...;
+    |} priority;
 
-    record {
-        record {
-            record {
+    record {|
+        record {|
+            record {|
                 string code;
-            }[] coding;
-        } 'type;
-    } payee;
+                json...;
+            |}[] coding;
+            json...;
+        |} 'type;
+        json...;
+    |} payee;
 
-    record {
+    record {|
         string reference;
-    } provider;
+        json...;
+    |} provider;
 
-    record {
+    record {|
         string reference;
-    } prescription;
+        json...;
+    |} prescription;
 
-    record {
+    record {|
         string reference;
-    } patient;
+        json...;
+    |} patient;
 
-    record {
+    record {|
         string reference;
-    } insurer;
+        json...;
+    |} insurer;
 
     string id;
 
-    record {
+    record {|
         string div;
         string status;
-    } text;
+        json...;
+    |} text;
 
-    record {
+    record {|
         int sequence;
-        record {
+        record {|
             string reference;
-        } provider;
-    }[] careTeam;
+            json...;
+        |} provider;
+        json...;
+    |}[] careTeam;
 
     string resourceType;
     string status;
-};
+    json...;
+|};

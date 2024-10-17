@@ -82,7 +82,7 @@ public final class SchemaGenerator {
         }
 
         if (json.getNodeType() == JsonNodeType.NULL) {
-            schema.put("type", "anydata");
+            schema.put("type", "json");
             return schema;
         }
 

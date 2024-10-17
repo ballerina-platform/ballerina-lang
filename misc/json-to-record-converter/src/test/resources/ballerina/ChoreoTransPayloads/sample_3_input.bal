@@ -1,41 +1,47 @@
-type AssetsItem record {
+type AssetsItem record {|
     int Type;
     string Id;
     boolean Confirmed;
-};
+    json...;
+|};
 
-type TripInformation record {
-    anydata TripName;
-    anydata Move;
-    anydata Leg;
-    anydata Stop;
+type TripInformation record {|
+    json TripName;
+    json Move;
+    json Leg;
+    json Stop;
     int OrderHeader;
     AssetsItem[] Assets;
-    anydata[] AdditionalDataElements;
-};
+    json[] AdditionalDataElements;
+    json...;
+|};
 
-type HeaderInformation record {
+type HeaderInformation record {|
     string CreateDateUtc;
-};
+    json...;
+|};
 
-type Content record {
+type Content record {|
     int Odometer;
-    anydata UnitTrips;
-    anydata Position;
+    json UnitTrips;
+    json Position;
     TripInformation TripInformation;
     HeaderInformation HeaderInformation;
-};
+    json...;
+|};
 
-type MessageProperties record {
+type MessageProperties record {|
     string EventType;
     string AuditId;
     string MessageId;
-};
+    json...;
+|};
 
-type NewRecord record {
+type NewRecord record {|
     AssetsItem[] Assets;
     string CreateDate;
     string ContentType;
     Content Content;
     MessageProperties MessageProperties;
-};
+    json...;
+|};

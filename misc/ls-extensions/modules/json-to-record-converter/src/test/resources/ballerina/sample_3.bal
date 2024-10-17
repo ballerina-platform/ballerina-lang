@@ -1,8 +1,10 @@
-type NewRecord record {
+type NewRecord record {|
 	string color;
 	string value;
-};
+	json...;
+|};
 
-type NewRecordList record {
+type NewRecordList record {|
 	NewRecord[] newrecordlist;
-};
+	json...;
+|};

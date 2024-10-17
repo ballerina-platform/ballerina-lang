@@ -1,5 +1,6 @@
-type Person record {
-    record {
-        string color; string value;
-    }[] personlist;
-};
+type Person record {|
+    record {|
+        string color; string value; json...;
+    |}[] personlist;
+	json...;
+|};

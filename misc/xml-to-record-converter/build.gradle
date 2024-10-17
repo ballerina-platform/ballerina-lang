@@ -36,13 +36,11 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':identifier-util')
     implementation libs.apache.commons.lang3
-    implementation libs.java.tuples
 
     testImplementation libs.testng
     testImplementation project(':ballerina-lang')
     testImplementation project(':formatter:formatter-core')
     testImplementation project(':language-server:language-server-core')
-    testImplementation libs.java.tuples
     testImplementation libs.eclipse.lsp4j
 }
 

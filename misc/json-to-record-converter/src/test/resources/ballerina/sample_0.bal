@@ -1,7 +1,8 @@
-type NewRecord record {
+type NewRecord record {|
     string firstName;
     string lastName;
     boolean married;
     int age;
-    anydata phoneNumber;
-};
+    json phoneNumber;
+    json...;
+|};

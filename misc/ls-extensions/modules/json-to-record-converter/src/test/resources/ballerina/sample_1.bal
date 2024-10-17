@@ -1,17 +1,20 @@
-type SportsItem record {
+type SportsItem record {|
 	string question;
 	string answer;
 	string[] options;
-};
+    json...;
+|};
 
-type MathsItem record {
+type MathsItem record {|
 	string question;
 	string answer;
 	string[] options;
-};
+    json...;
+|};
 
-type NewRecord record {
+type NewRecord record {|
 	SportsItem[] sports;
 	MathsItem[] maths;
-};
+    json...;
+|};
 

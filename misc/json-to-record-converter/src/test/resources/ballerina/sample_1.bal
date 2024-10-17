@@ -1,4 +1,4 @@
-type NewRecord record {
+type NewRecord record {|
     string equationName;
     int energy;
     int negativeEnergy;
@@ -6,4 +6,5 @@ type NewRecord record {
     decimal negativeConstant;
     decimal frequency;
     decimal negativeFrequency;
-};
+    json...;
+|};

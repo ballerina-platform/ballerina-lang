@@ -67,7 +67,6 @@ jaegerThriftVersion="0.31.0"
 jakartaActivationVersion="1.2.2"
 javaDiffUtilsVersion="4.5"
 javassistVersion="3.24.1-GA"
-javaTuplesVersion="1.2"
 javaxMailVersion="1.6.2"
 javaxTransactionApiVersion="1.3"
 javaxWsRsApiVersion="2.1.1"
@@ -197,7 +196,6 @@ jaeger-core = { module = "io.jaegertracing:jaeger-core", version.ref = "jaegerCo
 jaeger-thrift = { module = "io.jaegertracing:jaeger-thrift", version.ref = "jaegerThriftVersion"}
 jakarta-activation = { module = "jakarta.activation:jakarta.activation-api", version.ref = "jakartaActivationVersion"}
 java-diff-utils = { module = "io.github.java-diff-utils:java-diff-utils", version.ref = "javaDiffUtilsVersion"}
-java-tuples = { module = "org.javatuples:javatuples", version.ref = "javaTuplesVersion"}
 javassist = { module = "org.javassist:javassist", version.ref = "javassistVersion"}
 javax-mail = { module = "com.sun.mail:javax.mail", version.ref = "javaxMailVersion"}
 javax-transaction-api = { module = "javax.transaction:javax.transaction-api", version.ref = "javaxTransactionApiVersion"}

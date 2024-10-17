@@ -6,7 +6,6 @@ module io.ballerina.xmltorecordconverter {
     requires io.ballerina.parser;
     requires io.ballerina.tools.api;
     requires java.xml;
-    requires javatuples;
     requires org.apache.commons.lang3;
     requires org.eclipse.lsp4j.jsonrpc;
 

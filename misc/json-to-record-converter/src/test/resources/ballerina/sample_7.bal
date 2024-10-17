@@ -1,4 +1,5 @@
-type NewRecord record {
+type NewRecord record {|
     int[][] matrix;
     string[][][] threeDimensionStr;
-};
+    json...;
+|};

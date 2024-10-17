@@ -1,39 +1,44 @@
-type SportsItem record {
+type SportsItem record {|
     string? sport;
     string position?;
     boolean reserve?;
     string game?;
     string 'type?;
-};
+    json...;
+|};
 
-type Author_01 record {
+type Author_01 record {|
     string name;
     string country;
     (boolean|int|string)? period;
-    anydata language?;
-};
+    json language?;
+    json...;
+|};
 
-type BooksItem record {
+type BooksItem record {|
     string name;
     Author_01 author;
     int publishedYear?;
     decimal price?;
-};
+    json...;
+|};
 
-type State_01 record {
+type State_01 record {|
     string name;
     string code;
-};
+    json...;
+|};
 
-type Address record {
+type Address record {|
     string number;
     string street;
     string neighborhood;
     string city;
     State_01 state;
-};
+    json...;
+|};
 
-type NewRecord record {
+type NewRecord record {|
     string name;
     string school;
     int age;
@@ -42,4 +47,5 @@ type NewRecord record {
     string year;
     boolean honors;
     Address address;
-};
+    json...;
+|};
