@@ -1,0 +1,10 @@
+[package]
+org = "test_org"
+name = "LocalPkgUsage"
+version = "0.1.0"
+
+[[dependency]]
+org = "test_org"
+name = "ReadonlyRecord"
+version = "0.1.0"
+repository="local"
