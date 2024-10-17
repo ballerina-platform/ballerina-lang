@@ -62,7 +62,8 @@ public class JsonToRecordConverterTests {
 
     private static final Path nullObjectJson = RES_DIR.resolve("json/null_object.json");
     private static final Path nullObjectBal = RES_DIR.resolve("ballerina/null_object.bal");
-    private static final Path nullObjectDirectConversionBal = RES_DIR.resolve("ballerina/null_object_direct_conversion.bal");
+    private static final Path nullObjectDirectConversionBal = RES_DIR.resolve(
+            "ballerina/null_object_direct_conversion.bal");
 
     private static final Path sample1Json = RES_DIR.resolve("json/sample_1.json");
     private static final Path sample1Bal = RES_DIR.resolve("ballerina/sample_1.bal");
@@ -230,7 +231,8 @@ public class JsonToRecordConverterTests {
     }
 
     @Test(description = "Test with sample json objects for fields", dataProvider = "samples")
-    public void testFieldForSamples(Path json, Path bal) throws JsonToRecordConverterException, IOException, FormatterException {
+    public void testFieldForSamples(Path json, Path bal) throws JsonToRecordConverterException, IOException,
+            FormatterException {
         String jsonFileContent = Files.readString(json);
         String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent, "Person", true, false, false)
                 .getCodeBlock().replaceAll("\\s+", "");
