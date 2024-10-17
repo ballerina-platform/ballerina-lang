@@ -59,8 +59,7 @@ public final class CreateElement {
         } else {
             xmlqName = ValueCreator.createXmlQName(name, prefix);
         }
-        String temp = null;
-        BXml xmlElement = XmlFactory.createXMLElement(xmlqName, temp);
+        BXml xmlElement = XmlFactory.createXMLElement(xmlqName, (String) null);
         xmlElement.setAttributes(attributes);
         xmlElement.setChildren(getChildren(children));
         return xmlElement;

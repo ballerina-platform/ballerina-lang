@@ -207,9 +207,9 @@ public class PushCommand implements BLauncherCmd {
                 Proxy proxy = settings.getProxy();
                 mvnClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
 
-                if (balaPath == null && isCustomRepository) {
+                if (balaPath == null) {
                     pushPackage(project, mvnClient);
-                } else if (isCustomRepository) {
+                } else {
                     if (!balaPath.toFile().exists()) {
                         throw new ProjectException("path provided for the bala file does not exist: " + balaPath + ".");
                     }

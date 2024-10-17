@@ -724,8 +724,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             orgName = orgNameNode.orgName();
         }
 
-        String version = null;
-
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         NodeList<IdentifierToken> names = importDeclaration.moduleName();
         Location position = getPosition(importDeclaration);
@@ -735,7 +733,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         importDcl.pos = position;
         importDcl.pkgNameComps = pkgNameComps;
         importDcl.orgName = this.createIdentifier(getPosition(orgNameNode), orgName);
-        importDcl.version = this.createIdentifier(null, version);
+        importDcl.version = this.createIdentifier(null, (String) null);
 
         if (prefixNode.isEmpty()) {
             importDcl.alias = pkgNameComps.get(pkgNameComps.size() - 1);

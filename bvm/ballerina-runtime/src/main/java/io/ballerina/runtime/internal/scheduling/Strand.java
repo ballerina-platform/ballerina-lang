@@ -500,8 +500,7 @@ public class Strand {
             strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
             return;
         }
-        if (!this.isYielded() || noPickedYieldStatus) {
-            // if frames have got empty, noPickedYieldStatus is true, then the state has changed to runnable
+        if (!this.isYielded()) {
             strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
             return;
         }

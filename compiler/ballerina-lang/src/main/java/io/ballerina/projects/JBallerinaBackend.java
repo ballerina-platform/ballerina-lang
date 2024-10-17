@@ -215,10 +215,10 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     public EmitResult emit(OutputType outputType, Path filePath) {
-        Path generatedArtifact = null;
+        Path generatedArtifact;
 
         if (diagnosticResult.hasErrors()) {
-            return new EmitResult(false, new DefaultDiagnosticResult(new ArrayList<>()), generatedArtifact);
+            return new EmitResult(false, new DefaultDiagnosticResult(new ArrayList<>()), null);
         }
 
         List<Diagnostic> emitResultDiagnostics = new ArrayList<>();

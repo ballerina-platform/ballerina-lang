@@ -252,40 +252,38 @@ public class RunNativeImageTestTask implements Task {
             //Write the testsuite to the disk
             TestUtils.writeToTestSuiteJson(testSuiteMap, testsCachePath);
 
-            if (hasTests) {
-                int testResult = 1;
-                try {
-                    String warnings = GraalVMCompatibilityUtils.getAllWarnings(
-                            project.currentPackage(), jBallerinaBackend.targetPlatform().code(), true);
-                    if (!warnings.isEmpty()) {
-                        out.println(warnings);
-                    }
-                    testResult = runTestSuiteWithNativeImage(project.currentPackage(), target, testSuiteMap);
-                    if (testResult != 0) {
-                        accumulatedTestResult = testResult;
-                    }
-                    if (report) {
-                        for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
-                            String moduleName = testSuiteEntry.getKey();
-                            ModuleStatus moduleStatus = TestUtils.loadModuleStatusFromFile(
-                                    testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
-                            if (moduleStatus == null) {
-                                continue;
-                            }
-
-                            if (!moduleName.equals(project.currentPackage().packageName().toString())) {
-                                moduleName = ModuleName.from(project.currentPackage().packageName(),
-                                        moduleName).toString();
-                            }
-                            testReport.addModuleStatus(moduleName, moduleStatus);
-                        }
-                    }
-                } catch (IOException e) {
-                    TestUtils.cleanTempCache(project, cachesRoot);
-                    throw createLauncherException("error occurred while running tests: ", e);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+            int testResult;
+            try {
+                String warnings = GraalVMCompatibilityUtils.getAllWarnings(
+                        project.currentPackage(), jBallerinaBackend.targetPlatform().code(), true);
+                if (!warnings.isEmpty()) {
+                    out.println(warnings);
                 }
+                testResult = runTestSuiteWithNativeImage(project.currentPackage(), target, testSuiteMap);
+                if (testResult != 0) {
+                    accumulatedTestResult = testResult;
+                }
+                if (report) {
+                    for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
+                        String moduleName = testSuiteEntry.getKey();
+                        ModuleStatus moduleStatus = TestUtils.loadModuleStatusFromFile(
+                                testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
+                        if (moduleStatus == null) {
+                            continue;
+                        }
+
+                        if (!moduleName.equals(project.currentPackage().packageName().toString())) {
+                            moduleName = ModuleName.from(project.currentPackage().packageName(),
+                                    moduleName).toString();
+                        }
+                        testReport.addModuleStatus(moduleName, moduleStatus);
+                    }
+                }
+            } catch (IOException e) {
+                TestUtils.cleanTempCache(project, cachesRoot);
+                    throw createLauncherException("error occurred while running tests: ", e);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
         if (report && hasTests) {

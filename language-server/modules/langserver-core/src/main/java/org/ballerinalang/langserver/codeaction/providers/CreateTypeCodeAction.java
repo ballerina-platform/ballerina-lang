@@ -68,7 +68,7 @@ public class CreateTypeCodeAction implements DiagnosticBasedCodeActionProvider {
         Range diagRange = PathUtil.getRange(diagnostic.location());
         Optional<NonTerminalNode> node = context.currentSyntaxTree()
                 .map(syntaxTree -> CommonUtil.findNode(diagRange, syntaxTree));
-        if (node == null || node.isEmpty() || name.isEmpty()) {
+        if (node.isEmpty() || name.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -88,16 +88,11 @@ public class CreateTypeCodeAction implements DiagnosticBasedCodeActionProvider {
         // Here, we create a closed record if the unknown type is in the return type descriptor.
         // This is to be aligned with the open-by-default principle where we become conservative 
         // on what we send (return)
-        StringBuilder sb = new StringBuilder();
-        sb.append("type ").append(name.get())
-                .append(" record {").append(isReturnType ? "|" : "")
-                .append(CommonUtil.LINE_SEPARATOR);
-        sb.append(paddingStr).append(CommonUtil.LINE_SEPARATOR);
-        sb.append(isReturnType ? "|" : "").append("};").append(CommonUtil.LINE_SEPARATOR);
-        sb.append(CommonUtil.LINE_SEPARATOR);
+        String closedRecord = "type %s record {%s%n%s%n%s};%n%n"
+                .formatted(name.get(), isReturnType ? "|" : "", paddingStr, isReturnType ? "|" : "");
 
         String title = String.format("Create record '%s'", name.get());
-        CodeAction codeAction = CodeActionUtil.createCodeAction(title, List.of(new TextEdit(range, sb.toString())),
+        CodeAction codeAction = CodeActionUtil.createCodeAction(title, List.of(new TextEdit(range, closedRecord)),
                 context.fileUri(), CodeActionKind.QuickFix);
         return List.of(codeAction);
     }

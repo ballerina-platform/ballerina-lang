@@ -1366,7 +1366,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
         } else if (node.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
             BLangRecordLiteral.BLangRecordKeyValueField field = (BLangRecordLiteral.BLangRecordKeyValueField) node;
-            result = 31 * result + hash(field.key.expr) + hash(field.valueExpr);
+            result = hash(field.key.expr) + hash(field.valueExpr);
         } else if (node.getKind() == NodeKind.ARRAY_LITERAL_EXPR) {
             BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
                     (BLangListConstructorExpr.BLangArrayLiteral) node;
@@ -1378,25 +1378,25 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             result = Objects.hash(literal.value);
         } else if (node.getKind() == NodeKind.XML_TEXT_LITERAL) {
             BLangXMLTextLiteral literal = (BLangXMLTextLiteral) node;
-            result = 31 * result + hash(literal.concatExpr);
+            result = hash(literal.concatExpr);
             for (BLangExpression expr : literal.textFragments) {
                 result = result * 31 + hash(expr);
             }
         } else if (node.getKind() == NodeKind.XML_ATTRIBUTE) {
             BLangXMLAttribute attribute = (BLangXMLAttribute) node;
-            result = 31 * result + hash(attribute.name) + hash(attribute.value);
+            result = hash(attribute.name) + hash(attribute.value);
         } else if (node.getKind() == NodeKind.XML_QNAME) {
             BLangXMLQName xmlqName = (BLangXMLQName) node;
-            result = 31 * result + hash(xmlqName.localname) + hash(xmlqName.prefix);
+            result = hash(xmlqName.localname) + hash(xmlqName.prefix);
         } else if (node.getKind() == NodeKind.XML_COMMENT_LITERAL) {
             BLangXMLCommentLiteral literal = (BLangXMLCommentLiteral) node;
-            result = 31 * result + hash(literal.concatExpr);
+            result = hash(literal.concatExpr);
             for (BLangExpression expr : literal.textFragments) {
                 result = result * 31 + hash(expr);
             }
         } else if (node.getKind() == NodeKind.XML_ELEMENT_LITERAL) {
             BLangXMLElementLiteral literal = (BLangXMLElementLiteral) node;
-            result = 31 * result + hash(literal.startTagName) + hash(literal.endTagName);
+            result = hash(literal.startTagName) + hash(literal.endTagName);
             for (BLangExpression expr : literal.attributes) {
                 result = 31 * result + hash(expr);
             }
@@ -1405,16 +1405,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
         } else if (node.getKind() == NodeKind.XML_QUOTED_STRING) {
             BLangXMLQuotedString literal = (BLangXMLQuotedString) node;
-            result = 31 * result + hash(literal.concatExpr);
+            result = hash(literal.concatExpr);
             for (BLangExpression expr : literal.textFragments) {
                 result = result * 31 + hash(expr);
             }
         } else if (node.getKind() == NodeKind.XMLNS) {
             BLangXMLNS xmlns = (BLangXMLNS) node;
-            result = result * 31 + hash(xmlns.prefix) + hash(xmlns.namespaceURI);
+            result = hash(xmlns.prefix) + hash(xmlns.namespaceURI);
         } else if (node.getKind() == NodeKind.XML_PI_LITERAL) {
             BLangXMLProcInsLiteral literal = (BLangXMLProcInsLiteral) node;
-            result = 31 * result + hash(literal.target) + hash(literal.dataConcatExpr);
+            result = hash(literal.target) + hash(literal.dataConcatExpr);
             for (BLangExpression expr : literal.dataFragments) {
                 result = result * 31 + hash(expr);
             }
@@ -1447,25 +1447,24 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
         } else if (node.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
             BLangTypeConversionExpr typeConversionExpr = (BLangTypeConversionExpr) node;
-            result = 31 * result + hash(typeConversionExpr.expr);
+            result = hash(typeConversionExpr.expr);
         } else if (node.getKind() == NodeKind.BINARY_EXPR) {
             BLangBinaryExpr binaryExpr = (BLangBinaryExpr) node;
-            result = 31 * result + hash(binaryExpr.lhsExpr) + hash(binaryExpr.rhsExpr);
+            result = hash(binaryExpr.lhsExpr) + hash(binaryExpr.rhsExpr);
         } else if (node.getKind() == NodeKind.UNARY_EXPR) {
             BLangUnaryExpr unaryExpr = (BLangUnaryExpr) node;
-            result = 31 * result + hash(unaryExpr.expr);
+            result = hash(unaryExpr.expr);
         } else if (node.getKind() == NodeKind.TYPE_TEST_EXPR) {
             BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) node;
-            result = 31 * result + hash(typeTestExpr.expr);
+            result = hash(typeTestExpr.expr);
         } else if (node.getKind() == NodeKind.TERNARY_EXPR) {
             BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) node;
-            result = 31 * result + hash(ternaryExpr.expr) + hash(ternaryExpr.thenExpr) + hash(ternaryExpr.elseExpr);
+            result = hash(ternaryExpr.expr) + hash(ternaryExpr.thenExpr) + hash(ternaryExpr.elseExpr);
         } else if (node.getKind() == NodeKind.GROUP_EXPR) {
             BLangGroupExpr groupExpr = (BLangGroupExpr) node;
-            result = 31 * result + hash(groupExpr.expression);
+            result = hash(groupExpr.expression);
         } else if (node.getKind() == NodeKind.REG_EXP_TEMPLATE_LITERAL) {
-            result = 31 * result +
-                    generateHashForRegExp(((BLangRegExpTemplateLiteral) node).reDisjunction.sequenceList);
+            result = generateHashForRegExp(((BLangRegExpTemplateLiteral) node).reDisjunction.sequenceList);
         } else {
             dlog.error(((BLangExpression) node).pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }
@@ -1707,10 +1706,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             if (symbol != symTable.notFoundSymbol) {
                 addDependency(invokableOwnerSymbol, symbol);
             }
-        } else if (symbol != null && symbol.kind == SymbolKind.FUNCTION) {
+        } else if (symbol.kind == SymbolKind.FUNCTION) {
             BInvokableSymbol invokableProviderSymbol = (BInvokableSymbol) symbol;
             BSymbol curDependent = this.currDependentSymbolDeque.peek();
-            if (curDependent != null && isGlobalVarSymbol(curDependent)) {
+            if (isGlobalVarSymbol(curDependent)) {
                 addDependency(curDependent, invokableProviderSymbol);
             }
         }

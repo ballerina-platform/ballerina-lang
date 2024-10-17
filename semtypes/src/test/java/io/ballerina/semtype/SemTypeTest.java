@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
  */
 public class SemTypeTest {
 
+    @SuppressWarnings("ConstantValue")
     @Test
     public void testSemType() {
         SemTypeMock s1 = new UniformTypeBitSetMock(0x00);
