@@ -37,6 +37,7 @@ import okio.Sink;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -114,9 +115,9 @@ public final class Utils {
      * @param logFormatter         log formatter
      */
     public static void createBalaInHomeRepo(Response balaDownloadResponse, Path pkgPathInBalaCache, String pkgOrg,
-            String pkgName, boolean isNightlyBuild, String deprecationMsg,
-            String newUrl, String contentDisposition, PrintStream outStream,
-            LogFormatter logFormatter, String trueDigest)
+                                            String pkgName, boolean isNightlyBuild, @Nullable String deprecationMsg,
+                                            String newUrl, String contentDisposition, @Nullable PrintStream outStream,
+                                            LogFormatter logFormatter, String trueDigest)
             throws CentralClientException {
 
         long responseContentLength = 0;
@@ -443,7 +444,7 @@ public final class Utils {
     }
 
     private static void extractBala(Path balaFilePath, Path balaFileDestPath, String trueDigest, String packageName,
-            PrintStream outStream)
+                                    @Nullable PrintStream outStream)
             throws IOException, CentralClientException {
         Files.createDirectories(balaFileDestPath);
         URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());

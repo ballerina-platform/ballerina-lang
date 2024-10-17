@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 
 /**
@@ -294,17 +296,17 @@ public class BuildOptions {
             return this;
         }
 
-        public BuildOptionsBuilder setTestReport(Boolean value) {
+        public BuildOptionsBuilder setTestReport(@Nullable Boolean value) {
             testReport = value;
             return this;
         }
 
-        public BuildOptionsBuilder setCodeCoverage(Boolean value) {
+        public BuildOptionsBuilder setCodeCoverage(@Nullable Boolean value) {
             codeCoverage = value;
             return this;
         }
 
-        public BuildOptionsBuilder setDumpBuildTime(Boolean value) {
+        public BuildOptionsBuilder setDumpBuildTime(@Nullable Boolean value) {
             dumpBuildTime = value;
             return this;
         }
@@ -319,17 +321,17 @@ public class BuildOptions {
             return this;
         }
 
-        public BuildOptionsBuilder setListConflictedClasses(Boolean value) {
+        public BuildOptionsBuilder setListConflictedClasses(@Nullable Boolean value) {
             compilationOptionsBuilder.setListConflictedClasses(value);
             return this;
         }
 
-        public BuildOptionsBuilder setOffline(Boolean value) {
+        public BuildOptionsBuilder setOffline(@Nullable Boolean value) {
             compilationOptionsBuilder.setOffline(value);
             return this;
         }
 
-        public BuildOptionsBuilder setGraalVMBuildOptions(String value) {
+        public BuildOptionsBuilder setGraalVMBuildOptions(@Nullable String value) {
             graalVMBuildOptions = value;
             return this;
         }
@@ -345,12 +347,12 @@ public class BuildOptions {
             return this;
         }
 
-        public BuildOptionsBuilder setObservabilityIncluded(Boolean value) {
+        public BuildOptionsBuilder setObservabilityIncluded(@Nullable Boolean value) {
             compilationOptionsBuilder.setObservabilityIncluded(value);
             return this;
         }
 
-        public BuildOptionsBuilder setCloud(String value) {
+        public BuildOptionsBuilder setCloud(@Nullable String value) {
             compilationOptionsBuilder.setCloud(value);
             return this;
         }
@@ -390,29 +392,29 @@ public class BuildOptions {
             return this;
         }
 
-        public BuildOptionsBuilder setExportComponentModel(Boolean value) {
+        public BuildOptionsBuilder setExportComponentModel(@Nullable Boolean value) {
             compilationOptionsBuilder.setExportComponentModel(value);
             exportComponentModel = value;
             return this;
         }
 
-        public BuildOptionsBuilder setEnableCache(Boolean value) {
+        public BuildOptionsBuilder setEnableCache(@Nullable Boolean value) {
             compilationOptionsBuilder.setEnableCache(value);
             enableCache = value;
             return this;
         }
 
-        public BuildOptionsBuilder setNativeImage(Boolean value) {
+        public BuildOptionsBuilder setNativeImage(@Nullable Boolean value) {
             nativeImage = value;
             return this;
         }
 
-        public BuildOptionsBuilder setRemoteManagement(Boolean value) {
+        public BuildOptionsBuilder setRemoteManagement(@Nullable Boolean value) {
             compilationOptionsBuilder.setRemoteManagement(value);
             return this;
         }
 
-        public BuildOptionsBuilder setShowDependencyDiagnostics(Boolean value) {
+        public BuildOptionsBuilder setShowDependencyDiagnostics(@Nullable Boolean value) {
             showDependencyDiagnostics = value;
             return this;
         }
@@ -423,7 +425,7 @@ public class BuildOptions {
          * @param value true or false (default)  
          * @return BuildOptionsBuilder instance
          */
-        public BuildOptionsBuilder setOptimizeDependencyCompilation(Boolean value) {
+        public BuildOptionsBuilder setOptimizeDependencyCompilation(@Nullable Boolean value) {
             compilationOptionsBuilder.setOptimizeDependencyCompilation(value);
             return this;
         }

@@ -47,6 +47,7 @@ import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.eclipse.aether.util.graph.visitor.TreeDependencyVisitor;
 import org.eclipse.aether.util.repository.AuthenticationBuilder;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -107,7 +108,7 @@ public class MavenResolver {
      * @param username username which has authentication access
      * @param password password which has authentication access
      */
-    public void addRepository(String id, String url, String username, String password) {
+    public void addRepository(String id, String url, @Nullable String username, String password) {
         Authentication authentication =
                 new AuthenticationBuilder()
                         .addUsername(username)

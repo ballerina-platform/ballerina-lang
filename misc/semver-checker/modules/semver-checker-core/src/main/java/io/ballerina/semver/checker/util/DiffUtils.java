@@ -35,6 +35,7 @@ import io.ballerina.semver.checker.diff.PackageDiff;
 import io.ballerina.semver.checker.diff.SemverImpact;
 import io.ballerina.semver.checker.diff.ServiceDiff;
 import io.ballerina.semver.checker.diff.TypeDefinitionDiff;
+import org.jetbrains.annotations.Nullable;
 
 import static io.ballerina.semver.checker.util.SemverUtils.calculateSuggestedVersion;
 
@@ -65,7 +66,7 @@ public final class DiffUtils {
      * @param previousVersion last published package version
      * @return the suggested version in string format
      */
-    public static String getDiffSummary(PackageDiff packageDiff, SemanticVersion localVersion,
+    public static String getDiffSummary(@Nullable PackageDiff packageDiff, SemanticVersion localVersion,
                                         SemanticVersion previousVersion) {
         StringBuilder sb = new StringBuilder();
         if (packageDiff == null) {
@@ -92,7 +93,7 @@ public final class DiffUtils {
      * @param previousVersion last published package version
      * @return the suggested version in string format
      */
-    public static String getVersionSuggestion(PackageDiff packageDiff, SemanticVersion localVersion,
+    public static String getVersionSuggestion(@Nullable PackageDiff packageDiff, SemanticVersion localVersion,
                                               SemanticVersion previousVersion) {
         StringBuilder sb = new StringBuilder();
         sb.append(System.lineSeparator());

@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -99,9 +100,12 @@ public class EnumMemberNode extends NonTerminalNode {
      */
     public static class EnumMemberNodeModifier {
         private final EnumMemberNode oldNode;
+        @Nullable
         private MetadataNode metadata;
         private IdentifierToken identifier;
+        @Nullable
         private Token equalToken;
+        @Nullable
         private ExpressionNode constExprNode;
 
         public EnumMemberNodeModifier(EnumMemberNode oldNode) {

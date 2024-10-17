@@ -19,6 +19,8 @@
 package io.ballerina.identifier;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -109,6 +111,7 @@ public final class Utils {
         return new Identifier(sb.toString(), isEncoded);
     }
 
+    @Nullable
     private static String getFormattedStringForQuotedIdentifiers(char c) {
         if (c == '$') {
             return "0036";
@@ -116,6 +119,7 @@ public final class Utils {
         return getFormattedStringForJvmReservedSet(c);
     }
 
+    @Nullable
     private static String getFormattedStringForJvmReservedSet(char c) {
         return switch (c) {
             case '\\' -> "0092";
@@ -137,9 +141,10 @@ public final class Utils {
      * @param encodedIdentifier encoded identifier string
      * @return decoded identifier
      */
+    @Contract("null -> null; !null -> !null")
     public static String decodeIdentifier(String encodedIdentifier) {
         if (encodedIdentifier == null) {
-            return encodedIdentifier;
+            return null;
         }
         StringBuilder sb = new StringBuilder();
         int index = 0;

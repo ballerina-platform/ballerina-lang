@@ -23,6 +23,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
 import java.util.Collections;
@@ -42,7 +43,7 @@ public class JsonToRecordMapperDiagnostic extends Diagnostic {
     private final String severity;
 
     public JsonToRecordMapperDiagnostic(String code, String message, DiagnosticSeverity severity,
-                                        Location location, Object[] args) {
+                                        @Nullable Location location, Object[] args) {
         this.diagnosticInfo = new DiagnosticInfo(code, message, severity);
         this.location = location;
         this.properties = Collections.emptyList();

@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.test.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Map;
 
 /**
@@ -28,7 +30,7 @@ public class HttpResponse {
     private String responseMessage;
     private Map<String, String> headers;
 
-    public HttpResponse(String data, int responseCode) {
+    public HttpResponse(@Nullable String data, int responseCode) {
         this.data = data;
         this.responseCode = responseCode;
     }

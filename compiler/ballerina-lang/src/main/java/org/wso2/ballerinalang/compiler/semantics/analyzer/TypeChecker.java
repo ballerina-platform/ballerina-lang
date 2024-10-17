@@ -38,6 +38,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
@@ -1620,8 +1621,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return true;
     }
 
+    @Nullable
     private BLangExpression getRecordKeyValueField(BLangRecordLiteral recordLiteral,
-                                                            String fieldName) {
+                                                   String fieldName) {
         for (RecordLiteralNode.RecordField recordField : recordLiteral.fields) {
             if (recordField.isKeyValueField()) {
                 BLangRecordLiteral.BLangRecordKeyValueField recordKeyValueField =
@@ -2295,7 +2297,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return symTable.readonlyType;
     }
 
-    private boolean exprIncompatible(BType eType, BLangExpression expr, AnalyzerData data) {
+    private boolean exprIncompatible(@Nullable BType eType, BLangExpression expr, AnalyzerData data) {
         if (expr.typeChecked) {
             return expr.getBType() == symTable.semanticError;
         }
@@ -2854,7 +2856,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return fieldNames;
     }
 
-    String getKeyValueFieldName(BLangRecordKeyValueField field) {
+    @Nullable String getKeyValueFieldName(BLangRecordKeyValueField field) {
         BLangRecordKey key = field.key;
         if (key.computedKey) {
             return null;
@@ -3502,7 +3504,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
      * enclosing invokable node) which is needed to lookup closure variables. The variable lookup will start from the
      * enclosing invokable node's environment, which are outside of the scope of a lambda function.
      */
-    private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangInvokableNode encInvokable) {
+    private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, @Nullable BLangInvokableNode encInvokable) {
         if (env.enclEnv.node == null) {
             return env;
         }
@@ -5505,6 +5507,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = types.checkType(commitExpr, actualType, data.expType);
     }
 
+    @Nullable
     private BType getXMLConstituents(BType bType) {
         BType type = Types.getImpliedType(bType);
         BType constituent = null;
@@ -5991,6 +5994,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         bLangXMLQName.namespaceURI = bLangXMLQName.nsSymbol.namespaceURI;
     }
 
+    @Nullable
     private BConstantSymbol getSymbolOfXmlQualifiedName(String localname, String prefix, BPackageSymbol pkgSymbol,
                                                         Location pos, AnalyzerData data) {
         BSymbol constSymbol =
@@ -6926,7 +6930,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private boolean searchClosureVariableInExpressions(BSymbol symbol, Location pos, SymbolEnv env,
-                                                       BLangInvokableNode encInvokable, BLangNode bLangNode) {
+                                                       @Nullable BLangInvokableNode encInvokable, BLangNode bLangNode) {
         if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
                 && !isInParameterList(symbol, encInvokable.requiredParams)) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
@@ -6951,8 +6955,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return false;
     }
 
-    private void updateObjectCtorClosureSymbols(Location pos, BLangFunction currentFunction, BSymbol resolvedSymbol,
-                                                BLangClassDefinition classDef, AnalyzerData data) {
+    private void updateObjectCtorClosureSymbols(
+            Location pos, @Nullable BLangFunction currentFunction, BSymbol resolvedSymbol,
+            BLangClassDefinition classDef, AnalyzerData data) {
         classDef.hasClosureVars = true;
         resolvedSymbol.closure = true;
         if (currentFunction != null) {
@@ -7199,6 +7204,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = types.checkType(iExpr, actualType, data.expType);
     }
 
+    @Nullable
     private BVarSymbol incRecordParamAllowAdditionalFields(List<BVarSymbol> openIncRecordParams,
                                                            Set<String> requiredParamNames) {
         if (openIncRecordParams.size() != 1) {
@@ -7214,6 +7220,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return openIncRecordParams.get(0);
     }
 
+    @Nullable
     private BVarSymbol checkForIncRecordParamAllowAdditionalFields(BInvokableSymbol invokableSymbol,
                                                                    List<BVarSymbol> incRecordParams) {
         Set<String> requiredParamNames = new HashSet<>();
@@ -7337,13 +7344,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                     incRecordParamAllowAdditionalFields, data);
     }
 
-    private boolean isNamedArgForIncRecordParam(String namedArgName, BVarSymbol incRecordParam) {
+    private boolean isNamedArgForIncRecordParam(String namedArgName, @Nullable BVarSymbol incRecordParam) {
         return incRecordParam != null && namedArgName.equals(incRecordParam.name.value);
     }
 
-    private BType checkInvocationArgs(BLangInvocation iExpr, List<BType> paramTypes, BLangExpression vararg,
+    private BType checkInvocationArgs(BLangInvocation iExpr, List<BType> paramTypes, @Nullable BLangExpression vararg,
                                       List<BVarSymbol> incRecordParams,
-                                      BVarSymbol incRecordParamAllowAdditionalFields, AnalyzerData data) {
+                                      @Nullable BVarSymbol incRecordParamAllowAdditionalFields, AnalyzerData data) {
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) iExpr.symbol;
         BInvokableType bInvokableType = (BInvokableType) Types.getImpliedType(invokableSymbol.type);
         BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
@@ -7720,6 +7727,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
+    @Nullable
     private BVarSymbol checkParameterNameForDefaultArgument(BLangIdentifier argName, BLangExpression expr,
                                                             List<BVarSymbol> nonRestParams,
                                                             List<BVarSymbol> incRecordParams,
@@ -9545,7 +9553,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return recordType;
     }
 
-    private BRecordTypeSymbol createRecordTypeSymbol(PackageID pkgID, Location location,
+    private BRecordTypeSymbol createRecordTypeSymbol(PackageID pkgID, @Nullable Location location,
                                                      SymbolOrigin origin, AnalyzerData data) {
         SymbolEnv env = data.env;
         BRecordTypeSymbol recordSymbol =
@@ -9878,7 +9886,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         private final BVarSymbol fieldSymbol;
         private final BType determinedType;
 
-        public TypeSymbolPair(BVarSymbol fieldSymbol, BType determinedType) {
+        public TypeSymbolPair(@Nullable BVarSymbol fieldSymbol, BType determinedType) {
             this.fieldSymbol = fieldSymbol;
             this.determinedType = determinedType;
         }

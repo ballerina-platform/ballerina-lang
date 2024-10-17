@@ -21,6 +21,7 @@ import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.tools.diagnostics.Location;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -50,7 +51,7 @@ public class ModuleLoadRequest {
         this.locations = Collections.emptySet();
     }
 
-    public ModuleLoadRequest(PackageOrg orgName,
+    public ModuleLoadRequest(@Nullable PackageOrg orgName,
                              String moduleName,
                              PackageDependencyScope scope,
                              DependencyResolutionType dependencyResolvedType,
@@ -62,7 +63,7 @@ public class ModuleLoadRequest {
         this.locations = Collections.singleton(location);
     }
 
-    public ModuleLoadRequest(PackageOrg orgName,
+    public ModuleLoadRequest(@Nullable PackageOrg orgName,
                              String moduleName,
                              PackageDependencyScope scope,
                              DependencyResolutionType dependencyResolvedType,

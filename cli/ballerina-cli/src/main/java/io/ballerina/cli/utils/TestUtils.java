@@ -47,6 +47,7 @@ import org.jacoco.core.analysis.IClassCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.data.ExecutionData;
 import org.jacoco.core.data.SessionInfo;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -242,6 +243,7 @@ public final class TestUtils {
      * @return ModuleStatus object
      * @throws IOException if file does not exist
      */
+    @Nullable
     public static ModuleStatus loadModuleStatusFromFile(Path statusJsonPath) throws IOException {
         File statusJsonFile = new File(statusJsonPath.toUri());
         if (!statusJsonFile.isFile()) {
@@ -300,6 +302,9 @@ public final class TestUtils {
         for (ModuleDescriptor moduleDescriptor :
                 project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
             Module module = project.currentPackage().module(moduleDescriptor.name());
+            if (module == null) {
+                throw new IllegalStateException("Module is not found in the package: " + moduleDescriptor.name());
+            }
             ModuleName moduleName = module.moduleName();
 
             TestSuite suite = testProcessor.testSuite(module).orElse(null);
@@ -378,7 +383,7 @@ public final class TestUtils {
      * @param userDir       User directory for the out of memory heap dump
      * @return              List of command arguments to be used
      */
-    public static List<String> getInitialCmdArgs(String javaCommand, String userDir) {
+    public static List<String> getInitialCmdArgs(@Nullable String javaCommand, @Nullable String userDir) {
         List<String> cmdArgs = new ArrayList<>();
 
         if (javaCommand == null) {

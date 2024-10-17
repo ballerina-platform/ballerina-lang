@@ -72,6 +72,7 @@ import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
 import io.ballerina.shell.snippet.types.ModuleMemberDeclarationSnippet;
 import io.ballerina.shell.snippet.types.StatementSnippet;
 import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,6 +125,7 @@ public class BasicSnippetFactory extends SnippetFactory {
             Map.entry(DoStatementNode.class, SnippetSubKind.DO_STATEMENT)
     );
 
+    @Nullable
     @Override
     public ImportDeclarationSnippet createImportSnippet(Node node) {
         if (node instanceof ImportDeclarationNode importDeclarationNode) {
@@ -132,6 +134,7 @@ public class BasicSnippetFactory extends SnippetFactory {
         return null;
     }
 
+    @Nullable
     @Override
     public List<VariableDeclarationSnippet> createVariableDeclarationSnippets(Node node) {
         ModuleVariableDeclarationNode dclnNode;
@@ -221,6 +224,7 @@ public class BasicSnippetFactory extends SnippetFactory {
         return snippets;
     }
 
+    @Nullable
     @Override
     public ModuleMemberDeclarationSnippet createModuleMemberDeclarationSnippet(Node node)
             throws SnippetException {
@@ -241,6 +245,7 @@ public class BasicSnippetFactory extends SnippetFactory {
         return null;
     }
 
+    @Nullable
     @Override
     public StatementSnippet createStatementSnippet(Node node) throws SnippetException {
         if (node instanceof StatementNode) {
@@ -260,6 +265,7 @@ public class BasicSnippetFactory extends SnippetFactory {
         return null;
     }
 
+    @Nullable
     @Override
     public ExpressionSnippet createExpressionSnippet(Node node) {
         if (node instanceof ExpressionNode expressionNode) {

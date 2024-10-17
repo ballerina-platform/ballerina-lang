@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -125,6 +126,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
      */
     public static class FunctionDefinitionNodeModifier {
         private final FunctionDefinitionNode oldNode;
+        @Nullable
         private MetadataNode metadata;
         private NodeList<Token> qualifierList;
         private Token functionKeyword;
@@ -145,7 +147,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         }
 
         public FunctionDefinitionNodeModifier withMetadata(
-                MetadataNode metadata) {
+                @Nullable MetadataNode metadata) {
             this.metadata = metadata;
             return this;
         }

@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -200,6 +201,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
     private static final CompilerContext.Key<ConstantPropagation> CONSTANT_PROPAGATION_KEY =
             new CompilerContext.Key<>();
 
+    @Nullable
     private BLangNode result;
     private final Types types;
 
@@ -1274,6 +1276,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
         result = reFlagExpression;
     }
 
+    @Nullable
     @SuppressWarnings("unchecked")
     <E extends BLangNode> E rewrite(E node) {
         if (node == null) {

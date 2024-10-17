@@ -18,6 +18,8 @@
 
 package io.ballerina.shell;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Shell Compilation class.
  * Contains package compilation &amp; exception status related to compilation
@@ -29,7 +31,7 @@ public class ShellReturnValue {
     private final String result;
     private final Enum<ExceptionStatus> exceptionStatus;
 
-    ShellReturnValue(String result, Enum<ExceptionStatus> exceptionStatus) {
+    ShellReturnValue(@Nullable String result, Enum<ExceptionStatus> exceptionStatus) {
         this.result = result;
         this.exceptionStatus = exceptionStatus;
     }
@@ -39,6 +41,7 @@ public class ShellReturnValue {
         this.exceptionStatus = exceptionStatus;
     }
 
+    @Nullable
     public String getResult() {
         return result;
     }

@@ -29,6 +29,7 @@ import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.FormatterUtils;
 import org.ballerinalang.formatter.core.options.FormattingOptions;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -61,8 +62,8 @@ final class FormatUtil {
      * @param dryRun         run the whole formatting
      * @param sourceRootPath execution path
      */
-    static void execute(List<String> argList, boolean helpFlag, String moduleName, String fileName, boolean dryRun,
-                        Path sourceRootPath) {
+    static void execute(@Nullable List<String> argList, boolean helpFlag, @Nullable String moduleName,
+                        @Nullable String fileName, boolean dryRun, @Nullable Path sourceRootPath) {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(CMD_NAME);
             outStream.println(commandUsageInfo);
@@ -350,6 +351,7 @@ final class FormatUtil {
      * @param moduleNamePart module name part
      * @return {@link Boolean} true or false
      */
+    @Nullable
     private static ModuleId isModuleExist(BuildProject project, String moduleNamePart) {
         ModuleName moduleName = ModuleName.from(project.currentPackage().packageName(), moduleNamePart);
         for (Module module : project.currentPackage().modules()) {

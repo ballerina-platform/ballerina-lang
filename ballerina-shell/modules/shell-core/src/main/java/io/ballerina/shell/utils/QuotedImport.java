@@ -18,6 +18,8 @@
 
 package io.ballerina.shell.utils;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -31,7 +33,7 @@ public class QuotedImport {
     private final String orgName;
     private final List<Identifier> moduleNames;
 
-    public QuotedImport(String orgName, List<String> moduleNames) {
+    public QuotedImport(@Nullable String orgName, List<String> moduleNames) {
         this.orgName = orgName;
         this.moduleNames = moduleNames.stream()
                 .map(Identifier::new)

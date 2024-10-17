@@ -22,6 +22,7 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.scheduling.WorkerDataChannel;
 import io.ballerina.runtime.internal.values.ChannelDetails;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -50,6 +51,7 @@ public final class WorkerChannels {
         }
     }
 
+    @Nullable
     private static String getMatchingChannelName(String channelId, Strand currentStrand) {
         String channelName = null;
         for (ChannelDetails channelDetail : currentStrand.channelDetails) {

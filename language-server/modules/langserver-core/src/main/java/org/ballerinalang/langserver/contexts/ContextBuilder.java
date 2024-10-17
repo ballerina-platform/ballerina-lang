@@ -46,6 +46,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -68,7 +69,8 @@ public final class ContextBuilder {
      * @param serverContext    language server context
      * @return {@link DocumentServiceContext} base context generated
      */
-    public static DocumentServiceContext buildDocumentServiceContext(String uri, WorkspaceManager workspaceManager,
+    public static DocumentServiceContext buildDocumentServiceContext(@Nullable String uri,
+                                                                     WorkspaceManager workspaceManager,
                                                                      LSContextOperation operation,
                                                                      LanguageServerContext serverContext) {
         return new BaseContextImpl.BaseContextBuilder(operation, serverContext)

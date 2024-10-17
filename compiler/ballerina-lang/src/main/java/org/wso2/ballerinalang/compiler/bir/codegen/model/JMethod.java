@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 import io.ballerina.runtime.api.Environment;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.exceptions.JInteropException;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -48,14 +49,14 @@ public class JMethod {
     public boolean hasBundledPathParams = false;
     public boolean hasBundledFunctionParams = false;
 
-    private JMethod(JMethodKind kind, Executable executable, BType receiverType) {
+    private JMethod(@Nullable JMethodKind kind, @Nullable Executable executable, @Nullable BType receiverType) {
 
         this.kind = kind;
         this.method = executable;
         this.receiverType = receiverType;
     }
 
-    public static JMethod build(JMethodKind kind, Executable executable, BType receiverType) {
+    public static JMethod build(JMethodKind kind, Executable executable, @Nullable BType receiverType) {
 
         return new JMethod(kind, executable, receiverType);
     }

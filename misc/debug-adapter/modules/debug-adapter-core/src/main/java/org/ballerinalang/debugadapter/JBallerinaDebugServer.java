@@ -101,6 +101,7 @@ import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,9 +142,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private ClientConfigHolder clientConfigHolder;
     private DebugExecutionManager executionManager;
     private JDIEventProcessor eventProcessor;
+    @Nullable
     private DebugExpressionEvaluator evaluator;
     private final ExecutionContext context;
+    @Nullable
     private ThreadReferenceProxyImpl activeThread;
+    @Nullable
     private SuspendedContext suspendedContext;
     private DebugOutputLogger outputLogger;
 
@@ -336,7 +340,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
         try {
-            activeThread = getAllThreads().get(args.getThreadId());
+            ThreadReferenceProxyImpl activeThread = getAllThreads().get(args.getThreadId());
             if (loadedThreadFrames.containsKey(activeThread.uniqueID())) {
                 stackTraceResponse.setStackFrames(loadedThreadFrames.get(activeThread.uniqueID()));
             } else {
@@ -347,6 +351,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 stackTraceResponse.setStackFrames(validFrames);
                 loadedThreadFrames.put(activeThread.uniqueID(), validFrames);
             }
+            this.activeThread = activeThread;
             return CompletableFuture.completedFuture(stackTraceResponse);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -746,6 +751,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         variableToStackFrameMap.put(child, parentRef);
     }
 
+    @Nullable
     public StackFrame toDapStackFrame(StackFrameProxyImpl stackFrameProxy) {
         try {
             if (!isBalStackFrame(stackFrameProxy.getStackFrame())) {
@@ -793,7 +799,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private Variable[] computeStackFrameVariables(VariablesArguments args) throws Exception {
-        StackFrameProxyImpl stackFrame = suspendedContext.getFrame();
+        StackFrameProxyImpl stackFrame = Objects.requireNonNull(suspendedContext).getFrame();
         List<Variable> variables = new ArrayList<>();
         List<LocalVariableProxyImpl> localVariableProxies = stackFrame.visibleVariables();
         for (LocalVariableProxyImpl var : localVariableProxies) {
@@ -846,6 +852,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      * @param value         runtime value of the variable
      * @param stackFrameRef reference ID of the parent stack frame
      */
+    @Nullable
     private Variable getAsDapVariable(String name, Value value, Integer stackFrameRef) {
         BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
         if (variable == null) {
@@ -938,9 +945,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      * Thread objects that have not yet been started (see {@link java.lang.Thread#start Thread.start()})
      * and thread objects that have completed their execution are not included in the returned list.
      */
-    Map<Integer, ThreadReferenceProxyImpl> getAllThreads() {
+    @Nullable Map<Integer, ThreadReferenceProxyImpl> getAllThreads() {
         if (context.getDebuggeeVM() == null) {
-            return null;
+            throw new IllegalStateException("Debuggee VM is not available");
         }
         Collection<ThreadReference> threadReferences = context.getDebuggeeVM().getVirtualMachine().allThreads();
         Map<Integer, ThreadReferenceProxyImpl> threadsMap = new HashMap<>();
@@ -957,7 +964,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     /**
      * Returns a map of thread instances which correspond to an active ballerina strand, against their unique ID.
      */
-    Map<Integer, ThreadReferenceProxyImpl> getActiveStrandThreads() {
+    @Nullable Map<Integer, ThreadReferenceProxyImpl> getActiveStrandThreads() {
         Map<Integer, ThreadReferenceProxyImpl> allThreads = getAllThreads();
         if (allThreads == null) {
             return null;

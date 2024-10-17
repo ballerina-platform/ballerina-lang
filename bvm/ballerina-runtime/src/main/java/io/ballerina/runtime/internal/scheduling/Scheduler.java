@@ -30,6 +30,7 @@ import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.FutureValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -208,9 +209,10 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return Reference to the scheduled task
      */
-    public FutureValue schedule(Object[] params, Function<Object[], ?> function, Strand parent, Callback callback,
-                                Map<String, Object> properties, Type returnType, String strandName,
-                                StrandMetadata metadata) {
+    public FutureValue schedule(
+            Object[] params, Function<Object[], ?> function, @Nullable Strand parent, @Nullable Callback callback,
+            @Nullable Map<String, Object> properties, @Nullable Type returnType, @Nullable String strandName,
+            @Nullable StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
         return schedule(params, function, future);
     }
@@ -226,8 +228,8 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return Reference to the scheduled task
      */
-    public FutureValue schedule(Object[] params, Function<Object[], ?> function, Strand parent, Callback callback,
-                                String strandName, StrandMetadata metadata) {
+    public FutureValue schedule(Object[] params, Function<Object[], ?> function, @Nullable Strand parent,
+                                Callback callback, String strandName, @Nullable StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, null, PredefinedTypes.TYPE_NULL, strandName, metadata);
         return schedule(params, function, future);
     }
@@ -350,7 +352,7 @@ public class Scheduler {
     /**
      * Processes the item after executing for notifying blocked items etc.
      */
-    private void postProcess(SchedulerItem item, Object result, Throwable panic) {
+    private void postProcess(SchedulerItem item, @Nullable Object result, @Nullable Throwable panic) {
         switch (item.getState()) {
             case BLOCK_AND_YIELD:
                 item.future.strand.lock();
@@ -507,15 +509,16 @@ public class Scheduler {
         group.unlock();
     }
 
-    public FutureValue createFuture(Strand parent, Callback callback, Map<String, Object> properties,
-                                    Type constraint, String name, StrandMetadata metadata) {
+    public FutureValue createFuture(
+            @Nullable Strand parent, @Nullable Callback callback, @Nullable Map<String, Object> properties,
+            @Nullable Type constraint, @Nullable String name, @Nullable StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties, parent != null ?
                 parent.currentTrxContext : null);
         CURRENT_STRANDS.put(newStrand.getId(), newStrand);
         return createFuture(parent, callback, constraint, newStrand);
     }
 
-    private FutureValue createFuture(Strand parent, Callback callback, Type constraint, Strand newStrand) {
+    private FutureValue createFuture(@Nullable Strand parent, Callback callback, Type constraint, Strand newStrand) {
         FutureValue future = new FutureValue(newStrand, callback, constraint);
         future.strand.frames = new Stack<>();
         return future;

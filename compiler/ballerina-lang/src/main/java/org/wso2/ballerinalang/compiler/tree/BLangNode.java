@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.Node;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
@@ -47,11 +48,13 @@ public abstract class BLangNode implements Node, Cloneable {
     /**
      * The location of this node in the source file.
      */
+    @Nullable
     public Location pos;
 
     /*
      * Following fields will be used for AST Cloning.
      */
+    @Nullable
     public BLangNode cloneRef;
     public int cloneAttempt;
 
@@ -65,7 +68,7 @@ public abstract class BLangNode implements Node, Cloneable {
      *
      * @param type The type of the node
      */
-    public void setBType(BType type) {
+    public void setBType(@Nullable BType type) {
         this.type = type;
         this.determinedType = type;
     }
@@ -79,7 +82,7 @@ public abstract class BLangNode implements Node, Cloneable {
         return this.type;
     }
 
-    public void setDeterminedType(BType type) {
+    public void setDeterminedType(@Nullable BType type) {
         this.determinedType = type;
     }
 

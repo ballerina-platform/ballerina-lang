@@ -9,6 +9,7 @@ module io.ballerina.xmltorecordconverter {
     requires javatuples;
     requires org.apache.commons.lang3;
     requires org.eclipse.lsp4j.jsonrpc;
+    requires static org.jetbrains.annotations;
 
     exports io.ballerina.xmltorecordconverter;
 }

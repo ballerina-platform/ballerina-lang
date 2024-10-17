@@ -53,6 +53,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.nio.file.Path;
@@ -243,6 +244,7 @@ public class TestProcessor {
      * @param name         String
      * @return AnnotationNode
      */
+    @Nullable
     private AnnotationNode getAnnotationNode(AnnotationSymbol annotationSymbol, Map<Document, SyntaxTree> syntaxTreeMap,
                                              String name) {
         for (Map.Entry<Document, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
@@ -414,7 +416,7 @@ public class TestProcessor {
      * @param annotationNode AnnotationNode
      * @return AtomicBoolean
      */
-    private AtomicBoolean isAlwaysRunValue(AnnotationNode annotationNode) {
+    private AtomicBoolean isAlwaysRunValue(@Nullable AnnotationNode annotationNode) {
         AtomicBoolean alwaysRun = new AtomicBoolean(false);
         if (annotationNode != null && !annotationNode.annotValue().isEmpty()) {
             Optional<MappingConstructorExpressionNode> mappingNodes = annotationNode.annotValue();
@@ -449,7 +451,7 @@ public class TestProcessor {
      * @param suite          TestSuite
      * @param isBeforeGroups boolean
      */
-    private void processGroupsAnnotation(AnnotationNode annotationNode, String functionName, TestSuite suite,
+    private void processGroupsAnnotation(@Nullable AnnotationNode annotationNode, String functionName, TestSuite suite,
                                          boolean isBeforeGroups) {
         if (annotationNode != null && !annotationNode.annotValue().isEmpty()) {
             Optional<MappingConstructorExpressionNode> mappingNodes = annotationNode.annotValue();
@@ -485,7 +487,7 @@ public class TestProcessor {
      * @param functionName   String
      * @param suite          TestSuite
      */
-    private void processTestAnnotation(AnnotationNode annotationNode, String functionName, TestSuite suite) {
+    private void processTestAnnotation(@Nullable AnnotationNode annotationNode, String functionName, TestSuite suite) {
         Test test = new Test();
         test.setTestName(functionName);
         AtomicBoolean shouldSkip = new AtomicBoolean();
@@ -599,6 +601,7 @@ public class TestProcessor {
      * @param module Module
      * @return String
      */
+    @Nullable
     private String getExecutePath(Module module) {
         String executePath = "";
         if (isSingleFileProject(module.project())) {

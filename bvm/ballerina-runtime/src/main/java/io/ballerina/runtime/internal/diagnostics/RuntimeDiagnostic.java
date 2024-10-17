@@ -23,6 +23,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -60,6 +61,7 @@ public class RuntimeDiagnostic extends Diagnostic {
         return ErrorHelper.getErrorMessage(diagnosticInfo.messageFormat(), args).getValue();
     }
 
+    @Nullable
     @Override
     public List<DiagnosticProperty<?>> properties() {
         return null;

@@ -16,6 +16,8 @@
 
 package org.ballerinalang.debugadapter.variable;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Error type definition for debugger variable implementation related exceptions.
  *
@@ -27,7 +29,7 @@ public class DebugVariableException extends Exception {
         this(message, null);
     }
 
-    public DebugVariableException(String message, Throwable cause) {
+    public DebugVariableException(String message, @Nullable Throwable cause) {
         super(message, cause);
     }
 }

@@ -30,6 +30,7 @@ import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -661,6 +662,7 @@ public class TransactionResourceManager {
         }
     }
 
+    @Nullable
     public Object getTransactionRecord(BArray xid) {
         synchronized (transactionInfoMap) {
             if (transactionInfoMap.containsKey(ByteBuffer.wrap(xid.getBytes()))) {

@@ -37,6 +37,7 @@ import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -49,6 +50,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
@@ -87,6 +89,7 @@ public class PullCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
+    @Nullable
     @CommandLine.Option(names = "--repository")
     private String repositoryName;
 
@@ -262,7 +265,7 @@ public class PullCommand implements BLauncherCmd {
     private void pullFromMavenRepo(Settings settings, String orgName, String packageName, String version) {
         Repository targetRepository = null;
         for (Repository repository : settings.getRepositories()) {
-            if (repositoryName.equals(repository.id())) {
+            if (Objects.equals(repositoryName, repository.id())) {
                 targetRepository = repository;
                 break;
             }

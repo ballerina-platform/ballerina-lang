@@ -24,6 +24,7 @@ import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,9 +47,9 @@ public class StringSchema extends PrimitiveValueSchema<String> {
     private final Integer minLength;
     private final Integer maxLength;
 
-    public StringSchema(Type type, Map<String, String> message, String pattern, String defaultValue,
-                        Integer minLength, Integer maxLength, CompositionSchema compositionSchemas,
-                        String description) {
+    public StringSchema(Type type, Map<String, String> message, @Nullable String pattern, @Nullable String defaultValue,
+                        @Nullable Integer minLength, @Nullable Integer maxLength, CompositionSchema compositionSchemas,
+                        @Nullable String description) {
         super(type, message, defaultValue, compositionSchemas, description);
         this.pattern = pattern;
         this.minLength = minLength;

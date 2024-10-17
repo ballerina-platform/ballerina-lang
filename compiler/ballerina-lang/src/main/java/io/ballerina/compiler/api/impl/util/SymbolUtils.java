@@ -31,6 +31,7 @@ import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.identifier.Utils;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -84,6 +85,7 @@ public final class SymbolUtils {
      * @param type The input BType for which the bound type is to be retrieved.
      * @return The bound type based on the kind of the input BType. Returns null if the kind is not supported.
      */
+     @Nullable
      public static BType getTypeParamBoundType(BType type) {
          return switch (type.getKind()) {
              case MAP -> ((BMapType) type).constraint;

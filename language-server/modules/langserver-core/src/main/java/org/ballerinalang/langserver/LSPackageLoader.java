@@ -46,6 +46,7 @@ import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
 import org.eclipse.lsp4j.WorkDoneProgressEnd;
 import org.eclipse.lsp4j.WorkDoneProgressReport;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.nio.file.Path;
@@ -366,7 +367,7 @@ public class LSPackageLoader {
 
         private final List<ServiceTemplateGenerator.ListenerMetaData> listenerMetaData = new ArrayList<>();
 
-        public ModuleInfo(PackageOrg packageOrg, PackageName packageName, PackageVersion version, Path path) {
+        public ModuleInfo(PackageOrg packageOrg, PackageName packageName, PackageVersion version, @Nullable Path path) {
             this.packageOrg = packageOrg;
             this.packageName = packageName;
             this.packageVersion = version;

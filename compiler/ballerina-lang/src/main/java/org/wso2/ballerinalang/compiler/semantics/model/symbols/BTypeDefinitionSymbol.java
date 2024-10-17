@@ -23,6 +23,7 @@ import org.ballerinalang.model.symbols.Annotatable;
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -36,6 +37,7 @@ import java.util.List;
  */
 public class BTypeDefinitionSymbol extends BSymbol implements Annotatable {
 
+    @Nullable
     public BTypeReferenceType referenceType = null;
     private final List<BAnnotationAttachmentSymbol> annAttachments;
 

@@ -50,6 +50,7 @@ import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
 import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
 import org.ballerinalang.central.client.model.ToolSearchResult;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -177,8 +178,8 @@ public class CentralAPIClient {
         this.maxRetries = MAX_RETRY;
     }
 
-    public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken, boolean verboseEnabled, int maxRetries,
-                            PrintStream outStream) {
+    public CentralAPIClient(String baseUrl, @Nullable Proxy proxy, String accessToken, boolean verboseEnabled,
+                            int maxRetries, PrintStream outStream) {
         this.outStream = outStream;
         this.baseUrl = baseUrl;
         this.proxy = proxy;
@@ -507,7 +508,7 @@ public class CentralAPIClient {
      * @param isBuild                If build option is enabled or not.
      * @throws CentralClientException Central Client exception.
      */
-    public void pullPackage(String org, String name, String version, Path packagePathInBalaCache,
+    public void pullPackage(String org, String name, @Nullable String version, Path packagePathInBalaCache,
                             String supportedPlatform, String ballerinaVersion, boolean isBuild)
             throws CentralClientException {
         int retryCount = 0;
@@ -1531,6 +1532,7 @@ public class CentralAPIClient {
      * @return Connector.
      * @throws CentralClientException Central Client exception.
      */
+    @Nullable
     public JsonObject getConnector(ConnectorInfo connector, String supportedPlatform, String ballerinaVersion)
             throws CentralClientException {
         Optional<ResponseBody> body = Optional.empty();
@@ -1819,7 +1821,7 @@ public class CentralAPIClient {
      * @param responseBody error message
      * @throws CentralClientException with unauthorized error message
      */
-    private void handleUnauthorizedResponse(String org, Optional<ResponseBody> body, String responseBody)
+    private void handleUnauthorizedResponse(String org, Optional<ResponseBody> body, @Nullable String responseBody)
             throws CentralClientException {
         if (body.isPresent()) {
             Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
@@ -1841,7 +1843,7 @@ public class CentralAPIClient {
      * @param responseBody error message
      * @throws CentralClientException with unauthorized error message
      */
-    private void handleUnauthorizedResponse(Optional<ResponseBody> body, String responseBody)
+    private void handleUnauthorizedResponse(Optional<ResponseBody> body, @Nullable String responseBody)
             throws CentralClientException {
         if (body.isPresent()) {
             Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
@@ -1863,7 +1865,7 @@ public class CentralAPIClient {
      * @param responseBody response body
      * @throws CentralClientException with unauthorized error message
      */
-    private void handleUnauthorizedResponse(MediaType mediaType, String responseBody)
+    private void handleUnauthorizedResponse(@Nullable MediaType mediaType, String responseBody)
             throws CentralClientException {
         Optional<MediaType> contentType = Optional.ofNullable(mediaType);
         StringBuilder message = new StringBuilder("unauthorized access token. " +
@@ -1875,7 +1877,7 @@ public class CentralAPIClient {
         throw new CentralClientException(message.toString());
     }
 
-    private void logResponseVerbose(Response response, String bodyContent) {
+    private void logResponseVerbose(Response response, @Nullable String bodyContent) {
         if (this.verboseEnabled) {
             Optional<ResponseBody> body = Optional.ofNullable(response.body());
             this.outStream.println("< HTTP " + response.code() + " " + response.message());
@@ -1922,6 +1924,7 @@ public class CentralAPIClient {
             this.maxRetries = maxRetry;
         }
 
+        @Nullable
         @Override
         public Response intercept(Chain chain) throws IOException {
             int retryCount = 0;
@@ -1944,7 +1947,8 @@ public class CentralAPIClient {
             return response;
         }
 
-         private void logRetryVerbose(Response response, String bodyContent, Request request, int retryCount) {
+         private void logRetryVerbose(Response response, @Nullable String bodyContent, Request request,
+                                      int retryCount) {
              if (verboseEnabled) {
                  Optional<ResponseBody> body = Optional.ofNullable(response.body());
                  outStream.println("< HTTP " + response.code() + " " + response.message());

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
@@ -46,6 +47,7 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     public boolean isTable = false;
     public boolean isMap = false;
 
+    @Nullable
     @Override
     public BLangSelectClause getSelectClause() {
         for (BLangNode clause : queryClauseList) {
@@ -56,6 +58,7 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
         return null;
     }
 
+    @Nullable
     @Override
     public BLangNode getFinalClause() {
         for (BLangNode clause : queryClauseList) {

@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.toml.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Locale;
 
 /**
@@ -30,6 +32,7 @@ public final class PathUtils {
     private PathUtils() {
     }
 
+    @Nullable
     public static String getPath(String path) {
         if (path != null) {
             if (OS.contains("win")) {

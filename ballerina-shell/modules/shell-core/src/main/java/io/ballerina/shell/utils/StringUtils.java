@@ -24,6 +24,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
@@ -152,7 +153,7 @@ public final class StringUtils {
      * @param object Object to convert.
      * @return Converted string.
      */
-    public static String getExpressionStringValue(Object object) {
+    public static String getExpressionStringValue(@Nullable Object object) {
         return io.ballerina.runtime.api.utils.StringUtils.getExpressionStringValue(object);
     }
 

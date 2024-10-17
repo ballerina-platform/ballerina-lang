@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.FiniteType;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -48,7 +49,7 @@ public class BFiniteType extends BType implements FiniteType {
         this.flags |= Flags.READONLY;
     }
 
-    public BFiniteType(BTypeSymbol tsymbol, Set<BLangExpression> valueSpace) {
+    public BFiniteType(@Nullable BTypeSymbol tsymbol, Set<BLangExpression> valueSpace) {
         super(TypeTags.FINITE, tsymbol);
         this.valueSpace = valueSpace;
         this.flags |= Flags.READONLY;

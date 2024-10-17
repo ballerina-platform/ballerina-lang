@@ -34,6 +34,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -599,8 +600,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         resetNotCompletedNormally(data);
     }
 
-    private boolean analyzeBlockStmtFollowingIfWithoutElse(BLangStatement currentStmt, BLangStatement prevStatement,
-                                                           SymbolEnv currentEnv, AnalyzerData data) {
+    private boolean analyzeBlockStmtFollowingIfWithoutElse(
+            BLangStatement currentStmt, @Nullable BLangStatement prevStatement, SymbolEnv currentEnv,
+            AnalyzerData data) {
         if (currentStmt.getKind() == NodeKind.BLOCK && prevStatement != null && prevStatement.getKind() == NodeKind.IF
                 && ((BLangIf) prevStatement).elseStmt == null && data.notCompletedNormally) {
             BLangIf ifStmt = (BLangIf) prevStatement;
@@ -2007,6 +2009,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
     }
 
+    @Nullable
     private BType getListenerType(BType bType) {
         LinkedHashSet<BType> compatibleTypes = new LinkedHashSet<>();
         BType type = Types.getImpliedType(bType);
@@ -4506,7 +4509,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         return binaryExpressionNode;
     }
 
-    private boolean validateObjectTypeInitInvocation(BLangExpression expr) {
+    private boolean validateObjectTypeInitInvocation(@Nullable BLangExpression expr) {
         // Following is invalid:
         // var a = new ;
         if (expr != null && expr.getKind() == NodeKind.TYPE_INIT_EXPR &&
@@ -4967,7 +4970,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         return varNode.flagSet.contains(Flag.ISOLATED);
     }
 
-    private void handleReadOnlyField(boolean isRecordType, LinkedHashMap<String, BField> fields,
+    private void handleReadOnlyField(boolean isRecordType, @Nullable LinkedHashMap<String, BField> fields,
                                      BLangSimpleVariable field, AnalyzerData data) {
         BType fieldType = field.getBType();
 
@@ -5100,7 +5103,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     public class AnalyzerData {
         SymbolEnv env;
         BType expType;
-        Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
+        @Nullable Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
         boolean notCompletedNormally;
         boolean breakFound;
         Types.CommonAnalyzerData commonAnalyzerData = new Types.CommonAnalyzerData();

@@ -20,6 +20,7 @@ import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.LocalVariable;
 import com.sun.jdi.Type;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Proxy implementation for JDI local variable.
@@ -31,7 +32,9 @@ public class LocalVariableProxyImpl extends JdiProxy implements LocalVariablePro
     private final String myVariableName;
     private final String myTypeName;
 
+    @Nullable
     private LocalVariable myVariable;
+    @Nullable
     private Type myVariableType;
 
     public LocalVariableProxyImpl(StackFrameProxyImpl frame, LocalVariable variable) {

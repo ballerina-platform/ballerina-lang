@@ -18,6 +18,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.util.ProjectUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -40,8 +41,8 @@ public class PackageDescriptor implements Comparable<PackageDescriptor> {
 
     private PackageDescriptor(PackageOrg packageOrg,
                               PackageName packageName,
-                              PackageVersion packageVersion,
-                              String repository) {
+                              @Nullable PackageVersion packageVersion,
+                              @Nullable String repository) {
         this.packageName = packageName;
         this.packageOrg = packageOrg;
         this.repository = repository;
@@ -54,7 +55,7 @@ public class PackageDescriptor implements Comparable<PackageDescriptor> {
     private PackageDescriptor(PackageOrg packageOrg,
                               PackageName packageName,
                               PackageVersion packageVersion,
-                              String repository, Boolean isDeprecated, String deprecationMsg) {
+                              @Nullable String repository, Boolean isDeprecated, String deprecationMsg) {
         this.packageName = packageName;
         this.packageOrg = packageOrg;
         this.repository = repository;
@@ -69,12 +70,12 @@ public class PackageDescriptor implements Comparable<PackageDescriptor> {
     }
 
     public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName,
-                                         PackageVersion packageVersion) {
+                                         @Nullable PackageVersion packageVersion) {
         return new PackageDescriptor(packageOrg, packageName, packageVersion, null);
     }
 
     public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName,
-                                         PackageVersion packageVersion, String repository) {
+                                         @Nullable PackageVersion packageVersion, @Nullable String repository) {
         return new PackageDescriptor(packageOrg, packageName, packageVersion, repository);
     }
 

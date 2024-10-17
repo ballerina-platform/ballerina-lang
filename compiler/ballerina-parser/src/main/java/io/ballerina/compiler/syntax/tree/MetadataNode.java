@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -83,6 +84,7 @@ public class MetadataNode extends NonTerminalNode {
      */
     public static class MetadataNodeModifier {
         private final MetadataNode oldNode;
+        @Nullable
         private Node documentationString;
         private NodeList<AnnotationNode> annotations;
 

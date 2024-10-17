@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -74,7 +75,9 @@ public class MockDesugar {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private BLangPackage bLangPackage;
+    @Nullable
     private BLangFunction originalFunction;
+    @Nullable
     private BInvokableSymbol importFunction;
     private String mockFnObjectName;
     private final String testPackageSymbol = "ballerina/test";
@@ -175,6 +178,7 @@ public class MockDesugar {
         return generatedMock;
     }
 
+    @Nullable
     private BLangFunction getOriginalFunction(String functionName) {
         List<BLangFunction> functionList = bLangPackage.getFunctions();
         for (BLangFunction function : functionList) {
@@ -185,6 +189,7 @@ public class MockDesugar {
         return null;
     }
 
+    @Nullable
     private BInvokableSymbol getImportFunction(String functionName, String packageName) {
         BInvokableSymbol bInvokableSymbol =
                 getInvokableSymbol(functionName, packageName, this.bLangPackage.getImports());
@@ -197,6 +202,7 @@ public class MockDesugar {
         return bInvokableSymbol;
     }
 
+    @Nullable
     private BInvokableSymbol getInvokableSymbol(String functionName, String packageName,
                                                 List<BLangImportPackage> importList) {
         // Loop through each BLangImportPackage
@@ -238,6 +244,7 @@ public class MockDesugar {
         return bLangSimpleVariables;
     }
 
+    @Nullable
     private BLangSimpleVariable generateRestParam() {
         BLangSimpleVariable bLangSimpleVariable = null;
 
@@ -444,6 +451,7 @@ public class MockDesugar {
     }
 
     // This function synthesizes the Ballerina equivalent of : `MockHandler()`
+    @Nullable
     private BInvokableSymbol getMockHandlerInvokableSymbol() {
         List<BLangImportPackage> packageList = bLangPackage.getTestablePkg().getImports();
         for (BLangImportPackage importPackage : packageList) {

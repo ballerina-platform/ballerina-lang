@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a pointer to a {@code Node} in the syntax tree.
@@ -43,7 +44,7 @@ class NodePointer {
         this.childBucketIndex = childBucketIndex;
     }
 
-    NodePointer(ModulePartNode node) {
+    NodePointer(@Nullable ModulePartNode node) {
         this(node, 0);
     }
 

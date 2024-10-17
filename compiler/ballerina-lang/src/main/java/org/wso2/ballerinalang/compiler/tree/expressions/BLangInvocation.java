@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -50,6 +51,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
     // BLangNodes
     public BLangIdentifier pkgAlias;
     public BLangIdentifier name;
+    @Nullable
     public BLangExpression expr;
     public List<BLangExpression> argExprs = new ArrayList<>();
     public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();

@@ -3,6 +3,7 @@ package org.wso2.ballerinalang.compiler.packaging;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.StringConverter;
 
@@ -59,7 +60,7 @@ public class Patten {
         return new Part(path);
     }
 
-    public <T> Stream<T> convert(Converter<T> converter, PackageID packageID) {
+    public <T> Stream<T> convert(Converter<T> converter, @Nullable PackageID packageID) {
         Stream<T> aggregate = Stream.of(converter.start());
         for (Part part : parts) {
             if (part == LATEST_VERSION_DIR) {

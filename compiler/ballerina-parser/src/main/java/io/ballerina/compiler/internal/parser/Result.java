@@ -18,6 +18,7 @@
 package io.ballerina.compiler.internal.parser;
 
 import java.util.ArrayDeque;
+import java.util.Optional;
 
 /**
  * Represent a result of a token-sequence-search in a sub-tree. The result will contain the fixes required to
@@ -56,8 +57,8 @@ public class Result {
         this.matches = matches;
     }
 
-    protected AbstractParserErrorHandler.Solution peekFix() {
-        return this.fixes.peek();
+    protected Optional<AbstractParserErrorHandler.Solution> peekFix() {
+        return Optional.ofNullable(this.fixes.peek());
     }
 
     protected AbstractParserErrorHandler.Solution popFix() {

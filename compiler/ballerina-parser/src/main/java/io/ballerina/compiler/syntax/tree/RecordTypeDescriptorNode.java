@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -110,6 +111,7 @@ public class RecordTypeDescriptorNode extends TypeDescriptorNode {
         private Token recordKeyword;
         private Token bodyStartDelimiter;
         private NodeList<Node> fields;
+        @Nullable
         private RecordRestDescriptorNode recordRestDescriptor;
         private Token bodyEndDelimiter;
 

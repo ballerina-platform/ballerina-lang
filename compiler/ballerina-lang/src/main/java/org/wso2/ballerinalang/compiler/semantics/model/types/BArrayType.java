@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ArrayType;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -36,6 +37,7 @@ public class BArrayType extends BType implements ArrayType {
 
     public BArrayState state = BArrayState.OPEN;
 
+    @Nullable
     public BArrayType mutableType;
 
     public BArrayType(BType elementType) {
@@ -48,14 +50,14 @@ public class BArrayType extends BType implements ArrayType {
         this.eType = elementType;
     }
 
-    public BArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state) {
+    public BArrayType(BType elementType, @Nullable BTypeSymbol tsymbol, int size, BArrayState state) {
         super(TypeTags.ARRAY, tsymbol);
         this.eType = elementType;
         this.size = size;
         this.state = state;
     }
 
-    public BArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state, long flags) {
+    public BArrayType(@Nullable BType elementType, BTypeSymbol tsymbol, int size, BArrayState state, long flags) {
         super(TypeTags.ARRAY, tsymbol, flags);
         this.eType = elementType;
         this.size = size;
