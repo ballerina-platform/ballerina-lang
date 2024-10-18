@@ -1,0 +1,4 @@
+[package]
+org = "wso2"
+name = "project"
+version = "0.1.0"

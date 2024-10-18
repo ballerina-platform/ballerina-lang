@@ -44,6 +44,7 @@ under the License.
             <package name="org.ballerinalang.langserver.foldingrange.*"/>
             <package name="org.ballerinalang.langserver.common.utils.*"/>
             <package name="org.ballerinalang.langserver.packages.*"/>
+            <package name="org.ballerinalang.langserver.runner.*"/>
             <package name="org.ballerinalang.langserver.stnode.*"/>
             <package name="org.ballerinalang.langserver.execpositions.*"/>
             <package name="org.ballerinalang.langserver.toml.ballerinatoml.completion.*"/>

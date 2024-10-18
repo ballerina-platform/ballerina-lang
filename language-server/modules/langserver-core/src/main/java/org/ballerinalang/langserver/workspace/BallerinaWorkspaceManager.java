@@ -588,7 +588,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     @Override
-    public Optional<Process> run(Path filePath) throws IOException {
+    public Optional<Process> run(Path filePath, List<String> mainFuncArgs) throws IOException {
         Optional<ProjectContext> projectPairOpt = projectContext(projectRoot(filePath));
         if (projectPairOpt.isEmpty()) {
             String msg = "Run command execution aborted because project is not loaded";
@@ -632,6 +632,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         commands.add("-cp");
         commands.add(getAllClassPaths(jarResolver));
         commands.add(initClassName);
+        commands.addAll(mainFuncArgs);
         ProcessBuilder pb = new ProcessBuilder(commands);
 
         Lock lock = projectContext.lockAndGet();
