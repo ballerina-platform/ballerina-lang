@@ -81,13 +81,7 @@ public class BallerinaRunnerService implements ExtendedLanguageServerService {
                 if (filePath.isEmpty()) {
                     return projectDiagnosticsResponse;
                 }
-                Optional<Project> projectOptional = this.workspaceManager.project(filePath.get());
-                Project project;
-                if (projectOptional.isEmpty()) {
-                    project = this.workspaceManager.loadProject(filePath.get());
-                } else {
-                    project = projectOptional.get();
-                }
+                Project project = this.workspaceManager.loadProject(filePath.get());
                 Map<String, List<Diagnostic>> errorDiagnosticMap =
                         BallerinaRunnerUtil.getErrorDiagnosticMap(this.workspaceManager, project, filePath.get());
                 projectDiagnosticsResponse.setErrorDiagnosticMap(errorDiagnosticMap);
@@ -115,13 +109,7 @@ public class BallerinaRunnerService implements ExtendedLanguageServerService {
                 if (filePath.isEmpty()) {
                     return new MainFunctionParamsResponse(false, null, null);
                 }
-                Optional<Project> projectOptional = this.workspaceManager.project(filePath.get());
-                Project project;
-                if (projectOptional.isEmpty()) {
-                    project = this.workspaceManager.loadProject(filePath.get());
-                } else {
-                    project = projectOptional.get();
-                }
+                Project project = this.workspaceManager.loadProject(filePath.get());
                 Package currentPackage = project.currentPackage();
                 for (DocumentId documentId : currentPackage.getDefaultModule().documentIds()) {
                     Document document = currentPackage.getDefaultModule().document(documentId);
