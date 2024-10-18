@@ -27,7 +27,7 @@ import java.util.Optional;
  *
  * @since 2201.11.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.registration.BallerinaRunnerServiceServerCapabilitySetter")
+@JavaSPIService("org.ballerinalang.langserver.commons.registration.BallerinaServerCapabilitySetter")
 public class BallerinaRunnerServiceServerCapabilitySetter extends
         BallerinaServerCapabilitySetter<BallerinaRunnerServiceServerCapabilities> {
 

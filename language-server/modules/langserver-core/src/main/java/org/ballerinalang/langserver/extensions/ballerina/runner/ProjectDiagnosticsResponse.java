@@ -29,13 +29,13 @@ import java.util.Map;
  */
 public class ProjectDiagnosticsResponse {
 
-    private Map<String, List<Diagnostic>> diagnostics;
+    private Map<String, List<Diagnostic>> errorDiagnosticMap;
 
-    public Map<String, List<Diagnostic>> getDiagnostics() {
-        return diagnostics;
+    public Map<String, List<Diagnostic>> getErrorDiagnosticMap() {
+        return errorDiagnosticMap;
     }
 
-    public void setDiagnostics(Map<String, List<Diagnostic>> diagnostics) {
-        this.diagnostics = diagnostics;
+    public void setErrorDiagnosticMap(Map<String, List<Diagnostic>> errorDiagnosticMap) {
+        this.errorDiagnosticMap = errorDiagnosticMap;
     }
 }

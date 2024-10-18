@@ -205,34 +205,7 @@ public class DiagnosticsHelper {
                 this.cyclicDependencyErrors.push(diag.message());
             }
             LineRange lineRange = diag.location().lineRange();
-
-            int startLine = lineRange.startLine().line();
-            int startChar = lineRange.startLine().offset();
-            int endLine = lineRange.endLine().line();
-            int endChar = lineRange.endLine().offset();
-
-            endLine = (endLine <= 0) ? startLine : endLine;
-            endChar = (endChar <= 0) ? startChar + 1 : endChar;
-
-            Range range = new Range(new Position(startLine, startChar), new Position(endLine, endChar));
-            Diagnostic diagnostic = new Diagnostic(range, diag.message(), null, null, diag.diagnosticInfo().code());
-
-            switch (diag.diagnosticInfo().severity()) {
-                case ERROR:
-                    diagnostic.setSeverity(DiagnosticSeverity.Error);
-                    break;
-                case WARNING:
-                    diagnostic.setSeverity(DiagnosticSeverity.Warning);
-                    break;
-                case HINT:
-                    diagnostic.setSeverity(DiagnosticSeverity.Hint);
-                    break;
-                case INFO:
-                    diagnostic.setSeverity(DiagnosticSeverity.Information);
-                    break;
-                default:
-                    break;
-            }
+            Diagnostic diagnostic = getLSDiagnosticsFromCompilationDiagnostics(lineRange, diag);
 
             /*
             If the project root is a directory, that means it is a build project and in the other case, a single 
@@ -264,5 +237,37 @@ public class DiagnosticsHelper {
                 .thenAccept(compilation ->
                         compilation.ifPresent(pkgCompilation ->
                                 compileAndSendDiagnostics(client, projectRoot, pkgCompilation, workspaceManager)));
+    }
+
+    public static Diagnostic getLSDiagnosticsFromCompilationDiagnostics(
+            LineRange lineRange, io.ballerina.tools.diagnostics.Diagnostic diag) {
+        int startLine = lineRange.startLine().line();
+        int startChar = lineRange.startLine().offset();
+        int endLine = lineRange.endLine().line();
+        int endChar = lineRange.endLine().offset();
+
+        endLine = (endLine <= 0) ? startLine : endLine;
+        endChar = (endChar <= 0) ? startChar + 1 : endChar;
+
+        Range range = new Range(new Position(startLine, startChar), new Position(endLine, endChar));
+        Diagnostic diagnostic = new Diagnostic(range, diag.message(), null, null, diag.diagnosticInfo().code());
+
+        switch (diag.diagnosticInfo().severity()) {
+            case ERROR:
+                diagnostic.setSeverity(DiagnosticSeverity.Error);
+                break;
+            case WARNING:
+                diagnostic.setSeverity(DiagnosticSeverity.Warning);
+                break;
+            case HINT:
+                diagnostic.setSeverity(DiagnosticSeverity.Hint);
+                break;
+            case INFO:
+                diagnostic.setSeverity(DiagnosticSeverity.Information);
+                break;
+            default:
+                break;
+        }
+        return diagnostic;
     }
 }

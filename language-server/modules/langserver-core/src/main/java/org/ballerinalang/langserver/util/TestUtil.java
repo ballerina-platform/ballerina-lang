@@ -38,6 +38,7 @@ import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxTreeNode
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageComponentsRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageConfigSchemaRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataRequest;
+import org.ballerinalang.langserver.extensions.ballerina.runner.ProjectDiagnosticsRequest;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
@@ -164,6 +165,8 @@ public class TestUtil {
     private static final String DOCUMENT_EXEC_POSITIONS = "ballerinaDocument/executorPositions";
 
     private static final String SEMANTIC_TOKENS_FULL = "textDocument/semanticTokens/full";
+
+    private static final String RUNNER_DIAGNOSTICS = "ballerinaRunner/diagnostics";
 
     private static final Gson GSON = new Gson();
 
@@ -460,6 +463,19 @@ public class TestUtil {
         filePaths.forEachRemaining(filePath -> documentIdentifiers.add(getTextDocumentIdentifier(filePath)));
         packageComponentsRequest.setDocumentIdentifiers(documentIdentifiers.toArray(new TextDocumentIdentifier[0]));
         return getResponseString(serviceEndpoint.request(PACKAGE_COMPONENTS, packageComponentsRequest));
+    }
+
+    /**
+     * Get runner service's diagnostics response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param projectDir root directory of the project
+     * @return {@link String} Runner diagnostics response
+     */
+    public static String getRunnerDiagnosticsResponse(Endpoint serviceEndpoint, String projectDir) {
+        ProjectDiagnosticsRequest projectDiagnosticsRequest = new ProjectDiagnosticsRequest();
+        projectDiagnosticsRequest.setDocumentIdentifier(getTextDocumentIdentifier(projectDir));
+        return getResponseString(serviceEndpoint.request(RUNNER_DIAGNOSTICS, projectDiagnosticsRequest));
     }
 
     /**

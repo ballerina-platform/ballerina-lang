@@ -27,6 +27,7 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -35,13 +36,16 @@ import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerSe
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.langserver.extensions.ballerina.packages.PackageContext;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,18 +56,20 @@ import java.util.concurrent.CompletableFuture;
  *
  * @since 2201.11.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.service.spi.BallerinaRunnerService")
+@JavaSPIService("org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService")
 @JsonSegment("ballerinaRunner")
 public class BallerinaRunnerService implements ExtendedLanguageServerService {
 
     private WorkspaceManager workspaceManager;
     private LanguageServerContext serverContext;
+    private LSClientLogger clientLogger;
 
     @Override
     public void init(LanguageServer langServer, WorkspaceManager workspaceManager,
                      LanguageServerContext serverContext) {
         this.workspaceManager = workspaceManager;
         this.serverContext = serverContext;
+        this.clientLogger = LSClientLogger.getInstance(serverContext);
     }
 
     /**
@@ -75,23 +81,29 @@ public class BallerinaRunnerService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<ProjectDiagnosticsResponse> diagnostics(ProjectDiagnosticsRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            ProjectDiagnosticsResponse projectDiagnosticsResponse = new ProjectDiagnosticsResponse();
-            Optional<Path> filePath = PathUtil.getPathFromURI(request.getProjectRootIdentifier().getUri());
-            if (filePath.isEmpty()) {
+            try {
+                ProjectDiagnosticsResponse projectDiagnosticsResponse = new ProjectDiagnosticsResponse();
+                Optional<Path> filePath = PathUtil.getPathFromURI(request.getProjectRootIdentifier().getUri());
+                if (filePath.isEmpty()) {
+                    return projectDiagnosticsResponse;
+                }
+                Optional<Project> projectOptional = this.workspaceManager.project(filePath.get());
+                Project project;
+                if (projectOptional.isEmpty()) {
+                    project = this.workspaceManager.loadProject(filePath.get());
+                } else {
+                    project = projectOptional.get();
+                }
+                Map<String, List<Diagnostic>> errorDiagnosticMap =
+                        BallerinaRunnerUtil.getErrorDiagnosticMap(this.workspaceManager, project, filePath.get());
+                projectDiagnosticsResponse.setErrorDiagnosticMap(errorDiagnosticMap);
                 return projectDiagnosticsResponse;
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaRunner/diagnostics' failed!";
+                this.clientLogger.logError(PackageContext.PACKAGE_METADATA, msg, e, request.getProjectRootIdentifier(),
+                        (Position) null);
             }
-            Optional<Project> project = this.workspaceManager.project(filePath.get());
-            if (project.isEmpty()) {
-                return projectDiagnosticsResponse;
-            }
-            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(filePath.get().toString(),
-                    this.workspaceManager,
-                    LSContextOperation.DOC_DIAGNOSTICS,
-                    this.serverContext);
-            Map<String, List<Diagnostic>> latestDiagnostics = DiagnosticsHelper.getInstance(this.serverContext)
-                    .getLatestDiagnostics(context);
-            projectDiagnosticsResponse.setDiagnostics(latestDiagnostics);
-            return projectDiagnosticsResponse;
+            return new ProjectDiagnosticsResponse();
         });
     }
 
