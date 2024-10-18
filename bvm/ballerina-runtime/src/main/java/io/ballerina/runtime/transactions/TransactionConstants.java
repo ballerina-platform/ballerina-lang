@@ -70,4 +70,7 @@ public class TransactionConstants {
 
     public static final String ANN_NAME_TRX_PARTICIPANT_CONFIG = "Participant";
     public static final String TIMESTAMP_OBJECT_VALUE_FIELD = "timeValue";
+
+    public static final int DEFAULT_TRX_AUTO_COMMIT_TIMEOUT = 120;
+    public static final int DEFAULT_TRX_CLEANUP_TIMEOUT = 600;
 }

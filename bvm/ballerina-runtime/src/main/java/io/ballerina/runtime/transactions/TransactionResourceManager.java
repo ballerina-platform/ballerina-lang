@@ -59,6 +59,8 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.transactions.TransactionConstants.DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
+import static io.ballerina.runtime.transactions.TransactionConstants.DEFAULT_TRX_CLEANUP_TIMEOUT;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
@@ -85,6 +87,8 @@ public class TransactionResourceManager {
     private static final String ATOMIKOS_LOG_BASE_PROPERTY = "com.atomikos.icatch.log_base_dir";
     private static final String ATOMIKOS_LOG_NAME_PROPERTY = "com.atomikos.icatch.log_base_name";
     private static final String ATOMIKOS_REGISTERED_PROPERTY = "com.atomikos.icatch.registered";
+    public static final String TRANSACTION_AUTO_COMMIT_TIMEOUT_KEY = "transactionAutoCommitTimeout";
+    public static final String TRANSACTION_CLEANUP_TIMEOUT_KEY = "transactionCleanupTimeout";
 
     private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
     private Map<String, List<BallerinaTransactionContext>> resourceRegistry;
@@ -578,6 +582,56 @@ public class TransactionResourceManager {
                 }
             }
         }
+    }
+
+    /**
+     * This method gets the user specified config for the transaction auto commit timeout. Default is 120.
+     *
+     * @return int transaction auto commit timeout value
+     */
+    public static int getTransactionAutoCommitTimeout() {
+        VariableKey transactionAutoCommitTimeoutKey = new VariableKey(TRANSACTION_PACKAGE_ID,
+                TRANSACTION_AUTO_COMMIT_TIMEOUT_KEY, PredefinedTypes.TYPE_INT, false);
+        if (!ConfigMap.containsKey(transactionAutoCommitTimeoutKey)) {
+            return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
+        } else {
+            Object configValue = ConfigMap.get(transactionAutoCommitTimeoutKey);
+            if (configValue == null) {
+                return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
+            }
+            return parseTimeoutValue(configValue, DEFAULT_TRX_AUTO_COMMIT_TIMEOUT);
+        }
+    }
+
+    /**
+     * This method gets the user specified config for cleaning up dead transactions. Default is 600.
+     *
+     * @return int transaction cleanup after value
+     */
+    public static int getTransactionCleanupTimeout() {
+        VariableKey transactionCleanupTimeoutKey = new VariableKey(TRANSACTION_PACKAGE_ID,
+                TRANSACTION_CLEANUP_TIMEOUT_KEY,
+                PredefinedTypes.TYPE_INT, false);
+        if (!ConfigMap.containsKey(transactionCleanupTimeoutKey)) {
+            return DEFAULT_TRX_CLEANUP_TIMEOUT;
+        } else {
+            Object configValue = ConfigMap.get(transactionCleanupTimeoutKey);
+            if (configValue == null) {
+                return DEFAULT_TRX_CLEANUP_TIMEOUT;
+            }
+            return parseTimeoutValue(configValue, DEFAULT_TRX_CLEANUP_TIMEOUT);
+        }
+    }
+
+    private static int parseTimeoutValue(Object configValue, int defaultValue) {
+        if (!(configValue instanceof Number number)) {
+            return defaultValue;
+        }
+        int timeoutValue = number.intValue();
+        if (timeoutValue <= 0) {
+            return defaultValue;
+        }
+        return timeoutValue;
     }
 
     private void removeContextsFromRegistry(String transactionCombinedId, String gTransactionId) {
