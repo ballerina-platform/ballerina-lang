@@ -2222,7 +2222,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypedescExpr accessExpr) {
-        createNewTypedescInst(accessExpr.getBType(), accessExpr.resolvedType, accessExpr.pos);
+        createNewTypedescInst(accessExpr.resolvedType, accessExpr.pos);
     }
 
     @Override
@@ -2275,7 +2275,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (typedescVar != null) {
             env.targetOperand = new BIROperand(typedescVar);
         } else {
-            createNewTypedescInst(type, type, typeLoad.pos);
+            createNewTypedescInst(type, typeLoad.pos);
         }
     }
 
@@ -2402,7 +2402,7 @@ public class BIRGen extends BLangNodeVisitor {
             return new BIRNonTerminator.NewStructure(pos, toVarRef, new BIROperand(typedescVar), fields);
         } else {
             // TODO: check whether we can remove this else block
-            createNewTypedescInst(type, type, pos);
+            createNewTypedescInst(type, pos);
             return new BIRNonTerminator.NewStructure(pos, toVarRef, this.env.targetOperand, fields);
         }
     }
@@ -2500,9 +2500,9 @@ public class BIRGen extends BLangNodeVisitor {
         return constraint == targetType;
     }
 
-    private void createNewTypedescInst(BType type, BType resolveType, Location position) {
+    private void createNewTypedescInst(BType resolveType, Location position) {
         BTypeSymbol typeSymbol = resolveType.tsymbol;
-        BIRVariableDcl tempVarDcl = createTempVariable(type);
+        BIRVariableDcl tempVarDcl = createTempVariable();
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
         BIRNonTerminator.NewTypeDesc newTypeDesc = createNewTypeDesc(position, toVarRef, resolveType, typeSymbol);
@@ -2511,8 +2511,8 @@ public class BIRGen extends BLangNodeVisitor {
         setScopeAndEmit(newTypeDesc);
     }
 
-    private BIRVariableDcl createTempVariable(BType type) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(type, this.env.nextLocalVarId(names), VarScope.FUNCTION,
+    private BIRVariableDcl createTempVariable() {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.typeDesc, this.env.nextLocalVarId(names), VarScope.FUNCTION,
                                                        VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         return tempVarDcl;
@@ -2542,7 +2542,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         } else {
             // TODO: check whether we can remove this else block
-            createNewTypedescInst(referredType, referredType, pos);
+            createNewTypedescInst(referredType, pos);
             return new BIRNonTerminator.NewArray(pos, listConstructorExprType, toVarRef, this.env.targetOperand, sizeOp,
                                                  initialValues);
         }
