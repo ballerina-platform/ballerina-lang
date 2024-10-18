@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.langserver.runner;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.util.FileUtils;
@@ -30,9 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Map;
 
 /**
  * Tests {@link org.ballerinalang.langserver.extensions.ballerina.runner.BallerinaRunnerService} mainFunctionParams api.

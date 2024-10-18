@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.ParameterNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
@@ -28,16 +29,11 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSClientLogger;
-import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.PathUtil;
-import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.contexts.ContextBuilder;
-import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
-import org.ballerinalang.langserver.extensions.ballerina.packages.PackageContext;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
@@ -46,7 +42,6 @@ import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,14 +57,12 @@ import java.util.concurrent.CompletableFuture;
 public class BallerinaRunnerService implements ExtendedLanguageServerService {
 
     private WorkspaceManager workspaceManager;
-    private LanguageServerContext serverContext;
     private LSClientLogger clientLogger;
 
     @Override
     public void init(LanguageServer langServer, WorkspaceManager workspaceManager,
                      LanguageServerContext serverContext) {
         this.workspaceManager = workspaceManager;
-        this.serverContext = serverContext;
         this.clientLogger = LSClientLogger.getInstance(serverContext);
     }
 
@@ -120,7 +113,7 @@ public class BallerinaRunnerService implements ExtendedLanguageServerService {
             try {
                 Optional<Path> filePath = PathUtil.getPathFromURI(request.getProjectRootIdentifier().getUri());
                 if (filePath.isEmpty()) {
-                    return new MainFunctionParamsResponse(false, null);
+                    return new MainFunctionParamsResponse(false, null, null);
                 }
                 Optional<Project> projectOptional = this.workspaceManager.project(filePath.get());
                 Project project;
@@ -139,11 +132,16 @@ public class BallerinaRunnerService implements ExtendedLanguageServerService {
                                 FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) member;
                                 if (functionDefinitionNode.functionName().text()
                                         .equals(BallerinaRunnerServiceConstants.MAIN_FUNCTION)) {
-                                    List<String> params = new ArrayList<>();
-                                    functionDefinitionNode.functionSignature().parameters().forEach(param -> {
-                                        params.add(BallerinaRunnerUtil.extractParamName(param));
-                                    });
-                                    return new MainFunctionParamsResponse(true, params);
+                                    List<TypeBindingPair> params = new ArrayList<>();
+                                    for (ParameterNode param:functionDefinitionNode.functionSignature().parameters()) {
+                                        if (param.kind() == SyntaxKind.REST_PARAM) {
+                                            return new MainFunctionParamsResponse(true, params,
+                                                    BallerinaRunnerUtil.extractParamDetails(param));
+                                        } else {
+                                            params.add(BallerinaRunnerUtil.extractParamDetails(param));
+                                        }
+                                    }
+                                    return new MainFunctionParamsResponse(true, params, null);
                                 }
                             }
                         }
@@ -154,7 +152,7 @@ public class BallerinaRunnerService implements ExtendedLanguageServerService {
                 this.clientLogger.logError(RunnerContext.RUNNER_MAIN_FUNCTION_PARAMS, msg, e,
                         request.getProjectRootIdentifier(), (Position) null);
             }
-            return new MainFunctionParamsResponse(false, null);
+            return new MainFunctionParamsResponse(false, null, null);
         });
     }
 
@@ -163,7 +161,11 @@ public class BallerinaRunnerService implements ExtendedLanguageServerService {
         return getClass();
     }
 
-    public record MainFunctionParamsResponse(boolean hasMain, List<String> params) {
+    public record MainFunctionParamsResponse(boolean hasMain, List<TypeBindingPair> params,
+                                             TypeBindingPair restParams) {
+    }
+
+    public record TypeBindingPair(String type, String paramName, String defaultValue) {
     }
 
     private enum RunnerContext implements LSOperation {
