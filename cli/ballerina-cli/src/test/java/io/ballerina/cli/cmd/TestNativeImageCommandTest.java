@@ -69,7 +69,8 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
     public void testNativeImageTestsWithAdditionalArgs() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
-        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true, "-o " + projectPath + "/foo");
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream,
+                false, true, "-o " + projectPath + "/foo");
         new CommandLine(testCommand).parseArgs();
         try {
             testCommand.execute();
