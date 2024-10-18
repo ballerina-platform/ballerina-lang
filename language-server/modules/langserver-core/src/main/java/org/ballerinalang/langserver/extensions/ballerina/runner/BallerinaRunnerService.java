@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -100,7 +101,7 @@ public class BallerinaRunnerService implements ExtendedLanguageServerService {
                 return projectDiagnosticsResponse;
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaRunner/diagnostics' failed!";
-                this.clientLogger.logError(PackageContext.PACKAGE_METADATA, msg, e, request.getProjectRootIdentifier(),
+                this.clientLogger.logError(RunnerContext.RUNNER_DIAGNOSTICS, msg, e, request.getProjectRootIdentifier(),
                         (Position) null);
             }
             return new ProjectDiagnosticsResponse();
@@ -116,33 +117,42 @@ public class BallerinaRunnerService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<MainFunctionParamsResponse> mainFunctionParams(MainFunctionParamsRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            Optional<Path> filePath = PathUtil.getPathFromURI(request.getProjectRootIdentifier().getUri());
-            if (filePath.isEmpty()) {
-                return new MainFunctionParamsResponse(false, null);
-            }
-            Optional<Project> project = this.workspaceManager.project(filePath.get());
-            if (project.isEmpty()) {
-                return new MainFunctionParamsResponse(false, null);
-            }
-            Package currentPackage = project.get().currentPackage();
-            for (DocumentId documentId : currentPackage.getDefaultModule().documentIds()) {
-                Document document = currentPackage.getDefaultModule().document(documentId);
-                Node node = document.syntaxTree().rootNode();
-                if (node instanceof ModulePartNode modulePartNode) {
-                    for (ModuleMemberDeclarationNode member : modulePartNode.members()) {
-                        if (member.kind() == SyntaxKind.FUNCTION_DEFINITION) {
-                            FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) member;
-                            if (functionDefinitionNode.functionName().text()
-                                    .equals(BallerinaRunnerServiceConstants.MAIN_FUNCTION)) {
-                                List<String> params = new ArrayList<>();
-                                functionDefinitionNode.functionSignature().parameters().forEach(param -> {
-                                    params.add(param.toString());
-                                });
-                                return new MainFunctionParamsResponse(true, params);
+            try {
+                Optional<Path> filePath = PathUtil.getPathFromURI(request.getProjectRootIdentifier().getUri());
+                if (filePath.isEmpty()) {
+                    return new MainFunctionParamsResponse(false, null);
+                }
+                Optional<Project> projectOptional = this.workspaceManager.project(filePath.get());
+                Project project;
+                if (projectOptional.isEmpty()) {
+                    project = this.workspaceManager.loadProject(filePath.get());
+                } else {
+                    project = projectOptional.get();
+                }
+                Package currentPackage = project.currentPackage();
+                for (DocumentId documentId : currentPackage.getDefaultModule().documentIds()) {
+                    Document document = currentPackage.getDefaultModule().document(documentId);
+                    Node node = document.syntaxTree().rootNode();
+                    if (node instanceof ModulePartNode modulePartNode) {
+                        for (ModuleMemberDeclarationNode member : modulePartNode.members()) {
+                            if (member.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+                                FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) member;
+                                if (functionDefinitionNode.functionName().text()
+                                        .equals(BallerinaRunnerServiceConstants.MAIN_FUNCTION)) {
+                                    List<String> params = new ArrayList<>();
+                                    functionDefinitionNode.functionSignature().parameters().forEach(param -> {
+                                        params.add(BallerinaRunnerUtil.extractParamName(param));
+                                    });
+                                    return new MainFunctionParamsResponse(true, params);
+                                }
                             }
                         }
                     }
                 }
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaRunner/mainFunctionParams' failed!";
+                this.clientLogger.logError(RunnerContext.RUNNER_MAIN_FUNCTION_PARAMS, msg, e,
+                        request.getProjectRootIdentifier(), (Position) null);
             }
             return new MainFunctionParamsResponse(false, null);
         });
@@ -155,4 +165,21 @@ public class BallerinaRunnerService implements ExtendedLanguageServerService {
 
     public record MainFunctionParamsResponse(boolean hasMain, List<String> params) {
     }
+
+    private enum RunnerContext implements LSOperation {
+        RUNNER_DIAGNOSTICS("ballerinaRunner/diagnostics"),
+        RUNNER_MAIN_FUNCTION_PARAMS("ballerinaRunner/mainFunctionParams");
+
+        private final String name;
+
+        RunnerContext(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return this.name;
+        }
+    }
+
 }

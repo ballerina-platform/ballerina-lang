@@ -38,6 +38,7 @@ import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxTreeNode
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageComponentsRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageConfigSchemaRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataRequest;
+import org.ballerinalang.langserver.extensions.ballerina.runner.MainFunctionParamsRequest;
 import org.ballerinalang.langserver.extensions.ballerina.runner.ProjectDiagnosticsRequest;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionCapabilities;
@@ -167,6 +168,7 @@ public class TestUtil {
     private static final String SEMANTIC_TOKENS_FULL = "textDocument/semanticTokens/full";
 
     private static final String RUNNER_DIAGNOSTICS = "ballerinaRunner/diagnostics";
+    private static final String RUNNER_MAIN_FUNC_PARAMS = "ballerinaRunner/mainFunctionParams";
 
     private static final Gson GSON = new Gson();
 
@@ -476,6 +478,19 @@ public class TestUtil {
         ProjectDiagnosticsRequest projectDiagnosticsRequest = new ProjectDiagnosticsRequest();
         projectDiagnosticsRequest.setDocumentIdentifier(getTextDocumentIdentifier(projectDir));
         return getResponseString(serviceEndpoint.request(RUNNER_DIAGNOSTICS, projectDiagnosticsRequest));
+    }
+
+    /**
+     * Get runner service's main function params response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param projectDir root directory of the project
+     * @return {@link String} Runner diagnostics response
+     */
+    public static String getRunnerMainFuncParamsResponse(Endpoint serviceEndpoint, String projectDir) {
+        MainFunctionParamsRequest mainFunctionParamsRequest = new MainFunctionParamsRequest();
+        mainFunctionParamsRequest.setDocumentIdentifier(getTextDocumentIdentifier(projectDir));
+        return getResponseString(serviceEndpoint.request(RUNNER_MAIN_FUNC_PARAMS, mainFunctionParamsRequest));
     }
 
     /**

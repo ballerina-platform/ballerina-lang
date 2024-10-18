@@ -1,0 +1,11 @@
+{
+  "sourceRoot": "project1",
+  "result": {
+    "hasMain": true,
+    "params": [
+      "host",
+      "port",
+      "rest"
+    ]
+  }
+}

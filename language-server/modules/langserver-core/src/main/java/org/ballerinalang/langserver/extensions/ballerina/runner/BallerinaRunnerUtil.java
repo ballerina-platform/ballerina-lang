@@ -17,6 +17,11 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.runner;
 
+import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
+import io.ballerina.compiler.syntax.tree.ParameterNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.common.utils.PathUtil;
@@ -30,6 +35,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Ballerina Runner Util.
@@ -52,5 +58,18 @@ public class BallerinaRunnerUtil {
             clientDiagnostics.add(result);
         }
         return diagnosticsMap;
+    }
+
+    public static String extractParamName(ParameterNode param) {
+        return switch (param.kind()) {
+            case DEFAULTABLE_PARAM -> Objects.requireNonNull(((
+                    DefaultableParameterNode) param).paramName().orElse(null)).text();
+            case REST_PARAM -> Objects.requireNonNull(
+                    ((RestParameterNode) param).paramName().orElse(null)).text();
+            case INCLUDED_RECORD_PARAM -> Objects.requireNonNull(
+                    ((IncludedRecordParameterNode) param).paramName().orElse(null)).text();
+            default -> Objects.requireNonNull(
+                    ((RequiredParameterNode) param).paramName().orElse(null)).text();
+        };
     }
 }
