@@ -49,7 +49,7 @@ public class BallerinaRunnerUtil {
         Collection<io.ballerina.tools.diagnostics.Diagnostic> diagnostics = project.currentPackage()
                 .getCompilation().diagnosticResult().errors();
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
-        for (io.ballerina.tools.diagnostics.Diagnostic diag :diagnostics) {
+        for (io.ballerina.tools.diagnostics.Diagnostic diag : diagnostics) {
             LineRange lineRange = diag.location().lineRange();
             Diagnostic result = DiagnosticsHelper.getLSDiagnosticsFromCompilationDiagnostics(lineRange, diag);
             String resolvedUri = projectRoot.resolve(lineRange.fileName()).toUri().toString();
@@ -65,28 +65,28 @@ public class BallerinaRunnerUtil {
             case DEFAULTABLE_PARAM -> {
                 DefaultableParameterNode defaultableParam = (DefaultableParameterNode) param;
                 return new BallerinaRunnerService.TypeBindingPair(
-                       defaultableParam.typeName().toString(),
+                        defaultableParam.typeName().toString().strip(),
                         Objects.requireNonNull(defaultableParam.paramName().orElse(null)).text(),
                         defaultableParam.expression().toString());
             }
             case REST_PARAM -> {
                 RestParameterNode restParam = (RestParameterNode) param;
                 return new BallerinaRunnerService.TypeBindingPair(
-                        restParam.typeName().toString(),
+                        restParam.typeName().toString().strip(),
                         Objects.requireNonNull(restParam.paramName().orElse(null)).text(),
                         null);
             }
             case INCLUDED_RECORD_PARAM -> {
                 IncludedRecordParameterNode includedRecordParam = (IncludedRecordParameterNode) param;
                 return new BallerinaRunnerService.TypeBindingPair(
-                        includedRecordParam.typeName().toString(),
+                        includedRecordParam.typeName().toString().strip(),
                         Objects.requireNonNull(includedRecordParam.paramName().orElse(null)).text(),
                         null);
             }
             default -> {
                 RequiredParameterNode requiredParam = (RequiredParameterNode) param;
                 return new BallerinaRunnerService.TypeBindingPair(
-                        requiredParam.typeName().toString(),
+                        requiredParam.typeName().toString().strip(),
                         Objects.requireNonNull(requiredParam.paramName().orElse(null)).text(),
                         null);
             }

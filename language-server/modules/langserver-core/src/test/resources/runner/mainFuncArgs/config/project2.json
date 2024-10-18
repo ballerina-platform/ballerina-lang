@@ -9,12 +9,9 @@
       },
       {
         "type": "int",
-        "paramName": "port"
+        "paramName": "port",
+        "defaultValue": "9000"
       }
-    ],
-    "restParams": {
-      "type": "string",
-      "paramName": "rest"
-    }
+    ]
   }
 }

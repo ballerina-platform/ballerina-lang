@@ -61,7 +61,8 @@ public class MainFunctionParamsTest {
     @DataProvider(name = "data-provider")
     public Object[][] getDataProvider() {
         return new Object[][]{
-                {"project1", "project1.json"}
+                {"project1", "project1.json"},
+                {"project2", "project2.json"}
         };
     }
 
