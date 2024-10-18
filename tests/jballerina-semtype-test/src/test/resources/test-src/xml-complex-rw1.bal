@@ -7,8 +7,6 @@
 // XC<:XUX
 // UX<:XUX
 
-// XUX<:UX
-
 type XE xml<xml:Element>;
 type XP xml<xml:ProcessingInstruction>;
 type XC xml<xml:Comment>;
