@@ -1,7 +1,7 @@
 public globalVarsAndAnonFunctions function() -> () {
     %0(RETURN) ();
     %1(SYNTHETIC) map<any|error>;
-    %3(TEMP) map<any|error>;
+    %3(TEMP) typeDesc<any|error>;
     %4(TEMP) any|error;
     %5(TEMP) int;
     %7(TEMP) string;

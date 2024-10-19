@@ -35,7 +35,7 @@ mapInits function() -> (string|(), int|()) {
     %108(TEMP) int;
     %112(SYNTHETIC) boolean;
     %113(SYNTHETIC) boolean;
-    %125(TEMP) (string|(), int|());
+    %125(TEMP) typeDesc<any|error>;
 
     bb0 {
         %1 = newType map<Employee>;
