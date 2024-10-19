@@ -16,12 +16,18 @@
  *  under the License.
  */
 package io.ballerina.projects.util;
+
+import java.nio.file.Path;
+
 /**
  * Defines constants related to the project directory.
  *
  * @since 2.0.0
  */
 public final class ProjectConstants {
+
+    public static final String README_MD_FILE_NAME = "README.md";
+    public static final String README_EXTENSION = "md";
 
     private ProjectConstants() {}
 

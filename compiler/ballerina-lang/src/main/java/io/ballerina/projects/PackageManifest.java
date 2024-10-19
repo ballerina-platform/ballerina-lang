@@ -53,6 +53,8 @@ public class PackageManifest {
     private final String visibility;
     private boolean template;
     private final String icon;
+    private final String readme;
+    private final Map<String, Modules> modulesMap;
 
     // Other entries hold other key/value pairs available in the Ballerina.toml file.
     // These keys are not part of the Ballerina package specification.
@@ -82,6 +84,8 @@ public class PackageManifest {
         this.visibility = "";
         this.icon = "";
         this.tools = Collections.emptyList();
+        this.readme = "";
+        this.modulesMap = Map.of();
     }
 
     private PackageManifest(PackageDescriptor packageDesc,
@@ -109,6 +113,8 @@ public class PackageManifest {
         this.visibility = "";
         this.icon = "";
         this.tools = Collections.unmodifiableList(tools);
+        this.readme = "";
+        this.modulesMap = Map.of();
     }
 
     private PackageManifest(PackageDescriptor packageDesc,
@@ -146,6 +152,8 @@ public class PackageManifest {
         this.template = template;
         this.icon = icon;
         this.tools = Collections.emptyList();
+        this.readme = "";
+        this.modulesMap = Map.of();
     }
 
     private PackageManifest(PackageDescriptor packageDesc,
@@ -165,7 +173,9 @@ public class PackageManifest {
                             String visibility,
                             boolean template,
                             String icon,
-                            List<Tool> tools) {
+                            List<Tool> tools,
+                            String readme,
+                            Map<String, Modules> modulesMap) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
         this.balToolDesc = balToolDesc;
@@ -184,6 +194,8 @@ public class PackageManifest {
         this.template = template;
         this.icon = icon;
         this.tools = tools;
+        this.readme = readme;
+        this.modulesMap = modulesMap;
     }
     public static PackageManifest from(PackageDescriptor packageDesc) {
         return new PackageManifest(packageDesc, null, null, Collections.emptyMap(), Collections.emptyList(),
@@ -217,10 +229,12 @@ public class PackageManifest {
                                        String visibility,
                                        boolean template,
                                        String icon,
-                                       List<Tool> tools) {
+                                       List<Tool> tools,
+                                       String readme,
+                                       Map<String, Modules> modulesMap) {
         return new PackageManifest(packageDesc, compilerPluginDesc, balToolDesc, platforms, dependencies, otherEntries,
                 diagnostics, license, authors, keywords, export, include, repository, ballerinaVersion, visibility,
-                template, icon, tools);
+                template, icon, tools, readme, modulesMap);
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
@@ -329,6 +343,14 @@ public class PackageManifest {
 
     public boolean template() {
         return template;
+    }
+
+    public String readme() {
+        return readme;
+    }
+
+    public Map<String, Modules> modules() {
+        return modulesMap;
     }
 
     /**
@@ -537,6 +559,9 @@ public class PackageManifest {
 
         public record Field(String value, TomlNodeLocation location) {
         }
+    }
+
+    public record Modules(String name, boolean export, Optional<String> description, Optional<String> readme) {
     }
 
     private List<String> getExport(PackageDescriptor packageDesc, List<String> export) {
