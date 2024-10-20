@@ -58,6 +58,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -75,6 +76,7 @@ import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToSt
 import static io.ballerina.projects.internal.ManifestUtils.getBooleanFromTomlTableNode;
 import static io.ballerina.projects.internal.ManifestUtils.getBuildToolTomlValueType;
 import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectUtils.defaultName;
 import static io.ballerina.projects.util.ProjectUtils.defaultOrg;
 import static io.ballerina.projects.util.ProjectUtils.defaultVersion;
@@ -226,7 +228,7 @@ public class ManifestBuilder {
 
                 String customReadmeVal = getStringValueFromTomlTableNode(pkgNode, README, null);
                 readme = validateAndGetReadmePath(pkgNode, customReadmeVal);
-                moduleEntries = getModuleEntries(pkgNode, customReadmeVal);
+                moduleEntries = getModuleEntries(pkgNode, customReadmeVal, packageDescriptor.name());
             }
         }
 
@@ -269,7 +271,7 @@ public class ManifestBuilder {
     }
 
     private Map<String, PackageManifest.Modules> getModuleEntries(
-            TomlTableNode pkgNode, String customReadmeVal) {
+            TomlTableNode pkgNode, String customReadmeVal, PackageName packageName) {
 
         Map<String, PackageManifest.Modules> moduleMap = new HashMap<>();
         Path modulesRoot = this.projectPath.resolve(ProjectConstants.MODULES_ROOT);
@@ -296,9 +298,9 @@ public class ManifestBuilder {
                         modReadme = modReadmePath.toString();
                     }
                     PackageManifest.Modules module = new PackageManifest.Modules(
-                            moduleDir.getFileName().toString(), false,
+                            packageName + DOT + moduleDir.getFileName().toString(), false,
                             Optional.empty(), Optional.ofNullable(modReadme));
-                    moduleMap.put(moduleDir.getFileName().toString(), module);
+                    moduleMap.put(packageName + DOT + moduleDir.getFileName().toString(), module);
                 }
                 return moduleMap;
             }
@@ -314,9 +316,9 @@ public class ManifestBuilder {
                     modReadme = modReadmePath.toString();
                 }
                 PackageManifest.Modules module = new PackageManifest.Modules(
-                        moduleDir.getFileName().toString(), false,
+                        packageName + DOT + moduleDir.getFileName().toString(), false,
                         Optional.empty(), Optional.ofNullable(modReadme));
-                moduleMap.put(moduleDir.getFileName().toString(), module);
+                moduleMap.put(packageName + DOT + moduleDir.getFileName().toString(), module);
             }
             return moduleMap;
         }
@@ -331,10 +333,18 @@ public class ManifestBuilder {
                     // TODO: report diagnostic - default module not allowed
                     continue;
                 }
-                if (Files.notExists(this.projectPath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName))) {
+
+                try {
+                    if (Files.notExists(this.projectPath.resolve(ProjectConstants.MODULES_ROOT)
+                            .resolve(moduleName.split(packageName + DOT)[1]))) {
+                        // TODO: report diagnostic - invalid module provided. module not found
+                        continue;
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {
                     // TODO: report diagnostic - invalid module provided. module not found
                     continue;
                 }
+
                 boolean export = Boolean.TRUE.equals(getBooleanValueFromTomlTableNode(modulesNode, EXPORT));
                 String description = getStringValueFromTomlTableNode(modulesNode, DESCRIPTION, null);
                 String modReadme = getStringValueFromTomlTableNode(modulesNode, README, null);

@@ -49,9 +49,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -105,7 +107,7 @@ public abstract class BalaWriter {
                                       this.packageContext.packageName().value(),
                                       this.packageContext.packageVersion().value().toString(),
                                       this.target);
-        // Create the archive over write if exists
+        // Create the archive overwrite if exists
         try (ZipOutputStream balaOutputStream = new ZipOutputStream(
                 new FileOutputStream(String.valueOf(balaPath.resolve(balaName))))) {
             // Now lets put stuff in
@@ -129,8 +131,7 @@ public abstract class BalaWriter {
 
         addBalaJson(balaOutputStream);
         addPackageDoc(balaOutputStream,
-                      this.packageContext.project().sourceRoot(),
-                      this.packageContext.packageName().toString());
+                      this.packageContext.packageManifest());
         addPackageSource(balaOutputStream);
         addResources(balaOutputStream);
         addIncludes(balaOutputStream);
@@ -183,6 +184,8 @@ public abstract class BalaWriter {
         // Set graalvmCompatibility property in package.json
         setGraalVMCompatibilityProperty(packageJson, packageManifest);
 
+        setDocs(packageJson, packageManifest);
+
         // Remove fields with empty values from `package.json`
         Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new JsonCollectionsAdaptor())
                 .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
@@ -193,6 +196,27 @@ public abstract class BalaWriter {
         } catch (IOException e) {
             throw new ProjectException("Failed to write 'package.json' file: " + e.getMessage(), e);
         }
+    }
+
+    private void setDocs(PackageJson packageJson, PackageManifest packageManifest) {
+        if (packageManifest.readme() == null) {
+            // ballerinai packages
+            return;
+        }
+        Map<String, String> docs = new HashMap<>();
+        String packageDocPathPrefix = BALA_DOCS_DIR + UNIX_FILE_SEPARATOR;
+        docs.put(packageManifest.descriptor().name().toString(),
+                packageDocPathPrefix + Paths.get(packageManifest.readme()).getFileName());
+        Map<String, PackageManifest.Modules> modules = packageManifest.modules();
+        for (Map.Entry<String, PackageManifest.Modules> module : modules.entrySet()) {
+            if (module.getValue().readme().isEmpty()) {
+                continue;
+            }
+            String moduleDoc = packageDocPathPrefix + MODULES_ROOT + UNIX_FILE_SEPARATOR + module.getKey() +
+                    UNIX_FILE_SEPARATOR + Paths.get(module.getValue().readme().get()).getFileName();
+            docs.put(module.getValue().name(), moduleDoc);
+        }
+        packageJson.setDocs(docs);
     }
 
     private void setGraalVMCompatibilityProperty(PackageJson packageJson, PackageManifest packageManifest) {
@@ -253,20 +277,18 @@ public abstract class BalaWriter {
 
     // TODO when iterating and adding source files should create source files from Package sources
 
-    private void addPackageDoc(ZipOutputStream balaOutputStream, Path packageSourceDir, String pkgName)
+    private void addPackageDoc(ZipOutputStream balaOutputStream, PackageManifest packageManifest)
             throws IOException {
-        final String packageMdFileName = "Package.md";
-        final String moduleMdFileName = "Module.md";
 
-        Path packageMd = packageSourceDir.resolve(packageMdFileName);
+        if (packageManifest.readme() == null) {
+            return;
+        }
+        Path pkgReadme = Paths.get(packageManifest.readme());
         Path docsDirInBala = Path.of(BALA_DOCS_DIR);
 
-        // If `Package.md` exists, create the docs directory & add `Package.md`
-        if (packageMd.toFile().exists()) {
-            Path packageMdInBala = docsDirInBala.resolve(packageMdFileName);
-            putZipEntry(balaOutputStream, packageMdInBala,
-                    new FileInputStream(String.valueOf(packageMd)));
-        }
+        Path packageMdInBala = docsDirInBala.resolve(pkgReadme.getFileName());
+        putZipEntry(balaOutputStream, packageMdInBala,
+                new FileInputStream(pkgReadme.toString()));
 
         // If `icon` mentioned in the Ballerina.toml, add it to docs directory
         String icon = this.packageContext.packageManifest().icon();
@@ -276,35 +298,16 @@ public abstract class BalaWriter {
             putZipEntry(balaOutputStream, iconInBala, new FileInputStream(String.valueOf(iconPath)));
         }
 
-        // If `Module.md` of default module exists, create `docs/modules` directory & add `Module.md`
-        Path defaultModuleMd = packageSourceDir.resolve(moduleMdFileName);
         Path modulesDirInBalaDocs = docsDirInBala.resolve(MODULES_ROOT);
 
-        if (defaultModuleMd.toFile().exists()) {
-            Path defaultModuleMdInBalaDocs = modulesDirInBalaDocs.resolve(pkgName).resolve(moduleMdFileName);
-            putZipEntry(balaOutputStream, defaultModuleMdInBalaDocs,
-                    new FileInputStream(String.valueOf(defaultModuleMd)));
-        }
-
-        // Add other module docs
-        File modulesSourceDir = new File(String.valueOf(packageSourceDir.resolve(MODULES_ROOT)));
-        File[] directoryListing = modulesSourceDir.listFiles();
-
-        if (directoryListing != null) {
-            for (File moduleDir : directoryListing) {
-                if (moduleDir.isDirectory()) {
-                    // Get `Module.md` path
-                    Path otherModuleMd = packageSourceDir.resolve(MODULES_ROOT).resolve(moduleDir.getName())
-                            .resolve(moduleMdFileName);
-                    // Create `package.module` folder, if `Module.md` path exists
-                    if (otherModuleMd.toFile().exists()) {
-                        Path otherModuleMdInBalaDocs = modulesDirInBalaDocs.resolve(pkgName + "." + moduleDir.getName())
-                                .resolve(moduleMdFileName);
-                        putZipEntry(balaOutputStream, otherModuleMdInBalaDocs,
-                                new FileInputStream(String.valueOf(otherModuleMd)));
-                    }
-                }
+        for (Map.Entry<String, PackageManifest.Modules> module : packageManifest.modules().entrySet()) {
+            if (module.getValue().readme().isEmpty()) {
+                continue;
             }
+            Path otherReadmeMdInBalaDocs = modulesDirInBalaDocs.resolve(module.getKey())
+                    .resolve(Paths.get(module.getValue().readme().get()).getFileName());
+            putZipEntry(balaOutputStream, otherReadmeMdInBalaDocs,
+                    new FileInputStream(module.getValue().readme().get()));
         }
     }
 
