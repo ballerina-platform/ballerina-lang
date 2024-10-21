@@ -28,6 +28,7 @@ import io.ballerina.types.subtypedata.BooleanSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
+import io.ballerina.types.subtypedata.Range;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.subtypedata.TableSubtype;
 import io.ballerina.types.typeops.SubtypePair;
@@ -67,6 +68,8 @@ import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 import static io.ballerina.types.typeops.CellOps.intersectCellAtomicType;
 import static io.ballerina.types.typeops.ListOps.bddListMemberTypeInnerVal;
 import static io.ballerina.types.typeops.MappingOps.bddMappingMemberTypeInner;
+import static java.lang.Long.MAX_VALUE;
+import static java.lang.Long.MIN_VALUE;
 
 /**
  * Contain functions defined in `core.bal` file.
@@ -430,6 +433,157 @@ public final class Core {
             return bddListMemberTypeInnerVal(cx, (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_LIST), keyData,
                     VAL);
         }
+    }
+
+    static final ListMemberTypes LIST_MEMBER_TYPES_ALL = ListMemberTypes.from(
+            new Range[]{Range.from(0, MAX_VALUE)},
+            new SemType[]{VAL}
+    );
+
+    static final ListMemberTypes LIST_MEMBER_TYPES_NONE = ListMemberTypes.from(new Range[0], new SemType[0]);
+
+    public static ListMemberTypes listAllMemberTypesInner(Context cx, SemType t) {
+        if (t instanceof BasicTypeBitSet b) {
+            return (b.bitset & LIST.bitset) != 0 ? LIST_MEMBER_TYPES_ALL : LIST_MEMBER_TYPES_NONE;
+        }
+
+        ComplexSemType ct = (ComplexSemType) t;
+        List<Range> ranges = new ArrayList<>();
+        List<SemType> types = new ArrayList<>();
+
+
+        Range[] allRanges = bddListAllRanges(cx, (Bdd) getComplexSubtypeData(ct, BT_LIST), new Range[]{});
+        for (Range r : allRanges) {
+            SemType m = listMemberTypeInnerVal(cx, t, IntSubtype.intConst(r.min));
+            if (!NEVER.equals(m)) {
+                ranges.add(r);
+                types.add(m);
+            }
+        }
+        return ListMemberTypes.from(ranges.toArray(Range[]::new), types.toArray(SemType[]::new));
+    }
+
+    static Range[] bddListAllRanges(Context cx, Bdd b, Range[] accum) {
+        if (b instanceof BddAllOrNothing allOrNothing) {
+            return allOrNothing.isAll() ? accum : new Range[0];
+        } else {
+            BddNode bddNode = (BddNode) b;
+            ListMemberTypes listMemberTypes = listAtomicTypeAllMemberTypesInnerVal(cx.listAtomType(bddNode.atom()));
+            return distinctRanges(bddListAllRanges(cx, bddNode.left(), distinctRanges(listMemberTypes.ranges(), accum)),
+                    distinctRanges(bddListAllRanges(cx, bddNode.middle(), accum),
+                            bddListAllRanges(cx, bddNode.right(), accum)));
+        }
+    }
+
+    static Range[] distinctRanges(Range[] range1, Range[] range2) {
+        CombinedRange[] combined = combineRanges(range1, range2);
+        Range[] range = new Range[combined.length];
+        for (int i = 0; i < combined.length; i++) {
+            range[i] = combined[i].range();
+        }
+        return range;
+    }
+
+    // If [r, i1, i2] is included in the result, then
+    //    at least one of i1 and i2 are not ()
+    //    if i1 is not (), then r is completely included in ranges1[i1]
+    //    if i2 is not (), then r is completely included in ranges2[i2]
+    // The ranges in the result are ordered and non-overlapping.
+    public static CombinedRange[] combineRanges(Range[] ranges1, Range[] ranges2) {
+        List<CombinedRange> combined = new ArrayList<>();
+        int i1 = 0;
+        int i2 = 0;
+        int len1 = ranges1.length;
+        int len2 = ranges2.length;
+        long cur = MIN_VALUE;
+        // This iterates over the boundaries between ranges
+        while (true) {
+            while (i1 < len1 && cur > ranges1[i1].max) {
+                i1 += 1;
+            }
+            while (i2 < len2 && cur > ranges2[i2].max) {
+                i2 += 1;
+            }
+
+            Long next = null;
+            if (i1 < len1) {
+                next = nextBoundary(cur, ranges1[i1], next);
+            }
+            if (i2 < len2) {
+                next = nextBoundary(cur, ranges2[i2], next);
+            }
+            long max = next == null ? MAX_VALUE : next - 1;
+            Long in1 = null;
+            if (i1 < len1) {
+                Range r = ranges1[i1];
+                if (cur >= r.min && max <= r.max) {
+                    in1 = (long) i1;
+                }
+            }
+            Long in2 = null;
+            if (i2 < len2) {
+                Range r = ranges2[i2];
+                if (cur >= r.min && max <= r.max) {
+                    in2 = (long) i2;
+                }
+            }
+            if (in1 != null || in2 != null) {
+                combined.add(CombinedRange.from(Range.from(cur, max), in1, in2));
+            }
+            if (next == null) {
+                break;
+            }
+            cur = next;
+        }
+        return combined.toArray(CombinedRange[]::new);
+    }
+
+    // Helper function for combineRanges
+    // Return smallest range boundary that is > cur and <= next
+    // null represents int:MAX_VALUE + 1
+    static Long nextBoundary(long cur, Range r, Long next) {
+        if ((r.min > cur) && (next == null || r.min < next)) {
+            return r.min;
+        }
+        if (r.max != MAX_VALUE) {
+            long i = r.max + 1;
+            if (i > cur && (next == null || i < next)) {
+                return i;
+            }
+        }
+        return next;
+    }
+
+    public static ListMemberTypes listAtomicTypeAllMemberTypesInnerVal(ListAtomicType atomicType) {
+        List<Range> ranges = new ArrayList<>();
+        List<SemType> types = new ArrayList<>();
+
+        List<CellSemType> cellInitial = atomicType.members().initial();
+        int initialLength = cellInitial.size();
+
+        List<SemType> initial = new ArrayList<>(initialLength);
+        for (CellSemType c : cellInitial) {
+            initial.add(cellInnerVal(c));
+        }
+
+        int fixedLength = atomicType.members().fixedLength();
+        if (initialLength != 0) {
+            types.addAll(initial);
+            for (int i = 0; i < initialLength; i++) {
+                ranges.add(Range.from(i, i));
+            }
+            if (initialLength < fixedLength) {
+                ranges.set(initialLength - 1, Range.from(initialLength - 1, fixedLength - 1));
+            }
+        }
+
+        SemType rest = cellInnerVal(atomicType.rest());
+        if (!Core.isNever(rest)) {
+            types.add(rest);
+            ranges.add(Range.from(fixedLength, MAX_VALUE));
+        }
+
+        return ListMemberTypes.from(ranges.toArray(Range[]::new), types.toArray(SemType[]::new));
     }
 
     public static MappingAtomicType mappingAtomicType(Context cx, SemType t) {
