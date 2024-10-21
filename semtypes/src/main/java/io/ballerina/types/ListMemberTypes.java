@@ -15,20 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.types.subtypedata;
+package io.ballerina.types;
 
-import io.ballerina.types.Atom;
-import io.ballerina.types.Bdd;
+import io.ballerina.types.subtypedata.Range;
 
 /**
- * Actual implementation of a generic Bdd node.
+ * Holds a pair of semtype[] and range[].
+ * <i>Note: Member types at the indices that are not contained in `Range` array represent `never.
+ * The SemTypes in this list are not `never`.</i>
  *
- * @param atom   the atom that this node represents
- * @param left   path that include this node's atom positively
- * @param middle path that doesn't include this node's atom
- * @param right  path that include this node's atom negatively
- * @since 2201.10.0
+ * @param ranges   Range array
+ * @param semTypes SemType array
+ * @since 2201.11.0
  */
-public record BddNodeImpl(Atom atom, Bdd left, Bdd middle, Bdd right) implements BddNode {
+public record ListMemberTypes(Range[] ranges, SemType[] semTypes) {
 
+    public static ListMemberTypes from(Range[] ranges, SemType[] semTypes) {
+        assert ranges != null && semTypes != null;
+        return new ListMemberTypes(ranges, semTypes);
+    }
 }

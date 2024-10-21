@@ -114,6 +114,21 @@ public final class SemTypeHelper {
         return SemTypes.isSubtypeSimple(t, bbs);
     }
 
+    public static boolean isSubtypeSimpleNotNever(BType bt, BasicTypeBitSet bbs) {
+        SemType t = SemTypeHelper.semType(bt);
+        return SemTypes.isSubtypeSimpleNotNever(t, bbs);
+    }
+
+    public static boolean containsBasicType(BType bt, BasicTypeBitSet bbs) {
+        SemType t = SemTypeHelper.semType(bt);
+        return SemTypes.containsBasicType(t, bbs);
+    }
+
+    public static boolean containsType(Context ctx, BType bt, SemType bbs) {
+        SemType t = SemTypeHelper.semType(bt);
+        return SemTypes.containsType(ctx, t, bbs);
+    }
+
     public static boolean isSubtype(Context context, BType bt, SemType st) {
         SemType s = SemTypeHelper.semType(bt);
         return SemTypes.isSubtype(context, s, st);

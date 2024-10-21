@@ -105,8 +105,16 @@ public final class SemTypes {
         return Core.isSubtypeSimple(t1, t2);
     }
 
+    public static boolean isSubtypeSimpleNotNever(SemType t1, BasicTypeBitSet t2) {
+        return !Core.isNever(t1) && Core.isSubtypeSimple(t1, t2);
+    }
+
     public static boolean containsBasicType(SemType t1, BasicTypeBitSet t2) {
         return (Core.widenToBasicTypes(t1).bitset & t2.bitset) != 0;
+    }
+
+    public static boolean containsType(Context context, SemType type, SemType typeToBeContained) {
+        return Core.isSameType(context, Core.intersect(type, typeToBeContained), typeToBeContained);
     }
 
     public static boolean isSameType(Context context, SemType t1, SemType t2) {

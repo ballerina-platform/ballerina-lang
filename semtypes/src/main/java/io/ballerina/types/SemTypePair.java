@@ -15,20 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.types.subtypedata;
-
-import io.ballerina.types.Atom;
-import io.ballerina.types.Bdd;
+package io.ballerina.types;
 
 /**
- * Actual implementation of a generic Bdd node.
+ * Holds a pair of semtypes.
  *
- * @param atom   the atom that this node represents
- * @param left   path that include this node's atom positively
- * @param middle path that doesn't include this node's atom
- * @param right  path that include this node's atom negatively
- * @since 2201.10.0
+ * @param t1 first semtype
+ * @param t2 second semtype
+ * @since 2201.11.0
  */
-public record BddNodeImpl(Atom atom, Bdd left, Bdd middle, Bdd right) implements BddNode {
+public record SemTypePair(SemType t1, SemType t2) {
 
+    public static SemTypePair from(SemType t1, SemType t2) {
+        assert t1 != null && t2 != null;
+        return new SemTypePair(t1, t2);
+    }
 }
