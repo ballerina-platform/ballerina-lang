@@ -250,8 +250,10 @@ public class BreakpointProcessor {
             }
         } catch (JdiProxyException e) {
             LOGGER.error(e.getMessage());
-            int stepType = ((StepRequest) jdiEventProcessor.getStepRequests().get(0)).depth();
-            jdiEventProcessor.sendStepRequest(threadId, stepType);
+            if (!jdiEventProcessor.getStepRequests().isEmpty()) {
+                int stepType = ((StepRequest) jdiEventProcessor.getStepRequests().get(0)).depth();
+                jdiEventProcessor.sendStepRequest(threadId, stepType);
+            }
         }
     }
 
