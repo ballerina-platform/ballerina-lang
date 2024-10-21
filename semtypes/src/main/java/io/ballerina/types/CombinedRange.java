@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,28 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.types.subtypedata;
+package io.ballerina.types;
+
+import io.ballerina.types.subtypedata.Range;
 
 /**
- * Int Range node.
+ * Represents a combined range.
  *
- * @since 2201.8.0
+ * @param range range
+ * @param i1    i1
+ * @param i2    i2
+ * @since 2201.11.0
  */
-public class Range {
-    public final long min;
-    public final long max;
+public record CombinedRange(Range range, Long i1, Long i2) {
 
-    public Range(long min, long max) {
-        this.min = min;
-        this.max = max;
-    }
-
-    public static Range from(long min, long max) {
-        return new Range(min, max);
-    }
-
-    @Override
-    public String toString() {
-        return "Range[" + min + ", " + max + "]";
+    public static CombinedRange from(Range range, Long i1, Long i2) {
+        return new CombinedRange(range, i1, i2);
     }
 }

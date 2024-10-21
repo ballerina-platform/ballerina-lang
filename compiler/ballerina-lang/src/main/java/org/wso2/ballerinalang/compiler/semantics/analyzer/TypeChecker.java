@@ -7652,7 +7652,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         BLangExpression arrExpr = argExprs.get(0);
         BType arrType = arrExpr.getBType();
-        boolean isOrderedType = types.isOrderedType(arrType, false);
+        boolean isOrderedType = types.isOrderedType(arrType);
         if (keyFunction == null) {
             if (!isOrderedType) {
                 dlog.error(arrExpr.pos, DiagnosticErrorCode.INVALID_SORT_ARRAY_MEMBER_TYPE, arrType);
@@ -7692,7 +7692,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             returnType = keyLambdaFunction.function.getBType().getReturnType();
         }
 
-        if (!types.isOrderedType(returnType, false)) {
+        if (!types.isOrderedType(returnType)) {
             dlog.error(pos, DiagnosticErrorCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
         }
     }

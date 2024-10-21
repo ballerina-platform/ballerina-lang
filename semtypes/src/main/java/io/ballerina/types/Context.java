@@ -33,6 +33,7 @@ public final class Context {
     public final Map<Bdd, BddMemo> functionMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> listMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();
+    public final Map<SemTypePair, Boolean> comparableMemo = new HashMap<>();
 
     // Contains all BddMemo entries with isEmpty == PROVISIONAL
     final List<BddMemo> memoStack = new ArrayList<>();

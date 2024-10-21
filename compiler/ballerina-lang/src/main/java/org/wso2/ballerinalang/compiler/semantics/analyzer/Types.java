@@ -21,13 +21,16 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.types.BasicTypeBitSet;
+import io.ballerina.types.CombinedRange;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Context;
 import io.ballerina.types.Core;
 import io.ballerina.types.Env;
+import io.ballerina.types.ListMemberTypes;
 import io.ballerina.types.MappingAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypePair;
 import io.ballerina.types.SemTypes;
 import io.ballerina.types.definition.ObjectDefinition;
 import io.ballerina.types.definition.ObjectQualifiers;
@@ -63,17 +66,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -83,8 +83,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
@@ -142,6 +140,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
+import static io.ballerina.types.Core.combineRanges;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -159,7 +158,6 @@ import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.OBJECT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.RECORD;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.UNION;
-import static org.wso2.ballerinalang.compiler.util.TypeTags.isSimpleBasicType;
 
 /**
  * This class consists of utility methods which operate on types.
@@ -407,26 +405,6 @@ public class Types {
 
     public boolean isSameType(SemType source, SemType target) {
         return SemTypes.isSameType(semTypeCtx, source, target);
-    }
-
-    public boolean isSameOrderedType(BType source, BType target) {
-        return isSameOrderedType(source, target, new HashSet<>());
-    }
-
-    private boolean isSameOrderedType(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        source = getImpliedType(source);
-        target = getImpliedType(target);
-        if (isNil(source) || isNil(target)) {
-            // If type T is ordered, then type T? Is also ordered.
-            // Both source and target are ordered types since they were checked in previous stage.
-            // Ex. Let take target -> T, source -> (). T? is ordered type where the static type of both operands belong.
-            return true;
-        }
-        if (!unresolvedTypes.add(new TypePair(source, target))) {
-            return true;
-        }
-        BTypeVisitor<BType, Boolean> orderedTypeVisitor = new BOrderedTypeVisitor(unresolvedTypes);
-        return target.accept(orderedTypeVisitor, source);
     }
 
     public SemType anydata() {
@@ -2113,369 +2091,6 @@ public class Types {
     }
 
     // private methods
-
-    private class BOrderedTypeVisitor implements BTypeVisitor<BType, Boolean> {
-
-        Set<TypePair> unresolvedTypes;
-
-        BOrderedTypeVisitor(Set<TypePair> unresolvedTypes) {
-            this.unresolvedTypes = unresolvedTypes;
-        }
-
-        @Override
-        public Boolean visit(BType target, BType source) {
-            BType sourceType = getImpliedType(source);
-            BType targetType = getImpliedType(target);
-            int sourceTag = sourceType.tag;
-            int targetTag = targetType.tag;
-            if (isSimpleBasicType(sourceTag) && isSimpleBasicType(targetTag)) {
-                // If type T is ordered, then type T? Is also ordered.
-                return (source == target) || sourceTag == TypeTags.NIL || targetTag == TypeTags.NIL ||
-                        isIntOrStringType(sourceTag, targetTag);
-            }
-            if (sourceTag == TypeTags.FINITE) {
-                return checkValueSpaceHasSameOrderedType(((BFiniteType) source), target);
-            }
-            return isSameOrderedType(target, source, this.unresolvedTypes);
-        }
-
-        @Override
-        public Boolean visit(BArrayType target, BType source) {
-            source = getImpliedType(source);
-            if (source.tag != TypeTags.ARRAY) {
-                if (source.tag == TypeTags.TUPLE || source.tag == TypeTags.UNION) {
-                    return isSameOrderedType(target, source);
-                }
-                return false;
-            }
-            return isSameOrderedType(target.eType, ((BArrayType) source).eType, unresolvedTypes);
-        }
-
-        @Override
-        public Boolean visit(BTupleType target, BType source) {
-            source = getImpliedType(source);
-            if (source.tag == TypeTags.UNION) {
-                return isSameOrderedType(target, source);
-            }
-            if (source.tag != TypeTags.TUPLE && source.tag != TypeTags.ARRAY) {
-                return false;
-            }
-            List<BType> targetTupleTypes = target.getTupleTypes();
-            BType targetRestType = target.restType;
-
-            if (source.tag == TypeTags.ARRAY) {
-                // Check whether the element type of the source array has same ordered type with each member type in
-                // target tuple type.
-                BType eType = ((BArrayType) source).eType;
-                for (BType memberType : targetTupleTypes) {
-                    if (!isSameOrderedType(eType, memberType, this.unresolvedTypes)) {
-                        return false;
-                    }
-                }
-                if (targetRestType == null) {
-                    return true;
-                }
-                return isSameOrderedType(targetRestType, eType, this.unresolvedTypes);
-            }
-
-            BTupleType sourceT = (BTupleType) source;
-            List<BType> sourceTupleTypes = sourceT.getTupleTypes();
-
-            BType sourceRestType = sourceT.restType;
-
-            int sourceTupleCount = sourceTupleTypes.size();
-            int targetTupleCount = targetTupleTypes.size();
-
-            int len = Math.min(sourceTupleCount, targetTupleCount);
-            for (int i = 0; i < len; i++) {
-                // Check whether the corresponding member types are same ordered type.
-                if (!isSameOrderedType(sourceTupleTypes.get(i), targetTupleTypes.get(i),
-                        this.unresolvedTypes)) {
-                    return false;
-                }
-            }
-
-            if (sourceTupleCount == targetTupleCount) {
-                if (sourceRestType == null || targetRestType == null) {
-                    return true;
-                }
-                return isSameOrderedType(sourceRestType, targetRestType, this.unresolvedTypes);
-            } else if (sourceTupleCount > targetTupleCount) {
-                // Source tuple has higher number of member types.
-                // Check whether the excess member types can be narrowed to an ordered rest type in source tuple.
-                // Ex. source tuple -> [string, (), float, int, byte]
-                //     target tuple -> [string, (), float]
-                //     here, source tuple can be represented as [string, (), float, int...]
-                //     since [string, (), float] & [string, (), float, int...] are individually order types and
-                //     [string, (), float, int...] can be taken as the ordered type which the static type of both
-                //     operands belong.
-                if (!hasCommonOrderedTypeForTuples(sourceTupleTypes, targetTupleCount + 1)) {
-                    return false;
-                }
-                return checkSameOrderedTypeInTuples(sourceT, sourceTupleCount, targetTupleCount, sourceRestType,
-                        targetRestType);
-            } else {
-                // Target tuple has higher number of member types.
-                if (!hasCommonOrderedTypeForTuples(targetTupleTypes, sourceTupleCount + 1)) {
-                    return false;
-                }
-                return checkSameOrderedTypeInTuples(target, targetTupleCount, sourceTupleCount, targetRestType,
-                        sourceRestType);
-            }
-        }
-
-        private boolean hasCommonOrderedTypeForTuples(List<BType> typeList, int startIndex) {
-            BType baseType = typeList.get(startIndex - 1);
-            for (int i = startIndex; i < typeList.size(); i++) {
-                if (isNil(baseType)) {
-                    baseType = typeList.get(i);
-                    continue;
-                }
-                if (!isSameOrderedType(baseType, typeList.get(i), this.unresolvedTypes)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        private boolean checkSameOrderedTypeInTuples(BTupleType source, int sourceTupleCount,
-                                                     int targetTupleCount,
-                                                     BType sourceRestType, BType targetRestType) {
-            if (targetRestType == null) {
-                return true;
-            }
-            for (int i = targetTupleCount; i < sourceTupleCount; i++) {
-                if (!isSameOrderedType(source.getTupleTypes().get(i), targetRestType, this.unresolvedTypes)) {
-                    return false;
-                }
-            }
-            if (sourceRestType == null) {
-                return true;
-            }
-            return isSameOrderedType(sourceRestType, targetRestType, this.unresolvedTypes);
-        }
-
-        @Override
-        public Boolean visit(BUnionType target, BType source) {
-            source = getImpliedType(source);
-            if (source.tag != TypeTags.UNION || !hasSameReadonlyFlag(source, target)) {
-                return checkUnionHasSameType(target, source);
-            }
-
-            BUnionType sUnionType = (BUnionType) source;
-            LinkedHashSet<BType> sourceTypes = sUnionType.getMemberTypes();
-            LinkedHashSet<BType> targetTypes = target.getMemberTypes();
-
-            if (checkUnionHasAllFiniteOrNilMembers(sourceTypes) && checkUnionHasAllFiniteOrNilMembers(targetTypes)) {
-                BType type = getImpliedType(target.getMemberTypes().iterator().next());
-                BFiniteType finiteType;
-                if (type.tag == TypeTags.NIL) {
-                    finiteType = BFiniteType.newSingletonBFiniteType(null, PredefinedType.NIL);
-                } else {
-                    finiteType = (BFiniteType) type;
-                }
-                return checkValueSpaceHasSameOrderedType(finiteType, sUnionType.getMemberTypes().iterator().next());
-            }
-
-            return checkSameOrderedTypesInUnionMembers(sourceTypes, targetTypes);
-        }
-
-        private boolean checkSameOrderedTypesInUnionMembers(LinkedHashSet<BType> sourceTypes,
-                                                            LinkedHashSet<BType> targetTypes) {
-
-            for (BType sourceT : sourceTypes) {
-                boolean foundSameOrderedType = false;
-                if (isNil(sourceT)) {
-                    continue;
-                }
-                for (BType targetT : targetTypes) {
-                    if (isNil(targetT)) {
-                        foundSameOrderedType = true;
-                        continue;
-                    }
-                    if (isSameOrderedType(targetT, sourceT, this.unresolvedTypes)) {
-                        foundSameOrderedType = true;
-                    } else {
-                        return false;
-                    }
-                }
-                if (!foundSameOrderedType) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        @Override
-        public Boolean visit(BFiniteType t, BType s) {
-            return checkValueSpaceHasSameOrderedType(t, s);
-        }
-
-        private boolean hasSameReadonlyFlag(BType source, BType target) {
-            return Symbols.isFlagOn(target.getFlags(), Flags.READONLY) ==
-                    Symbols.isFlagOn(source.getFlags(), Flags.READONLY);
-        }
-
-        @Override
-        public Boolean visit(BBuiltInRefType t, BType s) {
-            return false;
-        }
-
-        @Override
-        public Boolean visit(BAnyType t, BType s) {
-            return false;
-        }
-
-        @Override
-        public Boolean visit(BAnydataType t, BType s) {
-            return false;
-        }
-
-        @Override
-        public Boolean visit(BMapType t, BType s) {
-            return false;
-        }
-
-        @Override
-        public Boolean visit(BFutureType t, BType s) {
-            return false;
-        }
-
-        @Override
-        public Boolean visit(BXMLType t, BType s) {
-            return false;
-        }
-
-        @Override
-        public Boolean visit(BJSONType t, BType s) {
-            return false;
-        }
-
-
-        @Override
-        public Boolean visit(BObjectType t, BType s) {
-            return false;
-        }
-
-        @Override
-        public Boolean visit(BRecordType t, BType s) {
-            return false;
-        }
-
-        @Override
-        public Boolean visit(BStreamType t, BType s) {
-            return false;
-        }
-
-        @Override
-        public Boolean visit(BTableType t, BType s) {
-            return false;
-        }
-
-        @Override
-        public Boolean visit(BInvokableType t, BType s) {
-            return false;
-        }
-
-        @Override
-        public Boolean visit(BIntersectionType tIntersectionType, BType s) {
-            return this.visit(getImpliedType(tIntersectionType), s);
-        }
-
-        @Override
-        public Boolean visit(BErrorType t, BType s) {
-            return false;
-        }
-
-        @Override
-        public Boolean visit(BTypedescType t, BType s) {
-            return false;
-        }
-
-        public Boolean visit(BTypeReferenceType t, BType s) {
-            return this.visit(getImpliedType(t), t);
-        }
-
-        @Override
-        public Boolean visit(BParameterizedType t, BType s) {
-            return false;
-        }
-    }
-
-    private boolean isNil(BType type) {
-        // Currently, type reference for `null` literal is taken as Finite type and type reference for `()` literal
-        // taken as Nil type.
-        BType referredType = getImpliedType(type);
-        TypeKind referredTypeKind = referredType.getKind();
-        if (referredTypeKind == TypeKind.NIL) {
-            return true;
-        } else if (referredTypeKind == TypeKind.FINITE) {
-            return SemTypes.isSubtype(semTypeCtx, referredType.semType(), PredefinedType.NIL);
-        }
-        return false;
-    }
-
-    private boolean checkUnionHasSameType(BUnionType unionType, BType baseType) {
-        LinkedHashSet<BType> memberTypes = unionType.getMemberTypes();
-        for (BType type : memberTypes) {
-            type = getImpliedType(type);
-            if (type.tag == TypeTags.FINITE) {
-                Set<BType> broadTypes = SemTypeHelper.broadTypes((BFiniteType) type, symTable);
-                for (BType broadType : broadTypes) {
-                    if (!isSameOrderedType(broadType, baseType)) {
-                        return false;
-                    }
-                }
-//            } else if (type.tag == TypeTags.UNION) {
-//                if (!checkUnionHasSameType((BUnionType) type, baseType)) {
-//                    return false;
-//                }
-            } else if (type.tag == TypeTags.TUPLE || type.tag == TypeTags.ARRAY) {
-                if (!isSameOrderedType(type, baseType)) {
-                    return false;
-                }
-            } else if (isSimpleBasicType(type.tag)) {
-                if (!isSameOrderedType(type, baseType) && !isNil(type)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Checks whether all values belong to the same ordered type.
-     *
-     * @param finiteType BFiniteType to be checked
-     * @param type       BType to be checked
-     * @return true if all values of two types belong to the same ordered type, false otherwise
-     */
-    private boolean checkValueSpaceHasSameOrderedType(BFiniteType finiteType, BType type) {
-        BType baseType = getImpliedType(type);
-        Set<BType> broadTypes = SemTypeHelper.broadTypes(finiteType, symTable);
-        if (baseType.tag == TypeTags.FINITE) {
-            BType baseExprType = broadTypes.iterator().next();
-            return checkValueSpaceHasSameOrderedType(((BFiniteType) baseType), baseExprType);
-        }
-
-        for (BType broadType : broadTypes) {
-            if (!isSameOrderedType(broadType, baseType)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private boolean checkUnionHasAllFiniteOrNilMembers(LinkedHashSet<BType> memberTypes) {
-        for (BType bType : memberTypes) {
-            BType type = getImpliedType(bType);
-            if (type.tag != TypeTags.FINITE && !isNil(type)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, Set<TypePair> unresolvedTypes) {
         Map<String, BField> rhsFields = new LinkedHashMap<>(rhsType.fields);
@@ -4667,79 +4282,25 @@ public class Types {
     /**
      * Check whether a type is an ordered type.
      *
-     * @param type     type to be checked
-     * @param hasCycle whether there is a cycle
+     * @param type type to be checked
      * @return boolean whether the type is an ordered type or not
      */
-    public boolean isOrderedType(BType type, boolean hasCycle) {
-        type = getImpliedType(type);
-        switch (type.tag) {
-            case TypeTags.UNION:
-                BUnionType unionType = (BUnionType) type;
-                if (hasCycle) {
-                    return true;
-                }
-                if (unionType.isCyclic) {
-                    hasCycle = true;
-                }
-                Set<BType> memberTypes = unionType.getMemberTypes();
-                boolean allMembersOrdered = false;
-                BType firstTypeInUnion = getTypeWithEffectiveIntersectionTypes(getImpliedType(
-                        memberTypes.stream().filter(m -> !isNil(m)).findFirst().orElse(memberTypes.iterator().next())));
-                if (isNil(firstTypeInUnion)) {
-                    // Union contains only the nil type.
-                    return true;
-                }
-                boolean isFirstTypeInUnionFinite = firstTypeInUnion.tag == TypeTags.FINITE;
-                for (BType memType : memberTypes) {
-                    memType = getImpliedType(memType);
-                    if (isFirstTypeInUnionFinite && memType.tag == TypeTags.FINITE && !isNil(memType)) {
-                        if (!checkValueSpaceHasSameOrderedType((BFiniteType) memType, firstTypeInUnion)) {
-                            return false;
-                        }
-                    } else if (memType.tag == TypeTags.UNION || memType.tag == TypeTags.ARRAY ||
-                            memType.tag == TypeTags.TUPLE) {
-                        if (isSameOrderedType(memType, firstTypeInUnion)) {
-                            allMembersOrdered = true;
-                            continue;
-                        }
-                        return false;
-                    } else if (memType.tag != firstTypeInUnion.tag && !isNil(memType) &&
-                            !isIntOrStringType(memType.tag, firstTypeInUnion.tag)) {
-                        return false;
-                    }
-                    allMembersOrdered = isOrderedType(memType, hasCycle);
-                    if (!allMembersOrdered) {
-                        break;
-                    }
-                }
-                return allMembersOrdered;
-            case TypeTags.ARRAY:
-                BType elementType = ((BArrayType) type).eType;
-                return isOrderedType(elementType, hasCycle);
-            case TypeTags.TUPLE:
-                List<BType> tupleMemberTypes = ((BTupleType) type).getTupleTypes();
-                for (BType memType : tupleMemberTypes) {
-                    if (!isOrderedType(memType, hasCycle)) {
-                        return false;
-                    }
-                }
-                BType restType = ((BTupleType) type).restType;
-                return restType == null || isOrderedType(restType, hasCycle);
-            case TypeTags.FINITE:
-                return isOrderedType(type.semType());
-            default:
-                return isSimpleBasicType(type.tag);
-        }
+    public boolean isOrderedType(BType type) {
+        SemType t = SemTypeHelper.semType(type);
+        return isOrderedType(t);
     }
 
     /**
      * Checks whether a SemType is an ordered type.
      * <br/>
-     * A type is an ordered type if all values belong to one of (), int?, boolean?, decimal?, float?, string? types.
      * <p>
-     * <i>Note: this is kind of similar to <code>comparable()</code> in nBallerina</i>
-     * </p>
+     * A type is an ordered type if all values belong to one of (), int?, boolean?, decimal?, float?, string? types.
+     * Additionally,
+     * <ul>
+     *   <li>[T...] is ordered, if T is ordered;</li>
+     *   <li>[] is ordered;</li>
+     *   <li>[T, rest] is ordered if T is ordered and [rest] is ordered.</li>
+     * </ul>
      *
      * @param t SemType to be checked
      * @return boolean
@@ -4753,13 +4314,97 @@ public class Types {
             return bitCount <= 1;
         }
 
+        if (SemTypes.isSubtypeSimple(tButNil, PredefinedType.LIST)) {
+            ListMemberTypes lmTypes = Core.listAllMemberTypesInner(typeCtx(), t);
+            for (SemType lmType : lmTypes.semTypes()) {
+                if (!isOrderedType(lmType)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         return false;
     }
 
-    private boolean isIntOrStringType(int firstTypeTag, int secondTypeTag) {
-        return ((TypeTags.isIntegerTypeTag(firstTypeTag) || (firstTypeTag == TypeTags.BYTE)) &&
-                (TypeTags.isIntegerTypeTag(secondTypeTag) || (secondTypeTag == TypeTags.BYTE))) ||
-                ((TypeTags.isStringTypeTag(firstTypeTag)) && (TypeTags.isStringTypeTag(secondTypeTag)));
+    boolean comparable(BType t1, BType t2) {
+        return comparable(SemTypeHelper.semType(t1), SemTypeHelper.semType(t2));
+    }
+
+    /**
+     * Checks whether a SemType pair is comparable.
+     * <br/>
+     * <p>
+     * <i>Note: this is similar to <code>comparable()</code> in nBallerina. However, nBallerina API does not have
+     * "There must be an ordered type to which the static type of both operands belong" part from spec, implemented</i>
+     * </p>
+     *
+     * @param t1 first semType
+     * @param t2 second semType
+     * @return boolean
+     */
+    boolean comparable(SemType t1, SemType t2) {
+        assert !Core.isNever(t1) && !Core.isNever(t2);
+        if (PredefinedType.NIL.equals(t1)) {
+            return isOrderedType(t2);
+        }
+
+        if (PredefinedType.NIL.equals(t2)) {
+            return isOrderedType(t1);
+        }
+
+        SemType tButNil = Core.diff(Core.union(t1, t2), PredefinedType.NIL);
+        BasicTypeBitSet basicTypeBitSet = Core.widenToBasicTypes(tButNil);
+        if (SemTypes.isSubtypeSimple(basicTypeBitSet, PredefinedType.SIMPLE_OR_STRING)) {
+            int bitCount = SemTypeHelper.bitCount(basicTypeBitSet.bitset);
+            return bitCount <= 1;
+        }
+        if (SemTypes.isSubtypeSimple(tButNil, PredefinedType.LIST)) {
+            return comparableNillableList(typeCtx(), t1, t2);
+        }
+        return false;
+    }
+
+    private boolean comparableNillableList(Context cx, SemType t1, SemType t2) {
+        SemTypePair semPair = SemTypePair.from(t1, t2);
+        Boolean b = cx.comparableMemo.get(semPair);
+        if (b != null) {
+            return b;
+        }
+
+        ListMemberTypes lmTypes1 = Core.listAllMemberTypesInner(cx, t1);
+        ListMemberTypes lmTypes2 = Core.listAllMemberTypesInner(cx, t2);
+        CombinedRange[] combinedRanges = combineRanges(lmTypes1.ranges(), lmTypes2.ranges());
+        SemType accum = PredefinedType.NIL;
+        for (CombinedRange combinedRange : combinedRanges) {
+            Long i1 = combinedRange.i1();
+            Long i2 = combinedRange.i2();
+            if (i1 == null) {
+                SemType lmType = lmTypes2.semTypes()[Math.toIntExact(i2)];
+                if (!comparable(accum, lmType)) {
+                    return false;
+                }
+                accum = Core.union(accum, lmType);
+                continue;
+            }
+
+            if (i2 == null) {
+                SemType lmType = lmTypes1.semTypes()[Math.toIntExact(i1)];
+                if (!comparable(accum, lmType)) {
+                    return false;
+                }
+                accum = Core.union(accum, lmType);
+                continue;
+            }
+
+
+            if (!comparable(lmTypes1.semTypes()[Math.toIntExact(i1)], lmTypes2.semTypes()[Math.toIntExact(i2)])) {
+                cx.comparableMemo.put(semPair, false);
+                return false;
+            }
+        }
+        cx.comparableMemo.put(semPair, true);
+        return true;
     }
 
     public boolean isSubTypeOfSimpleBasicTypeOrString(BType bType) {

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,28 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.types.subtypedata;
+package io.ballerina.types;
 
 /**
- * Int Range node.
+ * Holds a pair of semtypes.
  *
- * @since 2201.8.0
+ * @param t1 first semtype
+ * @param t2 second semtype
+ * @since 2201.11.0
  */
-public class Range {
-    public final long min;
-    public final long max;
+public record SemTypePair(SemType t1, SemType t2) {
 
-    public Range(long min, long max) {
-        this.min = min;
-        this.max = max;
-    }
-
-    public static Range from(long min, long max) {
-        return new Range(min, max);
-    }
-
-    @Override
-    public String toString() {
-        return "Range[" + min + ", " + max + "]";
+    public static SemTypePair from(SemType t1, SemType t2) {
+        assert t1 != null && t2 != null;
+        return new SemTypePair(t1, t2);
     }
 }

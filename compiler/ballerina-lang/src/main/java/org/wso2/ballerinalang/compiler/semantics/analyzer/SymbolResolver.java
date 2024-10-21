@@ -2081,8 +2081,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             case LESS_EQUAL:
             case GREATER_THAN:
             case GREATER_EQUAL:
-                validOrderedTypesExist = types.isOrderedType(lhsType, false) &&
-                        types.isOrderedType(rhsType, false) && types.isSameOrderedType(lhsType, rhsType);
+                validOrderedTypesExist = types.comparable(lhsType, rhsType);
                 break;
             default:
                 return symTable.notFoundSymbol;
