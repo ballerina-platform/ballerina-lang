@@ -45,12 +45,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -68,7 +68,7 @@ public class BreakpointProcessor {
 
     private final ExecutionContext context;
     private final JDIEventProcessor jdiEventProcessor;
-    private final Map<String, LinkedHashMap<Integer, BalBreakpoint>> userBreakpoints = new HashMap<>();
+    private final Map<String, LinkedHashMap<Integer, BalBreakpoint>> userBreakpoints = new ConcurrentHashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(BreakpointProcessor.class);
 
     public BreakpointProcessor(ExecutionContext context, JDIEventProcessor jdiEventProcessor) {
@@ -77,7 +77,7 @@ public class BreakpointProcessor {
     }
 
     public Map<String, LinkedHashMap<Integer, BalBreakpoint>> getUserBreakpoints() {
-        return Map.copyOf(userBreakpoints);
+        return userBreakpoints;
     }
 
     /**
