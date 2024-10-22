@@ -227,7 +227,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             SetBreakpointsResponse bpResponse = new SetBreakpointsResponse();
             String sourcePathUri = args.getSource().getPath();
             Optional<String> qualifiedClassName = getQualifiedClassName(context, sourcePathUri);
-
             if (qualifiedClassName.isEmpty()) {
                 LOGGER.warn("Failed to set breakpoints. Source path is not a valid Ballerina source: " + sourcePathUri);
                 return bpResponse;
@@ -236,7 +235,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             eventProcessor.enableBreakpoints(qualifiedClassName.get(), breakpointsMap);
             BreakpointProcessor bpProcessor = eventProcessor.getBreakpointProcessor();
             Map<Integer, BalBreakpoint> userBpMap = bpProcessor.getUserBreakpoints().get(qualifiedClassName.get());
-
             if (userBpMap == null) {
                 LOGGER.warn("Failed to set breakpoints for source: " + sourcePathUri);
                 return bpResponse;
@@ -245,7 +243,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             Breakpoint[] breakpoints = userBpMap.values().stream()
                     .map(BalBreakpoint::getAsDAPBreakpoint)
                     .toArray(Breakpoint[]::new);
-
             bpResponse.setBreakpoints(breakpoints);
             return bpResponse;
         });
