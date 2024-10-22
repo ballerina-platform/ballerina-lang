@@ -328,8 +328,7 @@ public class Types {
     }
 
     private boolean isLaxType(BType type) {
-        SemType t = SemTypeHelper.semType(type);
-        return isLaxType(t);
+        return isLaxType(type.semType());
     }
 
     /**
@@ -380,7 +379,7 @@ public class Types {
     }
 
     public boolean isSameType(BType source, BType target) {
-        return isSameType(SemTypeHelper.semType(source), SemTypeHelper.semType(target));
+        return isSameType(source.semType(), target.semType());
     }
 
     public boolean isSameTypeIncludingTags(BType source, BType target) {
@@ -400,7 +399,7 @@ public class Types {
             }
         }
 
-        return isSameType(SemTypeHelper.semType(source), SemTypeHelper.semType(target));
+        return isSameType(source.semType(), target.semType());
     }
 
     public boolean isSameType(SemType source, SemType target) {
@@ -2456,9 +2455,8 @@ public class Types {
         BFiniteType bFiniteType = (BFiniteType) finiteType;
         List<SemNamedType> newValueSpace = new ArrayList<>(bFiniteType.valueSpace.length);
 
-        SemType targetSemType = SemTypeHelper.semType(targetType);
         for (SemNamedType semNamedType : bFiniteType.valueSpace) {
-            if (SemTypes.isSubtype(semTypeCtx, semNamedType.semType(), targetSemType)) {
+            if (SemTypes.isSubtype(semTypeCtx, semNamedType.semType(), targetType.semType())) {
                 newValueSpace.add(semNamedType);
             }
         }
@@ -2595,8 +2593,7 @@ public class Types {
      * @return a boolean
      */
     boolean validNumericTypeExists(BType type) {
-        SemType t = SemTypeHelper.semType(type);
-        SemType tButNil = Core.diff(t, PredefinedType.NIL); // nil lift
+        SemType tButNil = Core.diff(type.semType(), PredefinedType.NIL); // nil lift
         BasicTypeBitSet basicTypeBitSet = Core.widenToBasicTypes(tButNil);
         return basicTypeBitSet.equals(PredefinedType.INT) ||
                 basicTypeBitSet.equals(PredefinedType.FLOAT) ||
@@ -2604,7 +2601,7 @@ public class Types {
     }
 
     boolean validIntegerTypeExists(BType bType) {
-        SemType s = SemTypeHelper.semType(bType);
+        SemType s = bType.semType();
         s = Core.diff(s, PredefinedType.NIL); // nil lift
         return SemTypes.isSubtypeSimpleNotNever(s, PredefinedType.INT);
     }
@@ -3866,8 +3863,7 @@ public class Types {
     private BType getRemainingType(BFiniteType originalType, List<BType> removeTypes) {
         SemType removeSemType = PredefinedType.NEVER;
         for (BType removeType : removeTypes) {
-            SemType semTypeToRemove = SemTypeHelper.semType(removeType);
-            removeSemType = SemTypes.union(removeSemType, semTypeToRemove);
+            removeSemType = SemTypes.union(removeSemType, removeType.semType());
         }
 
         List<SemNamedType> newValueSpace = new ArrayList<>();
@@ -4286,8 +4282,7 @@ public class Types {
      * @return boolean whether the type is an ordered type or not
      */
     public boolean isOrderedType(BType type) {
-        SemType t = SemTypeHelper.semType(type);
-        return isOrderedType(t);
+        return isOrderedType(type.semType());
     }
 
     /**
@@ -4328,7 +4323,7 @@ public class Types {
     }
 
     boolean comparable(BType t1, BType t2) {
-        return comparable(SemTypeHelper.semType(t1), SemTypeHelper.semType(t2));
+        return comparable(t1.semType(), t2.semType());
     }
 
     /**
@@ -4555,7 +4550,7 @@ public class Types {
     }
 
     public boolean isNeverType(BType type) {
-        return Core.isNever(SemTypeHelper.semType(type));
+        return Core.isNever(type.semType());
     }
 
     boolean isSingletonType(BType bType) {

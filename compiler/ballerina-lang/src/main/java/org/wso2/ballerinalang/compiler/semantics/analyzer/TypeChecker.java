@@ -5462,8 +5462,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return false;
         }
 
-        SemType s = SemTypeHelper.semType(expectedType);
-        SemType t = Core.diff(s, PredefinedType.NIL);
+        SemType t = Core.diff(expectedType.semType(), PredefinedType.NIL);
         return PredefinedType.FLOAT.equals(t) || PredefinedType.DECIMAL.equals(t);
     }
 
@@ -8756,7 +8755,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private boolean accessCouldResultInError(BType bType) {
-        SemType s = SemTypeHelper.semType(bType);
+        SemType s = bType.semType();
         return SemTypes.containsBasicType(s, PredefinedType.XML) ||
                 SemTypes.containsType(types.semTypeCtx, s, Core.createJson(types.semTypeCtx));
     }

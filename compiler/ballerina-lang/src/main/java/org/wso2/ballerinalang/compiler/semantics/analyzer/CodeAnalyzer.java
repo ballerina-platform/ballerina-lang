@@ -21,7 +21,6 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
-import io.ballerina.types.SemType;
 import io.ballerina.types.Value;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
@@ -2274,8 +2273,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private boolean hasNonErrorType(BType returnType) {
-        SemType s = SemTypeHelper.semType(returnType);
-        return !Core.isEmpty(types.typeCtx(), Core.diff(s, PredefinedType.ERROR));
+        return !Core.isEmpty(types.typeCtx(), Core.diff(returnType.semType(), PredefinedType.ERROR));
     }
 
     @Override
