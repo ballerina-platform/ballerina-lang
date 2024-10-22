@@ -810,12 +810,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
                 }
                 return literalExpr.getBType();
-            } else if (expectedType.tag == TypeTags.FLOAT) {
-                if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
-                    data.resultType = symTable.semanticError;
-                    return symTable.semanticError;
-                }
-                return symTable.floatType;
             } else if (expectedType.tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) expectedType;
                 for (int tag = TypeTags.FLOAT; tag <= TypeTags.DECIMAL; tag++) {
@@ -6786,15 +6780,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(iExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias);
         } else {
-            if (funcSymbol == symTable.notFoundSymbol) {
-                BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(iExpr.pos, data.env, pkgAlias, funcName);
-                if ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
-                    funcSymbol = symbol;
-                }
-                if (symTable.rootPkgSymbol.pkgID.equals(symbol.pkgID) &&
-                        (symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
-                    funcSymbol = symbol;
-                }
+            BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(iExpr.pos, data.env, pkgAlias, funcName);
+            if ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
+                funcSymbol = symbol;
+            }
+            if (symTable.rootPkgSymbol.pkgID.equals(symbol.pkgID) &&
+                    (symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
+                funcSymbol = symbol;
             }
             if (funcSymbol == symTable.notFoundSymbol || ((funcSymbol.tag & SymTag.TYPE) == SymTag.TYPE)) {
                 BSymbol ctor =
