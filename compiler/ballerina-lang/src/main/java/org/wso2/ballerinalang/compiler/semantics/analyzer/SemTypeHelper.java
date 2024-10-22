@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -105,103 +104,28 @@ public final class SemTypeHelper {
         }
     }
 
-    public static SemType semType(BType t) {
-        return semType(t, false);
-    }
-
     public static boolean isSubtypeSimple(BType bt, BasicTypeBitSet bbs) {
-        SemType t = SemTypeHelper.semType(bt);
-        return SemTypes.isSubtypeSimple(t, bbs);
+        return SemTypes.isSubtypeSimple(bt.semType(), bbs);
     }
 
     public static boolean isSubtypeSimpleNotNever(BType bt, BasicTypeBitSet bbs) {
-        SemType t = SemTypeHelper.semType(bt);
-        return SemTypes.isSubtypeSimpleNotNever(t, bbs);
+        return SemTypes.isSubtypeSimpleNotNever(bt.semType(), bbs);
     }
 
     public static boolean containsBasicType(BType bt, BasicTypeBitSet bbs) {
-        SemType t = SemTypeHelper.semType(bt);
-        return SemTypes.containsBasicType(t, bbs);
+        return SemTypes.containsBasicType(bt.semType(), bbs);
     }
 
     public static boolean containsType(Context ctx, BType bt, SemType bbs) {
-        SemType t = SemTypeHelper.semType(bt);
-        return SemTypes.containsType(ctx, t, bbs);
+        return SemTypes.containsType(ctx, bt.semType(), bbs);
     }
 
     public static boolean isSubtype(Context context, BType bt, SemType st) {
-        SemType s = SemTypeHelper.semType(bt);
-        return SemTypes.isSubtype(context, s, st);
+        return SemTypes.isSubtype(context, bt.semType(), st);
     }
 
     public static SemType semType(BType t, boolean ignoreObjectTypeIds) {
-        if (t == null) { // TODO: may be able to fix after tackling bir recursion issue
-            return PredefinedType.NEVER;
-        }
-
-        if (t.tag == TypeTags.TYPEREFDESC) {
-            return semType(((BTypeReferenceType) t).referredType, ignoreObjectTypeIds);
-        }
-
         switch (t.tag) {
-            case TypeTags.INTERSECTION:
-            case TypeTags.ANYDATA:
-            case TypeTags.JSON:
-            case TypeTags.ANY:
-            case TypeTags.READONLY:
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE:
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
-            case TypeTags.INVOKABLE:
-            case TypeTags.FUTURE:
-            case TypeTags.TYPEDESC:
-            case TypeTags.STREAM:
-            case TypeTags.ERROR:
-            case TypeTags.TABLE:
-            case TypeTags.SEQUENCE:
-            case TypeTags.PARAMETERIZED_TYPE:
-            case TypeTags.NONE:
-                return t.semType();
-            case TypeTags.NULL_SET:
-            case TypeTags.SEMANTIC_ERROR:
-                return PredefinedType.NEVER;
-            case TypeTags.UNION:
-                if (ignoreObjectTypeIds) {
-                    return ((BUnionType) t).semTypeIgnoringTypeIds();
-                }
-                return t.semType();
-            case TypeTags.OBJECT:
-                if (ignoreObjectTypeIds) {
-                    return ((BObjectType) t).semTypeIgnoringTypeIds();
-                }
-                return t.semType();
-            default:
-                if (isFullSemType(t.tag)) {
-                    return t.semType();
-                }
-                return PredefinedType.NEVER;
-        }
-    }
-
-    public static boolean isSimpleOrString(TypeKind kind) {
-        switch (kind) {
-            case NIL:
-            case BOOLEAN:
-            case INT:
-            case BYTE:
-            case FLOAT:
-            case DECIMAL:
-            case STRING:
-            case FINITE:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    public static boolean isFullSemType(int tag) {
-        switch (tag) {
             case TypeTags.NIL:
             case TypeTags.BOOLEAN:
             case TypeTags.INT:
@@ -224,6 +148,54 @@ public final class SemTypeHelper {
             case TypeTags.XML_TEXT:
             case TypeTags.HANDLE:
             case TypeTags.REGEXP:
+            case TypeTags.INTERSECTION:
+            case TypeTags.ANYDATA:
+            case TypeTags.JSON:
+            case TypeTags.ANY:
+            case TypeTags.READONLY:
+            case TypeTags.ARRAY:
+            case TypeTags.TUPLE:
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+            case TypeTags.INVOKABLE:
+            case TypeTags.FUTURE:
+            case TypeTags.TYPEDESC:
+            case TypeTags.STREAM:
+            case TypeTags.ERROR:
+            case TypeTags.TABLE:
+            case TypeTags.SEQUENCE:
+            case TypeTags.PARAMETERIZED_TYPE:
+            case TypeTags.NONE:
+            case TypeTags.NULL_SET:
+            case TypeTags.SEMANTIC_ERROR:
+            case TypeTags.NEVER:
+            case TypeTags.TYPEREFDESC:
+                return t.semType();
+            case TypeTags.UNION:
+                if (ignoreObjectTypeIds) {
+                    return ((BUnionType) t).semTypeIgnoringTypeIds();
+                }
+                return t.semType();
+            case TypeTags.OBJECT:
+                if (ignoreObjectTypeIds) {
+                    return ((BObjectType) t).semTypeIgnoringTypeIds();
+                }
+                return t.semType();
+            default:
+                throw new IllegalStateException("Unsupported type: " + t);
+        }
+    }
+
+    public static boolean isSimpleOrString(TypeKind kind) {
+        switch (kind) {
+            case NIL:
+            case BOOLEAN:
+            case INT:
+            case BYTE:
+            case FLOAT:
+            case DECIMAL:
+            case STRING:
+            case FINITE:
                 return true;
             default:
                 return false;

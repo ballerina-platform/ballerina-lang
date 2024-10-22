@@ -3055,7 +3055,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        SemType s = SemTypeHelper.semType(recordType);
+        SemType s = recordType.semType();
         SemType anydata = types.anydata();
         if (SemTypes.containsBasicType(s, PredefinedType.ERROR)) {
             if (types.isSubtype(s, Core.union(anydata, PredefinedType.ERROR))) {
