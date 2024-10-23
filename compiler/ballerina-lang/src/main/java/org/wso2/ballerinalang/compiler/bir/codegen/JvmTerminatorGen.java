@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.PredefinedType;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Handle;
@@ -43,6 +44,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -404,15 +406,7 @@ public class JvmTerminatorGen {
             return;
         }
 
-        boolean errorIncluded = false;
-        for (BType member : bType.getMemberTypes()) {
-            member = JvmCodeGenUtil.getImpliedType(member);
-            if (member.tag == TypeTags.ERROR) {
-                errorIncluded = true;
-                break;
-            }
-        }
-
+        boolean errorIncluded = SemTypeHelper.containsBasicType(bType, PredefinedType.ERROR);
         if (errorIncluded) {
             this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             this.mv.visitVarInsn(ALOAD, localVarOffset);
