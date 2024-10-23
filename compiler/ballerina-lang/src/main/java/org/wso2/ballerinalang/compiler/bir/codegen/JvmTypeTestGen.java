@@ -18,6 +18,9 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
@@ -112,15 +115,15 @@ public class JvmTypeTestGen {
             return false;
         }
         boolean foundNil = false;
-        BType otherType = null;
-        for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
-            if (JvmCodeGenUtil.getImpliedType(bType).tag == TypeTags.NIL) {
+        SemType otherTy = null;
+        for (SemType s : ((BUnionType) sourceType).getMemberSemTypes()) {
+            if (PredefinedType.NIL.equals(s)) {
                 foundNil = true;
             } else {
-                otherType = bType;
+                otherTy = s;
             }
         }
-        return foundNil && targetType.equals(otherType);
+        return foundNil && SemTypes.isSameType(types.typeCtx(), otherTy, targetType.semType());
     }
 
     /**
@@ -137,16 +140,17 @@ public class JvmTypeTestGen {
         if (targetType.tag != TypeTags.ERROR || sourceType.tag != TypeTags.UNION) {
             return false;
         }
-        BType errorType = null;
+        SemType errorTy = null;
         int foundError = 0;
-        for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
-            if (bType.tag == TypeTags.ERROR) {
+        for (SemType s : ((BUnionType) sourceType).getMemberSemTypes()) {
+            if (SemTypes.isSubtypeSimpleNotNever(s, PredefinedType.ERROR)) {
                 foundError++;
-                errorType = bType;
+                errorTy = s;
             }
         }
-        return (foundError == 1 && types.isAssignable(errorType, targetType)) || (foundError > 0 && "error".equals(
-                targetType.tsymbol.name.value));
+
+        return (foundError == 1 && types.isSubtype(errorTy, targetType.semType())) ||
+                (foundError > 0 && "error".equals(targetType.tsymbol.name.value));
     }
 
     /**
@@ -162,23 +166,23 @@ public class JvmTypeTestGen {
         if (isInValidUnionType(sourceType)) {
             return false;
         }
-        BType otherType = null;
+        SemType otherTy = null;
         int foundError = 0;
-        for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
-            if (JvmCodeGenUtil.getImpliedType(bType).tag == TypeTags.ERROR) {
+        for (SemType s : ((BUnionType) sourceType).getMemberSemTypes()) {
+            if (SemTypes.isSubtypeSimpleNotNever(s, PredefinedType.ERROR)) {
                 foundError++;
             } else {
-                otherType = bType;
+                otherTy = s;
             }
         }
-        return foundError == 1 && targetType.equals(otherType);
+        return foundError == 1 && SemTypes.isSameType(types.typeCtx(), otherTy, targetType.semType());
     }
 
     private boolean isInValidUnionType(BType rhsType) {
         if (rhsType.tag != TypeTags.UNION) {
             return true;
         }
-        return ((BUnionType) rhsType).getMemberTypes().size() != 2;
+        return ((BUnionType) rhsType).getMemberSemTypes().size() != 2;
     }
 
     private void handleNilUnionType(BIRNonTerminator.TypeTest typeTestIns) {

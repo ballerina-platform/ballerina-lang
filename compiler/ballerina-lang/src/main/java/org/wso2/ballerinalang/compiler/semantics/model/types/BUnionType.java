@@ -53,7 +53,8 @@ public class BUnionType extends BType implements UnionType {
     private String cachedToString;
 
     protected LinkedHashSet<BType> memberTypes;
-    public LinkedHashSet<SemType> memberSemTypes;
+
+    private LinkedHashSet<SemType> memberSemTypes;
 
     public boolean isCyclic = false;
 
@@ -96,6 +97,12 @@ public class BUnionType extends BType implements UnionType {
         this.memberTypes = memberTypes;
         this.isCyclic = isCyclic;
         this.env = env;
+    }
+
+
+    public LinkedHashSet<SemType> getMemberSemTypes() {
+        populateMemberSemTypes(false);
+        return memberSemTypes;
     }
 
     @Override
