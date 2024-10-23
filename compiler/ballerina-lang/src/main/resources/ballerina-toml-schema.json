@@ -150,6 +150,40 @@
         },
         "template": {
           "type": "boolean"
+        },
+        "readme": {
+          "type": "string",
+          "pattern": ".*.md$",
+          "message": {
+            "pattern": "invalid 'readme' under [package]: 'readme' can only have a '.md' file"
+          }
+        },
+        "modules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "readme": {
+                "type": "string",
+                "pattern": ".*.md$",
+                "message": {
+                  "pattern": "invalid 'readme' under [package.modules]: 'readme' can only have a '.md' file"
+                }
+              },
+              "export": {
+                "type": "boolean"
+              }
+            }, "required": [
+              "name"
+            ],
+            "message": {
+              "required": "'${property}' under [[dependency]] is missing"
+            }
+          }
         }
       }
     },

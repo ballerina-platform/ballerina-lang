@@ -21,6 +21,7 @@ package io.ballerina.projects.internal.bala;
 import com.google.gson.JsonArray;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@code PackageJson} Model for Package JSON file.
@@ -56,6 +57,9 @@ public class PackageJson {
     // Templating support
     private boolean template; //?
     private String template_version; //?
+
+    //Docs
+    private Map<String, String> docs;
 
     public PackageJson(String organization, String name, String version) {
         this.organization = organization;
@@ -220,5 +224,13 @@ public class PackageJson {
 
     public void setTemplateVersion(String template_version) {
         this.template_version = template_version;
+    }
+
+    public Map<String, String> getDocs() {
+        return docs;
+    }
+
+    public void setDocs(Map<String, String> docs) {
+        this.docs = docs;
     }
 }

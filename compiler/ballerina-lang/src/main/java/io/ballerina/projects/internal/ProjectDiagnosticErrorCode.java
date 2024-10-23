@@ -30,7 +30,7 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     // Error codes used in the ManifestBuilder
     MISSING_PKG_INFO_IN_BALLERINA_TOML("BCE5001", "missing.package.info"),
     INVALID_PATH("BCE5002", "error.invalid.path"),
-    INVALID_ICON("BCE5003", "error.invalid.icon"),
+    INVALID_FILE_FORMAT("BCE5003", "error.invalid.file.format"),
     INVALID_PROVIDED_DEPENDENCY("BCE5004", "invalid.provided.dependency"),
     INVALID_PROVIDED_SCOPE_IN_BUILD("BCE5005", "invalid.provided.scope"),
 
