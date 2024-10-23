@@ -854,8 +854,8 @@ public class Desugar extends BLangNodeVisitor {
         BConstantSymbol constSymbol = constant.symbol;
         BType impliedType = Types.getImpliedType(constSymbol.literalType);
         int tag = impliedType.tag;
-        if ((tag == TypeTags.RECORD && constant.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) ||
-                (tag == TypeTags.TUPLE && constant.expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR)) {
+        if (((tag == TypeTags.RECORD || tag == TypeTags.MAP) && constant.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR)
+                || (tag == TypeTags.TUPLE && constant.expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR)) {
             // Literal type will have a typedesc var created via the associated type def.
             // The issue is that type def has the effective type not the original intersection.
             // Hence, create the typedesc var here.
@@ -870,7 +870,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangType blangIntersection = (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
             blangIntersection.setBType(constSymbol.literalType);
             blangIntersection.pos = constSymbol.literalType.tsymbol.pos;
-            createTypedescVariableDef(blangIntersection);
+            createTypedescVariableForAnonType(blangIntersection);
         }
 
         addTypeDescStmtsToInitFunction(initFunctionEnv, desugaredGlobalVarList, initFnBody);
@@ -880,40 +880,33 @@ public class Desugar extends BLangNodeVisitor {
         constant.expr = null;
     }
 
-    private void createTypedescVariableDef(BLangType typeNode) {
-        BType type = null;
-        BLangNode parentNode = typeNode.parent;
-        if (parentNode != null && parentNode.getKind() == NodeKind.TYPE_DEFINITION) {
-            // type should be the original user defined type if exists
-            BSymbol typeDefSymbol = ((BLangTypeDefinition) parentNode).symbol;
-            if (typeDefSymbol.kind == SymbolKind.TYPE_DEF && typeDefSymbol.origin != VIRTUAL) {
-                type = ((BTypeDefinitionSymbol)((BLangTypeDefinition) parentNode).symbol).referenceType;
-            }
-        }
-        if (type == null) {
-            type = typeNode.getBType();
-        }
-
-        String typeSymbolName = type.tsymbol.name.value;
+    private void createTypedescVariable(BType type, Location pos) {
         if ((Types.getReferredType(type).tag != TypeTags.INTERSECTION && this.env.enclPkg.typeDefinitions.stream()
                 .anyMatch(typeDef ->
                         (Types.getReferredType(typeDef.typeNode.getBType()).tag == TypeTags.INTERSECTION) &&
-                        typeDef.symbol.name.value.equals(typeSymbolName)))) {
+                                typeDef.symbol.name.value.equals(type.tsymbol.name.value)))) {
             // This is a workaround for an issue where we create two type defs with same name for the below sample
             // type T1 [T1] & readonly;
             return;
         }
 
         Name name = generateTypedescVariableName(type);
-        Location pos = typeNode.pos;
         BType typedescType = new BTypedescType(type, symTable.typeDesc.tsymbol);
         BSymbol owner = this.env.scope.owner;
         BVarSymbol varSymbol  = new BVarSymbol(0, name, owner.pkgID, typedescType, owner, pos, VIRTUAL);
-//        varSymbol.closure = true;
         BLangTypedescExpr typedescExpr = ASTBuilderUtil.createTypedescExpr(pos, typedescType, type);
-        BLangSimpleVariableDef simpleVariableDef = createSimpleVariableDef(pos, name.value, typedescType, typedescExpr,
-                                                                           varSymbol);
-        typedescList.add(simpleVariableDef);
+        typedescList.add(createSimpleVariableDef(pos, name.value, typedescType, typedescExpr, varSymbol));
+    }
+
+    private void createTypedescVariableForAnonType(BLangType typeNode) {
+        BLangNode parentNode = typeNode.parent;
+        if (parentNode != null && parentNode.getKind() == NodeKind.TYPE_DEFINITION) {
+            BSymbol typeDefSymbol = ((BLangTypeDefinition) parentNode).symbol;
+            if (typeDefSymbol.kind == SymbolKind.TYPE_DEF && typeDefSymbol.origin != VIRTUAL) {
+                return;
+            }
+        }
+        createTypedescVariable(typeNode.getBType(), typeNode.pos);
     }
 
     private Name generateTypedescVariableName(BType targetType) {
@@ -1165,6 +1158,15 @@ public class Desugar extends BLangNodeVisitor {
             typeDef.typeNode = rewrite(typeDef.typeNode, env);
         }
 
+        BSymbol typeDefSymbol = typeDef.symbol;
+        if (typeDefSymbol.kind == SymbolKind.TYPE_DEF && typeDefSymbol.origin != VIRTUAL) {
+            BType referenceType = ((BTypeDefinitionSymbol) typeDefSymbol).referenceType;
+            int typeTag = Types.getImpliedType(referenceType).tag;
+            if (typeTag == TypeTags.RECORD || typeTag == TypeTags.MAP || typeTag == TypeTags.TUPLE) {
+                createTypedescVariable(referenceType, typeDefSymbol.pos);
+            }
+        }
+
         typeDef.annAttachments.forEach(attachment ->  rewrite(attachment, env));
         result = typeDef;
     }
@@ -1300,7 +1302,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
-        createTypedescVariableDef(recordTypeNode);
+        createTypedescVariableForAnonType(recordTypeNode);
         if (recordTypeNode.isAnonymous && recordTypeNode.isLocal) {
             BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(recordTypeNode);
             TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordTypeNode.getBType(),
@@ -1327,7 +1329,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangConstrainedType constrainedType) {
         constrainedType.constraint = rewrite(constrainedType.constraint, env);
         if (constrainedType.getBType() != null && constrainedType.getBType().tag == TypeTags.MAP) {
-            createTypedescVariableDef(constrainedType);
+            createTypedescVariableForAnonType(constrainedType);
         }
         result = constrainedType;
     }
@@ -1379,8 +1381,8 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         int tag = Types.getImpliedType(intersectionTypeNode.getBType()).tag;
-        if (tag == TypeTags.RECORD || tag == TypeTags.TUPLE) {
-            createTypedescVariableDef(intersectionTypeNode);
+        if (tag == TypeTags.RECORD || tag == TypeTags.TUPLE || tag == TypeTags.MAP) {
+            createTypedescVariableForAnonType(intersectionTypeNode);
         }
 
         intersectionTypeNode.constituentTypeNodes = rewrittenConstituents;
@@ -1434,7 +1436,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangTupleTypeNode tupleTypeNode) {
         tupleTypeNode.members.forEach(member -> member.typeNode = rewrite(member.typeNode, env));
         tupleTypeNode.restParamType = rewrite(tupleTypeNode.restParamType, env);
-        createTypedescVariableDef(tupleTypeNode);
+        createTypedescVariableForAnonType(tupleTypeNode);
         result = tupleTypeNode;
     }
 

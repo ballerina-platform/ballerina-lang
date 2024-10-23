@@ -664,17 +664,17 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariable variable) {
         BVarSymbol symbol = variable.symbol;
+        boolean isRecordField = variable.flagSet.contains(Flag.FIELD);
+        if (!isRecordField) {
+            this.currDependentSymbolDeque.push(symbol);
+        }
+
         analyzeNode(variable.typeNode, env);
         if (symbol == null) {
             if (variable.expr != null) {
                 analyzeNode(variable.expr, env);
             }
             return;
-        }
-
-        boolean isRecordField = variable.flagSet.contains(Flag.FIELD);
-        if (!isRecordField) {
-            this.currDependentSymbolDeque.push(symbol);
         }
         if (variable.typeNode != null && variable.typeNode.getBType() != null) {
             BType type = variable.typeNode.getBType();
@@ -2107,6 +2107,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BLangFunction funcNode = bLangLambdaFunction.function;
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         visitFunctionBodyWithDynamicEnv(funcNode, funcEnv);
+        recordGlobalVariableReferenceRelationship(funcNode.symbol);
     }
 
     @Override
@@ -2244,7 +2245,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (this.currDependentSymbolDeque.isEmpty()) {
             return;
         }
-        BType resolvedType = Types.getImpliedType(userDefinedType.getBType());
+        BType resolvedType = userDefinedType.getBType();
         if (resolvedType == symTable.semanticError) {
             return;
         }
