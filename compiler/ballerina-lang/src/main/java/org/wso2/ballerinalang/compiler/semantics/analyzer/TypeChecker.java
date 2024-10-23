@@ -190,6 +190,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
+import org.testng.Assert;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -3008,7 +3009,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (TypeTags.MAP == compatibleType.tag) {
             receiveFieldExpType = ((BMapType) compatibleType).constraint;
         } else {
-            assert TypeTags.READONLY == compatibleType.tag;
+            Assert.assertEquals(TypeTags.READONLY, compatibleType.tag, "Expected type tag to be READONLY");
             receiveFieldExpType = compatibleType;
         }
 
