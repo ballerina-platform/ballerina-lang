@@ -224,19 +224,27 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 breakpointsMap.put(bp.getLine(), bp);
             }
 
-            SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
+            SetBreakpointsResponse bpResponse = new SetBreakpointsResponse();
             String sourcePathUri = args.getSource().getPath();
             Optional<String> qualifiedClassName = getQualifiedClassName(context, sourcePathUri);
-            qualifiedClassName.ifPresent(className -> {
-                eventProcessor.enableBreakpoints(className, breakpointsMap);
-                BreakpointProcessor breakpointProcessor = eventProcessor.getBreakpointProcessor();
-                Breakpoint[] breakpoints = breakpointProcessor.getUserBreakpoints().get(qualifiedClassName.get())
-                        .values().stream()
-                        .map(BalBreakpoint::getAsDAPBreakpoint)
-                        .toArray(Breakpoint[]::new);
-                breakpointsResponse.setBreakpoints(breakpoints);
-            });
-            return breakpointsResponse;
+            if (qualifiedClassName.isEmpty()) {
+                LOGGER.warn("Failed to set breakpoints. Source path is not a valid Ballerina source: " + sourcePathUri);
+                return bpResponse;
+            }
+
+            eventProcessor.enableBreakpoints(qualifiedClassName.get(), breakpointsMap);
+            BreakpointProcessor bpProcessor = eventProcessor.getBreakpointProcessor();
+            Map<Integer, BalBreakpoint> userBpMap = bpProcessor.getUserBreakpoints().get(qualifiedClassName.get());
+            if (userBpMap == null) {
+                LOGGER.warn("Failed to set breakpoints for source: " + sourcePathUri);
+                return bpResponse;
+            }
+
+            Breakpoint[] breakpoints = userBpMap.values().stream()
+                    .map(BalBreakpoint::getAsDAPBreakpoint)
+                    .toArray(Breakpoint[]::new);
+            bpResponse.setBreakpoints(breakpoints);
+            return bpResponse;
         });
     }
 
