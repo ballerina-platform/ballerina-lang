@@ -2867,7 +2867,12 @@ public class BIRGen extends BLangNodeVisitor {
             // the element type desc which will be used to initialize the `ArrayValueImpl`
             if (Types.getImpliedType(elementType).tag == TypeTags.RECORD) {
                 BIRVariableDcl typedescVar = getTypedescVariable(elementType);
-                newArrayIns.elementTypedescOp = new BIROperand(typedescVar);
+                if (typedescVar != null) {
+                    newArrayIns.elementTypedescOp = new BIROperand(typedescVar);
+                } else {
+                    createNewTypedescInst(elementType, elementType.tsymbol.pos);
+                    newArrayIns.elementTypedescOp = this.env.targetOperand;
+                }
             }
             setScopeAndEmit(newArrayIns);
         }
