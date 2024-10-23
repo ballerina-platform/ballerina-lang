@@ -1,35 +1,41 @@
-type NewRecord record {
+type NewRecord record {|
     string name;
     string school;
     int age;
-    record {
+    record {|
         string? sport;
         string position?;
         boolean reserve?;
         string game?;
         string 'type?;
-    }[] sports;
-    record {
+        json...;
+    |}[] sports;
+    record {|
         string name;
-        record {
+        record {|
             string name;
             string country;
             (boolean|int|string)? period;
-            anydata language?;
-        } author;
+            json language?;
+            json...;
+        |} author;
         int publishedYear?;
         decimal price?;
-    }[] books;
+        json...;
+    |}[] books;
     string year;
     boolean honors;
-    record {
+    record {|
         string number;
         string street;
         string neighborhood;
         string city;
-        record {
+        record {|
             string name;
             string code;
-        } state;
-    } address;
-};
+            json...;
+        |} state;
+        json...;
+    |} address;
+    json...;
+|};

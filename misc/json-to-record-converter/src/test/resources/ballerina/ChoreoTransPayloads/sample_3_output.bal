@@ -1,10 +1,11 @@
-type AssetsItem record {
+type AssetsItem record {|
     int Type;
     string Id;
     boolean Confirmed;
-};
+    json...;
+|};
 
-type TripInformation record {
+type TripInformation record {|
     string TripName;
     decimal Move;
     decimal Leg;
@@ -12,32 +13,38 @@ type TripInformation record {
     int OrderHeader;
     AssetsItem[] Assets;
     string AdditionalDataElements;
-};
+    json...;
+|};
 
-type HeaderInformation record {
+type HeaderInformation record {|
     string CreateDateUtc;
-};
+    json...;
+|};
 
-type MessageContent record {
+type MessageContent record {|
     int Odometer;
     string UnitTrips;
     string Position;
     TripInformation TripInformation;
     HeaderInformation HeaderInformation;
-};
+    json...;
+|};
 
-type Data record {
+type Data record {|
     string MessageGuid;
     string ParentMessageGuid;
     string MessageContentType;
     MessageContent MessageContent;
-};
+    json...;
+|};
 
-type DtosItem record {
+type DtosItem record {|
     string 'type;
     Data data;
-};
+    json...;
+|};
 
-type NewRecord record {
+type NewRecord record {|
     DtosItem[] dtos;
-};
+    json...;
+|};

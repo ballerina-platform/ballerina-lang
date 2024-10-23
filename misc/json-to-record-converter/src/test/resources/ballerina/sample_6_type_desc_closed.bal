@@ -15,7 +15,7 @@ type NewRecord record {|
             string name;
             string country;
             (boolean|int|string)? period;
-            anydata language?;
+            json language?;
         |} author;
         int publishedYear?;
         decimal price?;

@@ -1,18 +1,21 @@
-type AssetsItem record {
+type AssetsItem record {|
     int Type;
     string Id;
-};
+    json...;
+|};
 
-type Position record {
+type Position record {|
     decimal Latitude;
     decimal Longitude;
-};
+    json...;
+|};
 
-type HeaderInformation record {
+type HeaderInformation record {|
     string CreateDateUtc;
-};
+    json...;
+|};
 
-type Content record {
+type Content record {|
     string StatusDate;
     Position Position;
     int Speed;
@@ -20,21 +23,24 @@ type Content record {
     string IgnitionStatus;
     decimal Odometer;
     string Description;
-    anydata AdditionalDataElements;
-    anydata TripInformation;
+    json AdditionalDataElements;
+    json TripInformation;
     HeaderInformation HeaderInformation;
-};
+    json...;
+|};
 
-type MessageProperties record {
+type MessageProperties record {|
     string EventType;
     string AuditId;
     string MessageId;
-};
+    json...;
+|};
 
-type NewRecord record {
+type NewRecord record {|
     AssetsItem[] Assets;
     string ContentType;
     string CreateDate;
     Content Content;
     MessageProperties MessageProperties;
-};
+    json...;
+|};

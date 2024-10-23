@@ -1,3 +1,4 @@
-type NewRecord record {
-    any id;
-};
+type NewRecord record {|
+    json id;
+    json...;
+|};

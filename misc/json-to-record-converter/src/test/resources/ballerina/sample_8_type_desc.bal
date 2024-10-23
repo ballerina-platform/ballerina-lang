@@ -1,109 +1,141 @@
-type NewRecord record {
+type NewRecord record {|
     string resourceType;
     string id;
-    record {
+    record {|
         string status;
         string div;
-    } text;
-    record {
+        json...;
+    |} text;
+    record {|
         string system;
         string value;
-    }[] identifier;
+        json...;
+    |}[] identifier;
     string status;
-    record {
-        record {
+    record {|
+        record {|
             string code;
             string system?;
-        }[] coding;
-    } 'type;
+            json...;
+        |}[] coding;
+        json...;
+    |} 'type;
     string use;
-    record {
+    record {|
         string reference;
-    } patient;
+        json...;
+    |} patient;
     string created;
-    record {
+    record {|
         string reference;
-    } insurer;
-    record {
+        json...;
+    |} insurer;
+    record {|
         string reference;
-    } provider;
-    record {
-        record {
+        json...;
+    |} provider;
+    record {|
+        record {|
             string code;
             string system?;
-        }[] coding;
-    } priority;
-    record {
+            json...;
+        |}[] coding;
+        json...;
+    |} priority;
+    record {|
         string reference;
-    } prescription;
-    record {
-        record {
-            record {
+        json...;
+    |} prescription;
+    record {|
+        record {|
+            record {|
                 string code;
                 string system?;
-            }[] coding;
-        } 'type;
-    } payee;
-    record {
+                json...;
+            |}[] coding;
+            json...;
+        |} 'type;
+        json...;
+    |} payee;
+    record {|
         int sequence;
-        record {
+        record {|
             string reference;
-        } provider;
-    }[] careTeam;
-    record {
+            json...;
+        |} provider;
+        json...;
+    |}[] careTeam;
+    record {|
         int sequence;
-        record {
-            record {
+        record {|
+            record {|
                 string code;
                 string system?;
-            }[] coding;
-        } diagnosisCodeableConcept;
-    }[] diagnosis;
-    record {
+                json...;
+            |}[] coding;
+            json...;
+        |} diagnosisCodeableConcept;
+        json...;
+    |}[] diagnosis;
+    record {|
         int sequence;
         boolean focal;
-        record {
+        record {|
             string reference;
-        } coverage;
-    }[] insurance;
-    record {
+            json...;
+        |} coverage;
+        json...;
+    |}[] insurance;
+    record {|
         int sequence;
         int[] careTeamSequence;
-        record {
-            record {
+        record {|
+            record {|
                 string code;
                 string system?;
-            }[] coding;
-        } productOrService;
+                json...;
+            |}[] coding;
+            json...;
+        |} productOrService;
         string servicedDate;
-        record {
+        record {|
             decimal value;
             string currency;
-        } unitPrice;
-        record {
+            json...;
+        |} unitPrice;
+        record {|
             decimal value;
             string currency;
-        } net;
-        record {
+            json...;
+        |} net;
+        record {|
             int sequence;
-            record {
-                record {
+            record {|
+                record {|
                     string code;
                     string system?;
-                }[] coding;
-            } productOrService;
-            record {
+                    json...;
+                |}[] coding;
+                json...;
+            |} productOrService;
+            record {|
                 decimal value;
                 string currency;
-            } unitPrice;
-            record {
+                json...;
+            |} unitPrice;
+            record {|
                 decimal value;
                 string currency;
-            } net;
-            record {
+                json...;
+            |} net;
+            record {|
                 int value;
-            } quantity?;
+                json...;
+            |} quantity?;
             decimal factor?;
-        }[] detail;
-    }[] item;
-};
+            json...;
+        |}[] detail;
+        json...;
+    |}[] item;
+    json...;
+|};

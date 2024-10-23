@@ -1,20 +1,24 @@
-type NewRecord record {
+type NewRecord record {|
     string firstName;
     string lastName;
-    record {
+    record {|
         string city;
         string country;
         int zip?;
         int houseNo?;
-    } address;
-    record {
+        json...;
+    |} address;
+    record {|
         string firstName;
         string lastName;
-        record {
+        record {|
             string city;
             string country;
             int zip?;
             int houseNo?;
-        } address;
-    } friend;
-};
+            json...;
+        |} address;
+        json...;
+    |} friend;
+    json...;
+|};

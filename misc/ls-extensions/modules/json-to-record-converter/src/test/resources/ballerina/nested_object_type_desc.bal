@@ -1,15 +1,18 @@
-type NewRecord record {
+type NewRecord record {|
     string name;
     boolean checked;
     string id;
 
-    record {
+    record {|
         string name;
         int id;
-    }[] colors;
+        json...;
+    |}[] colors;
 
-    record {
+    record {|
         int width;
         int height;
-    } dimensions;
-};
+        json...;
+    |} dimensions;
+    json...;
+|};

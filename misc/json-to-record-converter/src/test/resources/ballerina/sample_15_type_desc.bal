@@ -1,11 +1,14 @@
-type NewRecord record {
+type NewRecord record {|
     string id;
-    record {
+    record {|
         string name;
-        (record {
+        (record {|
             string id?;
             string description?;
             string cid?;
-        }|string) value;
-    }[] characteristic;
-};
+            json...;
+        |}|string) value;
+        json...;
+    |}[] characteristic;
+    json...;
+|};
