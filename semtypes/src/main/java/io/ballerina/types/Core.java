@@ -436,11 +436,11 @@ public final class Core {
     }
 
     static final ListMemberTypes LIST_MEMBER_TYPES_ALL = ListMemberTypes.from(
-            new Range[]{Range.from(0, MAX_VALUE)},
-            new SemType[]{VAL}
+            List.of(Range.from(0, MAX_VALUE)),
+            List.of(VAL)
     );
 
-    static final ListMemberTypes LIST_MEMBER_TYPES_NONE = ListMemberTypes.from(new Range[0], new SemType[0]);
+    static final ListMemberTypes LIST_MEMBER_TYPES_NONE = ListMemberTypes.from(List.of(), List.of());
 
     public static ListMemberTypes listAllMemberTypesInner(Context cx, SemType t) {
         if (t instanceof BasicTypeBitSet b) {
@@ -460,7 +460,7 @@ public final class Core {
                 types.add(m);
             }
         }
-        return ListMemberTypes.from(ranges.toArray(Range[]::new), types.toArray(SemType[]::new));
+        return ListMemberTypes.from(ranges, types);
     }
 
     static Range[] bddListAllRanges(Context cx, Bdd b, Range[] accum) {
@@ -469,7 +469,8 @@ public final class Core {
         } else {
             BddNode bddNode = (BddNode) b;
             ListMemberTypes listMemberTypes = listAtomicTypeAllMemberTypesInnerVal(cx.listAtomType(bddNode.atom()));
-            return distinctRanges(bddListAllRanges(cx, bddNode.left(), distinctRanges(listMemberTypes.ranges(), accum)),
+            return distinctRanges(bddListAllRanges(cx, bddNode.left(),
+                            distinctRanges(listMemberTypes.ranges().toArray(Range[]::new), accum)),
                     distinctRanges(bddListAllRanges(cx, bddNode.middle(), accum),
                             bddListAllRanges(cx, bddNode.right(), accum)));
         }
@@ -583,7 +584,7 @@ public final class Core {
             ranges.add(Range.from(fixedLength, MAX_VALUE));
         }
 
-        return ListMemberTypes.from(ranges.toArray(Range[]::new), types.toArray(SemType[]::new));
+        return ListMemberTypes.from(ranges, types);
     }
 
     public static MappingAtomicType mappingAtomicType(Context cx, SemType t) {

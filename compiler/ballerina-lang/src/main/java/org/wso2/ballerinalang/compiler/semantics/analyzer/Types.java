@@ -34,6 +34,7 @@ import io.ballerina.types.SemTypePair;
 import io.ballerina.types.SemTypes;
 import io.ballerina.types.definition.ObjectDefinition;
 import io.ballerina.types.definition.ObjectQualifiers;
+import io.ballerina.types.subtypedata.Range;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -4369,13 +4370,16 @@ public class Types {
 
         ListMemberTypes lmTypes1 = Core.listAllMemberTypesInner(cx, t1);
         ListMemberTypes lmTypes2 = Core.listAllMemberTypesInner(cx, t2);
-        CombinedRange[] combinedRanges = combineRanges(lmTypes1.ranges(), lmTypes2.ranges());
+        CombinedRange[] combinedRanges = combineRanges(
+                lmTypes1.ranges().toArray(Range[]::new),
+                lmTypes2.ranges().toArray(Range[]::new)
+        );
         SemType accum = PredefinedType.NIL;
         for (CombinedRange combinedRange : combinedRanges) {
             Long i1 = combinedRange.i1();
             Long i2 = combinedRange.i2();
             if (i1 == null) {
-                SemType lmType = lmTypes2.semTypes()[Math.toIntExact(i2)];
+                SemType lmType = lmTypes2.semTypes().get(Math.toIntExact(i2));
                 if (!comparable(accum, lmType)) {
                     return false;
                 }
@@ -4384,7 +4388,7 @@ public class Types {
             }
 
             if (i2 == null) {
-                SemType lmType = lmTypes1.semTypes()[Math.toIntExact(i1)];
+                SemType lmType = lmTypes1.semTypes().get(Math.toIntExact(i1));
                 if (!comparable(accum, lmType)) {
                     return false;
                 }
@@ -4393,7 +4397,8 @@ public class Types {
             }
 
 
-            if (!comparable(lmTypes1.semTypes()[Math.toIntExact(i1)], lmTypes2.semTypes()[Math.toIntExact(i2)])) {
+            if (!comparable(lmTypes1.semTypes().get(Math.toIntExact(i1)),
+                    lmTypes2.semTypes().get(Math.toIntExact(i2)))) {
                 cx.comparableMemo.put(semPair, false);
                 return false;
             }
