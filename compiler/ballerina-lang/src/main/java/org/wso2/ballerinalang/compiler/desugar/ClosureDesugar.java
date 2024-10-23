@@ -418,7 +418,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private BLangNode getNextPossibleNode(SymbolEnv envArg) {
         SymbolEnv localEnv = envArg;
         BLangNode node = localEnv.node;
-        while (localEnv != null) {
+        while (true) {
             NodeKind kind = node.getKind();
             if (kind == NodeKind.PACKAGE) {
                 break;
