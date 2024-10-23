@@ -50,7 +50,6 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -67,95 +66,96 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY
 /**
  * Main class to init the test suit.
  */
-public class BTestMain {
+public final class BTestMain {
+
     private static final PrintStream out = System.out;
     static TestReport testReport;
     static ClassLoader classLoader;
     static Map<String, List<String>> classVsMockFunctionsMap = new HashMap<>();
 
+    private BTestMain() {
+    }
+
     public static void main(String[] args) throws IOException {
         int exitStatus = 0;
         int result;
 
-        if (args.length >= 4) { //running using the suite json
-            boolean isFatJarExecution = Boolean.parseBoolean(args[0]);
-            Path testSuiteJsonPath = Paths.get(args[1]);
-            Path targetPath = Paths.get(args[2]);
-            Path testCache = targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
-                            .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
-            String jacocoAgentJarPath = args[3];
-            boolean report = Boolean.parseBoolean(args[4]);
-            boolean coverage = Boolean.parseBoolean(args[5]);
+        if (args.length < 4) {
+            Runtime.getRuntime().exit(1);
+        }
+        //running using the suite json
+        boolean isFatJarExecution = Boolean.parseBoolean(args[0]);
+        Path testSuiteJsonPath = Path.of(args[1]);
+        Path targetPath = Path.of(args[2]);
+        Path testCache = targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
+                        .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
+        String jacocoAgentJarPath = args[3];
+        boolean report = Boolean.parseBoolean(args[4]);
+        boolean coverage = Boolean.parseBoolean(args[5]);
 
-            if (report || coverage) {
-                testReport = new TestReport();
+        if (report || coverage) {
+            testReport = new TestReport();
+        }
+
+        out.println();
+        out.print("Running Tests");
+        if (coverage) {
+            out.print(" with Coverage");
+        }
+        out.println();
+
+        try (InputStream is = isFatJarExecution ?
+                BTestMain.class.getResourceAsStream(TesterinaConstants.PATH_SEPARATOR + testSuiteJsonPath) : null) {
+            BufferedReader br;
+            if (is != null) {
+                br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            } else {
+                br = Files.newBufferedReader(testSuiteJsonPath, StandardCharsets.UTF_8);
             }
+            Gson gson = new Gson();
+            Map<String, TestSuite> testSuiteMap = gson.fromJson(br, new TypeToken<>() { });
+            if (!testSuiteMap.isEmpty()) {
+                for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
+                    String moduleName = entry.getKey();
+                    TestSuite testSuite = entry.getValue();
+                    String packageName = testSuite.getPackageName();
+                    out.println("\n\t" + (moduleName.equals(packageName) ?
+                            (moduleName.equals(TesterinaConstants.DOT) ? testSuite.getSourceFileName() : moduleName)
+                            : packageName + TesterinaConstants.DOT + moduleName));
 
-            out.println();
-            out.print("Running Tests");
-            if (coverage) {
-                out.print(" with Coverage");
-            }
-            out.println();
+                    testSuite.setModuleName(moduleName);
+                    List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
 
-            try (InputStream is = isFatJarExecution ?
-                    BTestMain.class.getResourceAsStream(TesterinaConstants.PATH_SEPARATOR
-                        + testSuiteJsonPath)
-                    : null) {
-                BufferedReader br;
-                if (is != null) {
-                    br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-                } else {
-                    br = Files.newBufferedReader(testSuiteJsonPath, StandardCharsets.UTF_8);
-                }
-                Gson gson = new Gson();
-                Map<String, TestSuite> testSuiteMap = gson.fromJson(br,
-                        new TypeToken<Map<String, TestSuite>>() { }.getType());
-                if (!testSuiteMap.isEmpty()) {
-                    for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
-                        String moduleName = entry.getKey();
-                        TestSuite testSuite = entry.getValue();
-                        String packageName = testSuite.getPackageName();
-                        out.println("\n\t" + (moduleName.equals(packageName) ?
-                                (moduleName.equals(TesterinaConstants.DOT) ? testSuite.getSourceFileName() : moduleName)
-                                : packageName + TesterinaConstants.DOT + moduleName));
-
-                        testSuite.setModuleName(moduleName);
-                        List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
-
-                        if (isFatJarExecution && !testSuite.getMockFunctionNamesMap().isEmpty()) {
-                            classLoader = createInitialCustomClassLoader();
-                        } else {
-                            // Even if it is fat jar execution but there are no mock functions,
-                            // We can use the URLClassLoader
-                            classLoader = createURLClassLoader(getURLList(testExecutionDependencies));
-                        }
-
-                        if (!testSuite.getMockFunctionNamesMap().isEmpty()) {
-                            if (coverage) {
-                                testExecutionDependencies.add(jacocoAgentJarPath);
-                            }
-                            String instrumentDir = testCache.resolve(TesterinaConstants.COVERAGE_DIR)
-                                    .resolve(TesterinaConstants.JACOCO_INSTRUMENTED_DIR).toString();
-                            replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir,
-                                    coverage, isFatJarExecution);
-                        }
-                        String[] testArgs = new String[]{targetPath.toString(), packageName, moduleName};
-                        for (int i = 4; i < args.length; i++) {
-                            testArgs = Arrays.copyOf(testArgs, testArgs.length + 1);
-                            testArgs[testArgs.length - 1] = args[i];
-                        }
-                        result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, classLoader,
-                                testArgs);
-                        exitStatus = (result == 1) ? result : exitStatus;
+                    if (isFatJarExecution && !testSuite.getMockFunctionNamesMap().isEmpty()) {
+                        classLoader = createInitialCustomClassLoader();
+                    } else {
+                        // Even if it is fat jar execution but there are no mock functions,
+                        // We can use the URLClassLoader
+                        classLoader = createURLClassLoader(getURLList(testExecutionDependencies));
                     }
-                } else {
-                    exitStatus = 1;
+
+                    if (!testSuite.getMockFunctionNamesMap().isEmpty()) {
+                        if (coverage) {
+                            testExecutionDependencies.add(jacocoAgentJarPath);
+                        }
+                        String instrumentDir = testCache.resolve(TesterinaConstants.COVERAGE_DIR)
+                                .resolve(TesterinaConstants.JACOCO_INSTRUMENTED_DIR).toString();
+                        replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir,
+                                coverage, isFatJarExecution);
+                    }
+                    String[] testArgs = new String[]{targetPath.toString(), packageName, moduleName};
+                    for (int i = 4; i < args.length; i++) {
+                        testArgs = Arrays.copyOf(testArgs, testArgs.length + 1);
+                        testArgs[testArgs.length - 1] = args[i];
+                    }
+                    result = startTestSuit(Path.of(testSuite.getSourceRootPath()), testSuite, classLoader,
+                            testArgs);
+                    exitStatus = (result == 1) ? result : exitStatus;
                 }
-                br.close();
+            } else {
+                exitStatus = 1;
             }
-        } else {
-            exitStatus = 1;
+            br.close();
         }
         Runtime.getRuntime().exit(exitStatus);
     }
@@ -187,7 +187,7 @@ public class BTestMain {
         List<URL> urlList = new ArrayList<>();
         for (String jarFilePath : jarFilePaths) {
             try {
-                urlList.add(Paths.get(jarFilePath).toUri().toURL());
+                urlList.add(Path.of(jarFilePath).toUri().toURL());
             } catch (MalformedURLException e) {
                 // This path cannot get executed
                 throw new RuntimeException("Failed to create classloader with all jar files", e);
@@ -326,14 +326,9 @@ public class BTestMain {
     private static byte[] replaceMethodBody(Method method, Method mockMethod, String instrumentDir, boolean coverage) {
         Class<?> clazz = method.getDeclaringClass();
         ClassReader cr;
-        try {
-            InputStream ins;
-            if (coverage) {
-                String instrumentedClassPath = instrumentDir + "/" + clazz.getName().replace(".", "/") + ".class";
-                ins = new FileInputStream(instrumentedClassPath);
-            } else {
-                ins = clazz.getResourceAsStream(clazz.getSimpleName() + ".class");
-            }
+        try (InputStream ins = coverage ? new FileInputStream(
+            instrumentDir + "/" + clazz.getName().replace(".", "/") + ".class") :
+                clazz.getResourceAsStream(clazz.getSimpleName() + ".class")) {
             cr = new ClassReader(requireNonNull(ins));
         } catch (IOException e) {
             throw new BallerinaTestException("failed to get the class reader object for the class "

@@ -30,8 +30,9 @@ import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -44,7 +45,7 @@ import static io.ballerina.projects.test.TestUtils.resetPermissions;
  * @since 2201.4.0
  */
 public class TestBuildProjectWithGeneratedSources extends BaseTest {
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/generated-sources-tests/");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/generated-sources-tests/");
 
     @Test (description = "tests loading a valid build project with generated sources")
     public void testBuildProjectAPI() {
@@ -189,7 +190,9 @@ public class TestBuildProjectWithGeneratedSources extends BaseTest {
                 buildProject = TestUtils.loadBuildProject(projectPath, buildOptions);
             }
         } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            StringWriter errors = new StringWriter();
+            e.printStackTrace(new PrintWriter(errors));
+            Assert.fail(errors.toString());
         }
         return buildProject;
     }

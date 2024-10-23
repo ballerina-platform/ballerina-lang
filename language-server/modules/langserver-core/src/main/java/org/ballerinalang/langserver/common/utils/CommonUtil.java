@@ -86,7 +86,7 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.SLASH_KEYWORD
 /**
  * Common utils to be reused in language server implementation.
  */
-public class CommonUtil {
+public final class CommonUtil {
 
     public static final String MD_LINE_SEPARATOR = "  " + System.lineSeparator();
 
@@ -552,10 +552,8 @@ public class CommonUtil {
                 break;
             case MODULE_PART:
                 List<Token> qualsAtCursor = getQualifiersAtCursor(context);
-                Set<SyntaxKind> foundQuals = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
                 context.getNodeAtCursor().leadingInvalidTokens().stream()
                         .filter(token -> QUALIFIER_KINDS.contains(token.kind()))
-                        .filter(token -> !foundQuals.contains(token.kind()))
                         .forEach(qualifiers::add);
                 // Avoid duplicating the token at cursor.
                 qualsAtCursor.stream()
@@ -654,8 +652,7 @@ public class CommonUtil {
      */
     public static List<String> getFuncArguments(FunctionSymbol symbol, BallerinaCompletionContext ctx) {
         List<ParameterSymbol> params = CommonUtil.getFunctionParameters(symbol, ctx);
-        return params.stream().map(param -> getFunctionParamaterSyntax(param, ctx).orElse(""))
-                .collect(Collectors.toList());
+        return params.stream().map(param -> getFunctionParamaterSyntax(param, ctx).orElse("")).toList();
     }
 
     /**

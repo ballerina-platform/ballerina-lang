@@ -47,12 +47,15 @@ import static org.ballerinalang.langlib.map.util.Constants.MAP_VERSION;
 //        returnType = {@ReturnType(type = TypeKind.MAP)},
 //        isPublic = true
 //)
-public class Map {
+public final class Map {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "map");
 
-    public static BMap map(BMap<?, ?> m, BFunctionPointer<Object, Object> func) {
+    private Map() {
+    }
+
+    public static BMap<BString, Object> map(BMap<?, ?> m, BFunctionPointer<Object[], Object> func) {
         MapType newMapType = TypeCreator.createMapType(
                 ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType());
         BMap<BString, Object> newMap = ValueCreator.createMapValue(newMapType);

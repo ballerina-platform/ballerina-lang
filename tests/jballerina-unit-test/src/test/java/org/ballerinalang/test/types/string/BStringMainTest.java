@@ -43,6 +43,7 @@ public class BStringMainTest extends BStringTestCommons {
         testAndAssert("testJsonOptionalAccess", 9);
     }
 
+    @Override
     @AfterClass
     public void tearDown() {
         result = null;

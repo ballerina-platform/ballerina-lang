@@ -19,8 +19,8 @@ package org.ballerinalang.datamapper.utils;
  * This class is a simple representation of an HTTP response.
  */
 public class HttpResponse {
-    private String data;
-    private int responseCode;
+    private final String data;
+    private final int responseCode;
 
     /**
      * This method set data and response code of a HTTP request response.

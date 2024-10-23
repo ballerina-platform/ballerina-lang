@@ -22,13 +22,13 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Tests for {@link MavenResolver}.
  */
 public class MavenResolverTest {
-    String targetRepo = Paths.get("build").toAbsolutePath().toString() + File.separator + "platform-libs";
+    String targetRepo = Path.of("build/platform-libs").toAbsolutePath().toString();
     String mavenArtifactVersion = "3.6.3";
     String ballerinaMysqlVersion = "1.2.47";
     String commandDistVersion = "0.8.5";

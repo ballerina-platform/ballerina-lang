@@ -37,9 +37,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
@@ -51,9 +51,9 @@ import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
  * @since 2.0.0
  */
 public class BaseTest {
-    static final Path USER_HOME = Paths.get("build").resolve("user-home");
+    static final Path USER_HOME = Path.of("build").resolve("user-home");
     static final PrintStream OUT = System.out;
-    static final Path CUSTOM_USER_HOME = Paths.get("build", "userHome");
+    static final Path CUSTOM_USER_HOME = Path.of("build", "userHome");
     static final Path CENTRAL_CACHE = CUSTOM_USER_HOME.resolve("repositories/central.ballerina.io");
 
     @BeforeSuite
@@ -97,7 +97,10 @@ public class BaseTest {
                     .resolve("samjs").resolve("package_c").resolve("0.1.0").resolve("any");
             Files.createDirectories(localRepoBalaCache);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, localRepoBalaCache);
-            Path balaPath = Files.list(localRepoBalaCache).findAny().orElseThrow();
+            Path balaPath;
+            try (Stream<Path> paths = Files.list(localRepoBalaCache)) {
+                balaPath = paths.findAny().orElseThrow();
+            }
             ProjectUtils.extractBala(balaPath, localRepoBalaCache);
             try {
                 Files.delete(balaPath);
@@ -142,7 +145,10 @@ public class BaseTest {
         }
         Files.createDirectories(centralRepoBalaCache);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, centralRepoBalaCache);
-        Path balaPath = Files.list(centralRepoBalaCache).findAny().orElseThrow();
+        Path balaPath;
+        try (Stream<Path> paths = Files.list(centralRepoBalaCache)) {
+            balaPath = paths.findAny().orElseThrow();
+        }
         ProjectUtils.extractBala(balaPath, centralRepoBalaCache);
         try {
             Files.delete(balaPath);
@@ -153,7 +159,7 @@ public class BaseTest {
 
     protected Path getBalaPath(String org, String pkgName, String version) {
         String ballerinaHome = System.getProperty("ballerina.home");
-        Path balaRepoPath = Paths.get(ballerinaHome).resolve("repo").resolve("bala");
+        Path balaRepoPath = Path.of(ballerinaHome).resolve("repo").resolve("bala");
         return balaRepoPath.resolve(org).resolve(pkgName).resolve(version).resolve("any");
     }
 

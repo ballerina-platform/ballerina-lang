@@ -87,7 +87,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
@@ -96,7 +95,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATO
  *
  * @since 1.0.1
  */
-public class CodeActionUtil {
+public final class CodeActionUtil {
 
     private CodeActionUtil() {
     }
@@ -309,18 +308,15 @@ public class CodeActionUtil {
             getPossibleTypeSymbols(arrayTypeSymbol.memberTypeDescriptor(), context, importsAcceptor).entrySet()
                     .forEach(entry -> {
                         ArrayTypeSymbol newArrType = typeBuilder.ARRAY_TYPE.withType(entry.getKey()).build();
-                        String signature;
-                        switch (newArrType.memberTypeDescriptor().typeKind()) {
-                            case FUNCTION:
-                            case UNION:
+                        String signature = switch (newArrType.memberTypeDescriptor().typeKind()) {
+                            case FUNCTION, UNION -> {
                                 String typeName = FunctionGenerator.processModuleIDsInText(importsAcceptor,
                                         newArrType.memberTypeDescriptor().signature(), context);
-                                signature = "(" + typeName + ")[]";
-                                break;
-                            default:
-                                signature = FunctionGenerator.processModuleIDsInText(importsAcceptor,
-                                        newArrType.signature(), context);
-                        }
+                                yield "(" + typeName + ")[]";
+                            }
+                            default -> FunctionGenerator.processModuleIDsInText(importsAcceptor,
+                                    newArrType.signature(), context);
+                        };
                         typesMap.put(newArrType, signature);
                     });
         } else {
@@ -338,24 +334,18 @@ public class CodeActionUtil {
      */
     public static boolean isJsonMemberType(TypeSymbol typeSymbol) {
         // type json = () | boolean | int | float | decimal | string | json[] | map<json>;
-        switch (typeSymbol.typeKind()) {
-            case NIL:
-            case BOOLEAN:
-            case INT:
-            case FLOAT:
-            case DECIMAL:
-            case STRING:
-            case JSON:
-                return true;
-            case ARRAY:
-                ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeSymbol;
-                return isJsonMemberType(arrayTypeSymbol.memberTypeDescriptor());
-            case MAP:
-                MapTypeSymbol mapTypeSymbol = (MapTypeSymbol) typeSymbol;
-                return isJsonMemberType(mapTypeSymbol.typeParam());
-            default:
-                return false;
-        }
+        return switch (typeSymbol.typeKind()) {
+            case NIL,
+                 BOOLEAN,
+                 INT,
+                 FLOAT,
+                 DECIMAL,
+                 STRING,
+                 JSON -> true;
+            case ARRAY -> isJsonMemberType(((ArrayTypeSymbol) typeSymbol).memberTypeDescriptor());
+            case MAP -> isJsonMemberType(((MapTypeSymbol) typeSymbol).typeParam());
+            default -> false;
+        };
     }
 
     /**
@@ -567,7 +557,7 @@ public class CodeActionUtil {
         List<TypeSymbol> errorTypeSymbolsClone = new ArrayList<>(errorTypeSymbols);
         return errorTypeSymbolsClone.stream().filter(typeSymbol ->
                 errorTypeSymbols.stream().filter(other -> !other.signature().equals(typeSymbol.signature()))
-                        .noneMatch(typeSymbol::subtypeOf)).collect(Collectors.toList());
+                        .noneMatch(typeSymbol::subtypeOf)).toList();
     }
 
     private static Pair<List<TypeSymbol>, List<TypeSymbol>> getErrorAndNonErrorTypedSymbols(

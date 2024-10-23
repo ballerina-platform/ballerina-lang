@@ -31,8 +31,8 @@ import java.util.Map;
  */
 public class TesterinaReport {
 
-    private PrintStream outStream;
-    private Map<String, TestSummary> testReportOfPackage = new HashMap<>();
+    private final PrintStream outStream;
+    private final Map<String, TestSummary> testReportOfPackage = new HashMap<>();
     private boolean failure;
     private boolean isReportRequired;
 

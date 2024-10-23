@@ -61,7 +61,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Compiler plugin code action extension implementation for ballerina.
@@ -129,7 +128,7 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                     return CodeActionUtil.createResolvableCodeAction(codeActionInfo.getTitle(),
                             CodeActionKind.QuickFix, codeActionData);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -155,7 +154,7 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
         List<CodeActionArgument> arguments = actionData.stream()
                 .map(gson::toJsonTree)
                 .map(CodeActionArgument::from)
-                .collect(Collectors.toList());
+                .toList();
         // Build the execution context and execute code action
         CodeActionExecutionContext codeActionContext = CodeActionExecutionContextImpl.from(
                 codeActionData.getFileUri(),

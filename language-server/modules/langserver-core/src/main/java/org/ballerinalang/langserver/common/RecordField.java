@@ -57,8 +57,8 @@ public class RecordField {
      * @since 2201.8.0
      */
     public static class RecordFieldIdentifier {
-        private String name;
-        private TypeSymbol typeSymbol;
+        private final String name;
+        private final TypeSymbol typeSymbol;
 
         public RecordFieldIdentifier(String name, TypeSymbol typeSymbol) {
             this.name = name;
@@ -75,10 +75,9 @@ public class RecordField {
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof RecordFieldIdentifier)) {
+            if (!(obj instanceof RecordFieldIdentifier other)) {
                 return false;
             }
-            RecordFieldIdentifier other = (RecordFieldIdentifier) obj;
             return other.name.equals(this.name)
                     && other.typeSymbol.signature().equals(this.typeSymbol.signature());
         }

@@ -29,7 +29,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
  *
  * @since 1.2.0
  */
-public class JvmConstants {
+public final class JvmConstants {
 
     // jvm values public API classes
     public static final String B_XML_QNAME = "io/ballerina/runtime/api/values/BXmlQName";

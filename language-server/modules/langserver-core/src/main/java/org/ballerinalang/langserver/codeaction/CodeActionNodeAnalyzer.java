@@ -205,14 +205,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(TypeDefinitionNode node) {
         checkAndSetCodeActionNode(node);
-
-        // If cursor was outside object/record type desc, we have to manually check for the type
-        Node typeDescriptor = node.typeDescriptor();
-        if (typeDescriptor.kind() == SyntaxKind.RECORD_TYPE_DESC) {
-            checkAndSetSyntaxKind(typeDescriptor.kind());
-        } else if (typeDescriptor.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
-            checkAndSetSyntaxKind(typeDescriptor.kind());
-        }
+        checkAndSetSyntaxKind(node.typeDescriptor().kind());
 
         Optional<Token> qualifier = node.visibilityQualifier();
         int startOffset = qualifier.isEmpty() ?
@@ -729,9 +722,9 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     protected void visitSyntaxNode(Node node) {
         // Here we check for the statement nodes explicitly to identify the closest statement node
-        if (node instanceof StatementNode) {
+        if (node instanceof StatementNode statementNode) {
             if (!(node instanceof BlockStatementNode)) {
-                checkAndSetStatementNode((StatementNode) node);
+                checkAndSetStatementNode(statementNode);
             }
         }
 

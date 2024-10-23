@@ -34,7 +34,10 @@ import java.util.Map;
  *
  * @since 2.0.0
  */
-public class ValidationUtil {
+public final class ValidationUtil {
+
+    private ValidationUtil() {
+    }
 
     public static String getTypeErrorMessage(AbstractSchema schema, TomlType found, String key) {
         Map<String, String> message = schema.message();
@@ -47,23 +50,14 @@ public class ValidationUtil {
     }
 
     public static Type tomlTypeValueToSchemaType(TomlType tomlType) {
-        switch (tomlType) {
-            case STRING:
-                return Type.STRING;
-            case DOUBLE:
-            case INTEGER:
-                return Type.NUMBER;
-            case BOOLEAN:
-                return Type.BOOLEAN;
-            case ARRAY:
-            case TABLE_ARRAY:
-                return Type.ARRAY;
-            case TABLE:
-            case INLINE_TABLE:
-                return Type.OBJECT;
-            default:
-                throw new IllegalArgumentException("Toml type is a invalid value");
-        }
+        return switch (tomlType) {
+            case STRING -> Type.STRING;
+            case DOUBLE, INTEGER -> Type.NUMBER;
+            case BOOLEAN -> Type.BOOLEAN;
+            case ARRAY, TABLE_ARRAY -> Type.ARRAY;
+            case TABLE, INLINE_TABLE -> Type.OBJECT;
+            default -> throw new IllegalArgumentException("Toml type is a invalid value");
+        };
     }
 
     public static TomlDiagnostic getTomlDiagnostic(TomlNodeLocation location, String code, String template,

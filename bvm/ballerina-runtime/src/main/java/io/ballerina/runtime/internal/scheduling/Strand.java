@@ -164,11 +164,10 @@ public class Strand {
     }
 
     public void handleChannelError(ChannelDetails[] channels, ErrorValue error) {
-        for (int i = 0; i < channels.length; i++) {
-            ChannelDetails channelDetails = channels[i];
+        for (ChannelDetails channelDetails : channels) {
             WorkerDataChannel channel = getWorkerDataChannel(channelDetails);
 
-            if (channels[i].send) {
+            if (channelDetails.send) {
                 channel.setSendError(error);
             } else {
                 channel.setReceiveError(error);
@@ -501,8 +500,7 @@ public class Strand {
             strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
             return;
         }
-        if (!this.isYielded() || noPickedYieldStatus) {
-            // if frames have got empty, noPickedYieldStatus is true, then the state has changed to runnable
+        if (!this.isYielded()) {
             strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
             return;
         }

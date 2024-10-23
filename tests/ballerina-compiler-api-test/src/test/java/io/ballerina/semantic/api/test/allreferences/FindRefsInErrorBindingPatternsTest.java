@@ -29,6 +29,7 @@ import java.util.List;
 @Test
 public class FindRefsInErrorBindingPatternsTest extends FindAllReferencesTest {
 
+    @Override
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{

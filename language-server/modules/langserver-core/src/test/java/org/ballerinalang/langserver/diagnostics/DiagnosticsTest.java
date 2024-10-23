@@ -62,8 +62,6 @@ public class DiagnosticsTest {
 
     private final Path testRoot = FileUtils.RES_DIR.resolve("diagnostics");
 
-    private final JsonParser parser = new JsonParser();
-
     private final Gson gson = new Gson();
 
     private final LanguageServerContext serverContext = new LanguageServerContextImpl();
@@ -82,7 +80,7 @@ public class DiagnosticsTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 
         String response = this.getResponse(configJsonObject);
-        JsonObject responseJson = parser.parse(response).getAsJsonObject();
+        JsonObject responseJson = JsonParser.parseString(response).getAsJsonObject();
         JsonObject responseDiags = unifyResponse(responseJson);
         JsonObject expectedDiags = configJsonObject.get("items").getAsJsonObject();
 

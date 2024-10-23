@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.parser.test.syntax.actions;
 import io.ballerina.compiler.internal.parser.ParserRuleContext;
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test parsing actions.
@@ -30,7 +30,7 @@ import java.nio.file.Paths;
 public class AbstractActionTest {
 
     void testFile(String path, String filePath) {
-        ParserTestUtils.test(Paths.get("actions/", path), ParserRuleContext.TOP_LEVEL_NODE,
-                Paths.get("actions/", filePath));
+        ParserTestUtils.test(Path.of("actions/", path), ParserRuleContext.TOP_LEVEL_NODE,
+                Path.of("actions/", filePath));
     }
 }

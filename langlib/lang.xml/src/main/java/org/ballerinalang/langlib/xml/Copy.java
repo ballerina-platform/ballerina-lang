@@ -33,9 +33,12 @@ import java.util.HashMap;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class Copy {
+public final class Copy {
 
     private static final String OPERATION = "copy xml";
+
+    private Copy() {
+    }
 
     public static BXml copy(Strand strand, BXml xml) {
         try {

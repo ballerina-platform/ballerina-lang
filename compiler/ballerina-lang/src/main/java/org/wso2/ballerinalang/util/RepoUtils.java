@@ -22,7 +22,6 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
@@ -34,7 +33,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarEntry;
@@ -44,7 +43,7 @@ import java.util.regex.Pattern;
 /**
  * Home repository util methods.
  */
-public class RepoUtils {
+public final class RepoUtils {
 
     public static final String BALLERINA_INSTALL_DIR_PROP = "ballerina.home";
     public static final String COMPILE_BALLERINA_ORG_PROP = "BALLERINA_DEV_COMPILE_BALLERINA_ORG";
@@ -70,7 +69,10 @@ public class RepoUtils {
             System.getenv(BALLERINA_DEV_CENTRAL));
 
     private static final String UNKNOWN = "unknown";
-    
+
+    private RepoUtils() {
+    }
+
     /**
      * Create and get the home repository path.
      *
@@ -84,10 +86,10 @@ public class RepoUtils {
             if (userHomeDir == null || userHomeDir.isEmpty()) {
                 throw new BLangCompilerException("Error creating home repository: unable to get user home directory");
             }
-            homeRepoPath = Paths.get(userHomeDir, ProjectDirConstants.HOME_REPO_DEFAULT_DIRNAME);
+            homeRepoPath = Path.of(userHomeDir, ProjectDirConstants.HOME_REPO_DEFAULT_DIRNAME);
         } else {
             // User has specified the home repo path with env variable.
-            homeRepoPath = Paths.get(homeRepoDir);
+            homeRepoPath = Path.of(homeRepoDir);
         }
 
         homeRepoPath = homeRepoPath.toAbsolutePath();
@@ -166,7 +168,7 @@ public class RepoUtils {
     }
 
     public static Path getLibDir() {
-        return Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP, ".")).resolve("lib");
+        return Path.of(System.getProperty(BALLERINA_INSTALL_DIR_PROP, ".")).resolve("lib");
     }
 
     /**
@@ -188,7 +190,7 @@ public class RepoUtils {
             return null;
         }
 
-        return Paths.get(ballerinaHome).resolve(ProjectDirConstants.BALLERINA_HOME_LIB);
+        return Path.of(ballerinaHome).resolve(ProjectDirConstants.BALLERINA_HOME_LIB);
     }
 
     private static boolean getBooleanProp(String key) {
@@ -301,9 +303,9 @@ public class RepoUtils {
      */
     public static Manifest getManifestFromBala(Path balaPath) {
         try (JarFile jar = new JarFile(balaPath.toString())) {
-            java.util.Enumeration enumEntries = jar.entries();
+            Enumeration<JarEntry> enumEntries = jar.entries();
             while (enumEntries.hasMoreElements()) {
-                JarEntry file = (JarEntry) enumEntries.nextElement();
+                JarEntry file = enumEntries.nextElement();
                 if (file.getName().contains(ProjectDirConstants.MANIFEST_FILE_NAME)) {
                     if (file.isDirectory()) { // if its a directory, ignore
                         continue;
@@ -334,7 +336,7 @@ public class RepoUtils {
      *
      * @return {@link Settings} settings object
      */
-    public static Settings readSettings() throws SettingsTomlException {
+    public static Settings readSettings() {
         Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
         try {
             TomlDocument settingsTomlDocument = TomlDocument

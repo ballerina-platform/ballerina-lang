@@ -28,7 +28,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +37,10 @@ import java.util.regex.Pattern;
  *
  * @since 2201.3.0
  */
-public class FileUtils {
+public final class FileUtils {
+
+    private FileUtils() {
+    }
 
     public static void writeContent(BString targetPath, BString content) throws Exception {
 
@@ -58,7 +61,7 @@ public class FileUtils {
         matcher.appendTail(stringBuilder);
 
 
-        File jsonFile = new File(Paths.get(targetPath.getValue()).toString());
+        File jsonFile = new File(Path.of(targetPath.getValue()).toString());
         jsonFile.getParentFile().mkdirs();
         FileOutputStream fileOutputStream = new FileOutputStream(jsonFile);
         try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
@@ -70,7 +73,7 @@ public class FileUtils {
     public static BString readContent(BString targetPath) {
         if (fileExists(targetPath)) {
             try {
-                String readString = Files.readString(Paths.get(targetPath.getValue()));
+                String readString = Files.readString(Path.of(targetPath.getValue()));
                 return StringUtils.fromString(readString);
             } catch (IOException e) {
                 throw ErrorHelper.getRuntimeException(ErrorCodes.OPERATION_NOT_SUPPORTED_ERROR);
@@ -80,6 +83,6 @@ public class FileUtils {
     }
 
     public static boolean fileExists(BString filePath) {
-        return Files.exists(Paths.get(filePath.getValue()));
+        return Files.exists(Path.of(filePath.getValue()));
     }
 }

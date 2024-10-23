@@ -32,9 +32,12 @@ import io.ballerina.runtime.api.values.BMap;
 //        returnType = {@ReturnType(type = TypeKind.OBJECT)},
 //        isPublic = true
 //)
-public class GetIterator {
+public final class GetIterator {
 
-    public static BIterator iterator(BMap<?, ?> map) {
+    private GetIterator() {
+    }
+
+    public static BIterator<?> iterator(BMap<?, ?> map) {
         return map.getIterator();
     }
 }

@@ -37,9 +37,12 @@ import org.ballerinalang.langlib.xml.utils.XmlUtils;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class SelectDescendants {
+public final class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
+
+    private SelectDescendants() {
+    }
 
     public static BXml selectDescendants(Strand strand, BXml xml, BArray qnames) {
         try {

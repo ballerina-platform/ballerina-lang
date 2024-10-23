@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -85,7 +84,7 @@ public class NodeList<T extends Node> implements Iterable<T> {
         List<STNode> stNodesToBeAdded = c.stream()
                 .map(node -> Objects.requireNonNull(node, "node should not be null"))
                 .map(Node::internalNode)
-                .collect(Collectors.toList());
+                .toList();
         return new NodeList<>(internalListNode.addAll(stNodesToBeAdded).createUnlinkedFacade());
     }
 

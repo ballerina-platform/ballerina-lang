@@ -41,7 +41,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -55,7 +54,7 @@ import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
  * @since 2.0.0
  */
 public class TestBirAndJarCache {
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/");
 
     @Test(description = "tests writing of the BIR and Jar files")
     public void testBirAndJarCaching() throws IOException {
@@ -88,23 +87,25 @@ public class TestBirAndJarCache {
         // numOfModules * 2 : This includes testable jars as well, including the resources.jar
         Assert.assertEquals(testCompilationCache.jarCachedCount, numOfModules + 1);
 
-        Stream<Path> pathStream = Files.find(cacheDirPath, 100,
+        try (Stream<Path> pathStream = Files.find(cacheDirPath, 100,
                 (path, fileAttributes) -> !Files.isDirectory(path) &&
                         (path.getFileName().toString().endsWith(".bir") ||
-                                path.getFileName().toString().endsWith(".jar")));
+                                path.getFileName().toString().endsWith(".jar")))) {
 
-        List<String> foundPaths = pathStream
-                .map(path -> path.getFileName().toString())
-                .toList();
-        for (ModuleId moduleId : currentPackage.moduleIds()) {
-            Module module = currentPackage.module(moduleId);
-            ModuleName moduleName = module.moduleName();
-            String jarName = getThinJarFileName(module.descriptor().org(),
-                                                moduleName.toString(),
-                                                module.descriptor().version());
-            Assert.assertTrue(foundPaths.contains(jarName + BLANG_COMPILED_JAR_EXT));
+            List<String> foundPaths = pathStream
+                    .map(path -> path.getFileName().toString())
+                    .toList();
+
+            for (ModuleId moduleId : currentPackage.moduleIds()) {
+                Module module = currentPackage.module(moduleId);
+                ModuleName moduleName = module.moduleName();
+                String jarName = getThinJarFileName(module.descriptor().org(),
+                                                    moduleName.toString(),
+                                                    module.descriptor().version());
+                Assert.assertTrue(foundPaths.contains(jarName + BLANG_COMPILED_JAR_EXT));
+            }
+            Assert.assertTrue(foundPaths.contains(RESOURCE_DIR_NAME + BLANG_COMPILED_JAR_EXT));
         }
-        Assert.assertTrue(foundPaths.contains(RESOURCE_DIR_NAME + BLANG_COMPILED_JAR_EXT));
     }
 
     @Test

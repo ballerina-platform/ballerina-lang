@@ -15,8 +15,10 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 repositories {
     mavenCentral()
@@ -27,8 +29,8 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':central-client')
     implementation project(':ballerina-tools-api')
-    testImplementation 'org.testng:testng'
-    implementation('com.google.code.gson:gson')
+    testImplementation libs.testng
+    implementation libs.gson
 }
 
 description = 'Ballerina - Semver Checker Core'

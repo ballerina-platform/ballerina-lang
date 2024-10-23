@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -153,7 +152,7 @@ public class SourceDirectoryManager implements Project {
                 throw new IllegalArgumentException("invalid project directory path");
             }
         
-            Path sourceRoot = Paths.get(srcDirPathName);
+            Path sourceRoot = Path.of(srcDirPathName);
         
             if (Files.notExists(sourceRoot)) {
                 throw new BLangCompilerException("'" + sourceRoot + "' project directory does not exist.");

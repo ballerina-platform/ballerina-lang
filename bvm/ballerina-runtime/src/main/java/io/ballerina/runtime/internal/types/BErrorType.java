@@ -73,11 +73,10 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
 
     @Override
     public boolean equals(Object obj) {
-        if (!super.equals(obj) || !(obj instanceof BErrorType)) {
+        if (!super.equals(obj) || !(obj instanceof BErrorType other)) {
             return false;
         }
 
-        BErrorType other = (BErrorType) obj;
         if (detailType == other.detailType) {
             return true;
         }

@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -37,42 +36,42 @@ public class ObjectEvaluatorTest extends AbstractEvaluatorTest {
     private static final String REF_EVALUATOR_TESTCASE = "testcases/evaluator/object.ref.json";
 
     @Test
-    public void testEvaluateClass() throws BallerinaShellException {
+    public void testEvaluateClass() {
         testEvaluate(CLASS_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateInit() throws BallerinaShellException {
+    public void testEvaluateInit() {
         testEvaluate(INIT_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateMethod() throws BallerinaShellException {
+    public void testEvaluateMethod() {
         testEvaluate(METHODS_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateAssign() throws BallerinaShellException {
+    public void testEvaluateAssign() {
         testEvaluate(ASSIGN_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateType() throws BallerinaShellException {
+    public void testEvaluateType() {
         testEvaluate(TYPE_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateConstructor() throws BallerinaShellException {
+    public void testEvaluateConstructor() {
         testEvaluate(CONSTRUCTOR_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateReadonly() throws BallerinaShellException {
+    public void testEvaluateReadonly() {
         testEvaluate(READONLY_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateRef() throws BallerinaShellException {
+    public void testEvaluateRef() {
         testEvaluate(REF_EVALUATOR_TESTCASE);
     }
 }

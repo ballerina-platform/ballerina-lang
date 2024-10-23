@@ -69,6 +69,7 @@ public class TypeByAnonFunctionTest extends TypeByNodeTest {
         };
     }
 
+    @Override
     void verifyAssertCount() {
         assertEquals(getAssertCount(), 4);
     }

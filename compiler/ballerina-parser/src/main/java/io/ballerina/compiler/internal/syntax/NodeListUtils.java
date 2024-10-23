@@ -25,7 +25,8 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
  *
  * @since 2.0.0
  */
-public class NodeListUtils {
+public final class NodeListUtils {
+
     private NodeListUtils() {
     }
 

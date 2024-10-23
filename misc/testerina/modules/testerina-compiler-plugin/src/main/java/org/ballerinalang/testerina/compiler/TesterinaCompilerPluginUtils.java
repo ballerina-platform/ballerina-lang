@@ -52,7 +52,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +62,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 2201.3.0
  */
-public class TesterinaCompilerPluginUtils {
+public final class TesterinaCompilerPluginUtils {
+
+    private TesterinaCompilerPluginUtils() {
+    }
 
     public static void addSetTestOptionsCall(List<StatementNode> statements) {
         // Add the statement, 'test:setTestOptions(<args[]>);'
@@ -336,7 +338,7 @@ public class TesterinaCompilerPluginUtils {
                 NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(argName)));
     }
 
-    public static void writeCacheMapAsJson(Map map, Path path, String fileName) {
+    public static void writeCacheMapAsJson(Map<?, ?> map, Path path, String fileName) {
         if (!Files.exists(path)) {
             try {
                 Files.createDirectories(path);
@@ -345,7 +347,7 @@ public class TesterinaCompilerPluginUtils {
             }
         }
 
-        Path jsonFilePath = Paths.get(path.toString(), fileName);
+        Path jsonFilePath = Path.of(path.toString(), fileName);
         File jsonFile = new File(jsonFilePath.toString());
         try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
             try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {

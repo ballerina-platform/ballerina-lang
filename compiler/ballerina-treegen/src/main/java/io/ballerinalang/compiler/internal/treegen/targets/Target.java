@@ -31,7 +31,6 @@ import io.ballerinalang.compiler.internal.treegen.model.template.TreeNodeClass;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -91,7 +90,7 @@ public abstract class Target {
     }
 
     private Path getFilePath(String outputDir, String className) {
-        return Paths.get(outputDir, getClassFileName(className)).toAbsolutePath();
+        return Path.of(outputDir, getClassFileName(className)).toAbsolutePath();
     }
 
     protected String getClassFQN(String packageName, String className) {

@@ -22,7 +22,7 @@ import java.util.UUID;
  *
  * @since 2.0.0
  */
-public class SemanticTokensConstants {
+public final class SemanticTokensConstants {
 
     private SemanticTokensConstants() {
     }
@@ -31,9 +31,9 @@ public class SemanticTokensConstants {
 
     public static final String REQUEST_METHOD = "textDocument/semanticTokens";
 
-    protected static final String SELF = "self";
+    static final String SELF = "self";
 
-    protected static final String READONLY = "readonly";
+    static final String READONLY = "readonly";
 
-    protected static final String RETURN = "return";
+    static final String RETURN = "return";
 }

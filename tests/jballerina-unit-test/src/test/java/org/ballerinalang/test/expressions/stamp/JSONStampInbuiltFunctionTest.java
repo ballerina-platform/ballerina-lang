@@ -95,9 +95,9 @@ public class JSONStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue0.getType().getName(), "Employee");
 
         Assert.assertEquals((mapValue0).size(), 4);
-        Assert.assertEquals(((LinkedHashMap) mapValue0).get(StringUtils.fromString("school")).toString(),
+        Assert.assertEquals(((LinkedHashMap<?, ?>) mapValue0).get(StringUtils.fromString("school")).toString(),
                 "Hindu College");
-        Assert.assertEquals(getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("school"))).getClass(),
+        Assert.assertEquals(getType(((LinkedHashMap<?, ?>) mapValue0).get(StringUtils.fromString("school"))).getClass(),
                 BStringType.class);
 
     }
@@ -138,16 +138,18 @@ public class JSONStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue0.getType().getName(), "Student");
 
         Assert.assertEquals((mapValue0).size(), 4);
-        Assert.assertEquals(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch"))).getClass(),
+        Assert.assertEquals(((LinkedHashMap<?, ?>) mapValue0).get(StringUtils.fromString("batch")).toString(),
+                "LK2014");
+        Assert.assertEquals(getType(((LinkedHashMap<?, ?>) mapValue0).get(StringUtils.fromString("batch"))).getClass(),
                 BStringType.class);
 
         Assert.assertEquals(mapValue1.getType().getClass(), BRecordType.class);
         Assert.assertEquals(mapValue1.getType().getName(), "Student");
 
         Assert.assertEquals((mapValue1).size(), 4);
-        Assert.assertEquals(((LinkedHashMap) mapValue1).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch"))).getClass(),
+        Assert.assertEquals(((LinkedHashMap<?, ?>) mapValue1).get(StringUtils.fromString("batch")).toString(),
+                "LK2014");
+        Assert.assertEquals(getType(((LinkedHashMap<?, ?>) mapValue0).get(StringUtils.fromString("batch"))).getClass(),
                 BStringType.class);
 
     }
@@ -164,7 +166,7 @@ public class JSONStampInbuiltFunctionTest {
         Assert.assertEquals(getType(results.get(1)).getTag(), TypeTags.BOOLEAN_TAG);
         Assert.assertEquals(results.get(2).toString(), "foo");
         Assert.assertEquals(getType(results.get(2)).getClass(), BStringType.class);
-        Assert.assertEquals((((BMap) results.get(3))).size(), 2);
+        Assert.assertEquals((((BMap<?, ?>) results.get(3))).size(), 2);
         Assert.assertEquals(getType(results.get(3)).getClass(), BMapType.class);
         Assert.assertEquals(((BMapType) getType(results.get(3))).getConstrainedType().getClass(), BAnydataType.class);
     }
@@ -197,7 +199,7 @@ public class JSONStampInbuiltFunctionTest {
         Assert.assertEquals(results.get(2).toString(), "foo");
         Assert.assertEquals(getType(results.get(2)).getClass(), BStringType.class);
         Assert.assertNull(results.get(3));
-        Assert.assertEquals((((BMap) results.get(4))).size(), 2);
+        Assert.assertEquals((((BMap<?, ?>) results.get(4))).size(), 2);
         Assert.assertEquals(getType(results.get(4)).getClass(), BMapType.class);
         Assert.assertEquals(((BMapType) getType(results.get(4))).getConstrainedType().getClass(), BAnydataType.class);
     }

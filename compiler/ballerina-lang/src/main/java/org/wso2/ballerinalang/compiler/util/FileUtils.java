@@ -30,7 +30,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,8 +42,12 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOU
  *
  * @since 0.970.0
  */
-public class FileUtils {
+public final class FileUtils {
+
     private static final String SRC_DIR = "src";
+
+    private FileUtils() {
+    }
 
     public static void deleteFile(Path filePath) throws IOException {
         Files.deleteIfExists(filePath);
@@ -59,7 +62,7 @@ public class FileUtils {
      */
     static void generateBala(BLangPackage bLangPackage, String projectPath, Stream<Path> paths) {
         PackageID packageID = bLangPackage.packageID;
-        Path destPath = Paths.get(projectPath, ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
+        Path destPath = Path.of(projectPath, ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                   ProjectDirConstants.CACHES_DIR_NAME,
                                   ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME,
                                   packageID.getOrgName().getValue(),

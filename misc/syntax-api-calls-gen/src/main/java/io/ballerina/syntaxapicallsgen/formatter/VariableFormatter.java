@@ -23,10 +23,12 @@ import io.ballerina.syntaxapicallsgen.segment.NodeFactorySegment;
 import io.ballerina.syntaxapicallsgen.segment.Segment;
 import io.ballerina.syntaxapicallsgen.segment.factories.SegmentFactory;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Stack;
 
 /**
  * Grouped Variable formatter.
@@ -51,9 +53,9 @@ public class VariableFormatter extends SegmentFormatter {
 
     @Override
     public String format(Segment segment) {
-        if (segment instanceof NodeFactorySegment) {
+        if (segment instanceof NodeFactorySegment nodeFactorySegment) {
             variableCount = new HashMap<>();
-            return MINUTIAE_LIST_DEF + processNode((NodeFactorySegment) segment);
+            return MINUTIAE_LIST_DEF + processNode(nodeFactorySegment);
         }
         throw new SyntaxApiCallsGenException("Expected a valid node segment but fount parsed segment of " + segment);
     }
@@ -66,7 +68,7 @@ public class VariableFormatter extends SegmentFormatter {
      */
     private NamedContent processToken(NodeFactorySegment token) {
         StringBuilder stringBuilder = new StringBuilder();
-        Stack<Segment> params = new Stack<>();
+        Deque<Segment> params = new ArrayDeque<>();
         token.forEach(params::push);
 
         NamedContent namedContent = new NamedContent(token.getType(), variableCount);
@@ -75,8 +77,9 @@ public class VariableFormatter extends SegmentFormatter {
         // Define and add minutiae
         boolean minutiaeNodesPresent = false;
         if (params.size() >= 2) {
-            Segment lastSegment1 = params.get(params.size() - 1);
-            Segment lastSegment2 = params.get(params.size() - 2);
+            Iterator<Segment> paramIterator = params.iterator();
+            Segment lastSegment1 = paramIterator.next();
+            Segment lastSegment2 = paramIterator.next();
             if (lastSegment1 instanceof NodeFactorySegment
                     && lastSegment2 instanceof NodeFactorySegment
                     && ((NodeFactorySegment) lastSegment1).isMinutiae()
@@ -95,7 +98,7 @@ public class VariableFormatter extends SegmentFormatter {
 
         // Add params and minutiae
         while (!params.isEmpty()) {
-            factorySegment.addParameter(params.remove(0));
+            factorySegment.addParameter(params.removeLast());
         }
 
         if (minutiaeNodesPresent) {
@@ -130,8 +133,7 @@ public class VariableFormatter extends SegmentFormatter {
         StringBuilder stringBuilder = new StringBuilder();
         NodeFactorySegment factorySegment = segment.createCopy();
         for (Segment child : segment) {
-            if (child instanceof NodeFactorySegment) {
-                NodeFactorySegment childFactoryCall = (NodeFactorySegment) child;
+            if (child instanceof NodeFactorySegment childFactoryCall) {
                 NamedContent namedContent = processNode(childFactoryCall);
                 stringBuilder.append(namedContent.content);
                 factorySegment.addParameter(SegmentFactory.createCodeSegment(namedContent.name));

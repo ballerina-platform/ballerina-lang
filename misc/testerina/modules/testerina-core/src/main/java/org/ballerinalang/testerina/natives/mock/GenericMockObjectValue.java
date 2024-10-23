@@ -47,10 +47,10 @@ import java.util.Map;
  */
 public class GenericMockObjectValue implements ObjectValue {
 
-    private ObjectValue mockObj;
+    private final ObjectValue mockObj;
 
-    private ObjectType type;
-    private BTypedesc typedesc;
+    private final ObjectType type;
+    private final BTypedesc typedesc;
 
     public GenericMockObjectValue(ObjectType type, ObjectValue mockObj) {
         this.type = type;
@@ -115,6 +115,7 @@ public class GenericMockObjectValue implements ObjectValue {
         return false;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public BMap getMapValue(BString fieldName) {
         return null;

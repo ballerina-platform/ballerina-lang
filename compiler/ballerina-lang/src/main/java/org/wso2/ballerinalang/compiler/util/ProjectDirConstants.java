@@ -22,7 +22,7 @@ package org.wso2.ballerinalang.compiler.util;
  *
  * @since 0.964.0
  */
-public class ProjectDirConstants {
+public final class ProjectDirConstants {
 
 
         private ProjectDirConstants() {

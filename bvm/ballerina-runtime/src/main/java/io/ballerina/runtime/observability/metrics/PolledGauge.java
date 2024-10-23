@@ -51,8 +51,8 @@ public interface PolledGauge extends Metric {
         // Expecting at least 10 tags
         private final Set<Tag> tags = new HashSet<>(10);
         private String description;
-        private T obj;
-        private ToDoubleFunction<T> valueFunction;
+        private final T obj;
+        private final ToDoubleFunction<T> valueFunction;
 
         private Builder(String name, T obj, ToDoubleFunction<T> valueFunction) {
             this.name = name;
@@ -67,25 +67,25 @@ public interface PolledGauge extends Metric {
         }
 
         @Override
-        public Builder tags(String... keyValues) {
+        public Builder<T> tags(String... keyValues) {
             Tags.tags(this.tags, keyValues);
             return this;
         }
 
         @Override
-        public Builder tags(Iterable<Tag> tags) {
+        public Builder<T> tags(Iterable<Tag> tags) {
             Tags.tags(this.tags, tags);
             return this;
         }
 
         @Override
-        public Builder tag(String key, String value) {
+        public Builder<T> tag(String key, String value) {
             Tags.tags(this.tags, key, value);
             return this;
         }
 
         @Override
-        public Builder tags(Map<String, String> tags) {
+        public Builder<T> tags(Map<String, String> tags) {
             Tags.tags(this.tags, tags);
             return this;
         }

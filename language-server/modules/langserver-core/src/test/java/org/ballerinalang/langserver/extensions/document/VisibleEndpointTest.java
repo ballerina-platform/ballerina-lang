@@ -35,12 +35,12 @@ public class VisibleEndpointTest {
 
     private Endpoint serviceEndpoint;
 
-    private Path nestedVisibleEPsFile = FileUtils.RES_DIR.resolve("extensions")
+    private final Path nestedVisibleEPsFile = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
             .resolve("sources")
             .resolve("nestedVisibleEndpoints.bal");
 
-    private Path transactionVisibleEPsFile = FileUtils.RES_DIR.resolve("extensions")
+    private final Path transactionVisibleEPsFile = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
             .resolve("sources")
             .resolve("visibleEndpointsInTransactions.bal");

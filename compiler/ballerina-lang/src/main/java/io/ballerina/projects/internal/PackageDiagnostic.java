@@ -34,7 +34,6 @@ import io.ballerina.tools.text.TextRange;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,13 +64,13 @@ public class PackageDiagnostic extends Diagnostic {
         String filePath;
         ModuleName moduleName = moduleDescriptor.name();
         String diagnosticPath = diagnostic.location().lineRange().filePath();
-        Path modulesRoot = Paths.get(ProjectConstants.MODULES_ROOT);
+        Path modulesRoot = Path.of(ProjectConstants.MODULES_ROOT);
         if (project.kind().equals(ProjectKind.BALA_PROJECT)) {
             Path modulePath = modulesRoot.resolve(moduleName.toString());
             filePath = project.sourceRoot().resolve(modulePath).resolve(
                     diagnosticPath).toString();
         } else {
-            Path generatedRoot = Paths.get(ProjectConstants.GENERATED_MODULES_ROOT);
+            Path generatedRoot = Path.of(ProjectConstants.GENERATED_MODULES_ROOT);
             if (!moduleName.isDefaultModuleName()) {
                 Path generatedPath = generatedRoot.
                         resolve(moduleName.moduleNamePart());
@@ -122,7 +121,7 @@ public class PackageDiagnostic extends Diagnostic {
         if (this.project != null && ProjectKind.BALA_PROJECT.equals(this.project.kind())) {
             filePath = moduleDescriptor.org() + "/" +
                     moduleDescriptor.name().toString() + "/" +
-                    moduleDescriptor.version() + "::" + Optional.of(Paths.get(filePath).getFileName()).get();
+                    moduleDescriptor.version() + "::" + Optional.of(Path.of(filePath).getFileName()).get();
         }
         // Handle null location based diagnostics
         if (this.diagnostic.location() instanceof NullLocation) {

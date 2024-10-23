@@ -43,12 +43,15 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.model.JType.getJTypeFr
  *
  * @since 1.2.0
  */
-public class AnnotationProc {
+public final class AnnotationProc {
 
     public static final String NAME_FIELD_NAME = "name";
     public static final String CLASS_FIELD_NAME = "class";
     public static final String PARAM_TYPES_FIELD_NAME = "paramTypes";
     public static final String DIMENSIONS_FIELD_NAME = "dimensions";
+
+    private AnnotationProc() {
+    }
 
     static InteropValidationRequest getInteropAnnotValue(BIRFunction birFunc) {
 
@@ -135,13 +138,13 @@ public class AnnotationProc {
         for (BIRNode.ConstValue annotArrayElement : annotArrayElements) {
             JType jType;
             Object elementValue = annotArrayElement.value;
-            if (elementValue instanceof String) {
-                jType = getJTypeFromTypeName((String) elementValue);
-            } else if (elementValue instanceof Map) {
-                Map<String, BIRNode.ConstValue> annotValueMap = (Map<String, BIRNode.ConstValue>) elementValue;
-                String elementClass = (String) getLiteralValueFromAnnotValue(annotValueMap.get(CLASS_FIELD_NAME));
-                byte dimensions = ((Long) getLiteralValueFromAnnotValue(annotValueMap.get(DIMENSIONS_FIELD_NAME)))
-                        .byteValue();
+            if (elementValue instanceof String s) {
+                jType = getJTypeFromTypeName(s);
+            } else if (elementValue instanceof Map<?, ?> annotValueMap) {
+                String elementClass = (String) getLiteralValueFromAnnotValue(
+                        (BIRNode.ConstValue) annotValueMap.get(CLASS_FIELD_NAME));
+                byte dimensions = ((Long) getLiteralValueFromAnnotValue(
+                        (BIRNode.ConstValue) annotValueMap.get(DIMENSIONS_FIELD_NAME))).byteValue();
                 jType = getJArrayTypeFromTypeName(elementClass, dimensions);
             } else {
                 throw new BLangCompilerException("unexpected annotation value: " + annotArrayElement);

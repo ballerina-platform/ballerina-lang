@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Represents the Ballerina distribution and responsible for initializing the {@code CompilerContext}, distribution
@@ -51,7 +50,7 @@ public final class BallerinaDistribution {
         if (ballerinaHome == null) {
             throw new IllegalStateException("ballerina.home property is not set");
         }
-        return from(environment, Paths.get(ballerinaHome));
+        return from(environment, Path.of(ballerinaHome));
     }
 
     public static BallerinaDistribution from(Environment environment, Path ballerinaHomeDirPath) {

@@ -259,7 +259,7 @@ public class GlobalVariableRefAnalyzer {
         if (!dependencyOrder.isEmpty()) {
             List<BSymbol> symbolsProvidersOrdered = this.dependencyOrder.stream()
                     .map(nodeInfo -> nodeInfo.symbol)
-                    .collect(Collectors.toList());
+                    .toList();
             this.dependencyOrder.clear();
             return symbolsProvidersOrdered;
         }
@@ -359,7 +359,7 @@ public class GlobalVariableRefAnalyzer {
             Collections.reverse(cycle);
             List<BSymbol> symbolsOfCycle = cycle.stream()
                     .map(n -> n.symbol)
-                    .collect(Collectors.toList());
+                    .toList();
 
             if (doesContainAGlobalVar(symbolsOfCycle)) {
                 emitErrorMessage(symbolsOfCycle);
@@ -392,7 +392,7 @@ public class GlobalVariableRefAnalyzer {
         secondSubList.addAll(firstSubList);
 
         List<BLangIdentifier> names = secondSubList.stream()
-                .map(this::getNodeName).filter(Objects::nonNull).collect(Collectors.toList());
+                .map(this::getNodeName).filter(Objects::nonNull).toList();
         dlog.error(firstNode.get().getPosition(), DiagnosticErrorCode.GLOBAL_VARIABLE_CYCLIC_DEFINITION, names);
     }
 

@@ -41,10 +41,13 @@ import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
  *
  * @since 0.965.0
  */
-public class CompilerUtils {
+public final class CompilerUtils {
 
     private static final String DISTRIBUTED_TRANSACTIONS = "distributed.transactions";
-    
+
+    private CompilerUtils() {
+    }
+
     public static boolean isDistributedTransactionsEnabled() {
         boolean distributedTransactionEnabled = true; //TODO:Default will be true. Read from new VMOptions
         String distributedTxEnabledProp = System.getProperty(DISTRIBUTED_TRANSACTIONS);

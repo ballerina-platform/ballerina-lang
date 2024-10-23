@@ -28,9 +28,12 @@ import io.ballerina.runtime.transactions.TransactionResourceManager;
  *
  * @since 2.0.0-preview1
  */
-public class OnCommit {
+public final class OnCommit {
 
-    public static void onCommit(BFunctionPointer bFunctionPointer) {
+    private OnCommit() {
+    }
+
+    public static void onCommit(BFunctionPointer<?, ?> bFunctionPointer) {
         TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerCommittedFunction(transactionLocalContext.getGlobalTransactionId(),
