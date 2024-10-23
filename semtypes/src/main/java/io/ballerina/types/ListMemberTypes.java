@@ -19,8 +19,11 @@ package io.ballerina.types;
 
 import io.ballerina.types.subtypedata.Range;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
- * Holds a pair of semtype[] and range[].
+ * Holds a pair of List< SemType> and List< Range>.
  * <i>Note: Member types at the indices that are not contained in `Range` array represent `never.
  * The SemTypes in this list are not `never`.</i>
  *
@@ -28,9 +31,24 @@ import io.ballerina.types.subtypedata.Range;
  * @param semTypes SemType array
  * @since 2201.11.0
  */
-public record ListMemberTypes(Range[] ranges, SemType[] semTypes) {
+public record ListMemberTypes(List<Range> ranges, List<SemType> semTypes) {
 
-    public static ListMemberTypes from(Range[] ranges, SemType[] semTypes) {
+    public ListMemberTypes {
+        ranges = Collections.unmodifiableList(ranges);
+        semTypes = Collections.unmodifiableList(semTypes);
+    }
+
+    @Override
+    public List<Range> ranges() {
+        return Collections.unmodifiableList(ranges);
+    }
+
+    @Override
+    public List<SemType> semTypes() {
+        return Collections.unmodifiableList(semTypes);
+    }
+
+    public static ListMemberTypes from(List<Range> ranges, List<SemType> semTypes) {
         assert ranges != null && semTypes != null;
         return new ListMemberTypes(ranges, semTypes);
     }
