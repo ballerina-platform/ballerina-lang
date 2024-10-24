@@ -1,0 +1,201 @@
+{
+  "id": 10004,
+  "name": "MQTT Event Listener",
+  "type": "inbuilt",
+  "displayName": "MQTT",
+  "documentation": "This Listener can be used to listen to messages from an MQTT broker.",
+  "moduleName": "mqtt",
+  "listenerProtocol": "mqtt",
+  "displayAnnotation": {
+    "label": "MQTT",
+    "iconPath": "docs/icon.png"
+  },
+  "package": {
+    "id": 15474,
+    "organization": "ballerina",
+    "name": "mqtt",
+    "version": "1.2.0",
+    "platform": "java17",
+    "languageSpecificationVersion": "2024R1",
+    "isDeprecated": false,
+    "deprecateMessage": "",
+    "URL": "/ballerina/mqtt/1.2.0",
+    "balaVersion": "2.0.0",
+    "balaURL": "https://fileserver.central.ballerina.io/2.0/ballerina/mqtt/1.2.0/ballerina-mqtt-java17-1.2.0.bala?Expires=1729736003&Signature=u0gRsw-prRH8Cp4RpeXli0h46~80JeTWeloZI2i7BeM9VANXNDRaHVvK496K-mYjnitBCzM-jUX2UuhYNPTPWLywk0qFJAWYK1-ZpZ89Hoe6Nfm34CQQjmm55esvZOB1MjtJKxTeE-4FenhtcLPMO839IDQbrT3RywG-2zdo8UfAC1Xhm2WUNHSSsA53Pt6SbAi1RV7~wwM6hVjfgLrDIdBJpKa5uFPlIP-9kGSWm761LLRrfWd1ITf-CFmuET-FWAngAdOd1aOo1SD06m53nv4uo1ilQ-bPHRUUUNuNHZe5RUrElZLyQrm61Si048TE88POz5QIk9vt7-B7gE6eEA__&Key-Pair-Id=K27IQ7NPTKLKDU",
+    "digest": "sha-256=fd072ae39af5a1928aab6b10ce920efd483024d2fa032f129e8d409fbfc50a0f",
+    "summary": "This package provides an implementation to interact with MQTT servers via MQTT client and listener.",
+    "readme": "## Overview\nThis package provides an implementation to interact with MQTT servers via MQTT client and listener.\n\nMQTT is a lightweight, publish-subscribe, machine to machine network protocol for message queue\/message queuing service.\n\n### Publisher and subscriber\n#### MQTT publisher\nA MQTT publisher is a MQTT client that publishes messages to the MQTT server. When working with a MQTT client, the first thing to do is to initialize the client.\nFor the publisher to work successfully, an active MQTT server should be available.\n\nThe code snippet given below initializes a publisher client with the basic configuration.\n```ballerina\nimport ballerina\/mqtt;\nimport ballerina\/uuid;\n \nmqtt:ClientConfiguration clientConfiguration = {\n    connectionConfig: {\n        username: \"ballerina\",\n        password: \"ballerinamqtt\"\n    }\n};\n\nmqtt:Client mqttClient = check new (mqtt:DEFAULT_URL, uuid:createType1AsString(), clientConfiguration); \/\/ A unique id needs to be provided as the client id\n```\nUsing the `publish` api of this client, messages can be sent to the MQTT server.\n```ballerina\ncheck mqttClient->publish(\"mqtt\/test\", {payload: \"This is Ballerina MQTT client!!!\".toBytes()});\n```\n#### MQTT subscriber\nA MQTT subscriber is a client responsible for reading messages from one or more topics in the server. When working with a MQTT subscriber, the first thing to do is initialize the subscriber.\nFor the subscriber to work successfully, an active MQTT server should be available.\n\nThe code snippet given below initializes a subscriber with the basic configuration.\n```ballerina\nmqtt:ListenerConfiguration listenerConfiguration = {\n    connectionConfig: {\n        username: \"ballerina\",\n        password: \"ballerinamqtt\"\n    },\n    manualAcks: false   \/\/ When set to false, the MQTT acknowledgements are not sent automatically by the subscriber\n};\n\nmqtt:Listener mqttSubscriber = check new (mqtt:DEFAULT_URL, uuid:createType1AsString(), \"mqtt\/test\", listenerConfiguration);\n```\nThis subscriber can be used in the `mqtt:Service` to listen to messages in `mqtt\/test` topic.\n```ballerina\nservice on mqttSubscriber {\n    remote function onMessage(mqtt:Message message, mqtt:Caller caller) returns error? {\n        log:printInfo(check string:fromBytes(message.payload));\n        check caller->complete();\n    }\n\n    remote function onError(mqtt:Error err) returns error? {\n        log:printError(\"Error occured \", err);\n    }\n}\n```\nThe `mqtt:Caller` can be used to indicate that the application has completed processing the message by using `complete()` api.",
+    "template": false,
+    "licenses": [],
+    "authors": [
+      "ballerina"
+    ],
+    "sourceCodeLocation": "https://github.com/ballerina-platform/module-ballerina-mqtt",
+    "keywords": [
+      "mqtt",
+      "client",
+      "messaging",
+      "network",
+      "pubsub",
+      "iot"
+    ],
+    "ballerinaVersion": "2201.10.0",
+    "icon": "",
+    "ownerUUID": "b5a9e54d-8ade-47a1-8abc-6bc46e89069d",
+    "createdDate": 1724140280000,
+    "pullCount": 44,
+    "visibility": "public",
+    "modules": [
+      {
+        "packageURL": "/ballerina/mqtt/1.2.0",
+        "apiDocURL": "https://lib.ballerina.io/ballerina/mqtt/1.2.0",
+        "name": "mqtt",
+        "summary": "This module provides an implementation to interact with MQTT servers via MQTT client and listener.",
+        "readme": "## Overview\nThis module provides an implementation to interact with MQTT servers via MQTT client and listener.\n\nMQTT is a lightweight, publish-subscribe, machine to machine network protocol for message queue\/message queuing service.\n\n### Publisher and subscriber\n#### MQTT publisher\nA MQTT publisher is a MQTT client that publishes messages to the MQTT server. When working with a MQTT client, the first thing to do is to initialize the client.\nFor the publisher to work successfully, an active MQTT server should be available.\n\nThe code snippet given below initializes a publisher client with the basic configuration.\n```ballerina\nimport ballerina\/mqtt;\nimport ballerina\/uuid;\n \nmqtt:ClientConfiguration clientConfiguration = {\n    connectionConfig: {\n        username: \"ballerina\",\n        password: \"ballerinamqtt\"\n    }\n};\n\nmqtt:Client mqttClient = check new (mqtt:DEFAULT_URL, uuid:createType1AsString(), clientConfiguration); \/\/ A unique id needs to be provided as the client id\n```\nUsing the `publish` api of this client, messages can be sent to the MQTT server.\n```ballerina\ncheck mqttClient->publish(\"mqtt\/test\", {payload: \"This is Ballerina MQTT client!!!\".toBytes()});\n```\n#### MQTT subscriber\nA MQTT subscriber is a client responsible for reading messages from one or more topics in the server. When working with a MQTT subscriber, the first thing to do is initialize the subscriber.\nFor the subscriber to work successfully, an active MQTT server should be available.\n\nThe code snippet given below initializes a subscriber with the basic configuration.\n```ballerina\nmqtt:ListenerConfiguration listenerConfiguration = {\n    connectionConfig: {\n        username: \"ballerina\",\n        password: \"ballerinamqtt\"\n    },\n    manualAcks: false   \/\/ When set to false, the MQTT acknowledgements are not sent automatically by the subscriber\n};\n\nmqtt:Listener mqttSubscriber = check new (mqtt:DEFAULT_URL, uuid:createType1AsString(), \"mqtt\/test\", listenerConfiguration);\n```\nThis subscriber can be used in the `mqtt:Service` to listen to messages in `mqtt\/test` topic.\n```ballerina\nservice on mqttSubscriber {\n    remote function onMessage(mqtt:Message message, mqtt:Caller caller) returns error? {\n        log:printInfo(check string:fromBytes(message.payload));\n        check caller->complete();\n    }\n\n    remote function onError(mqtt:Error err) returns error? {\n        log:printError(\"Error occured \", err);\n    }\n}\n```\nThe `mqtt:Caller` can be used to indicate that the application has completed processing the message by using `complete()` api."
+      }
+    ],
+    "balToolId": "",
+    "graalvmCompatible": "Yes"
+  },
+  "serviceTypes": [
+    {
+      "name": "Service",
+      "description": "MQTT Service",
+      "functions": [
+        {
+          "name": "OnMessage",
+          "documentation": "The function which will be triggered when a message is received from the MQTT server",
+          "optional": false,
+          "qualifiers": [
+            "remote"
+          ],
+          "parameters": [
+            {
+              "name": "message",
+              "typeName": "mqtt:Message",
+              "optional": false,
+              "type": [
+                "mqtt:Message"
+              ],
+              "typeInfo": {
+                "name": "Message",
+                "orgName": "ballerina",
+                "moduleName": "mqtt",
+                "version": "1.2.0"
+              }
+            },
+            {
+              "name": "caller",
+              "typeName": "mqtt:Caller",
+              "type": [
+                "mqtt:Caller"
+              ],
+              "typeInfo": {
+                "name": "Caller",
+                "orgName": "ballerina",
+                "moduleName": "mqtt",
+                "version": "1.2.0"
+              },
+              "optional": true,
+              "documentation": "Caller object"
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object",
+            "defaultTypeName": "error?"
+          }
+        },
+        {
+          "name": "OnError",
+          "documentation": "The function which will be triggered when an error occurs",
+          "optional": true,
+          "qualifiers": [
+            "remote"
+          ],
+          "parameters": [
+            {
+              "name": "err",
+              "typeName": "mqtt:error",
+              "type": [
+                "mqtt:error"
+              ],
+              "optional": false,
+              "typeInfo": {
+                "name": "Error",
+                "orgName": "ballerina",
+                "moduleName": "mqtt",
+                "version": "1.2.0"
+              },
+              "documentation": "Error object"
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object",
+            "defaultTypeName": "error?"
+          }
+        }
+      ]
+    }
+  ],
+  "listenerParams": [
+    {
+      "name": "serviceUri",
+      "typeName": "string",
+      "type": [
+        "string"
+      ],
+      "optional": false,
+      "defaultable": false,
+      "documentation": "The URI of the remote MQTT server"
+    },
+    {
+      "name": "clientId",
+      "typeName": "string",
+      "type": [
+        "string"
+      ],
+      "optional": false,
+      "defaultable": false,
+      "documentation": "The unique client ID to identify the listener"
+    },
+    {
+      "name": "subscriptions",
+      "typeName": "string|string[]|mqtt:Subscription|mqtt:Subscription[]",
+      "type": [
+        "string",
+        "string[]",
+        "mqtt:Subscription",
+        "mqtt:Subscription[]"
+      ],
+      "optional": false,
+      "defaultable": false,
+      "documentation": "The topics to be subscribed to"
+    },
+    {
+      "name": "config",
+      "typeName": "mqtt:ListenerConfiguration",
+      "type": [
+        "mqtt:ListenerConfiguration"
+      ],
+      "optional": true,
+      "typeInfo": {
+        "name": "ListenerConfiguration",
+        "orgName": "ballerina",
+        "moduleName": "mqtt",
+        "version": "1.2.0"
+      },
+      "defaultable": false,
+      "documentation": "The listener configurations"
+    }
+  ]
+}

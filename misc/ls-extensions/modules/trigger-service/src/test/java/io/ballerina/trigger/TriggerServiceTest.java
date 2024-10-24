@@ -85,16 +85,24 @@ public class TriggerServiceTest {
         Assert.assertEquals(response.get("moduleName").getAsString(), "rabbitmq");
     }
 
-    @Test(description = "Test new trigger endpoint of trigger service")
+    @Test(description = "Test new trigger endpoint of trigger service without id")
     public void testTriggerNewServiceWithoutId() throws ExecutionException, InterruptedException {
         Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
 
-        BallerinaTriggerRequest request = new BallerinaTriggerRequest("ballerina", "kafka",  "kafka",
+        BallerinaTriggerRequest request = new BallerinaTriggerRequest("ballerinax", "kafka",  "kafka",
                 "*", "Kafka Event Listener");
         CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGER_NEW, request);
         JsonObject response = (JsonObject) result.get();
 
         Assert.assertEquals(response.get("id").getAsString(), "10001");
         Assert.assertEquals(response.get("moduleName").getAsString(), "kafka");
+
+        request = new BallerinaTriggerRequest("ballerina", "mqtt",  "1.2.0",
+                "*", "MQTT Event Listener");
+        result = serviceEndpoint.request(BALLERINA_TRIGGER_NEW, request);
+        response = (JsonObject) result.get();
+
+        Assert.assertEquals(response.get("id").getAsString(), "10004");
+        Assert.assertEquals(response.get("moduleName").getAsString(), "mqtt");
     }
 }

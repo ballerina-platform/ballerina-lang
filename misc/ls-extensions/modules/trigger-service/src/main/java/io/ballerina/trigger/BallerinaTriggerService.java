@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -70,8 +71,12 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
     public static final String BALLERINAX = "ballerinax";
     private LanguageClient languageClient;
     private static final Map<String, String> IN_BUILT_TRIGGERS = Map.of(
-            "10001", "kafka",
-            "10002", "rabbitmq"
+        "10006", "ftp",
+        "10005", "jms",
+        "10004", "mqtt",
+        "10003", "nats",
+        "10002", "rabbitmq",
+        "10001", "kafka"
     );
 
     @Override

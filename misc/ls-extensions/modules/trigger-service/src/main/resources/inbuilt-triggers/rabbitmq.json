@@ -123,7 +123,7 @@
                         "id": 1,
                         "name": "group-1",
                         "type": "exclusive",
-                        "documentation": "RabbitMQ message type"
+                        "documentation": "RabbitMQ message trigger"
                     }
                 },
                 {
@@ -165,9 +165,9 @@
                         }
                     ],
                     "returnType": {
-                        "typeName": "anydata",
+                        "typeName": "anydata|error",
                         "type": [
-                            "anydata"
+                            "anydata|error"
                         ],
                         "optional": false,
                         "documentation": "Anydata response",
@@ -177,7 +177,7 @@
                         "id": 1,
                         "name": "group-1",
                         "type": "exclusive",
-                        "documentation": "RabbitMQ message type"
+                        "documentation": "RabbitMQ message trigger"
                     }
                 },
                 {
