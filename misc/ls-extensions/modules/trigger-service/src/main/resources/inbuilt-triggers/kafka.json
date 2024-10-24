@@ -1,0 +1,176 @@
+{
+    "id": 10001,
+    "name": "Kafka Event Listener",
+    "type": "inbuilt",
+    "displayName": "Kafka",
+    "documentation": "This Listener can be used to listen to Kafka events.",
+    "moduleName": "kafka",
+    "listenerProtocol": "kafka",
+    "displayAnnotation": {
+        "label": "Kafka",
+        "iconPath": "docs/icon.png"
+    },
+    "package": {
+        "id": 15511,
+        "organization": "ballerinax",
+        "name": "kafka",
+        "version": "4.2.0",
+        "platform": "java17",
+        "languageSpecificationVersion": "2024R1",
+        "isDeprecated": false,
+        "deprecateMessage": "",
+        "URL": "/ballerinax/kafka/4.2.0",
+        "balaVersion": "2.0.0",
+        "balaURL": "https://fileserver.central.ballerina.io/2.0/ballerinax/kafka/4.2.0/ballerinax-kafka-java17-4.2.0.bala?Expires=1729564876&Signature=yyLs~P-0T666fFFKjpIqPJWc5LA9uuzqNaIz5yFGAh0FLgFJjAhA~kxi9~z5O1dIzsdN-si2srv7z0KmYrok5KRzczVdfMJmfab5Q7D0ZInrMguEAR9GZB6TYbrv6OMaTDOH6jXGaz0Dr0HLWZZj63IuDEpf4JLfy8cvfclcf2jKmYGFmcfii-tCQ-PfgBC6QBqQQmBX0xaHjutgNA0lLG9OVLaAT51qwOQsmmceYKD6wnK-DtWsPLshyHAKbORy2hZkTvahq-yz4kQf4PYDId51egzijhCO48hOUo1n8IAMnBfrMqB8dBy6s8KZNnbmljN5PXcJRzrj1hiIA8EQJA__&Key-Pair-Id=K27IQ7NPTKLKDU",
+        "digest": "sha-256=07b3e7b48e21aadb0c7bcfb3c221b2648c75f95b31b82de41f2b36119b70a53d",
+        "summary": "This package provides an implementation to interact with Kafka Brokers via Kafka Consumer and Kafka Producer clients.",
+        "readme": "## Overview\nThis package provides an implementation to interact with Kafka Brokers via Kafka Consumer and Kafka Producer clients.\n\nApache Kafka is an open-source distributed event streaming platform used for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.\n\nThis package supports Kafka 1.x.x, 2.x.x and 3.x.x versions.\n\n### Consumer and producer\n#### Kafka producer\nA Kafka producer is a Kafka client that publishes records to the Kafka cluster. The producer is thread-safe and sharing a single producer instance across threads will generally be faster than having multiple instances. When working with a Kafka producer, the first thing to do is to initialize the producer.\nFor the producer to execute successfully, an active Kafka broker should be available.\n\nThe code snippet given below initializes a producer with the basic configuration.\n```ballerina\nimport ballerinax\/kafka;\n\nkafka:ProducerConfiguration producerConfiguration = {\n    clientId: \"basic-producer\",\n    acks: \"all\",\n    retryCount: 3\n};\n\nkafka:Producer kafkaProducer = check new (kafka:DEFAULT_URL, producerConfiguration);\n```\n#### Kafka consumer\nA Kafka consumer is a subscriber responsible for reading records from one or more topics and one or more partitions of a topic. When working with a Kafka consumer, the first thing to do is initialize the consumer.\nFor the consumer to execute successfully, an active Kafka broker should be available.\n\nThe code snippet given below initializes a consumer with the basic configuration.\n```ballerina\nkafka:ConsumerConfiguration consumerConfiguration = {\n    groupId: \"group-id\",    \/\/ Unique string that identifies the consumer\n    offsetReset: \"earliest\",    \/\/ Offset reset strategy if no initial offset\n    topics: [\"kafka-topic\"]\n};\n\nkafka:Consumer kafkaConsumer = check new (kafka:DEFAULT_URL, consumerConfiguration);\n```\n### Listener\nThe Kafka consumer can be used as a listener to a set of topics without the need to manually `poll` the messages.\n\nYou can use the `Caller` to manually commit the offsets of the messages that are read by the service. The following code snippet shows how to initialize and define the listener and how to commit the offsets manually.\n```ballerina\nkafka:ConsumerConfiguration consumerConfiguration = {\n    groupId: \"group-id\",\n    topics: [\"kafka-topic-1\"],\n    pollingInterval: 1,\n    autoCommit: false\n};\n\nlistener kafka:Listener kafkaListener = new (kafka:DEFAULT_URL, consumerConfiguration);\n\nservice on kafkaListener {\n    remote function onConsumerRecord(kafka:Caller caller, kafka:BytesConsumerRecord[] records) {\n        \/\/ processes the records\n        ...\n        \/\/ commits the offsets manually\n        kafka:Error? commitResult = caller->commit();\n\n        if commitResult is kafka:Error {\n            log:printError(\"Error occurred while committing the offsets for the consumer \", 'error = commitResult);\n        }\n    }\n}\n```\n### Data serialization\nSerialization is the process of converting data into a stream of bytes that is used for transmission. Kafka\nstores and transmits these bytes of arrays in its queue. Deserialization does the opposite of serialization\nin which bytes of arrays are converted into the desired data type.\n\nCurrently, this package only supports the `byte array` data type for both the keys and values. The following code snippets\nshow how to produce and read a message from Kafka.\n```ballerina\nstring message = \"Hello World, Ballerina\";\nstring key = \"my-key\";\n\/\/ converts the message and key to a byte array\ncheck kafkaProducer->send({ topic: \"test-kafka-topic\", key: key.toBytes(), value: message.toBytes() });\n```\n```ballerina\nkafka:BytesConsumerRecord[] records = check kafkaConsumer->poll(1);\n\nforeach var kafkaRecord in records {\n    byte[] messageContent = kafkaRecord.value;\n    \/\/ tries to generate the string value from the byte array\n    string result = check string:fromBytes(messageContent);\n    io:println(\"The result is : \", result);\n}\n```\n### Concurrency\nIn Kafka, records are grouped into smaller units called partitions. These can be processed independently without\ncompromising the correctness of the results and lays the foundation for parallel processing. This can be achieved by\nusing multiple consumers within the same group each reading and processing data from a subset of topic partitions and\nrunning in a single thread.\n\nTopic partitions are assigned to consumers automatically or you can manually assign topic partitions.\n\nThe following code snippet joins a consumer to the `consumer-group` and assigns it to a topic partition manually.\n```ballerina\nkafka:ConsumerConfiguration consumerConfiguration = {\n    \/\/ `groupId` determines the consumer group\n    groupId: \"consumer-group\",\n    pollingInterval: 1,\n    autoCommit: false\n};\n\nkafka:Consumer kafkaConsumer = check new (kafka:DEFAULT_URL, consumerConfiguration);\n\/\/ creates a topic partition\nkafka:TopicPartition topicPartition = {\n    topic: \"kafka-topic-1\",\n    partition: 1\n};\n\/\/ passes the topic partitions to the assign function as an array\ncheck kafkaConsumer->assign([topicPartition]);\n```\n\n### Report issues\n\nTo report bugs, request new features, start new discussions, view project boards, etc., go to the [Ballerina standard library parent repository](https:\/\/github.com\/ballerina-platform\/ballerina-standard-library).\n\n### Useful links\n\n- Chat live with us via our [Discord server](https:\/\/discord.gg\/ballerinalang).\n- Post all technical questions on Stack Overflow with the [#ballerina](https:\/\/stackoverflow.com\/questions\/tagged\/ballerina) tag.",
+        "template": false,
+        "licenses": [
+            "Apache-2.0"
+        ],
+        "authors": [
+            "Ballerina"
+        ],
+        "sourceCodeLocation": "https://github.com/ballerina-platform/module-ballerinax-kafka",
+        "keywords": [
+            "kafka",
+            "event streaming",
+            "network",
+            "messaging"
+        ],
+        "ballerinaVersion": "2201.10.0",
+        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_kafka_4.2.0.png",
+        "ownerUUID": "b5a9e54d-8ade-47a1-8abc-6bc46e89069d",
+        "createdDate": 1724147879000,
+        "pullCount": 1270,
+        "visibility": "public",
+        "modules": [
+            {
+                "packageURL": "/ballerinax/kafka/4.2.0",
+                "apiDocURL": "https://lib.ballerina.io/ballerinax/kafka/4.2.0",
+                "name": "kafka",
+                "summary": "This module provides an implementation to interact with Kafka Brokers via Kafka Consumer and Kafka Producer clients.",
+                "readme": "## Overview\n\nThis module provides an implementation to interact with Kafka Brokers via Kafka Consumer and Kafka Producer clients.\n\nApache Kafka is an open-source distributed event streaming platform used for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.\n\nThis module supports Kafka 1.x.x, 2.x.x and 3.x.x versions.\n\n### Consumer and producer\n#### Kafka producer\nA Kafka producer is a Kafka client that publishes records to the Kafka cluster. The producer is thread-safe and sharing a single producer instance across threads will generally be faster than having multiple instances. When working with a Kafka producer, the first thing to do is to initialize the producer.\nFor the producer to execute successfully, an active Kafka broker should be available.\n\nThe code snippet given below initializes a producer with the basic configuration.\n```ballerina\nimport ballerinax\/kafka;\n\nkafka:ProducerConfiguration producerConfiguration = {\n    clientId: \"basic-producer\",\n    acks: \"all\",\n    retryCount: 3\n};\n\nkafka:Producer kafkaProducer = check new (kafka:DEFAULT_URL, producerConfiguration);\n```\n#### Kafka consumer\nA Kafka consumer is a subscriber responsible for reading records from one or more topics and one or more partitions of a topic. When working with a Kafka consumer, the first thing to do is initialize the consumer.\nFor the consumer to execute successfully, an active Kafka broker should be available.\n\nThe code snippet given below initializes a consumer with the basic configuration.\n```ballerina\nkafka:ConsumerConfiguration consumerConfiguration = {\n    groupId: \"group-id\",    \/\/ Unique string that identifies the consumer\n    offsetReset: \"earliest\",    \/\/ Offset reset strategy if no initial offset\n    topics: [\"kafka-topic\"]\n};\n\nkafka:Consumer kafkaConsumer = check new (kafka:DEFAULT_URL, consumerConfiguration);\n```\n### Listener\nThe Kafka consumer can be used as a listener to a set of topics without the need to manually `poll` the messages.\n\nYou can use the `Caller` to manually commit the offsets of the messages that are read by the service. The following code snippet shows how to initialize and define the listener and how to commit the offsets manually.\n```ballerina\nkafka:ConsumerConfiguration consumerConfiguration = {\n    groupId: \"group-id\",\n    topics: [\"kafka-topic-1\"],\n    pollingInterval: 1,\n    autoCommit: false\n};\n\nlistener kafka:Listener kafkaListener = new (kafka:DEFAULT_URL, consumerConfiguration);\n\nservice on kafkaListener {\n    remote function onConsumerRecord(kafka:Caller caller, kafka:BytesConsumerRecord[] records) {\n        \/\/ processes the records\n        ...\n        \/\/ commits the offsets manually\n        kafka:Error? commitResult = caller->commit();\n\n        if commitResult is kafka:Error {\n            log:printError(\"Error occurred while committing the offsets for the consumer \", 'error = commitResult);\n        }\n    }\n}\n```\n### Data serialization\nSerialization is the process of converting data into a stream of bytes that is used for transmission. Kafka\nstores and transmits these bytes of arrays in its queue. Deserialization does the opposite of serialization\nin which bytes of arrays are converted into the desired data type.\n\nCurrently, this module only supports the `byte array` data type for both the keys and values. The following code snippets\nshow how to produce and read a message from Kafka.\n```ballerina\nstring message = \"Hello World, Ballerina\";\nstring key = \"my-key\";\n\/\/ converts the message and key to a byte array\ncheck kafkaProducer->send({ topic: \"test-kafka-topic\", key: key.toBytes(), value: message.toBytes() });\n```\n```ballerina\nkafka:BytesConsumerRecord[] records = check kafkaConsumer->poll(1);\n\nforeach var kafkaRecord in records {\n    byte[] messageContent = kafkaRecord.value;\n    \/\/ tries to generate the string value from the byte array\n    string result = check string:fromBytes(messageContent);\n    io:println(\"The result is : \", result);\n}\n```\n### Concurrency\nIn Kafka, records are grouped into smaller units called partitions. These can be processed independently without\ncompromising the correctness of the results and lays the foundation for parallel processing. This can be achieved by\nusing multiple consumers within the same group each reading and processing data from a subset of topic partitions and \nrunning in a single thread.\n\nTopic partitions are assigned to consumers automatically or you can manually assign topic partitions.\n\nThe following code snippet joins a consumer to the `consumer-group` and assigns it to a topic partition manually.\n```ballerina\nkafka:ConsumerConfiguration consumerConfiguration = {\n    \/\/ `groupId` determines the consumer group\n    groupId: \"consumer-group\",\n    pollingInterval: 1,\n    autoCommit: false\n};\n\nkafka:Consumer kafkaConsumer = check new (kafka:DEFAULT_URL, consumerConfiguration);\n\/\/ creates a topic partition\nkafka:TopicPartition topicPartition = {\n    topic: \"kafka-topic-1\",\n    partition: 1\n};\n\/\/ passes the topic partitions to the assign function as an array\ncheck kafkaConsumer->assign([topicPartition]);\n```"
+            }
+        ],
+        "balToolId": "",
+        "graalvmCompatible": "Yes"
+    },
+    "serviceTypes": [
+        {
+            "name": "Service",
+            "description": "Kafka Service",
+            "functions": [
+                {
+                    "name": "OnConsumerRecord",
+                    "documentation": "The function which will be triggered when a message is received from the Kafka topic",
+                    "optional": false,
+                    "qualifiers": [
+                        "remote"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "records",
+                            "typeName": "kafka:ConsumerAnydataRecord[]|anydata[]",
+                            "optional": false,
+                            "arrayType": true,
+                            "defaultTypeName": "kafka:ConsumerAnydataRecord[]",
+                            "type": [
+                                "kafka:ConsumerAnydataRecord[]",
+                                "anydata[]"
+                            ]
+                        },
+                        {
+                            "name": "caller",
+                            "typeName": "kafka:Caller",
+                            "type": [
+                                "kafka:Caller"
+                            ],
+                            "typeInfo": {
+                                "name": "Caller",
+                                "orgName": "ballerinax",
+                                "moduleName": "kafka",
+                                "version": "4.2.0"
+                            },
+                            "optional": true,
+                            "documentation": "Caller object"
+                        }
+                    ],
+                    "returnType": {
+                        "typeName": "error?",
+                        "type": [
+                            "error?"
+                        ],
+                        "optional": true,
+                        "documentation": "Error object",
+                        "defaultTypeName": "error?"
+                    }
+                },
+                {
+                    "name": "OnError",
+                    "documentation": "The function which will be triggered when an error occurs",
+                    "optional": true,
+                    "qualifiers": [
+                        "remote"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "err",
+                            "typeName": "kafka:error",
+                            "type": [
+                                "kafka:error"
+                            ],
+                            "optional": false,
+                            "typeInfo": {
+                                "name": "Error",
+                                "orgName": "ballerinax",
+                                "moduleName": "kafka",
+                                "version": "4.2.0"
+                            },
+                            "documentation": "Error object"
+                        }
+                    ],
+                    "returnType": {
+                        "typeName": "error?",
+                        "type": [
+                            "error?"
+                        ],
+                        "optional": true,
+                        "documentation": "Error object",
+                        "defaultTypeName": "error?"
+                    }
+                }
+            ]
+        }
+    ],
+    "listenerParams": [
+        {
+            "name": "bootstrapServers",
+            "typeName": "string|string[]",
+            "type": [
+                "string",
+                "string[]"
+            ],
+            "optional": false,
+            "defaultable": false,
+            "documentation": "List of remote server endpoints of Kafka brokers"
+        },
+        {
+            "name": "config",
+            "typeName": "kafka:ConsumerConfiguration",
+            "type": [
+                "kafka:ConsumerConfiguration"
+            ],
+            "optional": true,
+            "typeInfo": {
+                "name": "ConsumerConfiguration",
+                "orgName": "ballerinax",
+                "moduleName": "kafka",
+                "version": "4.2.0"
+            },
+            "defaultable": false,
+            "documentation": "Configuration for the Kafka Consumer"
+        }
+    ]
+}
