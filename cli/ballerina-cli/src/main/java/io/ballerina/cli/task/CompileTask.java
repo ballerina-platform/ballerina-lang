@@ -117,7 +117,7 @@ public class CompileTask implements Task {
                 addDiagnosticForProvidedPlatformLibs(project, diagnostics);
             }
             if (this.compileForBalBuild || this.compileForBalTest) {
-                addDiagnosticForInvalidOptimizeReportFlagUsage(project, diagnostics);
+                addDiagnosticForInvalidDeadCodeEliminationReportFlagUsage(project, diagnostics);
             }
 
             long start = 0;
@@ -342,12 +342,14 @@ public class CompileTask implements Task {
         }
     }
 
-    private void addDiagnosticForInvalidOptimizeReportFlagUsage(Project project, List<Diagnostic> diagnostics) {
+    private void addDiagnosticForInvalidDeadCodeEliminationReportFlagUsage(Project project,
+                                                                           List<Diagnostic> diagnostics) {
         BuildOptions buildOptions = project.buildOptions();
-        if (buildOptions.optimizeReport() && !buildOptions.optimizeCodegen()) {
+        if (buildOptions.deadCodeEliminationReport() && !buildOptions.eliminateDeadCode()) {
             DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                     ProjectDiagnosticErrorCode.INVALID_VERBOSE_FLAG_USAGE.diagnosticId(),
-                    "--optimize-report flag can only be used with --optimize flag", DiagnosticSeverity.ERROR);
+                    "--dead-code-elimination-report flag can only be used with --eliminate-dead-code flag",
+                    DiagnosticSeverity.ERROR);
             diagnostics.add(new PackageDiagnostic(diagnosticInfo,
                     project.currentPackage().descriptor().name().toString()));
         }

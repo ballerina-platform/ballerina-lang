@@ -20,6 +20,7 @@ package io.ballerina.projects;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.ballerina.projects.util.CodegenOptimizationConstants;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -41,33 +42,32 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Emits time durations and optimized node details for codegen optimization.
+ * Emits time durations and eliminated node details for dead code elimination.
  *
  * @since 2201.11.0
  */
-public final class CodeGenOptimizationReportEmitter {
+public final class DeadCodeEliminationReportEmitter {
 
-    private static final CompilerContext.Key<CodeGenOptimizationReportEmitter> CODEGEN_OPTIMIZATION_REPORT_EMITTER_KEY =
+    private static final CompilerContext.Key<DeadCodeEliminationReportEmitter> CODEGEN_OPTIMIZATION_REPORT_EMITTER_KEY =
             new CompilerContext.Key<>();
     private final Map<PackageID, Long> birOptimizationDurations;
     private long nativeOptimizationDuration;
     private final PrintStream out;
-    private static final String CODEGEN_OPTIMIZATION_REPORT = "codegen_optimization_report.json";
 
-    private CodeGenOptimizationReportEmitter(CompilerContext compilerContext) {
+    private DeadCodeEliminationReportEmitter(CompilerContext compilerContext) {
         compilerContext.put(CODEGEN_OPTIMIZATION_REPORT_EMITTER_KEY, this);
         this.out = System.out;
         this.birOptimizationDurations = new ConcurrentHashMap<>();
         this.nativeOptimizationDuration = 0;
     }
 
-    public static CodeGenOptimizationReportEmitter getInstance(CompilerContext compilerContext) {
-        CodeGenOptimizationReportEmitter codegenOptimizationReportEmitter =
+    public static DeadCodeEliminationReportEmitter getInstance(CompilerContext compilerContext) {
+        DeadCodeEliminationReportEmitter codegenOptimizationReportEmitterDead =
                 compilerContext.get(CODEGEN_OPTIMIZATION_REPORT_EMITTER_KEY);
-        if (codegenOptimizationReportEmitter == null) {
-            codegenOptimizationReportEmitter = new CodeGenOptimizationReportEmitter(compilerContext);
+        if (codegenOptimizationReportEmitterDead == null) {
+            codegenOptimizationReportEmitterDead = new DeadCodeEliminationReportEmitter(compilerContext);
         }
-        return codegenOptimizationReportEmitter;
+        return codegenOptimizationReportEmitterDead;
     }
 
     void flipBirOptimizationTimer(PackageID pkgId) {
@@ -123,7 +123,7 @@ public final class CodeGenOptimizationReportEmitter {
         // We are need to preserve the insertion order here since we use reports in tests.
         Map<String, CodegenOptimizationReport> reports = new LinkedHashMap<>(invocationDataMap.size());
         invocationDataMap.forEach((key, value) -> reports.put(key.toString(), getCodegenOptimizationReport(value)));
-        Path jsonFilePath = targetDirectoryPath.resolve(CODEGEN_OPTIMIZATION_REPORT);
+        Path jsonFilePath = targetDirectoryPath.resolve(CodegenOptimizationConstants.DEAD_CODE_ELIMINATION_REPORT);
         File jsonFile = new File(jsonFilePath.toString());
 
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {

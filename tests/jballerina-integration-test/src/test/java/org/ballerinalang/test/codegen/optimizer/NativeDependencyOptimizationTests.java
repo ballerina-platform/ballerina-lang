@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Test cases to verify optimized class files from `bal build --optimize` command.
+ * Test cases to verify optimized class files from `bal build --eliminate-dead-code` command.
  *
  * @since 2201.10.0
  */
@@ -165,7 +165,7 @@ public class NativeDependencyOptimizationTests extends BaseTest {
     private void emitOptimizationReports(String projectPath) throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.runMain("build", new String[]{"--optimize", "--optimize-report"}, envProperties, null,
-                new LogLeecher[]{}, projectPath);
+        bMainInstance.runMain("build", new String[]{"--eliminate-dead-code", "--dead-code-elimination-report"},
+                envProperties, null, new LogLeecher[]{}, projectPath);
     }
 }

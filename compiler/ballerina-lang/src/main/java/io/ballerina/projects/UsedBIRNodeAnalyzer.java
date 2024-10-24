@@ -85,7 +85,7 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
     PackageID currentPkgID;
     private final PackageCache pkgCache;
     private final UsedTypeDefAnalyzer usedTypeDefAnalyzer;
-    private final CodeGenOptimizationReportEmitter codeGenOptimizationReportEmitter;
+    private final DeadCodeEliminationReportEmitter deadCodeEliminationReportEmitter;
     private List<BIRNonTerminator> currentInstructionArr;
     private BIRNode.BIRFunction currentParentFunction;
 
@@ -93,7 +93,7 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
         context.put(USED_BIR_NODE_ANALYZER_KEY, this);
         this.pkgCache = PackageCache.getInstance(context);
         this.usedTypeDefAnalyzer = UsedTypeDefAnalyzer.getInstance(context);
-        this.codeGenOptimizationReportEmitter = CodeGenOptimizationReportEmitter.getInstance(context);
+        this.deadCodeEliminationReportEmitter = DeadCodeEliminationReportEmitter.getInstance(context);
         initInteropDependencies();
     }
 
@@ -106,7 +106,7 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
     }
 
     public void analyze(BLangPackage pkgNode) {
-        this.codeGenOptimizationReportEmitter.flipBirOptimizationTimer(pkgNode.packageID);
+        this.deadCodeEliminationReportEmitter.flipBirOptimizationTimer(pkgNode.packageID);
 
         currentPkgID = pkgNode.packageID;
         currentInvocationData = pkgNode.symbol.invocationData;
@@ -125,7 +125,7 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
             visitNode(node);
         }
 
-        this.codeGenOptimizationReportEmitter.flipBirOptimizationTimer(currentPkgID);
+        this.deadCodeEliminationReportEmitter.flipBirOptimizationTimer(currentPkgID);
     }
 
     private void analyzeTestablePkg(BPackageSymbol testableSymbol) {

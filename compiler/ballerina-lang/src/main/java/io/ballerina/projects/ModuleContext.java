@@ -464,7 +464,7 @@ class ModuleContext {
         }
 
         boolean shouldNotOptimizeModule =
-                moduleContext.isWhiteListedModule() || !moduleContext.project.buildOptions().optimizeCodegen();
+                moduleContext.isWhiteListedModule() || !moduleContext.project.buildOptions().eliminateDeadCode();
 
         // Generate and write the thin JAR to the file system
         if (shouldNotOptimizeModule) {
@@ -493,7 +493,7 @@ class ModuleContext {
     }
 
     private boolean shouldOptimizeCodegen() {
-        return this.project().buildOptions().optimizeCodegen() && !isWhiteListedModule();
+        return this.project().buildOptions().eliminateDeadCode() && !isWhiteListedModule();
     }
 
     private static boolean shouldGenerateBir(ModuleContext moduleContext, CompilerContext compilerContext) {

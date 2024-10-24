@@ -123,7 +123,8 @@ public final class BCompileUtil {
     public static CompileResult compileOptimized(String sourceFilePath) {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         BuildOptions buildOptions =
-                buildOptionsBuilder.setOptimizeCodegen(Boolean.TRUE).setOptimizeReport(Boolean.TRUE).build();
+                buildOptionsBuilder.setEliminateDeadCode(Boolean.TRUE).setDeadCodeEliminationReport(Boolean.TRUE)
+                        .build();
         Project project = ProjectLoader.loadProject(TEST_SOURCES_DIRECTORY.resolve(sourceFilePath), buildOptions);
 
         Package currentPackage = project.currentPackage();
@@ -141,8 +142,8 @@ public final class BCompileUtil {
         // fields, future developers could use it for other unintended purposes.
         Class<?> clazz = CompilationOptions.CompilationOptionsBuilder.class;
         try {
-            Field optimizeCodegenField = clazz.getDeclaredField("optimizeCodegen");
-            Field optimizeReportField = clazz.getDeclaredField("optimizeReport");
+            Field optimizeCodegenField = clazz.getDeclaredField("eliminatedDeadCode");
+            Field optimizeReportField = clazz.getDeclaredField("deadCodeEliminationReport");
             optimizeCodegenField.setAccessible(true);
             optimizeReportField.setAccessible(true);
 

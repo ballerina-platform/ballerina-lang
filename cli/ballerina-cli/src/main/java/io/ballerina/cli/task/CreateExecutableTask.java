@@ -93,7 +93,7 @@ public class CreateExecutableTask implements Task {
                     out.println(warnings);
                 }
                 emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.GRAAL_EXEC, executablePath);
-            } else if (project.buildOptions().optimizeCodegen()) {
+            } else if (project.buildOptions().eliminateDeadCode()) {
                 emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.OPTIMIZE_CODEGEN, executablePath);
             } else {
                 emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
@@ -121,7 +121,7 @@ public class CreateExecutableTask implements Task {
             throw createLauncherException(e.getMessage());
         }
 
-        if (!project.buildOptions().nativeImage() && !isHideTaskOutput && !project.buildOptions().optimizeCodegen()) {
+        if (!project.buildOptions().nativeImage() && !isHideTaskOutput && !project.buildOptions().eliminateDeadCode()) {
             Path relativePathToExecutable = currentDir.relativize(executablePath);
 
             if (project.buildOptions().getTargetPath() != null) {
@@ -137,7 +137,7 @@ public class CreateExecutableTask implements Task {
         }
 
         // TODO: this has lot of common code with default case, refactor to common method
-        if (project.buildOptions().optimizeCodegen()) {
+        if (project.buildOptions().eliminateDeadCode()) {
             Path relativePathToExecutable = currentDir.relativize(executablePath);
             String relativePathToExecutableString =
                     relativePathToExecutable.toString().replace(BLANG_COMPILED_JAR_EXT, BYTECODE_OPTIMIZED_JAR_SUFFIX);
