@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Holds a pair of List< SemType> and List< Range>.
+ * Holds a pair of SemType list and Range list.
  * <i>Note: Member types at the indices that are not contained in `Range` array represent `never.
  * The SemTypes in this list are not `never`.</i>
  *
