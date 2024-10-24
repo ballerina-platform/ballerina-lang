@@ -36,7 +36,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 
 /**
- * Test cases to verify optimized BIRNodes from `bal test --optimize` command.
+ * Test cases to verify optimized BIRNodes from `bal test --eliminate-dead-code` command.
  *
  * @since 2201.10.0
  */
@@ -47,7 +47,7 @@ public class OptimizedExecutableTestingTest extends BaseTestCase {
     private String projectPath;
     private static final String TARGET = "target";
     private static final String PROJECT_NAME = "optimized_test_run_test";
-    private static final String OPTIMIZATION_REPORT_JSON = "codegen_optimization_report.json";
+    private static final String DEAD_CODE_ELIMINATION_REPORT = "dead_code_elimination_report.json";
     private static final Path EXPECTED_CODEGEN_OPTIMIZATION_REPORTS_DIR =
             Paths.get("src", "test", "resources", "codegen-optimization-reports", PROJECT_NAME);
 
@@ -59,18 +59,18 @@ public class OptimizedExecutableTestingTest extends BaseTestCase {
 
     @Test()
     public void testWithCommonDependencies() throws BallerinaTestException, IOException {
-        String output =
-                balClient.runMainAndReadStdOut("test", new String[]{"--optimize", "--optimize-report"}, new HashMap<>(),
-                        projectPath, true);
+        String output = balClient.runMainAndReadStdOut("test",
+                new String[]{"--eliminate-dead-code", "--dead-code-elimination-report"}, new HashMap<>(), projectPath,
+                true);
         AssertionUtils.assertOutput("OptimizedExecutableTestingTest-testWithCommonDependencies.txt",
                 AssertionUtils.replaceBIRNodeAnalysisTime(output));
         assertBuildProjectJsonReportsAreSimilar(Path.of(projectPath));
     }
 
     private void assertBuildProjectJsonReportsAreSimilar(Path buildProjectPath) {
-        Path actualJsonPath = buildProjectPath.resolve(TARGET).resolve(OPTIMIZATION_REPORT_JSON);
+        Path actualJsonPath = buildProjectPath.resolve(TARGET).resolve(DEAD_CODE_ELIMINATION_REPORT);
         JsonObject expectedJsonObject =
-                fileContentAsObject(EXPECTED_CODEGEN_OPTIMIZATION_REPORTS_DIR.resolve(OPTIMIZATION_REPORT_JSON));
+                fileContentAsObject(EXPECTED_CODEGEN_OPTIMIZATION_REPORTS_DIR.resolve(DEAD_CODE_ELIMINATION_REPORT));
         JsonObject actualJsonObject = fileContentAsObject(actualJsonPath);
         Assert.assertEquals(actualJsonObject, expectedJsonObject);
     }

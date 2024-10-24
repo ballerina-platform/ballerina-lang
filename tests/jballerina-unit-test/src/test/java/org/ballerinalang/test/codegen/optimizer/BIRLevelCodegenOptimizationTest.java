@@ -20,6 +20,7 @@ package org.ballerinalang.test.codegen.optimizer;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.ballerina.projects.util.CodegenOptimizationConstants;
 import org.ballerinalang.test.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 /**
- * Test cases to verify optimized BIRNodes from `bal build --optimize` command.
+ * Test cases to verify optimized BIRNodes from `bal build --eliminate-dead-code` command.
  *
  * @since 2201.10.0
  */
@@ -53,7 +54,6 @@ public class BIRLevelCodegenOptimizationTest {
             Path.of(TESTS_SOURCE_PATH.toString(), "test-src/codegen-optimizer/projects/build-projects/Functions");
     private static final Path BUILD_PROJECT_TYPE_DEFINITION_TESTS_PATH =
             Path.of(TESTS_SOURCE_PATH.toString(), "test-src/codegen-optimizer/projects/build-projects/TypeDefinitions");
-    private static final String OPTIMIZATION_REPORT_JSON = "codegen_optimization_report.json";
     private static final String TARGET = "target";
     private static final String SINGLE_FILE_PROJECTS = "single-file-projects";
     private static final String BUILD_PROJECTS = "build-projects";
@@ -114,7 +114,8 @@ public class BIRLevelCodegenOptimizationTest {
 
     private void assertSingleFileJsonReportsAreSimilar(Path singleFileProjectPath) {
         String jsonFileName = singleFileProjectPath.getFileName().toString().replace(".bal", ".json");
-        Path actualJsonPath = singleFileProjectPath.getParent().resolve(OPTIMIZATION_REPORT_JSON);
+        Path actualJsonPath = singleFileProjectPath.getParent().resolve(
+                CodegenOptimizationConstants.DEAD_CODE_ELIMINATION_REPORT);
 
         JsonObject expectedJsonObject =
                 fileContentAsObject(EXPECTED_JSON_DIR_PATH.resolve(SINGLE_FILE_PROJECTS).resolve(jsonFileName));
@@ -125,7 +126,8 @@ public class BIRLevelCodegenOptimizationTest {
 
     private void assertBuildProjectJsonReportsAreSimilar(Path buildProjectPath) {
         String jsonFileName = buildProjectPath.getFileName().toString() + ".json";
-        Path actualJsonPath = buildProjectPath.resolve(TARGET).resolve(OPTIMIZATION_REPORT_JSON);
+        Path actualJsonPath = buildProjectPath.resolve(TARGET).resolve(
+                CodegenOptimizationConstants.DEAD_CODE_ELIMINATION_REPORT);
 
         JsonObject expectedJsonObject =
                 fileContentAsObject(EXPECTED_JSON_DIR_PATH.resolve(BUILD_PROJECTS).resolve(jsonFileName));

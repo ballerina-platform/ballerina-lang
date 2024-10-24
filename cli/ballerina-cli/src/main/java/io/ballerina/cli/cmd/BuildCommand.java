@@ -209,12 +209,14 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--optimize-dependency-compilation", hidden = true,
             description = "experimental memory optimization for large projects")
     private Boolean optimizeDependencyCompilation;
-    @CommandLine.Option(names = "--optimize", description = "generate optimized executable jar", defaultValue = "false")
-    private Boolean optimizeCodegen;
-
-    @CommandLine.Option(names = "--optimize-report", description = "generate code generation optimization reports",
+    @CommandLine.Option(names = "--eliminate-dead-code", description = "eliminate dead code in generated executable",
             defaultValue = "false")
-    private Boolean optimizeReport;
+    private Boolean deadCodeElimination;
+
+    @CommandLine.Option(names = "--dead-code-elimination-report",
+            description = "generate a report containing which sections were removed as part of dead code elimination",
+            defaultValue = "false")
+    private Boolean deadCodeEliminationReport;
 
     @Override
     public void execute() {
@@ -334,8 +336,8 @@ public class BuildCommand implements BLauncherCmd {
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
                 .setOptimizeDependencyCompilation(optimizeDependencyCompilation)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
-                .setOptimizeCodegen(optimizeCodegen)
-                .setOptimizeReport(optimizeReport);
+                .setEliminateDeadCode(deadCodeElimination)
+                .setDeadCodeEliminationReport(deadCodeEliminationReport);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

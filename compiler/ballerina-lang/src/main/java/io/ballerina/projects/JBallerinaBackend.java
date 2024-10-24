@@ -127,7 +127,7 @@ public class JBallerinaBackend extends CompilerBackend {
     List<Diagnostic> conflictedResourcesDiagnostics = new ArrayList<>();
     private final SymbolTable symbolTable;
     private final UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
-    private final CodeGenOptimizationReportEmitter codeGenOptimizationReportEmitter;
+    private final DeadCodeEliminationReportEmitter deadCodeEliminationReportEmitter;
     private final Set<PackageID> unusedCompilerLevelPackageIds;
     final Set<PackageId> unusedProjectLevelPackageIds;
     final Set<ModuleId> unusedModuleIds;
@@ -165,8 +165,8 @@ public class JBallerinaBackend extends CompilerBackend {
         this.conflictedJars = new ArrayList<>();
         this.symbolTable = SymbolTable.getInstance(compilerContext);
         this.usedBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(compilerContext);
-        this.codeGenOptimizationReportEmitter = CodeGenOptimizationReportEmitter.getInstance(compilerContext);
-        if (packageCompilation.compilationOptions().optimizeCodegen()) {
+        this.deadCodeEliminationReportEmitter = DeadCodeEliminationReportEmitter.getInstance(compilerContext);
+        if (packageCompilation.compilationOptions().eliminateDeadCode()) {
             this.unusedCompilerLevelPackageIds = new HashSet<>();
             this.unusedProjectLevelPackageIds = new HashSet<>();
             this.unusedModuleIds = new HashSet<>();
@@ -223,14 +223,14 @@ public class JBallerinaBackend extends CompilerBackend {
                 }
             }
 
-            // Codegen happens later in {@code optimizeAndCodeGen} when --optimize flag is
+            // Codegen happens later in {@code optimizeAndCodeGen} when --eliminate-dead-code flag is
             // active.
-            if (!project.buildOptions().optimizeCodegen() && project.kind() == ProjectKind.BALA_PROJECT) {
+            if (!project.buildOptions().eliminateDeadCode() && project.kind() == ProjectKind.BALA_PROJECT) {
                 moduleContext.cleanBLangPackage();
             }
         }
 
-        if (this.packageContext.project().buildOptions().optimizeCodegen()) {
+        if (this.packageContext.project().buildOptions().eliminateDeadCode()) {
             registerUnusedBIRNodes();
             optimizeAndCodegen();
         }
@@ -246,7 +246,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private boolean shouldOptimizeTestDependencies() {
-        return this.packageContext.project().buildOptions().optimizeCodegen() &&
+        return this.packageContext.project().buildOptions().eliminateDeadCode() &&
                 !this.packageContext.project().buildOptions().skipTests();
     }
 
@@ -269,10 +269,10 @@ public class JBallerinaBackend extends CompilerBackend {
             }
         }
 
-        this.codeGenOptimizationReportEmitter.emitBirOptimizationDuration();
+        this.deadCodeEliminationReportEmitter.emitBirOptimizationDuration();
 
-        if (this.packageContext.project().buildOptions().optimizeReport()) {
-            this.codeGenOptimizationReportEmitter.emitCodegenOptimizationReport(
+        if (this.packageContext.project().buildOptions().deadCodeEliminationReport()) {
+            this.deadCodeEliminationReportEmitter.emitCodegenOptimizationReport(
                     this.usedBIRNodeAnalyzer.pkgWiseInvocationData, getOptimizationReportParentPath());
         }
     }
@@ -669,7 +669,8 @@ public class JBallerinaBackend extends CompilerBackend {
         BIRNode.BIRPackage birPackage = bPackageSymbol.bir;
 
         if (!invocationData.moduleIsUsed) {
-            // Thrown if the compiler tries to pack an UNUSED thin JAR to the final executable with --optimize flag
+            // Thrown if the compiler tries to pack an UNUSED thin JAR to the final executable with
+            // --eliminate-dead-code flag
             throw new IllegalStateException(
                     String.format(
                             "BIR Package %s should not be packed to final executable because it is not used!",
@@ -863,7 +864,7 @@ public class JBallerinaBackend extends CompilerBackend {
             // Copy merged spi services.
             copyMergedSpiServices(serviceEntries, outStream);
             // end
-            this.codeGenOptimizationReportEmitter.flipNativeOptimizationTimer();
+            this.deadCodeEliminationReportEmitter.flipNativeOptimizationTimer();
         }
         ZipFile birOptimizedFatJar = ZipFile.builder().setFile(birOptimizedJarPath).get();
 
@@ -871,10 +872,10 @@ public class JBallerinaBackend extends CompilerBackend {
         startPoints.add(getMainClassFileName(this.packageContext()));
         NativeDependencyOptimizer nativeDependencyOptimizer =
                 getNativeDependencyOptimizer(bytecodeOptimizedJarPath, startPoints, birOptimizedFatJar);
-        this.codeGenOptimizationReportEmitter.flipNativeOptimizationTimer();
-        this.codeGenOptimizationReportEmitter.emitNativeOptimizationDuration();
-        this.codeGenOptimizationReportEmitter.emitOptimizedExecutableSize(Path.of(bytecodeOptimizedJarPath));
-        if (this.packageContext.project().buildOptions().optimizeReport()) {
+        this.deadCodeEliminationReportEmitter.flipNativeOptimizationTimer();
+        this.deadCodeEliminationReportEmitter.emitNativeOptimizationDuration();
+        this.deadCodeEliminationReportEmitter.emitOptimizedExecutableSize(Path.of(bytecodeOptimizedJarPath));
+        if (this.packageContext.project().buildOptions().deadCodeEliminationReport()) {
             NativeDependencyOptimizationReportEmitter.emitCodegenOptimizationReport(
                     nativeDependencyOptimizer.getNativeDependencyOptimizationReport(),
                     getOptimizationReportParentPath());

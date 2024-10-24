@@ -41,15 +41,15 @@ public class CompilationOptions {
     Boolean disableSyntaxTree;
     Boolean remoteManagement;
     Boolean optimizeDependencyCompilation;
-    Boolean optimizeCodegen;
-    Boolean optimizeReport;
+    Boolean eliminateDeadCode;
+    Boolean deadCodeEliminationReport;
     private CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
                                Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
                                Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
                                Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
                                Boolean exportComponentModel, Boolean enableCache, Boolean disableSyntaxTree,
                                Boolean remoteManagement, Boolean optimizeDependencyCompilation,
-                               Boolean optimizeCodegen, Boolean optimizeReport) {
+                               Boolean eliminateDeadCode, Boolean deadCodeEliminationReport) {
         this.offlineBuild = offlineBuild;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
@@ -65,8 +65,8 @@ public class CompilationOptions {
         this.exportOpenAPI = exportOpenAPI;
         this.exportComponentModel = exportComponentModel;
         this.enableCache = enableCache;
-        this.optimizeCodegen = optimizeCodegen;
-        this.optimizeReport = optimizeReport;
+        this.eliminateDeadCode = eliminateDeadCode;
+        this.deadCodeEliminationReport = deadCodeEliminationReport;
         this.disableSyntaxTree = disableSyntaxTree;
         this.remoteManagement = remoteManagement;
         this.optimizeDependencyCompilation = optimizeDependencyCompilation;
@@ -132,12 +132,12 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.enableCache);
     }
 
-    public boolean optimizeCodegen() {
-        return toBooleanDefaultIfNull(optimizeCodegen);
+    public boolean eliminateDeadCode() {
+        return toBooleanDefaultIfNull(eliminateDeadCode);
     }
 
-    public boolean optimizeReport() {
-        return toBooleanDefaultIfNull(optimizeReport);
+    public boolean deadCodeEliminationReport() {
+        return toBooleanDefaultIfNull(deadCodeEliminationReport);
     }
 
     boolean remoteManagement() {
@@ -241,15 +241,15 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setOptimizeDependencyCompilation(this.optimizeDependencyCompilation);
         }
-        if (theirOptions.optimizeCodegen != null) {
-            compilationOptionsBuilder.setOptimizeCodegen(theirOptions.optimizeCodegen);
+        if (theirOptions.eliminateDeadCode != null) {
+            compilationOptionsBuilder.setEliminateDeadCode(theirOptions.eliminateDeadCode);
         } else {
-            compilationOptionsBuilder.setOptimizeCodegen(this.optimizeCodegen);
+            compilationOptionsBuilder.setEliminateDeadCode(this.eliminateDeadCode);
         }
-        if (theirOptions.optimizeReport != null) {
-            compilationOptionsBuilder.setOptimizeReport(theirOptions.optimizeReport);
+        if (theirOptions.deadCodeEliminationReport != null) {
+            compilationOptionsBuilder.setDeadCodeEliminationReport(theirOptions.deadCodeEliminationReport);
         } else {
-            compilationOptionsBuilder.setOptimizeReport(this.optimizeReport);
+            compilationOptionsBuilder.setDeadCodeEliminationReport(this.deadCodeEliminationReport);
         }
         return compilationOptionsBuilder.build();
     }
@@ -305,10 +305,10 @@ public class CompilationOptions {
         private Boolean exportComponentModel;
         private Boolean enableCache;
         private Boolean disableSyntaxTree;
-        private static Boolean optimizeCodegen;
+        private static Boolean eliminatedDeadCode;
         private Boolean remoteManagement;
         private Boolean optimizeDependencyCompilation;
-        private static Boolean optimizeReport;
+        private static Boolean deadCodeEliminationReport;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
@@ -385,16 +385,16 @@ public class CompilationOptions {
             return this;
         }
 
-        CompilationOptionsBuilder setOptimizeCodegen(Boolean value) {
-            if (optimizeCodegen == null) {
-                optimizeCodegen = value;
+        CompilationOptionsBuilder setEliminateDeadCode(Boolean value) {
+            if (eliminatedDeadCode == null) {
+                eliminatedDeadCode = value;
             }
             return this;
         }
 
-        CompilationOptionsBuilder setOptimizeReport(Boolean value) {
-            if (optimizeReport == null) {
-                optimizeReport = value;
+        CompilationOptionsBuilder setDeadCodeEliminationReport(Boolean value) {
+            if (deadCodeEliminationReport == null) {
+                deadCodeEliminationReport = value;
             }
             return this;
         }
@@ -419,7 +419,7 @@ public class CompilationOptions {
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
                     withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
                     exportComponentModel, enableCache, disableSyntaxTree, remoteManagement,
-                    optimizeDependencyCompilation, optimizeCodegen, optimizeReport);
+                    optimizeDependencyCompilation, eliminatedDeadCode, deadCodeEliminationReport);
         }
     }
 }

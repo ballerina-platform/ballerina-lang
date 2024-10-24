@@ -219,15 +219,17 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
     private String cloud;
 
-    @CommandLine.Option(names = "--optimize", description = "generate optimized executable jar", defaultValue = "false")
-    private Boolean optimizeCodegen;
+    @CommandLine.Option(names = "--eliminate-dead-code", description = "eliminate dead code in generated executable",
+            defaultValue = "false")
+    private Boolean eliminateDeadCode;
 
     @CommandLine.Option(names = "--optimize-dependency-compilation", hidden = true,
             description = "experimental memory optimization for large projects")
     private Boolean optimizeDependencyCompilation;
-    @CommandLine.Option(names = "--optimize-report", description = "generate code generation optimization reports",
+    @CommandLine.Option(names = "--dead-code-elimination-report",
+            description = "generate a report containing which sections were removed as part of dead code elimination",
             defaultValue = "false")
-    private Boolean optimizeReport;
+    private Boolean deadCodeEliminationReport;
 
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
@@ -436,8 +438,8 @@ public class TestCommand implements BLauncherCmd {
                 .setGraalVMBuildOptions(graalVMBuildOptions)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
                 .setOptimizeDependencyCompilation(optimizeDependencyCompilation)
-                .setOptimizeCodegen(optimizeCodegen)
-                .setOptimizeReport(optimizeReport);
+                .setEliminateDeadCode(eliminateDeadCode)
+                .setDeadCodeEliminationReport(deadCodeEliminationReport);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

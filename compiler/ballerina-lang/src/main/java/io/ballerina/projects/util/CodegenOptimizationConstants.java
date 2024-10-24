@@ -35,4 +35,5 @@ public class CodegenOptimizationConstants {
     public static final String DOT_CLASS = ".class";
     public static final String INTEROP_DEPENDENCIES_PROPERTIES_FILE = "interop-dependencies.properties";
     public static final String EXTERNAL_DEPENDENCY_ANNOT = "ExternalDependency";
+    public static final String DEAD_CODE_ELIMINATION_REPORT = "dead_code_elimination_report.json";
 }
