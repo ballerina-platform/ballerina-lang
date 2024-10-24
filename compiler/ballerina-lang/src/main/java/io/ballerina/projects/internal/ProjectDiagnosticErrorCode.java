@@ -63,7 +63,10 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     PROVIDED_PLATFORM_JAR_IN_EXECUTABLE("BCE5502", "provided.platform.jars"),
 
     // Error codes used in resources resolution
-    CONFLICTING_RESOURCE_FILE("BCE5601", "conflicting.resources.type")
+    CONFLICTING_RESOURCE_FILE("BCE5601", "conflicting.resources.type"),
+
+    // Error codes for invalid flag combinations.
+    INVALID_VERBOSE_FLAG_USAGE("BCE5701", "invalid.verbose.flag.usage"),
     ;
 
     private final String diagnosticId;

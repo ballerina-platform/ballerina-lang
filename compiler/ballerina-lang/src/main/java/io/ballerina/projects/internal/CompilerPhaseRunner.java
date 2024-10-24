@@ -66,7 +66,6 @@ public class CompilerPhaseRunner {
     private final IsolationAnalyzer isolationAnalyzer;
     private final boolean isToolingCompilation;
 
-
     public static CompilerPhaseRunner getInstance(CompilerContext context) {
         CompilerPhaseRunner compilerDriver = context.get(COMPILER_DRIVER_KEY);
         if (compilerDriver == null) {
@@ -112,12 +111,12 @@ public class CompilerPhaseRunner {
         }
 
         dataflowAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.DOCUMENTATION_ANALYZE)) {
+        if (this.stopCompilation(pkgNode, CompilerPhase.ISOLATION_ANALYZE)) {
             return;
         }
 
         isolationAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.ISOLATION_ANALYZE)) {
+        if (this.stopCompilation(pkgNode, CompilerPhase.DOCUMENTATION_ANALYZE)) {
             return;
         }
 

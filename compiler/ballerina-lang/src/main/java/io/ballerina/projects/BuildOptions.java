@@ -138,6 +138,14 @@ public class BuildOptions {
         return toBooleanDefaultIfNull(this.showDependencyDiagnostics);
     }
 
+    public boolean eliminateDeadCode() {
+        return this.compilationOptions.eliminateDeadCode();
+    }
+
+    public boolean deadCodeEliminationReport() {
+        return this.compilationOptions.deadCodeEliminationReport();
+    }
+
     /**
      * Merge the given build options by favoring theirs if there are conflicts.
      *
@@ -211,6 +219,8 @@ public class BuildOptions {
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
+        buildOptionsBuilder.setEliminateDeadCode(compilationOptions.eliminateDeadCode);
+        buildOptionsBuilder.setDeadCodeEliminationReport(compilationOptions.deadCodeEliminationReport);
         buildOptionsBuilder.setRemoteManagement(compilationOptions.remoteManagement);
         buildOptionsBuilder.setOptimizeDependencyCompilation(compilationOptions.optimizeDependencyCompilation);
 
@@ -252,7 +262,9 @@ public class BuildOptions {
         EXPORT_COMPONENT_MODEL("exportComponentModel"),
         GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions"),
         SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics"),
-        OPTIMIZE_DEPENDENCY_COMPILATION("optimizeDependencyCompilation");
+        OPTIMIZE_DEPENDENCY_COMPILATION("optimizeDependencyCompilation"),
+        ELIMINATE_DEAD_CODE("eliminateDeadCode"),
+        DEAD_CODE_ELIMINATION_REPORT("deadCodeEliminationReport");
 
         private final String name;
 
@@ -407,6 +419,11 @@ public class BuildOptions {
             return this;
         }
 
+        public BuildOptionsBuilder setEliminateDeadCode(Boolean value) {
+            compilationOptionsBuilder.setEliminateDeadCode(value);
+            return this;
+        }
+
         public BuildOptionsBuilder setRemoteManagement(Boolean value) {
             compilationOptionsBuilder.setRemoteManagement(value);
             return this;
@@ -425,6 +442,11 @@ public class BuildOptions {
          */
         public BuildOptionsBuilder setOptimizeDependencyCompilation(Boolean value) {
             compilationOptionsBuilder.setOptimizeDependencyCompilation(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setDeadCodeEliminationReport(Boolean value) {
+            compilationOptionsBuilder.setDeadCodeEliminationReport(value);
             return this;
         }
 

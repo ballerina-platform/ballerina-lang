@@ -1,0 +1,37 @@
+{
+  "thushara_piyasekara/class_inclusion:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "main",
+        "thushara_piyasekara/class_inclusion:0.1.0:Engineer.clone",
+        "thushara_piyasekara/class_inclusion:0.1.0:Engineer.getName",
+        "thushara_piyasekara/class_inclusion:0.1.0:Engineer.init",
+        "thushara_piyasekara/class_inclusion:0.1.0:Person.getName",
+        "thushara_piyasekara/class_inclusion:0.1.0:Cloneable.clone"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>",
+        "thushara_piyasekara/class_inclusion:0.1.0:Engineer.$init$"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [],
+      "virtualFunctions": []
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "Engineer",
+        "Person",
+        "Cloneable"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}

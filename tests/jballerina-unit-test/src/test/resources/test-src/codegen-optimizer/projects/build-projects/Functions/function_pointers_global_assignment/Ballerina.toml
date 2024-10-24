@@ -1,0 +1,6 @@
+[package]
+org = "thushara_piyasekara"
+name = "function_pointers_global_assignment"
+version = "0.1.0"
+distribution = "2201.9.0-SNAPSHOT"
+

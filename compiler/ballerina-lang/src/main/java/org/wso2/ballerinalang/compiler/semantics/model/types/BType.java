@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.ValueType;
+import org.wso2.ballerinalang.compiler.semantics.model.BTypeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -52,6 +53,7 @@ public class BType implements ValueType {
     // TODO: Refactor this after JBallerina 1.0.
     public Name name;
     public long flags;
+    public boolean isUsed = false;
 
     public BType(int tag, BTypeSymbol tsymbol) {
         this.tag = tag;
@@ -103,6 +105,11 @@ public class BType implements ValueType {
             case PARAMETERIZED_TYPE -> TypeKind.PARAMETERIZED;
             default -> TypeKind.OTHER;
         };
+    }
+
+    @Override
+    public <T> void accept(BTypeAnalyzer<T> analyzer, T data) {
+        analyzer.visit(this, data);
     }
 
     @Override
