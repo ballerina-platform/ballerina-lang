@@ -32,12 +32,9 @@ import io.ballerina.types.subtypedata.StringSubtype;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;
@@ -122,68 +119,6 @@ public final class SemTypeHelper {
 
     public static boolean isSubtype(Context context, BType bt, SemType st) {
         return SemTypes.isSubtype(context, bt.semType(), st);
-    }
-
-    public static SemType semType(BType t, boolean ignoreObjectTypeIds) {
-        switch (t.tag) {
-            case TypeTags.NIL:
-            case TypeTags.BOOLEAN:
-            case TypeTags.INT:
-            case TypeTags.BYTE:
-            case TypeTags.SIGNED32_INT:
-            case TypeTags.SIGNED16_INT:
-            case TypeTags.SIGNED8_INT:
-            case TypeTags.UNSIGNED32_INT:
-            case TypeTags.UNSIGNED16_INT:
-            case TypeTags.UNSIGNED8_INT:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.STRING:
-            case TypeTags.CHAR_STRING:
-            case TypeTags.FINITE:
-            case TypeTags.XML:
-            case TypeTags.XML_ELEMENT:
-            case TypeTags.XML_COMMENT:
-            case TypeTags.XML_PI:
-            case TypeTags.XML_TEXT:
-            case TypeTags.HANDLE:
-            case TypeTags.REGEXP:
-            case TypeTags.INTERSECTION:
-            case TypeTags.ANYDATA:
-            case TypeTags.JSON:
-            case TypeTags.ANY:
-            case TypeTags.READONLY:
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE:
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
-            case TypeTags.INVOKABLE:
-            case TypeTags.FUTURE:
-            case TypeTags.TYPEDESC:
-            case TypeTags.STREAM:
-            case TypeTags.ERROR:
-            case TypeTags.TABLE:
-            case TypeTags.SEQUENCE:
-            case TypeTags.PARAMETERIZED_TYPE:
-            case TypeTags.NONE:
-            case TypeTags.NULL_SET:
-            case TypeTags.SEMANTIC_ERROR:
-            case TypeTags.NEVER:
-            case TypeTags.TYPEREFDESC:
-                return t.semType();
-            case TypeTags.UNION:
-                if (ignoreObjectTypeIds) {
-                    return ((BUnionType) t).semTypeIgnoringTypeIds();
-                }
-                return t.semType();
-            case TypeTags.OBJECT:
-                if (ignoreObjectTypeIds) {
-                    return ((BObjectType) t).semTypeIgnoringTypeIds();
-                }
-                return t.semType();
-            default:
-                throw new IllegalStateException("Unsupported type: " + t);
-        }
     }
 
     public static boolean isSimpleOrString(TypeKind kind) {

@@ -105,10 +105,6 @@ public class BObjectType extends BStructureType implements ObjectType {
         return fields.values().stream().anyMatch(field -> field.type instanceof BNoType);
     }
 
-    public SemType semTypeIgnoringTypeIds() {
-        return semTypeInner();
-    }
-
     @Override
     public SemType semType() {
         return distinctIdWrapper(semTypeInner());
