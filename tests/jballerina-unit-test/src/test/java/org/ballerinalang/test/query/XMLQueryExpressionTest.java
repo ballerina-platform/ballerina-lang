@@ -48,8 +48,8 @@ public class XMLQueryExpressionTest {
     public void testNegativeQueryExprForXML() {
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) & readonly)> & readonly'," +
-                        " found 'xml'", 21, 16);
+                "'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) & readonly)> & readonly'," +
+                " found '(xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)'", 21, 16);
         validateError(negativeResult, index++, "incompatible types: expected 'xml:Element & readonly', " +
                 "found 'xml:Element'", 25, 16);
         validateError(negativeResult, index++,

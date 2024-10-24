@@ -213,6 +213,17 @@ public class XMLLiteralTest {
                 "'(xml<xml<xml:Text>>|xml<xml<xml:Comment>>)', found 'xml'", 150, 54);
         BAssertUtil.validateError(negativeResult, index++, "missing gt token", 154, 22);
         BAssertUtil.validateError(negativeResult, index++, "missing gt token", 155, 28);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'UX', found 'X'", 166, 12);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'UX', found 'X'", 169, 12);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'UX', found 'X'", 172, 12);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'UX', found 'X'", 175, 12);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'UX', found 'X'", 178, 12);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'UX', found 'X'", 181, 12);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'UX', found 'X'", 184, 12);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'UX', found 'X'", 187, 12);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'UX', found 'X'", 190, 12);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'UX', found 'X'", 193, 12);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'UX', found 'X'", 196, 12);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 
@@ -454,6 +465,11 @@ public class XMLLiteralTest {
     @Test
     public void testXMLLiteralWithConditionExpr() {
         BRunUtil.invoke(result, "testXMLLiteralWithConditionExpr");
+    }
+
+    @Test
+    public void testXMLSubtype() {
+        BRunUtil.invoke(result, "testXMLSubtype");
     }
 
     @AfterClass
