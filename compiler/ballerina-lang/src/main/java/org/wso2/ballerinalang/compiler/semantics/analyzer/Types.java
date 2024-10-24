@@ -20,7 +20,9 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.Atom;
 import io.ballerina.types.BasicTypeBitSet;
+import io.ballerina.types.Bdd;
 import io.ballerina.types.CombinedRange;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Context;
@@ -32,8 +34,11 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypePair;
 import io.ballerina.types.SemTypes;
+import io.ballerina.types.SubtypeData;
 import io.ballerina.types.definition.ObjectDefinition;
 import io.ballerina.types.definition.ObjectQualifiers;
+import io.ballerina.types.subtypedata.BddAllOrNothing;
+import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.subtypedata.Range;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
@@ -141,6 +146,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
+import static io.ballerina.types.BasicTypeCode.BT_OBJECT;
 import static io.ballerina.types.Core.combineRanges;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -178,7 +184,6 @@ public class Types {
     private int finiteTypeCount = 0;
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private SymbolEnv env;
-    private boolean ignoreObjectTypeIds = false;
     protected final Context semTypeCtx;
 
     private static final String BASE_16 = "base16";
@@ -776,15 +781,50 @@ public class Types {
     }
 
     public boolean isAssignableIgnoreObjectTypeIds(BType source, BType target) {
-        this.ignoreObjectTypeIds = true;
-        boolean result = isAssignable(source, target);
-        this.ignoreObjectTypeIds = false;
-        return result;
+        SemType s = typeIgnoringObjectTypeIds(source.semType());
+        SemType t = typeIgnoringObjectTypeIds(target.semType());
+        return isSubtype(s, t);
     }
+
+    public SemType typeIgnoringObjectTypeIds(SemType t) {
+        SubtypeData objSubTypeData = Core.subtypeData(t, BT_OBJECT);
+        if (!(objSubTypeData instanceof Bdd b)) {
+            return t;
+        }
+        Bdd bdd = replaceObjectDistinctAtoms(b);
+        SemType newObjSemType = Core.createBasicSemType(BT_OBJECT, bdd);
+        SemType diff = Core.diff(t, PredefinedType.OBJECT);
+        return Core.union(diff, newObjSemType);
+    }
+
+    /**
+     * Replaces all distinct atoms in object type's bdd with full object equivalent atom.
+     * ({@link PredefinedType#ATOM_MAPPING_OBJECT}).
+     * <br>
+     * This is to suppress effect coming from distinct atoms.
+     * The return bdd will be equivalent to object bdd with no distinct atoms.
+     *
+     * @param b a bdd belong to object type
+     * @return bdd with no distinct atoms
+     */
+    private Bdd replaceObjectDistinctAtoms(Bdd b) {
+        if (b instanceof BddAllOrNothing) {
+            return b;
+        }
+
+        BddNode bn = (BddNode) b;
+        Atom atom = bn.atom();
+        if (bn.atom().kind() == Atom.Kind.DISTINCT_ATOM) {
+            atom = PredefinedType.ATOM_MAPPING_OBJECT;
+        }
+        Bdd left = replaceObjectDistinctAtoms(bn.left());
+        Bdd middle = replaceObjectDistinctAtoms(bn.middle());
+        Bdd right = replaceObjectDistinctAtoms(bn.right());
+        return BddNode.create(atom, left, middle, right);
+    }
+
     private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        SemType semSource = SemTypeHelper.semType(source, this.ignoreObjectTypeIds);
-        SemType semTarget = SemTypeHelper.semType(target, this.ignoreObjectTypeIds);
-        return isSubtype(semSource, semTarget);
+        return isSubtype(source.semType(), target.semType());
     }
 
     public boolean isSubtype(SemType t1, SemType t2) {
@@ -1270,7 +1310,7 @@ public class Types {
             }
         }
 
-        return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet) || this.ignoreObjectTypeIds;
+        return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet);
     }
 
     private int getObjectFuncCount(BObjectTypeSymbol sym) {
