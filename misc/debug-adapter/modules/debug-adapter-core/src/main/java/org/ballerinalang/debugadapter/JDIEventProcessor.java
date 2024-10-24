@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.ballerinalang.debugadapter.BreakpointProcessor.DynamicBreakpointMode;
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
@@ -55,7 +56,7 @@ public class JDIEventProcessor {
     private final ExecutionContext context;
     private final BreakpointProcessor breakpointProcessor;
     private boolean isRemoteVmAttached = false;
-    private final List<EventRequest> stepRequests = new ArrayList<>();
+    private final List<EventRequest> stepRequests = new CopyOnWriteArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JDIEventProcessor.class);
 
     JDIEventProcessor(ExecutionContext context) {
