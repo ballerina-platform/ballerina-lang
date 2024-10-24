@@ -34,9 +34,9 @@ public interface BddNode extends Bdd {
     }
 
     private static boolean isSimpleNode(Bdd left, Bdd middle, Bdd right) {
-        return left instanceof AllOrNothingSubtype leftNode && leftNode.isAllSubtype() &&
-                middle instanceof AllOrNothingSubtype middleNode && middleNode.isNothingSubtype() &&
-                right instanceof AllOrNothingSubtype rightNode && rightNode.isNothingSubtype();
+        return left instanceof BddAllOrNothing leftNode && leftNode.isAll() &&
+                middle instanceof BddAllOrNothing middleNode && middleNode.isNothing() &&
+                right instanceof BddAllOrNothing rightNode && rightNode.isNothing();
     }
 
     Atom atom();

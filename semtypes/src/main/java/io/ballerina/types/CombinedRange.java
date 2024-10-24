@@ -15,20 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.types.subtypedata;
+package io.ballerina.types;
 
-import io.ballerina.types.Atom;
-import io.ballerina.types.Bdd;
+import io.ballerina.types.subtypedata.Range;
 
 /**
- * Actual implementation of a generic Bdd node.
+ * Represents a combined range.
  *
- * @param atom   the atom that this node represents
- * @param left   path that include this node's atom positively
- * @param middle path that doesn't include this node's atom
- * @param right  path that include this node's atom negatively
- * @since 2201.10.0
+ * @param range range
+ * @param i1    i1
+ * @param i2    i2
+ * @since 2201.11.0
  */
-public record BddNodeImpl(Atom atom, Bdd left, Bdd middle, Bdd right) implements BddNode {
+public record CombinedRange(Range range, Long i1, Long i2) {
 
+    public static CombinedRange from(Range range, Long i1, Long i2) {
+        return new CombinedRange(range, i1, i2);
+    }
 }

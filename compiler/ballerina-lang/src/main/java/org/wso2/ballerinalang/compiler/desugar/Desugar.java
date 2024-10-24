@@ -9346,7 +9346,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression createTypeCastExpr(BLangExpression expr, BType targetType) {
-        if (types.isSameType(expr.getBType(), targetType)) {
+        if (expr.getBType().tag == targetType.tag && types.isSameType(expr.getBType(), targetType)) {
             return expr;
         }
 

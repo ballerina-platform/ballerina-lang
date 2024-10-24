@@ -17,14 +17,14 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 
 import java.util.ArrayList;
@@ -96,16 +96,7 @@ class JMethodRequest {
 
         BType returnType = unifier.build(bFuncType.retType);
         jMethodReq.bReturnType = returnType;
-        if (returnType.tag == TypeTags.UNION) {
-            for (BType bType : ((BUnionType) returnType).getMemberTypes()) {
-                if (bType.tag == TypeTags.ERROR) {
-                    jMethodReq.returnsBErrorType = true;
-                    break;
-                }
-            }
-        } else {
-            jMethodReq.returnsBErrorType = returnType.tag == TypeTags.ERROR;
-        }
+        jMethodReq.returnsBErrorType = SemTypes.containsBasicType(returnType.semType(), PredefinedType.ERROR);
         jMethodReq.restParamExist = methodValidationRequest.restParamExist;
         return jMethodReq;
     }
