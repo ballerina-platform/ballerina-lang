@@ -1337,7 +1337,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             case ANYDATA:
                 break;
             case FINITE:
-                return types.isAnydata(type);
+                return types.isAnydata(type.semType());
             case NIL:
                 return !isRequired;
             case ARRAY:
