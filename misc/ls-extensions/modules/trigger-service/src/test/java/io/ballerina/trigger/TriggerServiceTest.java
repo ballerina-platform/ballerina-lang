@@ -60,6 +60,10 @@ public class TriggerServiceTest {
         BallerinaTriggerListResponse response = (BallerinaTriggerListResponse) result.get();
 
         Assert.assertTrue(!response.getCentralTriggers().isEmpty());
+        Assert.assertTrue(response.getCentralTriggers().stream()
+                .anyMatch(trigger -> trigger.moduleName.contains("kafka")));
+        Assert.assertTrue(response.getCentralTriggers().stream()
+                .anyMatch(trigger -> trigger.moduleName.contains("ftp")));
     }
 
     @Test(description = "Test trigger endpoint of trigger service")
@@ -104,5 +108,59 @@ public class TriggerServiceTest {
 
         Assert.assertEquals(response.get("id").getAsString(), "10004");
         Assert.assertEquals(response.get("moduleName").getAsString(), "mqtt");
+    }
+
+    @Test(description = "Test new triggers endpoint of trigger service with query")
+    public void testTriggersNewServiceWithQuery() throws ExecutionException, InterruptedException {
+        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
+
+        BallerinaTriggerListRequest request = new BallerinaTriggerListRequest();
+        request.setQuery("kafka");
+        CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGERS_NEW, request);
+        BallerinaTriggerListResponse response = (BallerinaTriggerListResponse) result.get();
+
+        Assert.assertTrue(!response.getCentralTriggers().isEmpty());
+        Assert.assertTrue(response.getCentralTriggers().stream()
+                .anyMatch(trigger -> trigger.moduleName.equals("kafka")));
+        Assert.assertTrue(response.getCentralTriggers().stream()
+                .noneMatch(trigger -> trigger.moduleName.equals("ftp")));
+    }
+
+    @Test(description = "Test new triggers endpoint of trigger service with organization")
+    public void testTriggersNewServiceWithOrg() throws ExecutionException, InterruptedException {
+        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
+
+        BallerinaTriggerListRequest request = new BallerinaTriggerListRequest();
+        request.setOrganization("ballerina");
+        CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGERS_NEW, request);
+        BallerinaTriggerListResponse response = (BallerinaTriggerListResponse) result.get();
+
+        Assert.assertTrue(!response.getCentralTriggers().isEmpty());
+        Assert.assertTrue(response.getCentralTriggers().stream()
+                .anyMatch(trigger -> trigger.moduleName.equals("mqtt")));
+        Assert.assertTrue(response.getCentralTriggers().stream()
+                .anyMatch(trigger -> trigger.moduleName.equals("ftp")));
+        Assert.assertTrue(response.getCentralTriggers().stream()
+                .noneMatch(trigger -> trigger.moduleName.equals("kafka")));
+    }
+
+    @Test(description = "Test new triggers endpoint of trigger service with limit")
+    public void testTriggersNewServiceWithLimit() throws ExecutionException, InterruptedException {
+        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
+
+        BallerinaTriggerListRequest request = new BallerinaTriggerListRequest();
+        request.setLimit(10);
+        CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGERS_NEW, request);
+        BallerinaTriggerListResponse response = (BallerinaTriggerListResponse) result.get();
+
+        Assert.assertTrue(!response.getCentralTriggers().isEmpty());
+        Assert.assertEquals(response.getCentralTriggers().size(), 10);
+
+        request.setLimit(2);
+        result = serviceEndpoint.request(BALLERINA_TRIGGERS_NEW, request);
+        response = (BallerinaTriggerListResponse) result.get();
+
+        Assert.assertTrue(!response.getCentralTriggers().isEmpty());
+        Assert.assertEquals(response.getCentralTriggers().size(), 2);
     }
 }
