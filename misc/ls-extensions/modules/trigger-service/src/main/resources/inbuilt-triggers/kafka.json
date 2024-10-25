@@ -1,9 +1,9 @@
 {
     "id": 10001,
-    "name": "Kafka Event Listener",
+    "name": "Kafka Service",
     "type": "inbuilt",
     "displayName": "Kafka",
-    "documentation": "This Listener can be used to listen to Kafka events.",
+    "documentation": "The Kafka service can be attached to a Kafka listener which listens to Kafka topic(s) and triggers the service when a message is received for Kafka topic(s). The service should implement the `onConsumerRecord` remote method to process the received message(s). Additionally, the service can implement the `onError` remote method to handle errors that occur during the message processing.",
     "moduleName": "kafka",
     "listenerProtocol": "kafka",
     "displayAnnotation": {
@@ -64,7 +64,7 @@
             "functions": [
                 {
                     "name": "OnConsumerRecord",
-                    "documentation": "The function which will be triggered when a message is received from the Kafka topic",
+                    "documentation": "The `onConsumerRecord` remote method will be triggered when a message is received from Kafka topic(s).",
                     "optional": false,
                     "qualifiers": [
                         "remote"
@@ -79,7 +79,8 @@
                             "type": [
                                 "kafka:ConsumerAnydataRecord[]",
                                 "anydata[]"
-                            ]
+                            ],
+                            "documentation": "The records received for Kafka topic(s)."
                         },
                         {
                             "name": "caller",
@@ -94,7 +95,7 @@
                                 "version": "4.2.0"
                             },
                             "optional": true,
-                            "documentation": "Caller object"
+                            "documentation": "The Kafka caller object to commit the offsets."
                         }
                     ],
                     "returnType": {
@@ -103,13 +104,13 @@
                             "error?"
                         ],
                         "optional": true,
-                        "documentation": "Error object",
+                        "documentation": "Error object.",
                         "defaultTypeName": "error?"
                     }
                 },
                 {
                     "name": "OnError",
-                    "documentation": "The function which will be triggered when an error occurs",
+                    "documentation": "The `onError` remote method will be triggered when an error occurs during the message processing.",
                     "optional": true,
                     "qualifiers": [
                         "remote"
@@ -128,7 +129,7 @@
                                 "moduleName": "kafka",
                                 "version": "4.2.0"
                             },
-                            "documentation": "Error object"
+                            "documentation": "The error occurred during the message processing."
                         }
                     ],
                     "returnType": {
@@ -137,7 +138,7 @@
                             "error?"
                         ],
                         "optional": true,
-                        "documentation": "Error object",
+                        "documentation": "Error object.",
                         "defaultTypeName": "error?"
                     }
                 }
@@ -154,7 +155,7 @@
             ],
             "optional": false,
             "defaultable": false,
-            "documentation": "List of remote server endpoints of Kafka brokers"
+            "documentation": "The Kafka bootstrap server URL. For a clustered use case, provide a comma-separated list of URLs."
         },
         {
             "name": "config",
@@ -170,7 +171,7 @@
                 "version": "4.2.0"
             },
             "defaultable": false,
-            "documentation": "Configuration for the Kafka Consumer"
+            "documentation": "The Kafka listener configurations."
         }
     ]
 }

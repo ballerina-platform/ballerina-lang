@@ -1,9 +1,9 @@
 {
   "id": 10003,
-  "name": "NATS Event Listener",
+  "name": "NATS Service",
   "type": "inbuilt",
   "displayName": "NATS",
-  "documentation": "This Listener can be used to listen to messages from a NATS server.",
+  "documentation": "The NATS service can be attached to a NATS listener to listen to messages from the NATS server. The service should define the subject name as the base path and should implement wither the `onMessage` or `onRequest` remote method to handle incoming messages. Additionally, the service can implement the `onError` remote method to handle errors.",
   "moduleName": "nats",
   "listenerProtocol": "nats",
   "displayAnnotation": {
@@ -69,12 +69,12 @@
           "string"
         ],
         "defaultable": false,
-        "documentation": "The NATS subject name"
+        "documentation": "The NATS subject name."
       },
       "functions": [
         {
           "name": "OnMessage",
-          "documentation": "The function which will be triggered when a message is received from the NATS server",
+          "documentation": "The `onMessage` remote method will be triggered when a message is received for the specified subject",
           "optional": false,
           "qualifiers": [
             "remote"
@@ -92,7 +92,8 @@
                 "orgName": "ballerinax",
                 "moduleName": "nats",
                 "version": "3.1.0"
-              }
+              },
+              "documentation": "The message received for the NATS subject."
             }
           ],
           "returnType": {
@@ -101,19 +102,19 @@
               "error?"
             ],
             "optional": true,
-            "documentation": "Error object",
+            "documentation": "Error object.",
             "defaultTypeName": "error?"
           },
           "group": {
             "id": 1,
             "name": "group-1",
             "type": "exclusive",
-            "documentation": "NATS message trigger"
+            "documentation": "NATS message trigger method."
           }
         },
         {
           "name": "OnRequest",
-          "documentation": "The function which will be triggered when a message is received from the NATS server and a response is expected",
+          "documentation": "The `onRequest` remote method will be triggered when a request is received for the specified subject and a response is expected.",
           "optional": false,
           "qualifiers": [
             "remote"
@@ -131,7 +132,8 @@
                 "orgName": "ballerinax",
                 "moduleName": "nats",
                 "version": "3.1.0"
-              }
+              },
+              "documentation": "The message received for the NATS subject."
             }
           ],
           "returnType": {
@@ -140,20 +142,20 @@
               "anydata|error"
             ],
             "optional": false,
-            "documentation": "Anydata response",
+            "documentation": "The response message.",
             "editable": false
           },
           "group": {
             "id": 1,
             "name": "group-1",
             "type": "exclusive",
-            "documentation": "NATS message trigger"
+            "documentation": "NATS message trigger method."
           }
         },
         {
           "name": "OnError",
           "optional": true,
-          "documentation": "The function which will be triggered when an error occurs",
+          "documentation": "The `onError` remote method will be triggered when an error occurs during the message processing.",
           "qualifiers": [
             "remote"
           ],
@@ -170,7 +172,8 @@
                 "orgName": "ballerinax",
                 "moduleName": "nats",
                 "version": "3.1.0"
-              }
+              },
+              "documentation": "The message received for the NATS subject."
             },
             {
               "name": "error",
@@ -185,7 +188,7 @@
                 "version": "3.1.0"
               },
               "optional": false,
-              "documentation": "Error object"
+              "documentation": "The error occurred during the message processing."
             }
           ],
           "returnType": {

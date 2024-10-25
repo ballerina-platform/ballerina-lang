@@ -1,9 +1,9 @@
 {
   "id": 10004,
-  "name": "MQTT Event Listener",
+  "name": "MQTT Service",
   "type": "inbuilt",
   "displayName": "MQTT",
-  "documentation": "This Listener can be used to listen to messages from an MQTT broker.",
+  "documentation": "This MQTT service can be attached to a MQTT listener which subscribes to MQTT topic(s) and triggers the service when a message is received for MQTT topic(s). The service should have the `onMessage` remote method to process the received message(s). Additionally, the service can have the `onError` remote method to handle errors that occur during the message processing.",
   "moduleName": "mqtt",
   "listenerProtocol": "mqtt",
   "displayAnnotation": {
@@ -64,7 +64,7 @@
       "functions": [
         {
           "name": "OnMessage",
-          "documentation": "The function which will be triggered when a message is received from the MQTT server",
+          "documentation": "The `onMessage` remote method will be triggered when a message is received for MQTT topic(s).",
           "optional": false,
           "qualifiers": [
             "remote"
@@ -82,7 +82,8 @@
                 "orgName": "ballerina",
                 "moduleName": "mqtt",
                 "version": "1.2.0"
-              }
+              },
+              "documentation": "The message received for MQTT topic(s)."
             },
             {
               "name": "caller",
@@ -97,7 +98,7 @@
                 "version": "1.2.0"
               },
               "optional": true,
-              "documentation": "Caller object"
+              "documentation": "The MQTT caller object to indicate the completion of the message processing or to send a response."
             }
           ],
           "returnType": {
@@ -106,13 +107,13 @@
               "error?"
             ],
             "optional": true,
-            "documentation": "Error object",
+            "documentation": "Error object.",
             "defaultTypeName": "error?"
           }
         },
         {
           "name": "OnError",
-          "documentation": "The function which will be triggered when an error occurs",
+          "documentation": "The `onError` remote method will be triggered when an error occurs during the message processing.",
           "optional": true,
           "qualifiers": [
             "remote"
@@ -131,7 +132,7 @@
                 "moduleName": "mqtt",
                 "version": "1.2.0"
               },
-              "documentation": "Error object"
+              "documentation": "The error occurred during the message processing."
             }
           ],
           "returnType": {
@@ -140,7 +141,7 @@
               "error?"
             ],
             "optional": true,
-            "documentation": "Error object",
+            "documentation": "Error object.",
             "defaultTypeName": "error?"
           }
         }
@@ -156,7 +157,7 @@
       ],
       "optional": false,
       "defaultable": false,
-      "documentation": "The URI of the remote MQTT server"
+      "documentation": "The URI of the remote MQTT server."
     },
     {
       "name": "clientId",
@@ -166,7 +167,7 @@
       ],
       "optional": false,
       "defaultable": false,
-      "documentation": "The unique client ID to identify the listener"
+      "documentation": "The unique client ID to identify the listener."
     },
     {
       "name": "subscriptions",
@@ -179,7 +180,7 @@
       ],
       "optional": false,
       "defaultable": false,
-      "documentation": "The topics to be subscribed to"
+      "documentation": "The MQTT topics to be subscribed to."
     },
     {
       "name": "config",
@@ -195,7 +196,7 @@
         "version": "1.2.0"
       },
       "defaultable": false,
-      "documentation": "The listener configurations"
+      "documentation": "The listener configurations."
     }
   ]
 }

@@ -1,9 +1,9 @@
 {
   "id": 10006,
-  "name": "FTP Listener",
+  "name": "FTP Service",
   "type": "inbuilt",
   "displayName": "FTP",
-  "documentation": "This Listener can be used to listen to file changes in a FTP server.",
+  "documentation": "The FTP service can be attached to a FTP listener which listens to file changes and trigger the service when a file change event occurs. The FTP service should implement the `onFileChange` function which will be triggered when a file change event occurs.",
   "moduleName": "ftp",
   "listenerProtocol": "ftp",
   "displayAnnotation": {
@@ -66,7 +66,7 @@
       "functions": [
         {
           "name": "OnFileChange",
-          "documentation": "The function which will be triggered when a file change event occurs.",
+          "documentation": "The `OnFileChange` remote method will be triggered when a file change event occurs.",
           "optional": false,
           "qualifiers": [
             "remote"
@@ -86,7 +86,8 @@
                 "moduleName": "ftp",
                 "version": "2.11.0"
               },
-              "defaultTypeName": "ftp:WatchEvent & readonly"
+              "defaultTypeName": "ftp:WatchEvent & readonly",
+              "documentation": "File watch event."
             },
             {
               "name": "caller",
@@ -101,7 +102,7 @@
                 "version": "2.11.0"
               },
               "optional": true,
-              "documentation": "Caller object"
+              "documentation": "The FTP caller object to execte file operations."
             }
           ],
           "returnType": {
@@ -110,7 +111,7 @@
               "error?"
             ],
             "optional": true,
-            "documentation": "Error object",
+            "documentation": "Error object.",
             "defaultTypeName": "error?"
           }
         }
@@ -132,7 +133,7 @@
         "moduleName": "ftp",
         "version": "2.11.0"
       },
-      "documentation": "Configuration for FTP listener"
+      "documentation": "The FTP listener configuration."
     }
   ]
 }

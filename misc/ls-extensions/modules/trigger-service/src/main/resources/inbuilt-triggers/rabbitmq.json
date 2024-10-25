@@ -1,9 +1,9 @@
 {
     "id": 10002,
-    "name": "RabbitMQ Event Listener",
+    "name": "RabbitMQ Service",
     "type": "inbuilt",
     "displayName": "RabbitMQ",
-    "documentation": "This Listener can be used to listen to messages from a RabbitMQ server.",
+    "documentation": "The RabbitMQ service can be attached to a RabbitMQ listener which listens to messages from a RabbitMQ server. The service should define the queue name as the base path and should implement either the `onMessage` or `onRequest` remote method to handle the incoming messages. Additionally, the service can implement the `onError` remote method to handle errors.",
     "moduleName": "rabbitmq",
     "listenerProtocol": "rabbitmq",
     "displayAnnotation": {
@@ -69,12 +69,12 @@
                     "string"
                 ],
                 "defaultable": false,
-                "documentation": "The RabbitMQ queue name"
+                "documentation": "The RabbitMQ queue name."
             },
             "functions": [
                 {
                     "name": "OnMessage",
-                    "documentation": "The function which will be triggered when a message is received from the RabbitMQ server",
+                    "documentation": "The `onMessage` remote method will be triggered when a message is received in the specified queue.",
                     "optional": false,
                     "qualifiers": [
                         "remote"
@@ -92,7 +92,8 @@
                                 "orgName": "ballerinax",
                                 "moduleName": "rabbitmq",
                                 "version": "3.1.0"
-                            }
+                            },
+                            "documentation": "The message received from the RabbitMQ queue."
                         },
                         {
                             "name": "caller",
@@ -107,7 +108,7 @@
                                 "version": "3.1.0"
                             },
                             "optional": true,
-                            "documentation": "Caller object"
+                            "documentation": "The RabbitMQ caller object to acknowledge the message."
                         }
                     ],
                     "returnType": {
@@ -116,19 +117,19 @@
                             "error?"
                         ],
                         "optional": true,
-                        "documentation": "Error object",
+                        "documentation": "Error object.",
                         "defaultTypeName": "error?"
                     },
                     "group": {
                         "id": 1,
                         "name": "group-1",
                         "type": "exclusive",
-                        "documentation": "RabbitMQ message trigger"
+                        "documentation": "RabbitMQ message trigger method."
                     }
                 },
                 {
                     "name": "OnRequest",
-                    "documentation": "The function which will be triggered when a message is received from the RabbitMQ server and a response is expected",
+                    "documentation": "The `onRequest` remote method will be triggered when a message is received in the specified queue and a response is expected.",
                     "optional": false,
                     "qualifiers": [
                         "remote"
@@ -146,7 +147,8 @@
                                 "orgName": "ballerinax",
                                 "moduleName": "rabbitmq",
                                 "version": "3.1.0"
-                            }
+                            },
+                            "documentation": "The message received from the RabbitMQ queue."
                         },
                         {
                             "name": "caller",
@@ -161,7 +163,7 @@
                                 "version": "3.1.0"
                             },
                             "optional": true,
-                            "documentation": "Caller object"
+                            "documentation": "The RabbitMQ caller object to acknowledge the message."
                         }
                     ],
                     "returnType": {
@@ -170,20 +172,20 @@
                             "anydata|error"
                         ],
                         "optional": false,
-                        "documentation": "Anydata response",
+                        "documentation": "The response message.",
                         "editable": false
                     },
                     "group": {
                         "id": 1,
                         "name": "group-1",
                         "type": "exclusive",
-                        "documentation": "RabbitMQ message trigger"
+                        "documentation": "RabbitMQ message trigger method."
                     }
                 },
                 {
                     "name": "OnError",
                     "optional": true,
-                    "documentation": "The function which will be triggered when an error occurs",
+                    "documentation": "The `onError` remote method will be triggered when an error occurs during the message processing.",
                     "qualifiers": [
                         "remote"
                     ],
@@ -200,7 +202,8 @@
                                 "orgName": "ballerinax",
                                 "moduleName": "rabbitmq",
                                 "version": "3.1.0"
-                            }
+                            },
+                            "documentation": "The message received from the RabbitMQ queue."
                         },
                         {
                             "name": "error",
@@ -215,7 +218,7 @@
                                 "version": "3.1.0"
                             },
                             "optional": false,
-                            "documentation": "Error object"
+                            "documentation": "The error occurred during the message processing."
                         }
                     ],
                     "returnType": {
@@ -224,7 +227,7 @@
                             "error?"
                         ],
                         "optional": true,
-                        "documentation": "Error object",
+                        "documentation": "Error object.",
                         "defaultTypeName": "error?"
                     }
                 }
@@ -240,7 +243,7 @@
             ],
             "optional": false,
             "defaultable": false,
-            "documentation": "The host used for establishing the connection"
+            "documentation": "The RabbitMQ server host name used for establishing the connection."
         },
         {
             "name": "port",
@@ -250,7 +253,7 @@
             ],
             "optional": false,
             "defaultable": false,
-            "documentation": "The port used for establishing the connection"
+            "documentation": "The RabbitMQ server port used for establishing the connection."
         },
         {
             "name": "qosSettings",
@@ -260,7 +263,7 @@
             ],
             "optional": true,
             "defaultable": false,
-            "documentation": "The consumer prefetch settings",
+            "documentation": "The consumer prefetch settings.",
             "typeInfo": {
                 "name": "QosSettings",
                 "orgName": "ballerinax",
@@ -276,7 +279,7 @@
             ],
             "optional": true,
             "defaultable": false,
-            "documentation": "The connection data",
+            "documentation": "The connection data used for establishing the connection.",
             "typeInfo": {
                 "name": "ConnectionData",
                 "orgName": "ballerinax",
