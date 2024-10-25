@@ -87,7 +87,7 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
             try (JsonReader reader = new JsonReader(new InputStreamReader(propertiesStream, StandardCharsets.UTF_8))) {
                 triggers = new Gson().fromJson(reader, mapType);
             } catch (IOException e) {
-                triggers = Map.of();
+                // Ignore
             }
         }
         this.inBuiltTriggers = triggers;
