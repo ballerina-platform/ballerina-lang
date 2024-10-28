@@ -97,7 +97,6 @@ import static org.mockito.Mockito.when;
  *
  * @since 2.0.0
  */
-@Test(groups = "broken")
 public class PackageResolutionTests extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get(
             "src/test/resources/projects_for_resolution_tests").toAbsolutePath();
@@ -563,8 +562,8 @@ public class PackageResolutionTests extends BaseTest {
         if (os instanceof UnixOperatingSystemMXBean unixOperatingSystemMXBean) {
             initialOpenCount = unixOperatingSystemMXBean.getOpenFileDescriptorCount();
         }
-        Project project = TestUtils.loadProject(
-                Paths.get("projects_for_resolution_tests/ultimate_package_resolution/package_http"),
+        Project project = TestUtils.loadProject(tempResourceDir
+                        .resolve("ultimate_package_resolution/package_http"),
                 BuildOptions.builder().setOptimizeDependencyCompilation(optimizeDependencyCompilation).build());
 
         PackageCompilation compilation = project.currentPackage().getCompilation();
@@ -619,9 +618,11 @@ public class PackageResolutionTests extends BaseTest {
     }
 
     @Test (description = "Resolve a dependency from the local repo", dataProvider = "optimizeDependencyCompilation")
-    public void testResolveDependencyFromCustomRepo(boolean optimizeDependencyCompilation) {
+    public void testResolveDependencyFromCustomRepo(boolean optimizeDependencyCompilation) throws IOException {
         Path projectDirPath = tempResourceDir.resolve("package_b");
+        replaceDistributionVersionOfDependenciesToml(projectDirPath, RepoUtils.getBallerinaShortVersion());
         String dependencyContent = """
+                
                 [[dependency]]
                 org = "samjs"
                 name = "package_c"
@@ -636,14 +637,17 @@ public class PackageResolutionTests extends BaseTest {
         BuildProject project = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath, buildOptions);
 
         // 2) set local repository to dependency
-        project.currentPackage().dependenciesToml().orElseThrow().modify().withContent(dependencyContent).apply();
+        String currentContent = project.currentPackage().ballerinaToml().get()
+                .tomlDocument().textDocument().toString();
+        String updatedContent = currentContent.concat(dependencyContent);
+        project.currentPackage().ballerinaToml().orElseThrow().modify().withContent(updatedContent).apply();
 
         // 3) Compile and check the diagnostics
         PackageCompilation compilation = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
 
         // 4) The dependency is expected to load from distribution cache, hence zero diagnostics
-        Assert.assertEquals(diagnosticResult.errorCount(), 2);
+        Assert.assertEquals(diagnosticResult.errorCount(), 0);
     }
 
     // For this to be enabled, #31026 should be fixed.
@@ -774,8 +778,8 @@ public class PackageResolutionTests extends BaseTest {
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.diagnostics().forEach(OUT::println);
-        Assert.assertEquals(diagnosticResult.errorCount(), 4, "Unexpected compilation diagnostics");
-        Assert.assertEquals(diagnosticResult.warningCount(), 1, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.errorCount(), 3, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.warningCount(), 2, "Unexpected compilation diagnostics");
 
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
         Assert.assertTrue(diagnosticIterator.next().toString().contains(
@@ -784,8 +788,8 @@ public class PackageResolutionTests extends BaseTest {
         // Check dependency cannot be resolved diagnostic
         Assert.assertEquals(
                 diagnosticIterator.next().toString(),
-                "ERROR [Ballerina.toml:(21:12,21:21)] invalid 'repository' under [dependency]: 'repository' " +
-                        "can only have the value 'local'");
+                "WARNING [Ballerina.toml:(17:1,21:21)] Provided custom repository (invalid) cannot be found in the " +
+                        "Settings.toml. ");
         Assert.assertEquals(diagnosticIterator.next().toString(),
                             "ERROR [fee.bal:(1:1,1:16)] cannot resolve module 'ccc/ddd'");
         Assert.assertEquals(diagnosticIterator.next().toString(),
