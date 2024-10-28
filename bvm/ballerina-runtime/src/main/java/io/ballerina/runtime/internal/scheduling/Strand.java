@@ -44,20 +44,13 @@ public class Strand {
     private Map<String, Object> globalProps;
 
     public final boolean isIsolated;
+    public boolean cancelled;
     public Scheduler scheduler;
     public Strand parent;
     public TransactionLocalContext currentTrxContext;
     public Stack<TransactionLocalContext> trxContexts;
     public WorkerChannelMap workerChannelMap;
-    public boolean cancel;
     public int acquiredLockCount;
-
-    public Strand() {
-        this.id = -1;
-        this.name = null;
-        this.metadata = null;
-        this.isIsolated = false;
-    }
 
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent, boolean isIsolated,
                   Map<String, Object> properties, WorkerChannelMap workerChannelMap) {
@@ -96,23 +89,28 @@ public class Strand {
 
     public void resume() {
         checkStrandCancelled();
-        if (!isIsolated && !scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
-            scheduler.globalNonIsolatedLock.lock();
+        if (!this.isIsolated && !scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
+            this.scheduler.globalNonIsolatedLock.lock();
         }
     }
 
     public void yield() {
         checkStrandCancelled();
-        if (!isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
+        if (!this.isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
             scheduler.globalNonIsolatedLock.unlock();
         }
     }
 
     public void done() {
-        if (!isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
+        if (!this.isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
             scheduler.globalNonIsolatedLock.unlock();
         }
     }
+
+    public boolean isRunnable() {
+        return isIsolated || this.scheduler.globalNonIsolatedLock.isHeldByCurrentThread();
+    }
+
 
     private TransactionLocalContext createTrxContextBranch(TransactionLocalContext currentTrxContext,
                                                            int strandName) {
@@ -186,7 +184,7 @@ public class Strand {
     }
 
     public void checkStrandCancelled() {
-        if (cancel) {
+        if (this.cancelled) {
             throw ErrorUtils.createCancelledFutureError();
         }
     }

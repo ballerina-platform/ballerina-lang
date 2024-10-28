@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
+import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ClassPrepareEvent;
@@ -25,6 +26,8 @@ import com.sun.jdi.event.Event;
 import com.sun.jdi.event.EventIterator;
 import com.sun.jdi.event.EventSet;
 import com.sun.jdi.event.StepEvent;
+import com.sun.jdi.event.ThreadDeathEvent;
+import com.sun.jdi.event.ThreadStartEvent;
 import com.sun.jdi.event.VMDeathEvent;
 import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.EventRequest;
@@ -42,6 +45,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.ballerinalang.debugadapter.BreakpointProcessor.DynamicBreakpointMode;
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
@@ -56,6 +60,7 @@ public class JDIEventProcessor {
     private final BreakpointProcessor breakpointProcessor;
     private boolean isRemoteVmAttached = false;
     private final List<EventRequest> stepRequests = new ArrayList<>();
+    private static final List<ThreadReference> virtualThreads = new CopyOnWriteArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JDIEventProcessor.class);
 
     JDIEventProcessor(ExecutionContext context) {
@@ -69,6 +74,10 @@ public class JDIEventProcessor {
 
     List<EventRequest> getStepRequests() {
         return stepRequests;
+    }
+
+    List<ThreadReference> getVirtualThreads() {
+        return virtualThreads;
     }
 
     /**
@@ -121,6 +130,16 @@ public class JDIEventProcessor {
                 || event instanceof VMDeathEvent
                 || event instanceof VMDisconnectedException) {
             isRemoteVmAttached = false;
+        } else if (event instanceof ThreadStartEvent threadStartEvent) {
+            ThreadReference thread = threadStartEvent.thread();
+            if (thread.isVirtual()) {
+                virtualThreads.add(thread);
+            }
+            eventSet.resume();
+        } else if (event instanceof ThreadDeathEvent threadDeathEvent) {
+            ThreadReference thread = threadDeathEvent.thread();
+            virtualThreads.remove(thread);
+            eventSet.resume();
         } else {
             eventSet.resume();
         }

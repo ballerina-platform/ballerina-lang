@@ -39,18 +39,17 @@ import java.util.function.Supplier;
  */
 public class AsyncUtils {
 
-    public static Object handleNonIsolatedStrand(Strand strand, Supplier<Boolean> conditionSupplier,
-                                                 Supplier<?> resultSupplier) {
-        boolean waitDone = false;
-        while (!waitDone) {
-            try {
-                strand.yield();
-                waitDone = conditionSupplier.get();
-            } finally {
-                strand.resume();
-            }
+    public static Object handleNonIsolatedStrand(Strand strand, Supplier<?> resultSupplier) {
+        // This check required for non strand Threads.
+        boolean runnable = strand.isRunnable();
+        if (runnable) {
+            strand.yield();
         }
-        return resultSupplier.get();
+        Object result = resultSupplier.get();
+        if (runnable) {
+            strand.resume();
+        }
+        return result;
     }
 
     @SuppressWarnings("unused")
@@ -58,6 +57,7 @@ public class AsyncUtils {
      * Used for codegen wait for future.
      */
     public static Object handleWait(Strand strand, FutureValue future) {
+        future.strand.checkStrandCancelled();
         if (future.getAndSetWaited()) {
             return ErrorUtils.createWaitOnSameFutureError();
         }
@@ -68,7 +68,7 @@ public class AsyncUtils {
         if (strand.isIsolated) {
             return getFutureResult(completableFuture);
         }
-        return handleNonIsolatedStrand(strand, completableFuture::isDone, () -> getFutureResult(completableFuture));
+        return handleNonIsolatedStrand(strand, () -> getFutureResult(completableFuture));
     }
 
     @SuppressWarnings("unused")
@@ -79,6 +79,7 @@ public class AsyncUtils {
         CompletableFuture<?>[] cFutures = new CompletableFuture[futures.size()];
         for (int i = 0; i < futures.size(); i++) {
             FutureValue future = futures.get(i);
+            future.strand.checkStrandCancelled();
             if (future.getAndSetWaited()) {
                 return ErrorUtils.createWaitOnSameFutureError();
             }
@@ -98,6 +99,7 @@ public class AsyncUtils {
         List<String> alreadyWaitedKeys = new ArrayList<>();
         for (Map.Entry<String, FutureValue> entry : futureMap.entrySet()) {
             FutureValue future = entry.getValue();
+            future.strand.checkStrandCancelled();
             if (!future.getAndSetWaited()) {
                 cFutures.add(future.completableFuture);
             } else {
@@ -109,16 +111,7 @@ public class AsyncUtils {
             getAllFutureResult(futureMap, alreadyWaitedKeys, target);
         }
         handleNonIsolatedStrand(strand, () -> {
-            for (CompletableFuture<?> cFuture : cFutures) {
-                if (cFuture.isCompletedExceptionally()) {
-                    getFutureResult(cFuture);
-                }
-                if (!cFuture.isDone()) {
-                    return false;
-                }
-            }
-            return true;
-        }, () -> {
+            waitForAllFutureResult(cFutures.toArray(new CompletableFuture[0]));
             getAllFutureResult(futureMap, alreadyWaitedKeys, target);
             return null;
         });
@@ -129,14 +122,7 @@ public class AsyncUtils {
         if (strand.isIsolated) {
             result = getAnyFutureResult(cFutures);
         } else {
-            result = handleNonIsolatedStrand(strand, () -> {
-                for (CompletableFuture<?> completableFuture : cFutures) {
-                    if (completableFuture.isDone()) {
-                        return true;
-                    }
-                }
-                return false;
-            }, () -> getAnyFutureResult(cFutures));
+            result = handleNonIsolatedStrand(strand, () -> getAnyFutureResult(cFutures));
         }
 
         if (cFutures.length > 1 && result instanceof BError) {

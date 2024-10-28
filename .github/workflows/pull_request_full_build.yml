@@ -44,6 +44,7 @@ jobs:
         with:
           name: Ballerina Lang Artifacts
           path: ~/.m2/
+          include-hidden-files: true
 
     outputs:
       lang_version: ${{ steps.lang-version.outputs.version }}

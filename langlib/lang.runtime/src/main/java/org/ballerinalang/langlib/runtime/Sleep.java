@@ -46,12 +46,14 @@ public class Sleep {
         } else {
             delay = delayDecimal.longValue();
         }
-        env.markAsync();
-        try {
-            Thread.sleep(delay);
-        } catch (InterruptedException e) {
-            throw ErrorCreator.createError(StringUtils.fromString("error occurred during sleep"), e);
-        }
+        env.yieldAndRun(() -> {
+            try {
+                Thread.sleep(delay);
+                return null;
+            } catch (InterruptedException e) {
+                throw ErrorCreator.createError(StringUtils.fromString("error occurred during sleep"), e);
+            }
+        });
     }
 
     private Sleep() {

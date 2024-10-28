@@ -97,6 +97,11 @@ public abstract class ValueCreator {
         return runtimeValueCreators.get(key);
     }
 
+    public static void removeValueCreator(Module rootModule) {
+        String key = getLookupKey(rootModule, false);
+        runtimeValueCreators.remove(key);
+    }
+
     public Object call(Strand strand, String funcName, Object... args) throws BError {
         throw new ErrorValue(StringUtils.fromString("No such method: " + funcName));
     }

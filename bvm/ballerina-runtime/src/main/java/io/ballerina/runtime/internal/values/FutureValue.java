@@ -102,7 +102,10 @@
 
      @Override
      public void cancel() {
-         this.strand.cancel = true;
+         this.strand.cancelled = true;
+         if (this.strand.workerChannelMap != null) {
+             this.strand.workerChannelMap.cancel();
+         }
      }
 
      /**
