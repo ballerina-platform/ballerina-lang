@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
  * The node transformer class to get the list of module level components.
  */
 public class DocumentComponentTransformer extends NodeTransformer<Optional<MapperObject>> {
+
     private final ModuleObject module;
 
     DocumentComponentTransformer(ModuleObject moduleObject) {
@@ -83,6 +84,11 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
     public Optional<MapperObject> transform(ServiceDeclarationNode serviceDeclarationNode) {
         String name = serviceDeclarationNode.absoluteResourcePath().stream().map(node -> String.join("_",
                 node.toString())).collect(Collectors.joining());
+        if (name.isEmpty()) {
+            name = serviceDeclarationNode.typeDescriptor().map(typeDescriptorNode ->
+                    typeDescriptorNode.toSourceCode().strip()).orElse("");
+        }
+
         DataObject dataObject = createDataObject(name, serviceDeclarationNode);
         serviceDeclarationNode.members().forEach(member -> {
             if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
@@ -92,6 +98,10 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
                                 .map(Node::toSourceCode)
                                 .collect(Collectors.joining(""));
                 dataObject.addResource(createDataObject(resourceName, member));
+            } else if (member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
+                FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) member;
+                String functionName = functionDefinitionNode.functionName().text();
+                dataObject.addFunction(this.createDataObject(functionName, member));
             }
         });
         return Optional.of(new MapperObject(PackageServiceConstants.SERVICES, dataObject));
