@@ -86,4 +86,4 @@ EXAMPLES
            $ bal build <app-package-path>
 
        Build the package with additional GraalVM native image options.
-           $ bal build --graalvm --graalvm-build-options="--static -o <entire-file-path-with-name>"
+           $ bal build --graalvm --graalvm-build-options="--static --enable-monitoring"
