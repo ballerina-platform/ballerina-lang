@@ -117,6 +117,7 @@ public class PackageResolutionTests extends BaseTest {
         replaceDependenciesTomlVersion(tempResourceDir.resolve("package_n"));
         replaceDependenciesTomlVersion(tempResourceDir.resolve("package_p_withDep"));
         replaceDependenciesTomlVersion(tempResourceDir.resolve("package_p_withoutDep"));
+        replaceDependenciesTomlVersion(tempResourceDir.resolve("package_z"));
     }
 
     @Test(description = "tests resolution with zero direct dependencies")
@@ -873,6 +874,29 @@ public class PackageResolutionTests extends BaseTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+    }
+
+    @Test(description = "Resolve dependencies when a dependency has a hierarchical name and is specified in " +
+            "the Ballerina.toml and the Dependencies.toml of the dependent")
+    public void testDependencyWithHierrarchicalNameInDepTomlAndBalToml() {
+        Path projectDirPath = tempResourceDir.resolve("package_z");
+
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_zz_1_0_0");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_zz_1_0_2");
+
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(true);
+        BuildOptions buildOptions = buildOptionsBuilder.build();
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
+
+        PackageCompilation compilation = loadProject.currentPackage().getCompilation();
+
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
+        ResolvedPackageDependency packageO =
+                dependencyGraph.getNodes().stream().filter(
+                        node -> node.packageInstance().manifest().name().toString().equals("foo.bar")
+                ).findFirst().orElseThrow();
+        Assert.assertEquals(packageO.packageInstance().manifest().version().toString(), "1.0.0");
     }
 
     private void replaceDependenciesTomlVersion(Path projectPath) throws IOException {
