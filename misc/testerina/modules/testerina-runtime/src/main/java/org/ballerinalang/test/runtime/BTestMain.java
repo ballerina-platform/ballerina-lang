@@ -112,8 +112,8 @@ public class BTestMain {
                 } else {
                     br = Files.newBufferedReader(testSuiteJsonPath, StandardCharsets.UTF_8);
                 }
-                Object jsonObj = JsonUtils.parse(br, JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
-                BMap<BString, Object> testSuiteMap = (BMap<BString, Object>) jsonObj;
+                BMap<BString, Object> testSuiteMap = (BMap<BString, Object>) JsonUtils.parse(br,
+                        JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
                 if (!testSuiteMap.isEmpty()) {
                     for (Map.Entry<BString, Object> entry : testSuiteMap.entrySet()) {
                         String moduleName = entry.getKey().toString();
