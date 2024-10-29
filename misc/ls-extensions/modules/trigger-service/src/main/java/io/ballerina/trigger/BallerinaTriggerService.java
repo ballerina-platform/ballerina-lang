@@ -18,9 +18,11 @@
 
 package io.ballerina.trigger;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
 import io.ballerina.projects.Settings;
 import io.ballerina.trigger.entity.BallerinaTriggerListRequest;
 import io.ballerina.trigger.entity.BallerinaTriggerListResponse;
@@ -45,14 +47,14 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -70,14 +72,26 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
     public static final String BALLERINA = "ballerina";
     public static final String BALLERINAX = "ballerinax";
     private LanguageClient languageClient;
-    private static final Map<String, String> IN_BUILT_TRIGGERS = Map.of(
-        "10006", "ftp",
-        "10005", "jms",
-        "10004", "mqtt",
-        "10003", "nats",
-        "10002", "rabbitmq",
-        "10001", "kafka"
-    );
+    private final Map<String, InBuiltTrigger> inBuiltTriggers;
+
+    // Represents the in-built trigger basic information
+    public record InBuiltTrigger(String name, String orgName, String packageName, List<String> keywords) {
+    }
+
+    public BallerinaTriggerService() {
+        InputStream propertiesStream = getClass().getClassLoader()
+                .getResourceAsStream("inbuilt-triggers/properties.json");
+        Type mapType = new TypeToken<Map<String, InBuiltTrigger>>() {}.getType();
+        Map<String, InBuiltTrigger> triggers = Map.of();
+        if (propertiesStream != null) {
+            try (JsonReader reader = new JsonReader(new InputStreamReader(propertiesStream, StandardCharsets.UTF_8))) {
+                triggers = new Gson().fromJson(reader, mapType);
+            } catch (IOException e) {
+                // Ignore
+            }
+        }
+        this.inBuiltTriggers = triggers;
+    }
 
     @Override
     public void init(LanguageServer langServer, WorkspaceManager workspaceManager,
@@ -116,7 +130,14 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             BallerinaTriggerListResponse triggersList = new BallerinaTriggerListResponse();
             try {
-                triggersList.addInBuiltTriggers(getInBuiltTriggers());
+                List<Trigger> inBuiltTriggers = getInBuiltTriggers(request);
+                triggersList.addInBuiltTriggers(inBuiltTriggers);
+                if (request.getLimit() > 0) {
+                    if (inBuiltTriggers.size() == request.getLimit()) {
+                        return triggersList;
+                    }
+                    request.setLimit(request.getLimit() - inBuiltTriggers.size());
+                }
                 Settings settings = RepoUtils.readSettings();
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                         initializeProxy(settings.getProxy()), settings.getProxy().username(),
@@ -150,10 +171,10 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
     public CompletableFuture<JsonObject> triggerNew(BallerinaTriggerRequest request) {
         return CompletableFuture.supplyAsync(() -> {
             if (expectsTriggerByName(request)) {
-                return getInBuiltTrigger(request.getPackageName()).orElseGet(JsonObject::new);
+                return getInBuiltTriggerJson(request.getPackageName()).orElseGet(JsonObject::new);
             }
             if (request.getTriggerId() != null) {
-                Optional<JsonObject> trigger = getInBuiltTriggerById(request.getTriggerId());
+                Optional<JsonObject> trigger = getInBuiltTriggerJsonById(request.getTriggerId());
                 if (trigger.isPresent()) {
                     return trigger.get();
                 }
@@ -201,37 +222,59 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
         return Constants.CAPABILITY_NAME;
     }
 
-    private List<Trigger> getInBuiltTriggers() {
-        return IN_BUILT_TRIGGERS.values().stream()
-                .map(this::getInBuiltTriggerInfo)
+    private List<Trigger> getInBuiltTriggers(BallerinaTriggerListRequest request) {
+        return inBuiltTriggers.values().stream()
+                .filter(inBuiltTrigger -> filterInBuiltTriggers(inBuiltTrigger, request))
+                .map(inBuiltTrigger -> getInBuiltTrigger(inBuiltTrigger.name()))
                 .flatMap(Optional::stream)
-                .map(s -> new Gson().fromJson(s, Trigger.class))
+                .limit(request.getLimit() > 0 ? request.getLimit() : Long.MAX_VALUE)
                 .toList();
     }
 
-    private Optional<JsonObject> getInBuiltTriggerById(String triggerId) {
-        if (!IN_BUILT_TRIGGERS.containsKey(triggerId)) {
-            return Optional.empty();
-        }
-        return getInBuiltTrigger(IN_BUILT_TRIGGERS.get(triggerId));
+    private boolean filterInBuiltTriggers(InBuiltTrigger inBuiltTrigger, BallerinaTriggerListRequest request) {
+        return (request.getOrganization() == null || request.getOrganization().equals(inBuiltTrigger.orgName())) &&
+                (request.getPackageName() == null || request.getPackageName().equals(inBuiltTrigger.packageName())) &&
+                (request.getKeyword() == null || inBuiltTrigger.keywords().stream()
+                        .anyMatch(keyword -> keyword.equalsIgnoreCase(request.getKeyword()))) &&
+                (request.getQuery() == null || inBuiltTrigger.keywords().stream()
+                        .anyMatch(keyword -> keyword.contains(request.getQuery())));
     }
 
-    private Optional<JsonObject> getInBuiltTrigger(String triggerName) {
-        return getInBuiltTriggerInfo(triggerName)
-                .map(s -> new Gson().fromJson(s, JsonObject.class));
-    }
-
-    private Optional<String> getInBuiltTriggerInfo(String triggerName) {
-        URL triggerURL = BallerinaTriggerService.class.getClassLoader()
-                .getResource("inbuilt-triggers/" + triggerName + ".json");
-        if (triggerURL == null) {
+    private Optional<Trigger> getInBuiltTrigger(String triggerName) {
+        InputStream resourceStream = getClass().getClassLoader().getResourceAsStream(String.format("inbuilt-triggers/%s.json", triggerName));
+        if (resourceStream == null) {
             String msg = String.format("Trigger info file not found for the trigger: %s", triggerName);
             this.languageClient.logMessage(new MessageParams(MessageType.Error, msg));
             return Optional.empty();
         }
 
-        try {
-            return Optional.of(Files.readString(Path.of(triggerURL.getPath())));
+        try (JsonReader reader = new JsonReader(new InputStreamReader(resourceStream, StandardCharsets.UTF_8))) {
+            return Optional.of(new Gson().fromJson(reader, Trigger.class));
+        } catch (IOException e) {
+            String msg = String.format("Error occurred while reading the trigger info file for the trigger: %s",
+                    triggerName);
+            this.languageClient.logMessage(new MessageParams(MessageType.Error, msg));
+            return Optional.empty();
+        }
+    }
+
+    private Optional<JsonObject> getInBuiltTriggerJsonById(String triggerId) {
+        if (!inBuiltTriggers.containsKey(triggerId)) {
+            return Optional.empty();
+        }
+        return getInBuiltTriggerJson(inBuiltTriggers.get(triggerId).name());
+    }
+
+    private Optional<JsonObject> getInBuiltTriggerJson(String triggerName) {
+        InputStream resourceStream = getClass().getClassLoader().getResourceAsStream(String.format("inbuilt-triggers/%s.json", triggerName));
+        if (resourceStream == null) {
+            String msg = String.format("Trigger info file not found for the trigger: %s", triggerName);
+            this.languageClient.logMessage(new MessageParams(MessageType.Error, msg));
+            return Optional.empty();
+        }
+
+        try (JsonReader reader = new JsonReader(new InputStreamReader(resourceStream, StandardCharsets.UTF_8))) {
+            return Optional.of(new Gson().fromJson(reader, JsonObject.class));
         } catch (IOException e) {
             String msg = String.format("Error occurred while reading the trigger info file for the trigger: %s",
                     triggerName);

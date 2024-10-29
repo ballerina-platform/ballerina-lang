@@ -1,9 +1,9 @@
 {
   "id": 10005,
-  "name": "JMS Event Listener",
+  "name": "JMS Service",
   "type": "inbuilt",
   "displayName": "JMS",
-  "documentation": "This Listener can be used to listen to JMS messages from a JMS broker.",
+  "documentation": "The JMS service can be attached to a JMS listener which listens to messages from a JMS broker. The service should implement the `OnMessage` remote method to process the received messages. Additionally, the service can implement the `OnError` remote method to handle errors that occur during message processing.",
   "moduleName": "java.jms",
   "listenerProtocol": "jms",
   "displayAnnotation": {
@@ -61,7 +61,7 @@
       "functions": [
         {
           "name": "OnMessage",
-          "documentation": "The function which will be triggered when a message is received from the JMS broker",
+          "documentation": "The `OnMessage` remote method will be triggered when a message is received from the JMS broker.",
           "optional": false,
           "qualifiers": [
             "remote"
@@ -79,7 +79,8 @@
                 "orgName": "ballerinax",
                 "moduleName": "java.jms",
                 "version": "1.0.1"
-              }
+              },
+              "documentation": "The message received from the JMS broker"
             },
             {
               "name": "caller",
@@ -94,7 +95,7 @@
                 "version": "1.0.1"
               },
               "optional": true,
-              "documentation": "Caller object"
+              "documentation": "The JMS caller object to acknowledge the message"
             }
           ],
           "returnType": {
@@ -103,13 +104,13 @@
               "error?"
             ],
             "optional": true,
-            "documentation": "Error object",
+            "documentation": "Error object.",
             "defaultTypeName": "error?"
           }
         },
         {
           "name": "OnError",
-          "documentation": "The function which will be triggered when an error occurs",
+          "documentation": "The `OnError` remote method will be triggered when an error occurs during message processing.",
           "optional": true,
           "qualifiers": [
             "remote"
@@ -128,7 +129,7 @@
                 "moduleName": "java.jms",
                 "version": "1.0.1"
               },
-              "documentation": "Error object"
+              "documentation": "The error occurred during message processing"
             }
           ],
           "returnType": {
@@ -137,7 +138,7 @@
               "error?"
             ],
             "optional": true,
-            "documentation": "Error object",
+            "documentation": "Error object.",
             "defaultTypeName": "error?"
           }
         }
@@ -159,7 +160,7 @@
         "moduleName": "java.jms",
         "version": "1.0.1"
       },
-      "documentation": "Message listener configurations"
+      "documentation": "JMS listener configurations"
     }
   ]
 }

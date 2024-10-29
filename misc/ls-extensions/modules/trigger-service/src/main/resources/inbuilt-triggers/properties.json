@@ -1,0 +1,67 @@
+{
+  "10001": {
+    "name": "kafka",
+    "orgName": "ballerinax",
+    "packageName": "kafka",
+    "keywords": [
+      "kafka",
+      "event streaming",
+      "network",
+      "messaging"
+    ]
+  },
+  "10002": {
+    "name": "rabbitmq",
+    "orgName": "ballerinax",
+    "packageName": "rabbitmq",
+    "keywords": [
+      "service",
+      "messaging",
+      "network"
+    ]
+  },
+  "10003": {
+    "name": "nats",
+    "orgName": "ballerinax",
+    "packageName": "nats",
+    "keywords": [
+      "service",
+      "messaging",
+      "network"
+    ]
+  },
+  "10004": {
+    "name": "mqtt",
+    "orgName": "ballerina",
+    "packageName": "mqtt",
+    "keywords": [
+      "mqtt",
+      "messaging",
+      "network",
+      "iot"
+    ]
+  },
+  "10005": {
+    "name": "jms",
+    "orgName": "ballerinax",
+    "packageName": "java.jms",
+    "keywords": [
+      "jms",
+      "java",
+      "messaging",
+      "network"
+    ]
+  },
+  "10006": {
+    "name": "ftp",
+    "orgName": "ballerina",
+    "packageName": "ftp",
+    "keywords": [
+      "FTP",
+      "SFTP",
+      "remote file",
+      "file",
+      "service"
+    ]
+  }
+}
