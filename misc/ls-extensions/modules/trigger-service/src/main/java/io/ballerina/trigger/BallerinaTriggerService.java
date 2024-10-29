@@ -104,17 +104,7 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             BallerinaTriggerListResponse triggersList = new BallerinaTriggerListResponse();
             try {
-                Settings settings = RepoUtils.readSettings();
-                CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                        initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                        settings.getProxy().password(), getAccessTokenOfCLI(settings),
-                        settings.getCentral().getConnectTimeout(),
-                        settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                        settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
-                JsonElement triggerSearchResult = client.getTriggers(request.getQueryMap(),
-                        "any", RepoUtils.getBallerinaVersion());
-                CentralTriggerListResult centralTriggerListResult = new Gson().fromJson(
-                        triggerSearchResult.getAsString(), CentralTriggerListResult.class);
+                CentralTriggerListResult centralTriggerListResult = getCentralTriggerListResult(request);
                 triggersList.setCentralTriggers(centralTriggerListResult.getTriggers());
                 return triggersList;
             } catch (CentralClientException | SettingsTomlException e) {
@@ -138,17 +128,7 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
                     }
                     request.setLimit(request.getLimit() - inBuiltTriggers.size());
                 }
-                Settings settings = RepoUtils.readSettings();
-                CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                        initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                        settings.getProxy().password(), getAccessTokenOfCLI(settings),
-                        settings.getCentral().getConnectTimeout(),
-                        settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                        settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
-                JsonElement triggerSearchResult = client.getTriggers(request.getQueryMap(),
-                        "any", RepoUtils.getBallerinaVersion());
-                CentralTriggerListResult centralTriggerListResult = new Gson().fromJson(
-                        triggerSearchResult.getAsString(), CentralTriggerListResult.class);
+                CentralTriggerListResult centralTriggerListResult = getCentralTriggerListResult(request);
                 triggersList.addCentralTriggers(centralTriggerListResult.getTriggers());
                 return triggersList;
             } catch (CentralClientException | SettingsTomlException e) {
@@ -171,7 +151,7 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
     public CompletableFuture<JsonObject> triggerNew(BallerinaTriggerRequest request) {
         return CompletableFuture.supplyAsync(() -> {
             if (expectsTriggerByName(request)) {
-                return getInBuiltTriggerJson(request.getPackageName()).orElseGet(JsonObject::new);
+                return getTriggerByName(request).orElseGet(JsonObject::new);
             }
             if (request.getTriggerId() != null) {
                 Optional<JsonObject> trigger = getInBuiltTriggerJsonById(request.getTriggerId());
@@ -186,8 +166,48 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
     }
 
     private static boolean expectsTriggerByName(BallerinaTriggerRequest request) {
-        return request.getTriggerId() == null && request.getOrgName() != null && request.getPackageName() != null
-                && (request.getOrgName().trim().equals(BALLERINA) || request.getOrgName().equals(BALLERINAX));
+        return request.getTriggerId() == null && request.getOrgName() != null && request.getPackageName() != null;
+    }
+
+    private Optional<JsonObject> getTriggerByName(BallerinaTriggerRequest request) {
+        Optional<JsonObject> inBuiltTrigger = getInBuiltTriggerJson(request.getPackageName());
+        if (inBuiltTrigger.isPresent()) {
+            return inBuiltTrigger;
+        }
+
+        BallerinaTriggerListRequest triggerListRequest = new BallerinaTriggerListRequest();
+        triggerListRequest.setPackageName(request.getPackageName());
+        triggerListRequest.setOrganization(request.getOrgName());
+        BallerinaTriggerListResponse triggersList = new BallerinaTriggerListResponse();
+        try {
+            CentralTriggerListResult centralTriggerListResult = getCentralTriggerListResult(triggerListRequest);
+            triggersList.addCentralTriggers(centralTriggerListResult.getTriggers());
+            if (triggersList.getCentralTriggers().isEmpty()) {
+                return Optional.empty();
+            }
+            request.setId(triggersList.getCentralTriggers().get(0).id);
+            return getTriggerFromCentral(request);
+        } catch (CentralClientException | SettingsTomlException e) {
+            String msg = "Operation 'ballerinaTrigger/triggers' failed!";
+            this.languageClient.logMessage(new MessageParams(MessageType.Error, msg));
+            return Optional.empty();
+        }
+    }
+
+    private static CentralTriggerListResult getCentralTriggerListResult(BallerinaTriggerListRequest triggerListRequest)
+            throws SettingsTomlException, CentralClientException {
+        Settings settings = RepoUtils.readSettings();
+        CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                settings.getCentral().getConnectTimeout(),
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
+        JsonElement triggerSearchResult = client.getTriggers(triggerListRequest.getQueryMap(),
+                "any", RepoUtils.getBallerinaVersion());
+        CentralTriggerListResult centralTriggerListResult = new Gson().fromJson(
+                triggerSearchResult.getAsString(), CentralTriggerListResult.class);
+        return centralTriggerListResult;
     }
 
     private Optional<JsonObject> getTriggerFromCentral(BallerinaTriggerRequest request) {
@@ -266,6 +286,10 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
     }
 
     private Optional<JsonObject> getInBuiltTriggerJson(String triggerName) {
+        if (inBuiltTriggers.values().stream()
+                .noneMatch(inBuiltTrigger -> inBuiltTrigger.packageName().equals(triggerName))) {
+            return Optional.empty();
+        }
         InputStream resourceStream = getClass().getClassLoader().getResourceAsStream(String.format("inbuilt-triggers/%s.json", triggerName));
         if (resourceStream == null) {
             String msg = String.format("Trigger info file not found for the trigger: %s", triggerName);
