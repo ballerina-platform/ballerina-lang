@@ -39,6 +39,7 @@ import io.ballerina.types.definition.ObjectDefinition;
 import io.ballerina.types.definition.ObjectQualifiers;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
+import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.Range;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -144,6 +145,7 @@ import java.util.Set;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static io.ballerina.types.BasicTypeCode.BT_OBJECT;
 import static io.ballerina.types.Core.combineRanges;
+import static io.ballerina.types.Core.isSubtypeSimple;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -324,12 +326,14 @@ public class Types {
         if (type.tag == TypeTags.SEMANTIC_ERROR) {
             return false;
         }
-
-        return SemTypeHelper.isSubtype(semTypeCtx, type, PredefinedType.XML) || isLaxType(type);
+        return isLaxFieldAccessAllowed(type.semType());
     }
 
-    private boolean isLaxType(BType type) {
-        return isLaxType(type.semType());
+    public boolean isLaxFieldAccessAllowed(SemType t) {
+        if (Core.isNever(t)) {
+            return false;
+        }
+        return isSubtypeSimple(t, PredefinedType.XML) || isLaxType(t);
     }
 
     /**
@@ -709,8 +713,8 @@ public class Types {
         return BUnionType.create(typeEnv(), null, typeFirst, typeSecond);
     }
 
-    public boolean isSubTypeOfMapping(BType bType) {
-        return SemTypeHelper.isSubtypeSimpleNotNever(bType, PredefinedType.MAPPING);
+    public boolean isSubTypeOfMapping(SemType s) {
+        return SemTypes.isSubtypeSimpleNotNever(s, PredefinedType.MAPPING);
     }
 
     public boolean isSubTypeOfBaseType(BType bType, BasicTypeBitSet bbs) {
@@ -2384,8 +2388,8 @@ public class Types {
                                                                                           getAllTypes(remainingType,
                                                                                                       true)));
                 if (typeRemovedFromOriginalUnionType == symTable.nullSet ||
-                        isSubTypeOfReadOnly(typeRemovedFromOriginalUnionType, env) ||
-                        isSubTypeOfReadOnly(remainingType, env) ||
+                        isSubTypeOfReadOnly(typeRemovedFromOriginalUnionType) ||
+                        isSubTypeOfReadOnly(remainingType) ||
                         narrowsToUnionOfImmutableTypesOrDistinctBasicTypes(remainingType, typeToRemove, env)) {
                     return remainingType;
                 }
@@ -2430,10 +2434,12 @@ public class Types {
         return originalType;
     }
 
-    public boolean isSubTypeOfReadOnly(BType type, SymbolEnv env) {
-        return isInherentlyImmutableType(type) ||
-                (isSelectivelyImmutableType(type, env.enclPkg.packageID) &&
-                        Symbols.isFlagOn(type.getFlags(), Flags.READONLY));
+    public boolean isSubTypeOfReadOnly(SemType t) {
+        return isSubtype(t, PredefinedType.VAL_READONLY);
+    }
+
+    public boolean isSubTypeOfReadOnly(BType type) {
+        return isSubTypeOfReadOnly(type.semType());
     }
 
     private boolean isClosedRecordTypes(BType type) {
@@ -2573,7 +2579,7 @@ public class Types {
 
         for (BType type : types) {
             BType referredType = getImpliedType(type);
-            if (!isSubTypeOfReadOnly(referredType, env)) {
+            if (!isSubTypeOfReadOnly(referredType)) {
                 remainingMemberTypes.add(referredType);
             }
         }
@@ -3280,6 +3286,18 @@ public class Types {
         return ft;
     }
 
+    public SemType getNilLiftType(SemType t) {
+        return Core.diff(t, PredefinedType.NIL);
+    }
+
+    public SemType getErrorLiftType(SemType t) {
+        return Core.diff(t, PredefinedType.ERROR);
+    }
+
+    public SemType getNilAndErrorLiftType(SemType t) {
+        return Core.diff(t, Core.union(PredefinedType.NIL, PredefinedType.ERROR));
+    }
+
     public BType getSafeType(BType bType, boolean liftNil, boolean liftError) {
         BType type = getImpliedType(bType);
         // Since JSON, ANY and ANYDATA by default contain null, we need to create a new respective type which
@@ -3840,7 +3858,15 @@ public class Types {
     }
 
     public boolean isFixedLengthTuple(BTupleType bTupleType) {
-        return bTupleType.restType == null || isNeverTypeOrStructureTypeWithARequiredNeverMember(bTupleType.restType);
+        return isFixedLengthList(bTupleType);
+    }
+
+    public boolean isFixedLengthList(BType type) {
+        // Using int:MIN_VALUE to project the rest type.
+        // This checks the type of effectively infinite list member, which should be the rest type.
+        SemType rest = Core.listMemberTypeInnerVal(semTypeCtx, type.semType(),
+                IntSubtype.intConst(Long.MAX_VALUE));
+        return Core.isNever(rest);
     }
 
     public boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {

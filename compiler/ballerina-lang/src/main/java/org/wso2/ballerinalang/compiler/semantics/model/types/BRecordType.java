@@ -179,8 +179,8 @@ public class BRecordType extends BStructureType implements RecordType {
             SemType ty = bType.semType();
             if (ty == null || NEVER.equals(ty)) {
                 if (!optional) {
-                    // if there is a non-optional field with `never` type(BType Component + SemType Component),
-                    // it is not possible to create a value. Hence, the whole record type is considered as `never`.
+                    // if there is a non-optional field with `never` type, it is not possible to create a value.
+                    // Hence, the whole record type is considered as `never`.
                     md.setSemTypeToNever();
                     return NEVER;
                 }

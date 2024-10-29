@@ -1247,7 +1247,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private void validateMapConfigVariable(String configKey, BVarSymbol variable, Map<String, PackageID> configKeys) {
-        if (configKeys.containsKey(configKey) && types.isSubTypeOfMapping(variable.type)) {
+        if (configKeys.containsKey(configKey) && types.isSubTypeOfMapping(variable.type.semType())) {
             dlog.error(variable.pos, DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MODULE_AMBIGUITY,
                     variable.name.value, configKeys.get(configKey));
         }

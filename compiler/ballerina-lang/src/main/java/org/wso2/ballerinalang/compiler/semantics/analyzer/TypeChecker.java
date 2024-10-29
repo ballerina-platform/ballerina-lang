@@ -4282,33 +4282,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return true;
     }
 
-    private boolean isFixedLengthList(BType type) {
-        type = Types.getImpliedType(type);
-        switch(type.tag) {
-            case TypeTags.ARRAY:
-                return (((BArrayType) type).state != BArrayState.OPEN);
-            case TypeTags.TUPLE:
-                return (((BTupleType) type).restType == null);
-            case TypeTags.UNION:
-                BUnionType unionType = (BUnionType) type;
-                for (BType member : unionType.getMemberTypes()) {
-                    if (!isFixedLengthList(member)) {
-                        return false;
-                    }
-                }
-                return true;
-            default:
-                return false;
-        }
-    }
-
     private void checkIllegalStorageSizeChangeMethodCall(BLangInvocation iExpr, BType varRefType, AnalyzerData data) {
         String invocationName = iExpr.name.getValue();
         if (!LIST_LENGTH_MODIFIER_FUNCTIONS.contains(invocationName)) {
             return;
         }
 
-        if (isFixedLengthList(varRefType)) {
+        if (types.isFixedLengthList(varRefType)) {
             dlog.error(iExpr.name.pos, DiagnosticErrorCode.ILLEGAL_FUNCTION_CHANGE_LIST_SIZE, invocationName,
                        varRefType);
             data.resultType = symTable.semanticError;
@@ -6566,7 +6546,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (rhsType == symTable.semanticError) {
             rhsType = getCandidateType(checkedExpr, rhsType, data);
         }
-        BType candidateLaxType = getCandidateLaxType(checkedExpr.expr, rhsType);
+        SemType candidateLaxType = getCandidateLaxType(checkedExpr.expr, rhsType);
         if (!types.isLaxFieldAccessAllowed(candidateLaxType)) {
             return;
         }
@@ -6583,11 +6563,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         checkedExpr.expr = invocation;
     }
 
-    private BType getCandidateLaxType(BLangNode expr, BType rhsType) {
+    private SemType getCandidateLaxType(BLangNode expr, BType rhsType) {
+        SemType t = rhsType.semType();
         if (expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-            return types.getSafeType(rhsType, false, true);
+            return types.getErrorLiftType(t);
         }
-        return rhsType;
+        return t;
     }
 
     private BType getCandidateType(BLangCheckedExpr checkedExpr, BType checkExprCandidateType, AnalyzerData data) {
@@ -8782,7 +8763,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     varRefType = nilRemovedSet.size() == 1 ? nilRemovedSet.iterator().next() :
                             BUnionType.create(symTable.typeEnv(), null, nilRemovedSet);
 
-                    if (!types.isSubTypeOfMapping(varRefType)) {
+                    if (!types.isSubTypeOfMapping(varRefType.semType())) {
                         // Member access is allowed on optional types only with mappings.
                         dlog.error(indexBasedAccessExpr.pos,
                                 DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS,
@@ -8807,7 +8788,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (varRefType == symTable.semanticError) {
             indexBasedAccessExpr.indexExpr.setBType(symTable.semanticError);
             return symTable.semanticError;
-        } else if (types.isSubTypeOfMapping(varRefType)) {
+        } else if (types.isSubTypeOfMapping(varRefType.semType())) {
             checkExpr(indexExpr, symTable.stringType, data);
 
             if (indexExpr.getBType() == symTable.semanticError) {
