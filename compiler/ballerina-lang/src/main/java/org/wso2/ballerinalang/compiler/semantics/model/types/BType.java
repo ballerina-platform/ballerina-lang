@@ -156,6 +156,13 @@ public class BType implements ValueType {
 
     public void addFlags(long flags) {
         this.flags |= flags;
+        this.resetSemType();
+    }
+
+    /**
+     * When the type is mutated we need to reset resolved semType.
+     */
+    public void resetSemType() {
     }
 
     /**

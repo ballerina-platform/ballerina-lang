@@ -3806,7 +3806,8 @@ public class Types {
     public boolean isSubTypeOfReadOnlyOrIsolatedObjectUnion(BType bType) {
         ObjectQualifiers quals = new ObjectQualifiers(true, false, ObjectQualifiers.NetworkQualifier.None);
         SemType isolatedObjTy = new ObjectDefinition().define(typeEnv(), quals, new ArrayList<>(0));
-        return SemTypeHelper.isSubtype(semTypeCtx, bType, SemTypes.union(PredefinedType.VAL_READONLY, isolatedObjTy));
+        return SemTypes.isSubtype(semTypeCtx, bType.semType(),
+                SemTypes.union(PredefinedType.VAL_READONLY, isolatedObjTy));
     }
 
     private boolean isImmutable(BType type) {

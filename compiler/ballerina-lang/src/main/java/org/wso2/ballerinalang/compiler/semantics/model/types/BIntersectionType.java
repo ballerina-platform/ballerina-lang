@@ -134,6 +134,13 @@ public class BIntersectionType extends BType implements IntersectionType {
         return this.effectiveType;
     }
 
+    /**
+     * When the type is mutated we need to reset resolved semType.
+     */
+    public void resetSemType() {
+        this.semType = null;
+    }
+
     @Override
     public SemType semType() {
         // We have to recalculate this everytime since the actual BTypes inside constituent types do mutate and we

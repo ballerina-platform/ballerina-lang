@@ -494,7 +494,7 @@ public class BUnionType extends BType implements UnionType {
         }
 
         this.memberSemTypes = memberSemTypes;
-        this.semType = null; // reset cached sem-type if exists
+        this.resetSemType();
     }
 
     private void populateMemberSemTypes(BType memberType, LinkedHashSet<SemType> memberSemTypes,
@@ -515,6 +515,13 @@ public class BUnionType extends BType implements UnionType {
         if (!Core.isNever(s)) {
             memberSemTypes.add(s);
         }
+    }
+
+    /**
+     * When the type is mutated we need to reset resolved semType.
+     */
+    public void resetSemType() {
+        this.semType = null;
     }
 
     @Override

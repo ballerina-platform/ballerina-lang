@@ -105,6 +105,14 @@ public class BObjectType extends BStructureType implements ObjectType {
         return fields.values().stream().anyMatch(field -> field.type instanceof BNoType);
     }
 
+    /**
+     * When the type is mutated we need to reset the definition used for the semType.
+     */
+    @Override
+    public void resetSemType() {
+        od = null;
+    }
+
     @Override
     public SemType semType() {
         return distinctIdWrapper(semTypeInner());

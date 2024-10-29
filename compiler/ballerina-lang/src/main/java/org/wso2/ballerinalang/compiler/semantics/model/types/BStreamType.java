@@ -78,6 +78,14 @@ public class BStreamType extends BBuiltInRefType implements StreamType {
         visitor.visit(this);
     }
 
+    /**
+     * When the type is mutated we need to reset the definition used for the semType.
+     */
+    @Override
+    public void resetSemType() {
+        d = null;
+    }
+
     @Override
     public SemType semType() {
         if (constraint == null || constraint instanceof BNoType) {
