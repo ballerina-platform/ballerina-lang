@@ -97,6 +97,14 @@ public class ProjectPathsTest {
         Files.createFile(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module3")
                 .resolve(ProjectConstants.TEST_DIR_NAME).resolve("gen_test_mod3.bal"));
 
+        // Create a tool specification file
+        Files.createDirectories(buildProjectPath.resolve(ProjectConstants.PERSIST_DIR_NAME));
+        Files.createFile(buildProjectPath.resolve(ProjectConstants.PERSIST_DIR_NAME).resolve("model.bal"));
+
+        // Create a file that isn't a tool specification file
+        Files.createDirectories(buildProjectPath.resolve("invalid-tool"));
+        Files.createFile(buildProjectPath.resolve("invalid-tool").resolve("model.bal"));
+
         // Create a bala project
         balaProjectPath = tempDir.resolve("testBalaProj");
         Files.createDirectories(balaProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("mod1"));
@@ -145,6 +153,18 @@ public class ProjectPathsTest {
         Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
                 .resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module3")
                 .resolve(ProjectConstants.TEST_DIR_NAME).resolve("gen_test_mod3.bal")), buildProjectPath);
+
+        // test package root of tool specification file
+        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
+                .resolve(ProjectConstants.PERSIST_DIR_NAME).resolve("model.bal")), buildProjectPath);
+        Path invalidToolSpecPath = buildProjectPath.resolve("invalid-tool").resolve("model.bal");
+        try {
+            ProjectPaths.packageRoot(invalidToolSpecPath);
+            Assert.fail("Expected ProjectException was not thrown");
+        } catch (ProjectException e) {
+            Assert.assertEquals(e.getMessage(), "provided file path does not belong to a Ballerina package: " +
+                    invalidToolSpecPath);
+        }
     }
 
     @Test
@@ -257,6 +277,25 @@ public class ProjectPathsTest {
         boolean standaloneBalFile = ProjectPaths.isStandaloneBalFile(tempStandAloneFileInTmpDir);
         Files.deleteIfExists(ballerinaToml);
         Assert.assertFalse(standaloneBalFile);
+    }
+
+    @Test
+    public void testIsToolSpecificationBalFile() {
+        Assert.assertTrue(ProjectPaths.isToolSpecificationBalFile(buildProjectPath
+                .resolve(ProjectConstants.PERSIST_DIR_NAME).resolve("model.bal")));
+        Assert.assertFalse(ProjectPaths.isToolSpecificationBalFile(buildProjectPath
+                .resolve("invalid-tool").resolve("model.bal")));
+        Assert.assertFalse(ProjectPaths.isToolSpecificationBalFile(buildProjectPath.resolve("main.bal")));
+        Assert.assertFalse(ProjectPaths.isToolSpecificationBalFile(buildProjectPath.resolve("Ballerina.toml")));
+        Assert.assertFalse(ProjectPaths.isToolSpecificationBalFile(
+                buildProjectPath.resolve(ProjectConstants.TEST_DIR_NAME).resolve("main_test.bal")));
+        Assert.assertFalse(ProjectPaths.isToolSpecificationBalFile(tempStandAloneFileInTmpDir));
+        Assert.assertFalse(ProjectPaths.isToolSpecificationBalFile(
+                buildProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("module1/main.bal")));
+        Assert.assertFalse(ProjectPaths.isToolSpecificationBalFile(
+                buildProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("module1")
+                        .resolve(ProjectConstants.TEST_DIR_NAME).resolve("main_test.bal")));
+        Assert.assertFalse(ProjectPaths.isToolSpecificationBalFile(tempDir.resolve("test.bal")));
     }
 
     @AfterClass (alwaysRun = true)

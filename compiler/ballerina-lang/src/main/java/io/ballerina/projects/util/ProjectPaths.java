@@ -113,6 +113,10 @@ public final class ProjectPaths {
                 Path modulesRoot = Optional.of(Optional.of(testsRoot.getParent()).get().getParent()).get();
                 return modulesRoot.getParent();
             }
+            // check if the file is a source file used to define a specification
+            if (isToolSpecificationBalFile(filepath)) {
+                return Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
+            }
         } else {
             // check if the file is a source file in a bala project
             if (isBalaProjectSrcFile(filepath)) {
@@ -289,6 +293,29 @@ public final class ProjectPaths {
         }
 
         return true;
+    }
+
+    /**
+     * Checks if the provided path is a source file used to define a specification for a tool.
+     *
+     * @param filePath path to bal filepath
+     * @return true if the filepath is tool specification bal file
+     */
+    public static boolean isToolSpecificationBalFile(Path filePath) {
+        Path absFilePath = filePath.toAbsolutePath().normalize();
+        if (!isBalFile(absFilePath)) {
+            return false;
+        }
+        Path toolDirPath = absFilePath.getParent();
+        if (toolDirPath == null) {
+            return false;
+        }
+        Path projectRoot = toolDirPath.getParent();
+        // if there are multiple directories dedicated for tools in the future,
+        // we should check if the toolDir is one of them. But for now, its only `persist`.
+        return  projectRoot != null
+                && ProjectConstants.PERSIST_DIR_NAME.equals(toolDirPath.toFile().getName())
+                && hasBallerinaToml(projectRoot);
     }
 
     static boolean isDefaultModuleSrcFile(Path filePath) {

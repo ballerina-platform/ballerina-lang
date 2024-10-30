@@ -71,6 +71,8 @@ public final class ProjectConstants {
     public static final String IMPORT_PREFIX = "import ";
     public static final String EMPTY_STRING = "";
 
+    public static final String PERSIST_DIR_NAME = "persist";
+
     // Bala specific constants
     public static final String MODULES_ROOT = "modules";
     public static final String GENERATED_MODULES_ROOT = "generated";
