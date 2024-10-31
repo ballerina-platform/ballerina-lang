@@ -101,7 +101,7 @@ public class JDIEventProcessor {
 
     private void processEvent(EventSet eventSet, Event event) {
         if (event instanceof ClassPrepareEvent evt) {
-            if (context.getLastInstruction() != DebugInstruction.STEP_OVER) {
+            if (context.getPrevInstruction() != DebugInstruction.STEP_OVER) {
                 breakpointProcessor.activateUserBreakPoints(evt.referenceType(), true);
             }
             eventSet.resume();
@@ -136,9 +136,7 @@ public class JDIEventProcessor {
     }
 
     void sendStepRequest(int threadId, int stepType) {
-        if (stepType == StepRequest.STEP_OVER) {
-            breakpointProcessor.activateDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT);
-        } else if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
+         if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
             createStepRequest(threadId, stepType);
         }
         context.getDebuggeeVM().resume();

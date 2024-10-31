@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter;
 
+import com.sun.jdi.Location;
 import com.sun.jdi.request.EventRequestManager;
 import io.ballerina.projects.Project;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
@@ -39,14 +40,16 @@ public class ExecutionContext {
     private String sourceProjectRoot;
     private final DebugProjectCache projectCache;
     private Process launchedProcess;
-    private DebugInstruction lastInstruction;
     private boolean terminateRequestReceived;
     private boolean supportsRunInTerminalRequest;
+    private DebugInstruction prevInstruction;
+    private Location prevLocation;
 
     ExecutionContext(JBallerinaDebugServer adapter) {
         this.adapter = adapter;
         this.projectCache = new DebugProjectCache();
-        this.lastInstruction = DebugInstruction.CONTINUE;
+        this.prevInstruction = DebugInstruction.CONTINUE;
+        this.prevLocation = null;
     }
 
     public Optional<Process> getLaunchedProcess() {
@@ -102,12 +105,20 @@ public class ExecutionContext {
         return new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream(), StandardCharsets.UTF_8));
     }
 
-    public DebugInstruction getLastInstruction() {
-        return lastInstruction;
+    public DebugInstruction getPrevInstruction() {
+        return prevInstruction;
     }
 
-    public void setLastInstruction(DebugInstruction lastInstruction) {
-        this.lastInstruction = lastInstruction;
+    public void setPrevInstruction(DebugInstruction prevInstruction) {
+        this.prevInstruction = prevInstruction;
+    }
+
+    public Location getPrevLocation() {
+        return prevLocation;
+    }
+
+    public void setPrevLocation(Location prevLocation) {
+        this.prevLocation = prevLocation;
     }
 
     public DebugMode getDebugMode() {
