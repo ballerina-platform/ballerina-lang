@@ -318,7 +318,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1166,10 +1165,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDef) {
-        if (!Symbols.isFlagOn(typeDef.symbol.flags, Flags.SOURCE_ANNOTATION)) {
-            typeDef.typeNode = rewrite(typeDef.typeNode, env);
-        }
-
         BSymbol typeDefSymbol = typeDef.symbol;
         if (typeDefSymbol.kind == SymbolKind.TYPE_DEF && typeDefSymbol.origin != VIRTUAL) {
             BType referenceType = ((BTypeDefinitionSymbol) typeDefSymbol).referenceType;
@@ -1179,6 +1174,9 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
+        if (!Symbols.isFlagOn(typeDef.symbol.flags, Flags.SOURCE_ANNOTATION)) {
+            typeDef.typeNode = rewrite(typeDef.typeNode, env);
+        }
         typeDef.annAttachments.forEach(attachment ->  rewrite(attachment, env));
         result = typeDef;
     }
@@ -1298,6 +1296,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        createTypedescVariableForAnonType(recordTypeNode);
         recordTypeNode.fields.addAll(recordTypeNode.includedFields);
 
         BRecordTypeSymbol recordTypeSymbol = (BRecordTypeSymbol) recordTypeNode.getBType().tsymbol;
@@ -1314,7 +1313,6 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
-        createTypedescVariableForAnonType(recordTypeNode);
         if (recordTypeNode.isAnonymous && recordTypeNode.isLocal) {
             BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(recordTypeNode);
             TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordTypeNode.getBType(),
@@ -1339,10 +1337,10 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstrainedType constrainedType) {
-        constrainedType.constraint = rewrite(constrainedType.constraint, env);
         if (constrainedType.getBType() != null && constrainedType.getBType().tag == TypeTags.MAP) {
             createTypedescVariableForAnonType(constrainedType);
         }
+        constrainedType.constraint = rewrite(constrainedType.constraint, env);
         result = constrainedType;
     }
 
@@ -1386,15 +1384,14 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
-        List<BLangType> rewrittenConstituents = new ArrayList<>();
-
-        for (BLangType constituentTypeNode : intersectionTypeNode.constituentTypeNodes) {
-            rewrittenConstituents.add(rewrite(constituentTypeNode, env));
-        }
-
         int tag = Types.getImpliedType(intersectionTypeNode.getBType()).tag;
         if (tag == TypeTags.RECORD || tag == TypeTags.TUPLE || tag == TypeTags.MAP) {
             createTypedescVariableForAnonType(intersectionTypeNode);
+        }
+
+        List<BLangType> rewrittenConstituents = new ArrayList<>();
+        for (BLangType constituentTypeNode : intersectionTypeNode.constituentTypeNodes) {
+            rewrittenConstituents.add(rewrite(constituentTypeNode, env));
         }
 
         intersectionTypeNode.constituentTypeNodes = rewrittenConstituents;
@@ -1446,9 +1443,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
+        createTypedescVariableForAnonType(tupleTypeNode);
         tupleTypeNode.members.forEach(member -> member.typeNode = rewrite(member.typeNode, env));
         tupleTypeNode.restParamType = rewrite(tupleTypeNode.restParamType, env);
-        createTypedescVariableForAnonType(tupleTypeNode);
         result = tupleTypeNode;
     }
 

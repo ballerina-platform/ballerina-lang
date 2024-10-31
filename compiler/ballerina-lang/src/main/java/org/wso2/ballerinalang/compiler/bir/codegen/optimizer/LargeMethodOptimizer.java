@@ -1242,7 +1242,7 @@ public class LargeMethodOptimizer {
                     }
                     splitInsCount++;
                     // now check for the termination of split, i.e. split start
-                    if (currIns.lhsOp == splitStartOperand) {
+                    if (currIns.lhsOp.variableDcl == splitStartOperand.variableDcl) {
                         if ((neededOperandsVarDcl.size() > MAX_SPLIT_FUNCTION_ARG_COUNT) ||
                                 (splitInsCount < SPLIT_INSTRUCTION_COUNT_THRESHOLD)) {
                             splitStarted = false;
@@ -1288,7 +1288,8 @@ public class LargeMethodOptimizer {
                         // if the split will have all the available instructions already in the function -
                         // no need to make that split, avoids doing the same split repeatedly
                         if ((bbNum == basicBlocks.size() - 2) && (!basicBlocks.get(0).instructions.isEmpty()) &&
-                                (basicBlocks.get(0).instructions.get(0).lhsOp == splitStartOperand)
+                                (basicBlocks.get(0).instructions.get(0).lhsOp.variableDcl ==
+                                        splitStartOperand.variableDcl)
                                 && fromSplitFunction) {
                             continue;
                         }
