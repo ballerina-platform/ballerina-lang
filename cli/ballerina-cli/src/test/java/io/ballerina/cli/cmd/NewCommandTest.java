@@ -197,6 +197,7 @@ public class NewCommandTest extends BaseCommandTest {
                 Config.toml
                 """;
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
+        String output = readOutput();
         Assert.assertTrue(readOutput().contains("Created new package"));
         Assert.assertTrue(output.contains("What's next"));
         Assert.assertTrue(output.contains("Execute the below command to run the program:"));

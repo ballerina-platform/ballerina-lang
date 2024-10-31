@@ -7,3 +7,6 @@ Compiling source
 
 Generating executable
 	target/bin/winery.jar
+
+What's next?
+	Execute java -jar target/bin/winery.jar to run the program
