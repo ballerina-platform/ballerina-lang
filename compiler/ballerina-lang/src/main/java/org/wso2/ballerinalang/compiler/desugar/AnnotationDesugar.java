@@ -136,9 +136,9 @@ public class AnnotationDesugar {
     private final SymbolTable symTable;
     private final Types types;
     private final Names names;
-    private SymbolResolver symResolver;
-    private ConstantValueResolver constantValueResolver;
-    private ClosureGenerator closureGenerator;
+    private final SymbolResolver symResolver;
+    private final ConstantValueResolver constantValueResolver;
+    private final ClosureGenerator closureGenerator;
 
     public static AnnotationDesugar getInstance(CompilerContext context) {
         AnnotationDesugar annotationDesugar = context.get(ANNOTATION_DESUGAR_KEY);
@@ -360,9 +360,7 @@ public class AnnotationDesugar {
         if (fieldSymbol instanceof BVarSymbol bVarSymbol) {
             descriptorKeyValue.key.fieldSymbol = bVarSymbol;
         }
-        if (valueLiteral != null) {
-            descriptorKeyValue.valueExpr = valueLiteral;
-        }
+        descriptorKeyValue.valueExpr = valueLiteral;
 
         symResolver.populateAnnotationAttachmentSymbol(annoAttachment, env, constantValueResolver);
 
@@ -786,9 +784,7 @@ public class AnnotationDesugar {
         if (fieldSymbol instanceof BVarSymbol bVarSymbol) {
             descriptorKeyValue.key.fieldSymbol = bVarSymbol;
         }
-        if (valueLiteral != null) {
-            descriptorKeyValue.valueExpr = valueLiteral;
-        }
+        descriptorKeyValue.valueExpr = valueLiteral;
 
         symResolver.populateAnnotationAttachmentSymbol(annoAttachment, env, constantValueResolver);
         ((List<BAnnotationAttachmentSymbol>) mainFunc.symbol.getAnnotations()).add(

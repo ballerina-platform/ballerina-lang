@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-apply from: "$rootDir/gradle/javaProject.gradle"
+
+plugins {
+    id 'javaProject'
+}
 
 dependencies {
-    implementation 'org.apache.commons:commons-lang3'
-    implementation 'info.picocli:picocli'
+    implementation libs.apache.commons.lang3
+    implementation libs.picocli
     implementation project(':ballerina-cli')
     implementation project(':ballerina-lang')
     implementation project(':semver-checker:semver-checker-core')

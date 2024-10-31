@@ -1,0 +1,208 @@
+/*
+ *  Copyright (c) 2024, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
+plugins {
+    id 'java-library'
+    id 'checkstyle'
+    id 'com.github.spotbugs'
+    id 'jacoco'
+    id 'repositories'
+}
+
+dependencies {
+    checkstyle project(':build-config:checkstyle')
+    checkstyle libs.puppycrawl.checkstyle
+
+    implementation libs.slf4j.api
+
+    constraints {
+        implementation libs.commons.codec
+        implementation libs.commons.io
+        implementation libs.commons.logging
+        implementation libs.atalassian.commonmark.asProvider()
+        implementation libs.atalassian.commonmark.ext.gfm.tables
+        implementation libs.jackson.databind
+        implementation libs.jackson.dataformat.yaml
+        implementation libs.hsqldb
+        implementation libs.chewiebug.gcviewer
+        implementation libs.jknack.handlebars
+        implementation libs.findbugs.jsr305
+        implementation libs.gson
+        implementation libs.guava
+        implementation libs.toml4j
+        implementation libs.javax.mail
+        implementation libs.squareup.okhttp
+        implementation libs.squareup.okio
+        implementation libs.jaeger.core
+        implementation libs.jaeger.thrift
+        implementation libs.mustache.java.compiler
+        implementation libs.diff.match.patch
+        implementation libs.guru.nidi.graphviz
+
+        implementation libs.apache.commons.lang3
+        implementation libs.apache.commons.text
+        implementation libs.apache.geronimo.stax
+        implementation libs.apache.mina.core
+        implementation libs.apache.maven.plugin.api
+        implementation libs.apache.maven.plugin.annotations
+        implementation libs.apache.commons.axiom.api
+        implementation libs.apache.commons.axiom.impl
+        implementation libs.apache.commons.axiom.dom
+        implementation libs.apache.commons.axiom.c14n
+        implementation libs.apache.zookeeper
+        implementation libs.fasterxml.woodstox.core
+        implementation libs.codehaus.woodstox.stax2.api
+        implementation libs.awaitility
+
+        implementation libs.bouncycastle.bcprov
+        implementation libs.bouncycastle.bcpkix
+        implementation libs.bytedeco.javacpp.platform
+        implementation libs.codehaus.plexus.utils
+        implementation libs.eclipse.lsp4j.asProvider()
+        implementation libs.eclipse.lsp4j.jsonrpc.asProvider()
+        implementation libs.hdr.histogram
+        implementation libs.hsqldb
+        implementation libs.javassist
+        implementation libs.jvnet.mimepull
+        implementation libs.mockito.core
+        implementation libs.mockito.testng
+        implementation libs.mvel2
+        implementation libs.ow2.asm.asProvider()
+        implementation libs.ow2.asm.util
+        implementation libs.ow2.asm.tree
+        implementation libs.scala.library
+        implementation libs.slf4j.simple
+        implementation libs.slf4j.jdk14
+        implementation libs.testng
+        implementation libs.wso2.carbon.messaging
+        implementation libs.snakeyaml
+        implementation libs.wso2.transport.http
+        implementation libs.wso2.transport.local.file.system
+        implementation libs.wso2.staxon.core
+        implementation libs.jackson.datatype.jsr310
+
+        implementation libs.picocli
+        implementation libs.bal.messaging.broker.amqp
+        implementation libs.netty.buffer
+        implementation libs.open.telemetry.api
+        implementation libs.open.telemetry.sdk.trace
+        implementation libs.open.telemetry.sdk.testing
+        implementation libs.swagger.models
+        implementation libs.swagger.parser.asProvider()
+        implementation libs.swagger.parser.v2
+        implementation libs.tongfei.progressbar
+        implementation libs.jline
+        implementation libs.jakarta.activation
+        implementation libs.zafarkhaja.jsemver
+
+        implementation libs.javax.transaction.api
+        implementation libs.javax.ws.rs.api
+        implementation libs.junit
+        implementation libs.json.unit.assertj
+        implementation libs.json.unit.json.path
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    // Supress unknown module warning
+    options.compilerArgs << "-Xlint:-module,-removal"
+}
+
+checkstyle {
+    toolVersion = libs.versions.checkStyleToolVersion.get()
+    configFile rootProject.file("build-config/checkstyle/build/checkstyle.xml")
+}
+
+def excludePattern = '**/module-info.java'
+tasks.withType(Checkstyle).configureEach {
+    exclude excludePattern
+}
+
+spotbugsMain {
+    jvmArgs = [ '-Xmx2048m' ]
+    it.effort = "max"
+    it.reportLevel = "low"
+    it.reports {
+        xml.required = false
+        html.required = true
+    }
+    def excludeFile = file('spotbugs-exclude.xml')
+    if(excludeFile.exists()) {
+        it.excludeFilter = excludeFile
+    }
+}
+
+spotbugsTest {
+    it.enabled = false
+}
+
+test {
+    testLogging {
+        // Make sure output from standard out or error is shown in Gradle output.
+        showStackTraces = true
+        showStandardStreams = true
+    }
+    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog"
+    systemProperty "LANG_REPO_BUILD", "true"
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
+
+    jacoco {
+        destinationFile = file("$buildDir/jacoco/jacoco.exec")
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+    }
+}
+
+javadoc {
+    source = sourceSets.main.java
+    classpath = sourceSets.main.compileClasspath
+    options.addBooleanOption("Xdoclint:all,-missing", true)
+}
+
+check {
+    dependsOn javadoc
+}
+
+tasks.register('jacocoMergeExec', JacocoReport) {
+    getExecutionData().setFrom(fileTree("$buildDir/jacoco/").matching {
+        include "**.exec"
+    } as FileCollection)
+}
+
+publishing {
+    publications {
+        mavenJava {
+            from components.java
+        }
+    }
+}
+
+test.finalizedBy(jacocoMergeExec)

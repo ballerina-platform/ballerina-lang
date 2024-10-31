@@ -34,7 +34,7 @@ public class BLockStore {
     /**
      * The map of locks inferred.
      */
-    private  Map<String, BLock> globalLockMap;
+    private final Map<String, BLock> globalLockMap;
 
     public BLockStore() {
         globalLockMap = new ConcurrentHashMap<>();

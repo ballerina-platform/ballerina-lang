@@ -4102,7 +4102,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     private BTypeIdSet getTypeIds(BType type) {
         type = Types.getImpliedType(type);
         int tag = type.tag;
-        if (tag == TypeTags.SERVICE || tag == TypeTags.OBJECT) {
+        if (tag == TypeTags.OBJECT) {
             return ((BObjectType) type).typeIdSet;
         }
         return BTypeIdSet.emptySet();

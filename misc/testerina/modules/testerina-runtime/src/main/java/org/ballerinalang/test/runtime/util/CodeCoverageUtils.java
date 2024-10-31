@@ -46,7 +46,6 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -76,7 +75,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
  */
 public final class CodeCoverageUtils {
 
-    private  static final String REPORT_ZIP_DIRECTORY = Paths.get(System.getProperty(BALLERINA_HOME))
+    private  static final String REPORT_ZIP_DIRECTORY = Path.of(System.getProperty(BALLERINA_HOME))
             .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.TOOLS_DIR_NAME)
             .resolve(TesterinaConstants.COVERAGE_DIR).resolve(REPORT_ZIP_NAME).toString()
             .replace(REPORT_ZIP_NAME, "");

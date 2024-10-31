@@ -29,12 +29,12 @@ public class CompletionItem {
      * The label of this completion item. By default, also the text that is inserted when selecting
      * this completion.
      */
-    private String label;
+    private final String label;
     
     /**
      * Indicates the priority(sorted position) of the completion item.
      */
-    private Priority priority;
+    private final Priority priority;
 
     /**
      * An optional array of additional text edits that are applied when selecting this completion. 
@@ -49,7 +49,7 @@ public class CompletionItem {
      * A string that should be inserted a document when selecting this completion. 
      * When omitted or empty, the label is used as the insert text for this item.
      */
-    private String insertText;
+    private final String insertText;
     
     public CompletionItem(String label, String insertText, Priority priority) {
         this.label = label;

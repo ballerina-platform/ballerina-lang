@@ -22,7 +22,6 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
@@ -34,7 +33,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
@@ -88,10 +86,10 @@ public final class RepoUtils {
             if (userHomeDir == null || userHomeDir.isEmpty()) {
                 throw new BLangCompilerException("Error creating home repository: unable to get user home directory");
             }
-            homeRepoPath = Paths.get(userHomeDir, ProjectDirConstants.HOME_REPO_DEFAULT_DIRNAME);
+            homeRepoPath = Path.of(userHomeDir, ProjectDirConstants.HOME_REPO_DEFAULT_DIRNAME);
         } else {
             // User has specified the home repo path with env variable.
-            homeRepoPath = Paths.get(homeRepoDir);
+            homeRepoPath = Path.of(homeRepoDir);
         }
 
         homeRepoPath = homeRepoPath.toAbsolutePath();
@@ -170,7 +168,7 @@ public final class RepoUtils {
     }
 
     public static Path getLibDir() {
-        return Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP, ".")).resolve("lib");
+        return Path.of(System.getProperty(BALLERINA_INSTALL_DIR_PROP, ".")).resolve("lib");
     }
 
     /**
@@ -192,7 +190,7 @@ public final class RepoUtils {
             return null;
         }
 
-        return Paths.get(ballerinaHome).resolve(ProjectDirConstants.BALLERINA_HOME_LIB);
+        return Path.of(ballerinaHome).resolve(ProjectDirConstants.BALLERINA_HOME_LIB);
     }
 
     private static boolean getBooleanProp(String key) {
@@ -338,7 +336,7 @@ public final class RepoUtils {
      *
      * @return {@link Settings} settings object
      */
-    public static Settings readSettings() throws SettingsTomlException {
+    public static Settings readSettings() {
         Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
         try {
             TomlDocument settingsTomlDocument = TomlDocument

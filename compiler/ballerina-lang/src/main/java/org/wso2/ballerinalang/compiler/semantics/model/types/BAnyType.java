@@ -55,6 +55,12 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
         this.nullable = nullable;
     }
 
+    public BAnyType(int tag, BTypeSymbol tsymbol, Name name, long flags, SemType semType) {
+        super(tag, tsymbol, flags, ANY);
+        this.name = name;
+        this.semType = semType;
+    }
+
     private BAnyType(BTypeSymbol tsymbol, SemType semType) {
         super(TypeTags.ANY, tsymbol, semType);
     }

@@ -269,7 +269,7 @@ public final class ImmutableTypeCloner {
                                                     origAnyType.getFlags() | Flags.READONLY, origAnyType.semType());
                     immutableAnyTSymbol.type = immutableAnyType;
                 } else {
-                    immutableAnyType = new BAnyType(immutableAnyTSymbol,
+                    immutableAnyType = new BAnyType(origAnyType.tag, null,
                                                     getImmutableTypeName(names, TypeKind.ANY.typeName()),
                                                     origAnyType.getFlags() | Flags.READONLY, origAnyType.semType());
                 }
@@ -470,9 +470,7 @@ public final class ImmutableTypeCloner {
             effectiveTypeFromType.tsymbol = immutableTupleTSymbol;
             effectiveTypeFromType.addFlags(type.getFlags() | Flags.READONLY);
 
-            if (immutableTupleTSymbol != null) {
-                immutableTupleTSymbol.type = effectiveTypeFromType;
-            }
+            immutableTupleTSymbol.type = effectiveTypeFromType;
         } else {
             effectiveTypeFromType.addFlags(type.getFlags() | Flags.READONLY);
         }
@@ -782,7 +780,7 @@ public final class ImmutableTypeCloner {
             immutableAnydataTSymbol.type = immutableAnydataType;
             return immutableAnydataType;
         }
-        return new BAnydataType(type.env, immutableAnydataTSymbol,
+        return new BAnydataType(type.env, null,
                                  getImmutableTypeName(names, TypeKind.ANYDATA.typeName()),
                                  type.getFlags() | Flags.READONLY, type.isNullable());
     }
@@ -843,9 +841,7 @@ public final class ImmutableTypeCloner {
             immutableType.effectiveType.tsymbol = immutableUnionTSymbol;
             immutableType.effectiveType.addFlags(type.getFlags() | Flags.READONLY);
 
-            if (immutableUnionTSymbol != null) {
-                immutableUnionTSymbol.type = immutableType.effectiveType;
-            }
+            immutableUnionTSymbol.type = immutableType.effectiveType;
         } else {
             immutableType.effectiveType.addFlags(type.getFlags() | Flags.READONLY);
         }

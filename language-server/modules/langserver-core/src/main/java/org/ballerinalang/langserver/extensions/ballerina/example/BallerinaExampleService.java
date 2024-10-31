@@ -34,7 +34,6 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -63,7 +62,7 @@ public class BallerinaExampleService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             BallerinaExampleListResponse response = new BallerinaExampleListResponse();
             Gson gson = new Gson();
-            Path bbeJSONPath = Paths.get(CommonUtil.BALLERINA_HOME).resolve(EXAMPLES_DIR).resolve(BBE_DEF_JSON);
+            Path bbeJSONPath = Path.of(CommonUtil.BALLERINA_HOME).resolve(EXAMPLES_DIR).resolve(BBE_DEF_JSON);
             try {
                 InputStreamReader fileReader = new InputStreamReader(
                         new FileInputStream(bbeJSONPath.toFile()), StandardCharsets.UTF_8);

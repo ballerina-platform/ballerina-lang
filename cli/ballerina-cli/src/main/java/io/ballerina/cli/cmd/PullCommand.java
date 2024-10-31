@@ -37,7 +37,6 @@ import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -193,11 +192,7 @@ public class PullCommand implements BLauncherCmd {
         }
 
         Settings settings;
-        try {
-            settings = RepoUtils.readSettings();
-        } catch (SettingsTomlException e) {
-            settings = Settings.from();
-        }
+        settings = RepoUtils.readSettings();
 
         if (repositoryName == null) {
             repositoryName = ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;

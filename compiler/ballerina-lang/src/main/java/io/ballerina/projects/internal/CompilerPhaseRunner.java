@@ -64,7 +64,7 @@ public class CompilerPhaseRunner {
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
     private final IsolationAnalyzer isolationAnalyzer;
-    private boolean isToolingCompilation;
+    private final boolean isToolingCompilation;
 
 
     public static CompilerPhaseRunner getInstance(CompilerContext context) {

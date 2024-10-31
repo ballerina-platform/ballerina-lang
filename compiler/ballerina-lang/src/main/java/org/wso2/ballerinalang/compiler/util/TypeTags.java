@@ -58,7 +58,6 @@ public final class TypeTags {
     public static final int FUTURE = TUPLE + 1;
     public static final int FINITE = FUTURE + 1;
     public static final int OBJECT = FINITE + 1;
-    public static final int SERVICE = OBJECT;
     public static final int BYTE_ARRAY = OBJECT + 1;
     public static final int FUNCTION_POINTER = BYTE_ARRAY + 1;
     public static final int HANDLE = FUNCTION_POINTER + 1;

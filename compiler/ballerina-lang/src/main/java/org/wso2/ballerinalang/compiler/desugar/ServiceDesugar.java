@@ -77,8 +77,8 @@ public class ServiceDesugar {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final Names names;
-    private DeclarativeAuthDesugar declarativeAuthDesugar;
-    private TransactionDesugar transactionDesugar;
+    private final DeclarativeAuthDesugar declarativeAuthDesugar;
+    private final TransactionDesugar transactionDesugar;
     private final Types types;
 
     public static ServiceDesugar getInstance(CompilerContext context) {

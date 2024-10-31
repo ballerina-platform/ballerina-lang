@@ -14,8 +14,11 @@
  * limitations under the License.
  *
  */
-apply plugin: 'base'
-apply from: "$rootDir/gradle/javaProject.gradle"
+
+plugins {
+    id 'base'
+    id 'javaProject'
+}
 
 description = 'Ballerina - Debugger Test'
 
@@ -28,10 +31,10 @@ configurations {
 dependencies {
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
     implementation group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j.debug', version: '0.12.0'
-    implementation 'org.testng:testng'
-    implementation 'org.slf4j:slf4j-jdk14'
-    implementation 'org.apache.commons:commons-lang3'
-    implementation 'info.picocli:picocli'
+    implementation libs.testng
+    implementation libs.slf4j.jdk14
+    implementation libs.apache.commons.lang3
+    implementation libs.picocli
     implementation project(path: ':ballerina-test-utils')
 }
 

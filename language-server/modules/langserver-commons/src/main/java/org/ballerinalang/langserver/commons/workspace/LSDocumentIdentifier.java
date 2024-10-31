@@ -15,9 +15,7 @@
  */
 package org.ballerinalang.langserver.commons.workspace;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -43,10 +41,8 @@ public interface LSDocumentIdentifier {
      * Get the URI of the given string URI.
      *
      * @return {@link URI} get the URI
-     * @throws MalformedURLException can throw malformed url exception
-     * @throws URISyntaxException    can throw URI syntax exception
      */
-    URI getURI() throws MalformedURLException, URISyntaxException;
+    URI getURI();
 
     /**
      * Get the uri.

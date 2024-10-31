@@ -22,7 +22,6 @@ import io.ballerina.projects.internal.plugins.CompilerPlugins;
 import io.ballerina.projects.plugins.CompilerPlugin;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -169,7 +168,7 @@ class CompilerPluginManager {
         String pluginClassName = pluginDescriptor.plugin().getClassName();
         List<Path> jarLibraryPaths = pluginDescriptor.getCompilerPluginDependencies()
                 .stream()
-                .map(Paths::get)
+                .map(Path::of)
                 .toList();
 
         CompilerPlugin compilerPlugin;

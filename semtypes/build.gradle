@@ -1,7 +1,9 @@
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 dependencies {
-    testImplementation 'org.testng:testng'
+    testImplementation libs.testng
 }
 
 test {

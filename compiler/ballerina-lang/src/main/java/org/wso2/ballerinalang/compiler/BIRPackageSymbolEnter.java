@@ -178,16 +178,14 @@ public class BIRPackageSymbolEnter {
     private BIRPackageSymbolEnv env;
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
     private BStructureTypeSymbol currentStructure = null;
-    private LinkedList<Object> compositeStack = new LinkedList<>();
+    private final LinkedList<Object> compositeStack = new LinkedList<>();
     private final Env typeEnv;
     private AtomOffsets offsets;
-
-    private static final int SERVICE_TYPE_TAG = 54;
 
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
 
-    private Map<String, BVarSymbol> globalVarMap = new HashMap<>();
+    private final Map<String, BVarSymbol> globalVarMap = new HashMap<>();
 
     public static BIRPackageSymbolEnter getInstance(CompilerContext context) {
         BIRPackageSymbolEnter packageReader = context.get(COMPILED_PACKAGE_SYMBOL_ENTER_KEY);
@@ -1112,7 +1110,7 @@ public class BIRPackageSymbolEnter {
         return stringCPEntry.value;
     }
 
-    private String getStringCPEntryValue(int cpIndex) throws IOException {
+    private String getStringCPEntryValue(int cpIndex) {
         StringCPEntry stringCPEntry = (StringCPEntry) this.env.constantPool[cpIndex];
         return stringCPEntry.value;
     }
@@ -1174,7 +1172,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private class BIRTypeReader {
-        private DataInputStream inputStream;
+        private final DataInputStream inputStream;
         private final PredefinedTypeEnv predefinedTypeEnv = PredefinedTypeEnv.getInstance();
 
         public BIRTypeReader(DataInputStream inputStream) {
@@ -1741,8 +1739,6 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.FUNCTION_POINTER:
                     // TODO fix
                     break;
-                case SERVICE_TYPE_TAG:
-                    throw new AssertionError();
                 case TypeTags.SIGNED32_INT:
                     return symTable.signed32IntType;
                 case TypeTags.SIGNED16_INT:

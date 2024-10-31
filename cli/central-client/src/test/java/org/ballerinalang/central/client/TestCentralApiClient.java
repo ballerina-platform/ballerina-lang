@@ -57,7 +57,6 @@ import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -86,7 +85,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     private ByteArrayOutputStream console;
 
     public static final String ERROR_CONNECTION_RESET = "error: Connection reset";
-    private static final Path UTILS_TEST_RESOURCES = Paths.get("src/test/resources/test-resources/utils");
+    private static final Path UTILS_TEST_RESOURCES = Path.of("src/test/resources/test-resources/utils");
     private static final Path TMP_DIR = UTILS_TEST_RESOURCES.resolve("temp-test-central-api-client");
     private static final String TEST_BAL_VERSION = "slp5";
     private static final String ANY_PLATFORM = "any";
@@ -650,7 +649,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     private void setBallerinaHome() {
         final String ballerinaInstallDirProp = "ballerina.home";
         if (System.getProperty(ballerinaInstallDirProp) == null) {
-            System.setProperty(ballerinaInstallDirProp, String.valueOf(Paths.get("build")));
+            System.setProperty(ballerinaInstallDirProp, String.valueOf(Path.of("build")));
         }
     }
 

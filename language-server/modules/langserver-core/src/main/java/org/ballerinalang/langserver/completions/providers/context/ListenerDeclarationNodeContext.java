@@ -36,7 +36,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -74,8 +73,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ListenerDeclarationNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ListenerDeclarationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         Optional<ListenerDeclarationNode> listenerNode = listenerNode(context);

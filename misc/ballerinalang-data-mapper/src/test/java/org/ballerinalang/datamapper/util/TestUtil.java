@@ -56,7 +56,6 @@ import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -177,7 +176,7 @@ public final class TestUtil {
 
     public static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier();
-        identifier.setUri(Paths.get(filePath).toUri().toString());
+        identifier.setUri(Path.of(filePath).toUri().toString());
 
         return identifier;
     }

@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,29 +45,29 @@ import java.util.stream.Stream;
  */
 public class StrandDumpTest extends BaseTest {
 
-    private static final String testFileLocation = Paths.get("src/test/resources/troubleshoot/strandDump")
+    private static final String testFileLocation = Path.of("src/test/resources/troubleshoot/strandDump")
             .toAbsolutePath().toString();
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private static final int TIMEOUT = 60000;
     private BMainInstance bMainInstance;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         bMainInstance = new BMainInstance(balServer);
     }
 
     @Test
     public void testStrandDumpOfBalPackage() throws BallerinaTestException {
-        Path expectedOutputFilePath = Paths.get(testFileLocation, "testOutputs",
+        Path expectedOutputFilePath = Path.of(testFileLocation, "testOutputs",
                 "testPackageWithModulesStrandDumpRegEx.txt");
-        Path steadyStateOutputFilePath = Paths.get(testFileLocation, "testOutputs",
+        Path steadyStateOutputFilePath = Path.of(testFileLocation, "testOutputs",
                 "testPackageWithModulesSteadyState.txt");
         String sourceRoot = testFileLocation + "/";
         String packageName = "testPackageWithModules";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.runMain("build", new String[]{packageName}, envProperties, null, null, sourceRoot);
 
-        String jarPath = Paths.get(Paths.get(sourceRoot, packageName).toString(), "target", "bin",
+        String jarPath = Path.of(Path.of(sourceRoot, packageName).toString(), "target", "bin",
                 packageName + ".jar").toFile().getPath();
         runJarAndVerifyStrandDump(envProperties, jarPath, sourceRoot, expectedOutputFilePath,
                 steadyStateOutputFilePath);
@@ -80,8 +79,8 @@ public class StrandDumpTest extends BaseTest {
             return;
         }
 
-        Path expectedOutputFilePath = Paths.get(testFileLocation, "testOutputs", "balTestStrandDumpRegEx.txt");
-        Path steadyStateOutputFilePath = Paths.get(testFileLocation, "testOutputs", "balTestSteadyState.txt");
+        Path expectedOutputFilePath = Path.of(testFileLocation, "testOutputs", "balTestStrandDumpRegEx.txt");
+        Path steadyStateOutputFilePath = Path.of(testFileLocation, "testOutputs", "balTestSteadyState.txt");
         String sourceRoot = testFileLocation + "/";
         String packageName = "testPackageWithModules";
         Map<String, String> envProperties = new HashMap<>();
@@ -95,15 +94,15 @@ public class StrandDumpTest extends BaseTest {
 
     @Test
     public void testStrandDumpOfSingleBalFile() throws BallerinaTestException {
-        Path expectedOutputFilePath = Paths.get(testFileLocation, "testOutputs", "balProgram1StrandDumpRegEx.txt");
-        Path steadyStateOutputFilePath = Paths.get(testFileLocation, "testOutputs", "balProgram1SteadyStateOutput.txt");
+        Path expectedOutputFilePath = Path.of(testFileLocation, "testOutputs", "balProgram1StrandDumpRegEx.txt");
+        Path steadyStateOutputFilePath = Path.of(testFileLocation, "testOutputs", "balProgram1SteadyStateOutput.txt");
         String commandDir = balServer.getServerHome();
         String balFile = testFileLocation + "/singleBalFiles/balProgram1.bal";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.runMain("build", new String[]{balFile}, envProperties, null, null, commandDir);
 
-        String balFileName = Paths.get(balFile).getFileName().toString();
-        String jarPath = Paths.get(Paths.get(commandDir).toString(),
+        String balFileName = Path.of(balFile).getFileName().toString();
+        String jarPath = Path.of(Path.of(commandDir).toString(),
                 balFileName.substring(0, balFileName.length() - 4) + ".jar").toString();
         runJarAndVerifyStrandDump(envProperties, jarPath, commandDir, expectedOutputFilePath,
                 steadyStateOutputFilePath);

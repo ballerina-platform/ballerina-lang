@@ -34,7 +34,6 @@ import org.testng.annotations.Test;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 
 /**
@@ -43,7 +42,7 @@ import java.util.Collection;
  * @since 2.0.0
  */
 public class PreReleaseVersionResolutionTests {
-    private static final Path RESOURCE_DIRECTORY = Paths.get(
+    private static final Path RESOURCE_DIRECTORY = Path.of(
             "src/test/resources/projects_for_resolution_tests").toAbsolutePath();
     static final PrintStream OUT = System.out;
 

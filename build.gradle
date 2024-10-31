@@ -1,15 +1,14 @@
 plugins {
     id 'base'
-    id "com.github.spotbugs" version "${githubSpotbugsVersion}"
-    id "com.dorongold.task-tree" version "${dorongoldTaskTreeVersion}"
-    id "com.github.johnrengelman.shadow" version "${githubJohnrengelmanShadowVersion}"
+    alias libs.plugins.spotbugs
+    alias libs.plugins.dorongold.task.tree
+    alias libs.plugins.github.johnrengelman.shadow
     id 'maven-publish'
-    id "net.researchgate.release" version "${researchgateReleaseVersion}"
+    alias libs.plugins.researchgate.release
     id 'jacoco'
-    id "org.sonarqube" version "${sonarqubeGradlePluginVersion}"
+    alias libs.plugins.sonarqube
+    id 'repositories'
 }
-
-apply from: "$rootDir/gradle/repositories.gradle"
 
 allprojects {
     tasks.withType(JavaCompile).configureEach {

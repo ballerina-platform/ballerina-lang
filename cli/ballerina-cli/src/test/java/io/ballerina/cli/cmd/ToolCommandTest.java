@@ -36,7 +36,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -59,8 +58,8 @@ public class ToolCommandTest extends BaseCommandTest {
             this.testResources = super.tmpDir.resolve("build-test-resources");
             URI testResourcesURI = Objects.requireNonNull(getClass().getClassLoader().getResource("test-resources"))
                     .toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI),
-                    new BuildCommandTest.Copy(Paths.get(testResourcesURI), this.testResources));
+            Files.walkFileTree(Path.of(testResourcesURI),
+                    new BuildCommandTest.Copy(Path.of(testResourcesURI), this.testResources));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
         }

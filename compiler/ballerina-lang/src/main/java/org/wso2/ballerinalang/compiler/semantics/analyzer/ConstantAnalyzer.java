@@ -59,8 +59,8 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
     private final Names names;
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
-    private BLangDiagnosticLog dlog;
-    private Deque<BLangExpression> expressions = new ArrayDeque<>();
+    private final BLangDiagnosticLog dlog;
+    private final Deque<BLangExpression> expressions = new ArrayDeque<>();
 
     private ConstantAnalyzer(CompilerContext context) {
 

@@ -40,7 +40,7 @@ public class LineFoldingOnlyTest {
     private Endpoint serviceEndpoint;
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 

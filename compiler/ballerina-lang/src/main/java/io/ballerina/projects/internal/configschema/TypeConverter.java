@@ -73,7 +73,7 @@ public class TypeConverter {
     static final String ADDITIONAL_PROPERTIES = "additionalProperties";
     static final String TYPE = "type";
     // Stores already visited complex types against the type name
-    private Map<String, VisitedType> visitedTypeMap = new HashMap<>();
+    private final Map<String, VisitedType> visitedTypeMap = new HashMap<>();
 
     private VisitedType getVisitedType(String typeName) {
         if (visitedTypeMap.containsKey(typeName)) {

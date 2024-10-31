@@ -38,20 +38,20 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
  */
 public class JConstructor extends BFunction  {
 
-    private Class<?> parentClass;
+    private final Class<?> parentClass;
     private String exceptionName;
     private String shortClassName;
     private String exceptionConstName;
-    private Constructor<?> constructor;
+    private final Constructor<?> constructor;
 
     private boolean returnError = false;
     private boolean hasException = false; // identifies if the Ballerina returns should have an error declared
     private boolean handleException = false; // identifies if the Java constructor throws an error
     private boolean javaArraysModule = false;
 
-    private List<JParameter> parameters = new ArrayList<>();
-    private StringBuilder paramTypes = new StringBuilder();
-    private Set<String> importedPackages = new HashSet<>();
+    private final List<JParameter> parameters = new ArrayList<>();
+    private final StringBuilder paramTypes = new StringBuilder();
+    private final Set<String> importedPackages = new HashSet<>();
 
     JConstructor(Constructor<?> c, BindgenEnv env, JClass jClass, String constructorName) {
         super(BFunctionKind.CONSTRUCTOR, env);

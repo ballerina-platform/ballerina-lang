@@ -21,7 +21,6 @@ package io.ballerina.cli.cmd;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.SettingsBuilder;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
@@ -32,7 +31,6 @@ import picocli.CommandLine;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Pull command tests.
@@ -147,13 +145,11 @@ public class PullCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Pull a package from custom remote repository")
-    public void testPullCustom() throws SettingsTomlException, IOException {
+    public void testPullCustom() {
 
-        Path customrRepoPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
-                "repositories", "repo-push-pull");
-        Path settingsTomlPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
-                "Settings.toml");
-        Path mockBallerinaHome = Paths.get("build").resolve("ballerina-home");
+        Path customrRepoPath = Path.of("src/test/resources/test-resources/custom-repo/repositories/repo-push-pull");
+        Path settingsTomlPath = Path.of("src/test/resources/test-resources/custom-repo/Settings.toml");
+        Path mockBallerinaHome = Path.of("build/ballerina-home");
 
         PullCommand pullCommand = new PullCommand(printStream, false);
         new CommandLine(pullCommand).parseArgs("luheerathan/pact1:0.1.0", "--repository=repo-push-pull");
@@ -169,13 +165,11 @@ public class PullCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Pull a package from custom remote repository(not exist in Settings.toml)")
-    public void testPullNonExistingCustom() throws SettingsTomlException, IOException {
+    public void testPullNonExistingCustom() throws IOException {
 
-        Path customrRepoPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
-                "repositories", "repo-push-pull");
-        Path settingsTomlPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
-                "Settings.toml");
-        Path mockBallerinaHome = Paths.get("build").resolve("ballerina-home");
+        Path customrRepoPath = Path.of("src/test/resources/test-resources/custom-repo/repositories/repo-push-pull");
+        Path settingsTomlPath = Path.of("src/test/resources/test-resources/custom-repo/Settings.toml");
+        Path mockBallerinaHome = Path.of("build/ballerina-home");
 
         PullCommand pullCommand = new PullCommand(printStream, false);
         new CommandLine(pullCommand).parseArgs("luheerathan/pact1:0.1.0", "--repository=repo-push-pul");
@@ -191,7 +185,7 @@ public class PullCommandTest extends BaseCommandTest {
                 "Only repositories mentioned in the Settings.toml are supported.\n"));
     }
 
-    private static Settings readMockSettings(Path settingsFilePath, String repoPath) throws SettingsTomlException {
+    private static Settings readMockSettings(Path settingsFilePath, String repoPath) {
         try {
             String settingString = Files.readString(settingsFilePath);
             settingString = settingString.replaceAll("REPO_PATH", repoPath);

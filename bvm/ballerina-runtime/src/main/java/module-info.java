@@ -1,4 +1,5 @@
 module io.ballerina.runtime {
+    uses io.ballerina.runtime.api.launch.LaunchListener;
     requires java.xml;
     requires org.apache.commons.text;
     requires axiom.api;
@@ -44,23 +45,22 @@ module io.ballerina.runtime {
             io.ballerina.lang.floatingpoint, io.ballerina.lang.internal, io.ballerina.lang.function,
             io.ballerina.lang.regexp, io.ballerina.runtime.profiler;
     exports io.ballerina.runtime.internal.commons to io.ballerina.lang.value;
-    exports io.ballerina.runtime.internal.launch to io.ballerina.testerina.runtime, io.ballerina.packerina,
-            ballerina.test.listener, io.ballerina.cli, org.ballerinalang.debugadapter.runtime;
-    exports io.ballerina.runtime.internal.scheduling to io.ballerina.cli.utils, io.ballerina.java,
+    exports io.ballerina.runtime.internal.launch to io.ballerina.testerina.runtime, ballerina.test.listener,
+            io.ballerina.cli, org.ballerinalang.debugadapter.runtime;
+    exports io.ballerina.runtime.internal.scheduling to io.ballerina.java,
             io.ballerina.lang.array, io.ballerina.lang.error, io.ballerina.lang.internal, io.ballerina.lang.map,
             io.ballerina.lang.table, io.ballerina.lang.transaction, io.ballerina.lang.value, io.ballerina.lang.xml,
-            io.ballerina.log.api, io.ballerina.testerina.core, io.ballerina.testerina.runtime, io.ballerina.shell,
+            io.ballerina.testerina.core, io.ballerina.testerina.runtime, io.ballerina.shell,
             org.ballerinalang.debugadapter.runtime, io.ballerina.lang.function, io.ballerina.runtime.profiler;
     exports io.ballerina.runtime.internal.util to io.ballerina.testerina.runtime, io.ballerina.lang,
             io.ballerina.lang.integer, io.ballerina.lang.floatingpoint, io.ballerina.lang.array,
             io.ballerina.lang.table, io.ballerina.java, io.ballerina.lang.map, io.ballerina.lang.string,
             io.ballerina.lang.xml, io.ballerina.lang.bool, io.ballerina.lang.error, io.ballerina.lang.internal,
-            io.ballerina.lang.value, io.ballerina.auth, io.ballerina.runtime.api, io.ballerina.cli.utils,
-            io.ballerina.cli;
+            io.ballerina.lang.value, io.ballerina.cli;
     exports io.ballerina.runtime.internal.errors to io.ballerina.lang.value, io.ballerina.lang.integer,
             io.ballerina.java, io.ballerina.lang.internal, io.ballerina.lang.array, io.ballerina.lang.bool,
             io.ballerina.lang.floatingpoint, io.ballerina.lang.map, io.ballerina.lang.string, io.ballerina.lang.table,
-            io.ballerina.lang.xml, io.ballerina.testerina.core, io.ballerina.cli.utils, io.ballerina.cli,
+            io.ballerina.lang.xml, io.ballerina.testerina.core, io.ballerina.cli,
             io.ballerina.lang.decimal, org.ballerinalang.debugadapter.runtime, io.ballerina.lang.function,
             io.ballerina.lang.regexp;
     exports io.ballerina.runtime.internal.values to io.ballerina.testerina.core, io.ballerina.testerina.runtime,

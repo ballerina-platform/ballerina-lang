@@ -14,8 +14,10 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/javaProject.gradle"
+
+plugins {
+    id 'javaProject'
+}
 
 dependencies {
     implementation project(':ballerina-tools-api')
@@ -24,24 +26,24 @@ dependencies {
     implementation project(':toml-parser')
     implementation project(':semtypes')
     implementation project(':central-client')
-    implementation(project(':maven-resolver'))
+    implementation project(':maven-resolver')
     implementation project(':identifier-util')
-    implementation 'com.moandjiezana.toml:toml4j'
-    implementation("org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}") {
+    implementation libs.toml4j
+    implementation(libs.apache.commons.compress) {
         exclude group: 'commons-codec', module: 'commons-codec'
         exclude group: 'org.apache.commons', module: 'commons-lang3'
     }
-    implementation 'io.netty:netty-buffer'
-    implementation 'org.ow2.asm:asm'
-    implementation 'commons-io:commons-io'
-    implementation 'com.github.zafarkhaja:java-semver'
-    testImplementation ("guru.nidi:graphviz-java") {
+    implementation libs.netty.buffer
+    implementation libs.ow2.asm
+    implementation libs.commons.io
+    implementation libs.zafarkhaja.jsemver
+    testImplementation(libs.guru.nidi.graphviz) {
         because("We use this library to execute package resolution tests")
     }
-    testImplementation "org.testng:testng:${project.testngVersion}"
-    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
-    testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
-    testImplementation 'org.apache.commons:commons-lang3'
+    testImplementation libs.testng
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.testng
+    testImplementation libs.apache.commons.lang3
 }
 
 description = 'Ballerina - Lang'

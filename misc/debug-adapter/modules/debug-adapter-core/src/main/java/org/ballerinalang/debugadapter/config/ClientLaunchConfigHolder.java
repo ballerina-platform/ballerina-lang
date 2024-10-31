@@ -114,7 +114,7 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
         return networkLogsEnabled;
     }
 
-    public Optional<Integer> getNetworkLogsPort() throws ClientConfigurationException {
+    public Optional<Integer> getNetworkLogsPort() {
         if (networkLogsPort == null) {
             if (clientRequestArgs.containsKey(ARG_NETWORK_LOGS_PORT)) {
                 return Optional.empty();

@@ -43,7 +43,7 @@ import java.util.Map;
 public class SchemaVisitorTest {
 
     @Test(dataProvider = "testDataProvider")
-    public void test(String configFileName) throws IOException {
+    public void test(String configFileName) {
         String configPath = FileUtils.RES_DIR.resolve("toml").resolve("completion")
                 .resolve("schema_visitor").resolve("config").resolve(configFileName).toString();
         JsonObject configJson =

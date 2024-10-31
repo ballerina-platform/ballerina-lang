@@ -15,8 +15,10 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations {
     balRuntime
@@ -27,7 +29,7 @@ dependencies {
 
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     testImplementation project(path: ':ballerina-runtime')
-    testImplementation 'org.testng:testng'
+    testImplementation libs.testng
 
     testRuntimeOnly project(':ballerina-lang:annotations')
     testRuntimeOnly project(':ballerina-lang:array')
@@ -51,7 +53,7 @@ dependencies {
     testRuntimeOnly project(':ballerina-lang:query')
     testRuntimeOnly project(':ballerina-lang:regexp')
     testRuntimeOnly project(':ballerina-lang:transaction')
-    testRuntimeOnly 'org.slf4j:slf4j-jdk14'
+    testRuntimeOnly libs.slf4j.jdk14
 }
 
 description = 'Ballerina - Compiler plugin tests'

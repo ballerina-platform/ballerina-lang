@@ -37,7 +37,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.NamedArgCompletionItem;
 import org.ballerinalang.langserver.completions.builder.NamedArgCompletionItemBuilder;
@@ -65,8 +64,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, T node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, T node) {
         return Collections.emptyList();
     }
 

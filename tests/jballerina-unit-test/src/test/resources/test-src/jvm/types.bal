@@ -90,6 +90,13 @@ function testIntToByteExplicitCast(int b) returns byte|error {
     return a;
 }
 
+function testXMLSequenceWithOneTextMember() {
+    xml text1 = xml `<a>abc</a><b>def</b>`;
+    xml text2 = xml:map(xml:elements(text1), y => y.getChildren());
+    xml:Text text3 = xml `abcdef`;
+    assertEquality(text2 == text3, true);
+}
+
 function testByteArray() returns byte[] {
     byte[] ba = [12, 24, 7];
     return ba;

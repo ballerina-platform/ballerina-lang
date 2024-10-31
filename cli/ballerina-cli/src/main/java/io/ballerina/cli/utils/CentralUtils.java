@@ -20,7 +20,6 @@ package io.ballerina.cli.utils;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.Settings;
 import org.ballerinalang.central.client.CentralAPIClient;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -51,7 +50,7 @@ public final class CentralUtils {
      * Checks if the access token is available in Settings.toml or not.
      */
     public static void authenticate(PrintStream errStream, String ballerinaCentralCliTokenUrl,
-                                    Path settingsTomlFilePath, CentralAPIClient client) throws SettingsTomlException {
+                                    Path settingsTomlFilePath, CentralAPIClient client) {
         String accessToken = client.accessToken();
 
         if (accessToken.isEmpty()) {

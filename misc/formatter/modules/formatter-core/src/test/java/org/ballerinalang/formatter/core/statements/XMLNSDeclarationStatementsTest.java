@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of XML namespace declaration statements.
@@ -43,6 +43,6 @@ public class XMLNSDeclarationStatementsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("statements", "xmlns-declaration").toString();
+        return Path.of("statements", "xmlns-declaration").toString();
     }
 }

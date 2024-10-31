@@ -28,7 +28,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -51,8 +50,7 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, RemoteMethodCallActionNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, RemoteMethodCallActionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (onSuggestClients(node, context)) {
             // Covers following:

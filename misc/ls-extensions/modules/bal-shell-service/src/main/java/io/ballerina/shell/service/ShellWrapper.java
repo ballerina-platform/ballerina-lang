@@ -36,7 +36,7 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -137,7 +137,7 @@ public class ShellWrapper {
     public ShellFileSourceResponse getShellFileSource() {
         String fileContent;
         try {
-            fileContent = Files.readString(Paths.get(evaluator.getBufferFileUri()), Charset.defaultCharset()).trim();
+            fileContent = Files.readString(Path.of(evaluator.getBufferFileUri()), Charset.defaultCharset()).trim();
             File tempFile = writeToFile(fileContent);
             return new ShellFileSourceResponse(tempFile, fileContent);
         } catch (IOException ignored) {

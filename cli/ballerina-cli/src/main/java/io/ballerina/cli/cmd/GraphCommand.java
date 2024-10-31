@@ -31,13 +31,11 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.Constants.GRAPH_COMMAND;
 
@@ -72,7 +70,7 @@ public class GraphCommand implements BLauncherCmd {
     private boolean sticky;
 
     public GraphCommand() {
-        this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;
@@ -134,11 +132,7 @@ public class GraphCommand implements BLauncherCmd {
     }
 
     private void validateSettingsToml() {
-        try {
-            RepoUtils.readSettings();
-        } catch (SettingsTomlException e) {
-            this.outStream.println("warning: " + e.getMessage());
-        }
+        RepoUtils.readSettings();
     }
 
     private void exitIfRequired() {

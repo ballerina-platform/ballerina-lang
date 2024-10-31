@@ -256,6 +256,8 @@ import io.ballerina.compiler.syntax.tree.XMLQualifiedNameNode;
 import io.ballerina.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLStepIndexedExtendNode;
+import io.ballerina.compiler.syntax.tree.XMLStepMethodCallExtendNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.internal.XmlFactory;
@@ -357,6 +359,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -426,11 +429,15 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
@@ -528,19 +535,19 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
     private static final String DOLLAR = "$";
-    private BLangDiagnosticLog dlog;
-    private SymbolTable symTable;
+    private final BLangDiagnosticLog dlog;
+    private final SymbolTable symTable;
 
     private PackageCache packageCache;
-    private PackageID packageID;
-    private String currentCompUnitName;
+    private final PackageID packageID;
+    private final String currentCompUnitName;
 
     private BLangCompilationUnit currentCompilationUnit;
-    private BLangAnonymousModelHelper anonymousModelHelper;
-    private BLangMissingNodesHelper missingNodesHelper;
+    private final BLangAnonymousModelHelper anonymousModelHelper;
+    private final BLangMissingNodesHelper missingNodesHelper;
 
     /* To keep track of additional statements produced from multi-BLangNode resultant transformations */
-    private Deque<BLangStatement> additionalStatements = new ArrayDeque<>();
+    private final Deque<BLangStatement> additionalStatements = new ArrayDeque<>();
     private final Deque<String> anonTypeNameSuffixes = new ArrayDeque<>();
     /* To keep track if we are inside a block statment for the use of type definition creation */
     private boolean isInLocalContext = false;
@@ -550,7 +557,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     boolean isInCharacterClass = false;
     boolean inCollectContext = false;
 
-    private  HashSet<String> constantSet = new HashSet<String>();
+    private final HashSet<String> constantSet = new HashSet<String>();
 
     public BLangNodeBuilder(CompilerContext context,
                             PackageID packageID, String entryName) {
@@ -717,8 +724,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             orgName = orgNameNode.orgName();
         }
 
-        String version = null;
-
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         NodeList<IdentifierToken> names = importDeclaration.moduleName();
         Location position = getPosition(importDeclaration);
@@ -728,7 +733,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         importDcl.pos = position;
         importDcl.pkgNameComps = pkgNameComps;
         importDcl.orgName = this.createIdentifier(getPosition(orgNameNode), orgName);
-        importDcl.version = this.createIdentifier(null, version);
+        importDcl.version = this.createIdentifier(null, (String) null);
 
         if (prefixNode.isEmpty()) {
             importDcl.alias = pkgNameComps.get(pkgNameComps.size() - 1);
@@ -2174,10 +2179,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         Node fieldName = fieldAccessExprNode.fieldName();
         if (fieldName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qualifiedFieldName = (QualifiedNameReferenceNode) fieldName;
-            BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess accessWithPrefixNode =
-                    (BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess)
+            BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess accessWithPrefixNode =
+                    (BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess)
                             TreeBuilder.createFieldBasedAccessWithPrefixNode();
-            accessWithPrefixNode.nsPrefix = createIdentifier(qualifiedFieldName.modulePrefix());
+            accessWithPrefixNode.prefix = createIdentifier(qualifiedFieldName.modulePrefix());
             accessWithPrefixNode.field = createIdentifier(qualifiedFieldName.identifier());
             bLFieldBasedAccess = accessWithPrefixNode;
             bLFieldBasedAccess.fieldKind = FieldKind.WITH_NS;
@@ -2208,10 +2213,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         if (fieldName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qualifiedFieldName = (QualifiedNameReferenceNode) fieldName;
-            BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess accessWithPrefixNode =
-                    (BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) TreeBuilder
+            BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess accessWithPrefixNode =
+                    (BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess) TreeBuilder
                             .createFieldBasedAccessWithPrefixNode();
-            accessWithPrefixNode.nsPrefix = createIdentifier(qualifiedFieldName.modulePrefix());
+            accessWithPrefixNode.prefix = createIdentifier(qualifiedFieldName.modulePrefix());
             accessWithPrefixNode.field = createIdentifier(qualifiedFieldName.identifier());
             bLFieldBasedAccess = accessWithPrefixNode;
             bLFieldBasedAccess.fieldKind = FieldKind.WITH_NS;
@@ -2387,19 +2392,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             indexBasedAccess.indexExpr = listConstructorExpr;
         }
 
-        Node containerExpr = indexedExpressionNode.containerExpression();
-        BLangExpression expression = createExpression(containerExpr);
-        if (containerExpr.kind() == SyntaxKind.XML_STEP_EXPRESSION) {
-            // TODO : This check will be removed after changes are done for spec issue #536
-
-            // The original expression position is overwritten here since the modeling of BLangXMLNavigationAccess is
-            // different from the normal index based access.
-            expression.pos = indexBasedAccess.pos;
-            ((BLangXMLNavigationAccess) expression).childIndex = indexBasedAccess.indexExpr;
-            return expression;
-        }
-        indexBasedAccess.expr = expression;
-
+        indexBasedAccess.expr = createExpression(indexedExpressionNode.containerExpression());
         return indexBasedAccess;
     }
 
@@ -4439,10 +4432,15 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         BLangExpression expr = createExpression(xmlStepExpressionNode.expression());
-        // TODO : implement the value for childIndex
-        BLangXMLNavigationAccess xmlNavigationAccess =
-                new BLangXMLNavigationAccess(getPosition(xmlStepExpressionNode), expr, filters,
-                XMLNavigationAccess.NavAccessType.fromInt(starCount), null);
+        BLangXMLNavigationAccess xmlNavigationAccess = new BLangXMLNavigationAccess(
+                getPosition(xmlStepExpressionNode.expression(), xmlStepExpressionNode.xmlStepStart()), expr, filters,
+                XMLNavigationAccess.NavAccessType.fromInt(starCount));
+        if (xmlStepExpressionNode.xmlStepExtend().size() > 0) {
+            List<BLangXMLStepExtend> extensions =
+                    createBLangXMLStepExtends(xmlStepExpressionNode.xmlStepExtend(), xmlNavigationAccess);
+            return new BLangExtendedXMLNavigationAccess(getPosition(xmlStepExpressionNode), xmlNavigationAccess,
+                    extensions);
+        }
         return xmlNavigationAccess;
     }
 
@@ -6872,7 +6870,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         private BLangIdentifier name;
         private BLangType type;
         private boolean isDeclaredWithVar;
-        private Set<Flag> flags = new HashSet<>();
+        private final Set<Flag> flags = new HashSet<>();
         private boolean isFinal;
         private ExpressionNode expr;
         private Location pos;
@@ -7044,5 +7042,37 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     throw new RuntimeException("Syntax kind is not supported: " + kind);
             }
         }
+    }
+
+    private List<BLangXMLStepExtend> createBLangXMLStepExtends(NodeList<Node> nodes, BLangExpression expr) {
+        List<BLangXMLStepExtend> extensions = new ArrayList<>(nodes.size());
+        BLangXMLStepExtend curExpr = null;
+        for (Node node : nodes) {
+            Location pos = getPosition(node);
+            switch (node.kind()) {
+                case XML_STEP_INDEXED_EXTEND -> curExpr = new BLangXMLIndexedStepExtend(pos,
+                        createExpression(((XMLStepIndexedExtendNode) node).expression()));
+                case XML_STEP_METHOD_CALL_EXTEND -> {
+                    XMLStepMethodCallExtendNode xmlStepMethodCallExtendNode = (XMLStepMethodCallExtendNode) node;
+                    SimpleNameReferenceNode methodName = xmlStepMethodCallExtendNode.methodName();
+                    BLangInvocation bLangInvocation = createBLangInvocation(methodName,
+                            xmlStepMethodCallExtendNode.parenthesizedArgList().arguments(), pos,
+                            false);
+                    bLangInvocation.expr = curExpr == null ? expr : curExpr;
+                    curExpr = new BLangXMLMethodCallStepExtend(pos, bLangInvocation);
+                }
+                case XML_NAME_PATTERN_CHAIN -> {
+                    XMLNamePatternChainingNode xmlNamePatternChainingNode = (XMLNamePatternChainingNode) node;
+                    List<BLangXMLElementFilter> filters = new ArrayList<>();
+                    for (Node namePattern : xmlNamePatternChainingNode.xmlNamePattern()) {
+                        filters.add(createXMLElementFilter(namePattern));
+                    }
+                    curExpr = new BLangXMLFilterStepExtend(pos, filters);
+                }
+                default -> throw new IllegalStateException("Invalid xml step extension kind: " + node.kind());
+            }
+            extensions.add(curExpr);
+        }
+        return extensions;
     }
 }
