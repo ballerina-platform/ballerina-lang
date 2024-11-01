@@ -268,7 +268,7 @@ public class PackCommand implements BLauncherCmd {
 
                 outStream.println("\nWhat's Next");
                 outStream.println("Execute the below command to publish the package to Ballerina Central.");
-                outStream.println("\t bal push ");
+                outStream.println("\tbal push ");
 
         taskExecutor.executeTasks(project);
         if (this.exitWhenFinish) {
