@@ -321,7 +321,7 @@ public class NewCommand implements BLauncherCmd {
 
                 case "lib":
                     errStream.println("Execute the below command to create the Ballerina archive:");
-                    errStream.println("\t bal pack " + packageName);
+                    errStream.println("\tbal pack " + packageName);
                     break;
 
                 default:
