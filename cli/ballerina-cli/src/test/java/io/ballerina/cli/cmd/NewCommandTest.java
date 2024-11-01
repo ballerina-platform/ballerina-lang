@@ -200,7 +200,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new package"));
         Assert.assertTrue(output.contains("What's next"));
         Assert.assertTrue(output.contains("Execute the below command to run the program:"));
-        Assert.assertTrue(output.contains("\t bal run " + name));
+        Assert.assertTrue(output.contains("\tbal run " + name));
         Assert.assertTrue(output.contains("Else, execute the below command to build the executable JAR file:"));
         Assert.assertTrue(output.contains("\t bal build " + name));
 
