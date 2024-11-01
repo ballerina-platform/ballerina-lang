@@ -157,8 +157,9 @@ public class PackageResolutionTestCaseBuilder {
             }
 
             PackageDescriptor pkgDesc = Utils.getPkgDescFromNode(node.name().value(), null);
+            List<DependencyManifest.Module> modules = Utils.getDependencyModules(pkgDesc, attrs.get("modules"));
             recordedDeps.add(new DependencyManifest.Package(pkgDesc.name(), pkgDesc.org(), pkgDesc.version(),
-                    scope.getValue(), isTransitive, Collections.emptyList(), Collections.emptyList()));
+                    scope.getValue(), isTransitive, Collections.emptyList(), modules));
         }
         return DependencyManifest.from("2.0.0", null, recordedDeps, Collections.emptyList());
     }
