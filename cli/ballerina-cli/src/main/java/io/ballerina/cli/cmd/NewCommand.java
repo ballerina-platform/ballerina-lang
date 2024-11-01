@@ -326,7 +326,7 @@ public class NewCommand implements BLauncherCmd {
 
                 default:
                     errStream.println("Execute the below command to run the program:");
-                    errStream.println("\t bal run " + packageName);
+                    errStream.println("\tbal run " + packageName);
                     
                     break;
             }
