@@ -60,7 +60,7 @@
   },
   "serviceTypes": [
     {
-      "name": "Service",
+      "name": "NATS",
       "description": "NATS Service",
       "basePath": {
         "optional": false,
@@ -73,7 +73,7 @@
       },
       "functions": [
         {
-          "name": "OnMessage",
+          "name": "onMessage",
           "documentation": "The `onMessage` remote method will be triggered when a message is received for the specified subject",
           "optional": false,
           "qualifiers": [
@@ -153,7 +153,7 @@
           }
         },
         {
-          "name": "OnError",
+          "name": "onError",
           "optional": true,
           "documentation": "The `onError` remote method will be triggered when an error occurs during the message processing.",
           "qualifiers": [
@@ -176,7 +176,7 @@
               "documentation": "The message received for the NATS subject."
             },
             {
-              "name": "error",
+              "name": "err",
               "typeName": "nats:Error",
               "type": [
                 "nats:Error"
