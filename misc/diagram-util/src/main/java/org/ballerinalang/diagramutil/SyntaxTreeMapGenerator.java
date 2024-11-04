@@ -37,6 +37,7 @@ import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
 import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
@@ -300,6 +301,16 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                     if (expressionSymbol.isPresent() && expressionSymbol.get() instanceof VariableSymbol) {
                         VariableSymbol variableSymbol = (VariableSymbol) expressionSymbol.get();
                         markVisibleEp(variableSymbol, symbolJson, remoteMethodCallActionNode.expression(), true);
+                    }
+                }
+            } else if (node.kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION) {
+                ClientResourceAccessActionNode resourceCallActionNode = (ClientResourceAccessActionNode) node;
+                if (semanticModel != null) {
+                    Optional<Symbol> expressionSymbol = this.semanticModel.symbol(
+                            resourceCallActionNode.expression());
+                    if (expressionSymbol.isPresent() &&
+                            expressionSymbol.get() instanceof VariableSymbol variableSymbol) {
+                        markVisibleEp(variableSymbol, symbolJson, resourceCallActionNode.expression(), true);
                     }
                 }
             }
