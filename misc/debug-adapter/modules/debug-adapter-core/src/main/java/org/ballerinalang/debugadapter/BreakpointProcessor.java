@@ -185,13 +185,6 @@ public class BreakpointProcessor {
      */
     void activateUserBreakPoints(ReferenceType referenceType, boolean shouldNotify) {
         try {
-            // avoids setting break points if the server is running in 'no-debug' mode.
-            ClientConfigHolder configHolder = context.getAdapter().getClientConfigHolder();
-            if (configHolder instanceof ClientLaunchConfigHolder
-                    && ((ClientLaunchConfigHolder) configHolder).isNoDebugMode()) {
-                return;
-            }
-
             String qualifiedClassName = getQualifiedClassName(referenceType);
             if (!userBreakpoints.containsKey(qualifiedClassName)) {
                 return;

@@ -216,6 +216,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<SetBreakpointsResponse> setBreakpoints(SetBreakpointsArguments args) {
         return CompletableFuture.supplyAsync(() -> {
+            SetBreakpointsResponse bpResponse = new SetBreakpointsResponse();
+            if (isNoDebugMode()) {
+                return bpResponse;
+            }
+
             BalBreakpoint[] balBreakpoints = Arrays.stream(args.getBreakpoints())
                     .map((SourceBreakpoint sourceBreakpoint) -> toBreakpoint(sourceBreakpoint, args.getSource()))
                     .toArray(BalBreakpoint[]::new);
@@ -225,7 +230,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 breakpointsMap.put(bp.getLine(), bp);
             }
 
-            SetBreakpointsResponse bpResponse = new SetBreakpointsResponse();
             String sourcePathUri = args.getSource().getPath();
             Optional<String> qualifiedClassName = getQualifiedClassName(context, sourcePathUri);
             if (qualifiedClassName.isEmpty()) {
@@ -1128,6 +1132,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             eventProcessor.getBreakpointProcessor().activateDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT);
         }
         context.setPrevInstruction(instruction);
+    }
+
+    private boolean isNoDebugMode() {
+        ClientConfigHolder confHolder = context.getAdapter().getClientConfigHolder();
+        return confHolder instanceof ClientLaunchConfigHolder launchConfigHolder && launchConfigHolder.isNoDebugMode();
     }
 
     /**
