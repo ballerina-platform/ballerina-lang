@@ -101,13 +101,20 @@ public class TriggerServiceTest {
         Assert.assertEquals(response.get("id").getAsString(), "10001");
         Assert.assertEquals(response.get("moduleName").getAsString(), "kafka");
 
-        request = new BallerinaTriggerRequest("ballerina", "mqtt",  "1.2.0",
+        request = new BallerinaTriggerRequest("ballerina", "mqtt",  "mqtt",
                 "*", "MQTT Event Listener");
         result = serviceEndpoint.request(BALLERINA_TRIGGER_NEW, request);
         response = (JsonObject) result.get();
 
         Assert.assertEquals(response.get("id").getAsString(), "10004");
         Assert.assertEquals(response.get("moduleName").getAsString(), "mqtt");
+
+        request = new BallerinaTriggerRequest("ballerinax", "trigger.slack",  "trigger.slack",
+                "*", "Slack Event Listener");
+        result = serviceEndpoint.request(BALLERINA_TRIGGER_NEW, request);
+        response = (JsonObject) result.get();
+
+        Assert.assertEquals(response.get("moduleName").getAsString(), "trigger.slack");
     }
 
     @Test(description = "Test new triggers endpoint of trigger service with query")

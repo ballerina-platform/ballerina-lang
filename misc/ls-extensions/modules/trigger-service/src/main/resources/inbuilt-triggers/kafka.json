@@ -59,11 +59,11 @@
     },
     "serviceTypes": [
         {
-            "name": "Service",
+            "name": "Kafka",
             "description": "Kafka Service",
             "functions": [
                 {
-                    "name": "OnConsumerRecord",
+                    "name": "onConsumerRecord",
                     "documentation": "The `onConsumerRecord` remote method will be triggered when a message is received from Kafka topic(s).",
                     "optional": false,
                     "qualifiers": [
@@ -72,12 +72,12 @@
                     "parameters": [
                         {
                             "name": "records",
-                            "typeName": "kafka:ConsumerAnydataRecord[]|anydata[]",
+                            "typeName": "kafka:AnydataConsumerRecord[]|anydata[]",
                             "optional": false,
                             "arrayType": true,
-                            "defaultTypeName": "kafka:ConsumerAnydataRecord[]",
+                            "defaultTypeName": "kafka:AnydataConsumerRecord[]",
                             "type": [
-                                "kafka:ConsumerAnydataRecord[]",
+                                "kafka:AnydataConsumerRecord[]",
                                 "anydata[]"
                             ],
                             "documentation": "The records received for Kafka topic(s)."
@@ -109,7 +109,7 @@
                     }
                 },
                 {
-                    "name": "OnError",
+                    "name": "onError",
                     "documentation": "The `onError` remote method will be triggered when an error occurs during the message processing.",
                     "optional": true,
                     "qualifiers": [
@@ -118,9 +118,9 @@
                     "parameters": [
                         {
                             "name": "err",
-                            "typeName": "kafka:error",
+                            "typeName": "kafka:Error",
                             "type": [
-                                "kafka:error"
+                                "kafka:Error"
                             ],
                             "optional": false,
                             "typeInfo": {

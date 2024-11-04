@@ -60,7 +60,7 @@
     },
     "serviceTypes": [
         {
-            "name": "Service",
+            "name": "RabbitMQ",
             "description": "RabbitMQ Service",
             "basePath": {
                 "optional": false,
@@ -73,7 +73,7 @@
             },
             "functions": [
                 {
-                    "name": "OnMessage",
+                    "name": "onMessage",
                     "documentation": "The `onMessage` remote method will be triggered when a message is received in the specified queue.",
                     "optional": false,
                     "qualifiers": [
@@ -183,7 +183,7 @@
                     }
                 },
                 {
-                    "name": "OnError",
+                    "name": "onError",
                     "optional": true,
                     "documentation": "The `onError` remote method will be triggered when an error occurs during the message processing.",
                     "qualifiers": [
@@ -206,7 +206,7 @@
                             "documentation": "The message received from the RabbitMQ queue."
                         },
                         {
-                            "name": "error",
+                            "name": "err",
                             "typeName": "rabbitmq:Error",
                             "type": [
                                 "rabbitmq:Error"

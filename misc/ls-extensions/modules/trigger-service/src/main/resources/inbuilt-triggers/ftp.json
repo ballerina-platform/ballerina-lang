@@ -61,12 +61,12 @@
   },
   "serviceTypes": [
     {
-      "name": "Service",
+      "name": "FTP",
       "description": "FTP Service",
       "functions": [
         {
-          "name": "OnFileChange",
-          "documentation": "The `OnFileChange` remote method will be triggered when a file change event occurs.",
+          "name": "onFileChange",
+          "documentation": "The `onFileChange` remote method will be triggered when a file change event occurs.",
           "optional": false,
           "qualifiers": [
             "remote"

@@ -59,11 +59,11 @@
   },
   "serviceTypes": [
     {
-      "name": "Service",
+      "name": "MQTT",
       "description": "MQTT Service",
       "functions": [
         {
-          "name": "OnMessage",
+          "name": "onMessage",
           "documentation": "The `onMessage` remote method will be triggered when a message is received for MQTT topic(s).",
           "optional": false,
           "qualifiers": [
@@ -112,7 +112,7 @@
           }
         },
         {
-          "name": "OnError",
+          "name": "onError",
           "documentation": "The `onError` remote method will be triggered when an error occurs during the message processing.",
           "optional": true,
           "qualifiers": [
@@ -121,9 +121,9 @@
           "parameters": [
             {
               "name": "err",
-              "typeName": "mqtt:error",
+              "typeName": "mqtt:Error",
               "type": [
-                "mqtt:error"
+                "mqtt:Error"
               ],
               "optional": false,
               "typeInfo": {
