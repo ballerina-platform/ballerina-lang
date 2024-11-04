@@ -15,6 +15,10 @@
  */
 package org.ballerinalang.langserver;
 
+
+import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Module;
@@ -263,16 +267,16 @@ public class LSPackageLoader {
                     packageInstance.packageVersion(), packageInstance.project().sourceRoot());
             moduleInfo.setModuleFromCurrentPackage(true);
             Optional<Module> currentModule = ctx.currentModule();
-            String packageName = moduleInfo.packageName().value();
+            String packageName = moduleInfo.packageName();
             String moduleName = module.descriptor().name().moduleNamePart();
             String qualifiedModName = packageName + Names.DOT + moduleName;
             if (currentModule.isEmpty() || module.isDefaultModule() || module.equals(currentModule.get()) ||
                     ModuleUtil.matchingImportedModule(ctx, "", qualifiedModName).isPresent()) {
                 return;
             } else {
-                moduleInfo.packageName = PackageName.from(packageName + "." + moduleName);
+                moduleInfo.packageName = packageName + "." + moduleName;
             }
-            packagesList.put(moduleInfo.packageName.value(), moduleInfo);
+            packagesList.put(moduleInfo.packageName, moduleInfo);
         });
         return new ArrayList<>(packagesList.values());
     }
@@ -353,32 +357,56 @@ public class LSPackageLoader {
     /**
      * A light-weight package information holder.
      */
+    /**
+     * A light-weight package information holder.
+     */
     public static class ModuleInfo {
 
-        private final PackageOrg packageOrg;
-        private PackageName packageName;
-        private final PackageVersion packageVersion;
+        private static final String JSON_PROPERTY_ORGANIZATION = "organization";
+        @SerializedName(JSON_PROPERTY_ORGANIZATION)
+        private final String packageOrg;
+
+        private static final String JSON_PROPERTY_NAME = "name";
+        @SerializedName(JSON_PROPERTY_NAME)
+        private String packageName;
+
+        private static final String JSON_PROPERTY_VERSION = "version";
+        @SerializedName(JSON_PROPERTY_VERSION)
+        private final String packageVersion;
+
+        @Expose(deserialize = false)
         private final Path sourceRoot;
 
+        @Expose(deserialize = false)
         private final String moduleIdentifier;
 
+        @Expose(deserialize = false)
         private boolean isModuleFromCurrentPackage = false;
 
+        @Expose(deserialize = false)
         private final List<ServiceTemplateGenerator.ListenerMetaData> listenerMetaData = new ArrayList<>();
 
-        public ModuleInfo(PackageOrg packageOrg, PackageName packageName, PackageVersion version, Path path) {
+        public ModuleInfo(String packageOrg, String packageName, String packageVersion) {
             this.packageOrg = packageOrg;
             this.packageName = packageName;
-            this.packageVersion = version;
+            this.packageVersion = packageVersion;
+            this.sourceRoot = null;
+            this.moduleIdentifier = packageOrg + "/" + packageName;
+        }
+
+        public ModuleInfo(PackageOrg packageOrg, PackageName packageName, PackageVersion version, Path path) {
+            this.packageOrg = packageOrg.value();
+            this.packageName = packageName.value();
+            this.packageVersion = version.value().toString();
             this.sourceRoot = path;
             this.moduleIdentifier = packageOrg.toString().isEmpty() ? packageName.toString() :
-                    packageOrg + "/" + packageName.toString();
+                    packageOrg + "/" + packageName;
         }
 
         public ModuleInfo(Package pkg) {
-            this.packageOrg = pkg.packageOrg();
-            this.packageName = pkg.packageName();
-            this.packageVersion = pkg.packageVersion();
+            this.packageOrg = pkg.packageOrg().value();
+            this.packageName = pkg.packageName().value();
+            this.packageVersion = pkg.packageVersion().value().toString();
             this.sourceRoot = pkg.project().sourceRoot();
             this.moduleIdentifier = packageOrg.toString() + "/" + packageName.toString();
             addServiceTemplateMetaData();
@@ -400,15 +428,15 @@ public class LSPackageLoader {
             isModuleFromCurrentPackage = moduleFromCurrentPackage;
         }
 
-        public PackageName packageName() {
+        public String packageName() {
             return packageName;
         }
 
-        public PackageOrg packageOrg() {
+        public String packageOrg() {
             return packageOrg;
         }
 
-        public PackageVersion packageVersion() {
+        public String packageVersion() {
             return packageVersion;
         }
 
@@ -421,7 +449,7 @@ public class LSPackageLoader {
         }
 
         private void addServiceTemplateMetaData() {
-            String orgName = ModuleUtil.escapeModuleName(this.packageOrg().value());
+            String orgName = ModuleUtil.escapeModuleName(this.packageOrg());
             Project project = ProjectLoader.loadProject(this.sourceRoot());
             //May take some time as we are compiling projects.
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
