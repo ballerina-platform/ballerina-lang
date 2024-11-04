@@ -113,8 +113,8 @@ public class ExecutionContext {
         this.prevInstruction = prevInstruction;
     }
 
-    public Location getPrevLocation() {
-        return prevLocation;
+    public Optional<Location> getPrevLocation() {
+        return Optional.ofNullable(prevLocation);
     }
 
     public void setPrevLocation(Location prevLocation) {

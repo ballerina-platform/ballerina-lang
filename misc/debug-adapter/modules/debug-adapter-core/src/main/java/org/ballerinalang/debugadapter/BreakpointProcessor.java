@@ -228,8 +228,9 @@ public class BreakpointProcessor {
             List<BallerinaStackFrame> validFrames = jdiEventProcessor.filterValidBallerinaFrames(jStackFrames);
             if (!validFrames.isEmpty()) {
                 Location currentLocation = validFrames.get(0).getJStackFrame().location();
-                if (mode == DynamicBreakpointMode.CURRENT
-                        && !isWithinSameSource(currentLocation, context.getPrevLocation())) {
+                Optional<Location> prevLocation = context.getPrevLocation();
+                if (mode == DynamicBreakpointMode.CURRENT &&
+                        (prevLocation.isEmpty() || !isWithinSameSource(currentLocation, prevLocation.get()))) {
                     context.getEventManager().deleteAllBreakpoints();
                     configureBreakpointsForMethod(currentLocation);
                 }
@@ -261,9 +262,6 @@ public class BreakpointProcessor {
      * @return true if the given two locations are within the same source file, false otherwise
      */
     private boolean isWithinSameSource(Location currentLocation, Location prevLocation) {
-        if (prevLocation == null) {
-            return false;
-        }
         try {
             return Objects.equals(currentLocation.sourcePath(), prevLocation.sourcePath());
         } catch (AbsentInformationException e) {
