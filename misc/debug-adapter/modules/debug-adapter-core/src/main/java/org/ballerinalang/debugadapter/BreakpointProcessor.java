@@ -390,7 +390,7 @@ public class BreakpointProcessor {
 
         // As we disabled all the breakpoint requests before evaluating the user's conditional
         // expression, need to re-enable all the breakpoints before continuing the remote VM execution.
-        JDIUtils.disableJDIRequests(context);
+        JDIUtils.enableJDIRequests(context);
         return evaluationResult;
     }
 
