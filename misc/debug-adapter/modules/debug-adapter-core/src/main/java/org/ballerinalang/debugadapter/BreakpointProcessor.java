@@ -228,8 +228,8 @@ public class BreakpointProcessor {
             List<BallerinaStackFrame> validFrames = jdiEventProcessor.filterValidBallerinaFrames(jStackFrames);
             if (!validFrames.isEmpty()) {
                 Location currentLocation = validFrames.get(0).getJStackFrame().location();
-                if (mode == DynamicBreakpointMode.CURRENT && (Objects.isNull(context.getPrevLocation()) ||
-                        !context.getPrevLocation().method().equals(currentLocation.method()))) {
+                if (mode == DynamicBreakpointMode.CURRENT
+                        && !isWithinSameSource(currentLocation, context.getPrevLocation())) {
                     context.getEventManager().deleteAllBreakpoints();
                     configureBreakpointsForMethod(currentLocation);
                 }
@@ -254,6 +254,24 @@ public class BreakpointProcessor {
     }
 
     /**
+     * Checks whether the given two locations are within the same source file.
+     *
+     * @param currentLocation current location
+     * @param prevLocation    previous location
+     * @return true if the given two locations are within the same source file, false otherwise
+     */
+    private boolean isWithinSameSource(Location currentLocation, Location prevLocation) {
+        if (prevLocation == null) {
+            return false;
+        }
+        try {
+            return Objects.equals(currentLocation.sourcePath(), prevLocation.sourcePath());
+        } catch (AbsentInformationException e) {
+            return false;
+        }
+    }
+
+    /**
      * Configures temporary(dynamic) breakpoints for all the lines within the method, which encloses the given stack
      * frame location. This strategy is used when processing STEP_OVER requests.
      *
@@ -261,7 +279,6 @@ public class BreakpointProcessor {
      */
     private void configureBreakpointsForMethod(Location currentLocation) {
         try {
-            ReferenceType referenceType = currentLocation.declaringType();
             List<Location> allLocations = currentLocation.method().allLineLocations();
             Optional<Location> firstLocation = allLocations.stream()
                     .filter(location -> location.lineNumber() > 0)
@@ -273,7 +290,7 @@ public class BreakpointProcessor {
 
             int nextStepPoint = firstLocation.get().lineNumber();
             do {
-                List<Location> locations = referenceType.locationsOfLine(nextStepPoint);
+                List<Location> locations = currentLocation.method().locationsOfLine(nextStepPoint);
                 if (!locations.isEmpty() && (locations.get(0).lineNumber() > firstLocation.get().lineNumber())) {
                     // Checks whether there are any user breakpoint configured for the same location, before adding the
                     // dynamic breakpoint.
