@@ -22,17 +22,15 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.request.BreakpointRequest;
-import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.StepRequest;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.breakpoint.LogMessage;
 import org.ballerinalang.debugadapter.breakpoint.TemplateLogMessage;
-import org.ballerinalang.debugadapter.config.ClientConfigHolder;
-import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.DebugExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.jdi.JDIUtils;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
@@ -202,6 +200,7 @@ public class BreakpointProcessor {
             for (BalBreakpoint breakpoint : breakpoints.values()) {
                 List<Location> locations = referenceType.locationsOfLine(breakpoint.getLine());
                 if (!locations.isEmpty()) {
+                    // TODO: should we consider the last location instead?
                     Location loc = locations.get(0);
                     BreakpointRequest bpReq = context.getEventManager().createBreakpointRequest(loc);
                     bpReq.enable();
@@ -365,8 +364,7 @@ public class BreakpointProcessor {
         // the new event. If this new EventSet is in 'SUSPEND_ALL' mode, then a deadlock will occur because no one
         // will resume the EventSet. Therefore to avoid this, we are disabling possible event requests before doing
         // the condition evaluation.
-        context.getEventManager().classPrepareRequests().forEach(EventRequest::disable);
-        context.getEventManager().breakpointRequests().forEach(BreakpointRequest::disable);
+        JDIUtils.disableJDIRequests(context);
 
         ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads().get((int) threadReference.uniqueID());
         List<BallerinaStackFrame> validFrames = jdiEventProcessor.filterValidBallerinaFrames(thread.frames());
@@ -380,10 +378,9 @@ public class BreakpointProcessor {
         evaluator.setExpression(expression);
         BExpressionValue evaluationResult = evaluator.evaluate();
 
-        // As we are disabling all the breakpoint requests before evaluating the user's conditional
+        // As we disabled all the breakpoint requests before evaluating the user's conditional
         // expression, need to re-enable all the breakpoints before continuing the remote VM execution.
-        context.getEventManager().classPrepareRequests().forEach(EventRequest::enable);
-        context.getEventManager().breakpointRequests().forEach(BreakpointRequest::enable);
+        JDIUtils.disableJDIRequests(context);
         return evaluationResult;
     }
 
