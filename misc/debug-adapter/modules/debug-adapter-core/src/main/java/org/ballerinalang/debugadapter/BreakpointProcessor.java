@@ -106,7 +106,7 @@ public class BreakpointProcessor {
         // need to internally step out if we are at the last line of a function, in order to ignore having debug hits
         // on the last line.
         if (requireStepOut(bpEvent)) {
-            activateDynamicBreakPoints((int) bpEvent.thread().uniqueID(), DynamicBreakpointMode.CALLER);
+            activateDynamicBreakPoints((int) bpEvent.thread().uniqueID(), DynamicBreakpointMode.CALLER, true);
             context.setPrevInstruction(DebugInstruction.STEP_OVER);
             context.getDebuggeeVM().resume();
         } else if (context.getPrevInstruction() != null && context.getPrevInstruction() != DebugInstruction.CONTINUE) {
@@ -218,21 +218,23 @@ public class BreakpointProcessor {
      * Activates dynamic/temporary breakpoints (which will be used to process the STEP-OVER instruction) via Java Debug
      * Interface(JDI).
      *
-     * @param threadId ID of the active java thread in oder to configure dynamic breakpoint on the active stack trace
-     * @param mode     dynamic breakpoint mode
+     * @param threadId ID of the active java thread in oder to configure dynamic breakpoint on the active stack
+     *                 trace.
+     * @param mode     dynamic breakpoint mode.
+     * @param validate If true, validates whether the dynamic breakpoints are already applied before activating dynamic
+     *                 breakpoints. This is to optimize the performance by avoiding redundant breakpoint activations.
      */
-    void activateDynamicBreakPoints(int threadId, DynamicBreakpointMode mode) {
-        ThreadReferenceProxyImpl threadReference = context.getAdapter().getAllThreads().get(threadId);
+    void activateDynamicBreakPoints(int threadId, DynamicBreakpointMode mode, boolean validate) {
         try {
+            ThreadReferenceProxyImpl threadReference = context.getAdapter().getAllThreads().get(threadId);
             List<StackFrameProxyImpl> jStackFrames = threadReference.frames();
             List<BallerinaStackFrame> validFrames = jdiEventProcessor.filterValidBallerinaFrames(jStackFrames);
-            if (!validFrames.isEmpty()) {
+
+            if (mode == DynamicBreakpointMode.CURRENT && !validFrames.isEmpty()) {
                 Location currentLocation = validFrames.get(0).getJStackFrame().location();
                 Optional<Location> prevLocation = context.getPrevLocation();
-                if (mode == DynamicBreakpointMode.CURRENT &&
-                        (prevLocation.isEmpty() || !isWithinSameSource(currentLocation, prevLocation.get()))) {
-                    context.getEventManager().deleteAllBreakpoints();
-                    configureBreakpointsForMethod(currentLocation);
+                if (!validate || prevLocation.isEmpty() || !isWithinSameSource(currentLocation, prevLocation.get())) {
+                    doActivateDynamicBreakPoints(currentLocation);
                 }
                 context.setPrevLocation(currentLocation);
             }
@@ -241,9 +243,7 @@ public class BreakpointProcessor {
             // temporary breakpoint on the location of its invocation. This is supposed to handle the situations where
             // the user wants to step over on an exit point of the current function.
             if (mode == DynamicBreakpointMode.CALLER && validFrames.size() > 1) {
-                context.getEventManager().deleteAllBreakpoints();
-                configureBreakpointsForMethod(validFrames.get(1).getJStackFrame().location());
-                context.setPrevLocation(validFrames.get(1).getJStackFrame().location());
+                doActivateDynamicBreakPoints(validFrames.get(1).getJStackFrame().location());
             }
         } catch (JdiProxyException e) {
             LOGGER.error(e.getMessage());
@@ -252,6 +252,12 @@ public class BreakpointProcessor {
                 jdiEventProcessor.sendStepRequest(threadId, stepType);
             }
         }
+    }
+
+    private void doActivateDynamicBreakPoints(Location location) {
+        context.getEventManager().deleteAllBreakpoints();
+        configureBreakpointsForMethod(location);
+        context.setPrevLocation(location);
     }
 
     /**

@@ -1122,14 +1122,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      */
     private void prepareFor(DebugInstruction instruction, int threadId) {
         clearState();
+        BreakpointProcessor bpProcessor = eventProcessor.getBreakpointProcessor();
         DebugInstruction prevInstruction = context.getPrevInstruction();
         if (prevInstruction == DebugInstruction.STEP_OVER && instruction == DebugInstruction.CONTINUE) {
-            // need to remove dynamic breakpoints and restore user breakpoints, only when stepping over is followed
-            // by a 'continue' instruction.
-            eventProcessor.getBreakpointProcessor().restoreUserBreakpoints();
+            bpProcessor.restoreUserBreakpoints();
+        } else if (prevInstruction == DebugInstruction.CONTINUE && instruction == DebugInstruction.STEP_OVER) {
+            bpProcessor.activateDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT, false);
         } else if (instruction == DebugInstruction.STEP_OVER) {
-            // Activates dynamic breakpoints to replicate the step-over behavior.
-            eventProcessor.getBreakpointProcessor().activateDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT);
+            bpProcessor.activateDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT, true);
         }
         context.setPrevInstruction(instruction);
     }
