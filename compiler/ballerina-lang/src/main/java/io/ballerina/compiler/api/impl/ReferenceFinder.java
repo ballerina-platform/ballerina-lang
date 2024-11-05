@@ -276,7 +276,7 @@ public class ReferenceFinder extends BaseVisitor {
                      .toList());
 
         if (!(pkgNode instanceof BLangTestablePackage)) {
-            find(pkgNode.getTestablePkg().orElseThrow());
+            find(pkgNode.getTestablePkg().orElse(null));
         }
     }
 
