@@ -7,20 +7,58 @@
   "description": "Test completions for ballerinax packages",
   "items": [
     {
-      "label": "azure.ad",
+      "label": "azure.sqldb",
       "kind": "Module",
       "detail": "Module",
       "sortText": "D",
-      "insertText": "azure.ad",
-      "insertTextFormat": "Snippet"
+      "insertText": "azure.sqldb",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
-      "label": "azure.qnamaker",
+      "label": "azure.datalake",
       "kind": "Module",
       "detail": "Module",
       "sortText": "D",
-      "insertText": "azure.qnamaker",
-      "insertTextFormat": "Snippet"
+      "insertText": "azure.datalake",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "azure.iothub",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "azure.iothub",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "azure.keyvault",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "azure.keyvault",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "azure_storage_service",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "azure_storage_service",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "azure_eventhub",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "azure_eventhub",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }
