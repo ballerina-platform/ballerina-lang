@@ -25,6 +25,8 @@ import java.util.Optional;
 
 /**
  * Dependency definition in Ballerina.toml manifest file.
+ * @param moduleID module id of the dependency
+ * @param metadata metadata of the dependency
  */
 public record Dependency(String moduleID, DependencyMetadata metadata) {
 
