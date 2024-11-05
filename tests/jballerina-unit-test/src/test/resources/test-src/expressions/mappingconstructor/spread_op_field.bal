@@ -318,9 +318,9 @@ function testSpreadFieldWithRecordTypeReference() {
     RetryConfig rc = {count: 3, interval: 0.5, backOffFactor: 0.5};
     RetryTyperef re = {...rc};
     assertEquality(3, re.count);
-    assertEquality(0.5, re.interval);
+    assertEquality(0.5d, re.interval);
     assertEquality(0.5, re.backOffFactor);
-    assertEquality(0, re.maxWaitInterval);
+    assertEquality(0d, re.maxWaitInterval);
     assertEquality(0, re.statusCodes.length());
 }
 
