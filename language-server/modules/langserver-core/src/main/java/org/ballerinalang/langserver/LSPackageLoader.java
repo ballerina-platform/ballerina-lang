@@ -15,8 +15,6 @@
  */
 package org.ballerinalang.langserver;
 
-
-import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import io.ballerina.compiler.api.ModuleID;
