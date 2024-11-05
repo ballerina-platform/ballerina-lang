@@ -275,8 +275,8 @@ public class ReferenceFinder extends BaseVisitor {
                      .filter(f -> !f.flagSet.contains(Flag.LAMBDA))
                      .toList());
 
-        if (!(pkgNode instanceof BLangTestablePackage)) {
-            find(pkgNode.getTestablePkg().orElse(null));
+        if (!(pkgNode instanceof BLangTestablePackage) && pkgNode.containsTestablePkg()) {
+            find(pkgNode.getTestablePkg().orElseThrow());
         }
     }
 

@@ -274,10 +274,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
         return flagSet;
     }
 
-    public boolean hasTestablePackage() {
-        return !this.testablePkgs.isEmpty();
-    }
-
     public void addClassDefinition(BLangClassDefinition classDefNode) {
         this.topLevelNodes.add(classDefNode);
         this.classDefinitions.add(classDefNode);

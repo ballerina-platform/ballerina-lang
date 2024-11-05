@@ -217,6 +217,7 @@ public class DebugTestRunner {
         DAPClientConnector debugClientConnector =
                 new DAPClientConnector(balServer.getServerHome(), testProjectPath, testEntryFilePath, port,
                         clientSupportsRunInTerminal);
+        this.debugClientConnector = debugClientConnector;
         debugClientConnector.createConnection();
         if (debugClientConnector.isConnected()) {
             isConnected = true;
@@ -234,7 +235,6 @@ public class DebugTestRunner {
             debugClientConnector.getRequestManager().setIsProjectBasedTest(isProjectBasedTest);
             launchDebuggee(executionKind, launchArgs);
         }
-        this.debugClientConnector = debugClientConnector;
     }
 
     private void attachToDebuggee() throws BallerinaTestException {
