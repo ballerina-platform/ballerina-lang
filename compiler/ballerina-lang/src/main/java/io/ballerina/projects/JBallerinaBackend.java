@@ -391,7 +391,7 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
 
-        if (!bLangPackage.hasTestablePackage()) {
+        if (!bLangPackage.containsTestablePkg()) {
             return;
         }
 
