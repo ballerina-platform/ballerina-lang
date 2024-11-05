@@ -66,7 +66,7 @@ public final class GraalVMCompatibilityUtils {
     private static Boolean isAllPlatformDepsGraalvmCompatible(Map<String, PackageManifest.Platform> platforms) {
         Boolean isAllDepsGraalvmCompatible = true;
         for (PackageManifest.Platform platform: platforms.values()) {
-            Boolean graalvmCompatible = platform.graalvmCompatible();
+            Boolean graalvmCompatible = platform.isPlatfromDepsGraalvmCompatible();
             if (graalvmCompatible == null) {
                 isAllDepsGraalvmCompatible = null;
             } else if (!graalvmCompatible) {
