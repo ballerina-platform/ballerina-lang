@@ -9,9 +9,9 @@ failWithinOnFail function() -> string|error {
     %17(TEMP) error;
     %18(TEMP) ();
     %19(TEMP) map<ballerina/lang.value:0.0.0:Cloneable>;
-    %20(TEMP) string;
+    %20(TEMP) typeDesc<any|error>;
     %21(TEMP) string;
-    %22(TEMP) typeDesc<any|error>;
+    %22(TEMP) string;
     %23(TEMP) map<ballerina/lang.value:0.0.0:Cloneable>;
 
     bb0 {
@@ -32,22 +32,22 @@ failWithinOnFail function() -> string|error {
         %9 = ConstLoad custom error;
         %18 = ConstLoad 0;
         %17 = <error> %18;
-        %20 = ConstLoad message;
-        %21 = ConstLoad error value;
-        %22 = newType map<ballerina/lang.value:0.0.0:Cloneable>;
-        %19 = NewMap %22{%20:%21};
+        %20 = newType map<ballerina/lang.value:0.0.0:Cloneable>;
+        %21 = ConstLoad message;
+        %22 = ConstLoad error value;
+        %19 = NewMap %20{%21:%22};
         %23 = cloneReadOnly(%19) -> bb3;
     }
     bb3 {
         %14 = error error(%9, %17, %23);
-        %20 = ConstLoad -> Error caught in inner on fail;
-        %3 = %3 + %20;
+        %21 = ConstLoad -> Error caught in inner on fail;
+        %3 = %3 + %21;
         %0 = %14;
         GOTO bb6;
     }
     bb4 {
-        %21 = ConstLoad -> After do statement;
-        %3 = %3 + %21;
+        %22 = ConstLoad -> After do statement;
+        %3 = %3 + %22;
         GOTO bb1;
     }
     bb5 {

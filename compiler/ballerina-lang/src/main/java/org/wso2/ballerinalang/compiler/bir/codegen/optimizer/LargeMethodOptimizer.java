@@ -190,10 +190,6 @@ public class LargeMethodOptimizer {
                 handleArrayOperand, birOperands, mapValuesOperands, globalAndArgVarKeyOrValueLhsOperands,
                 mapKeyOperandLocations);
 
-        // add the constant load array size operand instruction
-        parentFuncEnv.parentFuncNewInsList.add(bbs.get(0).instructions.get(0));
-        parentFuncEnv.parentFuncLocalVarList.add(bbs.get(0).instructions.get(0).lhsOp.variableDcl);
-
         splitParentFuncForPeriodicMapSplits(parentFunc, newlyAddingFunctions, fromAttachedFunction,
                 bbs, newMapInsBBNum, newMapInsNumInRelevantBB,
                 handleArray, handleArrayOperand, birOperands, splitFuncEnv, parentFuncEnv, mapValuesOperands,
@@ -603,9 +599,7 @@ public class LargeMethodOptimizer {
             BIRBasicBlock bb = bbs.get(bbIndex);
             handleBasicBlockStart(splitFuncEnv, nextBBPendingIns, bb);
             for (int insIndex = 0; insIndex < bb.instructions.size(); insIndex++) {
-                if (bbIndex == 0 && insIndex == 0) { // map type ins
-                    continue;
-                } else if ((bbIndex == newArrayInsBBNum) && (insIndex == newArrayInsNumInRelevantBB)) {
+                 if ((bbIndex == newArrayInsBBNum) && (insIndex == newArrayInsNumInRelevantBB)) {
                     createNewFuncForPeriodicSplit(parentFunc, newlyAddingFunctions, fromAttachedFunction,
                             handleArray, splitFuncEnv, parentFuncEnv, bb,
                             bb.instructions.get(newArrayInsNumInRelevantBB));
@@ -1281,7 +1275,21 @@ public class LargeMethodOptimizer {
                             splitTypeArray = true;
                         } else {
                             BIRNonTerminator.NewStructure structureIns = (BIRNonTerminator.NewStructure) currIns;
-                            splitStartOperand = structureIns.rhsOp;
+                            if (structureIns.initialValues.size() == 0) {
+                                continue;
+                            }
+
+                            BIRNode.BIRMappingConstructorEntry firstInitialValue = structureIns.initialValues.get(0);
+                            if (firstInitialValue.isKeyValuePair()) {
+                                BIRNode.BIRMappingConstructorKeyValueEntry keyValueEntry =
+                                        (BIRNode.BIRMappingConstructorKeyValueEntry) firstInitialValue;
+                                splitStartOperand = keyValueEntry.keyOp;
+                            } else {
+                                BIRNode.BIRMappingConstructorSpreadFieldEntry exprEntry =
+                                        (BIRNode.BIRMappingConstructorSpreadFieldEntry) firstInitialValue;
+                                splitStartOperand = exprEntry.exprOp;
+                            }
+
                             splitTypeArray = false;
                         }
 

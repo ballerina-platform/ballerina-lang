@@ -1633,9 +1633,9 @@ public class BIRGen extends BLangNodeVisitor {
                                                        VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-
-        setScopeAndEmit(createNewStructureInst(generateMappingConstructorEntries(astMapLiteralExpr.fields), toVarRef,
-                        type, astMapLiteralExpr.pos));
+        BIROperand typeDesc = new BIROperand(getTypedescVariable(type, astMapLiteralExpr.pos));
+        setScopeAndEmit(createNewStructureInst(typeDesc, generateMappingConstructorEntries(astMapLiteralExpr.fields),
+                toVarRef, astMapLiteralExpr.pos));
         this.env.targetOperand = toVarRef;
         this.env.isInArrayOrStructure--;
     }
@@ -1665,9 +1665,10 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
+        BIROperand typeDesc = new BIROperand(getTypedescVariable(type, astStructLiteralExpr.pos));
         List<BIRNode.BIRMappingConstructorEntry> fields =
                                                    generateMappingConstructorEntries(astStructLiteralExpr.fields);
-        setScopeAndEmit(createNewStructureInst(fields, toVarRef, type, astStructLiteralExpr.pos));
+        setScopeAndEmit(createNewStructureInst(typeDesc, fields, toVarRef, astStructLiteralExpr.pos));
         this.env.targetOperand = toVarRef;
         this.env.isInArrayOrStructure--;
     }
@@ -2014,7 +2015,9 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
         Location pos = waitLiteral.pos;
-        setScopeAndEmit(createNewStructureInst(new ArrayList<>(), toVarRef, type, pos));
+
+        BIROperand typeDesc = new BIROperand(getTypedescVariable(type, pos));
+        setScopeAndEmit(createNewStructureInst(typeDesc, new ArrayList<>(), toVarRef, pos));
         this.env.targetOperand = toVarRef;
 
         List<String> keys = new ArrayList<>();
@@ -2271,12 +2274,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
         BType type = typeLoad.symbol.tag == SymTag.TYPE_DEF ?
                 ((BTypeDefinitionSymbol) typeLoad.symbol).referenceType : typeLoad.symbol.type;
-        BIRVariableDcl typedescVar = getTypedescVariable(type);
-        if (typedescVar != null) {
-            env.targetOperand = new BIROperand(typedescVar);
-        } else {
-            createNewTypedescInst(type, typeLoad.pos);
-        }
+        env.targetOperand = new BIROperand(getTypedescVariable(type, typeLoad.pos));
     }
 
     @Override
@@ -2395,23 +2393,17 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = toVarRef;
     }
 
-    private BIRNonTerminator.NewStructure createNewStructureInst(List<BIRNode.BIRMappingConstructorEntry> fields,
-                                                                 BIROperand toVarRef, BType type, Location pos) {
-        BIRVariableDcl typedescVar = getTypedescVariable(type);
-        if (typedescVar != null) {
-            return new BIRNonTerminator.NewStructure(pos, toVarRef, new BIROperand(typedescVar), fields);
-        } else {
-            // TODO: check whether we can remove this else block
-            createNewTypedescInst(type, pos);
-            return new BIRNonTerminator.NewStructure(pos, toVarRef, this.env.targetOperand, fields);
-        }
+    private BIRNonTerminator.NewStructure createNewStructureInst(BIROperand typeDesc,
+                                                                 List<BIRNode.BIRMappingConstructorEntry> fields,
+                                                                 BIROperand toVarRef, Location pos) {
+        return new BIRNonTerminator.NewStructure(pos, toVarRef, typeDesc, fields);
     }
 
     public String getTypedescFieldName(String name) {
         return "$typedesc$" + name;
     }
 
-    private BIRVariableDcl getTypedescVariable(BType type) {
+    private BIRVariableDcl getTypedescVariable(BType type, Location pos) {
         Supplier<BIRVariableDcl>[] checks = new Supplier[] {
                 () -> findInPackageScope(type),
                 () -> findInLocalSymbolVarMap(type, env.symbolVarMap, false),
@@ -2428,7 +2420,9 @@ public class BIRGen extends BLangNodeVisitor {
             }
         }
 
-        return null;
+        // TODO: we need to remove typedesc creating completely from here and handle it in the Desugar phase
+        createNewTypedescInst(type, pos);
+        return this.env.targetOperand.variableDcl;
     }
 
     private BIRVariableDcl findInPackageScope(BType type) {
@@ -2532,20 +2526,11 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-    private BIRNonTerminator.NewArray createNewArrayInst(List<BIRNode.BIRListConstructorEntry> initialValues,
+    private BIRNonTerminator.NewArray createNewArrayInst(BIROperand typeDesc,
+                                                         List<BIRNode.BIRListConstructorEntry> initialValues,
                                                          BType listConstructorExprType, BIROperand sizeOp,
-                                                         BIROperand toVarRef, BType referredType, Location pos) {
-        BIRVariableDcl typedescVar = getTypedescVariable(listConstructorExprType);
-        if (typedescVar != null) {
-            return new BIRNonTerminator.NewArray(pos, listConstructorExprType, toVarRef,
-                    new BIROperand(typedescVar), sizeOp, initialValues);
-
-        } else {
-            // TODO: check whether we can remove this else block
-            createNewTypedescInst(referredType, pos);
-            return new BIRNonTerminator.NewArray(pos, listConstructorExprType, toVarRef, this.env.targetOperand, sizeOp,
-                                                 initialValues);
-        }
+                                                         BIROperand toVarRef, Location pos) {
+        return new BIRNonTerminator.NewArray(pos, listConstructorExprType, toVarRef, typeDesc, sizeOp, initialValues);
     }
 
     @Override
@@ -2822,16 +2807,16 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
-        long size = -1L;
-        BIROperand typedescOp = null;
-        List<BLangExpression> exprs = listConstructorExpr.exprs;
         BType listConstructorExprType = listConstructorExpr.getBType();
+        BIROperand typeDesc = new BIROperand(getTypedescVariable(listConstructorExprType, listConstructorExpr.pos));
+
+        long size = -1L;
+        List<BLangExpression> exprs = listConstructorExpr.exprs;
         BType referredType = Types.getImpliedType(listConstructorExprType);
         if (referredType.tag == TypeTags.ARRAY &&
                 ((BArrayType) referredType).state != BArrayState.OPEN) {
             size = ((BArrayType) referredType).size;
         } else if (referredType.tag == TypeTags.TUPLE) {
-            typedescOp = this.env.targetOperand;
             size = exprs.size();
         }
 
@@ -2856,7 +2841,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         if (referredType.tag == TypeTags.TUPLE) {
-            setScopeAndEmit(createNewArrayInst(initialValues, listConstructorExprType, sizeOp, toVarRef, referredType,
+            setScopeAndEmit(createNewArrayInst(typeDesc, initialValues, listConstructorExprType, sizeOp, toVarRef,
                                                listConstructorExpr.pos));
 
         } else {
@@ -2864,15 +2849,10 @@ public class BIRGen extends BLangNodeVisitor {
                     listConstructorExprType, toVarRef, sizeOp, initialValues);
             BType elementType = ((BArrayType) referredType).getElementType();
             // If the referredType is an array type and the element type is record type, then we need to set
-            // the element type desc which will be used to initialize the `ArrayValueImpl`
+            // the element typeDesc which will be used to initialize the `ArrayValueImpl`
             if (Types.getImpliedType(elementType).tag == TypeTags.RECORD) {
-                BIRVariableDcl typedescVar = getTypedescVariable(elementType);
-                if (typedescVar != null) {
-                    newArrayIns.elementTypedescOp = new BIROperand(typedescVar);
-                } else {
-                    createNewTypedescInst(elementType, elementType.tsymbol.pos);
-                    newArrayIns.elementTypedescOp = this.env.targetOperand;
-                }
+                BIRVariableDcl typedescVar = getTypedescVariable(elementType, elementType.tsymbol.pos);
+                newArrayIns.elementTypedescOp = new BIROperand(typedescVar);
             }
             setScopeAndEmit(newArrayIns);
         }
