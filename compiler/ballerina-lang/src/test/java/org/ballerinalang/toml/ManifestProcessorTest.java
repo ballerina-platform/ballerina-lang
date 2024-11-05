@@ -146,7 +146,8 @@ public class ManifestProcessorTest {
                 "string-utils = {path = '" + balaPath + "', version = \"1.1.5\"} \n");
         Assert.assertEquals(manifest.getDependencies().get(0).moduleID(), "string-utils");
         Assert.assertEquals(manifest.getDependencies().get(0).metadata().getVersion(), "1.1.5");
-        Assert.assertEquals(manifest.getDependencies().get(0).metadata().getPath().toString(), balaPath.toString());
+        Assert.assertEquals(manifest.getDependencies().get(0).metadata().getPath().orElseThrow().toString(),
+                balaPath.toString());
         
         Files.delete(balaPath);
         Files.delete(tmpDir);
