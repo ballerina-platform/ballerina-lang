@@ -200,7 +200,8 @@ public class ManifestProcessorTest {
         Assert.assertEquals(manifest.getDependencies().get(0).metadata().getVersion(), "1.0.5");
         Assert.assertEquals(manifest.getDependencies().get(1).moduleID(), "jquery");
         Assert.assertEquals(manifest.getDependencies().get(1).metadata().getVersion(), "2.2.3");
-        Assert.assertEquals(manifest.getDependencies().get(0).metadata().getPath().toString(), balaPath.toString());
+        Assert.assertEquals(manifest.getDependencies().get(0).metadata().getPath().orElseThrow().toString(),
+                balaPath.toString());
 
         Files.delete(balaPath);
         Files.delete(tmpDir);
@@ -220,7 +221,7 @@ public class ManifestProcessorTest {
             Assert.assertEquals(manifest.getDependencies().get(0).metadata().getVersion(), "1.0.5");
             Assert.assertEquals(manifest.getDependencies().get(1).moduleID(), "jquery");
             Assert.assertEquals(manifest.getDependencies().get(1).metadata().getVersion(), "2.2.3");
-            Assert.assertEquals(manifest.getDependencies().get(0).metadata().getPath().toString(),
+            Assert.assertEquals(manifest.getDependencies().get(0).metadata().getPath().orElseThrow().toString(),
                     balaPath.toString());
 
             Files.delete(balaPath);
