@@ -298,6 +298,32 @@ function testSpreadFieldWithRecordTypeHavingRestDescriptor() {
     assertEquality("s", r4.s);
 }
 
+type RetryConfig record {|
+    int count;
+    decimal interval;
+    float backOffFactor;
+|};
+
+public type RetryConfigClone record {|
+    int count = 0;
+    decimal interval = 0;
+    float backOffFactor = 0.0;
+    decimal maxWaitInterval = 0;
+    int[] statusCodes = [];
+|};
+
+type RetryTyperef RetryConfigClone;
+
+function testSpreadFieldWithRecordTypeReference() {
+    RetryConfig rc = {count: 3, interval: 0.5, backOffFactor: 0.5};
+    RetryTyperef re = {...rc};
+    assertEquality(3, re.count);
+    assertEquality(0.5, re.interval);
+    assertEquality(0.5, re.backOffFactor);
+    assertEquality(0, re.maxWaitInterval);
+    assertEquality(0, re.statusCodes.length());
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
