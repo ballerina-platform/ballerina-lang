@@ -17,19 +17,13 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.BalRuntime;
-import io.ballerina.runtime.internal.errors.ErrorCodes;
-import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.Map;
 import java.util.function.Function;

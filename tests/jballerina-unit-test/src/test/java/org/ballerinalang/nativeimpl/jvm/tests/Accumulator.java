@@ -38,12 +38,11 @@ public class Accumulator {
     }
 
     private static long accumulateI(ObjectValue intFunction, long i, long to, Runtime runtime, long[] relay) {
-        relay[0] += (long)runtime.callMethod(intFunction, "invoke", null, i);
+        relay[0] += (long) runtime.callMethod(intFunction, "invoke", null, i);
         if (i == to) {
             return relay[0];
         } else {
             return accumulateI(intFunction, i + 1, to, runtime, relay);
         }
     }
-
 }

@@ -21,7 +21,6 @@ package org.ballerinalang.test;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.PackageManifest;
-import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -68,11 +67,8 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static org.ballerinalang.test.util.TestConstant.CONFIGURATION_CLASS_NAME;
 import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_MAJOR_VERSION;
 
 /**
  * Utility methods for run Ballerina functions with JVM arguments and return values.

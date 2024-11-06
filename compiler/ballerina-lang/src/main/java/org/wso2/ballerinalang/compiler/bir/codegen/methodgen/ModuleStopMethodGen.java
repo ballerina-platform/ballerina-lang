@@ -56,7 +56,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_ISOLATED_WORKER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_FUTURE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_CALL;

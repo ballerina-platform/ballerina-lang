@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;

@@ -84,7 +84,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INTI_VARIABLE_KEY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.POPULATE_CONFIG_DATA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**

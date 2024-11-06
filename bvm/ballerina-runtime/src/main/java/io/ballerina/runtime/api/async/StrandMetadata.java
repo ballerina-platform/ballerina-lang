@@ -22,6 +22,8 @@ import java.util.Map;
 /**
  * Holds metadata of a Ballerina strand.
  *
+ * @param isConcurrentSafe indicates if the strand is safely executed with concurrent access
+ * @param properties a map containing additional properties or metadata for the strand
  * @since 2.0.0
  */
 public record StrandMetadata(boolean isConcurrentSafe, Map<String, Object> properties) {

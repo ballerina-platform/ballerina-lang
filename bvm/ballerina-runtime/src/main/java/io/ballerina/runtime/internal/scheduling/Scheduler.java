@@ -83,9 +83,9 @@ public class Scheduler {
             }
             return result;
         }
-        if (metadata != null && metadata.isConcurrentSafe()){
-            return AsyncUtils.getFutureResult(startIsolatedFunction(module, functionName, metadata, args)
-                    .completableFuture);
+        if (metadata != null && metadata.isConcurrentSafe()) {
+            return AsyncUtils.getFutureResult(
+                    startIsolatedFunction(module, functionName, metadata, args).completableFuture);
         }
         return AsyncUtils.getFutureResult(startNonIsolatedFunction(module, functionName, metadata, args)
                 .completableFuture);
@@ -107,7 +107,7 @@ public class Scheduler {
             }
             return result;
         }
-        if (metadata != null && metadata.isConcurrentSafe()){
+        if (metadata != null && metadata.isConcurrentSafe()) {
             return AsyncUtils.getFutureResult(startIsolatedMethod(object, methodName, metadata, args)
                     .completableFuture);
         }
@@ -131,7 +131,7 @@ public class Scheduler {
             }
             return result;
         }
-        if (metadata != null && metadata.isConcurrentSafe()){
+        if (metadata != null && metadata.isConcurrentSafe()) {
             return AsyncUtils.getFutureResult(startIsolatedFP(fp, metadata, args).completableFuture);
         }
         return AsyncUtils.getFutureResult(startNonIsolatedFP(fp, metadata, args).completableFuture);
@@ -181,8 +181,8 @@ public class Scheduler {
         return future;
     }
 
-    public FutureValue startIsolatedFunction(Module module, String functionName,StrandMetadata metadata,
-                                            Object... args) {
+    public FutureValue startIsolatedFunction(Module module, String functionName, StrandMetadata metadata,
+                                             Object... args) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
                 module.getName(), module.getMajorVersion(), module.isTestPkg()));
         FunctionType functionType = valueCreator.getFunctionType(functionName);
@@ -201,11 +201,13 @@ public class Scheduler {
         return future;
     }
 
-    private FutureValue startIsolatedMethod(BObject object, String methodName, StrandMetadata metadata, Object... args) {
+    private FutureValue startIsolatedMethod(BObject object, String methodName, StrandMetadata metadata,
+                                            Object... args) {
         String strandName = getStrandName(object, methodName);
         ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
         MethodType methodType = getObjectMethodType(methodName, objectType);
-        FutureValue future = createFutureWithMetadata(null, strandName, true, methodType.getReturnType(), metadata, null);
+        FutureValue future = createFutureWithMetadata(null, strandName, true, methodType.getReturnType(), metadata,
+                null);
         Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, future.strand, args);
         Thread.startVirtualThread(() -> {
             try {
@@ -221,7 +223,8 @@ public class Scheduler {
 
     private FutureValue startIsolatedFP(FPValue fp, StrandMetadata metadata, Object... args) {
         BFunctionType functionType = (BFunctionType) fp.getType();
-        FutureValue future = createFutureWithMetadata(null, fp.getName(), true, functionType.getReturnType(), metadata, null);
+        FutureValue future = createFutureWithMetadata(null, fp.getName(), true, functionType.getReturnType(),
+                metadata, null);
         Object[] argsWithDefaultValues = getArgsWithDefaultValues(future.strand, args, functionType);
         Object[] argsWithStrand = getArgsWithStrand(future.strand, argsWithDefaultValues);
         Thread.startVirtualThread(() -> {
@@ -242,7 +245,8 @@ public class Scheduler {
                                                  Object... args) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
         FunctionType functionType = valueCreator.getFunctionType(functionName);
-        FutureValue future = createFutureWithMetadata(null, functionName, false, functionType.getReturnType(), metadata, null);
+        FutureValue future =
+                createFutureWithMetadata(null, functionName, false, functionType.getReturnType(), metadata, null);
         Object[] argsWithDefaultValues = getArgsWithDefaultValues(valueCreator, functionType, future.strand, args);
         Thread.startVirtualThread(() -> {
             try {
@@ -264,7 +268,8 @@ public class Scheduler {
         String strandName = getStrandName(object, methodName);
         ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
         MethodType methodType = getObjectMethodType(methodName, objectType);
-        FutureValue future = createFutureWithMetadata(null, strandName, false, methodType.getReturnType(), metadata, null);
+        FutureValue future = createFutureWithMetadata(null, strandName, false, methodType.getReturnType(), metadata,
+                null);
         Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, future.strand, args);
         Thread.startVirtualThread(() -> {
             try {
@@ -284,7 +289,8 @@ public class Scheduler {
     private FutureValue startNonIsolatedFP(FPValue fp, StrandMetadata metadata, Object... args) {
         BFunctionType functionType = (BFunctionType) fp.getType();
         String strandName = getStrandName("$anon", fp.getName());
-        FutureValue future = createFutureWithMetadata(null, strandName, true, functionType.getReturnType(), metadata, null);
+        FutureValue future = createFutureWithMetadata(null, strandName, true, functionType.getReturnType(), metadata,
+                null);
         Object[] argsWithDefaultValues = getArgsWithDefaultValues(future.strand, args, functionType);
         Object[] argsWithStrand = getArgsWithStrand(future.strand, argsWithDefaultValues);
         Thread.startVirtualThread(() -> {

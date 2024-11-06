@@ -987,8 +987,8 @@ public class JvmTerminatorGen {
         this.genStartFunctionCall(lhsOp, isIsolated);
     }
 
-    private void submitToScheduler(BIROperand lhsOp, boolean isIsolated, BIRTerminator.FPCall fpCall, int localVarOffset,
-                                   boolean hasWorkers, int channelMapVarIndex) {
+    private void submitToScheduler(BIROperand lhsOp, boolean isIsolated, BIRTerminator.FPCall fpCall,
+                                   int localVarOffset, boolean hasWorkers, int channelMapVarIndex) {
         this.genWorkerChannelMapForCall(hasWorkers, channelMapVarIndex);
         this.genFpCallArgs(fpCall, localVarOffset);
         this.genStartFunctionCall(lhsOp, isIsolated);

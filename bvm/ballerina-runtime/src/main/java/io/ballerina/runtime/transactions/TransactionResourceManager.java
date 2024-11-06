@@ -89,7 +89,8 @@ public class TransactionResourceManager {
 
     private final ConcurrentSkipListSet<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
     private final ConcurrentSkipListSet<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
-    private final ConcurrentHashMap<String, ConcurrentSkipListSet<String>> localParticipants = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ConcurrentSkipListSet<String>> localParticipants =
+            new ConcurrentHashMap<>();
 
     private final boolean transactionManagerEnabled;
     private static final PrintStream stderr = System.err;

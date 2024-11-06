@@ -18,7 +18,6 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
@@ -27,7 +26,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.BalRuntime;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.HashMap;

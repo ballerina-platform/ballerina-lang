@@ -32,15 +32,12 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
