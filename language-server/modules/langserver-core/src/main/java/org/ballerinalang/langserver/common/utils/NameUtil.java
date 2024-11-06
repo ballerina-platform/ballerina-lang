@@ -87,22 +87,28 @@ public class NameUtil {
                 name = typeSymbol.getName().get();
             } else {
                 TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
-                switch (rawType.typeKind()) {
-                    case RECORD:
-                        name = "mappingResult";
-                        break;
-                    case TUPLE:
-                    case ARRAY:
-                        name = "listResult";
-                        break;
-                    default:
-                        name = rawType.typeKind().getName() + "Result";
-                        break;
-                }
+                name = generateNameForRawType(rawType.typeKind());
             }
             return generateVariableName(1, name, names);
         } else {
             return generateName(1, names);
+        }
+    }
+
+    /**
+     * Generates a variable name based on the provided signature.
+     *
+     * @param signature The type or name signature.
+     * @param names     The set of existing names to avoid duplicates.
+     * @return The generated variable name.
+     */
+    public static String generateVariableName(String signature, Set<String> names) {
+        try {
+            TypeDescKind typeDescKind = TypeDescKind.valueOf(signature);
+            return generateVariableName(1, generateNameForRawType(typeDescKind), names);
+        } catch (IllegalArgumentException ignored) {
+            String camelCase = toCamelCase(signature);
+            return generateVariableName(1, camelCase, names);
         }
     }
 
@@ -211,7 +217,7 @@ public class NameUtil {
      * @return Signature
      */
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
-        String typeSignature = typeSymbol.typeKind() == 
+        String typeSignature = typeSymbol.typeKind() ==
                 TypeDescKind.COMPILATION_ERROR ? "" : typeSymbol.signature();
         return CommonUtil.getModifiedSignature(context, typeSignature);
     }
@@ -264,7 +270,30 @@ public class NameUtil {
         }
         return existingArgNames;
     }
-    
+
+    /**
+     * Generates a name for a raw type.
+     *
+     * @param rawType The raw type descriptor kind.
+     * @return The generated name for the raw type.
+     */
+    private static String generateNameForRawType(TypeDescKind rawType) {
+        String name;
+        switch (rawType) {
+            case RECORD:
+                name = "mappingResult";
+                break;
+            case TUPLE:
+            case ARRAY:
+                name = "listResult";
+                break;
+            default:
+                name = rawType.getName() + "Result";
+                break;
+        }
+        return name;
+    }
+
     /**
      * Coverts a given text to camel case.
      *
