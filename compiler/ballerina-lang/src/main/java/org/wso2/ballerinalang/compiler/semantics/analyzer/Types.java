@@ -264,6 +264,10 @@ public class Types {
         return checkType(pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES) == symTable.semanticError;
     }
 
+    public SemType getErrorIntersection(SemType t) {
+        return SemTypes.intersect(t, PredefinedType.ERROR);
+    }
+
     public BType getErrorTypes(BType bType) {
         bType = Types.getImpliedType(bType);
         if (bType == null) {
@@ -419,7 +423,7 @@ public class Types {
         return isSubtype(t, anydata());
     }
 
-    public boolean isValueType(BType type) { // TODO: remove
+    public boolean isValueType(BType type) {
         return switch (getImpliedType(type).tag) {
             case TypeTags.BOOLEAN,
                  TypeTags.BYTE,
@@ -441,10 +445,6 @@ public class Types {
     boolean isBasicNumericType(BType bType) {
         BType type = getImpliedType(bType);
         return type.tag < TypeTags.STRING || TypeTags.isIntegerTypeTag(type.tag);
-    }
-
-    boolean finiteTypeContainsNumericTypeValues(BFiniteType finiteType) {
-        return !Core.isEmpty(semTypeCtx, SemTypes.intersect(finiteType.semType(), PredefinedType.NUMBER));
     }
 
     public boolean containsErrorType(BType bType) {
@@ -1695,7 +1695,7 @@ public class Types {
             return false;
         }
 
-        if (isNumericConversionPossible(expr, sourceType, targetType)) {
+        if (isNumericConversionPossible(sourceType, targetType)) {
             return true;
         }
 
@@ -1714,67 +1714,13 @@ public class Types {
         return SemTypes.containsBasicType(t, PredefinedType.ERROR);
     }
 
-    boolean isNumericConversionPossible(BLangExpression expr, BType sourceType,
-                                        BType targetType) {
-
-        final boolean isSourceNumericType = isBasicNumericType(sourceType);
-        final boolean isTargetNumericType = isBasicNumericType(targetType);
-        if (isSourceNumericType && isTargetNumericType) {
-            // We only reach here for different numeric types.
-            // 2019R3 Spec defines numeric conversion between each type.
-            return true;
-        }
-        if (targetType.tag == TypeTags.UNION) {
-            HashSet<Integer> typeTags = new HashSet<>();
-            for (BType bType : ((BUnionType) targetType).getMemberTypes()) {
-                if (isBasicNumericType(bType)) {
-                    typeTags.add(getImpliedType(bType).tag);
-                    if (typeTags.size() > 1) {
-                        // Multiple Basic numeric types found in the union.
-                        return false;
-                    }
-                }
-            }
-        }
-
-        if (!isTargetNumericType && targetType.tag != TypeTags.UNION) {
+    boolean isNumericConversionPossible(BType sourceType, BType targetType) {
+        Optional<BasicTypeBitSet> targetNumericType = Core.singleNumericType(targetType.semType());
+        if (targetNumericType.isEmpty()) {
             return false;
         }
 
-        // Target type has at least one numeric type member.
-
-        if (isSourceNumericType) {
-            // i.e., a conversion from a numeric type to another numeric type in a union.
-            // int|string u1 = <int|string> 1.0;
-            // TODO : Fix me. This doesn't belong here.
-            setImplicitCastExpr(expr, sourceType, symTable.anyType);
-            return true;
-        }
-
-        // TODO : Do we need this? This doesn't belong here.
-        switch (sourceType.tag) {
-            case TypeTags.ANY:
-            case TypeTags.ANYDATA:
-            case TypeTags.JSON:
-                // This
-                return true;
-            case TypeTags.UNION:
-                for (BType memType : ((BUnionType) sourceType).getMemberTypes()) {
-                    BType referredType = getImpliedType(memType);
-                    if (isBasicNumericType(referredType) ||
-                            (referredType.tag == TypeTags.FINITE &&
-                                    finiteTypeContainsNumericTypeValues((BFiniteType) referredType))) {
-                        return true;
-                    }
-                }
-                break;
-            case TypeTags.FINITE:
-                if (finiteTypeContainsNumericTypeValues((BFiniteType) sourceType)) {
-                    return true;
-                }
-                break;
-        }
-        return false;
+        return !Core.isEmpty(semTypeCtx, SemTypes.intersect(sourceType.semType(), PredefinedType.NUMBER));
     }
 
     public boolean isAllErrorMembers(BUnionType actualType) {

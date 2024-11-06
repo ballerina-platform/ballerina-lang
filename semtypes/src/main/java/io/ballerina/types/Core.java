@@ -78,9 +78,6 @@ import static java.lang.Long.MIN_VALUE;
  */
 public final class Core {
 
-    private static final boolean SEM_ALL_TEST =
-            Boolean.parseBoolean(System.getProperty("ballerina.semtype.all.types.test"));
-
     public static CellAtomicType cellAtomType(Atom atom) {
         return (CellAtomicType) ((TypeAtom) atom).atomicType();
     }

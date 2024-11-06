@@ -21,6 +21,7 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
 import io.ballerina.types.Value;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
@@ -1528,7 +1529,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!data.failureHandled) {
             BType exprType = data.env.enclInvokable.getReturnTypeNode().getBType();
             data.returnTypes.peek().add(exprType);
-            if (!types.isAssignable(types.getErrorTypes(failNode.expr.getBType()), exprType)) {
+            BType type = failNode.expr.getBType();
+            if (!types.isSubtype(types.getErrorIntersection(type.semType()), exprType.semType())) {
                 dlog.error(failNode.pos, DiagnosticErrorCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
             }
         }
@@ -3316,14 +3318,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         BType exprType = Types.getImpliedType(enclInvokable.getReturnTypeNode().getBType());
         BType checkedExprType = checkedExpr.expr.getBType();
-        BType errorType = types.getErrorTypes(checkedExprType);
+        SemType errorType = types.getErrorIntersection(checkedExprType.semType());
 
-        if (errorType == symTable.semanticError) {
+        if (PredefinedType.NEVER.equals(errorType)) {
             return;
         }
 
         boolean ignoreErrForCheckExpr = data.withinQuery && data.queryConstructType == Types.QueryConstructType.STREAM;
-        if (!data.failureHandled && !ignoreErrForCheckExpr && !types.isAssignable(errorType, exprType)
+        if (!data.failureHandled && !ignoreErrForCheckExpr && !types.isSubtype(errorType, exprType.semType())
                 && !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(checkedExprType)) {
             dlog.error(checkedExpr.pos,
                     DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
