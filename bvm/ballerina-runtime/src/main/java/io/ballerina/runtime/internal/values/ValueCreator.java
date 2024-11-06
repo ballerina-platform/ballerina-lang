@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
@@ -25,6 +26,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
@@ -47,6 +49,12 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARA
 public abstract class ValueCreator {
 
     private static final Map<String, ValueCreator> runtimeValueCreators = new HashMap<>();
+
+    public final BalRuntime runtime;
+
+    protected ValueCreator(BalRuntime runtime) {
+        this.runtime = runtime;
+    }
 
     public static void addValueCreator(String orgName, String moduleName, String moduleVersion, boolean isTestPkg,
                                        ValueCreator valueCreator) {
@@ -112,8 +120,7 @@ public abstract class ValueCreator {
 
     public abstract MapValue<BString, Object> createRecordValue(String recordTypeName) throws BError;
 
-    public abstract BObject createObjectValue(String objectTypeName, Scheduler scheduler, Strand parent,
-                                              Map<String, Object> properties, Object[] args) throws BError;
+    public abstract BObject createObjectValue(String objectTypeName, Strand parent, Object[] args) throws BError;
 
     public abstract BError createErrorValue(String errorTypeName, BString message, BError cause, Object details)
             throws BError;

@@ -19,12 +19,8 @@ package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.BalRuntime;
-import io.ballerina.runtime.internal.values.FPValue;
-
-import java.util.Map;
 
 /**
  * External API to be used by the interop users to control Ballerina runtime behavior.
@@ -49,7 +45,7 @@ public abstract class Runtime {
     public abstract Object init();
 
     /**
-     * Starts the listening phase.
+     * Start the listening phase.
      */
     public abstract Object start();
 
@@ -63,147 +59,40 @@ public abstract class Runtime {
     /**
      * call a Ballerina function.
      *
-     * @param module Module of the function.
-     * @param functionName Name of the function.
-     * @param args         Arguments of the Ballerina function.
+     * @param module         Module of the function.
+     * @param functionName   Name of the function.
+     * @param metadata Meta data of new strand.
+     * @param args           Arguments of the Ballerina function.
      */
-    public abstract Object call(Module module, String functionName, Object... args);
-
+    public abstract Object callFunction(Module module, String functionName, StrandMetadata metadata,
+                                        Object... args);
 
     /**
      * Call a Ballerina object method.
      *
-     * @param object     Object Value.
-     * @param methodName Name of the method.
-     * @param args       Arguments of the Ballerina function.
+     * @param object         Object Value.
+     * @param methodName     Name of the method.
+     * @param metadata Meta data of new strand.
+     * @param args           Arguments of the Ballerina function.
      */
-    public abstract Object call(BObject object, String methodName, Object... args);
+    public abstract Object callMethod(BObject object, String methodName, StrandMetadata metadata,
+                                      Object... args);
 
     /**
-     * Invoke function as a worker. Caller needs to ensure that no data race is possible for
-     * the mutable state with given object method and with arguments. So, the method can be concurrently run with
-     * different os threads.
-     *
-     * @param module Module of the function.
-     * @param functionName Name of the function.
-     * @param strandName   Name for newly created strand which is used to execute the function pointer. This is
-     *                     optional and can be null.
-     * @param metadata     Meta data of new strand.
-     * @param properties   Set of properties for strand.
-     * @param args         Ballerina function arguments.
-     * @return {@link BFuture} containing return value for executing this method.
-     * <p>
-     * This method needs to be called if both object.getType().isIsolated() and
-     * object.getType().isIsolated(methodName) returns true.
+     * Register a Ballerina listener object in runtime.
+     * @param listener Ballerina Listener object.
      */
-    public abstract BFuture startIsolatedWorker(Module module, String functionName, String strandName,
-                                                StrandMetadata metadata, Map<String, Object> properties,
-                                                Object... args);
-
-    /**
-     * Invoke Object method as a worker. Caller needs to ensure that no data race is possible for
-     * the mutable state with given object method and with arguments. So, the method can be concurrently run with
-     * different os threads.
-     *
-     * @param fp         Function pointer to be run as non isolated worker.
-     * @param strandName Name for newly created strand which is used to execute the function pointer. This is
-     *                   optional and can be null.
-     * @param metadata   Meta data of new strand.
-     * @param properties Set of properties for strand.
-     * @param args       Ballerina function arguments.
-     * @return {@link BFuture} containing return value for executing this method.
-     * <p>
-     * This method needs to be called if both object.getType().isIsolated() and
-     * object.getType().isIsolated(methodName) returns true.
-     */
-    public abstract BFuture startIsolatedWorker(FPValue fp, String strandName, StrandMetadata metadata,
-                                                Map<String, Object> properties, Object... args);
-
-    /**
-     * Invoke Object method as a worker. Caller needs to ensure that no data race is possible for
-     * the mutable state with given object method and with arguments. So, the method can be concurrently run with
-     * different os threads.
-     *
-     * @param object     Object Value.
-     * @param methodName Name of the method.
-     * @param strandName Name for newly created strand which is used to execute the function pointer. This is
-     *                   optional and can be null.
-     * @param metadata   Meta data of new strand.
-     * @param properties Set of properties for strand.
-     * @param args       Ballerina function arguments.
-     * @return {@link BFuture} containing return value for executing this method.
-     * <p>
-     * This method needs to be called if both object.getType().isIsolated() and
-     * object.getType().isIsolated(methodName) returns true.
-     */
-    public abstract BFuture startIsolatedWorker(BObject object, String methodName, String strandName,
-                                                StrandMetadata metadata, Map<String, Object> properties,
-                                                Object... args);
-
-    /**
-     * Invoke function as worker in same parent thread. This method will ensure that the object methods are
-     * invoked in the same thread where other object methods are executed. So, the methods will be executed
-     * sequentially per object level.
-     *
-     * @param module Module of the function.
-     * @param functionName Name of the function.
-     * @param strandName   Name for newly created strand which is used to execute the function pointer. This is
-     *                     optional and can be null.
-     * @param metadata     Meta data of new strand.
-     * @param properties   Set of properties for strand.
-     * @param args         Ballerina function arguments.
-     * @return {@link BFuture} containing return value for executing this method.
-     * <p>
-     * This method needs to be called if object.getType().isIsolated() or
-     * object.getType().isIsolated(methodName) returns false.
-     */
-    public abstract BFuture startNonIsolatedWorker(Module module, String functionName, String strandName,
-                                                   StrandMetadata metadata, Map<String, Object> properties,
-                                                   Object... args);
-
-    /**
-     * Invoke Object method as a worker in same parent thread. This method will ensure that the object methods are
-     * invoked in the same thread where other object methods are executed. So, the methods will be executed
-     * sequentially per object level.
-     *
-     * @param object     Object Value.
-     * @param methodName Name of the method.
-     * @param strandName Name for newly created strand which is used to execute the function pointer. This is
-     *                   optional and can be null.
-     * @param metadata   Meta data of new strand.
-     * @param properties Set of properties for strand.
-     * @param args       Ballerina function arguments.
-     * @return {@link BFuture} containing return value for executing this method.
-     * <p>
-     * This method needs to be called if object.getType().isIsolated() or
-     * object.getType().isIsolated(methodName) returns false.
-     */
-    public abstract BFuture startNonIsolatedWorker(BObject object, String methodName, String strandName,
-                                                   StrandMetadata metadata, Map<String, Object> properties,
-                                                   Object... args);
-
-    /**
-     * Invoke Object method as a worker in same parent thread. This method will ensure that the object methods are
-     * invoked in the same thread where other object methods are executed. So, the methods will be executed
-     * sequentially per object level.
-     *
-     * @param fp         Function pointer to be run as non isolated worker.
-     * @param strandName Name for newly created strand which is used to execute the function pointer. This is
-     *                   optional and can be null.
-     * @param metadata   Meta data of new strand.
-     * @param properties Set of properties for strand.
-     * @param args       Ballerina function arguments.
-     * @return {@link BFuture} containing return value for executing this method.
-     * <p>
-     * This method needs to be called if object.getType().isIsolated() or
-     * object.getType().isIsolated(methodName) returns false.
-     */
-    public abstract BFuture startNonIsolatedWorker(FPValue fp, String strandName, StrandMetadata metadata,
-                                                       Map<String, Object> properties, Object... args);
-
     public abstract void registerListener(BObject listener);
 
+    /**
+     * Deregister a Ballerina listener object in runtime.
+     * @param listener Ballerina Listener object.
+     */
     public abstract void deregisterListener(BObject listener);
 
+    /**
+     * Register a stop handler function in runtime.
+     * @param stopHandler Ballerina stop handler function.
+     */
     public abstract void registerStopHandler(BFunctionPointer stopHandler);
 }

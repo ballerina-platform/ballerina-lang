@@ -67,7 +67,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FIL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT_ATTEMPTED;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
@@ -78,6 +78,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_CONFIG_DATA_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VARIABLE_KEY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_MODULE_CONFIG_DATA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JBOOLEAN_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIG;
@@ -152,17 +153,16 @@ public class ConfigMethodGen {
     private void generateInvokeConfiguration(MethodVisitor mv, PackageID id) {
         String moduleClass = JvmCodeGenUtil.getModuleLevelClassName(id, CONFIGURATION_CLASS_NAME);
         String initClass = JvmCodeGenUtil.getModuleLevelClassName(id, MODULE_INIT_CLASS_NAME);
-
-        mv.visitMethodInsn(INVOKESTATIC, moduleClass, POPULATE_CONFIG_DATA_METHOD,
-                POPULATE_CONFIG_DATA, false);
-        mv.visitVarInsn(ASTORE, 4);
         mv.visitVarInsn(ALOAD, 4);
+        mv.visitMethodInsn(INVOKESTATIC, moduleClass, POPULATE_CONFIG_DATA_METHOD, POPULATE_CONFIG_DATA, false);
+        mv.visitVarInsn(ASTORE, 5);
+        mv.visitVarInsn(ALOAD, 5);
         mv.visitInsn(ARRAYLENGTH);
         Label elseLabel = new Label();
         mv.visitJumpInsn(IFEQ, elseLabel);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
-        mv.visitVarInsn(ALOAD, 4);
+        mv.visitVarInsn(ALOAD, 5);
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "addModuleConfigData", ADD_MODULE_CONFIG_DATA, false);
         mv.visitLabel(elseLabel);
     }
@@ -173,6 +173,7 @@ public class ConfigMethodGen {
         mv.visitVarInsn(ALOAD, 1);
         mv.visitVarInsn(ALOAD, 2);
         mv.visitVarInsn(ALOAD, 3);
+        mv.visitVarInsn(ALOAD, 4);
         mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, INIT_CONFIG, false);
     }
 
@@ -181,12 +182,13 @@ public class ConfigMethodGen {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, POPULATE_CONFIG_DATA_METHOD,
                 POPULATE_CONFIG_DATA, null, null);
         mv.visitCode();
-        mv.visitMethodInsn(INVOKESTATIC, moduleClass, CURRENT_MODULE_INIT, RETURN_OBJECT, false);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESTATIC, moduleClass, CURRENT_MODULE_INIT_METHOD, CURRENT_MODULE_INIT, false);
 
         //create configuration data array
         mv.visitLdcInsn(calculateConfigArraySize(module.globalVars));
         mv.visitTypeInsn(ANEWARRAY, VARIABLE_KEY);
-        mv.visitVarInsn(ASTORE, 0);
+        mv.visitVarInsn(ASTORE, 1);
         int varCount = 0;
 
         for (BIRNode.BIRGlobalVariableDcl globalVar : module.globalVars) {
@@ -205,16 +207,16 @@ public class ConfigMethodGen {
                     mv.visitInsn(ICONST_0);
                 }
                 mv.visitMethodInsn(INVOKESPECIAL, VARIABLE_KEY, JVM_INIT_METHOD, INTI_VARIABLE_KEY, false);
-                mv.visitVarInsn(ASTORE, varCount + 1);
+                mv.visitVarInsn(ASTORE, varCount + 2);
 
-                mv.visitVarInsn(ALOAD, 0);
+                mv.visitVarInsn(ALOAD, 1);
                 mv.visitLdcInsn(varCount);
-                mv.visitVarInsn(ALOAD, varCount + 1);
+                mv.visitVarInsn(ALOAD, varCount + 2);
                 mv.visitInsn(AASTORE);
                 varCount++;
             }
         }
-        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 1);
         mv.visitInsn(ARETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, POPULATE_CONFIG_DATA_METHOD, innerClassName);
         mv.visitEnd();

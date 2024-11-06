@@ -100,40 +100,45 @@ public class ValueUtils {
                                                                  Set<String> providedFields) {
         MapValue<BString, Object> recordValue = valueCreator.createRecordValue(recordTypeName);
         BRecordType type = (BRecordType) TypeUtils.getImpliedType(recordValue.getType());
-        return populateDefaultValues(recordValue, type, providedFields);
+        return populateDefaultValues(valueCreator, recordValue, type, providedFields);
     }
 
     private static BMap<BString, Object> getPopulatedRecordValue(ValueCreator valueCreator, String recordTypeName,
                                                                  List<String> notProvidedFields) {
         MapValue<BString, Object> recordValue = valueCreator.createRecordValue(recordTypeName);
         BRecordType type = (BRecordType) TypeUtils.getImpliedType(recordValue.getType());
-        return populateDefaultValues(recordValue, type, notProvidedFields);
+        return populateDefaultValues(valueCreator, recordValue, type, notProvidedFields);
     }
 
-    public static BMap<BString, Object> populateDefaultValues(BMap<BString, Object> recordValue, BRecordType type,
+    public static BMap<BString, Object> populateDefaultValues(ValueCreator valueCreator,
+                                                              BMap<BString, Object> recordValue, BRecordType type,
                                                               Set<String> providedFields) {
         Map<String, BFunctionPointer> defaultValues = type.getDefaultValues();
         if (defaultValues.isEmpty()) {
             return recordValue;
         }
         defaultValues = getNonProvidedDefaultValues(defaultValues, providedFields);
-        return populateRecordDefaultValues(recordValue, defaultValues);
+        return populateRecordDefaultValues(valueCreator, recordValue, defaultValues);
     }
 
-    public static BMap<BString, Object> populateDefaultValues(BMap<BString, Object> recordValue, BRecordType type,
+    public static BMap<BString, Object> populateDefaultValues(ValueCreator valueCreator,
+                                                              BMap<BString, Object> recordValue, BRecordType type,
                                                               List<String> notProvidedFieldNames) {
         Map<String, BFunctionPointer> defaultValues = type.getDefaultValues();
         if (defaultValues.isEmpty()) {
             return recordValue;
         }
         defaultValues = getNonProvidedDefaultValues(defaultValues, notProvidedFieldNames);
-        return populateRecordDefaultValues(recordValue, defaultValues);
+        return populateRecordDefaultValues(valueCreator, recordValue, defaultValues);
     }
 
-    private static BMap<BString, Object> populateRecordDefaultValues(BMap<BString, Object> recordValue, Map<String,
+    private static BMap<BString, Object> populateRecordDefaultValues(ValueCreator valueCreator,
+                                                                     BMap<BString, Object> recordValue,
+                                                                     Map<String,
             BFunctionPointer> defaultValues) {
         for (Map.Entry<String, BFunctionPointer> field : defaultValues.entrySet()) {
-            recordValue.populateInitialValue(StringUtils.fromString(field.getKey()), field.getValue().call());
+            recordValue.populateInitialValue(StringUtils.fromString(field.getKey()),
+                    field.getValue().call(valueCreator.runtime));
         }
         return recordValue;
     }
@@ -253,15 +258,13 @@ public class ValueUtils {
                 .getLookupKey(packageId, false));
 
         try {
-            return valueCreator.createObjectValue(objectTypeName, currentStrand.scheduler, currentStrand, null,
-                    fieldValues);
+            return valueCreator.createObjectValue(objectTypeName, currentStrand, fieldValues);
         } catch (BError e) {
             // If object type definition not found, get it from test module.
             String testLookupKey = ValueCreator.getLookupKey(packageId, true);
             if (ValueCreator.containsValueCreator(testLookupKey)) {
                 valueCreator = ValueCreator.getValueCreator(testLookupKey);
-                return valueCreator.createObjectValue(objectTypeName, currentStrand.scheduler, currentStrand, null,
-                        fieldValues);
+                return valueCreator.createObjectValue(objectTypeName, currentStrand, fieldValues);
             }
             throw e;
         }

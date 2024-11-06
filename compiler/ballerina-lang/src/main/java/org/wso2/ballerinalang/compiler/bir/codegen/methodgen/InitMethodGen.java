@@ -78,7 +78,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLI_SPEC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_METHOD;
@@ -102,17 +102,17 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_VALUE_CREATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CURRENT_MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAIN_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_REGISTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_SCHEDULER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_FUTURE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CLASS_CONSTRUCTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_NULL_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_ARRAY_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_STRAND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
@@ -216,13 +216,14 @@ public class InitMethodGen {
                                           String moduleInitClass) {
         // Using object return type since this is similar to a ballerina function without a return.
         // A ballerina function with no returns is equivalent to a function with nil-return.
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_INIT,
-                                          RETURN_OBJECT, null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_INIT_METHOD,
+                CURRENT_MODULE_INIT, null, null);
         mv.visitCode();
         mv.visitMethodInsn(INVOKESTATIC, moduleInitClass, CREATE_TYPES_METHOD, VOID_METHOD_DESC, false);
         mv.visitTypeInsn(NEW, typeOwnerClass);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, JVM_INIT_METHOD, INIT_CLASS_CONSTRUCTOR, false);
         mv.visitVarInsn(ASTORE, 1);
         mv.visitLdcInsn(Utils.decodeIdentifier(module.packageID.orgName.getValue()));
         mv.visitLdcInsn(Utils.decodeIdentifier(module.packageID.name.getValue()));
@@ -237,7 +238,7 @@ public class InitMethodGen {
 
         // Add a nil-return
         mv.visitInsn(ACONST_NULL);
-        MethodGenUtils.visitReturn(mv, CURRENT_MODULE_INIT, typeOwnerClass);
+        MethodGenUtils.visitReturn(mv, CURRENT_MODULE_INIT_METHOD, typeOwnerClass);
     }
 
     public void generateModuleStop(ClassWriter cw, String moduleInitClass, AsyncDataCollector asyncDataCollector,
@@ -249,7 +250,7 @@ public class InitMethodGen {
         mv.visitCode();
         generateGetSchedulerVar(mv);
         String lambdaName = generateStopDynamicLambdaBody(cw, moduleInitClass);
-        generateCallStopDynamicLambda(mv, lambdaName, moduleInitClass, asyncDataCollector, jvmConstantsGen);
+        generateCallStopDynamicLambda(mv, lambdaName, moduleInitClass);
 
         mv.visitVarInsn(ALOAD, 1);
         mv.visitVarInsn(ALOAD, 3);
@@ -288,10 +289,9 @@ public class InitMethodGen {
         MethodGenUtils.visitReturn(mv, lambdaName, initClass);
     }
 
-    private void generateCallStopDynamicLambda(MethodVisitor mv, String lambdaName, String moduleInitClass,
-                                               AsyncDataCollector asyncDataCollector, JvmConstantsGen jvmConstantsGen) {
+    private void generateCallStopDynamicLambda(MethodVisitor mv, String lambdaName, String moduleInitClass) {
         addRuntimeRegistryAsParameter(mv);
-        generateMethodBody(mv, moduleInitClass, lambdaName, asyncDataCollector, jvmConstantsGen);
+        generateMethodBody(mv, moduleInitClass, lambdaName);
         // handle future result
         mv.visitVarInsn(ALOAD, 3);
         mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_FUTURE_METHOD, HANDLE_FUTURE, false);
@@ -308,16 +308,12 @@ public class InitMethodGen {
         mv.visitInsn(AASTORE);
     }
 
-    private void generateMethodBody(MethodVisitor mv, String initClass, String stopFuncName,
-                                    AsyncDataCollector asyncDataCollector, JvmConstantsGen jvmConstantsGen) {
+    private void generateMethodBody(MethodVisitor mv, String initClass, String stopFuncName) {
         mv.visitVarInsn(ALOAD, 1);
         JvmCodeGenUtil.createFunctionPointer(mv, initClass, stopFuncName);
         mv.visitInsn(ACONST_NULL);
         mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_NULL", LOAD_NULL_TYPE);
-        String metaDataVarName = JvmCodeGenUtil.setAndGetStrandMetadataVarName(MAIN_METHOD, asyncDataCollector);
         mv.visitLdcInsn("stop");
-        mv.visitFieldInsn(GETSTATIC,  jvmConstantsGen.getStrandMetadataConstantsClass(), metaDataVarName,
-                GET_STRAND_METADATA);
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ALOAD, 2);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, START_ISOLATED_WORKER, SCHEDULE_CALL, false);
