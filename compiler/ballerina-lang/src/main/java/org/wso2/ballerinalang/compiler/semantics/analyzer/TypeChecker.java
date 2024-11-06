@@ -5819,7 +5819,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         BType exprType = expr.getBType();
-        if (types.isTypeCastable(expr, exprType, targetType, data.env)) {
+        if (types.isTypeCastable(exprType, targetType)) {
             // We reach this block only if the cast is valid, so we set the target type as the actual type.
             actualType = targetType;
         } else if (exprType != symTable.semanticError && exprType != symTable.noType) {

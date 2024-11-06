@@ -1679,7 +1679,7 @@ public class Types {
         return false;
     }
 
-    public boolean isTypeCastable(BLangExpression expr, BType source, BType target, SymbolEnv env) {
+    public boolean isTypeCastable(BType source, BType target) {
         BType sourceType = getImpliedType(source);
         BType targetType = getImpliedType(target);
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
@@ -1687,57 +1687,20 @@ public class Types {
             return true;
         }
 
+        SemType sourceSemType = sourceType.semType();
+        SemType targetSemType = targetType.semType();
+
         // Disallow casting away error, this forces user to handle the error via type-test, check, or checkpanic
-        IntersectionContext intersectionContext = IntersectionContext.compilerInternalIntersectionTestContext();
-        BType errorIntersection = getTypeIntersection(intersectionContext, sourceType, symTable.errorType, env);
-        if (errorIntersection != symTable.semanticError &&
-                getTypeIntersection(intersectionContext, symTable.errorType, targetType, env)
-                        == symTable.semanticError) {
+        if (SemTypes.containsBasicType(sourceSemType, PredefinedType.ERROR) &&
+                !SemTypes.containsBasicType(targetSemType, PredefinedType.ERROR)) {
             return false;
         }
 
-        if (isAssignable(sourceType, targetType) || isAssignable(targetType, sourceType)) {
-            return true;
-        }
         if (isNumericConversionPossible(expr, sourceType, targetType)) {
             return true;
         }
-        if (sourceType.tag == TypeTags.ANY && targetType.tag == TypeTags.READONLY) {
-            return true;
-        }
 
-        boolean validTypeCast = false;
-
-        // Use instanceof to check for anydata and json.
-        if (sourceType instanceof BUnionType) {
-            if (getTypeForUnionTypeMembersAssignableToType((BUnionType) sourceType, targetType, env,
-                    intersectionContext, new LinkedHashSet<>())
-                    != symTable.semanticError) {
-                // string|typedesc v1 = "hello world";
-                // json|table<Foo> v2 = <json|table<Foo>> v1;
-                validTypeCast = true;
-            }
-        }
-
-        // Use instanceof to check for anydata and json.
-        if (targetType instanceof BUnionType) {
-            if (getTypeForUnionTypeMembersAssignableToType((BUnionType) targetType, sourceType, env,
-                    intersectionContext, new LinkedHashSet<>())
-                    != symTable.semanticError) {
-                // string|int v1 = "hello world";
-                // string|boolean v2 = <string|boolean> v1;
-                validTypeCast = true;
-            }
-        }
-
-        if (sourceType.tag == TypeTags.FINITE && getFiniteTypeForAssignableValues(sourceType, targetType).isPresent()) {
-            validTypeCast = true;
-        }
-
-        if (targetType.tag == TypeTags.FINITE && getFiniteTypeForAssignableValues(targetType, sourceType).isPresent()) {
-            validTypeCast = true;
-        }
-
+        boolean validTypeCast = !Core.isEmpty(semTypeCtx, Core.intersect(sourceSemType, targetSemType));
         if (validTypeCast) {
             if (isValueType(sourceType)) {
                 setImplicitCastExpr(expr, sourceType, symTable.anyType);
