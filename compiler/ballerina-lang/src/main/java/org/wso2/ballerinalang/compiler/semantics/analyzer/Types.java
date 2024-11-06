@@ -1691,8 +1691,7 @@ public class Types {
         SemType targetSemType = targetType.semType();
 
         // Disallow casting away error, this forces user to handle the error via type-test, check, or checkpanic
-        if (SemTypes.containsBasicType(sourceSemType, PredefinedType.ERROR) &&
-                !SemTypes.containsBasicType(targetSemType, PredefinedType.ERROR)) {
+        if (containsErrorType(sourceSemType) && !containsErrorType(targetSemType)) {
             return false;
         }
 
@@ -1700,7 +1699,7 @@ public class Types {
             return true;
         }
 
-        boolean validTypeCast = !Core.isEmpty(semTypeCtx, Core.intersect(sourceSemType, targetSemType));
+        boolean validTypeCast = intersectionExists(sourceSemType, targetSemType);
         if (validTypeCast) {
             if (isValueType(sourceType)) {
                 setImplicitCastExpr(expr, sourceType, symTable.anyType);
@@ -1709,6 +1708,10 @@ public class Types {
         }
 
         return false;
+    }
+
+    public boolean containsErrorType(SemType t) {
+        return SemTypes.containsBasicType(t, PredefinedType.ERROR);
     }
 
     boolean isNumericConversionPossible(BLangExpression expr, BType sourceType,
@@ -2557,6 +2560,10 @@ public class Types {
         }
 
         return  originalType;
+    }
+
+    public boolean intersectionExists(SemType t1, SemType t2) {
+        return !Core.isEmpty(semTypeCtx, Core.intersect(t1, t2));
     }
 
     public BType getTypeIntersection(IntersectionContext intersectionContext, BType lhsType, BType rhsType,

@@ -1858,9 +1858,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 break;
             case REF_EQUAL:
             case REF_NOT_EQUAL:
-                validEqualityIntersectionExists =
-                        types.getTypeIntersection(Types.IntersectionContext.compilerInternalIntersectionTestContext(),
-                                lhsType, rhsType, env) != symTable.semanticError;
+                validEqualityIntersectionExists = types.intersectionExists(lhsType.semType(), rhsType.semType());
                 break;
             default:
                 return symTable.notFoundSymbol;

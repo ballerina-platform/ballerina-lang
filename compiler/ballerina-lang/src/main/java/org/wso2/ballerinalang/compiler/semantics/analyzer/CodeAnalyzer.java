@@ -3522,7 +3522,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         // It'll be only possible iff, the target type has been assigned to the source
         // variable at some point. To do that, a value of target type should be assignable
         // to the type of the source variable.
-        if (!intersectionExists(expr, typeNodeType, data, typeTestExpr.pos)) {
+        if (!types.intersectionExists(expr.getBType().semType(), typeNodeType.semType())) {
             dlog.error(typeTestExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CHECK, exprType, typeNodeType);
         }
     }
@@ -3549,20 +3549,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         dlog.warning(pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
-    }
-
-    private boolean intersectionExists(BLangExpression expression, BType testType, AnalyzerData data,
-                                       Location intersectionPos) {
-        BType expressionType = expression.getBType();
-
-        BType intersectionType = types.getTypeIntersection(
-                Types.IntersectionContext.typeTestIntersectionExistenceContext(intersectionPos),
-                expressionType, testType, data.env);
-
-        // any and readonly has an intersection
-        return (intersectionType != symTable.semanticError) ||
-                (Types.getImpliedType(expressionType).tag == TypeTags.ANY &&
-                        Types.getImpliedType(testType).tag == TypeTags.READONLY);
     }
 
     @Override
