@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -39,7 +40,7 @@ import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
  */
 public class Filter {
 
-    public static BMap<?, ?> filter(BMap<?, ?> m, BFunctionPointer func) {
+    public static BMap<?, ?> filter(Environment env, BMap<?, ?> m, BFunctionPointer func) {
         Type mapType = TypeUtils.getImpliedType(m.getType());
         Type constraint = switch (mapType.getTag()) {
             case TypeTags.MAP_TAG -> {
@@ -54,7 +55,7 @@ public class Filter {
         Object[] keys = m.getKeys();
         for (int i = 0; i < size; i++) {
             Object key = keys[i];
-            boolean isFiltered = (boolean) func.call(m.get(keys[i]));
+            boolean isFiltered = (boolean) func.call(env.getRuntime(), m.get(keys[i]));
             if (isFiltered) {
                 Object value = m.get(key);
                 newMap.put((BString) key, value);

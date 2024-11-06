@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.FunctionType;
@@ -34,14 +35,14 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class Map {
 
-    public static BMap<BString, ?> map(BMap<BString, ?> m, BFunctionPointer func) {
+    public static BMap<BString, ?> map(Environment env, BMap<BString, ?> m, BFunctionPointer func) {
         MapType newMapType = TypeCreator.createMapType(((FunctionType) TypeUtils.getImpliedType(func.getType()))
                 .getReturnType());
         BMap<BString, Object> newMap = ValueCreator.createMapValue(newMapType);
         int size = m.size();
         BString[] keys = m.getKeys();
         for (int i = 0; i < size; i++) {
-            newMap.put(keys[i], func.call(m.get(keys[i])));
+            newMap.put(keys[i], func.call(env.getRuntime(), m.get(keys[i])));
         }
         return newMap;
     }
