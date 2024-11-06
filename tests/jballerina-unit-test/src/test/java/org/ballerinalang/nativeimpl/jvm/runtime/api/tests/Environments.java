@@ -77,4 +77,8 @@ public class Environments {
         return assertFunctionNameAndPathParams(functionName, pathParameters, expectedPathParams,
                 expectedFunctionNamePrefix, 2);
     }
+
+    public static Environment getEnvironment(Environment env) {
+        return env;
+    }
 }

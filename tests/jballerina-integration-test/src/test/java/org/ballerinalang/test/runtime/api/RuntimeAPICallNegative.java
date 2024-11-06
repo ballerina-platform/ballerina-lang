@@ -18,7 +18,11 @@ package org.ballerinalang.test.runtime.api;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.internal.values.FPValue;
 
 import java.io.PrintStream;
 
@@ -37,7 +41,7 @@ public class RuntimeAPICallNegative {
 
         // Test function called before module initialization error for add, start and stop functions
         try {
-            balRuntime.call(module, "add");
+            balRuntime.callFunction(module, "add", null);
         } catch (BError e) {
             out.println(e.getMessage());
         }
@@ -48,6 +52,21 @@ public class RuntimeAPICallNegative {
         }
         try {
             balRuntime.stop();
+        } catch (BError e) {
+            out.println(e.getMessage());
+        }
+        try {
+            balRuntime.registerListener(null);
+        } catch (BError e) {
+            out.println(e.getMessage());
+        }
+        try {
+            balRuntime.deregisterListener(null);
+        } catch (BError e) {
+            out.println(e.getMessage());
+        }
+        try {
+            balRuntime.registerStopHandler(new FPValue(null, null, null, true));
         } catch (BError e) {
             out.println(e.getMessage());
         }

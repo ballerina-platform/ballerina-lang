@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import org.testng.Assert;
 
@@ -36,7 +37,7 @@ public class Timer {
         Thread.startVirtualThread(() -> {
             for (int i = 0; i < count; i++) {
                 sleep(interval);
-                runtime.startIsolatedWorker(object, "exec", null, null, null);
+                runtime.callMethod(object, "exec", new StrandMetadata(true, null));
             }
         });
     }

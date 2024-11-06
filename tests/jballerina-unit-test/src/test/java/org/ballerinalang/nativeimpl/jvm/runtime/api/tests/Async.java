@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
@@ -178,13 +179,11 @@ public class Async {
     }
 
     private static long startNonIsolatedWorker(Environment env, BObject obj, String methodName, Object... args) {
-        return (long) env.getRuntime().startNonIsolatedWorker(obj, methodName, methodName,
-                null, null, args).get();
+        return (long) env.getRuntime().callMethod(obj, methodName, new StrandMetadata(false, null), args);
     }
 
     private static long startIsolatedWorker(Environment env, BObject obj, String methodName, Object... args) {
-        return (long) env.getRuntime().startNonIsolatedWorker(obj, methodName, methodName,
-                null, null, args).get();
+        return (long) env.getRuntime().callMethod(obj, methodName, new StrandMetadata(true, null), args);
     }
 
     private static boolean isResourceMethodIsolated(BObject obj) {
