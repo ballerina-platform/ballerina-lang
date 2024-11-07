@@ -1,36 +1,36 @@
 {
-  "10001": {
+  "1": {
     "name": "kafka",
     "orgName": "ballerinax",
     "packageName": "kafka",
     "keywords": [
       "kafka",
-      "event streaming",
       "network",
-      "messaging"
+      "messaging",
+      "event"
     ]
   },
-  "10002": {
+  "2": {
     "name": "rabbitmq",
     "orgName": "ballerinax",
     "packageName": "rabbitmq",
     "keywords": [
-      "service",
       "messaging",
-      "network"
+      "network",
+      "event"
     ]
   },
-  "10003": {
+  "3": {
     "name": "nats",
     "orgName": "ballerinax",
     "packageName": "nats",
     "keywords": [
-      "service",
       "messaging",
-      "network"
+      "network",
+      "event"
     ]
   },
-  "10004": {
+  "4": {
     "name": "mqtt",
     "orgName": "ballerina",
     "packageName": "mqtt",
@@ -38,10 +38,11 @@
       "mqtt",
       "messaging",
       "network",
-      "iot"
+      "iot",
+      "event"
     ]
   },
-  "10005": {
+  "5": {
     "name": "jms",
     "orgName": "ballerinax",
     "packageName": "java.jms",
@@ -49,10 +50,11 @@
       "jms",
       "java",
       "messaging",
-      "network"
+      "network",
+      "event"
     ]
   },
-  "10006": {
+  "6": {
     "name": "ftp",
     "orgName": "ballerina",
     "packageName": "ftp",
@@ -61,7 +63,42 @@
       "SFTP",
       "remote file",
       "file",
-      "service"
+      "event"
+    ]
+  },
+  "7": {
+    "name": "asb",
+    "orgName": "ballerinax",
+    "packageName": "asb",
+    "keywords": [
+      "asb",
+      "azure",
+      "service",
+      "messaging",
+      "network",
+      "event"
+    ]
+  },
+  "8": {
+    "name": "salesforce",
+    "orgName": "ballerinax",
+    "packageName": "salesforce",
+    "keywords": [
+      "salesforce",
+      "service",
+      "messaging",
+      "network",
+      "event"
+    ]
+  },
+  "9": {
+    "name": "github",
+    "orgName": "ballerinax",
+    "packageName": "trigger.github",
+    "keywords": [
+      "github",
+      "trigger",
+      "event"
     ]
   }
 }
