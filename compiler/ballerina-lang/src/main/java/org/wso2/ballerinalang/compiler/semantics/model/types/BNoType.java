@@ -28,16 +28,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 public class BNoType extends BType implements NoType {
 
     public BNoType(int tag) {
-        super(tag, null);
+        super(tag, null, PredefinedType.UNDEF);
     }
 
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public SemType semType() {
-        return PredefinedType.UNDEF;
     }
 }

@@ -17,11 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import io.ballerina.types.SemType;
-import org.ballerinalang.model.Name;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 /**
@@ -31,58 +31,40 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BStringSubType extends BType {
 
-    public BStringSubType(int tag, Name name) {
-        this(tag, name, null);
-    }
+    public static final BStringSubType CHAR = new BStringSubType();
 
-    public BStringSubType(int tag, Name name, SemType semType) {
-        super(tag, null, name, Flags.READONLY, semType);
+    private BStringSubType() {
+        super(TypeTags.CHAR_STRING, null, Names.CHAR, Flags.READONLY, SemTypes.CHAR);
     }
 
     @Override
     public boolean isNullable() {
-
         return false;
     }
 
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
-
         return visitor.visit(this, t);
     }
 
     @Override
     public TypeKind getKind() {
-
         return TypeKind.STRING;
     }
 
     @Override
     public void accept(TypeVisitor visitor) {
-
         visitor.visit(this);
     }
 
     @Override
     public String toString() {
-
         return Names.STRING.value + Names.ALIAS_SEPARATOR + name;
     }
 
     @Override
     public String getQualifiedTypeName() {
-
         return Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value
                 + Names.LANG.value + Names.DOT.value + Names.STRING.value + Names.ALIAS_SEPARATOR + name;
-    }
-
-    public boolean isAnydata() {
-
-        return true;
-    }
-
-    public boolean isPureType() {
-
-        return true;
     }
 }

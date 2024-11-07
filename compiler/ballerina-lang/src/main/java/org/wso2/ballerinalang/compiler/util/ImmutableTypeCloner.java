@@ -222,13 +222,7 @@ public final class ImmutableTypeCloner {
             case TypeTags.XML_ELEMENT:
             case TypeTags.XML_PI:
                 BXMLSubType origXmlSubType = (BXMLSubType) type;
-
-                SemType xmlRoSemType = intersect(origXmlSubType.semType(), PredefinedType.VAL_READONLY);
-                // TODO: 4/28/20 Check tsymbol
-                BXMLSubType immutableXmlSubType =
-                        new BXMLSubType(origXmlSubType.tag,
-                                        Names.fromString(origXmlSubType.name.getValue().concat(AND_READONLY_SUFFIX)),
-                                        origXmlSubType.getFlags() | Flags.READONLY, xmlRoSemType);
+                BXMLSubType immutableXmlSubType = BXMLSubType.newImmutableXMLSubType(origXmlSubType);
 
                 BIntersectionType immutableXmlSubTypeIntersectionType =
                         createImmutableIntersectionType(pkgId, owner, originalType, immutableXmlSubType, symTable);
