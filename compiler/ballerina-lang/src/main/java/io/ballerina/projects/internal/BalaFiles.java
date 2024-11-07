@@ -487,12 +487,24 @@ public final class BalaFiles {
         CompilerPluginDescriptor compilerPluginDescriptor = compilerPluginJson
                 .map(CompilerPluginDescriptor::from).orElse(null);
         BalToolDescriptor balToolDescriptor = balToolJson.map(BalToolDescriptor::from).orElse(null);
+        List<String> exports = new ArrayList<>();
+        if (packageJson.getExport() == null) {
+            // new bala structure
+            exports.add(packageJson.getName()); // default module is always exported
+            if (packageJson.getModules() != null) {
+                exports.addAll(packageJson.getModules().stream().filter(
+                        PackageManifest.Module::export).map(PackageManifest.Module::name).toList());
+            }
+        } else {
+            exports = packageJson.getExport();
+        }
         return PackageManifest
                 .from(pkgDesc, compilerPluginDescriptor, balToolDescriptor, platforms, dependencies,
                         packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
-                        packageJson.getExport(), packageJson.getInclude(), packageJson.getSourceRepository(),
+                        exports, packageJson.getInclude(), packageJson.getSourceRepository(),
                         packageJson.getBallerinaVersion(), packageJson.getVisibility(),
-                        packageJson.getTemplate());
+                        packageJson.getTemplate(), packageJson.getReadme(), packageJson.getDescription(),
+                        packageJson.getModules());
     }
 
     private static Map<String, PackageManifest.Platform> getPlatforms(PackageJson packageJson) {

@@ -209,17 +209,17 @@ public abstract class BalaWriter {
         List<PackageManifest.Module> modules = new ArrayList<>();
         String packageDocPathPrefix = BALA_DOCS_DIR + UNIX_FILE_SEPARATOR;
 
-        Map<String, PackageManifest.Module> moduleMap = packageManifest.modules();
-        for (Map.Entry<String, PackageManifest.Module> module : moduleMap.entrySet()) {
+        List<PackageManifest.Module> moduleList = packageManifest.modules();
+        for (PackageManifest.Module module : moduleList) {
             String moduleDoc = null;
-            if (module.getValue().readme() == null || !module.getValue().readme().isEmpty()) {
-                moduleDoc = packageDocPathPrefix + MODULES_ROOT + UNIX_FILE_SEPARATOR + module.getKey() +
-                        UNIX_FILE_SEPARATOR + Paths.get(module.getValue().readme()).getFileName();
+            if (module.readme() != null && !module.readme().isEmpty()) {
+                moduleDoc = packageDocPathPrefix + MODULES_ROOT + UNIX_FILE_SEPARATOR + module.name() +
+                        UNIX_FILE_SEPARATOR + Paths.get(module.readme()).getFileName();
             }
             modules.add(new PackageManifest.Module(
-                    module.getValue().name(),
-                    module.getValue().export(),
-                    module.getValue().description(),
+                    module.name(),
+                    module.export(),
+                    module.description(),
                     moduleDoc));
         }
         packageJson.setModules(modules);
@@ -306,14 +306,14 @@ public abstract class BalaWriter {
 
         Path modulesDirInBalaDocs = docsDirInBala.resolve(MODULES_ROOT);
 
-        for (Map.Entry<String, PackageManifest.Module> module : packageManifest.modules().entrySet()) {
-            if (module.getValue().readme() == null || module.getValue().readme().isEmpty()) {
+        for (PackageManifest.Module module : packageManifest.modules()) {
+            if (module.readme() == null || module.readme().isEmpty()) {
                 continue;
             }
-            Path otherReadmeMdInBalaDocs = modulesDirInBalaDocs.resolve(module.getKey())
-                    .resolve(Paths.get(module.getValue().readme()).getFileName());
+            Path otherReadmeMdInBalaDocs = modulesDirInBalaDocs.resolve(module.name())
+                    .resolve(Paths.get(module.readme()).getFileName());
             putZipEntry(balaOutputStream, otherReadmeMdInBalaDocs,
-                    new FileInputStream(module.getValue().readme()));
+                    new FileInputStream(module.readme()));
         }
     }
 

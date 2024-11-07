@@ -38,6 +38,7 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     OLD_DEPENDENCIES_TOML("BCE5101", "old.dependencies.toml"),
     LOCAL_PACKAGES_IN_DEPENDENCIES_TOML("BCE5102", "local.packages.in.dependencies.toml"),
     CORRUPTED_DEPENDENCIES_TOML("BCE5103", "corrupted.dependencies.toml"),
+    DEPRECATED_BALLERINA_TOML_ENTRY("BCE5104", "deprecated.ballerina.toml.entry"),
 
     // Error codes used during dependency resolution.
     INCOMPATIBLE_DEPENDENCY_VERSIONS("BCE5201", "incompatible.dependency.versions"),

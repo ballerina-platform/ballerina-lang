@@ -131,6 +131,8 @@ public class ManifestBuilder {
     private static final String DESCRIPTION = "description";
     private static final String README = "readme";
 
+    private boolean isOldStructure;
+
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
                             TomlDocument balToolToml,
@@ -207,7 +209,7 @@ public class ManifestBuilder {
         String icon = "";
         String readme = null;
         String description = "";
-        Map<String, PackageManifest.Module> moduleEntries = new HashMap<>();
+        List<PackageManifest.Module> moduleEntries = new ArrayList<>();
 
         if (!tomlAstNode.entries().isEmpty()) {
             TopLevelNode topLevelPkgNode = tomlAstNode.entries().get(PACKAGE);
@@ -231,6 +233,18 @@ public class ManifestBuilder {
                 readme = validateAndGetReadmePath(pkgNode, customReadmeVal);
                 description = getStringValueFromTomlTableNode(pkgNode, DESCRIPTION, "");
                 moduleEntries = getModuleEntries(pkgNode, customReadmeVal, packageDescriptor.name());
+
+                if (!isOldStructure) {
+                    if (!exported.isEmpty()) {
+                        reportDiagnostic(pkgNode.entries().get(EXPORT),
+                                "'export' under [package] is deprecated. " +
+                                        "Add the exports using the 'export' field under '[[package.modules]]'",
+                                ProjectDiagnosticErrorCode.DEPRECATED_BALLERINA_TOML_ENTRY, DiagnosticSeverity.WARNING);
+                    }
+                    exported.add(packageDescriptor.name().toString()); // default module is always exported
+                    exported.addAll(moduleEntries.stream().filter(
+                            PackageManifest.Module::export).map(PackageManifest.Module::name).toList());
+                }
             }
         }
 
@@ -272,13 +286,13 @@ public class ManifestBuilder {
                 repository, ballerinaVersion, visibility, template, icon, tools, readme, description, moduleEntries);
     }
 
-    private Map<String, PackageManifest.Module> getModuleEntries(
+    private List<PackageManifest.Module> getModuleEntries(
             TomlTableNode pkgNode, String customReadmeVal, PackageName packageName) {
 
-        Map<String, PackageManifest.Module> moduleMap = new HashMap<>();
+        List<PackageManifest.Module> moduleList = new ArrayList<>();
         Path modulesRoot = this.projectPath.resolve(ProjectConstants.MODULES_ROOT);
         if (!Files.exists(modulesRoot)) {
-            return moduleMap;
+            return moduleList;
         }
         List<Path> moduleDirs;
         try (Stream<Path> stream = Files.walk(modulesRoot, 1)) {  // depth of 1 ensures we only look at direct children
@@ -302,9 +316,9 @@ public class ManifestBuilder {
                     PackageManifest.Module module = new PackageManifest.Module(
                             packageName + DOT + moduleDir.getFileName().toString(), false,
                             "", modReadme);
-                    moduleMap.put(packageName + DOT + moduleDir.getFileName().toString(), module);
+                    moduleList.add(module);
                 }
-                return moduleMap;
+                return moduleList;
             }
         }
 
@@ -320,9 +334,9 @@ public class ManifestBuilder {
                 PackageManifest.Module module = new PackageManifest.Module(
                         packageName + DOT + moduleDir.getFileName().toString(), false,
                         "", modReadme);
-                moduleMap.put(packageName + DOT + moduleDir.getFileName().toString(), module);
+                moduleList.add(module);
             }
-            return moduleMap;
+            return moduleList;
         }
         if (dependencyEntries.kind() == TomlType.TABLE_ARRAY) {
             TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyEntries;
@@ -362,10 +376,10 @@ public class ManifestBuilder {
                 }
                 PackageManifest.Module module = new PackageManifest.Module(moduleName, export,
                         description, modReadme);
-                moduleMap.put(moduleName, module);
+                moduleList.add(module);
             }
         }
-        return moduleMap;
+        return moduleList;
     }
 
     private String validateAndGetReadmePath(TomlTableNode pkgNode, String readme) {
@@ -374,6 +388,7 @@ public class ManifestBuilder {
             readmeMdPath = this.projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
             if (Files.exists(readmeMdPath)) {
                 // TODO: can we report the diagnostic?
+                isOldStructure = true;
                 return readmeMdPath.toString();
             } else {
                 readmeMdPath = this.projectPath.resolve(ProjectConstants.README_MD_FILE_NAME);
