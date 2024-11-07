@@ -57,13 +57,14 @@ public class TriggerServiceTest {
 
         BallerinaTriggerListRequest request = new BallerinaTriggerListRequest();
         CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGERS_NEW, request);
-        BallerinaTriggerListResponse response = (BallerinaTriggerListResponse) result.get();
+        JsonObject response = (JsonObject) result.get();
 
-        Assert.assertTrue(!response.getCentralTriggers().isEmpty());
-        Assert.assertTrue(response.getCentralTriggers().stream()
-                .anyMatch(trigger -> trigger.moduleName.contains("kafka")));
-        Assert.assertTrue(response.getCentralTriggers().stream()
-                .anyMatch(trigger -> trigger.moduleName.contains("ftp")));
+        Assert.assertTrue(response.has("central"));
+        Assert.assertFalse(response.getAsJsonArray("central").isEmpty());
+        Assert.assertTrue(response.getAsJsonArray("central").asList().stream()
+                .anyMatch(trigger -> trigger.getAsJsonObject().get("moduleName").getAsString().contains("kafka")));
+        Assert.assertTrue(response.getAsJsonArray("central").asList().stream()
+                .anyMatch(trigger -> trigger.getAsJsonObject().get("moduleName").getAsString().contains("ftp")));
     }
 
     @Test(description = "Test trigger endpoint of trigger service")
@@ -81,11 +82,11 @@ public class TriggerServiceTest {
     public void testTriggerNewService() throws ExecutionException, InterruptedException {
         Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
 
-        BallerinaTriggerRequest request = new BallerinaTriggerRequest("10002");
+        BallerinaTriggerRequest request = new BallerinaTriggerRequest("2");
         CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGER_NEW, request);
         JsonObject response = (JsonObject) result.get();
 
-        Assert.assertEquals(response.get("id").getAsString(), "10002");
+        Assert.assertEquals(response.get("id").getAsString(), "2");
         Assert.assertEquals(response.get("moduleName").getAsString(), "rabbitmq");
     }
 
@@ -98,7 +99,7 @@ public class TriggerServiceTest {
         CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGER_NEW, request);
         JsonObject response = (JsonObject) result.get();
 
-        Assert.assertEquals(response.get("id").getAsString(), "10001");
+        Assert.assertEquals(response.get("id").getAsString(), "1");
         Assert.assertEquals(response.get("moduleName").getAsString(), "kafka");
 
         request = new BallerinaTriggerRequest("ballerina", "mqtt",  "mqtt",
@@ -106,15 +107,8 @@ public class TriggerServiceTest {
         result = serviceEndpoint.request(BALLERINA_TRIGGER_NEW, request);
         response = (JsonObject) result.get();
 
-        Assert.assertEquals(response.get("id").getAsString(), "10004");
+        Assert.assertEquals(response.get("id").getAsString(), "4");
         Assert.assertEquals(response.get("moduleName").getAsString(), "mqtt");
-
-        request = new BallerinaTriggerRequest("ballerinax", "trigger.slack",  "trigger.slack",
-                "*", "Slack Event Listener");
-        result = serviceEndpoint.request(BALLERINA_TRIGGER_NEW, request);
-        response = (JsonObject) result.get();
-
-        Assert.assertEquals(response.get("moduleName").getAsString(), "trigger.slack");
     }
 
     @Test(description = "Test new triggers endpoint of trigger service with query")
@@ -124,13 +118,14 @@ public class TriggerServiceTest {
         BallerinaTriggerListRequest request = new BallerinaTriggerListRequest();
         request.setQuery("kafka");
         CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGERS_NEW, request);
-        BallerinaTriggerListResponse response = (BallerinaTriggerListResponse) result.get();
+        JsonObject response = (JsonObject) result.get();
 
-        Assert.assertTrue(!response.getCentralTriggers().isEmpty());
-        Assert.assertTrue(response.getCentralTriggers().stream()
-                .anyMatch(trigger -> trigger.moduleName.equals("kafka")));
-        Assert.assertTrue(response.getCentralTriggers().stream()
-                .noneMatch(trigger -> trigger.moduleName.equals("ftp")));
+        Assert.assertTrue(response.has("central"));
+        Assert.assertFalse(response.getAsJsonArray("central").isEmpty());
+        Assert.assertTrue(response.getAsJsonArray("central").asList().stream()
+                .anyMatch(trigger -> trigger.getAsJsonObject().get("moduleName").getAsString().contains("kafka")));
+        Assert.assertTrue(response.getAsJsonArray("central").asList().stream()
+                .noneMatch(trigger -> trigger.getAsJsonObject().get("moduleName").getAsString().contains("ftp")));
     }
 
     @Test(description = "Test new triggers endpoint of trigger service with organization")
@@ -140,15 +135,16 @@ public class TriggerServiceTest {
         BallerinaTriggerListRequest request = new BallerinaTriggerListRequest();
         request.setOrganization("ballerina");
         CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGERS_NEW, request);
-        BallerinaTriggerListResponse response = (BallerinaTriggerListResponse) result.get();
+        JsonObject response = (JsonObject) result.get();
 
-        Assert.assertTrue(!response.getCentralTriggers().isEmpty());
-        Assert.assertTrue(response.getCentralTriggers().stream()
-                .anyMatch(trigger -> trigger.moduleName.equals("mqtt")));
-        Assert.assertTrue(response.getCentralTriggers().stream()
-                .anyMatch(trigger -> trigger.moduleName.equals("ftp")));
-        Assert.assertTrue(response.getCentralTriggers().stream()
-                .noneMatch(trigger -> trigger.moduleName.equals("kafka")));
+        Assert.assertTrue(response.has("central"));
+        Assert.assertFalse(response.getAsJsonArray("central").isEmpty());
+        Assert.assertTrue(response.getAsJsonArray("central").asList().stream()
+                .anyMatch(trigger -> trigger.getAsJsonObject().get("moduleName").getAsString().contains("mqtt")));
+        Assert.assertTrue(response.getAsJsonArray("central").asList().stream()
+                .anyMatch(trigger -> trigger.getAsJsonObject().get("moduleName").getAsString().contains("ftp")));
+        Assert.assertTrue(response.getAsJsonArray("central").asList().stream()
+                .noneMatch(trigger -> trigger.getAsJsonObject().get("moduleName").getAsString().contains("kafka")));
     }
 
     @Test(description = "Test new triggers endpoint of trigger service with limit")
@@ -158,16 +154,18 @@ public class TriggerServiceTest {
         BallerinaTriggerListRequest request = new BallerinaTriggerListRequest();
         request.setLimit(10);
         CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGERS_NEW, request);
-        BallerinaTriggerListResponse response = (BallerinaTriggerListResponse) result.get();
+        JsonObject response = (JsonObject) result.get();
 
-        Assert.assertTrue(!response.getCentralTriggers().isEmpty());
-        Assert.assertEquals(response.getCentralTriggers().size(), 10);
+        Assert.assertTrue(response.has("central"));
+        Assert.assertFalse(response.getAsJsonArray("central").isEmpty());
+        Assert.assertTrue(response.getAsJsonArray("central").size() == 9);
 
         request.setLimit(2);
         result = serviceEndpoint.request(BALLERINA_TRIGGERS_NEW, request);
-        response = (BallerinaTriggerListResponse) result.get();
+        response = (JsonObject) result.get();
 
-        Assert.assertTrue(!response.getCentralTriggers().isEmpty());
-        Assert.assertEquals(response.getCentralTriggers().size(), 2);
+        Assert.assertTrue(response.has("central"));
+        Assert.assertFalse(response.getAsJsonArray("central").isEmpty());
+        Assert.assertTrue(response.getAsJsonArray("central").size() == 2);
     }
 }

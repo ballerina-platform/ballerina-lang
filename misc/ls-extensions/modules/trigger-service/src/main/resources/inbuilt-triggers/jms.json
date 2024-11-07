@@ -1,5 +1,5 @@
 {
-  "id": 10005,
+  "id": 5,
   "name": "JMS Service",
   "type": "inbuilt",
   "displayName": "JMS",
@@ -58,6 +58,7 @@
     {
       "name": "JMS",
       "description": "JMS Service",
+      "enabled": true,
       "functions": [
         {
           "name": "onMessage",
@@ -66,6 +67,7 @@
           "qualifiers": [
             "remote"
           ],
+          "enabled": true,
           "parameters": [
             {
               "name": "message",
@@ -80,7 +82,9 @@
                 "moduleName": "java.jms",
                 "version": "1.0.1"
               },
-              "documentation": "The message received from the JMS broker"
+              "documentation": "The message received from the JMS broker",
+              "enabled": true,
+              "value": "jms:Message"
             },
             {
               "name": "caller",
@@ -95,7 +99,9 @@
                 "version": "1.0.1"
               },
               "optional": true,
-              "documentation": "The JMS caller object to acknowledge the message"
+              "documentation": "The JMS caller object to acknowledge the message",
+              "enabled": false,
+              "value": "jms:Caller"
             }
           ],
           "returnType": {
@@ -105,7 +111,9 @@
             ],
             "optional": true,
             "documentation": "Error object.",
-            "defaultTypeName": "error?"
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
           }
         },
         {
@@ -115,6 +123,7 @@
           "qualifiers": [
             "remote"
           ],
+          "enabled": false,
           "parameters": [
             {
               "name": "err",
@@ -129,7 +138,9 @@
                 "moduleName": "java.jms",
                 "version": "1.0.1"
               },
-              "documentation": "The error occurred during message processing"
+              "documentation": "The error occurred during message processing",
+              "enabled": true,
+              "value": "jms:Error"
             }
           ],
           "returnType": {
@@ -139,28 +150,272 @@
             ],
             "optional": true,
             "documentation": "Error object.",
-            "defaultTypeName": "error?"
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
           }
         }
       ]
     }
   ],
-  "listenerParams": [
-    {
-      "name": "listenerConfig",
-      "typeName": "jms:ListenerConfiguration",
-      "type": [
-        "jms:ListenerConfiguration"
-      ],
-      "optional": false,
-      "defaultable": false,
-      "typeInfo": {
-        "name": "ListenerConfiguration",
-        "orgName": "ballerinax",
-        "moduleName": "java.jms",
-        "version": "1.0.1"
-      },
-      "documentation": "JMS listener configurations"
+  "listener": {
+    "metadata": {
+      "label": "JMS Listener",
+      "description": "The JMS listener listens to messages from a JMS broker."
+    },
+    "valueType": "jms:Listener",
+    "valueTypeConstraint": "jms:Listener",
+    "value": "",
+    "enabled": true,
+    "optional": false,
+    "editable": true,
+    "properties": {
+      "listenerConfig": {
+        "metadata": {
+          "label": "listenerConfig",
+          "description": "The JMS listener configuration"
+        },
+        "valueType": "EXPRESSION",
+        "valueTypeConstraint": "jms:MessageListenerConfigurations",
+        "value": "",
+        "editable": true,
+        "optional": true,
+        "advanced": true,
+        "fields": {
+          "connectionConfig": {
+            "metadata": {
+              "label": "connectionConfig",
+              "description": "Configurations related to the broker connection"
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "jms:ConnectionConfiguration",
+            "value": "",
+            "placeholder": "",
+            "optional": false,
+            "editable": true,
+            "advanced": true,
+            "fields": {
+              "initialContextFactory": {
+                "metadata": {
+                  "label": "initialContextFactory",
+                  "description": "JMS provider specific initial context factory"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": false,
+                "editable": true,
+                "advanced": false
+              },
+              "providerUrl": {
+                "metadata": {
+                  "label": "providerUrl",
+                  "description": "JMS provider specific provider URL used to configure a connection"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": false,
+                "editable": true,
+                "advanced": false
+              },
+              "connectionFactoryName": {
+                "metadata": {
+                  "label": "connectionFactoryName",
+                  "description": "JMS connection factory to be used in creating JMS connections"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "ConnectionFactory",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "username": {
+                "metadata": {
+                  "label": "username",
+                  "description": "Username for the JMS connection"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "password": {
+                "metadata": {
+                  "label": "password",
+                  "description": "Password for the JMS connection"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "properties": {
+                "metadata": {
+                  "label": "properties",
+                  "description": "Additional properties used in initializing the initial context"
+                },
+                "valueType": "map",
+                "valueTypeConstraint": "map<string>",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              }
+            }
+          },
+          "acknowledgementMode": {
+            "metadata": {
+              "label": "acknowledgementMode",
+              "description": "Configuration indicating how messages received by the session will be acknowledged"
+            },
+            "valueType": "enum",
+            "valueTypeConstraint": "jms:AcknowledgementMode",
+            "value": "",
+            "placeholder": "jms:AUTO_ACKNOWLEDGE",
+            "optional": true,
+            "editable": true,
+            "advanced": false,
+            "enum": [
+              "jms:SESSION_TRANSACTED",
+              "jms:AUTO_ACKNOWLEDGE",
+              "jms:CLIENT_ACKNOWLEDGE",
+              "jms:DUPS_OK_ACKNOWLEDGE"
+            ]
+          },
+          "consumerOptions": {
+            "metadata": {
+              "label": "consumerOptions",
+              "description": "Underlying JMS message consumer configurations"
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "jms:ConsumerOptions",
+            "value": "",
+            "placeholder": "",
+            "optional": false,
+            "editable": true,
+            "advanced": true,
+            "fields": {
+              "type": {
+                "metadata": {
+                  "label": "type",
+                  "description": "Message consumer type"
+                },
+                "valueType": "enum",
+                "valueTypeConstraint": "ConsumerType",
+                "value": "jms:DEFAULT",
+                "placeholder": "jms:DEFAULT",
+                "optional": true,
+                "editable": true,
+                "advanced": false,
+                "enum": [
+                  "jms:DURABLE",
+                  "jms:SHARED",
+                  "jms:SHARED_DURABLE",
+                  "jms:DEFAULT"
+                ]
+              },
+              "destination": {
+                "metadata": {
+                  "label": "destination",
+                  "description": "Name of the JMS destination"
+                },
+                "valueType": "EXPRESSION",
+                "valueTypeConstraint": "jms:Destination",
+                "value": "",
+                "placeholder": "",
+                "optional": false,
+                "editable": true,
+                "advanced": true,
+                "fields": {
+                  "type": {
+                    "metadata": {
+                      "label": "type",
+                      "description": "JMS destination types"
+                    },
+                    "valueType": "enum",
+                    "valueTypeConstraint": "jms:DestinationType",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": false,
+                    "editable": true,
+                    "advanced": false,
+                    "enum": [
+                      "jms:QUEUE",
+                      "jms:TEMPORARY_QUEUE",
+                      "jms:TOPIC",
+                      "jms:TEMPORARY_TOPIC"
+                    ]
+                  },
+                  "name": {
+                    "metadata": {
+                      "label": "name",
+                      "description": "Name of the destination"
+                    },
+                    "valueType": "string",
+                    "valueTypeConstraint": "string",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": true,
+                    "editable": true,
+                    "advanced": false
+                  }
+                }
+              },
+              "messageSelector": {
+                "metadata": {
+                  "label": "messageSelector",
+                  "description": "Only messages with properties matching the message selector expression are added to the durable subscription. An empty string indicates that there is no message selector for the durable subscription."
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "noLocal": {
+                "metadata": {
+                  "label": "noLocal",
+                  "description": "If true then any messages published to the topic using this session's connection, or any other connection with the same client identifier, will not be added to the durable subscription."
+                },
+                "valueType": "boolean",
+                "valueTypeConstraint": "boolean",
+                "value": false,
+                "placeholder": "false",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "subscriberName": {
+                "metadata": {
+                  "label": "subscriberName",
+                  "description": "The name used to identify the subscription"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              }
+            }
+          }
+        }
+      }
     }
-  ]
+  }
 }

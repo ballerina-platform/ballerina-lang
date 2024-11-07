@@ -1,5 +1,5 @@
 {
-  "id": 10004,
+  "id": 4,
   "name": "MQTT Service",
   "type": "inbuilt",
   "displayName": "MQTT",
@@ -61,6 +61,7 @@
     {
       "name": "MQTT",
       "description": "MQTT Service",
+      "enabled": true,
       "functions": [
         {
           "name": "onMessage",
@@ -69,6 +70,7 @@
           "qualifiers": [
             "remote"
           ],
+          "enabled": true,
           "parameters": [
             {
               "name": "message",
@@ -83,7 +85,9 @@
                 "moduleName": "mqtt",
                 "version": "1.2.0"
               },
-              "documentation": "The message received for MQTT topic(s)."
+              "documentation": "The message received for MQTT topic(s).",
+              "enabled": true,
+              "value": "mqtt:Message"
             },
             {
               "name": "caller",
@@ -98,7 +102,9 @@
                 "version": "1.2.0"
               },
               "optional": true,
-              "documentation": "The MQTT caller object to indicate the completion of the message processing or to send a response."
+              "documentation": "The MQTT caller object to indicate the completion of the message processing or to send a response.",
+              "enabled": false,
+              "value": "mqtt:Caller"
             }
           ],
           "returnType": {
@@ -108,13 +114,16 @@
             ],
             "optional": true,
             "documentation": "Error object.",
-            "defaultTypeName": "error?"
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
           }
         },
         {
           "name": "onError",
           "documentation": "The `onError` remote method will be triggered when an error occurs during the message processing.",
           "optional": true,
+          "enabled": false,
           "qualifiers": [
             "remote"
           ],
@@ -132,7 +141,9 @@
                 "moduleName": "mqtt",
                 "version": "1.2.0"
               },
-              "documentation": "The error occurred during the message processing."
+              "documentation": "The error occurred during the message processing.",
+              "enabled": true,
+              "value": "mqtt:Error"
             }
           ],
           "returnType": {
@@ -142,61 +153,294 @@
             ],
             "optional": true,
             "documentation": "Error object.",
-            "defaultTypeName": "error?"
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
           }
         }
       ]
     }
   ],
-  "listenerParams": [
-    {
-      "name": "serviceUri",
-      "typeName": "string",
-      "type": [
-        "string"
-      ],
-      "optional": false,
-      "defaultable": false,
-      "documentation": "The URI of the remote MQTT server."
+  "listener": {
+    "metadata": {
+      "label": "MQTT Listener",
+      "description": "The MQTT listener to which the MQTT service should be attached."
     },
-    {
-      "name": "clientId",
-      "typeName": "string",
-      "type": [
-        "string"
-      ],
-      "optional": false,
-      "defaultable": false,
-      "documentation": "The unique client ID to identify the listener."
-    },
-    {
-      "name": "subscriptions",
-      "typeName": "string|string[]|mqtt:Subscription|mqtt:Subscription[]",
-      "type": [
-        "string",
-        "string[]",
-        "mqtt:Subscription",
-        "mqtt:Subscription[]"
-      ],
-      "optional": false,
-      "defaultable": false,
-      "documentation": "The MQTT topics to be subscribed to."
-    },
-    {
-      "name": "config",
-      "typeName": "mqtt:ListenerConfiguration",
-      "type": [
-        "mqtt:ListenerConfiguration"
-      ],
-      "optional": true,
-      "typeInfo": {
-        "name": "ListenerConfiguration",
-        "orgName": "ballerina",
-        "moduleName": "mqtt",
-        "version": "1.2.0"
+    "valueType": "mqtt:Listener",
+    "valueTypeConstraint": "mqtt:Listener",
+    "value": "",
+    "enabled": true,
+    "optional": false,
+    "editable": true,
+    "properties": {
+      "serviceUri": {
+        "metadata": {
+          "label": "url",
+          "description": "The URI of the remote MQTT server."
+        },
+        "valueType": "string",
+        "valueTypeConstraint": "string",
+        "placeholder": "",
+        "editable": true,
+        "optional": false,
+        "advanced": false
       },
-      "defaultable": false,
-      "documentation": "The listener configurations."
+      "clientId": {
+        "metadata": {
+          "label": "client ID",
+          "description": "The unique client ID to identify the listener."
+        },
+        "valueType": "string",
+        "valueTypeConstraint": "string",
+        "placeholder": "",
+        "editable": true,
+        "optional": false,
+        "advanced": false
+      },
+      "subscriptions": {
+        "metadata": {
+          "label": "subscriptions",
+          "description": "The MQTT topics to be subscribed to."
+        },
+        "valueType": "string",
+        "valueTypeConstraint": "string|string[]",
+        "placeholder": "",
+        "editable": true,
+        "optional": false,
+        "advanced": false
+      },
+      "config": {
+        "metadata": {
+          "label": "config",
+          "description": "The listener configurations."
+        },
+        "valueType": "mqtt:ListenerConfiguration",
+        "valueTypeConstraint": "mqtt:ListenerConfiguration",
+        "placeholder": "",
+        "editable": true,
+        "optional": true,
+        "advanced": true,
+        "fields": {
+          "connectionConfig": {
+            "metadata": {
+              "label": "connectionConfig",
+              "description": "The related connection configuration"
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "ConnectionConfiguration",
+            "value": "",
+            "placeholder": "",
+            "optional": true,
+            "editable": true,
+            "advanced": true,
+            "fields": {
+              "username": {
+                "metadata": {
+                  "label": "username",
+                  "description": "The username to use for the connection"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "password": {
+                "metadata": {
+                  "label": "password",
+                  "description": "The password to use for the connection"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "secureSocket": {
+                "metadata": {
+                  "label": "secureSocket",
+                  "description": "The configurations related to secure communication with the MQTT server"
+                },
+                "valueType": "EXPRESSION",
+                "valueTypeConstraint": "SecureSocket",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": true,
+                "fields": {
+                  "cert": {
+                    "metadata": {
+                      "label": "cert",
+                      "description": "Certificate file that the client trusts or a `crypto:TrustStore`"
+                    },
+                    "valueType": "string",
+                    "valueTypeConstraint": "string",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": true,
+                    "editable": true,
+                    "advanced": false
+                  },
+                  "key": {
+                    "metadata": {
+                      "label": "key",
+                      "description": "Combination of certificate and private key of the client or a `crypto:KeyStore`"
+                    },
+                    "valueType": "string",
+                    "valueTypeConstraint": "string",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": true,
+                    "editable": true,
+                    "advanced": false
+                  },
+                  "protocol": {
+                    "metadata": {
+                      "label": "protocol",
+                      "description": "Related protocol"
+                    },
+                    "valueType": "EXPRESSION",
+                    "valueTypeConstraint": "record",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": true,
+                    "editable": true,
+                    "advanced": true,
+                    "fields": {
+                      "name": {
+                        "metadata": {
+                          "label": "name",
+                          "description": "The name of the protocol"
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false,
+                        "enum": [
+                          "mqtt:SSL",
+                          "mqtt:TLS"
+                        ]
+                      },
+                      "version": {
+                        "metadata": {
+                          "label": "version",
+                          "description": "The version of the protocol"
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                      }
+                    }
+                  }
+                }
+              },
+              "maxReconnectDelay": {
+                "metadata": {
+                  "label": "maxReconnectDelay",
+                  "description": "The maximum delay between reconnects in milliseconds"
+                },
+                "valueType": "int",
+                "valueTypeConstraint": "int",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "keepAliveInterval": {
+                "metadata": {
+                  "label": "keepAliveInterval",
+                  "description": "The maximum time interval between messages sent or received in seconds"
+                },
+                "valueType": "int",
+                "valueTypeConstraint": "int",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "connectionTimeout": {
+                "metadata": {
+                  "label": "connectionTimeout",
+                  "description": "Maximum time interval in seconds the client will wait for the network connection to the MQTT server to be established"
+                },
+                "valueType": "int",
+                "valueTypeConstraint": "int",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "cleanStart": {
+                "metadata": {
+                  "label": "cleanStart",
+                  "description": "Whether the client and server should remember state for the client across reconnects"
+                },
+                "valueType": "boolean",
+                "valueTypeConstraint": "boolean",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "serverUris": {
+                "metadata": {
+                  "label": "serverUris",
+                  "description": "List of serverURIs the client may connect to"
+                },
+                "valueType": "string[]",
+                "valueTypeConstraint": "string[]",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "automaticReconnect": {
+                "metadata": {
+                  "label": "automaticReconnect",
+                  "description": "Whether the client will automatically attempt to reconnect to the server if the connection is lost"
+                },
+                "valueType": "boolean",
+                "valueTypeConstraint": "boolean",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              }
+            }
+          },
+          "manualAcks": {
+            "metadata": {
+              "label": "manualAcks",
+              "description": "Indicates whether or not the client should automatically ack messages"
+            },
+            "valueType": "boolean",
+            "valueTypeConstraint": "boolean",
+            "value": "",
+            "placeholder": "false",
+            "optional": true,
+            "editable": true,
+            "advanced": false
+          }
+        }
+      }
     }
-  ]
+  }
 }

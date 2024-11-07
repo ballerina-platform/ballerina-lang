@@ -1,5 +1,5 @@
 {
-    "id": 10002,
+    "id": 2,
     "name": "RabbitMQ Service",
     "type": "inbuilt",
     "displayName": "RabbitMQ",
@@ -62,6 +62,7 @@
         {
             "name": "RabbitMQ",
             "description": "RabbitMQ Service",
+            "enabled": true,
             "basePath": {
                 "optional": false,
                 "typeName": "string",
@@ -69,7 +70,10 @@
                     "string"
                 ],
                 "defaultable": false,
-                "documentation": "The RabbitMQ queue name."
+                "documentation": "The RabbitMQ queue name.",
+                "enabled": true,
+                "value": "",
+                "placeholder": "queue-name"
             },
             "functions": [
                 {
@@ -79,6 +83,7 @@
                     "qualifiers": [
                         "remote"
                     ],
+                    "enabled": true,
                     "parameters": [
                         {
                             "name": "message",
@@ -93,7 +98,9 @@
                                 "moduleName": "rabbitmq",
                                 "version": "3.1.0"
                             },
-                            "documentation": "The message received from the RabbitMQ queue."
+                            "documentation": "The message received from the RabbitMQ queue.",
+                            "enabled": true,
+                            "value": "rabbitmq:AnydataMessage"
                         },
                         {
                             "name": "caller",
@@ -108,7 +115,8 @@
                                 "version": "3.1.0"
                             },
                             "optional": true,
-                            "documentation": "The RabbitMQ caller object to acknowledge the message."
+                            "documentation": "The RabbitMQ caller object to acknowledge the message.",
+                            "enabled": false
                         }
                     ],
                     "returnType": {
@@ -118,22 +126,26 @@
                         ],
                         "optional": true,
                         "documentation": "Error object.",
-                        "defaultTypeName": "error?"
+                        "defaultTypeName": "error?",
+                        "enabled": true,
+                        "value": "error?"
                     },
                     "group": {
                         "id": 1,
                         "name": "group-1",
                         "type": "exclusive",
-                        "documentation": "RabbitMQ message trigger method."
+                        "documentation": "RabbitMQ message trigger method.",
+                        "default": "onMessage"
                     }
                 },
                 {
-                    "name": "OnRequest",
+                    "name": "onRequest",
                     "documentation": "The `onRequest` remote method will be triggered when a message is received in the specified queue and a response is expected.",
                     "optional": false,
                     "qualifiers": [
                         "remote"
                     ],
+                    "enabled": false,
                     "parameters": [
                         {
                             "name": "message",
@@ -148,7 +160,9 @@
                                 "moduleName": "rabbitmq",
                                 "version": "3.1.0"
                             },
-                            "documentation": "The message received from the RabbitMQ queue."
+                            "documentation": "The message received from the RabbitMQ queue.",
+                            "enabled": true,
+                            "value": "rabbitmq:AnydataMessage"
                         },
                         {
                             "name": "caller",
@@ -163,7 +177,8 @@
                                 "version": "3.1.0"
                             },
                             "optional": true,
-                            "documentation": "The RabbitMQ caller object to acknowledge the message."
+                            "documentation": "The RabbitMQ caller object to acknowledge the message.",
+                            "enabled": "false"
                         }
                     ],
                     "returnType": {
@@ -173,13 +188,16 @@
                         ],
                         "optional": false,
                         "documentation": "The response message.",
-                        "editable": false
+                        "editable": false,
+                        "enabled": true,
+                        "value": "anydata|error"
                     },
                     "group": {
                         "id": 1,
                         "name": "group-1",
                         "type": "exclusive",
-                        "documentation": "RabbitMQ message trigger method."
+                        "documentation": "RabbitMQ message trigger method.",
+                        "default": "onMessage"
                     }
                 },
                 {
@@ -189,6 +207,7 @@
                     "qualifiers": [
                         "remote"
                     ],
+                    "enabled": false,
                     "parameters": [
                         {
                             "name": "message",
@@ -203,7 +222,9 @@
                                 "moduleName": "rabbitmq",
                                 "version": "3.1.0"
                             },
-                            "documentation": "The message received from the RabbitMQ queue."
+                            "documentation": "The message received from the RabbitMQ queue.",
+                            "enabled": "true",
+                            "value": "rabbitmq:AnydataMessage"
                         },
                         {
                             "name": "err",
@@ -218,7 +239,9 @@
                                 "version": "3.1.0"
                             },
                             "optional": false,
-                            "documentation": "The error occurred during the message processing."
+                            "documentation": "The error occurred during the message processing.",
+                            "enabled": "true",
+                            "value": "rabbitmq:Error"
                         }
                     ],
                     "returnType": {
@@ -228,64 +251,394 @@
                         ],
                         "optional": true,
                         "documentation": "Error object.",
-                        "defaultTypeName": "error?"
+                        "defaultTypeName": "error?",
+                        "enabled": "true",
+                        "value": "error?"
                     }
                 }
             ]
         }
     ],
-    "listenerParams": [
-        {
-            "name": "host",
-            "typeName": "string",
-            "type": [
-                "string"
-            ],
-            "optional": false,
-            "defaultable": false,
-            "documentation": "The RabbitMQ server host name used for establishing the connection."
+    "listener": {
+        "metadata": {
+            "label": "RabbitMQ Listener",
+            "description": "The RabbitMQ listener listens to messages from a RabbitMQ server."
         },
-        {
-            "name": "port",
-            "typeName": "int",
-            "type": [
-                "int"
-            ],
-            "optional": false,
-            "defaultable": false,
-            "documentation": "The RabbitMQ server port used for establishing the connection."
-        },
-        {
-            "name": "qosSettings",
-            "typeName": "rabbitmq:QosSettings",
-            "type": [
-                "rabbitmq:QosSettings"
-            ],
-            "optional": true,
-            "defaultable": false,
-            "documentation": "The consumer prefetch settings.",
-            "typeInfo": {
-                "name": "QosSettings",
-                "orgName": "ballerinax",
-                "moduleName": "rabbitmq",
-                "version": "3.1.0"
-            }
-        },
-        {
-            "name": "connectionData",
-            "typeName": "rabbitmq:ConnectionData",
-            "type": [
-                "rabbitmq:ConnectionData"
-            ],
-            "optional": true,
-            "defaultable": false,
-            "documentation": "The connection data used for establishing the connection.",
-            "typeInfo": {
-                "name": "ConnectionData",
-                "orgName": "ballerinax",
-                "moduleName": "rabbitmq",
-                "version": "3.1.0"
+        "valueType": "rabbitmq:Listener",
+        "valueTypeConstraint": "rabbitmq:Listener",
+        "value": "",
+        "enabled": true,
+        "optional": false,
+        "editable": true,
+        "properties": {
+            "host": {
+                "metadata": {
+                    "label": "host",
+                    "description": "The RabbitMQ server host name used for establishing the connection."
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "rabbitmq:DEFAULT_HOST",
+                "editable": true,
+                "optional": false,
+                "advanced": false
+            },
+            "port": {
+                "metadata": {
+                    "label": "port",
+                    "description": "The RabbitMQ server port used for establishing the connection."
+                },
+                "valueType": "int",
+                "valueTypeConstraint": "int",
+                "value": "",
+                "placeholder": "rabbitmq:DEFAULT_PORT",
+                "editable": true,
+                "optional": false,
+                "advanced": false
+            },
+            "qosSettings": {
+                "metadata": {
+                    "label": "qosSettings",
+                    "description": "The consumer prefetch settings."
+                },
+                "valueType": "rabbitmq:QosSettings",
+                "valueTypeConstraint": "rabbitmq:QosSettings",
+                "value": "",
+                "placeholder": "",
+                "editable": true,
+                "optional": true,
+                "advanced": true,
+                "fields": {
+                    "prefetchCount": {
+                        "metadata": {
+                            "label": "prefetchCount",
+                            "description": "The maximum number of messages that the server will deliver. Give the value as 0 if unlimited"
+                        },
+                        "valueType": "int",
+                        "valueTypeConstraint": "int",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": false,
+                        "advanced": false
+                    },
+                    "prefetchSize": {
+                        "metadata": {
+                            "label": "prefetchSize",
+                            "description": "The maximum amount of content (measured in octets) that the server will deliver and 0 if unlimited"
+                        },
+                        "valueType": "int",
+                        "valueTypeConstraint": "int",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "global": {
+                        "metadata": {
+                            "label": "global",
+                            "description": "Indicates whether the settings should be shared among all the consumers."
+                        },
+                        "valueType": "boolean",
+                        "valueTypeConstraint": "boolean",
+                        "value": "",
+                        "placeholder": "false",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    }
+                }
+            },
+            "connectionData": {
+                "metadata": {
+                    "label": "connectionData",
+                    "description": "The connection data used for establishing the connection."
+                },
+                "valueType": "rabbitmq:ConnectionData",
+                "valueTypeConstraint": "rabbitmq:ConnectionData",
+                "value": "",
+                "placeholder": "",
+                "editable": true,
+                "optional": true,
+                "advanced": true,
+                "fields": {
+                    "username": {
+                        "metadata": {
+                            "label": "username",
+                            "description": "The username used for establishing the connection."
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "password": {
+                        "metadata": {
+                            "label": "password",
+                            "description": "The password used for establishing the connection."
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "virtualHost": {
+                        "metadata": {
+                            "label": "virtualHost",
+                            "description": "The virtual host to use when connecting to the broker."
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "connectionTimeout": {
+                        "metadata": {
+                            "label": "connectionTimeout",
+                            "description": "Connection TCP establishment timeout in seconds and zero for infinite."
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "handshakeTimeout": {
+                        "metadata": {
+                            "label": "handshakeTimeout",
+                            "description": "The AMQP 0-9-1 protocol handshake timeout in seconds."
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "shutdownTimeout": {
+                        "metadata": {
+                            "label": "shutdownTimeout",
+                            "description": "Shutdown timeout in seconds, zero for infinite, and the default value is 10. If the consumers exceed this timeout, then any remaining queued deliveries (and other Consumer callbacks) will be lost."
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "heartbeat": {
+                        "metadata": {
+                            "label": "heartbeat",
+                            "description": "The initially-requested heartbeat timeout in seconds and zero for none."
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "validation": {
+                        "metadata": {
+                            "label": "validation",
+                            "description": "Configuration related to constraint validation check."
+                        },
+                        "valueType": "boolean",
+                        "valueTypeConstraint": "boolean",
+                        "value": "",
+                        "placeholder": "true",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "secureSocket": {
+                        "metadata": {
+                            "label": "secureSocket",
+                            "description": "Configurations for facilitating secure connections."
+                        },
+                        "valueType": "rabbitmq:SecureSocket",
+                        "valueTypeConstraint": "rabbitmq:SecureSocket",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": true,
+                        "fields": {
+                            "cert": {
+                                "metadata": {
+                                    "label": "cert",
+                                    "description": "Configurations associated with `crypto:TrustStore` or single certificate file that the client trusts"
+                                },
+                                "valueType": "string",
+                                "valueTypeConstraint": "string",
+                                "value": "",
+                                "placeholder": "",
+                                "optional": true,
+                                "editable": true,
+                                "advanced": false
+                            },
+                            "key": {
+                                "metadata": {
+                                    "label": "key",
+                                    "description": "Configurations associated with `crypto:KeyStore` or combination of certificate and private key of the client"
+                                },
+                                "valueType": "EXPRESSION",
+                                "valueTypeConstraint": "rabbitmq:CertKey",
+                                "value": "",
+                                "placeholder": "",
+                                "optional": true,
+                                "editable": true,
+                                "advanced": true,
+                                "fields": {
+                                    "certFile": {
+                                        "metadata": {
+                                            "label": "certFile",
+                                            "description": "A file containing the certificate"
+                                        },
+                                        "valueType": "string",
+                                        "valueTypeConstraint": "string",
+                                        "value": "",
+                                        "placeholder": "",
+                                        "optional": true,
+                                        "editable": true,
+                                        "advanced": false
+                                    },
+                                    "keyFile": {
+                                        "metadata": {
+                                            "label": "keyFile",
+                                            "description": "A file containing the private key in PKCS8 format"
+                                        },
+                                        "valueType": "string",
+                                        "valueTypeConstraint": "string",
+                                        "value": "",
+                                        "placeholder": "",
+                                        "optional": true,
+                                        "editable": true,
+                                        "advanced": false
+                                    },
+                                    "keyPassword": {
+                                        "metadata": {
+                                            "label": "keyPassword",
+                                            "description": "Password of the private key if it is encrypted"
+                                        },
+                                        "valueType": "string",
+                                        "valueTypeConstraint": "string",
+                                        "value": "",
+                                        "placeholder": "",
+                                        "optional": true,
+                                        "editable": true,
+                                        "advanced": false
+                                    }
+                                },
+                                "protocol": {
+                                    "metadata": {
+                                        "label": "protocol",
+                                        "description": "SSL/TLS protocol related options"
+                                    },
+                                    "valueType": "EXPRESSION",
+                                    "valueTypeConstraint": "record",
+                                    "value": "",
+                                    "placeholder": "",
+                                    "optional": true,
+                                    "editable": true,
+                                    "advanced": true,
+                                    "fields": {
+                                        "name": {
+                                            "metadata": {
+                                                "label": "name",
+                                                "description": "The name of the protocol"
+                                            },
+                                            "valueType": "string",
+                                            "valueTypeConstraint": "string",
+                                            "value": "",
+                                            "placeholder": "",
+                                            "optional": true,
+                                            "editable": true,
+                                            "advanced": false,
+                                            "enum": [
+                                                "rabbitmq:SSL",
+                                                "rabbitmq:TLS",
+                                                "rabbitmq:DTLS"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "verifyHostName": {
+                                    "metadata": {
+                                        "label": "verifyHostName",
+                                        "description": "Enable/disable host name verification"
+                                    },
+                                    "valueType": "boolean",
+                                    "valueTypeConstraint": "boolean",
+                                    "value": "",
+                                    "placeholder": "true",
+                                    "optional": true,
+                                    "editable": true,
+                                    "advanced": false
+                                }
+                            }
+                        },
+                        "auth": {
+                            "metadata": {
+                                "label": "auth",
+                                "description": "Configurations related to authentication."
+                            },
+                            "valueType": "rabbitmq:Credentials",
+                            "valueTypeConstraint": "rabbitmq:Credentials",
+                            "value": "",
+                            "placeholder": "",
+                            "editable": true,
+                            "optional": true,
+                            "advanced": true,
+                            "fields": {
+                                "username": {
+                                    "metadata": {
+                                        "label": "username",
+                                        "description": "Username to use for authentication"
+                                    },
+                                    "valueType": "string",
+                                    "valueTypeConstraint": "string",
+                                    "value": "",
+                                    "placeholder": "",
+                                    "editable": true,
+                                    "optional": true,
+                                    "advanced": false
+                                },
+                                "password": {
+                                    "metadata": {
+                                        "label": "password",
+                                        "description": "Password/secret/token to use for authentication"
+                                    },
+                                    "valueType": "string",
+                                    "valueTypeConstraint": "string",
+                                    "value": "",
+                                    "placeholder": "",
+                                    "editable": true,
+                                    "optional": true,
+                                    "advanced": false
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
-    ]
+    }
 }
