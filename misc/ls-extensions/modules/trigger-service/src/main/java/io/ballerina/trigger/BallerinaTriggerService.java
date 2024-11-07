@@ -29,7 +29,6 @@ import io.ballerina.trigger.entity.BallerinaTriggerListResponse;
 import io.ballerina.trigger.entity.BallerinaTriggerRequest;
 import io.ballerina.trigger.entity.CentralTriggerListResult;
 import io.ballerina.trigger.entity.Constants;
-import io.ballerina.trigger.entity.Trigger;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -69,8 +68,6 @@ import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 @JavaSPIService("org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService")
 @JsonSegment("ballerinaTrigger")
 public class BallerinaTriggerService implements ExtendedLanguageServerService {
-    public static final String BALLERINA = "ballerina";
-    public static final String BALLERINAX = "ballerinax";
     private LanguageClient languageClient;
     private final Map<String, InBuiltTrigger> inBuiltTriggers;
 
@@ -116,26 +113,12 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
     }
 
     @JsonRequest
-    public CompletableFuture<BallerinaTriggerListResponse> triggersNew(BallerinaTriggerListRequest request) {
+    public CompletableFuture<JsonObject> triggersNew(BallerinaTriggerListRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            BallerinaTriggerListResponse triggersList = new BallerinaTriggerListResponse();
-            try {
-                List<Trigger> inBuiltTriggers = getInBuiltTriggers(request);
-                triggersList.addInBuiltTriggers(inBuiltTriggers);
-                if (request.getLimit() > 0) {
-                    if (inBuiltTriggers.size() == request.getLimit()) {
-                        return triggersList;
-                    }
-                    request.setLimit(request.getLimit() - inBuiltTriggers.size());
-                }
-                CentralTriggerListResult centralTriggerListResult = getCentralTriggerListResult(request);
-                triggersList.addCentralTriggers(centralTriggerListResult.getTriggers());
-                return triggersList;
-            } catch (CentralClientException | SettingsTomlException e) {
-                String msg = "Operation 'ballerinaTrigger/triggers' failed!";
-                this.languageClient.logMessage(new MessageParams(MessageType.Error, msg));
-                return triggersList;
-            }
+            JsonObject triggersList = new JsonObject();
+            List<JsonObject> inBuiltTriggers = getInBuiltTriggers(request);
+            triggersList.add("central", new Gson().toJsonTree(inBuiltTriggers));
+            return triggersList;
         });
     }
 
@@ -159,9 +142,7 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
                     return trigger.get();
                 }
             }
-
-            Optional<JsonObject> trigger = getTriggerFromCentral(request);
-            return trigger.orElseGet(JsonObject::new);
+            return new JsonObject();
         });
     }
 
@@ -170,28 +151,7 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
     }
 
     private Optional<JsonObject> getTriggerByName(BallerinaTriggerRequest request) {
-        Optional<JsonObject> inBuiltTrigger = getInBuiltTriggerJson(request.getPackageName());
-        if (inBuiltTrigger.isPresent()) {
-            return inBuiltTrigger;
-        }
-
-        BallerinaTriggerListRequest triggerListRequest = new BallerinaTriggerListRequest();
-        triggerListRequest.setPackageName(request.getPackageName());
-        triggerListRequest.setOrganization(request.getOrgName());
-        BallerinaTriggerListResponse triggersList = new BallerinaTriggerListResponse();
-        try {
-            CentralTriggerListResult centralTriggerListResult = getCentralTriggerListResult(triggerListRequest);
-            triggersList.addCentralTriggers(centralTriggerListResult.getTriggers());
-            if (triggersList.getCentralTriggers().isEmpty()) {
-                return Optional.empty();
-            }
-            request.setId(triggersList.getCentralTriggers().get(0).id);
-            return getTriggerFromCentral(request);
-        } catch (CentralClientException | SettingsTomlException e) {
-            String msg = "Operation 'ballerinaTrigger/triggers' failed!";
-            this.languageClient.logMessage(new MessageParams(MessageType.Error, msg));
-            return Optional.empty();
-        }
+        return getInBuiltTriggerJson(request.getPackageName());
     }
 
     private static CentralTriggerListResult getCentralTriggerListResult(BallerinaTriggerListRequest triggerListRequest)
@@ -205,9 +165,7 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
                 settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
         JsonElement triggerSearchResult = client.getTriggers(triggerListRequest.getQueryMap(),
                 "any", RepoUtils.getBallerinaVersion());
-        CentralTriggerListResult centralTriggerListResult = new Gson().fromJson(
-                triggerSearchResult.getAsString(), CentralTriggerListResult.class);
-        return centralTriggerListResult;
+        return new Gson().fromJson(triggerSearchResult.getAsString(), CentralTriggerListResult.class);
     }
 
     private Optional<JsonObject> getTriggerFromCentral(BallerinaTriggerRequest request) {
@@ -242,10 +200,10 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
         return Constants.CAPABILITY_NAME;
     }
 
-    private List<Trigger> getInBuiltTriggers(BallerinaTriggerListRequest request) {
+    private List<JsonObject> getInBuiltTriggers(BallerinaTriggerListRequest request) {
         return inBuiltTriggers.values().stream()
                 .filter(inBuiltTrigger -> filterInBuiltTriggers(inBuiltTrigger, request))
-                .map(inBuiltTrigger -> getInBuiltTrigger(inBuiltTrigger.name()))
+                .map(inBuiltTrigger -> getInBuiltTriggerJson(inBuiltTrigger.name()))
                 .flatMap(Optional::stream)
                 .limit(request.getLimit() > 0 ? request.getLimit() : Long.MAX_VALUE)
                 .toList();
@@ -260,24 +218,6 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
                         .anyMatch(keyword -> keyword.contains(request.getQuery())));
     }
 
-    private Optional<Trigger> getInBuiltTrigger(String triggerName) {
-        InputStream resourceStream = getClass().getClassLoader().getResourceAsStream(String.format("inbuilt-triggers/%s.json", triggerName));
-        if (resourceStream == null) {
-            String msg = String.format("Trigger info file not found for the trigger: %s", triggerName);
-            this.languageClient.logMessage(new MessageParams(MessageType.Error, msg));
-            return Optional.empty();
-        }
-
-        try (JsonReader reader = new JsonReader(new InputStreamReader(resourceStream, StandardCharsets.UTF_8))) {
-            return Optional.of(new Gson().fromJson(reader, Trigger.class));
-        } catch (IOException e) {
-            String msg = String.format("Error occurred while reading the trigger info file for the trigger: %s",
-                    triggerName);
-            this.languageClient.logMessage(new MessageParams(MessageType.Error, msg));
-            return Optional.empty();
-        }
-    }
-
     private Optional<JsonObject> getInBuiltTriggerJsonById(String triggerId) {
         if (!inBuiltTriggers.containsKey(triggerId)) {
             return Optional.empty();
@@ -287,7 +227,7 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
 
     private Optional<JsonObject> getInBuiltTriggerJson(String triggerName) {
         if (inBuiltTriggers.values().stream()
-                .noneMatch(inBuiltTrigger -> inBuiltTrigger.packageName().equals(triggerName))) {
+                .noneMatch(inBuiltTrigger -> inBuiltTrigger.name().equals(triggerName))) {
             return Optional.empty();
         }
         InputStream resourceStream = getClass().getClassLoader().getResourceAsStream(String.format("inbuilt-triggers/%s.json", triggerName));
