@@ -1,5 +1,5 @@
 {
-  "id": 10003,
+  "id": 3,
   "name": "NATS Service",
   "type": "inbuilt",
   "displayName": "NATS",
@@ -62,6 +62,7 @@
     {
       "name": "NATS",
       "description": "NATS Service",
+      "enabled": true,
       "basePath": {
         "optional": false,
         "typeName": "string",
@@ -69,7 +70,10 @@
           "string"
         ],
         "defaultable": false,
-        "documentation": "The NATS subject name."
+        "documentation": "The NATS subject name.",
+        "enabled": true,
+        "value": "",
+        "placeholder": "nats.subject"
       },
       "functions": [
         {
@@ -79,6 +83,7 @@
           "qualifiers": [
             "remote"
           ],
+          "enabled": true,
           "parameters": [
             {
               "name": "message",
@@ -93,7 +98,9 @@
                 "moduleName": "nats",
                 "version": "3.1.0"
               },
-              "documentation": "The message received for the NATS subject."
+              "documentation": "The message received for the NATS subject.",
+              "enabled": true,
+              "value": "nats:AnydataMessage"
             }
           ],
           "returnType": {
@@ -109,16 +116,18 @@
             "id": 1,
             "name": "group-1",
             "type": "exclusive",
-            "documentation": "NATS message trigger method."
+            "documentation": "NATS message trigger method.",
+            "default": "onMessage"
           }
         },
         {
-          "name": "OnRequest",
+          "name": "onRequest",
           "documentation": "The `onRequest` remote method will be triggered when a request is received for the specified subject and a response is expected.",
           "optional": false,
           "qualifiers": [
             "remote"
           ],
+          "enabled": false,
           "parameters": [
             {
               "name": "message",
@@ -127,6 +136,8 @@
                 "nats:AnydataMessage"
               ],
               "optional": false,
+              "enabled": true,
+              "value": "nats:AnydataMessage",
               "typeInfo": {
                 "name": "AnydataMessage",
                 "orgName": "ballerinax",
@@ -143,18 +154,22 @@
             ],
             "optional": false,
             "documentation": "The response message.",
-            "editable": false
+            "editable": false,
+            "enabled": true,
+            "value": "anydata|error"
           },
           "group": {
             "id": 1,
             "name": "group-1",
             "type": "exclusive",
-            "documentation": "NATS message trigger method."
+            "documentation": "NATS message trigger method.",
+            "default": "onMessage"
           }
         },
         {
           "name": "onError",
           "optional": true,
+          "enabled": false,
           "documentation": "The `onError` remote method will be triggered when an error occurs during the message processing.",
           "qualifiers": [
             "remote"
@@ -173,7 +188,9 @@
                 "moduleName": "nats",
                 "version": "3.1.0"
               },
-              "documentation": "The message received for the NATS subject."
+              "documentation": "The message received for the NATS subject.",
+              "enabled": true,
+              "value": "nats:AnydataMessage"
             },
             {
               "name": "err",
@@ -188,7 +205,9 @@
                 "version": "3.1.0"
               },
               "optional": false,
-              "documentation": "The error occurred during the message processing."
+              "documentation": "The error occurred during the message processing.",
+              "enabled": true,
+              "value": "nats:Error"
             }
           ],
           "returnType": {
@@ -198,39 +217,343 @@
             ],
             "optional": true,
             "documentation": "Error object",
-            "defaultTypeName": "error?"
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
           }
         }
       ]
     }
   ],
-  "listenerParams": [
-    {
-      "name": "url",
-      "typeName": "string|string[]",
-      "type": [
-        "string",
-        "string[]"
-      ],
-      "optional": false,
-      "defaultable": false,
-      "documentation": "The NATS broker URL. For a clustered use case, provide the URLs as a string array"
+  "listener": {
+    "metadata": {
+      "label": "NATS Listener",
+      "description": "The NATS listener listens to messages from the NATS server"
     },
-    {
-      "name": "config",
-      "typeName": "nats:ConnectionConfiguration",
-      "type": [
-        "nats:ConnectionConfiguration"
-      ],
-      "optional": true,
-      "defaultable": false,
-      "documentation": "The connection configurations",
-      "typeInfo": {
-        "name": "ConnectionConfiguration",
-        "orgName": "ballerinax",
-        "moduleName": "nats",
-        "version": "3.1.0"
+    "valueType": "nats:Listener",
+    "valueTypeConstraint": "nats:Listener",
+    "value": "",
+    "enabled": true,
+    "optional": false,
+    "editable": true,
+    "properties": {
+      "url": {
+        "metadata": {
+          "label": "url",
+          "description": "The NATS broker URL. For a clustered use case, provide the URLs as a string array"
+        },
+        "valueType": "string",
+        "valueTypeConstraint": "string|string[]",
+        "value": "",
+        "placeholder": "nats:DEFAULT_URL",
+        "editable": true,
+        "optional": false,
+        "advanced": false
+      },
+      "config": {
+        "metadata": {
+          "label": "config",
+          "description": "The NATS connection configurations"
+        },
+        "valueType": "EXPRESSION",
+        "valueTypeConstraint": "nats:ConnectionConfiguration",
+        "value": "",
+        "editable": true,
+        "optional": true,
+        "advanced": true,
+        "fields": {
+          "connectionName": {
+            "metadata": {
+              "label": "connectionName",
+              "description": "The name of the connection"
+            },
+            "valueType": "string",
+            "valueTypeConstraint": "string",
+            "value": "",
+            "placeholder": "ballerina-nats",
+            "optional": true,
+            "editable": true,
+            "advanced": false
+          },
+          "retryConfig": {
+            "metadata": {
+              "label": "retryConfig",
+              "description": "The configurations related to connection reconnect attempts"
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "nats:RetryConfig",
+            "value": "",
+            "placeholder": "",
+            "optional": true,
+            "editable": true,
+            "advanced": true,
+            "fields": {
+              "maxReconnect": {
+                "metadata": {
+                  "label": "maxReconnect",
+                  "description": "Maximum number of reconnect attempts. The reconnect state is triggered when an already established connection is lost. During the initial connection attempt, the client will cycle over its server list one time regardless of the `maxReconnects` value that is set. Use 0 to turn off auto reconnecting. Use -1 to turn on infinite reconnects."
+                },
+                "valueType": "int",
+                "valueTypeConstraint": "int",
+                "value": "",
+                "placeholder": "60",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "reconnectWait": {
+                "metadata": {
+                  "label": "reconnectWait",
+                  "description": "The time(in seconds) to wait between the reconnect attempts to reconnect to the same server"
+                },
+                "valueType": "decimal",
+                "valueTypeConstraint": "decimal",
+                "value": "",
+                "placeholder": "2",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "connectionTimeout": {
+                "metadata": {
+                  "label": "connectionTimeout",
+                  "description": "The timeout (in seconds) for the connection attempts"
+                },
+                "valueType": "decimal",
+                "valueTypeConstraint": "decimal",
+                "value": "",
+                "placeholder": "2",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              }
+            }
+          },
+          "ping": {
+            "metadata": {
+              "label": "ping",
+              "description": "The configurations related to pinging the server"
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "nats:Ping",
+            "value": "",
+            "placeholder": "",
+            "optional": true,
+            "editable": true,
+            "advanced": true,
+            "fields": {
+              "pingInterval": {
+                "metadata": {
+                  "label": "pingInterval",
+                  "description": "The interval (in seconds) between the attempts of pinging the server"
+                },
+                "valueType": "decimal",
+                "valueTypeConstraint": "decimal",
+                "value": "",
+                "placeholder": "120",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "maxPingsOut": {
+                "metadata": {
+                  "label": "maxPingsOut",
+                  "description": "The maximum number of pings the client can have in flight"
+                },
+                "valueType": "int",
+                "valueTypeConstraint": "int",
+                "value": "",
+                "placeholder": "2",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              }
+            }
+          },
+          "auth": {
+            "metadata": {
+              "label": "auth",
+              "description": "The configurations related to authentication"
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "nats:Tokens",
+            "value": "",
+            "placeholder": "",
+            "optional": true,
+            "editable": true,
+            "advanced": true,
+            "fields": {
+              "token": {
+                "metadata": {
+                  "label": "token",
+                  "description": "The token for token-based authentication"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": false,
+                "editable": true,
+                "advanced": false
+              }
+            }
+          },
+          "inboxPrefix": {
+            "metadata": {
+              "label": "inboxPrefix",
+              "description": "The connection's inbox prefix, which all inboxes will start with"
+            },
+            "valueType": "string",
+            "valueTypeConstraint": "string",
+            "value": "",
+            "placeholder": "_INBOX.",
+            "optional": true,
+            "editable": true,
+            "advanced": false
+          },
+          "noEcho": {
+            "metadata": {
+              "label": "noEcho",
+              "description": "Turns off echoing. This prevents the server from echoing messages back to the connection if it has subscriptions on the subject being published to"
+            },
+            "valueType": "boolean",
+            "valueTypeConstraint": "boolean",
+            "value": "",
+            "placeholder": "false",
+            "optional": true,
+            "editable": true,
+            "advanced": false
+          },
+          "secureSocket": {
+            "metadata": {
+              "label": "secureSocket",
+              "description": "The configurations related to SSL/TLS"
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "SecureSocket",
+            "value": "",
+            "placeholder": "",
+            "optional": true,
+            "editable": true,
+            "advanced": true,
+            "fields": {
+              "cert": {
+                "metadata": {
+                  "label": "cert",
+                  "description": "Configurations associated with `crypto:TrustStore` or single certificate file that the client trusts"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": false,
+                "editable": true,
+                "advanced": false
+              },
+              "key": {
+                "metadata": {
+                  "label": "key",
+                  "description": "Configurations associated with `crypto:KeyStore` or combination of certificate and private key of the client"
+                },
+                "valueType": "EXPRESSION",
+                "valueTypeConstraint": "CertKey",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": true,
+                "fields": {
+                  "certFile": {
+                    "metadata": {
+                      "label": "certFile",
+                      "description": "A file containing the certificate"
+                    },
+                    "valueType": "string",
+                    "valueTypeConstraint": "string",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": false,
+                    "editable": true,
+                    "advanced": false
+                  },
+                  "keyFile": {
+                    "metadata": {
+                      "label": "keyFile",
+                      "description": "A file containing the private key in PKCS8 format"
+                    },
+                    "valueType": "string",
+                    "valueTypeConstraint": "string",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": false,
+                    "editable": true,
+                    "advanced": false
+                  },
+                  "keyPassword": {
+                    "metadata": {
+                      "label": "keyPassword",
+                      "description": "Password of the private key if it is encrypted"
+                    },
+                    "valueType": "string",
+                    "valueTypeConstraint": "string",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": true,
+                    "editable": true,
+                    "advanced": false
+                  }
+                }
+              },
+              "protocol": {
+                "metadata": {
+                  "label": "protocol",
+                  "description": "SSL/TLS protocol related options"
+                },
+                "valueType": "EXPRESSION",
+                "valueTypeConstraint": "record",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": true,
+                "fields": {
+                  "name": {
+                    "metadata": {
+                      "label": "name",
+                      "description": "The name of the protocol"
+                    },
+                    "valueType": "string",
+                    "valueTypeConstraint": "string",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": false,
+                    "editable": true,
+                    "advanced": false,
+                    "enum": [
+                      "nats:SSL",
+                      "nats:TLS",
+                      "nats:DTLS"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "validation": {
+            "metadata": {
+              "label": "validation",
+              "description": "Configuration related to constraint validation check"
+            },
+            "valueType": "boolean",
+            "valueTypeConstraint": "boolean",
+            "value": "",
+            "placeholder": "true",
+            "optional": true,
+            "editable": true,
+            "advanced": false
+          }
+        }
       }
     }
-  ]
+  }
 }
