@@ -53,7 +53,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -164,10 +163,10 @@ public abstract class BalaWriter {
         packageJson.setAuthors(packageManifest.authors());
         packageJson.setSourceRepository(packageManifest.repository());
         packageJson.setKeywords(packageManifest.keywords());
-        packageJson.setExport(packageManifest.exportedModules());
         packageJson.setInclude(packageManifest.includes());
         packageJson.setVisibility(packageManifest.visibility());
         packageJson.setTemplate(packageManifest.template());
+        packageJson.setDescription(packageManifest.description());
 
         packageJson.setPlatform(target);
         packageJson.setBallerinaVersion(BALLERINA_SHORT_VERSION);
@@ -184,7 +183,8 @@ public abstract class BalaWriter {
         // Set graalvmCompatibility property in package.json
         setGraalVMCompatibilityProperty(packageJson, packageManifest);
 
-        setDocs(packageJson, packageManifest);
+        setReadme(packageManifest, packageJson);
+        setModules(packageJson, packageManifest);
 
         // Remove fields with empty values from `package.json`
         Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new JsonCollectionsAdaptor())
@@ -198,25 +198,31 @@ public abstract class BalaWriter {
         }
     }
 
-    private void setDocs(PackageJson packageJson, PackageManifest packageManifest) {
-        if (packageManifest.readme() == null) {
-            // ballerinai packages
-            return;
+    private void setReadme(PackageManifest packageManifest, PackageJson packageJson) {
+        if (packageManifest.readme() != null) { // Null check is required for ballerinai packages
+            packageJson.setReadme(BALA_DOCS_DIR + UNIX_FILE_SEPARATOR +
+                    Paths.get(packageManifest.readme()).getFileName());
         }
-        Map<String, String> docs = new HashMap<>();
+    }
+
+    private void setModules(PackageJson packageJson, PackageManifest packageManifest) {
+        List<PackageManifest.Module> modules = new ArrayList<>();
         String packageDocPathPrefix = BALA_DOCS_DIR + UNIX_FILE_SEPARATOR;
-        docs.put(packageManifest.descriptor().name().toString(),
-                packageDocPathPrefix + Paths.get(packageManifest.readme()).getFileName());
-        Map<String, PackageManifest.Modules> modules = packageManifest.modules();
-        for (Map.Entry<String, PackageManifest.Modules> module : modules.entrySet()) {
-            if (module.getValue().readme().isEmpty()) {
-                continue;
+
+        Map<String, PackageManifest.Module> moduleMap = packageManifest.modules();
+        for (Map.Entry<String, PackageManifest.Module> module : moduleMap.entrySet()) {
+            String moduleDoc = null;
+            if (module.getValue().readme() == null || !module.getValue().readme().isEmpty()) {
+                moduleDoc = packageDocPathPrefix + MODULES_ROOT + UNIX_FILE_SEPARATOR + module.getKey() +
+                        UNIX_FILE_SEPARATOR + Paths.get(module.getValue().readme()).getFileName();
             }
-            String moduleDoc = packageDocPathPrefix + MODULES_ROOT + UNIX_FILE_SEPARATOR + module.getKey() +
-                    UNIX_FILE_SEPARATOR + Paths.get(module.getValue().readme().get()).getFileName();
-            docs.put(module.getValue().name(), moduleDoc);
+            modules.add(new PackageManifest.Module(
+                    module.getValue().name(),
+                    module.getValue().export(),
+                    module.getValue().description(),
+                    moduleDoc));
         }
-        packageJson.setDocs(docs);
+        packageJson.setModules(modules);
     }
 
     private void setGraalVMCompatibilityProperty(PackageJson packageJson, PackageManifest packageManifest) {
@@ -300,14 +306,14 @@ public abstract class BalaWriter {
 
         Path modulesDirInBalaDocs = docsDirInBala.resolve(MODULES_ROOT);
 
-        for (Map.Entry<String, PackageManifest.Modules> module : packageManifest.modules().entrySet()) {
-            if (module.getValue().readme().isEmpty()) {
+        for (Map.Entry<String, PackageManifest.Module> module : packageManifest.modules().entrySet()) {
+            if (module.getValue().readme() == null || module.getValue().readme().isEmpty()) {
                 continue;
             }
             Path otherReadmeMdInBalaDocs = modulesDirInBalaDocs.resolve(module.getKey())
-                    .resolve(Paths.get(module.getValue().readme().get()).getFileName());
+                    .resolve(Paths.get(module.getValue().readme()).getFileName());
             putZipEntry(balaOutputStream, otherReadmeMdInBalaDocs,
-                    new FileInputStream(module.getValue().readme().get()));
+                    new FileInputStream(module.getValue().readme()));
         }
     }
 

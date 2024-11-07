@@ -206,7 +206,8 @@ public class ManifestBuilder {
         boolean template = false;
         String icon = "";
         String readme = null;
-        Map<String, PackageManifest.Modules> moduleEntries = new HashMap<>();
+        String description = "";
+        Map<String, PackageManifest.Module> moduleEntries = new HashMap<>();
 
         if (!tomlAstNode.entries().isEmpty()) {
             TopLevelNode topLevelPkgNode = tomlAstNode.entries().get(PACKAGE);
@@ -228,6 +229,7 @@ public class ManifestBuilder {
 
                 String customReadmeVal = getStringValueFromTomlTableNode(pkgNode, README, null);
                 readme = validateAndGetReadmePath(pkgNode, customReadmeVal);
+                description = getStringValueFromTomlTableNode(pkgNode, DESCRIPTION, "");
                 moduleEntries = getModuleEntries(pkgNode, customReadmeVal, packageDescriptor.name());
             }
         }
@@ -267,13 +269,13 @@ public class ManifestBuilder {
         }
         return PackageManifest.from(packageDescriptor, pluginDescriptor, balToolDescriptor, platforms,
                 localRepoDependencies, otherEntries, diagnostics(), license, authors, keywords, exported, includes,
-                repository, ballerinaVersion, visibility, template, icon, tools, readme, moduleEntries);
+                repository, ballerinaVersion, visibility, template, icon, tools, readme, description, moduleEntries);
     }
 
-    private Map<String, PackageManifest.Modules> getModuleEntries(
+    private Map<String, PackageManifest.Module> getModuleEntries(
             TomlTableNode pkgNode, String customReadmeVal, PackageName packageName) {
 
-        Map<String, PackageManifest.Modules> moduleMap = new HashMap<>();
+        Map<String, PackageManifest.Module> moduleMap = new HashMap<>();
         Path modulesRoot = this.projectPath.resolve(ProjectConstants.MODULES_ROOT);
         if (!Files.exists(modulesRoot)) {
             return moduleMap;
@@ -297,9 +299,9 @@ public class ManifestBuilder {
                     if (Files.exists(modReadmePath)) {
                         modReadme = modReadmePath.toString();
                     }
-                    PackageManifest.Modules module = new PackageManifest.Modules(
+                    PackageManifest.Module module = new PackageManifest.Module(
                             packageName + DOT + moduleDir.getFileName().toString(), false,
-                            Optional.empty(), Optional.ofNullable(modReadme));
+                            "", modReadme);
                     moduleMap.put(packageName + DOT + moduleDir.getFileName().toString(), module);
                 }
                 return moduleMap;
@@ -315,9 +317,9 @@ public class ManifestBuilder {
                 if (Files.exists(modReadmePath)) {
                     modReadme = modReadmePath.toString();
                 }
-                PackageManifest.Modules module = new PackageManifest.Modules(
+                PackageManifest.Module module = new PackageManifest.Module(
                         packageName + DOT + moduleDir.getFileName().toString(), false,
-                        Optional.empty(), Optional.ofNullable(modReadme));
+                        "", modReadme);
                 moduleMap.put(packageName + DOT + moduleDir.getFileName().toString(), module);
             }
             return moduleMap;
@@ -358,8 +360,8 @@ public class ManifestBuilder {
                         modReadme = this.projectPath.resolve(modReadme).toString();
                     }
                 }
-                PackageManifest.Modules module = new PackageManifest.Modules(moduleName, export,
-                        Optional.ofNullable(description), Optional.ofNullable(modReadme));
+                PackageManifest.Module module = new PackageManifest.Module(moduleName, export,
+                        description, modReadme);
                 moduleMap.put(moduleName, module);
             }
         }
