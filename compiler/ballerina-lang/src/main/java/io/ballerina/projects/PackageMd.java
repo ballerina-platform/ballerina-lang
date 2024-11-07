@@ -24,6 +24,7 @@ package io.ballerina.projects;
  *
  * @since 2.0.0
  */
+@Deprecated (forRemoval = true)
 public class PackageMd {
 
     private final MdDocumentContext mdDocumentContext;

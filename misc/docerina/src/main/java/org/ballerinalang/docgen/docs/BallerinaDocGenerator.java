@@ -25,6 +25,7 @@ import com.google.gson.JsonParser;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -66,6 +67,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -542,17 +544,45 @@ public final class BallerinaDocGenerator {
     public static Map<String, ModuleDoc> generateModuleDocMap(Project project)
             throws IOException {
         Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
+        Map<String, PackageManifest.Module> moduleMap = new HashMap<>();
+        for (PackageManifest.Module module : project.currentPackage().manifest().modules()) {
+            moduleMap.put(module.name(), module);
+        }
+
         for (io.ballerina.projects.Module module : project.currentPackage().modules()) {
             String moduleName;
-            String moduleMdText = module.moduleMd().map(d -> d.content()).orElse("");
+            String moduleMdText;
             Path modulePath;
+            String summary;
+
             if (module.isDefaultModule()) {
                 moduleName = module.moduleName().packageName().toString();
+                if (project.currentPackage().manifest().readme() == null) {
+                    moduleMdText = "";
+                } else {
+                    Path readmePath = Paths.get(project.currentPackage().manifest().readme());
+                    if (!readmePath.isAbsolute()) {
+                        readmePath = project.sourceRoot().resolve(readmePath);
+                    }
+                    moduleMdText = Files.readString(readmePath);
+                }
                 modulePath = project.sourceRoot();
+                summary = project.currentPackage().manifest().description();
             } else {
                 moduleName = module.moduleName().toString();
+                if (moduleMap.containsKey(moduleName)) {
+                    if (moduleMap.get(moduleName).readme() == null || moduleMap.get(moduleName).readme().isEmpty()) {
+                        moduleMdText = "";
+                    } else {
+                        moduleMdText = Files.readString(
+                                project.sourceRoot().resolve(moduleMap.get(moduleName).readme()));
+                    }
+                } else {
+                    moduleMdText = "";
+                }
                 modulePath = project.sourceRoot().resolve(ProjectConstants.MODULES_ROOT).resolve(module.moduleName()
                         .moduleNamePart());
+                summary = moduleMap.get(moduleName).description();
             }
             // Skip modules that are not exported
             if (!project.currentPackage().manifest().exportedModules().contains(moduleName)) {
@@ -567,7 +597,7 @@ public final class BallerinaDocGenerator {
             });
             // we cannot remove the module.getCompilation() here since the semantic model is accessed
             // after the code gen phase here. package.getCompilation() throws an IllegalStateException
-            ModuleDoc moduleDoc = new ModuleDoc(moduleMdText, resources,
+            ModuleDoc moduleDoc = new ModuleDoc(moduleMdText, summary, resources,
                     syntaxTreeMap, module.getCompilation().getSemanticModel(), module.isDefaultModule());
             moduleDocMap.put(moduleName, moduleDoc);
         }

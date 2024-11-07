@@ -171,7 +171,7 @@
                 "type": "string",
                 "pattern": ".*.md$",
                 "message": {
-                  "pattern": "invalid 'readme' under [package.modules]: 'readme' can only have a '.md' file"
+                  "pattern": "invalid 'readme' under [[package.modules]]: 'readme' can only have a '.md' file"
                 }
               },
               "export": {
@@ -181,7 +181,7 @@
               "name"
             ],
             "message": {
-              "required": "'${property}' under [[dependency]] is missing"
+              "required": "'${property}' under [[package.modules]] is missing"
             }
           }
         }

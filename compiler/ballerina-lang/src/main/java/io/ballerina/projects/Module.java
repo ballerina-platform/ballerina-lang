@@ -133,6 +133,7 @@ public class Module {
         return new Modifier(this);
     }
 
+    @Deprecated (forRemoval = true)
     ModuleContext moduleContext() {
         return moduleContext;
     }

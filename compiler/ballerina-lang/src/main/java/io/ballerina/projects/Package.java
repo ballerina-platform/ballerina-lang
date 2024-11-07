@@ -226,6 +226,7 @@ public class Package {
         return this.balToolToml;
     }
 
+    @Deprecated (forRemoval = true)
     public Optional<PackageMd> packageMd() {
         if (this.packageMd.isEmpty()) {
             this.packageMd = this.packageContext.packageMdContext().map(c ->
