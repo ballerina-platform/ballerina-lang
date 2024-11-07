@@ -19,7 +19,6 @@ package io.ballerina.runtime.transactions;
 
 import com.atomikos.icatch.jta.UserTransactionManager;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
@@ -58,12 +57,9 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.transactions.TransactionConstants.DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
 import static io.ballerina.runtime.transactions.TransactionConstants.DEFAULT_TRX_CLEANUP_TIMEOUT;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
-import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
-import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
 import static javax.transaction.xa.XAResource.TMFAIL;
 import static javax.transaction.xa.XAResource.TMNOFLAGS;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
@@ -77,13 +73,6 @@ public class TransactionResourceManager {
 
     private static TransactionResourceManager transactionResourceManager = null;
     private  static UserTransactionManager userTransactionManager = null;
-
-    private static final StrandMetadata COMMIT_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
-            TRANSACTION_PACKAGE_NAME,
-            TRANSACTION_PACKAGE_VERSION, "onCommit");
-    private static final StrandMetadata ROLLBACK_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
-            TRANSACTION_PACKAGE_NAME,
-            TRANSACTION_PACKAGE_VERSION, "onRollback");
     private static final String ATOMIKOS_LOG_BASE_PROPERTY = "com.atomikos.icatch.log_base_dir";
     private static final String ATOMIKOS_LOG_NAME_PROPERTY = "com.atomikos.icatch.log_base_name";
     private static final String ATOMIKOS_REGISTERED_PROPERTY = "com.atomikos.icatch.registered";
@@ -91,21 +80,22 @@ public class TransactionResourceManager {
     public static final String TRANSACTION_CLEANUP_TIMEOUT_KEY = "transactionCleanupTimeout";
 
     private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
-    private Map<String, List<BallerinaTransactionContext>> resourceRegistry;
+    private final Map<String, List<BallerinaTransactionContext>> resourceRegistry;
     private Map<String, Transaction> trxRegistry;
     private Map<String, Xid> xidRegistry;
 
-    private Map<String, List<BFunctionPointer>> committedFuncRegistry;
-    private Map<String, List<BFunctionPointer>> abortedFuncRegistry;
+    private final Map<String, List<BFunctionPointer>> committedFuncRegistry;
+    private final Map<String, List<BFunctionPointer>> abortedFuncRegistry;
 
-    private ConcurrentSkipListSet<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
-    private ConcurrentSkipListSet<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
-    private ConcurrentHashMap<String, ConcurrentSkipListSet<String>> localParticipants = new ConcurrentHashMap<>();
+    private final ConcurrentSkipListSet<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
+    private final ConcurrentSkipListSet<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
+    private final ConcurrentHashMap<String, ConcurrentSkipListSet<String>> localParticipants =
+            new ConcurrentHashMap<>();
 
-    private boolean transactionManagerEnabled;
+    private final boolean transactionManagerEnabled;
     private static final PrintStream stderr = System.err;
 
-    Map<ByteBuffer, Object> transactionInfoMap;
+    final Map<ByteBuffer, Object> transactionInfoMap;
 
     private TransactionResourceManager() {
         resourceRegistry = new HashMap<>();

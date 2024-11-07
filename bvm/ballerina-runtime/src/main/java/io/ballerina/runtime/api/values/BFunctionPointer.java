@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.api.values;
 
+import io.ballerina.runtime.api.Runtime;
+
 /**
  * <p>
  * Ballerina runtime value representation of a function pointer.
@@ -32,8 +34,9 @@ public interface BFunctionPointer extends BValue {
      * ballerina. This will directly invoke the function pointer without using ballerina scheduler. If function
      * pointer can have async code, then need to use @asyncCall method.
      *
+     * @param runtime Current Runtime
      * @param t {@code Function to be executed}
      * @return The result of the executed function.
      */
-    Object call(Object... t);
+    Object call(Runtime runtime, Object... t);
 }

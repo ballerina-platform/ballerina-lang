@@ -21,7 +21,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmArrayTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmBStringConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmBallerinaConstantsGen;
@@ -29,7 +28,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmErrorTypeC
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmFunctionTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmModuleConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmRefTypeConstantsGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmStrandMetadataConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmTupleTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmUnionTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -43,8 +41,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-
-import java.util.Map;
 
 /**
  * Class holder keep constants used by class generation and generate class for each constant type.
@@ -67,8 +63,6 @@ public class JvmConstantsGen {
 
     private final JvmArrayTypeConstantsGen arrayTypeConstantsGen;
 
-    private final JvmStrandMetadataConstantsGen strandMetadataConstantsGen;
-
     private final JvmRefTypeConstantsGen refTypeConstantsGen;
 
     private final JvmFunctionTypeConstantsGen functionTypeConstantsGen;
@@ -87,7 +81,6 @@ public class JvmConstantsGen {
         this.errorTypeConstantsGen = new JvmErrorTypeConstantsGen(module.packageID, bTypeHashComparator);
         this.tupleTypeConstantsGen = new JvmTupleTypeConstantsGen(module.packageID, bTypeHashComparator);
         this.arrayTypeConstantsGen = new JvmArrayTypeConstantsGen(module.packageID, bTypeHashComparator, types);
-        this.strandMetadataConstantsGen = new JvmStrandMetadataConstantsGen(module.packageID);
         this.refTypeConstantsGen = new JvmRefTypeConstantsGen(module.packageID, bTypeHashComparator);
     }
 
@@ -108,7 +101,7 @@ public class JvmConstantsGen {
         functionTypeConstantsGen.setJvmTypeGen(jvmCreateTypeGen.getJvmTypeGen());
     }
 
-    public void generateConstants(JarEntries jarEntries, Map<String, ScheduleFunctionInfo> strandMetadata) {
+    public void generateConstants(JarEntries jarEntries) {
         functionTypeConstantsGen.generateClass(jarEntries);
         jvmBallerinaConstantsGen.generateConstantInit(jarEntries);
         unionTypeConstantsGen.generateClass(jarEntries);
@@ -117,7 +110,6 @@ public class JvmConstantsGen {
         stringConstantsGen.generateConstantInit(jarEntries);
         tupleTypeConstantsGen.generateClass(jarEntries);
         arrayTypeConstantsGen.generateClass(jarEntries);
-        strandMetadataConstantsGen.generateClass(jarEntries, strandMetadata);
         refTypeConstantsGen.generateClass(jarEntries);
     }
 
@@ -173,10 +165,6 @@ public class JvmConstantsGen {
 
     public String getConstantClass() {
         return jvmBallerinaConstantsGen.getConstantClass();
-    }
-
-    public String getStrandMetadataConstantsClass() {
-        return strandMetadataConstantsGen.getStrandMetadataConstantsClass();
     }
 
     public String getFunctionTypeConstantClass() {

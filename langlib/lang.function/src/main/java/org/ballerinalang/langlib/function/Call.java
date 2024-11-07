@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.function;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
@@ -47,7 +48,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  */
 public class Call {
 
-    public static Object call(BFunctionPointer func, Object... args) {
+    public static Object call(Environment env, BFunctionPointer func, Object... args) {
         BFunctionType functionType = (BFunctionType) TypeUtils.getImpliedType(func.getType());
         List<Type> paramTypes = new LinkedList<>();
         List<Type> argTypes = new LinkedList<>();
@@ -64,7 +65,7 @@ public class Call {
                         removeBracketsFromStringFormatOfTuple(new BTupleType(paramTypes, restType, 0, false))));
         }
 
-        return func.call(argsList.toArray());
+        return func.call(env.getRuntime(), argsList.toArray());
     }
 
     private static boolean checkIsValidPositionalArgs(Object[] args, List<Object> argsList, BFunctionType functionType,

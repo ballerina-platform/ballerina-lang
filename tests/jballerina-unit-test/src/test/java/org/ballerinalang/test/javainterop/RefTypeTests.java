@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.javainterop;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -391,8 +392,8 @@ public class RefTypeTests {
         return x;
     }
 
-    public static int useFunctionPointer(FPValue fp) {
-        return ((Long) fp.call(new Object[]{3, 4})).intValue();
+    public static int useFunctionPointer(Environment env, FPValue fp) {
+        return ((Long) fp.call(env.getRuntime(), new Object[]{3, 4})).intValue();
     }
 
     public static FPValue getFunctionPointer(Object fp) {

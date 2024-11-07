@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BMethodType;
@@ -99,7 +100,7 @@ public class AnnotationUtils {
         if (globalAnnotMap.containsKey(annotationKey)) {
             Object annot = globalAnnotMap.get(annotationKey);
             // If annotations are already set via desugard service-decl, skip.
-            Object annotValue = ((FPValue) annot).call();
+            Object annotValue = ((FPValue) annot).call(Scheduler.getStrand().scheduler.runtime);
             bType.setAnnotations((MapValue<BString, Object>) annotValue);
         }
         for (MethodType attachedFunction : bType.getMethods()) {
@@ -120,7 +121,7 @@ public class AnnotationUtils {
         if (globalAnnotMap.containsKey(annotationKey)) {
             ((BMethodType) attachedFunction)
                     .setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(annotationKey))
-                            .call());
+                            .call(Scheduler.getStrand().scheduler.runtime));
         }
     }
 

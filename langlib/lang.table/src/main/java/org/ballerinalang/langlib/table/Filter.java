@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.TableType;
@@ -33,7 +34,7 @@ import io.ballerina.runtime.api.values.BTable;
  */
 public class Filter {
 
-    public static BTable<?, ?> filter(BTable<BString, ?> tbl, BFunctionPointer func) {
+    public static BTable<?, ?> filter(Environment env, BTable<BString, ?> tbl, BFunctionPointer func) {
         TableType tableType = (TableType) TypeUtils.getImpliedType(tbl.getType());
         BTable newTable = ValueCreator.createTableValue(TypeCreator
                         .createTableType(tableType.getConstrainedType(), tableType.getFieldNames(), false));
@@ -42,7 +43,7 @@ public class Filter {
         for (int i = 0; i < size; i++) {
             Object key = keys[i];
             Object value = tbl.get(key);
-            boolean isFiltered = (boolean) func.call(value);
+            boolean isFiltered = (boolean) func.call(env.getRuntime(), value);
             if (isFiltered) {
                 newTable.put(key, value);
             }

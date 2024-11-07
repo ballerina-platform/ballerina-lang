@@ -21,15 +21,14 @@ package org.ballerinalang.test;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.PackageManifest;
-import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
+import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -68,11 +67,8 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static org.ballerinalang.test.util.TestConstant.CONFIGURATION_CLASS_NAME;
 import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_MAJOR_VERSION;
 
 /**
  * Utility methods for run Ballerina functions with JVM arguments and return values.
@@ -185,13 +181,11 @@ public class BRunUtil {
                             functionName + "'"), t);
                 }
             };
-            BalRuntime runtime = new BalRuntime(new Module(packageManifest.org().toString(),
-                    packageManifest.name().toString(),
-                    packageManifest.version().toString()));
+            BalRuntime runtime = compileResult.getRuntime();
+            runtime.moduleInitialized = true;
             final FutureValue future = runtime.scheduler.startNonIsolatedWorker(func, null,
-                    PredefinedTypes.TYPE_ANY, "test",
-                    new StrandMetadata(ANON_ORG, DOT, DEFAULT_MAJOR_VERSION.value, functionName), args);
-            return future.get();
+                    PredefinedTypes.TYPE_ANY, "test", null, args);
+            return AsyncUtils.getFutureResult(future.completableFuture);
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
         } catch (BError e) {
@@ -343,16 +337,16 @@ public class BRunUtil {
         String configClassName = JarResolver.getQualifiedClassName(org, module, version, CONFIGURATION_CLASS_NAME);
 
         Class<?> initClazz = compileResult.getClassLoader().loadClass(initClassName);
-        final BalRuntime runtime = new BalRuntime(new Module(org, module, version));
+        final BalRuntime runtime = compileResult.getRuntime();
         ConfigDetails configurationDetails = LaunchUtils.getConfigurationDetails();
         callConfigInit(compileResult.getClassLoader().loadClass(configClassName),
-                new Class<?>[]{Map.class, String[].class, Path[].class, String.class},
+                new Class<?>[]{Map.class, String[].class, Path[].class, String.class, BalRuntime.class},
                 new Object[]{new HashMap<>(), new String[]{},
-                        configurationDetails.paths, configurationDetails.configContent});
+                        configurationDetails.paths, configurationDetails.configContent, runtime});
         FutureValue future = runOnSchedule(initClazz, "$moduleInit", runtime);
-        Scheduler.daemonStrand = future.strand;
-        future.get();
-        runOnSchedule(initClazz, "$moduleStart", runtime).get();
+        AsyncUtils.getFutureResult(future.completableFuture);
+        runtime.moduleInitialized = true;
+        AsyncUtils.getFutureResult(runOnSchedule(initClazz, "$moduleStart", runtime).completableFuture);
     }
 
     private static void callConfigInit(Class<?> initClazz, Class<?>[] paramTypes, Object[] args) {

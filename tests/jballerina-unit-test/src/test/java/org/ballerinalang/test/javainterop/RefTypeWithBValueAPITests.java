@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.javainterop;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
@@ -470,8 +471,8 @@ public class RefTypeWithBValueAPITests {
         return x;
     }
 
-    public static int useFunctionPointer(io.ballerina.runtime.api.values.BFunctionPointer fp) {
-        return ((Long) fp.call(new Object[]{3, 4})).intValue();
+    public static int useFunctionPointer(Environment env, io.ballerina.runtime.api.values.BFunctionPointer fp) {
+        return ((Long) fp.call(env.getRuntime(), new Object[]{3, 4})).intValue();
     }
 
     public static io.ballerina.runtime.api.values.BFunctionPointer getFunctionPointer(Object fp) {

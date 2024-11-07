@@ -25,16 +25,14 @@ import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
+import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.RuntimeRegistry;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.lang.reflect.InvocationTargetException;
@@ -76,10 +74,9 @@ public class BalRuntime extends Runtime {
         handleAlreadyCalled(moduleInitialized, "init");
         try {
             this.invokeConfigInit();
-            FutureValue future = scheduler.startIsolatedWorker("$moduleInit", rootModule, null, "$moduleInit", null,
-                    null);
-            Scheduler.daemonStrand = future.strand;
-            Object result = future.get();
+            FutureValue future = scheduler.startIsolatedFunction(rootModule, "$moduleInit",
+                    new StrandMetadata(true, null));
+            Object result = AsyncUtils.getFutureResult(future.completableFuture);
             this.moduleInitialized = true;
             return result;
         } catch (ClassNotFoundException e) {
@@ -95,7 +92,7 @@ public class BalRuntime extends Runtime {
     public Object start() {
         handleCallBeforeModuleInit("start");
         handleAlreadyCalled(moduleStarted, "start");
-        Object result = this.scheduler.call(rootModule, "$moduleStart", Scheduler.getStrand());
+        Object result = this.scheduler.callFunction(rootModule, "$moduleStart", null);
         this.moduleStarted = true;
         return result;
     }
@@ -116,72 +113,34 @@ public class BalRuntime extends Runtime {
     }
 
     @Override
-    public Object call(Module module, String functionName, Object... args) {
-        return this.scheduler.call(module, functionName, this.getAndHandleStrand(functionName), args);
+    public Object callFunction(Module module, String functionName, StrandMetadata metadata, Object... args) {
+        this.handleCallBeforeModuleInit(functionName);
+        this.validateArgs(module, functionName);
+        return this.scheduler.callFunction(module, functionName, metadata, args);
     }
 
     @Override
-    public Object call(BObject object, String methodName, Object... args) {
-        return this.scheduler.call(object, methodName, this.getAndHandleStrand(object, methodName), args);
-    }
-
-    @Override
-    public BFuture startIsolatedWorker(Module module, String functionName, String strandName, StrandMetadata metadata,
-                                       Map<String, Object> properties, Object... args) {
-        return scheduler.startIsolatedWorker(functionName, module, this.getAndHandleStrand(functionName), strandName,
-                metadata, properties, args);
-    }
-
-    @Override
-    public BFuture startIsolatedWorker(BObject object, String methodName, String strandName, StrandMetadata metadata,
-                                       Map<String, Object> properties, Object... args) {
-        validateArgs(object, methodName);
-        return this.scheduler.startIsolatedWorker(object, methodName, this.getAndHandleStrand(object, methodName),
-                strandName, metadata, properties, args);
-    }
-
-    @Override
-    public BFuture startIsolatedWorker(FPValue fp, String strandName, StrandMetadata metadata,
-                                       Map<String, Object> properties, Object... args) {
-         return this.scheduler.startIsolatedWorker(fp, strandName, this.getAndHandleStrand(fp.name), metadata,
-                properties, args);
-    }
-
-    @Override
-    public BFuture startNonIsolatedWorker(Module module, String functionName, String strandName,
-                                          StrandMetadata metadata,
-                                          Map<String, Object> properties, Object... args) {
-        return this.scheduler.startNonIsolatedWorker(functionName, module, this.getAndHandleStrand(functionName),
-                strandName, metadata, properties, args);
-    }
-
-    @Override
-    public BFuture startNonIsolatedWorker(BObject object, String methodName, String strandName,
-                                          StrandMetadata metadata, Map<String, Object> properties, Object... args) {
+    public Object callMethod(BObject object, String methodName, StrandMetadata metadata, Object... args) {
+        this.handleCallBeforeModuleInit(object, methodName);
         this.validateArgs(object, methodName);
-        return scheduler.startNonIsolatedWorker(object, methodName, this.getAndHandleStrand(object, methodName),
-                strandName, metadata, properties, args);
-    }
-
-    @Override
-    public BFuture startNonIsolatedWorker(FPValue fp, String strandName, StrandMetadata metadata,
-                                          Map<String, Object> properties, Object... args) {
-        return this.scheduler.startNonIsolatedWorker(fp, strandName, this.getAndHandleStrand(fp.name), metadata,
-                properties, args);
+        return this.scheduler.callMethod(object, methodName, metadata, args);
     }
 
     @Override
     public void registerListener(BObject listener) {
+        this.handleCallBeforeModuleInit("registerListener");
         this.runtimeRegistry.registerListener(listener);
     }
 
     @Override
     public void deregisterListener(BObject listener) {
+        this.handleCallBeforeModuleInit("deregisterListener");
         this.runtimeRegistry.deregisterListener(listener);
     }
 
     @Override
     public void registerStopHandler(BFunctionPointer stopHandler) {
+        this.handleCallBeforeModuleInit("registerStopHandler");
         this.runtimeRegistry.registerStopHandler(stopHandler);
     }
 
@@ -210,8 +169,9 @@ public class BalRuntime extends Runtime {
         Class<?> configClass = loadClass(CONFIGURATION_CLASS_NAME);
         ConfigDetails configDetails = LaunchUtils.getConfigurationDetails();
         String funcName = Utils.encodeFunctionIdentifier("$configureInit");
-        Method method = configClass.getDeclaredMethod(funcName, Map.class, String[].class, Path[].class, String.class);
-        method.invoke(null, new HashMap<>(), new String[]{}, configDetails.paths, configDetails.configContent);
+        Method method = configClass.getDeclaredMethod(funcName, Map.class, String[].class, Path[].class, String.class
+                , BalRuntime.class);
+        method.invoke(null, new HashMap<>(), new String[]{}, configDetails.paths, configDetails.configContent, this);
     }
 
     private void handleCallBeforeModuleInit(String functionName) {
@@ -221,27 +181,26 @@ public class BalRuntime extends Runtime {
         }
     }
 
+    private void handleCallBeforeModuleInit(BObject object, String methodName) {
+        if (!moduleInitialized) {
+            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION_BEFORE_MODULE_INIT,
+                    object.getType().getName() + ":" + methodName);
+        }
+    }
+
     private void handleAlreadyCalled(boolean isAlreadyCalled, String functionName) {
         if (isAlreadyCalled) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.FUNCTION_ALREADY_CALLED, functionName);
         }
     }
 
-    public Strand getAndHandleStrand(String functionName) {
-        Strand strand = Scheduler.getStrand();
-        if (strand != null) {
-            return strand;
+    private void validateArgs(Module module, String functionName) {
+        if (module == null) {
+            throw ErrorCreator.createError(StringUtils.fromString("module cannot be null"));
         }
-        throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION_BEFORE_MODULE_INIT, functionName);
-    }
-
-    private Strand getAndHandleStrand(BObject object, String methodName) {
-        Strand strand = Scheduler.getStrand();
-        if (strand != null) {
-            return strand;
+        if (functionName == null) {
+            throw ErrorCreator.createError(StringUtils.fromString("function name cannot be null"));
         }
-        throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION_BEFORE_MODULE_INIT,
-                object.getOriginalType().getName() + ":" + methodName);
     }
 
     private void validateArgs(BObject object, String methodName) {

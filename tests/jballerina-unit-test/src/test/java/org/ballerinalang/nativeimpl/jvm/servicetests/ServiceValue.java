@@ -29,7 +29,6 @@ import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -43,7 +42,6 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Optional;
 
 /**
@@ -58,16 +56,16 @@ public class ServiceValue {
     private static String[] names;
     private static MapValue<BString,  Object> annotationMap; // captured at attach method
 
-    public static BFuture callMethod(Environment env, BObject l, BString name) {
-        return env.getRuntime().startIsolatedWorker(l, name.getValue(), null, null, new HashMap<>());
+    public static Object callMethod(Environment env, BObject l, BString name) {
+        return env.getRuntime().callMethod(l, name.getValue(), null);
     }
 
-    public static BFuture callMethodWithParams(Environment env, BObject l, BString name, ArrayValue arrayValue) {
+    public static Object callMethodWithParams(Environment env, BObject l, BString name, ArrayValue arrayValue) {
         Object[] args = new Object[arrayValue.size()];
         for (int i = 0; i < arrayValue.size(); i++) {
             args[i] = arrayValue.get(i);
         }
-        return env.getRuntime().startIsolatedWorker(l, name.getValue(), null, null, new HashMap<>(), args);
+        return env.getRuntime().callMethod(l, name.getValue(), null, args);
     }
 
     public static BArray getParamNames(BObject o, BString methodName) {

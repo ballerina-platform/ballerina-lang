@@ -360,7 +360,7 @@ public class DebuggerRuntime {
             // Start the module
             runtime.start();
             // Then call run method
-            result = runtime.call(module, functionName, paramValues);
+            result = runtime.callFunction(module, functionName,  null, paramValues);
         } catch (Throwable throwable) {
             throw ErrorCreator.createError(StringUtils.fromString("'" + functionName + "' function " +
                                                                   "invocation failed : " + throwable.getMessage()));

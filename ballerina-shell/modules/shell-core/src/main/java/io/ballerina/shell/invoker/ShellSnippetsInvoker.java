@@ -402,7 +402,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                 throw new InvokerPanicException(throwable);
             }
             // Then call run method
-            result = runtime.call(module, MODULE_RUN_METHOD_NAME);
+            result = runtime.callFunction(module, MODULE_RUN_METHOD_NAME, null);
             if (result instanceof Throwable throwable) {
                 throw new InvokerPanicException(throwable);
             }

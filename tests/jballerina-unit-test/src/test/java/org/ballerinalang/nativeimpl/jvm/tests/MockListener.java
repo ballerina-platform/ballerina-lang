@@ -37,7 +37,7 @@ public class MockListener {
     public static Object invokeResource(Environment env, BString name) {
         if (service != null) {
             Runtime runtime = env.getRuntime();
-            return runtime.call(service, name.getValue());
+            return runtime.callMethod(service, name.getValue(), null);
         }
         return null;
     }

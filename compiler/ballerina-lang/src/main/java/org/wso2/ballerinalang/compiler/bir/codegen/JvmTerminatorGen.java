@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaFunction;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JIConstructorCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCLICall;
@@ -119,7 +118,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_ISO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_NON_ISOLATED_WORKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_POLICY_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_THREAD;
@@ -141,14 +139,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_EXCEPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_SCHEDULER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_FLUSH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_WAIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_WAIT_ANY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_WAIT_MULTIPLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ANYDATA_ARRAY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_BAL_ENV_WITH_FUNC_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_ARRAY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_INITIALIZER;
@@ -185,7 +182,6 @@ public class JvmTerminatorGen {
     private final JvmTypeGen jvmTypeGen;
     private final JvmCastGen jvmCastGen;
     private final AsyncDataCollector asyncDataCollector;
-    private final String strandMetadataClass;
 
     public JvmTerminatorGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, LabelGenerator labelGen,
                             JvmErrorGen errorGen, PackageID packageID, JvmInstructionGen jvmInstructionGen,
@@ -207,7 +203,6 @@ public class JvmTerminatorGen {
         this.moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
         this.unifier = new Unifier();
         this.asyncDataCollector = asyncDataCollector;
-        this.strandMetadataClass = jvmConstantsGen.getStrandMetadataConstantsClass();
     }
 
     public void genTerminator(BIRTerminator terminator, BIRNode.BIRFunction func,
@@ -233,12 +228,12 @@ public class JvmTerminatorGen {
                 return;
             }
             case FP_CALL -> {
-                this.genFPCallIns((BIRTerminator.FPCall) terminator, attachedType, funcName, localVarOffset,
+                this.genFPCallIns((BIRTerminator.FPCall) terminator, localVarOffset,
                         func.hasWorkers, channelMapVarIndex);
                 return;
             }
             case ASYNC_CALL -> {
-                this.genAsyncCallTerm((BIRTerminator.AsyncCall) terminator, localVarOffset, attachedType, funcName,
+                this.genAsyncCallTerm((BIRTerminator.AsyncCall) terminator, localVarOffset,
                         func.hasWorkers, channelMapVarIndex);
                 return;
             }
@@ -368,7 +363,7 @@ public class JvmTerminatorGen {
                                 BIRNode.BIRFunction func) {
         switch (terminator.jTermKind) {
             case J_METHOD_CALL -> this.genJCallTerm((JavaMethodCall) terminator, attachedType, localVarOffset);
-            case JI_METHOD_CALL -> this.genJICallTerm((JIMethodCall) terminator, localVarOffset, func);
+            case JI_METHOD_CALL -> this.genJICallTerm((JIMethodCall) terminator, localVarOffset, func, attachedType);
             case JI_CONSTRUCTOR_CALL -> this.genJIConstructorTerm((JIConstructorCall) terminator);
             case JI_METHOD_CLI_CALL -> this.genJICLICallTerm((JIMethodCLICall) terminator, localVarOffset);
             default -> throw new BLangCompilerException("JVM generation is not supported for terminator instruction " +
@@ -430,7 +425,7 @@ public class JvmTerminatorGen {
         }
     }
 
-    private void genJICallTerm(JIMethodCall callIns, int localVarOffset, BIRNode.BIRFunction func) {
+    private void genJICallTerm(JIMethodCall callIns, int localVarOffset, BIRNode.BIRFunction func, BType attachedType) {
         boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
         int argIndex = 0;
         if (callIns.invocationType == INVOKEVIRTUAL || isInterface) {
@@ -473,7 +468,7 @@ public class JvmTerminatorGen {
             // load function name
             this.mv.visitLdcInsn(func.name.getValue());
             this.jvmTypeGen.loadFunctionPathParameters(mv, (BInvokableTypeSymbol) func.type.tsymbol);
-            this.mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV_CLASS, JVM_INIT_METHOD, INIT_BAL_ENV_WITH_FUNC_NAME, false);
+            this.mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV_CLASS, JVM_INIT_METHOD, INIT_BAL_ENV, false);
         }
 
         if (callIns.receiver != null) {
@@ -657,8 +652,8 @@ public class JvmTerminatorGen {
         jvmCastGen.addUnboxInsn(this.mv, returnType);
     }
 
-    private void genAsyncCallTerm(BIRTerminator.AsyncCall callIns, int localVarOffset, BType attachedType,
-                                  String parentFunction, boolean hasWorkers, int channelMapVarIndex) {
+    private void genAsyncCallTerm(BIRTerminator.AsyncCall callIns, int localVarOffset,
+                                  boolean hasWorkers, int channelMapVarIndex) {
         // Check if already locked before submitting to scheduler.
         genPanicIfInLock(localVarOffset);
 
@@ -710,7 +705,7 @@ public class JvmTerminatorGen {
         String workerName = strandName;
         this.mv.visitLdcInsn(Objects.requireNonNullElseGet(workerName,
                 () -> Objects.requireNonNullElse(callIns.lhsOp.variableDcl.metaVarName, DEFAULT_STRAND_NAME)));
-        this.submitToScheduler(callIns.lhsOp, attachedType, parentFunction, isIsolated, callIns, hasWorkers,
+        this.submitToScheduler(callIns.lhsOp, isIsolated, callIns, hasWorkers,
                 channelMapVarIndex);
     }
 
@@ -792,7 +787,7 @@ public class JvmTerminatorGen {
         this.mv.visitMethodInsn(INVOKESTATIC, ASYNC_UTILS, "handleWaitMultiple", HANDLE_WAIT_MULTIPLE, false);
     }
 
-    private void genFPCallIns(BIRTerminator.FPCall fpCall, BType attachedType, String funcName, int localVarOffset,
+    private void genFPCallIns(BIRTerminator.FPCall fpCall, int localVarOffset,
                               boolean hasWorkers, int channelMapVarIndex) {
 
         if (fpCall.isAsync) {
@@ -840,8 +835,7 @@ public class JvmTerminatorGen {
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             loadFpReturnType(fpCall.lhsOp);
             this.mv.visitLdcInsn(Objects.requireNonNullElse(workerName, DEFAULT_STRAND_NAME));
-            this.submitToScheduler(fpCall.lhsOp, attachedType, funcName, isIsolated, fpCall, localVarOffset,
-                    hasWorkers, channelMapVarIndex);
+            this.submitToScheduler(fpCall.lhsOp, isIsolated, fpCall, localVarOffset, hasWorkers, channelMapVarIndex);
         } else {
             this.genFpCallArgs(fpCall, localVarOffset);
             this.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply", PASS_OBJECT_RETURN_OBJECT, true);
@@ -986,18 +980,15 @@ public class JvmTerminatorGen {
         this.storeToVar(ins.lhsOp.variableDcl);
     }
 
-    private void submitToScheduler(BIROperand lhsOp, BType attachedType, String parentFunction, boolean isIsolated,
-                                   BIRTerminator.AsyncCall callIns, boolean hasWorkers, int channelMapVarIndex) {
-        this.genStrandMetadataForCall(attachedType, parentFunction);
+    private void submitToScheduler(BIROperand lhsOp, boolean isIsolated, BIRTerminator.AsyncCall callIns,
+                                   boolean hasWorkers, int channelMapVarIndex) {
         this.genWorkerChannelMapForCall(hasWorkers, channelMapVarIndex);
         this.genAsyncCallArgs(callIns);
         this.genStartFunctionCall(lhsOp, isIsolated);
     }
 
-    private void submitToScheduler(BIROperand lhsOp, BType attachedType, String parentFunction, boolean isIsolated,
-                                   BIRTerminator.FPCall fpCall, int localVarOffset,
-                                   boolean hasWorkers, int channelMapVarIndex) {
-        this.genStrandMetadataForCall(attachedType, parentFunction);
+    private void submitToScheduler(BIROperand lhsOp, boolean isIsolated, BIRTerminator.FPCall fpCall,
+                                   int localVarOffset, boolean hasWorkers, int channelMapVarIndex) {
         this.genWorkerChannelMapForCall(hasWorkers, channelMapVarIndex);
         this.genFpCallArgs(fpCall, localVarOffset);
         this.genStartFunctionCall(lhsOp, isIsolated);
@@ -1017,32 +1008,12 @@ public class JvmTerminatorGen {
         }
     }
 
-    private void genStrandMetadataForCall(BType attachedType, String parentFunction) {
-        String metaDataVarName;
-        if (attachedType != null) {
-            metaDataVarName = setAndGetStrandMetadataVarName(attachedType.tsymbol.name.value, parentFunction,
-                    asyncDataCollector);
-        } else {
-            metaDataVarName = JvmCodeGenUtil.setAndGetStrandMetadataVarName(parentFunction, asyncDataCollector);
-        }
-        this.mv.visitFieldInsn(GETSTATIC, this.strandMetadataClass, metaDataVarName, GET_STRAND_METADATA);
-    }
-
     private void genWorkerChannelMapForCall(boolean hasWorkers, int channelMapVarIndex) {
         if (hasWorkers) {
             this.mv.visitVarInsn(ALOAD, channelMapVarIndex);
         } else {
             this.mv.visitInsn(ACONST_NULL);
         }
-    }
-
-
-    private String setAndGetStrandMetadataVarName(String typeName, String parentFunction,
-                                                  AsyncDataCollector asyncDataCollector) {
-        String metaDataVarName = STRAND_METADATA_VAR_PREFIX + typeName + "$" + parentFunction + "$";
-        asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName,
-                new ScheduleFunctionInfo(typeName, parentFunction));
-        return metaDataVarName;
     }
 
     private void loadFpReturnType(BIROperand lhsOp) {

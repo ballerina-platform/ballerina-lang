@@ -38,11 +38,11 @@ public class RuntimeAPICall {
         Runtime balRuntime = Runtime.from(module);
         balRuntime.init();
         balRuntime.start();
-        Object result = balRuntime.call(module, "add", 5L, 7L);
+        Object result = balRuntime.callFunction(module, "add", null, 5L, 7L);
         out.println(result);
 
         BObject person = ValueCreator.createObjectValue(module, "Person", 1001, StringUtils.fromString("John Doe"));
-        result = balRuntime.call(person, "getNameWithTitle", StringUtils.fromString("Dr. "));
+        result = balRuntime.callMethod(person, "getNameWithTitle", null, StringUtils.fromString("Dr. "));
         out.println(result);
         balRuntime.stop();
 
@@ -50,7 +50,7 @@ public class RuntimeAPICall {
         balRuntime = Runtime.from(module);
         balRuntime.init();
         balRuntime.start();
-        result = balRuntime.call(module, "getPerson", 1001L, StringUtils.fromString("John"),
+        result = balRuntime.callFunction(module, "getPerson", null, 1001L, StringUtils.fromString("John"),
                 StringUtils.fromString("100m"));
         out.println(result);
         balRuntime.stop();

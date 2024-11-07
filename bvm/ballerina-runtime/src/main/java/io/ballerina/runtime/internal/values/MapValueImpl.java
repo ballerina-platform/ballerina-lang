@@ -42,6 +42,7 @@ import io.ballerina.runtime.internal.MapUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
@@ -343,8 +344,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
         for (Map.Entry<String, BFunctionPointer> entry : defaultValues.entrySet()) {
             String key = entry.getKey();
-            BFunctionPointer value = entry.getValue();
-            populateInitialValue((K) new BmpStringValue(key), (V) value.call(new Object[]{}));
+            populateInitialValue((K) new BmpStringValue(key),
+                    (V) entry.getValue().call(Scheduler.getStrand().scheduler.runtime, new Object[]{}));
         }
     }
 
