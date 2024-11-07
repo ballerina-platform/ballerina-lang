@@ -1699,15 +1699,7 @@ public class Types {
             return true;
         }
 
-        boolean validTypeCast = intersectionExists(sourceSemType, targetSemType);
-        if (validTypeCast) {
-            if (isValueType(sourceType)) {
-                setImplicitCastExpr(expr, sourceType, symTable.anyType);
-            }
-            return true;
-        }
-
-        return false;
+        return intersectionExists(sourceSemType, targetSemType);
     }
 
     public boolean containsErrorType(SemType t) {
