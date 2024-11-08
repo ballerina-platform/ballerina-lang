@@ -1,0 +1,25 @@
+Compiling source
+	test_org/optimized_test_run_with_empty_build_pkg_test:0.1.0
+Running Tests
+
+	optimized_test_run_with_empty_build_pkg_test
+
+	ttt: has failed.
+
+
+		[fail] ttt:
+
+		    error {ballerina/test:0}TestError ("Assertion Failed!")
+				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
+				callableName: assertTrue moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 61
+				callableName: ttt moduleName: test_org.optimized_test_run_with_empty_build_pkg_test$test.0.tests.tests_test fileName: tests/tests_test.bal lineNumber: 6
+				callableName: ttt$lambda0$ moduleName: test_org.optimized_test_run_with_empty_build_pkg_test$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 4
+
+
+
+		0 passing
+		1 failing
+		0 skipped
+
+		Test execution time :*****s
+error: there are test failures
