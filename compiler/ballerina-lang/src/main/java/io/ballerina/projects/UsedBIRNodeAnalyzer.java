@@ -130,6 +130,8 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     private void analyzeTestablePkg(BPackageSymbol testableSymbol) {
         isTestablePkgAnalysis = true;
+        PackageID originalPkgId = currentPkgID;
+        currentPkgID = testableSymbol.pkgID;
         // since the testablePkg can access the nodes of parent package, we can merge the invocationData of both
         // testable and parent packages
         currentInvocationData.testablePkgInvocationData = testableSymbol.invocationData;
@@ -139,6 +141,7 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
         for (BIRNode.BIRDocumentableNode node : testableSymbol.invocationData.startPointNodes) {
             visitNode(node);
         }
+        currentPkgID = originalPkgId;
         isTestablePkgAnalysis = false;
     }
 
@@ -403,7 +406,7 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     public InvocationData getInvocationData(PackageID pkgId) {
         if (currentPkgID.equals(pkgId)) {
-            return isTestablePkgAnalysis ? currentInvocationData.testablePkgInvocationData : currentInvocationData;
+            return pkgId.isTestPkg ? currentInvocationData.testablePkgInvocationData : currentInvocationData;
         }
         return pkgCache.getInvocationData(pkgId);
     }

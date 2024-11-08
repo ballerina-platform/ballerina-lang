@@ -6,9 +6,10 @@ Running Tests
 		[pass] importUsageTest
 		[pass] simpleTest
 		[pass] testFn
+		[pass] unusedFunctionInvoker
 
 
-		3 passing
+		4 passing
 		0 failing
 		0 skipped
 

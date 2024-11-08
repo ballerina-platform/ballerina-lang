@@ -40,3 +40,8 @@ function testFn() {
     table<record {}>|error fnResult = fn();
     test:assertTrue(fnResult is error);
 }
+
+@test:Config
+function unusedFunctionInvoker(){
+    test:assertEquals(0, testUsageFunction().name);
+}

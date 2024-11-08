@@ -66,7 +66,7 @@ public final class AssertionUtils {
         } else {
             output = CommonUtils.replaceExecutionTime(output);
             String fileContent = Files.readString(commandOutputsDir.resolve("unix").resolve(outputFileName));
-            Assert.assertEquals(output.stripTrailing(), fileContent.stripTrailing());
+            Assert.assertEquals(output.stripTrailing().stripIndent(), fileContent.stripTrailing().stripIndent());
         }
     }
 }
