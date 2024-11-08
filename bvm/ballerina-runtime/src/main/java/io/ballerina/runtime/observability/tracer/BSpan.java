@@ -27,11 +27,7 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.SpanBuilder;
-import io.opentelemetry.api.trace.SpanContext;
-import io.opentelemetry.api.trace.SpanKind;
-import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.api.trace.*;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapGetter;
 import io.opentelemetry.context.propagation.TextMapPropagator;
@@ -147,6 +143,10 @@ public class BSpan {
 
     public void addEvent(String eventName, Attributes attributes) {
         span.addEvent(eventName, attributes);
+    }
+
+    public void setStatus(StatusCode statusCode) {
+        span.setStatus(statusCode);
     }
 
     public void addTags(Map<String, String> tags) {
