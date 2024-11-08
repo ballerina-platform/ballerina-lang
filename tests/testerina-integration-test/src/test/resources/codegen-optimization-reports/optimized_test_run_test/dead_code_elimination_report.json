@@ -4,6 +4,7 @@
       "sourceFunctions": [
         "foo",
         "fn",
+        "testUsageFunction",
         "main",
         "bar"
       ],
@@ -22,6 +23,7 @@
     "usedTypeDefNames": {
       "sourceTypeDefinitions": [
         "RecA",
+        "RecB",
         "TupleB"
       ],
       "virtualTypeDefinitions": [

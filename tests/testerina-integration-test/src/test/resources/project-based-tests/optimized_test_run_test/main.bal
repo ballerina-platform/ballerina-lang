@@ -47,3 +47,12 @@ type RecC record {
 };
 
 function fn() returns table<record {}>|error => error("err!");
+
+type RecB record {|
+    int name;
+|};
+
+function testUsageFunction() returns RecB{
+    RecB recB = {name: 0};
+    return recB;
+}
