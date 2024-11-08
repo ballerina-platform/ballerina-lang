@@ -23,7 +23,7 @@ import java.util.HashMap;
  *
  * @since 2201.11.0
  */
-public class OptimizedTestRunWithEmptyBuildPkgTest extends BaseTestCase{
+public class OptimizedTestRunWithEmptyBuildPkgTest extends BaseTestCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OptimizedExecutableTestingTest.class);
     private BMainInstance balClient;
