@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SimpleBTypeAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -43,11 +44,13 @@ public final class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAn
     private final Set<BType> visitedTypes = new HashSet<>();
     private final PackageCache pkgCache;
     private final UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
+    private final SymbolTable symbolTable;
 
     private UsedTypeDefAnalyzer(CompilerContext context) {
         context.put(BIR_TYPE_DEF_ANALYZER_KEY, this);
         this.pkgCache = PackageCache.getInstance(context);
         this.usedBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(context);
+        this.symbolTable = SymbolTable.getInstance(context);
     }
 
     public static UsedTypeDefAnalyzer getInstance(CompilerContext context) {
@@ -177,6 +180,8 @@ public final class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAn
         }
 
         return usedBIRNodeAnalyzer.isTestablePkgAnalysis &&
+                // For built-in types constrained by user-defined types.
+                !bType.tsymbol.pkgID.equals(symbolTable.langAnnotationModuleSymbol.pkgID) &&
                 !bType.tsymbol.pkgID.equals(usedBIRNodeAnalyzer.currentPkgID);
     }
 

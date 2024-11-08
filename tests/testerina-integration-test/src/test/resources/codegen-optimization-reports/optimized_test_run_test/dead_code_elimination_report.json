@@ -3,6 +3,7 @@
     "usedFunctionNames": {
       "sourceFunctions": [
         "foo",
+        "fn",
         "main",
         "bar"
       ],
@@ -23,7 +24,9 @@
         "RecA",
         "TupleB"
       ],
-      "virtualTypeDefinitions": []
+      "virtualTypeDefinitions": [
+        "$anonType$return$fn$_0"
+      ]
     },
     "unusedTypeDefNames": {
       "sourceTypeDefinitions": [
