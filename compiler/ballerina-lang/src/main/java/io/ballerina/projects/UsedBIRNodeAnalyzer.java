@@ -403,7 +403,7 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     public InvocationData getInvocationData(PackageID pkgId) {
         if (currentPkgID.equals(pkgId)) {
-            return pkgId.isTestPkg ? currentInvocationData.testablePkgInvocationData : currentInvocationData;
+            return isTestablePkgAnalysis ? currentInvocationData.testablePkgInvocationData : currentInvocationData;
         }
         return pkgCache.getInvocationData(pkgId);
     }

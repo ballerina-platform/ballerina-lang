@@ -1,0 +1,4 @@
+[package]
+org = "test_org"
+name = "optimized_test_run_with_empty_build_pkg_test"
+version = "0.1.0"
