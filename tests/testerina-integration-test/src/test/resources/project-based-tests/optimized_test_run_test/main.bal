@@ -45,3 +45,5 @@ type TupleB [int, string];
 type RecC record {
     int num;
 };
+
+function fn() returns table<record {}>|error => error("err!");

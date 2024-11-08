@@ -34,3 +34,9 @@ function importUsageTest() {
 function utilFunc() returns RecA {
     return {name: "hello"};
 }
+
+@test:Config
+function testFn() {
+    table<record {}>|error fnResult = fn();
+    test:assertTrue(fnResult is error);
+}
