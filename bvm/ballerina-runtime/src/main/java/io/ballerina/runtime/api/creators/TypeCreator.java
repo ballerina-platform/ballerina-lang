@@ -543,6 +543,9 @@ public final class TypeCreator {
         if (name == null || pkg == null) {
             return;
         }
+        if (name.contains("$anon")) {
+            return;
+        }
         TypeIdentifier typeIdentifier = new TypeIdentifier(name, pkg);
         registeredRecordTypes.put(typeIdentifier, recordType);
     }
