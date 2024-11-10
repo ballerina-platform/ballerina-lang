@@ -286,7 +286,7 @@ public abstract non-sealed class BType extends SemType
 
     @Override
     public boolean shouldCache() {
-        return this.pkg != null && this.typeName != null;
+        return this.pkg != null && this.typeName != null && !this.typeName.contains("$anon");
     }
 
     @Override
