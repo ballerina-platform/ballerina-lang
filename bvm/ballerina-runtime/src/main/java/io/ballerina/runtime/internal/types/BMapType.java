@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
+import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
@@ -60,8 +61,8 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
-    private MappingDefinition defn;
-    private MappingDefinition acceptedTypeDefn;
+    private final DefinitionContainer<MappingDefinition> defn = new DefinitionContainer<>();
+    private final DefinitionContainer<MappingDefinition> acceptedTypeDefn = new DefinitionContainer<>();
 
     public BMapType(Type constraint) {
         this(constraint, false);
@@ -187,11 +188,14 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     @Override
     public SemType createSemType() {
         Env env = Env.getInstance();
-        if (defn != null) {
+        if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
-        MappingDefinition md = new MappingDefinition();
-        defn = md;
+        var result = defn.setDefinition(MappingDefinition::new);
+        if (!result.updated()) {
+            return defn.getSemType(env);
+        }
+        MappingDefinition md = result.definition();
         CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
         return createSemTypeInner(env, md, tryInto(getConstrainedType()), mut);
@@ -199,7 +203,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
 
     @Override
     public void resetSemType() {
-        defn = null;
+        defn.clear();
         super.resetSemType();
     }
 
@@ -230,11 +234,14 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     @Override
     public synchronized Optional<SemType> acceptedTypeOf(Context cx) {
         Env env = cx.env;
-        if (acceptedTypeDefn != null) {
+        if (acceptedTypeDefn.isDefinitionReady()) {
             return Optional.of(acceptedTypeDefn.getSemType(env));
         }
-        MappingDefinition md = new MappingDefinition();
-        acceptedTypeDefn = md;
+        var result = acceptedTypeDefn.setDefinition(MappingDefinition::new);
+        if (!result.updated()) {
+            return Optional.of(acceptedTypeDefn.getSemType(env));
+        }
+        MappingDefinition md = result.definition();
         SemType elementType = ShapeAnalyzer.acceptedTypeOf(cx, getConstrainedType()).orElseThrow();
         return Optional.of(createSemTypeInner(env, md, elementType, CELL_MUT_UNLIMITED));
     }
@@ -270,7 +277,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     @Override
     public BMapType clone() {
         BMapType clone = (BMapType) super.clone();
-        clone.defn = null;
+        clone.defn.clear();
         return clone;
     }
 

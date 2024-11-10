@@ -43,6 +43,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability;
+import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -75,8 +76,8 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
-    private MappingDefinition defn;
-    private MappingDefinition acceptedTypeDefn;
+    private final DefinitionContainer<MappingDefinition> defn = new DefinitionContainer<>();
+    private final DefinitionContainer<MappingDefinition> acceptedTypeDefn = new DefinitionContainer<>();
     private byte couldInhereTypeBeDifferentCache = 0;
 
     private final Map<String, BFunctionPointer> defaultValues = new LinkedHashMap<>();
@@ -246,11 +247,14 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     @Override
     public SemType createSemType() {
         Env env = Env.getInstance();
-        if (defn != null) {
+        if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
-        MappingDefinition md = new MappingDefinition();
-        defn = md;
+        var result = defn.setDefinition(MappingDefinition::new);
+        if (!result.updated()) {
+            return defn.getSemType(env);
+        }
+        MappingDefinition md = result.definition();
         return createSemTypeInner(md, env, mut(), SemType::tryInto);
     }
 
@@ -281,7 +285,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
 
     @Override
     public void resetSemType() {
-        defn = null;
+        defn.clear();
         super.resetSemType();
     }
 
@@ -384,13 +388,16 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     }
 
     @Override
-    public synchronized Optional<SemType> acceptedTypeOf(Context cx) {
+    public Optional<SemType> acceptedTypeOf(Context cx) {
         Env env = cx.env;
-        if (acceptedTypeDefn != null) {
+        if (acceptedTypeDefn.isDefinitionReady()) {
             return Optional.of(acceptedTypeDefn.getSemType(env));
         }
-        MappingDefinition md = new MappingDefinition();
-        acceptedTypeDefn = md;
+        var result = acceptedTypeDefn.setDefinition(MappingDefinition::new);
+        if (!result.updated()) {
+            return Optional.of(acceptedTypeDefn.getSemType(env));
+        }
+        MappingDefinition md = result.definition();
         return Optional.of(createSemTypeInner(md, env, CELL_MUT_UNLIMITED,
                 (type) -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow()));
     }

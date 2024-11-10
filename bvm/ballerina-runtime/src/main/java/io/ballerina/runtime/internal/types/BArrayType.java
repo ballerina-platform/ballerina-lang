@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
+import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.values.AbstractArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -66,8 +67,8 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
     private int typeFlags;
-    private ListDefinition defn;
-    private ListDefinition acceptedTypeDefn;
+    private final DefinitionContainer<ListDefinition> defn = new DefinitionContainer<>();
+    private final DefinitionContainer<ListDefinition> acceptedTypeDefn = new DefinitionContainer<>();
     public BArrayType(Type elementType) {
         this(elementType, false);
     }
@@ -228,11 +229,14 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     @Override
     public SemType createSemType() {
         Env env = Env.getInstance();
-        if (defn != null) {
+        if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
-        ListDefinition ld = new ListDefinition();
-        defn = ld;
+        var result = defn.setDefinition(ListDefinition::new);
+        if (!result.updated()) {
+            return defn.getSemType(env);
+        }
+        ListDefinition ld = result.definition();
         CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
         return getSemTypePart(env, ld, size, tryInto(getElementType()), mut);
@@ -250,7 +254,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
 
     @Override
     public void resetSemType() {
-        defn = null;
+        defn.clear();
         super.resetSemType();
     }
 
@@ -285,13 +289,16 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     }
 
     @Override
-    public synchronized Optional<SemType> acceptedTypeOf(Context cx) {
+    public Optional<SemType> acceptedTypeOf(Context cx) {
         Env env = cx.env;
-        if (acceptedTypeDefn != null) {
+        if (acceptedTypeDefn.isDefinitionReady()) {
             return Optional.of(acceptedTypeDefn.getSemType(cx.env));
         }
-        ListDefinition ld = new ListDefinition();
-        acceptedTypeDefn = ld;
+        var result = acceptedTypeDefn.setDefinition(ListDefinition::new);
+        if (!result.updated()) {
+            return Optional.of(acceptedTypeDefn.getSemType(env));
+        }
+        ListDefinition ld = result.definition();
         SemType elementType = ShapeAnalyzer.acceptedTypeOf(cx, getElementType()).orElseThrow();
         return Optional.of(getSemTypePart(env, ld, size, elementType, CELL_MUT_UNLIMITED));
     }

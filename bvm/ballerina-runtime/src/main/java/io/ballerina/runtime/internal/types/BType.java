@@ -34,6 +34,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * {@code BType} represents a type in Ballerina.
@@ -56,6 +58,7 @@ public abstract non-sealed class BType extends SemType
     private Type cachedImpliedType = null;
     private volatile SemType cachedSemType = null;
     private volatile TypeCheckCache<CacheableTypeDescriptor> typeCheckCache;
+    private final ReadWriteLock typeCacheLock = new ReentrantReadWriteLock();
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -251,17 +254,10 @@ public abstract non-sealed class BType extends SemType
 
     @Override
     public void updateInnerSemTypeIfNeeded() {
-        SemType semType = cachedSemType;
-        if (semType == null) {
-            synchronized (this) {
-                semType = cachedSemType;
-                if (semType == null) {
-                    semType = createSemType();
-                    cachedSemType = semType;
-                    setAll(cachedSemType.all());
-                    setSome(cachedSemType.some(), cachedSemType.subTypeData());
-                }
-            }
+        if (cachedSemType == null) {
+            cachedSemType = createSemType();
+            setAll(cachedSemType.all());
+            setSome(cachedSemType.some(), cachedSemType.subTypeData());
         }
     }
 
@@ -295,10 +291,26 @@ public abstract non-sealed class BType extends SemType
 
     @Override
     public final Optional<Boolean> cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other) {
-        if (typeCheckCache == null) {
-            typeCheckCache = cx.getTypeCheckCache(this);
+        initializeCacheIfNeeded(cx);
+        typeCacheLock.readLock().lock();
+        try {
+            return typeCheckCache.cachedTypeCheckResult(other);
+        } finally {
+            typeCacheLock.readLock().unlock();
         }
-        return typeCheckCache.cachedTypeCheckResult(other);
+    }
+
+    private void initializeCacheIfNeeded(Context cx) {
+        typeCacheLock.readLock().lock();
+        boolean shouldInitialize = typeCheckCache == null;
+        typeCacheLock.readLock().unlock();
+        if (shouldInitialize) {
+            typeCacheLock.writeLock().lock();
+            if (typeCheckCache == null) {
+                typeCheckCache = cx.getTypeCheckCache(this);
+            }
+            typeCacheLock.writeLock().unlock();
+        }
     }
 
     @Override
