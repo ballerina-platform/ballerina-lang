@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.FutureUtils;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -87,8 +88,7 @@ public class BFutureType extends BType implements FutureType {
         if (constraint == other.constraint) {
             return true;
         }
-
-        return TypeChecker.isSameType(constraint, other.constraint);
+        return Objects.equals(constraint, other.constraint);
     }
 
     @Override
@@ -106,12 +106,6 @@ public class BFutureType extends BType implements FutureType {
             return Builder.getFutureType();
         }
         return FutureUtils.futureContaining(TypeChecker.context().env, tryInto(constraint));
-    }
-
-    @Override
-    public boolean shouldCache() {
-        // {@code equals} depends on the type checker this is to avoid a possible infinite recursion
-        return false;
     }
 
     @Override

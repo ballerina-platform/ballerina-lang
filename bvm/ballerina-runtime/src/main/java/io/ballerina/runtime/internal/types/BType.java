@@ -304,11 +304,15 @@ public abstract non-sealed class BType extends SemType
         typeCacheLock.readLock().lock();
         boolean shouldInitialize = typeCheckCache == null;
         typeCacheLock.readLock().unlock();
-        if (shouldInitialize) {
+        if (!shouldInitialize) {
+            return;
+        }
+        try {
             typeCacheLock.writeLock().lock();
             if (typeCheckCache == null) {
                 typeCheckCache = cx.getTypeCheckCache(this);
             }
+        } finally {
             typeCacheLock.writeLock().unlock();
         }
     }
