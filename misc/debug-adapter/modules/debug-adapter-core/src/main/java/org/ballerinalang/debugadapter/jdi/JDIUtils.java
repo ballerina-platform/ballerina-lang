@@ -45,7 +45,6 @@ public class JDIUtils {
      */
     public static void enableJDIRequests(ExecutionContext context) {
         EventRequestManager eventManager = context.getEventManager();
-        eventManager.classPrepareRequests().forEach(EventRequest::enable);
         eventManager.breakpointRequests().forEach(EventRequest::enable);
     }
 }
