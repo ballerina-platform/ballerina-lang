@@ -296,11 +296,7 @@ public abstract non-sealed class BType extends SemType
     @Override
     public final Optional<Boolean> cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other) {
         if (typeCheckCache == null) {
-            synchronized (this) {
-                if (typeCheckCache == null) {
-                    typeCheckCache = cx.getTypeCheckCache(this);
-                }
-            }
+            typeCheckCache = cx.getTypeCheckCache(this);
         }
         return typeCheckCache.cachedTypeCheckResult(other);
     }
