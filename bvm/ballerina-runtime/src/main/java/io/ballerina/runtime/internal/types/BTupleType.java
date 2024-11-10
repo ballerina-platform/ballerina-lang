@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
+import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.values.AbstractArrayValue;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
@@ -67,8 +68,8 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     private boolean resolving;
     private boolean resolvingReadonly;
     private String cachedToString;
-    private ListDefinition defn;
-    private ListDefinition acceptedTypeDefn;
+    private final DefinitionContainer<ListDefinition> defn = new DefinitionContainer<>();
+    private final DefinitionContainer<ListDefinition> acceptedTypeDefn = new DefinitionContainer<>();
 
     /**
      * Create a {@code BTupleType} which represents the tuple type.
@@ -187,7 +188,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
             this.restType = restType;
         }
         flagsPoisoned = true;
-        defn = null;
+        defn.clear();
     }
 
     @Override
@@ -332,11 +333,14 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     @Override
     public SemType createSemType() {
         Env env = Env.getInstance();
-        if (defn != null) {
+        if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
-        ListDefinition ld = new ListDefinition();
-        defn = ld;
+        var result = defn.setDefinition(ListDefinition::new);
+        if (!result.updated()) {
+            return defn.getSemType(env);
+        }
+        ListDefinition ld = result.definition();
         return createSemTypeInner(env, ld, SemType::tryInto, mut());
     }
 
@@ -360,7 +364,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
 
     @Override
     public void resetSemType() {
-        defn = null;
+        defn.clear();
         super.resetSemType();
     }
 
@@ -396,13 +400,16 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     }
 
     @Override
-    public synchronized Optional<SemType> acceptedTypeOf(Context cx) {
+    public Optional<SemType> acceptedTypeOf(Context cx) {
         Env env = cx.env;
-        if (acceptedTypeDefn != null) {
-            return Optional.ofNullable(acceptedTypeDefn.getSemType(env));
+        if (acceptedTypeDefn.isDefinitionReady()) {
+            return Optional.of(acceptedTypeDefn.getSemType(env));
         }
-        ListDefinition ld = new ListDefinition();
-        acceptedTypeDefn = ld;
+        var result = acceptedTypeDefn.setDefinition(ListDefinition::new);
+        if (!result.updated()) {
+            return Optional.of(acceptedTypeDefn.getSemType(env));
+        }
+        ListDefinition ld = result.definition();
         return Optional.of(createSemTypeInner(env, ld, (type) -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow(),
                 CELL_MUT_UNLIMITED));
     }

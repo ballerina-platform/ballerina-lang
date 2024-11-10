@@ -45,6 +45,7 @@ import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
+import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.Member;
@@ -85,9 +86,9 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
 
     private String cachedToString;
     private boolean resolving;
-    private ObjectDefinition defn;
-    private ObjectDefinition acceptedTypeDefn;
-    private DistinctIdSupplier distinctIdSupplier;
+    private final DefinitionContainer<ObjectDefinition> defn = new DefinitionContainer<>();
+    private final DefinitionContainer<ObjectDefinition> acceptedTypeDefn = new DefinitionContainer<>();
+    private volatile DistinctIdSupplier distinctIdSupplier;
 
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.
@@ -241,7 +242,9 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
 
     public void setTypeIdSet(BTypeIdSet typeIdSet) {
         this.typeIdSet = typeIdSet;
-        this.distinctIdSupplier = null;
+        synchronized (this) {
+            this.distinctIdSupplier = null;
+        }
         resetSemType();
     }
 
@@ -278,21 +281,23 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     }
 
     @Override
-    public SemType createSemType() {
+    public final SemType createSemType() {
         Env env = Env.getInstance();
-        if (distinctIdSupplier == null) {
-            distinctIdSupplier = new DistinctIdSupplier(env, typeIdSet);
-        }
+        initializeDistinctIdSupplierIfNeeded(env);
         CellAtomicType.CellMutability mut =
                 SymbolFlags.isFlagOn(getFlags(), SymbolFlags.READONLY) ? CellAtomicType.CellMutability.CELL_MUT_NONE :
                         CellAtomicType.CellMutability.CELL_MUT_LIMITED;
         SemType innerType;
-        if (defn != null) {
+        if (defn.isDefinitionReady()) {
             innerType = defn.getSemType(env);
         } else {
-            ObjectDefinition od = new ObjectDefinition();
-            defn = od;
-            innerType = semTypeInner(od, mut, SemType::tryInto);
+            var result = defn.setDefinition(ObjectDefinition::new);
+            if (!result.updated()) {
+                innerType = defn.getSemType(env);
+            } else {
+                ObjectDefinition od = result.definition();
+                innerType = semTypeInner(od, mut, SemType::tryInto);
+            }
         }
         return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(innerType, Core::intersect);
     }
@@ -357,13 +362,21 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
         if (cachedShape != null) {
             return Optional.of(cachedShape);
         }
-        if (distinctIdSupplier == null) {
-            distinctIdSupplier = new DistinctIdSupplier(cx.env, typeIdSet);
-        }
+        initializeDistinctIdSupplierIfNeeded(cx.env);
         SemType shape = distinctIdSupplier.get().stream().map(ObjectDefinition::distinct)
                 .reduce(valueShape(cx, shapeSupplier, abstractObjectValue), Core::intersect);
         abstractObjectValue.cacheShape(shape);
         return Optional.of(shape);
+    }
+
+    private void initializeDistinctIdSupplierIfNeeded(Env env) {
+        if (distinctIdSupplier == null) {
+            synchronized (this) {
+                if (distinctIdSupplier == null) {
+                    distinctIdSupplier = new DistinctIdSupplier(env, typeIdSet);
+                }
+            }
+        }
     }
 
     @Override
@@ -372,19 +385,21 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     }
 
     @Override
-    public synchronized Optional<SemType> acceptedTypeOf(Context cx) {
+    public final Optional<SemType> acceptedTypeOf(Context cx) {
         Env env = Env.getInstance();
-        if (distinctIdSupplier == null) {
-            distinctIdSupplier = new DistinctIdSupplier(env, typeIdSet);
-        }
+        initializeDistinctIdSupplierIfNeeded(cx.env);
         CellAtomicType.CellMutability mut = CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
         SemType innerType;
-        if (acceptedTypeDefn != null) {
+        if (acceptedTypeDefn.isDefinitionReady()) {
             innerType = acceptedTypeDefn.getSemType(env);
         } else {
-            ObjectDefinition od = new ObjectDefinition();
-            acceptedTypeDefn = od;
-            innerType = semTypeInner(od, mut, (type -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow()));
+            var result = acceptedTypeDefn.setDefinition(ObjectDefinition::new);
+            if (!result.updated()) {
+                innerType = acceptedTypeDefn.getSemType(env);
+            } else {
+                ObjectDefinition od = result.definition();
+                innerType = semTypeInner(od, mut, (type -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow()));
+            }
         }
         return Optional.of(
                 distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(innerType, Core::intersect));
@@ -449,7 +464,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
 
     @Override
     public void resetSemType() {
-        defn = null;
+        defn.clear();
         super.resetSemType();
     }
 

@@ -47,7 +47,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
     public Type detailType = PredefinedTypes.TYPE_DETAIL;
     public BTypeIdSet typeIdSet;
     private IntersectionType intersectionType = null;
-    private DistinctIdSupplier distinctIdSupplier;
+    private volatile DistinctIdSupplier distinctIdSupplier;
 
     public BErrorType(String typeName, Module pkg, Type detailType) {
         super(typeName, pkg, ErrorValue.class);
@@ -60,7 +60,9 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
 
     public void setTypeIdSet(BTypeIdSet typeIdSet) {
         this.typeIdSet = typeIdSet;
-        this.distinctIdSupplier = null;
+        synchronized (this) {
+            this.distinctIdSupplier = null;
+        }
     }
 
     @Override
@@ -126,7 +128,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
     }
 
     @Override
-    public synchronized SemType createSemType() {
+    public SemType createSemType() {
         SemType err;
         if (detailType == null || isTopType()) {
             err = Builder.getErrorType();
@@ -134,10 +136,18 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
             err = ErrorUtils.errorDetail(tryInto(getDetailType()));
         }
 
-        if (distinctIdSupplier == null) {
-            distinctIdSupplier = new DistinctIdSupplier(TypeChecker.context().env, getTypeIdSet());
-        }
+        initializeDistinctIdSupplierIfNeeded();
         return distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct).reduce(err, Core::intersect);
+    }
+
+    private void initializeDistinctIdSupplierIfNeeded() {
+        if (distinctIdSupplier == null) {
+            synchronized (this) {
+                if (distinctIdSupplier == null) {
+                    distinctIdSupplier = new DistinctIdSupplier(TypeChecker.context().env, getTypeIdSet());
+                }
+            }
+        }
     }
 
     @Override
@@ -160,9 +170,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
         if (!(details instanceof MapValueImpl<?, ?> errorDetails)) {
             return Optional.empty();
         }
-        if (distinctIdSupplier == null) {
-            distinctIdSupplier = new DistinctIdSupplier(TypeChecker.context().env, getTypeIdSet());
-        }
+        initializeDistinctIdSupplierIfNeeded();
         // Should we actually pass the readonly shape supplier here?
         return BMapType.shapeOfInner(cx, shapeSupplier, errorDetails)
                 .map(ErrorUtils::errorDetail)

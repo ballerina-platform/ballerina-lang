@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
+import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
 import io.ballerina.runtime.internal.types.semtype.FunctionQualifiers;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
@@ -51,7 +52,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     private static final Env env = Env.getInstance();
     private static final SemType ISOLATED_TOP = createIsolatedTop(env);
 
-    private FunctionDefinition defn;
+    private final DefinitionContainer<FunctionDefinition> defn = new DefinitionContainer<>();
 
     public BFunctionType(Module pkg) {
         super("function ()", pkg, Object.class);
@@ -224,15 +225,18 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     }
 
     @Override
-    public synchronized SemType createSemType() {
+    public SemType createSemType() {
         if (isFunctionTop()) {
             return getTopType();
         }
-        if (defn != null) {
+        if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
-        FunctionDefinition fd = new FunctionDefinition();
-        this.defn = fd;
+        var result = defn.setDefinition(FunctionDefinition::new);
+        if (!result.updated()) {
+            return defn.getSemType(env);
+        }
+        FunctionDefinition fd = result.definition();
         SemType[] params = new SemType[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             params[i] = getSemType(parameters[i].type);
@@ -273,7 +277,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     @Override
     public synchronized void resetSemType() {
-        defn = null;
+        defn.clear();
         super.resetSemType();
     }
 
