@@ -64,7 +64,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -84,7 +83,7 @@ import static org.awaitility.Awaitility.await;
  * @since 2.0.0
  */
 public class TestWorkspaceManager {
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/project");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/project");
     private final String dummyContent = "function foo() {" + CommonUtil.LINE_SEPARATOR + "}";
     private final String dummyDidChangeContent = "function foo1() {" + CommonUtil.LINE_SEPARATOR + "}";
     private BallerinaWorkspaceManager workspaceManager;
@@ -96,7 +95,7 @@ public class TestWorkspaceManager {
     }
 
     @Test(dataProvider = "fileOpenUpdateTestDataProvider")
-    public void testOpenDocument(Path filePath) throws IOException, WorkspaceDocumentException {
+    public void testOpenDocument(Path filePath) throws WorkspaceDocumentException {
         // Inputs from lang server
         openFile(filePath);
 
@@ -107,8 +106,7 @@ public class TestWorkspaceManager {
     }
 
     @Test(dataProvider = "fileOpenWithDuplicateFilesDataProvider")
-    public void testOpenDocumentWithDuplicateFiles(Path filePath) throws IOException,
-            WorkspaceDocumentException {
+    public void testOpenDocumentWithDuplicateFiles(Path filePath) {
         try {
             // Inputs from lang server
             openFile(filePath);
@@ -557,7 +555,7 @@ public class TestWorkspaceManager {
 
     @Test
     public void testWSRunStopProject()
-            throws WorkspaceDocumentException, EventSyncException, LSCommandExecutorException, IOException {
+            throws WorkspaceDocumentException, EventSyncException, LSCommandExecutorException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("long_running");
         Path filePath = projectPath.resolve("main.bal");
         ExecuteCommandContext execContext = runViaLs(filePath);
@@ -639,8 +637,7 @@ public class TestWorkspaceManager {
         return execContext;
     }
 
-    private static void stopViaLs(ExecuteCommandContext execContext, Path projectPath)
-            throws LSCommandExecutorException {
+    private static void stopViaLs(ExecuteCommandContext execContext, Path projectPath) {
         StopExecutor stopExecutor = new StopExecutor();
         Boolean didStop = stopExecutor.execute(execContext);
         Assert.assertTrue(didStop);

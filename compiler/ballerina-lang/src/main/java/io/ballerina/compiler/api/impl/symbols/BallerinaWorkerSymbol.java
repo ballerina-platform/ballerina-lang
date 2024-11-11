@@ -37,8 +37,8 @@ import java.util.List;
  */
 public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymbol {
 
-    private TypeSymbol returnType;
-    private List<AnnotationSymbol> annots;
+    private final TypeSymbol returnType;
+    private final List<AnnotationSymbol> annots;
     private final List<AnnotationAttachmentSymbol> annotAttachments;
 
     private BallerinaWorkerSymbol(String name, SymbolKind ballerinaSymbolKind, TypeSymbol returnType,

@@ -31,7 +31,10 @@ import java.util.List;
  *
  * @since 1.0
  */
-public class Filter {
+public final class Filter {
+
+    private Filter() {
+    }
 
     public static BXml filter(Environment env, BXml x, BFunctionPointer func) {
         if (x.isSingleton()) {

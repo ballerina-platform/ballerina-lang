@@ -23,13 +23,11 @@ import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link MappingMatchPatternNode} context.
@@ -44,8 +42,7 @@ public class MappingMatchPatternNodeContext extends MappingContextProvider<Mappi
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, MappingMatchPatternNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, MappingMatchPatternNode node) {
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
         Optional<Node> evalNode = CommonUtil.getMappingContextEvalNode(context.getNodeAtCursor());
@@ -67,7 +64,7 @@ public class MappingMatchPatternNodeContext extends MappingContextProvider<Mappi
                 .filter(field -> !field.isMissing() && field.kind() == SyntaxKind.FIELD_MATCH_PATTERN
                         && ((FieldMatchPatternNode) field).fieldNameNode().kind() == SyntaxKind.IDENTIFIER_TOKEN)
                 .map(field -> ((FieldMatchPatternNode) field).fieldNameNode().text())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

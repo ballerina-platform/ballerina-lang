@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the metadata attached to a construct.
@@ -29,6 +29,7 @@ import java.nio.file.Paths;
  */
 public class MetadataTest extends FormatterTest {
 
+    @Override
     @Test(dataProvider = "test-file-provider")
     public void test(String source, String sourcePath) throws IOException {
         super.test(source, sourcePath);
@@ -42,6 +43,6 @@ public class MetadataTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("misc", "metadata").toString();
+        return Path.of("misc", "metadata").toString();
     }
 }

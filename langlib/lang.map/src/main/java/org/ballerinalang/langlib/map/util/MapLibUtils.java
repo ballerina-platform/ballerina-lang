@@ -47,18 +47,18 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 1.0
  */
-public class MapLibUtils {
+public final class MapLibUtils {
+
+    private MapLibUtils() {
+    }
 
     public static Type getFieldType(Type mapType, String funcName) {
         mapType = TypeUtils.getImpliedType(mapType);
-        switch (mapType.getTag()) {
-            case TypeTags.MAP_TAG:
-                return ((MapType) mapType).getConstrainedType();
-            case TypeTags.RECORD_TYPE_TAG:
-                return getCommonTypeForRecordField((RecordType) mapType);
-            default:
-                throw createOpNotSupportedError(mapType, funcName);
-        }
+        return switch (mapType.getTag()) {
+            case TypeTags.MAP_TAG -> ((MapType) mapType).getConstrainedType();
+            case TypeTags.RECORD_TYPE_TAG -> getCommonTypeForRecordField((RecordType) mapType);
+            default -> throw createOpNotSupportedError(mapType, funcName);
+        };
     }
 
     public static Type getCommonTypeForRecordField(RecordType  recordType) {
@@ -76,7 +76,7 @@ public class MapLibUtils {
         return typeSet.size() == 1 ? typeSet.iterator().next() : TypeCreator.createUnionType(new ArrayList<>(typeSet));
     }
 
-    public static void validateRecord(BMap m) {
+    public static void validateRecord(BMap<?, ?> m) {
         Type type = TypeUtils.getImpliedType(m.getType());
         if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
             return;
@@ -102,7 +102,7 @@ public class MapLibUtils {
                         ErrorCodes.FIELD_REMOVAL_NOT_ALLOWED, field, type.getQualifiedName()));
     }
 
-    public static void validateRequiredFieldForRecord(BMap m, String k) {
+    public static void validateRequiredFieldForRecord(BMap<?, ?> m, String k) {
         Type type = TypeUtils.getImpliedType(m.getType());
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG && isRequiredField((RecordType) type, k)) {
             throw createOpNotSupportedErrorForRecord(type, k);

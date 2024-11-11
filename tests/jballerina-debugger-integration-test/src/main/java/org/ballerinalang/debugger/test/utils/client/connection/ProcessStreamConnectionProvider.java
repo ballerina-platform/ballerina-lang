@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -81,8 +80,8 @@ public class ProcessStreamConnectionProvider implements StreamConnectionProvider
      * Injects jacoco agent args into the debug server VM environment.
      */
     private void configureJacocoAgentArgs(Map<String, String> envProperties) {
-        Path jacocoAgentPath = Paths.get(balHome).resolve("bre").resolve("lib").resolve("jacocoagent.jar");
-        Path destinationFile = Paths.get(System.getProperty("user.dir")).resolve("build").resolve("jacoco")
+        Path jacocoAgentPath = Path.of(balHome).resolve("bre").resolve("lib").resolve("jacocoagent.jar");
+        Path destinationFile = Path.of(System.getProperty("user.dir")).resolve("build").resolve("jacoco")
                 .resolve("debugger-core-test.exec");
         String agentArgs = String.format(JACOCO_AGENT_ARGS, jacocoAgentPath, destinationFile);
 
@@ -138,8 +137,7 @@ public class ProcessStreamConnectionProvider implements StreamConnectionProvider
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof ProcessStreamConnectionProvider) {
-            ProcessStreamConnectionProvider other = (ProcessStreamConnectionProvider) obj;
+        if (obj instanceof ProcessStreamConnectionProvider other) {
             return commands.size() == other.commands.size()
                     && new HashSet<>(commands).equals(new HashSet<>(other.commands))
                     && workingDir.equals(other.workingDir);

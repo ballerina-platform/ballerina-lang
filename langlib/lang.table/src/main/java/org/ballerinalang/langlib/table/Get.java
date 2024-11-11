@@ -26,9 +26,12 @@ import io.ballerina.runtime.api.values.BTable;
  *
  * @since 1.3.0
  */
-public class Get {
+public final class Get {
 
-    public static BMap get(BTable tbl, Object key) {
-        return (BMap) tbl.getOrThrow(key);
+    private Get() {
+    }
+
+    public static BMap<?, ?> get(BTable<?, ?> tbl, Object key) {
+        return (BMap<?, ?>) tbl.getOrThrow(key);
     }
 }

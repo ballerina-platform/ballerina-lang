@@ -38,7 +38,10 @@ import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
  *
  * @since 1.0
  */
-public class Filter {
+public final class Filter {
+
+    private Filter() {
+    }
 
     public static BMap<?, ?> filter(Environment env, BMap<?, ?> m, BFunctionPointer func) {
         Type mapType = TypeUtils.getImpliedType(m.getType());

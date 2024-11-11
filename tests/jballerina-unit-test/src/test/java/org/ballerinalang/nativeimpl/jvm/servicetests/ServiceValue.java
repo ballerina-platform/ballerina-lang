@@ -49,12 +49,16 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class ServiceValue {
+public final class ServiceValue {
+
     private static BObject service;
     private static BObject listener;
     private static boolean started;
     private static String[] names;
-    private static MapValue<BString,  Object> annotationMap; // captured at attach method
+    private static MapValue<?,  ?> annotationMap; // captured at attach method
+
+    private ServiceValue() {
+    }
 
     public static Object callMethod(Environment env, BObject l, BString name) {
         return env.getRuntime().callMethod(l, name.getValue(), null);
@@ -110,7 +114,7 @@ public class ServiceValue {
             Field annotations = BAnnotatableType.class.getDeclaredField("annotations");
             annotations.setAccessible(true);
             Object annotationMap = annotations.get(serviceType);
-            ServiceValue.annotationMap = (MapValue) annotationMap;
+            ServiceValue.annotationMap = (MapValue<?, ?>) annotationMap;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new AssertionError();
         }
@@ -133,7 +137,7 @@ public class ServiceValue {
         ServiceValue.listener = null;
         ServiceValue.started = false;
         ServiceValue.names = new String[0];
-        ServiceValue.annotationMap = new MapValueImpl();
+        ServiceValue.annotationMap = new MapValueImpl<>();
     }
 
     public static BObject getListener() {
@@ -168,7 +172,7 @@ public class ServiceValue {
         return new ArrayValueImpl(names, false);
     }
 
-    public static BMap getAnnotationsAtServiceAttach() {
+    public static BMap<?, ?> getAnnotationsAtServiceAttach() {
         return ServiceValue.annotationMap;
     }
 

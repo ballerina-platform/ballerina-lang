@@ -43,6 +43,9 @@ public class SetChildren {
 
     private static final String OPERATION = "set children to xml element";
 
+    private SetChildren() {
+    }
+
     public static void setChildren(BXml xml, Object children) {
         if (!IsElement.isElement(xml)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.XML_FUNC_TYPE_ERROR, "setChildren", "element");

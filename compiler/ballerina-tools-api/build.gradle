@@ -16,12 +16,14 @@
  *  under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 description = 'Ballerina - Tools API'
 
 dependencies {
-    testImplementation 'org.testng:testng'
+    testImplementation libs.testng
 }
 
 test {

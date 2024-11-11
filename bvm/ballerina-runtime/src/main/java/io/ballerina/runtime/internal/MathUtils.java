@@ -27,9 +27,12 @@ import io.ballerina.runtime.internal.errors.ErrorReasons;
  *
  * @since 1.0
  */
-public class MathUtils {
+public final class MathUtils {
 
     private static final BString DIVIDE_BY_ZERO_ERROR = StringUtils.fromString(" / by zero");
+
+    private MathUtils() {
+    }
 
     public static long divide(long numerator, long denominator) {
         try {
@@ -53,12 +56,7 @@ public class MathUtils {
         try {
             return numerator % denominator;
         } catch (ArithmeticException e) {
-            if (denominator == 0) {
-                throw ErrorCreator.createError(ErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
-            } else {
-                throw ErrorCreator.createError(ErrorReasons.ARITHMETIC_OPERATION_ERROR,
-                                               StringUtils.fromString(e.getMessage()));
-            }
+            throw ErrorCreator.createError(ErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
         }
     }
 

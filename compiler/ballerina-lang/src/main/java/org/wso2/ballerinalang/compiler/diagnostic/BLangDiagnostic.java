@@ -35,11 +35,11 @@ import java.util.List;
  */
 public class BLangDiagnostic extends Diagnostic {
 
-    private Location location;
-    private String msg;
-    private DiagnosticInfo diagnosticInfo;
-    private DiagnosticCode diagnosticCode;
-    private List<DiagnosticProperty<?>> properties;
+    private final Location location;
+    private final String msg;
+    private final DiagnosticInfo diagnosticInfo;
+    private final DiagnosticCode diagnosticCode;
+    private final List<DiagnosticProperty<?>> properties;
 
     public BLangDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo,
                            DiagnosticCode diagnosticCode) {
@@ -102,8 +102,7 @@ public class BLangDiagnostic extends Diagnostic {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BLangDiagnostic) {
-            BLangDiagnostic that = (BLangDiagnostic) obj;
+        if (obj instanceof BLangDiagnostic that) {
             if (this.diagnosticCode != null) {
                 return this.location.equals(that.location) && this.msg.equals(that.message())
                         && this.diagnosticInfo.equals(that.diagnosticInfo)

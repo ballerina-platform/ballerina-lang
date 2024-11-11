@@ -24,7 +24,10 @@ import io.ballerina.runtime.api.values.BXml;
  *
  * @since 1.0
  */
-public class IsElement {
+public final class IsElement {
+
+    private IsElement() {
+    }
 
     public static boolean isElement(BXml xmlValue) {
         return org.ballerinalang.langlib.internal.IsElement.isElement(xmlValue);

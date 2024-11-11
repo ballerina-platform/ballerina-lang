@@ -31,7 +31,10 @@ import java.util.List;
  *
  * @since 1.0
  */
-public class Map {
+public final class Map {
+
+    private Map() {
+    }
 
     public static BXml map(Environment env, BXml x, BFunctionPointer func) {
         if (x.isSingleton()) {

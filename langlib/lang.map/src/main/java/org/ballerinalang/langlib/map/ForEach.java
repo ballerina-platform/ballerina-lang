@@ -29,7 +29,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 1.0
  */
-public class ForEach {
+public final class ForEach {
+
+    private ForEach() {
+    }
 
     public static void forEach(Environment env, BMap<?, ?> m, BFunctionPointer func) {
         int size = m.size();

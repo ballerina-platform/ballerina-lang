@@ -35,14 +35,12 @@ import java.nio.file.Path;
  */
 public class LineFoldingOnlyTest {
 
-    private static final JsonParser JSON_PARSER = new JsonParser();
-
     private final Path resourcesPath =
             new File(getClass().getClassLoader().getResource("foldingrange").getFile()).toPath();
     private Endpoint serviceEndpoint;
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
@@ -64,7 +62,7 @@ public class LineFoldingOnlyTest {
         Path expectedPath = resourcesPath.resolve("expected").resolve(expected);
         JsonArray expectedJsonArray =
                 FileUtils.fileContentAsObject(expectedPath.toAbsolutePath().toString()).getAsJsonArray("result");
-        JsonArray responseJsonArray = JSON_PARSER.parse(response).getAsJsonObject().getAsJsonArray("result");
+        JsonArray responseJsonArray = JsonParser.parseString(response).getAsJsonObject().getAsJsonArray("result");
         Assert.assertEquals(responseJsonArray, expectedJsonArray, "LineFoldingOnlyTest fails with " + expected
                 + " test case.");
     }

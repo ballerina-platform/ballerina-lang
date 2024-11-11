@@ -16,7 +16,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -31,22 +30,22 @@ public class ActionEvaluatorTest extends AbstractEvaluatorTest {
     private static final String VAR_EVALUATOR_TESTCASE = "testcases/evaluator/actions.var.json";
 
     @Test
-    public void testEvaluateStart() throws BallerinaShellException {
+    public void testEvaluateStart() {
         testEvaluate(START_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateRemote() throws BallerinaShellException {
+    public void testEvaluateRemote() {
         testEvaluate(REMOTE_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateResource() throws BallerinaShellException {
+    public void testEvaluateResource() {
         testEvaluate(RESOURCE_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateVar() throws BallerinaShellException {
+    public void testEvaluateVar() {
         testEvaluate(VAR_EVALUATOR_TESTCASE);
     }
 }

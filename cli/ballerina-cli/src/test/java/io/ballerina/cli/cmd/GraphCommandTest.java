@@ -44,7 +44,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
@@ -63,12 +62,13 @@ public class GraphCommandTest extends BaseCommandTest {
     private Path testDistCacheDirectory;
     private ProjectEnvironmentBuilder projectEnvironmentBuilder;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
-        Path testBuildDirectory = Paths.get("build").toAbsolutePath();
+        Path testBuildDirectory = Path.of("build").toAbsolutePath();
         testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-        Path customUserHome = Paths.get("build", "user-home");
+        Path customUserHome = Path.of("build", "user-home");
         Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
         projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
         this.testResources = super.tmpDir.resolve("build-test-resources");
@@ -394,7 +394,7 @@ public class GraphCommandTest extends BaseCommandTest {
     private void copyTestResourcesToTmpDir() throws URISyntaxException, IOException {
         URI testResourcesURI = Objects.requireNonNull(getClass().getClassLoader().getResource("test-resources"))
                 .toURI();
-        Path originalTestResources = Paths.get(testResourcesURI);
+        Path originalTestResources = Path.of(testResourcesURI);
         Files.walkFileTree(originalTestResources, new BuildCommandTest.Copy(originalTestResources,
                 this.testResources));
     }

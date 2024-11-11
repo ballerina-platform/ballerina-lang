@@ -70,6 +70,7 @@ public class NodeVisitorTest extends AbstractSyntaxTreeAPITest {
     private static class TokenVisitor extends NodeVisitor {
         List<SyntaxKind> tokenList = new ArrayList<>();
 
+        @Override
         public void visit(Token token) {
             tokenList.add(token.kind());
         }
@@ -83,6 +84,7 @@ public class NodeVisitorTest extends AbstractSyntaxTreeAPITest {
     private static class AssignmentStmtVisitor extends NodeVisitor {
         List<AssignmentStatementNode> stmtList = new ArrayList<>();
 
+        @Override
         public void visit(AssignmentStatementNode assignmentStatement) {
             stmtList.add(assignmentStatement);
         }

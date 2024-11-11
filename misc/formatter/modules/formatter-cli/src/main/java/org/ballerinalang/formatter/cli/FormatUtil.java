@@ -40,16 +40,18 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Util class for compilation and format execution for formatting CLI tool.
  */
-class FormatUtil {
+final class FormatUtil {
     static final String CMD_NAME = "format";
     private static final PrintStream outStream = System.err;
+
+    private FormatUtil() {
+    }
 
     /**
      * Execute formatter.
@@ -90,7 +92,7 @@ class FormatUtil {
                     }
 
                     ballerinaFilePath = argList.get(0);
-                    Path filePath = Paths.get(ballerinaFilePath);
+                    Path filePath = Path.of(ballerinaFilePath);
 
                     SingleFileProject project;
                     try {
@@ -115,7 +117,7 @@ class FormatUtil {
                     } else {
                         outStream.println(Messages.getNoChanges());
                     }
-                } else if (Paths.get(argList.get(0)).toFile().isFile()) {
+                } else if (Path.of(argList.get(0)).toFile().isFile()) {
                     // If file is a regular file but not a ballerina source file
                     // throw the following exception.
                     throw LauncherUtils.createLauncherException(Messages.getNotABallerinaFile());
@@ -302,9 +304,9 @@ class FormatUtil {
     private static void formatAndWrite(Path documentPath, Path sourceRootPath,
                                        List<String> formattedFiles, FormattingOptions options, boolean dryRun)
             throws IOException, FormatterException {
-        String fileName = Paths.get(sourceRootPath.toString()).resolve("modules").resolve(documentPath).toString();
+        String fileName = Path.of(sourceRootPath.toString()).resolve("modules").resolve(documentPath).toString();
 
-        String originalSource = Files.readString(Paths.get(fileName));
+        String originalSource = Files.readString(Path.of(fileName));
         // Format and get the formatted source.
         String formattedSource = Formatter.format(originalSource, options);
 

@@ -26,6 +26,10 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class StartsWith {
 
+
+    private StartsWith() {
+    }
+
     public static boolean startsWith(BString str, BString substr) {
         return str.getValue().startsWith(substr.getValue());
     }

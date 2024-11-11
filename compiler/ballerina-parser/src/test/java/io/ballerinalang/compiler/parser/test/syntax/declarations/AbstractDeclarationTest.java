@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.parser.test.syntax.declarations;
 import io.ballerina.compiler.internal.parser.ParserRuleContext;
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test parsing module level declaration.
@@ -28,12 +28,12 @@ import java.nio.file.Paths;
 public abstract class AbstractDeclarationTest {
 
     void test(String sourceFilePath, String filePath) {
-        ParserTestUtils.test(Paths.get("declarations/", sourceFilePath), ParserRuleContext.TOP_LEVEL_NODE,
-                Paths.get("declarations/", filePath));
+        ParserTestUtils.test(Path.of("declarations/", sourceFilePath), ParserRuleContext.TOP_LEVEL_NODE,
+                Path.of("declarations/", filePath));
     }
 
     void testFile(String path, String filePath) {
-        ParserTestUtils.test(Paths.get("declarations/", path), ParserRuleContext.COMP_UNIT,
-                Paths.get("declarations/", filePath));
+        ParserTestUtils.test(Path.of("declarations/", path), ParserRuleContext.COMP_UNIT,
+                Path.of("declarations/", filePath));
     }
 }

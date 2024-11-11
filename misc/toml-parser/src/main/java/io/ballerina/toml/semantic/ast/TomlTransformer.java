@@ -61,7 +61,7 @@ import java.util.Optional;
  */
 public class TomlTransformer extends NodeTransformer<TomlNode> {
 
-    private DiagnosticLog dlog;
+    private final DiagnosticLog dlog;
 
     public TomlTransformer() {
         this.dlog = DiagnosticLog.getInstance();
@@ -426,7 +426,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         SeparatedNodeList<ValueNode> identifierList = identifier.value();
         List<TomlKeyEntryNode> nodeList = new ArrayList<>();
         for (Node node : identifierList) {
-            TomlBasicValueNode transformedNode = (TomlBasicValueNode) node.apply(this);
+            TomlBasicValueNode<?> transformedNode = (TomlBasicValueNode<?>) node.apply(this);
             nodeList.add(new TomlKeyEntryNode((ValueNode) node, transformedNode));
         }
         return new TomlKeyNode(identifier, nodeList, getTomlNodeListLocation(nodeList));

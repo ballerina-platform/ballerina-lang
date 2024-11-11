@@ -55,7 +55,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -80,7 +80,7 @@ import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
  * @since 2.0.0
  */
 @SuppressWarnings("unused")
-public class DebuggerRuntime {
+public final class DebuggerRuntime {
 
     private static final String EVALUATOR_STRAND_NAME = "evaluator-strand";
     private static final String XML_STEP_SEPARATOR = "/";
@@ -212,10 +212,13 @@ public class DebuggerRuntime {
                                                                    + "found '" + typedescValue.toString() + "'."));
         }
         Type type = ((TypedescValue) typedescValue).getDescribingType();
-        if (type instanceof BAnnotatableType) {
-            return ((BAnnotatableType) type).getAnnotations().entrySet().stream().filter(annotationEntry ->
-                    annotationEntry.getKey().getValue().endsWith(annotationName)).findFirst()
-                    .map(Map.Entry::getValue).orElse(null);
+        if (type instanceof BAnnotatableType bAnnotatableType) {
+            return bAnnotatableType.getAnnotations().entrySet()
+                    .stream()
+                    .filter(annotationEntry -> annotationEntry.getKey().getValue().endsWith(annotationName))
+                    .findFirst()
+                    .map(Map.Entry::getValue)
+                    .orElse(null);
         }
 
         return ErrorCreator.createError(StringUtils.fromString("type: '" + TypeUtils.getType(type.getEmptyValue())
@@ -240,8 +243,8 @@ public class DebuggerRuntime {
             return "int";
         } else if (value instanceof Float || value instanceof Double) {
             return "float";
-        } else if (value instanceof BValue) {
-            return ((BValue) value).getType().getName();
+        } else if (value instanceof BValue bValue) {
+            return bValue.getType().getName();
         } else {
             return "unknown";
         }
@@ -334,7 +337,7 @@ public class DebuggerRuntime {
     public static Object classloadAndInvokeFunction(String executablePath, String mainClass, String functionName,
                                                     Object... userArgs) {
         try {
-            URL pathUrl = Paths.get(executablePath).toUri().toURL();
+            URL pathUrl = Path.of(executablePath).toUri().toURL();
             URLClassLoader classLoader = AccessController.doPrivileged((PrivilegedAction<URLClassLoader>) () ->
                     new URLClassLoader(new URL[]{pathUrl}, ClassLoader.getSystemClassLoader()));
 
@@ -372,25 +375,6 @@ public class DebuggerRuntime {
             }
         }
         return result;
-    }
-
-    /**
-     * Invokes a method that is in the given class.
-     * This is directly invoked without scheduling.
-     * The method must be a static method accepting the given parameters.
-     *
-     * @param classLoader Class loader to find the class.
-     * @param className   Class name with the method.
-     * @param methodName  Method name to invoke.
-     * @param argTypes    Types of arguments.
-     * @param args        Arguments to provide.
-     * @return The result of the invocation.
-     */
-    protected static Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
-                                                 Class<?>[] argTypes, Object[] args) throws Exception {
-        Class<?> clazz = classLoader.loadClass(className);
-        Method method = clazz.getDeclaredMethod(methodName, argTypes);
-        return method.invoke(null, args);
     }
 
     private DebuggerRuntime() {

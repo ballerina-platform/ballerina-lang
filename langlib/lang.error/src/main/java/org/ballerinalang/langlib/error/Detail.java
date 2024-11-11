@@ -27,7 +27,11 @@ import io.ballerina.runtime.api.values.BMap;
  */
 public class Detail {
 
-    public static BMap detail(BError value) {
-        return (BMap) value.getDetails();
+
+    private Detail() {
+    }
+
+    public static BMap<?, ?> detail(BError value) {
+        return (BMap<?, ?>) value.getDetails();
     }
 }

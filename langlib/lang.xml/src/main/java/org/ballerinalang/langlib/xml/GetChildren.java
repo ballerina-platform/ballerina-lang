@@ -26,8 +26,10 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
  *
  * @since 1.0
  */
+public final class GetChildren {
 
-public class GetChildren {
+    private GetChildren() {
+    }
 
     public static BXml getChildren(BXml xmlVal) {
         if (!IsElement.isElement(xmlVal)) {

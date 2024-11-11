@@ -175,6 +175,11 @@ public class XMLAttributeAccessTest {
     }
 
     @Test
+    public void testXMLIndexedOptionalAttributeAccessWithNS() {
+        BRunUtil.invoke(compileResult, "testXMLIndexedOptionalAttributeAccessWithNS");
+    }
+
+    @Test
     public void testXmlAttributeAccessOnXmlUnionTypes() {
         BRunUtil.invoke(compileResult, "testXmlAttributeAccessOnXmlUnionTypes");
     }

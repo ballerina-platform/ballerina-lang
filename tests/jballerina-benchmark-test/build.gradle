@@ -14,7 +14,11 @@
  * limitations under the License.
  *
  */
-apply from: "$rootDir/gradle/javaProject.gradle"
+
+plugins {
+    id 'javaProject'
+}
+
 import org.apache.tools.ant.taskdefs.condition.Os
 
 description = 'Ballerina - Performance Tests'
@@ -40,13 +44,13 @@ dependencies {
 
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
-    implementation 'org.slf4j:slf4j-api'
-    implementation 'com.github.chewiebug:gcviewer'
+    implementation libs.slf4j.api
+    implementation libs.chewiebug.gcviewer
 
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testImplementation 'org.testng:testng'
-    testImplementation 'org.slf4j:slf4j-jdk14'
-    testLibs "com.github.chewiebug:gcviewer:${project.chewiebugGcviewerVersion}"
+    testImplementation libs.testng
+    testImplementation libs.slf4j.jdk14
+    testLibs libs.chewiebug.gcviewer
 }
 
 tasks.register('copyToLib', Copy) {

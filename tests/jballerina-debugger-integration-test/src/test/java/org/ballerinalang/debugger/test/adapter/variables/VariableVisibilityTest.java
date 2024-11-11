@@ -45,6 +45,7 @@ public class VariableVisibilityTest extends BaseTestCase {
     Map<String, Variable> localVariables = new HashMap<>();
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "variable-tests";
@@ -548,6 +549,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         }
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

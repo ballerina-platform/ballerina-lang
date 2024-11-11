@@ -31,7 +31,10 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessF
  *
  * @since 1.0
  */
-public class Reduce {
+public final class Reduce {
+
+    private Reduce() {
+    }
 
     public static Object reduce(Environment env, BArray arr, BFunctionPointer func, Object initial) {
         Type arrType = arr.getType();

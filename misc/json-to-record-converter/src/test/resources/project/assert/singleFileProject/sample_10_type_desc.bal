@@ -1,3 +1,4 @@
-type NewRecord_01 record {
-    record {string id; string 'type; string name; decimal ppu; record {record {string id; string 'type;}[] batter;} batters; record {string id; string 'type;}[] topping;}[] newRecord;
-};
+type NewRecord_01 record {|
+    record {|string id; string 'type; string name; decimal ppu; record {|record {|string id; string 'type; json...;|}[] batter; json...;|} batters; record {|string id; string 'type; json...;|}[] topping; json...;|}[] newRecord;
+    json...;
+|};

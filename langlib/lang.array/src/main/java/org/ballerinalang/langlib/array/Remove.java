@@ -28,6 +28,10 @@ import io.ballerina.runtime.internal.values.ArrayValue;
  */
 public class Remove {
 
+
+    private Remove() {
+    }
+
     public static Object remove(BArray arr, long i) {
         return ((ArrayValue) arr).remove(i);
     }

@@ -63,7 +63,7 @@ public class VarMutabilityWithWorkersTest {
     @Test(description = "Test variable mutability with maps")
     public void testWithMaps() {
         Object returns = BRunUtil.invoke(compileResult, "testWithMaps");
-        BMap resMap = (BMap) returns;
+        BMap<?, ?> resMap = (BMap<?, ?>) returns;
         Assert.assertEquals(resMap.size(), 7);
         Assert.assertEquals(resMap.get(StringUtils.fromString("a")).toString(), "AAAA");
         Assert.assertEquals(resMap.get(StringUtils.fromString("b")).toString(), "B");
@@ -80,7 +80,7 @@ public class VarMutabilityWithWorkersTest {
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0), 400L);
 
-        BMap resMap = (BMap) returns.get(1);
+        BMap<?, ?> resMap = (BMap<?, ?>) returns.get(1);
         Assert.assertEquals(resMap.size(), 6);
         Assert.assertEquals(resMap.get(StringUtils.fromString("a")).toString(), "AAAA");
         Assert.assertEquals(resMap.get(StringUtils.fromString("b")).toString(), "BBBB");
@@ -93,7 +93,7 @@ public class VarMutabilityWithWorkersTest {
     @Test(description = "Test variable mutability with records")
     public void testWithRecords() {
         Object returns = BRunUtil.invoke(compileResult, "testWithRecords");
-        Assert.assertEquals(((BMap) returns).size(), 3);
+        Assert.assertEquals(((BMap<?, ?>) returns).size(), 3);
         Assert.assertEquals(returns.toString(),
                 "{\"name\":\"Adam Page\",\"age\":24,\"email\":\"adamp@wso2.com\"}");
     }

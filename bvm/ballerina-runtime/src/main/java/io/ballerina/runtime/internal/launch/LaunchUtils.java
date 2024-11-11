@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,7 +56,7 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.TomlCons
  * 
  * @since 1.0
  */
-public class LaunchUtils {
+public final class LaunchUtils {
 
     private static final PrintStream outStream = System.out;
 
@@ -139,7 +138,7 @@ public class LaunchUtils {
         if (envVars.containsKey(CONFIG_FILES_ENV_VARIABLE)) {
             String[] configPathList = envVars.get(CONFIG_FILES_ENV_VARIABLE).split(File.pathSeparator);
             for (String pathString : configPathList) {
-                paths.add(Paths.get(pathString));
+                paths.add(Path.of(pathString));
             }
         } else if (envVars.containsKey(CONFIG_DATA_ENV_VARIABLE)) {
             return envVars.get(CONFIG_DATA_ENV_VARIABLE);
@@ -157,7 +156,7 @@ public class LaunchUtils {
      */
     public static ConfigDetails getTestConfigPaths(Module module, String pkgName, String sourceRoot) {
         String moduleName = module.getName();
-        Path testConfigPath = Paths.get(sourceRoot);
+        Path testConfigPath = Path.of(sourceRoot);
         if (!Files.exists(testConfigPath)) {
             testConfigPath = getSourceRootInContainer();
         }
@@ -175,6 +174,6 @@ public class LaunchUtils {
 
     private static Path getSourceRootInContainer() {
         // Since we are inside a docker container, it's current working directory is the source root.
-        return Paths.get(RuntimeUtils.USER_DIR);
+        return Path.of(RuntimeUtils.USER_DIR);
     }
 }

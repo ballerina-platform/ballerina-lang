@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
 import org.ballerinalang.langserver.util.FileUtils;
@@ -43,7 +42,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Tests {@link org.ballerinalang.langserver.LSPackageLoader}.
+ * Tests {@link LSPackageLoader}.
  *
  * @since 2201.2.1
  */
@@ -51,10 +50,10 @@ public class LSPackageLoaderTest extends AbstractLSTest {
 
     private final Path testRoot = FileUtils.RES_DIR.resolve("lspackageloader");
     private static final Map<String, String> REMOTE_PROJECTS = Map.of("project3", "main.bal");
-    private List<LSPackageLoader.ModuleInfo> remoteRepoPackages = new ArrayList<>(getRemotePackages());
+    private final List<LSPackageLoader.ModuleInfo> remoteRepoPackages = new ArrayList<>(getRemotePackages());
 
     @Test(dataProvider = "data-provider")
-    public void test(String source) throws IOException, EventSyncException, WorkspaceDocumentException {
+    public void test(String source) throws IOException, EventSyncException {
         //Open the source text document and load project
         Path sourcePath = testRoot.resolve("source").resolve(source);
         Endpoint endpoint = getServiceEndpoint();

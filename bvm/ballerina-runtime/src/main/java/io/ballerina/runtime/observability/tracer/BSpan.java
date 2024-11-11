@@ -53,8 +53,8 @@ public class BSpan {
     private static final MapType IMMUTABLE_STRING_MAP_TYPE = TypeCreator.createMapType(
             PredefinedTypes.TYPE_STRING, true);
 
-    private static PropagatingParentContextGetter getter = new PropagatingParentContextGetter();
-    private static PropagatingParentContextSetter setter = new PropagatingParentContextSetter();
+    private static final PropagatingParentContextGetter GETTER = new PropagatingParentContextGetter();
+    private static final PropagatingParentContextSetter SETTER = new PropagatingParentContextSetter();
 
     static class PropagatingParentContextGetter implements TextMapGetter<Map<String, String>> {
         @Override
@@ -137,7 +137,7 @@ public class BSpan {
 
         Tracer tracer = TracersStore.getInstance().getTracer(serviceName);
         Context parentContext = TracersStore.getInstance().getPropagators()
-                .getTextMapPropagator().extract(Context.current(), parentTraceContext, getter);
+                .getTextMapPropagator().extract(Context.current(), parentTraceContext, GETTER);
         return start(tracer, parentContext, operationName, isClient);
     }
 
@@ -165,7 +165,7 @@ public class BSpan {
         if (span != null) {
             carrierMap = new HashMap<>();
             TextMapPropagator propagator = TracersStore.getInstance().getPropagators().getTextMapPropagator();
-            propagator.inject(Context.current().with(span), carrierMap, setter);
+            propagator.inject(Context.current().with(span), carrierMap, SETTER);
         } else {
             carrierMap = Collections.emptyMap();
         }

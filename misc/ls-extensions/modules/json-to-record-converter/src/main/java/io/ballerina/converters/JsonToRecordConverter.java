@@ -32,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -56,10 +57,12 @@ import org.ballerinalang.formatter.core.options.FormattingOptions;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.ballerina.compiler.syntax.tree.NodeFactory.createBuiltinSimpleNameReferenceNode;
 import static io.ballerina.converters.util.ConverterUtils.convertOpenAPITypeToBallerina;
@@ -73,7 +76,7 @@ import static io.ballerina.converters.util.ConverterUtils.extractReferenceType;
  *
  * @since 2.0.0
  */
-public class JsonToRecordConverter {
+public final class JsonToRecordConverter {
 
     private JsonToRecordConverter() {
         // not called
@@ -95,8 +98,8 @@ public class JsonToRecordConverter {
      * @throws FormatterException In case of invalid syntax
      */
     @Deprecated
-    public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
-                                               boolean isClosed) throws IOException,
+    public static JsonToRecordResponse convert(
+            String jsonString, String recordName, boolean isRecordTypeDesc, boolean isClosed) throws IOException,
             JsonToRecordConverterException, FormatterException {
         return convert(jsonString, recordName, isRecordTypeDesc, isClosed, false);
     }
@@ -115,12 +118,12 @@ public class JsonToRecordConverter {
      * @throws FormatterException In case of invalid syntax
      */
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
-                                               boolean isClosed, boolean forceFormatRecordFields) throws IOException,
+            boolean isClosed, boolean forceFormatRecordFields) throws IOException,
             JsonToRecordConverterException, FormatterException {
-        String name = ((recordName != null) && !recordName.isEmpty()) ? recordName : "NewRecord";
+        String name = recordName != null && !recordName.isEmpty() ? recordName : "NewRecord";
         ObjectMapper objectMapper = new ObjectMapper();
-        OpenAPI model;
         JsonNode inputJson = objectMapper.readTree(jsonString);
+        OpenAPI model;
         if (inputJson.has("$schema")) {
             model = parseJSONSchema(jsonString, name);
         } else {
@@ -143,8 +146,7 @@ public class JsonToRecordConverter {
                     .iterator().next().getValue();
             Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
             Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
-            IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(
-                    escapeIdentifier(name));
+            IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(escapeIdentifier(name));
             TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
                     null, typeKeyWord, typeName, typeDescriptorNode, semicolon);
             NodeList<ModuleMemberDeclarationNode> moduleMembers = AbstractNodeFactory.
@@ -155,7 +157,7 @@ public class JsonToRecordConverter {
         } else {
             // Sets generated type definition code block
             NodeList<ModuleMemberDeclarationNode> moduleMembers = AbstractNodeFactory.createNodeList(
-                    new ArrayList(typeDefinitionNodes.values()));
+                    (Collection<ModuleMemberDeclarationNode>) (Collection<?>) typeDefinitionNodes.values());
             Token eofToken = AbstractNodeFactory.createIdentifierToken("");
             ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
             response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree(), formattingOptions).toSourceCode());
@@ -173,9 +175,10 @@ public class JsonToRecordConverter {
      * @return {@link Map}  Map of Record Nodes
      * @throws JsonToRecordConverterException In case of bad record fields
      */
-    private static Map<String, NonTerminalNode> generateRecords(OpenAPI openApi, boolean isRecordTypeDescriptor,
-                                                              boolean isClosedRecord)
-            throws JsonToRecordConverterException {
+    @SuppressWarnings("rawtypes")
+    private static Map<String, NonTerminalNode> generateRecords(
+            OpenAPI openApi, boolean isRecordTypeDescriptor, boolean isClosedRecord
+    ) throws JsonToRecordConverterException {
         Map<String, NonTerminalNode> typeDefinitionNodes = new LinkedHashMap<>();
 
         Components components = openApi.getComponents();
@@ -183,7 +186,12 @@ public class JsonToRecordConverter {
         if (components.getSchemas() == null || openApi.getComponents() == null) {
             return new LinkedHashMap<>(typeDefinitionNodes);
         }
-
+        RecordRestDescriptorNode restDescriptorNode = isClosedRecord ? null :
+                NodeFactory.createRecordRestDescriptorNode(
+                        NodeFactory.createBuiltinSimpleNameReferenceNode(SyntaxKind.JSON_KEYWORD,
+                                AbstractNodeFactory.createToken(SyntaxKind.JSON_KEYWORD)),
+                        AbstractNodeFactory.createToken(SyntaxKind.ELLIPSIS_TOKEN),
+                        AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN));
         Map<String, Schema> schemas = components.getSchemas();
         for (Map.Entry<String, Schema> schema: schemas.entrySet()) {
             List<String> required = schema.getValue().getRequired();
@@ -195,9 +203,7 @@ public class JsonToRecordConverter {
 
             Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
 
-            Token bodyStartDelimiter = isClosedRecord ?
-                    AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_PIPE_TOKEN) :
-                    AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN);
+            Token bodyStartDelimiter = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_PIPE_TOKEN);
 
             List<Node> recordFieldList = new ArrayList<>();
             Schema<?> schemaValue = schema.getValue();
@@ -207,16 +213,14 @@ public class JsonToRecordConverter {
                 if (fields != null) {
                     for (Map.Entry<String, Schema> field : fields.entrySet()) {
                         addRecordFields(required, recordFieldList, field, typeDefinitionNodes,
-                                isRecordTypeDescriptor);
+                                isRecordTypeDescriptor, restDescriptorNode);
                     }
                 }
                 NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldList);
-                Token bodyEndDelimiter = isClosedRecord ?
-                        AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_PIPE_TOKEN) :
-                        AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+                Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_PIPE_TOKEN);
                 RecordTypeDescriptorNode recordTypeDescriptorNode =
                         NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
-                                fieldNodes, null, bodyEndDelimiter);
+                                fieldNodes, restDescriptorNode, bodyEndDelimiter);
                 String key = schema.getKey().trim();
                 if (isRecordTypeDescriptor) {
                     typeDefinitionNodes.put(key, recordTypeDescriptorNode);
@@ -227,8 +231,7 @@ public class JsonToRecordConverter {
                     typeDefinitionNodes.put(key, typeDefinitionNode);
                 }
             } else if (schemaType.equals("array")) {
-                if (schemaValue instanceof ArraySchema) {
-                    ArraySchema arraySchema = (ArraySchema) schemaValue;
+                if (schemaValue instanceof ArraySchema arraySchema) {
                     Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
                     Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
                     IdentifierToken fieldName =
@@ -238,10 +241,9 @@ public class JsonToRecordConverter {
                     TypeDescriptorNode fieldTypeName;
                     if (arraySchema.getItems() != null) {
                         fieldTypeName = extractOpenApiSchema(arraySchema.getItems(), schema.getKey(),
-                                typeDefinitionNodes, isRecordTypeDescriptor);
+                                typeDefinitionNodes, isRecordTypeDescriptor, restDescriptorNode);
                     } else {
-                        Token type =
-                                AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
+                        Token type = AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
                         fieldTypeName =  NodeFactory.createBuiltinSimpleNameReferenceNode(null, type);
                     }
                     
@@ -252,10 +254,10 @@ public class JsonToRecordConverter {
                             null, arrayField, fieldName, null, semicolonToken);
                     
                     NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldNode);
-                    Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+                    Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_PIPE_TOKEN);
                     RecordTypeDescriptorNode recordTypeDescriptorNode =
                             NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
-                                    fieldNodes, null, bodyEndDelimiter);
+                                    fieldNodes, restDescriptorNode, bodyEndDelimiter);
                     if (isRecordTypeDescriptor) {
                         typeDefinitionNodes.put(schema.getKey().trim() + "List", recordTypeDescriptorNode);
                     } else {
@@ -282,14 +284,16 @@ public class JsonToRecordConverter {
      * @param typeDefinitionNodes Map of type definition nodes to be updated in case of object type fields
      * @throws JsonToRecordConverterException In case of bad schema entries
      */
+    @SuppressWarnings("rawtypes")
     private static void addRecordFields(List<String> required, List<Node> recordFieldList,
                                         Map.Entry<String, Schema> field,
                                         Map<String, NonTerminalNode> typeDefinitionNodes,
-                                        boolean isRecordTypeDescriptor)
+                                        boolean isRecordTypeDescriptor,
+                                        RecordRestDescriptorNode restDescriptorNode)
             throws JsonToRecordConverterException {
 
         TypeDescriptorNode fieldTypeName = extractOpenApiSchema(field.getValue(), field.getKey(),
-                typeDefinitionNodes, isRecordTypeDescriptor);
+                typeDefinitionNodes, isRecordTypeDescriptor, restDescriptorNode);
         IdentifierToken fieldName =
                 AbstractNodeFactory.createIdentifierToken(escapeIdentifier(field.getKey().trim()));
         Token questionMarkToken = (required != null && required.contains(field.getKey().trim()))
@@ -313,92 +317,91 @@ public class JsonToRecordConverter {
      * @return {@link TypeDescriptorNode} Type descriptor for record field
      * @throws JsonToRecordConverterException In case of invalid schema
      */
-    private static TypeDescriptorNode extractOpenApiSchema(Schema<?> schema, String name,
-                                                           Map<String, NonTerminalNode> typeDefinitionNodes,
-                                                           boolean isRecordTypeDescriptor)
-            throws JsonToRecordConverterException {
+    @SuppressWarnings("rawtypes")
+    private static TypeDescriptorNode extractOpenApiSchema(
+            Schema<?> schema, String name, Map<String, NonTerminalNode> typeDefinitionNodes,
+            boolean isRecordTypeDescriptor, RecordRestDescriptorNode restDescriptorNode
+    ) throws JsonToRecordConverterException {
 
-        if (schema.getType() != null || schema.getProperties() != null) {
-            String schemaType = schema.getType();
-            if ((schemaType.equals("integer") || schemaType.equals("number"))
-                    || schemaType.equals("string") || schemaType.equals("boolean")) {
-                String type = convertOpenAPITypeToBallerina(schemaType.trim());
-                Token typeName = AbstractNodeFactory.createIdentifierToken(type);
-                return createBuiltinSimpleNameReferenceNode(null, typeName);
-            } else if (schemaType.equals("array") && schema instanceof ArraySchema) {
-                final ArraySchema arraySchema = (ArraySchema) schema;
-
-                if (arraySchema.getItems() != null) {
-                    Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
-                    Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
-                    String type;
-                    Token typeName;
-                    TypeDescriptorNode memberTypeDesc;
-                    if (arraySchema.getItems().getType() != null && arraySchema.getItems().getType().equals("object")) {
-                        type = StringUtils.capitalize(name) + "Item";
-                        typeName = AbstractNodeFactory.createIdentifierToken(type);
-                        if (isRecordTypeDescriptor) {
-                            memberTypeDesc = extractOpenApiSchema(arraySchema.getItems(), type, typeDefinitionNodes,
-                                    isRecordTypeDescriptor);
-                        } else {
-                            memberTypeDesc = createBuiltinSimpleNameReferenceNode(null, typeName);
-                            extractOpenApiSchema(arraySchema.getItems(), type, typeDefinitionNodes,
-                                    isRecordTypeDescriptor);
-                        }
-                    } else if (arraySchema.getItems() instanceof ArraySchema) {
-                        memberTypeDesc = extractOpenApiSchema(arraySchema.getItems(), name, typeDefinitionNodes,
-                                isRecordTypeDescriptor);
-                    } else {
-                        type = arraySchema.getItems().getType();
-                        typeName = AbstractNodeFactory.createIdentifierToken(convertOpenAPITypeToBallerina(type));
-                        memberTypeDesc = createBuiltinSimpleNameReferenceNode(null, typeName);
-                    }
-                    return createArrayTypeDesc(memberTypeDesc, openSBracketToken, null,
-                            closeSBracketToken);
-                }
-            } else if (schemaType.equals("object") && schema.getProperties() != null) {
-                Map<String, Schema> properties = schema.getProperties();
-                List<String> required = schema.getRequired();
-                Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
-                IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(
-                        escapeIdentifier(StringUtils.capitalize(name)));
-                Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
-                Token bodyStartDelimiter = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN);
-                Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
-                List<Node> recordFList = new ArrayList<>();
-                for (Map.Entry<String, Schema> property: properties.entrySet()) {
-                    addRecordFields(required, recordFList, property, typeDefinitionNodes,
-                            isRecordTypeDescriptor);
-                }
-                NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFList);
-                TypeDescriptorNode typeDescriptorNode = NodeFactory.createRecordTypeDescriptorNode(recordKeyWord,
-                        bodyStartDelimiter, fieldNodes, null, bodyEndDelimiter);
-
-                if (isRecordTypeDescriptor) {
-                    return typeDescriptorNode;
-                } else {
-                    Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
-                    TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
-                            null, typeKeyWord, typeName, typeDescriptorNode, semicolon);
-                    typeDefinitionNodes.put(StringUtils.capitalize(name), typeDefinitionNode);
-                    Token refTypeName = AbstractNodeFactory.createIdentifierToken(StringUtils.capitalize(name));
-                    return createBuiltinSimpleNameReferenceNode(null, refTypeName);
-                }
-
-            } else {
-                Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
+        if (schema.getType() == null && schema.getProperties() == null) {
+            if (schema.get$ref() != null) {
+                Token typeName = AbstractNodeFactory.createIdentifierToken(extractReferenceType(schema.get$ref()));
                 return createBuiltinSimpleNameReferenceNode(null, typeName);
             }
-        } else if (schema.get$ref() != null) {
-            Token typeName = AbstractNodeFactory.createIdentifierToken(extractReferenceType(schema.get$ref()));
-            return createBuiltinSimpleNameReferenceNode(null, typeName);
-        } else {
-            //This contains a fallback to Ballerina common type `any` if the OpenApi specification type is not defined
+            //This contains a fallback to Ballerina common type `json` if the OpenApi specification type is not defined
             // or not compatible with any of the current Ballerina types.
-            Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
+            Token typeName = AbstractNodeFactory.createToken(SyntaxKind.JSON_KEYWORD);
             return createBuiltinSimpleNameReferenceNode(null, typeName);
         }
-        Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
+
+        String schemaType = schema.getType();
+        if (schemaType.equals("integer") || schemaType.equals("number")
+                || schemaType.equals("string") || schemaType.equals("boolean")) {
+            String type = convertOpenAPITypeToBallerina(schemaType.trim());
+            Token typeName = AbstractNodeFactory.createIdentifierToken(type);
+            return createBuiltinSimpleNameReferenceNode(null, typeName);
+        }
+        if (schemaType.equals("object") && schema.getProperties() != null) {
+            Map<String, Schema> properties = schema.getProperties();
+            List<String> required = schema.getRequired();
+            Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
+            IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(
+                    escapeIdentifier(StringUtils.capitalize(name)));
+            Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
+            Token bodyStartDelimiter = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_PIPE_TOKEN);
+            Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_PIPE_TOKEN);
+            List<Node> recordFList = new ArrayList<>();
+            for (Map.Entry<String, Schema> property: properties.entrySet()) {
+                addRecordFields(required, recordFList, property, typeDefinitionNodes,
+                        isRecordTypeDescriptor, restDescriptorNode);
+            }
+            NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFList);
+            TypeDescriptorNode typeDescriptorNode = NodeFactory.createRecordTypeDescriptorNode(recordKeyWord,
+                    bodyStartDelimiter, fieldNodes, restDescriptorNode, bodyEndDelimiter);
+
+            if (isRecordTypeDescriptor) {
+                return typeDescriptorNode;
+            }
+            Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+            TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
+                    null, typeKeyWord, typeName, typeDescriptorNode, semicolon);
+            typeDefinitionNodes.put(StringUtils.capitalize(name), typeDefinitionNode);
+            Token refTypeName = AbstractNodeFactory.createIdentifierToken(StringUtils.capitalize(name));
+            return createBuiltinSimpleNameReferenceNode(null, refTypeName);
+        }
+
+        if (!schemaType.equals("array") || !(schema instanceof ArraySchema arraySchema)) {
+            Token typeName = AbstractNodeFactory.createToken(SyntaxKind.JSON_KEYWORD);
+            return createBuiltinSimpleNameReferenceNode(null, typeName);
+        }
+
+        if (arraySchema.getItems() != null) {
+            Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
+            Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
+            String type;
+            Token typeName;
+            TypeDescriptorNode memberTypeDesc;
+            if (Objects.equals(arraySchema.getItems().getType(), "object")) {
+                type = StringUtils.capitalize(name) + "Item";
+                typeName = AbstractNodeFactory.createIdentifierToken(type);
+                if (isRecordTypeDescriptor) {
+                    memberTypeDesc = extractOpenApiSchema(arraySchema.getItems(), type, typeDefinitionNodes,
+                            true, restDescriptorNode);
+                } else {
+                    memberTypeDesc = createBuiltinSimpleNameReferenceNode(null, typeName);
+                    extractOpenApiSchema(arraySchema.getItems(), type, typeDefinitionNodes, false, restDescriptorNode);
+                }
+            } else if (arraySchema.getItems() instanceof ArraySchema) {
+                memberTypeDesc = extractOpenApiSchema(arraySchema.getItems(), name, typeDefinitionNodes,
+                        isRecordTypeDescriptor, restDescriptorNode);
+            } else {
+                type = arraySchema.getItems().getType();
+                typeName = AbstractNodeFactory.createIdentifierToken(convertOpenAPITypeToBallerina(type));
+                memberTypeDesc = createBuiltinSimpleNameReferenceNode(null, typeName);
+            }
+            return createArrayTypeDesc(memberTypeDesc, openSBracketToken, null, closeSBracketToken);
+        }
+        Token typeName = AbstractNodeFactory.createToken(SyntaxKind.JSON_KEYWORD);
         return createBuiltinSimpleNameReferenceNode(null, typeName);
     }
     
@@ -430,19 +433,20 @@ public class JsonToRecordConverter {
      */
     private static OpenAPI parseJSONSchema(String schemaString, String recordName) throws
             JsonToRecordConverterException, IOException {
-        final String prefix = "{\n" +
-                "  \"openapi\" : \"3.0.1\",\n" +
-                "  \"info\" : {\n" +
-                "    \"title\" : \" payloadV\",\n" +
-                "    \"version\" : \"1.0.0\"\n" +
-                "  },\n" +
-                "  \"servers\" : [],\n" +
-                "  \"paths\" : {},\n" +
-                "  \"components\" : {\n" +
-                "    \"schemas\" : {\n" +
-                "      \"" + recordName + "\" : ";
+        String prefix = """
+                {
+                  "openapi" : "3.0.1",
+                  "info" : {
+                    "title" : " payloadV",
+                    "version" : "1.0.0"
+                  },
+                  "servers" : [],
+                  "paths" : {},
+                  "components" : {
+                    "schemas" : {
+                      "%s" :\s""".formatted(recordName);
 
-        final String suffix = """
+        String suffix = """
 
                     }
                   }

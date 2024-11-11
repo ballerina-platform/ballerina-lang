@@ -34,7 +34,10 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
  *
  * @since 2.0.0
  */
-public class ValueComparisonUtils {
+public final class ValueComparisonUtils {
+
+    private ValueComparisonUtils() {
+    }
 
     /**
      * Check if left hand side ordered type value is less than right hand side ordered type value.
@@ -305,14 +308,11 @@ public class ValueComparisonUtils {
     }
 
     private static boolean checkDecimalGreaterThan(DecimalValue lhsValue, DecimalValue rhsValue) {
-        switch (lhsValue.valueKind) {
-            case ZERO:
-            case OTHER:
-                return (isDecimalRealNumber(rhsValue) &&
-                        lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) > 0);
-            default:
-                return false;
-        }
+        return switch (lhsValue.valueKind) {
+            case ZERO,
+                 OTHER -> (isDecimalRealNumber(rhsValue) &&
+                    lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) > 0);
+        };
     }
 
     private static boolean isDecimalRealNumber(DecimalValue decimalValue) {

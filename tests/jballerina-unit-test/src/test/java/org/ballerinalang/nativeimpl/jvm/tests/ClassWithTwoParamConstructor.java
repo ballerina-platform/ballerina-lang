@@ -23,7 +23,7 @@ package org.ballerinalang.nativeimpl.jvm.tests;
  * @since 1.0.0
  */
 public class ClassWithTwoParamConstructor {
-    private String str;
+    private final String str;
 
     public ClassWithTwoParamConstructor(String prefix, String name) {
         this.str = prefix + name;

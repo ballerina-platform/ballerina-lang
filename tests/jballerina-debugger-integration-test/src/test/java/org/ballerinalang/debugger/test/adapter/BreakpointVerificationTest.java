@@ -35,7 +35,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Test implementation for debug breakpoint verification scenarios.
@@ -54,6 +53,7 @@ public class BreakpointVerificationTest extends BaseTestCase {
     private static final int DOCUMENTATION_START = MATCH_STMT_START + 8;
     private static final int WORKER_DCLN_START = DOCUMENTATION_START + 10;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "breakpoint-verification-tests";
@@ -106,7 +106,7 @@ public class BreakpointVerificationTest extends BaseTestCase {
         List<BallerinaTestDebugPoint> breakPoints = Arrays.stream(breakpointResponse.get().getBreakpoints())
                 .map(breakpoint -> new BallerinaTestDebugPoint(Path.of(breakpoint.getSource().getPath()),
                         breakpoint.getLine(), breakpoint.isVerified()))
-                .collect(Collectors.toList());
+                .toList();
 
         assertBreakpointChanges(breakPoints);
     }
@@ -147,6 +147,7 @@ public class BreakpointVerificationTest extends BaseTestCase {
         }
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

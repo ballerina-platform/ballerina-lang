@@ -162,6 +162,11 @@ public class TypesTest {
         Assert.assertEquals(intValue, input, "Invalid integer value returned.");
     }
 
+    @Test(description = "Test comparison between XML Sequence with one text member and xml:Text")
+    public void testXMLSequenceWithOneTextMemberToXMLTextCast() {
+        BRunUtil.invoke(compileResult, "testXMLSequenceWithOneTextMember");
+    }
+
     @Test(description = "Test integer to byte cast")
     public void testIntToByteCast() {
         int input = 123;
@@ -592,7 +597,7 @@ public class TypesTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}JSONOperationError \\{\"message\":\"JSON value " +
                     "is not " +
                     "a mapping\"\\}\n" +
-                    "\tat types:testGetFromNull\\(types.bal:588\\)")
+                    "\tat types:testGetFromNull\\(types.bal:595\\)")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }

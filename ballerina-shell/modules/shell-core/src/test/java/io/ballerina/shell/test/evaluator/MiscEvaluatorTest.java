@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -32,17 +31,17 @@ public class MiscEvaluatorTest extends AbstractEvaluatorTest {
     private static final String LET_EVALUATOR_TESTCASE = "testcases/evaluator/values.let.json";
 
     @Test
-    public void testEvaluateEnum() throws BallerinaShellException {
+    public void testEvaluateEnum() {
         testEvaluate(ENUM_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateRawTemplate() throws BallerinaShellException {
+    public void testEvaluateRawTemplate() {
         testEvaluate(RAW_TEMP_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateLet() throws BallerinaShellException {
+    public void testEvaluateLet() {
         testEvaluate(LET_EVALUATOR_TESTCASE);
     }
 }

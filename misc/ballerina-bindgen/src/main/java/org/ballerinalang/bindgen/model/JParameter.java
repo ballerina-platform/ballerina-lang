@@ -40,25 +40,25 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.getPrimitiveArrayType
  */
 public class JParameter {
 
-    private BindgenEnv env;
-    private String type;
-    private String externalType;
+    private final BindgenEnv env;
+    private final String type;
+    private final String externalType;
     private String shortTypeName;
     private String componentType;
     private String fieldName;
 
-    private Class parentClass;
-    private Class parameterClass;
+    private final Class<?> parentClass;
+    private final Class<?> parameterClass;
 
     private Boolean isObj = false;
     private Boolean isString = false;
     private Boolean isObjArray = false;
     private Boolean isOptional = false;
-    private boolean modulesFlag;
+    private final boolean modulesFlag;
     private Boolean isStringArray = false;
     private Boolean isPrimitiveArray = false;
 
-    JParameter(Class parameterClass, Class parentClass, BindgenEnv env) {
+    JParameter(Class<?> parameterClass, Class<?> parentClass, BindgenEnv env) {
         this.env = env;
         this.parameterClass = parameterClass;
         this.parentClass = parentClass;
@@ -118,7 +118,7 @@ public class JParameter {
         fieldName = "arg";
     }
 
-    JParameter(Parameter parameter, Class parentClass, BindgenEnv env) {
+    JParameter(Parameter parameter, Class<?> parentClass, BindgenEnv env) {
         this(parameter.getType(), parentClass, env);
         List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
         fieldName = parameter.getName();
@@ -127,8 +127,8 @@ public class JParameter {
         }
     }
 
-    private void setArrayAttributes(Class parameterClass) {
-        Class component = parameterClass.getComponentType();
+    private void setArrayAttributes(Class<?> parameterClass) {
+        Class<?> component = parameterClass.getComponentType();
         componentType = component.getTypeName();
         if (!parameterClass.getComponentType().isPrimitive()) {
             isObjArray = true;
@@ -146,7 +146,7 @@ public class JParameter {
         }
     }
 
-    private String getPackageAlias(String shortTypeName, Class parameterClass) {
+    private String getPackageAlias(String shortTypeName, Class<?> parameterClass) {
         if (parameterClass.getPackage() != parentClass.getPackage()) {
             return parameterClass.getPackageName().replace(".", "") + ":" + shortTypeName;
         }
@@ -201,7 +201,7 @@ public class JParameter {
         return isObjArray || isStringArray || isPrimitiveArray;
     }
 
-    public Class getParameterClass() {
+    public Class<?> getParameterClass() {
         return parameterClass;
     }
 }

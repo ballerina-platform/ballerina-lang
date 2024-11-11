@@ -33,11 +33,15 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 1.0
  */
+
 public class Map {
 
-    public static BMap<BString, ?> map(Environment env, BMap<BString, ?> m, BFunctionPointer func) {
-        MapType newMapType = TypeCreator.createMapType(((FunctionType) TypeUtils.getImpliedType(func.getType()))
-                .getReturnType());
+    private Map() {
+    }
+
+    public static BMap<BString, Object> map(Environment env, BMap<BString, ?> m, BFunctionPointer func) {
+        MapType newMapType = TypeCreator.createMapType(
+                ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType());
         BMap<BString, Object> newMap = ValueCreator.createMapValue(newMapType);
         int size = m.size();
         BString[] keys = m.getKeys();

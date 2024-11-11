@@ -39,6 +39,9 @@ public class FromString {
     private static final BString ERROR_REASON = getModulePrefixedReason(BOOLEAN_LANG_LIB,
                                                                         BOOLEAN_PARSING_ERROR_IDENTIFIER);
 
+    private FromString() {
+    }
+
     public static Object fromString(BString str) {
         String s = str.getValue();
         try {

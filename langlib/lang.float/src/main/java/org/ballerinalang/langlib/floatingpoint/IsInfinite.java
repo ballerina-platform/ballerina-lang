@@ -25,6 +25,9 @@ package org.ballerinalang.langlib.floatingpoint;
  */
 public class IsInfinite {
 
+
+    private IsInfinite() {
+    }
     public static boolean isInfinite(double x) {
         return Double.isInfinite(x);
     }

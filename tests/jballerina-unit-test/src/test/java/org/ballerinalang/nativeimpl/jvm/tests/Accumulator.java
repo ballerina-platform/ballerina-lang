@@ -30,7 +30,10 @@ import io.ballerina.runtime.internal.values.ObjectValue;
  *
  * @since 1.0.0
  */
-public class Accumulator {
+public final class Accumulator {
+
+    private Accumulator() {
+    }
 
     public static long accumulate(Environment env, ObjectValue intFunction, long from, long to) {
         Runtime runtime = env.getRuntime();

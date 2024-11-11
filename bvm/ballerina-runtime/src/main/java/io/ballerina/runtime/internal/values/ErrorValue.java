@@ -152,8 +152,8 @@ public class ErrorValue extends BError implements RefValue {
 
     private String getDetailsToString(BLink parent) {
         StringJoiner sj = new StringJoiner(",");
-        for (Object key : ((MapValue) details).getKeys()) {
-            Object value = ((MapValue) details).get(key);
+        for (Object key : ((MapValue<?, ?>) details).getKeys()) {
+            Object value = ((MapValue<?, ?>) details).get(key);
             if (value == null) {
                 sj.add(key + "=null");
             } else {
@@ -184,8 +184,8 @@ public class ErrorValue extends BError implements RefValue {
 
     private String getDetailsToBalString(BLink parent) {
         StringJoiner sj = new StringJoiner(",");
-        for (Object key : ((MapValue) details).getKeys()) {
-            Object value = ((MapValue) details).get(key);
+        for (Object key : ((MapValue<?, ?>) details).getKeys()) {
+            Object value = ((MapValue<?, ?>) details).get(key);
             sj.add(key + "=" + getExpressionStringVal(value, parent));
         }
         return "," + sj;
@@ -270,8 +270,8 @@ public class ErrorValue extends BError implements RefValue {
      */
     @Override
     public Object getDetails() {
-        if (details instanceof BRefValue) {
-            return ((BRefValue) details).frozenCopy(new HashMap<>());
+        if (details instanceof BRefValue bRefValue) {
+            return bRefValue.frozenCopy(new HashMap<>());
         }
         return details;
     }
@@ -410,7 +410,7 @@ public class ErrorValue extends BError implements RefValue {
         if (details == null) {
             return true;
         }
-        return (details instanceof MapValue) && ((MapValue<?, ?>) details).isEmpty();
+        return (details instanceof MapValue<?, ?> mapValue) && mapValue.isEmpty();
     }
 
     private Optional<StackTraceElement> filterStackTraceElement(StackTraceElement stackFrame, int currentIndex) {

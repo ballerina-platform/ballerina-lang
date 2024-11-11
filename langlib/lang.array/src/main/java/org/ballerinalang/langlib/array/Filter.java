@@ -35,7 +35,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
  *
  * @since 1.0
  */
-public class Filter {
+public final class Filter {
 
     public static BArray filter(Environment env, BArray arr, BFunctionPointer func) {
         BArray newArr;

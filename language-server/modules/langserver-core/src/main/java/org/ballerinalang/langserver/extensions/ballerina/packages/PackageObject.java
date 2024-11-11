@@ -25,7 +25,7 @@ public class PackageObject {
     private final String name;
     private final String filePath;
 
-    private List<ModuleObject> modules = new ArrayList<>();
+    private final List<ModuleObject> modules = new ArrayList<>();
 
     protected PackageObject(String name, String filePath) {
         this.name = name;

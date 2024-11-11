@@ -28,7 +28,10 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
  *
  * @since 1.0
  */
-public class GetAttributes {
+public final class GetAttributes {
+
+    private GetAttributes() {
+    }
 
     @SuppressWarnings("unchecked")
     public static BMap<BString, BString> getAttributes(BXml xmlVal) {

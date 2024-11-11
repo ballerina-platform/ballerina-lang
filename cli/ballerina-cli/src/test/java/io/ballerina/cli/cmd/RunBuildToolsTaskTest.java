@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -52,16 +51,17 @@ import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
  */
 public class RunBuildToolsTaskTest extends BaseCommandTest {
     private Path buildToolResources;
-    private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath();
+    private static final Path testBuildDirectory = Path.of("build").toAbsolutePath();
     private static final Path testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
     Path mockCentralBalaDirPath = testDistCacheDirectory.resolve("bala");
 
     private static final long TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
     private static final long HALF_DAY = 12 * 60 * 60 * 1000;
-    
-    private static final Path LOG_FILE = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-            "log_creator_combined_plugin/compiler-plugin.txt");
 
+    private static final Path LOG_FILE = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
+            .toAbsolutePath();
+
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -71,7 +71,7 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
         try {
             Path testResources = super.tmpDir.resolve("build-tool-test-resources");
             this.buildToolResources = testResources.resolve("buildToolResources");
-            Path testResourcesPath = Paths.get(
+            Path testResourcesPath = Path.of(
                     Objects.requireNonNull(getClass().getClassLoader().getResource("test-resources")).toURI());
             Files.walkFileTree(testResourcesPath, new BuildCommandTest.Copy(testResourcesPath, testResources));
         } catch (Exception e) {
@@ -245,7 +245,7 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
     }
 
     private void addBuildJsonToProjects(String projectName, long time) {
-        Path buildJsonPath = buildToolResources.resolve(projectName).resolve("target").resolve("build");
+        Path buildJsonPath = buildToolResources.resolve(projectName).resolve("target/build");
         String buildJsonContent = "{\n" +
                 "  \"last_build_time\": 1710907945705,\n" +
                 "  \"last_update_time\": " + time + ",\n" +

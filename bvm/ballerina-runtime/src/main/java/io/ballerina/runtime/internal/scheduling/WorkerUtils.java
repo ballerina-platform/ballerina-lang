@@ -1,4 +1,4 @@
- /*
+/*
   *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   *
   *  WSO2 Inc. licenses this file to you under the Apache License,
@@ -41,7 +41,7 @@
   * @since 2201.11.0
   */
 
- public class WorkerUtils {
+ public final class WorkerUtils {
 
      /*
       * Used to codegen worker async send.
@@ -228,4 +228,7 @@
          }
          return ValueCreator.createMapValue((MapType) targetType, initialValueEntries);
      }
- }
+
+    private WorkerUtils() {}
+}
+

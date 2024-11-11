@@ -28,9 +28,12 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
  *
  * @since 1.0
  */
-public class GetName {
+public final class GetName {
 
     private static final String OPERATION = "get element name in xml";
+
+    private GetName() {
+    }
 
     public static BString getName(BXml xmlVal) {
         if (!IsElement.isElement(xmlVal)) {

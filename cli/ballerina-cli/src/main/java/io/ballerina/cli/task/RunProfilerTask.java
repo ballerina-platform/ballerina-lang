@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,14 +51,14 @@ public class RunProfilerTask implements Task {
     private final PrintStream err;
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private static final String CURRENT_DIR_KEY = "current.dir";
-    private static final Path TARGET_OUTPUT_PATH = Paths.get(System.getProperty(USER_DIR));
+    private static final Path TARGET_OUTPUT_PATH = Path.of(System.getProperty(USER_DIR));
 
     public RunProfilerTask(PrintStream errStream) {
         this.err = errStream;
     }
 
     private void initiateProfiler(Project project) {
-        String profilerSource = Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
+        String profilerSource = Path.of(System.getProperty(BALLERINA_HOME), "bre", "lib",
                 "ballerina-profiler-1.0.jar").toString();
         Path sourcePath = Path.of(profilerSource);
         Path targetPath = getTargetProfilerPath(project);

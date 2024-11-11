@@ -27,9 +27,12 @@ import java.util.HashMap;
 /**
  * Make a deep copy of an XML.
  */
-public class Copy {
+public final class Copy {
 
     private static final String OPERATION = "copy xml";
+
+    private Copy() {
+    }
 
     public static BXml copy(Strand strand, BXml xml) {
         try {

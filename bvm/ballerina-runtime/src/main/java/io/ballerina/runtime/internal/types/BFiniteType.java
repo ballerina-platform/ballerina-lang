@@ -39,8 +39,8 @@ import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 public class BFiniteType extends BType implements FiniteType {
 
     public Set<Object> valueSpace;
-    private int typeFlags;
-    private String originalName;
+    private final int typeFlags;
+    private final String originalName;
 
     public BFiniteType(String typeName) {
         this(typeName, new LinkedHashSet<>(), 0);
@@ -184,10 +184,9 @@ public class BFiniteType extends BType implements FiniteType {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof BFiniteType)) {
+        if (!(o instanceof BFiniteType that)) {
             return false;
         }
-        BFiniteType that = (BFiniteType) o;
         return this.valueSpace.size() == that.valueSpace.size() && this.valueSpace.containsAll(that.valueSpace);
     }
 }

@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,9 +40,9 @@ import java.util.Map;
  */
 public class RuntimeAPITest extends BaseTest {
 
-    private static final String testFileLocation = Paths.get("src", "test", "resources", "runtime.api")
+    private static final String testFileLocation = Path.of("src", "test", "resources", "runtime.api")
             .toAbsolutePath().toString();
-    private static final Path javaSrcLocation = Paths.get("src", "test", "java", "org", "ballerinalang",
+    private static final Path javaSrcLocation = Path.of("src", "test", "java", "org", "ballerinalang",
             "test", "runtime", "api").toAbsolutePath();
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private BMainInstance bMainInstance;
@@ -51,14 +50,14 @@ public class RuntimeAPITest extends BaseTest {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
-        Path sourceRoot = Paths.get(testFileLocation, "function_invocation").toAbsolutePath();
+        Path sourceRoot = Path.of(testFileLocation, "function_invocation").toAbsolutePath();
         bMainInstance.runMain("build", new String[0], new HashMap<>(), new String[0], null,
                 sourceRoot.toString());
     }
 
     @Test
     public void testRuntimeAPIsForBalFunctionInvocation() throws BallerinaTestException {
-        Path jarPath = Paths.get(testFileLocation, "function_invocation", "target", "bin",
+        Path jarPath = Path.of(testFileLocation, "function_invocation", "target", "bin",
                 "function_invocation.jar").toAbsolutePath();
         compileJavaSource(jarPath, "targetDir", "RuntimeAPICall.java");
         unzipJarFile(jarPath, "targetDir");
@@ -67,7 +66,7 @@ public class RuntimeAPITest extends BaseTest {
         bMainInstance.addJavaAgents(envProperties);
 
         // Run the executable jar and assert the output
-        Path execJarPath = Paths.get(javaSrcLocation.toString(), "targetDir", "test-exec.jar").toAbsolutePath();
+        Path execJarPath = Path.of(javaSrcLocation.toString(), "targetDir", "test-exec.jar").toAbsolutePath();
         List<String> runCmdSet = new ArrayList<>();
         runCmdSet.add("java");
         if (envProperties.containsKey(JAVA_OPTS)) {
@@ -100,7 +99,7 @@ public class RuntimeAPITest extends BaseTest {
 
     @Test
     public void testBalFunctionInvocationAPINegative() throws BallerinaTestException {
-        Path jarPath = Paths.get(testFileLocation, "function_invocation", "target", "bin",
+        Path jarPath = Path.of(testFileLocation, "function_invocation", "target", "bin",
                 "function_invocation.jar").toAbsolutePath();
         compileJavaSource(jarPath, "target-dir-negative", "RuntimeAPICallNegative.java");
         unzipJarFile(jarPath, "target-dir-negative");
@@ -110,7 +109,7 @@ public class RuntimeAPITest extends BaseTest {
         bMainInstance.addJavaAgents(envProperties);
 
         // Run the executable jar and assert the output
-        Path execJarPath = Paths.get(javaSrcLocation.toString(), "target-dir-negative",
+        Path execJarPath = Path.of(javaSrcLocation.toString(), "target-dir-negative",
                 "test-exec.jar").toAbsolutePath();
         List<String> runCmdSet = new ArrayList<>();
         runCmdSet.add("java");
@@ -157,9 +156,9 @@ public class RuntimeAPITest extends BaseTest {
     @AfterClass
     public void tearDown() {
         bMainInstance = null;
-        BFileUtil.deleteDirectory(Paths.get(javaSrcLocation.toString(), "targetDir").toFile());
-        BFileUtil.deleteDirectory(Paths.get(javaSrcLocation.toString(), "target-dir-negative").toFile());
-        BFileUtil.deleteDirectory(Paths.get(javaSrcLocation.toString(), "start-call-negative").toFile());
+        BFileUtil.deleteDirectory(Path.of(javaSrcLocation.toString(), "targetDir").toFile());
+        BFileUtil.deleteDirectory(Path.of(javaSrcLocation.toString(), "target-dir-negative").toFile());
+        BFileUtil.deleteDirectory(Path.of(javaSrcLocation.toString(), "start-call-negative").toFile());
     }
 
     private static void compileJavaSource(Path jarPath, String targetDir, String... srcFiles)
@@ -171,7 +170,7 @@ public class RuntimeAPITest extends BaseTest {
         compileCmdSet.add("-d");
         compileCmdSet.add(targetDir);
         for (String srcFile : srcFiles) {
-            compileCmdSet.add(Paths.get(javaSrcLocation.toString(), srcFile).toString());
+            compileCmdSet.add(Path.of(javaSrcLocation.toString(), srcFile).toString());
         }
         ProcessBuilder compile = new ProcessBuilder(compileCmdSet).directory(javaSrcLocation.toFile());
         try {
@@ -206,7 +205,7 @@ public class RuntimeAPITest extends BaseTest {
         jarCmdSet.add("test-exec.jar");
         jarCmdSet.add(mainClass);
         jarCmdSet.add(".");
-        Path targetPath = Paths.get(javaSrcLocation.toString(), targetDir).toAbsolutePath();
+        Path targetPath = Path.of(javaSrcLocation.toString(), targetDir).toAbsolutePath();
         ProcessBuilder jarProcess = new ProcessBuilder(jarCmdSet).inheritIO().directory(targetPath.toFile());
         try {
             Process process = jarProcess.start();

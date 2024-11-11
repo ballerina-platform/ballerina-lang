@@ -124,7 +124,7 @@ public class ClosedRecordIterationTest {
         Assert.assertEquals(values.getRefValue(1), 25L);
         Assert.assertTrue(values.getRefValue(2) instanceof BMap);
 
-        BMap addressRecord = (BMap) values.getRefValue(2);
+        BMap<?, ?> addressRecord = (BMap<?, ?>) values.getRefValue(2);
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("street")).toString(), "Palm Grove");
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("city")).toString(), "Colombo 3");
     }
@@ -137,7 +137,7 @@ public class ClosedRecordIterationTest {
         Assert.assertEquals(returns.get(1), 25L);
         Assert.assertTrue(returns.get(2) instanceof BMap);
 
-        BMap addressRecord = (BMap) returns.get(2);
+        BMap<?, ?> addressRecord = (BMap<?, ?>) returns.get(2);
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("street")).toString(), "Palm Grove");
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("city")).toString(), "Colombo 3");
     }
@@ -150,7 +150,7 @@ public class ClosedRecordIterationTest {
         Assert.assertEquals(returns.get(1), 25L);
         Assert.assertTrue(returns.get(2) instanceof BMap);
 
-        BMap addressRecord = (BMap) returns.get(2);
+        BMap<?, ?> addressRecord = (BMap<?, ?>) returns.get(2);
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("street")).toString(), "Palm Grove");
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("city")).toString(), "Colombo 3");
     }
@@ -160,12 +160,12 @@ public class ClosedRecordIterationTest {
         String[] expectedFields = new String[]{"name", "age", "address"};
         Object returns = BRunUtil.invoke(result, "testMapOpWithClosedRecords");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertEquals(person.get(StringUtils.fromString(expectedFields[0])).toString(), "john doe");
         Assert.assertEquals((person.get(StringUtils.fromString(expectedFields[1]))), 25L);
         Assert.assertTrue(person.get(StringUtils.fromString(expectedFields[2])) instanceof BMap);
 
-        BMap addressRecord = (BMap) person.get(StringUtils.fromString(expectedFields[2]));
+        BMap<?, ?> addressRecord = (BMap<?, ?>) person.get(StringUtils.fromString(expectedFields[2]));
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("street")).toString(), "Palm Grove");
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("city")).toString(), "Colombo 3");
     }
@@ -175,7 +175,7 @@ public class ClosedRecordIterationTest {
         String[] expectedFields = new String[]{"a", "b", "c", "d", "e"};
         Object returns = BRunUtil.invoke(result, "testFilterOpWithClosedRecords");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertEquals(person.get(StringUtils.fromString(expectedFields[0])).toString(), "A");
         Assert.assertNull(person.get(StringUtils.fromString(expectedFields[1])));
         Assert.assertNull(person.get(StringUtils.fromString(expectedFields[2])));
@@ -192,7 +192,7 @@ public class ClosedRecordIterationTest {
     @Test(description = "Test case for chained iterable operations on closed records")
     public void testChainedOpsWithClosedRecords() {
         Object returns = BRunUtil.invoke(result, "testChainedOpsWithClosedRecords");
-        BMap foo = (BMap) returns;
+        BMap<?, ?> foo = (BMap<?, ?>) returns;
 
         Assert.assertNull(foo.get(StringUtils.fromString("a")));
         Assert.assertEquals(foo.get(StringUtils.fromString("b")).toString(), "bb");
@@ -205,7 +205,7 @@ public class ClosedRecordIterationTest {
     public void testMapWithAllStringClosedRecord() {
         Object returns = BRunUtil.invoke(result, "testMapWithAllStringClosedRecord");
 
-        BMap foo = (BMap) returns;
+        BMap<?, ?> foo = (BMap<?, ?>) returns;
         Assert.assertEquals(foo.get(StringUtils.fromString("a")).toString(), "aa");
         Assert.assertEquals(foo.get(StringUtils.fromString("b")).toString(), "bb");
         Assert.assertEquals(foo.get(StringUtils.fromString("c")).toString(), "cc");
@@ -218,7 +218,7 @@ public class ClosedRecordIterationTest {
         Object[] args = new Object[]{(80), (75), (65)};
         Object returns = BRunUtil.invoke(result, "testMapWithAllIntClosedRecord", args);
 
-        BMap gradesMap = (BMap) returns;
+        BMap<?, ?> gradesMap = (BMap<?, ?>) returns;
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("maths"))), 90L);
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("physics"))), 85L);
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("chemistry"))), 75L);
@@ -230,7 +230,7 @@ public class ClosedRecordIterationTest {
         Object[] args = new Object[]{(a), (b), (c)};
         Object returns = BRunUtil.invoke(result, "testMapWithAllFloatClosedRecord", args);
 
-        BMap gradesMap = (BMap) returns;
+        BMap<?, ?> gradesMap = (BMap<?, ?>) returns;
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("x"))), a + 10);
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("y"))), b + 10);
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("z"))), c + 10);
@@ -241,7 +241,7 @@ public class ClosedRecordIterationTest {
         final String a = "AA", e = "EE";
         Object returns = BRunUtil.invoke(result, "testFilterWithAllStringClosedRecord");
 
-        BMap foo = (BMap) returns;
+        BMap<?, ?> foo = (BMap<?, ?>) returns;
         Assert.assertEquals(foo.get(StringUtils.fromString("a")).toString(), a);
         Assert.assertNull(foo.get(StringUtils.fromString("b")));
         Assert.assertNull(foo.get(StringUtils.fromString("c")));
@@ -254,7 +254,7 @@ public class ClosedRecordIterationTest {
         final long m = 80, p = 75;
         Object returns = BRunUtil.invoke(result, "testFilterWithAllIntClosedRecord");
 
-        BMap gradesMap = (BMap) returns;
+        BMap<?, ?> gradesMap = (BMap<?, ?>) returns;
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("maths"))), m);
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("physics"))), p);
         Assert.assertNull(gradesMap.get(StringUtils.fromString("chemistry")));
@@ -266,7 +266,7 @@ public class ClosedRecordIterationTest {
         Object[] args = new Object[]{(a), (b), (c)};
         Object returns = BRunUtil.invoke(result, "testFilterWithAllFloatClosedRecord", args);
 
-        BMap gradesMap = (BMap) returns;
+        BMap<?, ?> gradesMap = (BMap<?, ?>) returns;
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("x"))), a);
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("y"))), b);
         Assert.assertNull(gradesMap.get(StringUtils.fromString("z")));
@@ -302,7 +302,7 @@ public class ClosedRecordIterationTest {
     @Test(description = "Test case for chained iterable operations on closed records")
     public void testChainedOpsWithClosedRecords2() {
         Object returns = BRunUtil.invoke(result, "testChainedOpsWithClosedRecords2");
-        BMap grades = (BMap) returns;
+        BMap<?, ?> grades = (BMap<?, ?>) returns;
 
         Assert.assertEquals((grades.get(StringUtils.fromString("maths"))), 4.2);
         Assert.assertEquals((grades.get(StringUtils.fromString("physics"))), 4.2);
@@ -325,7 +325,7 @@ public class ClosedRecordIterationTest {
     @Test(description = "Test case for checking whether iterable ops mutate the original record")
     public void testMutability() {
         Object returns = BRunUtil.invoke(result, "testMutability");
-        BMap grades = (BMap) returns;
+        BMap<?, ?> grades = (BMap<?, ?>) returns;
         Assert.assertEquals(grades.size(), 3);
         Assert.assertEquals(grades.get(StringUtils.fromString("maths")), 80L);
         Assert.assertEquals(grades.get(StringUtils.fromString("physics")), 75L);

@@ -128,7 +128,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRI
  *
  * @since 1.2.0
  */
-public class InteropMethodGen {
+public final class InteropMethodGen {
 
     static void genJFieldForInteropField(JFieldBIRFunction birFunc, ClassWriter classWriter, PackageID birModule,
                                          JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,

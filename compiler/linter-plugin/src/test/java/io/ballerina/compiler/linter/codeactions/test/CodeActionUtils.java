@@ -36,19 +36,20 @@ import io.ballerina.tools.text.LineRange;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Helper methods for writing code action tests.
  *
  * @since 2.0.0
  */
-public class CodeActionUtils {
+public final class CodeActionUtils {
 
-    public static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+    public static final Path RES_DIR = Path.of("src/test/resources/").toAbsolutePath();
     public static final String NEW = ".new";
+
+    private CodeActionUtils() {
+    }
 
     /**
      * Get codeactions for the provided cursor position in the provided source file.
@@ -82,7 +83,7 @@ public class CodeActionUtils {
                     // Get codeactions for the diagnostic
                     return codeActionManager.codeActions(context).getCodeActions().stream();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -105,7 +106,7 @@ public class CodeActionUtils {
         Gson gson = new Gson();
         List<CodeActionArgument> codeActionArguments = codeAction.getArguments().stream()
                 .map(arg -> CodeActionArgument.from(gson.toJsonTree(arg)))
-                .collect(Collectors.toList());
+                .toList();
 
         CodeActionExecutionContext executionContext = CodeActionExecutionContextImpl.from(
                 filePath.toUri().toString(),
@@ -128,10 +129,10 @@ public class CodeActionUtils {
      */
     public static Path getProjectPath(String sourceFilePath) {
 
-        Path sourcePath = Paths.get(sourceFilePath);
+        Path sourcePath = Path.of(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = RES_DIR.resolve(sourcePath.getParent());
-        return Paths.get(sourceRoot.toString(), sourceFileName);
+        return Path.of(sourceRoot.toString(), sourceFileName);
     }
 
     /**

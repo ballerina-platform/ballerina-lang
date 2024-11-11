@@ -18,16 +18,19 @@ package org.ballerinalang.diagramutil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 /**
  * Utility class for syntax tree gen tests.
  */
-public class TestUtil {
-    public static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
-    public static final Path BUILD_DIR = Paths.get("build/").toAbsolutePath();
+public final class TestUtil {
+
+    public static final Path RES_DIR = Path.of("src/test/resources/").toAbsolutePath();
+    public static final Path BUILD_DIR = Path.of("build/").toAbsolutePath();
+
+    private TestUtil() {
+    }
 
     public static Path createTempFile(Path filePath) throws IOException {
         Path tempFilePath = BUILD_DIR.resolve("tmp")

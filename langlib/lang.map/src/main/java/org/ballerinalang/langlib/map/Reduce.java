@@ -27,7 +27,7 @@ import io.ballerina.runtime.api.values.BMap;
  *
  * @since 1.0
  */
-public class Reduce {
+public final class Reduce {
 
     public static Object reduce(Environment env, BMap<?, ?> m, BFunctionPointer func, Object initial) {
         int size = m.values().size();

@@ -179,6 +179,7 @@ public class FormattingOptions {
                     spacingFormattingOptions, forceFormattingOptions, importFormattingOptions, queryFormattingOptions);
         }
 
+        @SuppressWarnings("unchecked")
         public FormattingOptions build(Path root, Object formatSection) throws FormatterException {
             Optional<String> path = getFormattingFilePath(formatSection, root.toString());
             if (path.isEmpty()) {
@@ -187,7 +188,7 @@ public class FormattingOptions {
             Map<String, Object> configurations = getFormattingConfigurations(root, path.get());
             for (Map.Entry<String, Object> entry : configurations.entrySet()) {
                 Object value = entry.getValue();
-                if (!(value instanceof Map)) {
+                if (!(value instanceof Map<?, ?>)) {
                     continue;
                 }
                 Map<String, Object> configs = (Map<String, Object>) value;

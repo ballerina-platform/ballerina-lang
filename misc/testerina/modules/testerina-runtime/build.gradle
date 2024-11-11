@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 configurations {
     dist {
@@ -29,20 +31,13 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':identifier-util')
     implementation project(':docerina')
-    implementation 'com.google.code.gson:gson'
-    implementation "com.google.code.gson:gson:${project.gsonVersion}"
-    implementation "org.jacoco:org.jacoco.core:${project.jacocoVersion}"
-    implementation "org.jacoco:org.jacoco.report:${project.jacocoVersion}"
-    implementation "org.ow2.asm:asm:${project.ow2AsmVersion}"
-    implementation "org.ow2.asm:asm-commons:${project.ow2AsmCommonsVersion}"
-    implementation "org.ow2.asm:asm-tree:${project.ow2AsmTreeVersion}"
-
-    implementation group: 'org.jacoco', name: 'org.jacoco.core', version: "${project.jacocoVersion}"
-    implementation group: 'org.jacoco', name: 'org.jacoco.report', version: "${project.jacocoVersion}"
-    implementation group: 'org.ow2.asm', name: 'asm', version: "${project.ow2AsmVersion}"
-    implementation group: 'org.ow2.asm', name: 'asm-commons', version: "${project.ow2AsmCommonsVersion}"
-    implementation group: 'org.ow2.asm', name: 'asm-tree', version: "${project.ow2AsmTreeVersion}"
-    implementation group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: "${project.javaDiffUtilsVersion}"
+    implementation libs.gson
+    implementation libs.jacoco.core
+    implementation libs.jacoco.report
+    implementation libs.ow2.asm
+    implementation libs.ow2.asm.commons
+    implementation libs.ow2.asm.tree
+    implementation libs.java.diff.utils
 
     jar {
         from {

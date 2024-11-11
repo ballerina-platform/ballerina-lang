@@ -20,12 +20,17 @@ package org.ballerinalang.test.util;
 /**
  * Constants used in test cases.
  */
-public class TestConstant {
-     public static final String CHARSET_NAME = "UTF-8";
+public final class TestConstant {
+
+    public static final String CHARSET_NAME = "UTF-8";
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
     public static final String HTTP_METHOD_OPTIONS = "OPTIONS";
     public static final String HTTP_METHOD_HEAD = "HEAD";
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
     public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
+
+    private TestConstant() {
+
+    }
 }
