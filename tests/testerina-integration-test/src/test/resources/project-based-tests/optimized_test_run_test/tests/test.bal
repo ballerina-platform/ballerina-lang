@@ -45,3 +45,11 @@ function testFn() {
 function unusedFunctionInvoker(){
     test:assertEquals(0, testUsageFunction().name);
 }
+
+@test:Config {}
+function testFPCallToBuildPkgFromTestablePkg() {
+    worker StdInReader returns string {
+        string word = buildPkgFn("foo");
+        return word;
+    }
+}

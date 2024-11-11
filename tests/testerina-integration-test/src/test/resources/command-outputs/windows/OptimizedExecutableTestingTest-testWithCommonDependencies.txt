@@ -5,11 +5,12 @@ Running Tests
 	optimized_test_run_test
 		[pass] importUsageTest
 		[pass] simpleTest
+		[pass] testFPCallToBuildPkgFromTestablePkg
 		[pass] testFn
 		[pass] unusedFunctionInvoker
 
 
-		4 passing
+		5 passing
 		0 failing
 		0 skipped
 

@@ -86,7 +86,7 @@ public final class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAn
     @Override
     public void analyzeType(BType bType, AnalyzerData data) {
         Set<UsedBIRNodeAnalyzer.FunctionPointerData> fpDataSet =
-                usedBIRNodeAnalyzer.currentInvocationData.getFpData(bType);
+                usedBIRNodeAnalyzer.getCurrentInvocationData().getFpData(bType);
         if (fpDataSet != null) {
             fpDataSet.forEach(fpData -> {
                 fpData.lambdaPointerVar.markAsUsed();

@@ -187,7 +187,7 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
         }
 
         typeDef.markAsUsed();
-        currentInvocationData.addToUsedPool(typeDef);
+        getCurrentInvocationData().addToUsedPool(typeDef);
         usedTypeDefAnalyzer.analyzeTypeDef(typeDef);
         typeDef.attachedFuncs.forEach(
                 attachedFunc -> addDependentFunctionAndVisit(typeDef, attachedFunc, typeDef.type.tsymbol.pkgID));
@@ -197,8 +197,8 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
     public void visit(BIRNode.BIRBasicBlock birBasicBlock) {
         Map<BIRNode.BIRVariableDcl, FunctionPointerData> previousLocalFpHolders = localFpHolders;
         currentInstructionArr = birBasicBlock.instructions;
-        localFpHolders = new HashMap<>(currentInvocationData.globalVarFPDataPool);
-        localFpHolders.putAll(currentInvocationData.globalVarFPDataPool);
+        localFpHolders = new HashMap<>(getCurrentInvocationData().globalVarFPDataPool);
+        localFpHolders.putAll(getCurrentInvocationData().globalVarFPDataPool);
 
         birBasicBlock.instructions.forEach(instruction -> {
             if (ANALYZED_INSTRUCTION_KINDS.contains(instruction.getKind())) {
@@ -225,7 +225,7 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
     public void visit(BIRTerminator.Call call) {
         // If function pointers are passed as parameters, they will be bound to the parent function
         getUsedLocalFPHolders(call.args).forEach(var -> {
-                FunctionPointerData fpData = currentInvocationData.getFPData(var);
+                FunctionPointerData fpData = getCurrentInvocationData().getFPData(var);
                 if (fpData != null && fpData.lambdaFunction != null) {
                     visitNode(fpData.lambdaFunction);
                 }
@@ -263,9 +263,9 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
 
         FunctionPointerData fpData;
         if (fpPointer instanceof BIRNode.BIRGlobalVariableDcl globalVariableDcl) {
-            fpData = currentInvocationData.globalVarFPDataPool.get(globalVariableDcl);
+            fpData = getCurrentInvocationData().globalVarFPDataPool.get(globalVariableDcl);
         } else {
-            fpData = currentInvocationData.getFPData(fpCall.fp.variableDcl);
+            fpData = getCurrentInvocationData().getFPData(fpCall.fp.variableDcl);
         }
 
         if (fpData == null) {
@@ -327,15 +327,15 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
      */
     @Override
     public void visit(BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad) {
-        FunctionPointerData fpData = currentInvocationData.getFPData(recordDefaultFPLoad.lhsOp.variableDcl);
+        FunctionPointerData fpData = getCurrentInvocationData().getFPData(recordDefaultFPLoad.lhsOp.variableDcl);
         fpData.recordDefaultFPLoad = recordDefaultFPLoad;
         if (fpData.recordDefaultFPLoad.enclosedType.isUsed) {
             fpData.lambdaPointerVar.markAsUsed();
             visitNode(fpData.lambdaFunction);
         }
-        currentInvocationData.recordDefTypeWiseFPDataPool.putIfAbsent(recordDefaultFPLoad.enclosedType,
+        getCurrentInvocationData().recordDefTypeWiseFPDataPool.putIfAbsent(recordDefaultFPLoad.enclosedType,
                 new HashSet<>());
-        currentInvocationData.recordDefTypeWiseFPDataPool.get(recordDefaultFPLoad.enclosedType).add(fpData);
+        getCurrentInvocationData().recordDefTypeWiseFPDataPool.get(recordDefaultFPLoad.enclosedType).add(fpData);
     }
 
     @Override
@@ -435,7 +435,7 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
             getInvocationData(globalRhsVar.pkgId)
                     .registerNodes(usedTypeDefAnalyzer, this.pkgCache.getBirPkg(globalRhsVar.pkgId));
         } else if (isFunctionKindType(globalRhsVar.type)) {
-            visitNode(currentInvocationData.globalVarFPDataPool.get(globalRhsVar).lambdaFunction);
+            visitNode(getCurrentInvocationData().globalVarFPDataPool.get(globalRhsVar).lambdaFunction);
         }
     }
 
@@ -445,7 +445,7 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
         }
         rhsVars.retainAll(localFpHolders.keySet());
         for (BIRNode.BIRVariableDcl var : rhsVars) {
-            FunctionPointerData fpData = currentInvocationData.getFPData(var);
+            FunctionPointerData fpData = getCurrentInvocationData().getFPData(var);
             if (fpData != null && fpData.lambdaFunction != null) {
                 visitNode(fpData.lambdaFunction);
             }
@@ -459,7 +459,7 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
                 BIRNode.ConstValue constValue = ((BIRNode.BIRConstAnnotationAttachment) annot).annotValue;
                 String filePath =
                         ((Map<String, BIRNode.ConstValue>) constValue.value).get(CLASS).value.toString();
-                currentInvocationData.usedNativeClassPaths.add(filePath.replace(".", "/") + DOT_CLASS);
+                getCurrentInvocationData().usedNativeClassPaths.add(filePath.replace(".", "/") + DOT_CLASS);
             }
         });
     }
@@ -488,6 +488,10 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
         // Child is from another package
         childInvocationData.moduleIsUsed = true;
         childInvocationData.startPointNodes.add(childFunction);
+    }
+
+    public InvocationData getCurrentInvocationData() {
+        return isTestablePkgAnalysis? currentInvocationData.testablePkgInvocationData : currentInvocationData;
     }
 
     public static class InvocationData {
@@ -614,9 +618,6 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
         void addToUsedPool(BIRNode.BIRTypeDefinition birTypeDef) {
             if (this.unusedTypeDefs.remove(birTypeDef)) {
                 this.usedTypeDefs.add(birTypeDef);
-            } else if (this.testablePkgInvocationData != null) {
-                this.testablePkgInvocationData.unusedTypeDefs.remove(birTypeDef);
-                this.testablePkgInvocationData.usedTypeDefs.add(birTypeDef);
             }
         }
 
