@@ -56,3 +56,7 @@ function testUsageFunction() returns RecB{
     RecB recB = {name: 0};
     return recB;
 }
+
+public function buildPkgFn (string a) returns string{
+    return "hello";
+};

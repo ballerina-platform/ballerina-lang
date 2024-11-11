@@ -5,6 +5,7 @@
         "foo",
         "fn",
         "testUsageFunction",
+        "buildPkgFn",
         "main",
         "bar"
       ],
