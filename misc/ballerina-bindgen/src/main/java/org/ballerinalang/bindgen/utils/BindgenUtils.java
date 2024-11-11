@@ -71,7 +71,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.SHORT;
  *
  * @since 1.2.0
  */
-public class BindgenUtils {
+public final class BindgenUtils {
 
     private BindgenUtils() {
     }
@@ -103,25 +103,12 @@ public class BindgenUtils {
     }
 
     private static void printOutputFile(String content, String outPath, boolean append) throws BindgenException {
-        PrintWriter writer = null;
-        FileWriterWithEncoding fileWriter = null;
-        try {
-            fileWriter = new FileWriterWithEncoding(outPath, StandardCharsets.UTF_8, append);
-            writer = new PrintWriter(fileWriter);
+        try (FileWriterWithEncoding fileWriter = FileWriterWithEncoding.builder()
+                .setPath(outPath).setCharset(StandardCharsets.UTF_8).setAppend(append).get();
+             PrintWriter writer = new PrintWriter(fileWriter)) {
             writer.println(Formatter.format(content));
-            fileWriter.close();
         } catch (IOException | FormatterException e) {
             throw new BindgenException("error: unable to create the file: " + outPath + " " + e.getMessage(), e);
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
-            if (fileWriter != null) {
-                try {
-                    fileWriter.close();
-                } catch (IOException ignored) {
-                }
-            }
         }
     }
 
@@ -139,7 +126,7 @@ public class BindgenUtils {
         }
     }
 
-    public static Set<String> addImportedPackage(Class type, Set<String> importedPackages) {
+    public static Set<String> addImportedPackage(Class<?> type, Set<String> importedPackages) {
         if (type.isArray()) {
             type = type.getComponentType();
         }
@@ -149,7 +136,7 @@ public class BindgenUtils {
         return importedPackages;
     }
 
-    public static boolean isPublicConstructor(Constructor constructor) {
+    public static boolean isPublicConstructor(Constructor<?> constructor) {
         int modifiers = constructor.getModifiers();
         return Modifier.isPublic(modifiers);
     }
@@ -164,7 +151,7 @@ public class BindgenUtils {
         return Modifier.isPublic(modifiers);
     }
 
-    public static boolean isPublicClass(Class javaClass) {
+    public static boolean isPublicClass(Class<?> javaClass) {
         int modifiers = javaClass.getModifiers();
         return Modifier.isPublic(modifiers);
     }
@@ -280,41 +267,23 @@ public class BindgenUtils {
     }
 
     private static String getPrimitiveArrayBalType(String type) {
-        switch (type) {
-            case INT:
-            case SHORT:
-            case CHAR:
-            case LONG:
-                return INT_ARRAY;
-            case FLOAT:
-            case DOUBLE:
-                return FLOAT_ARRAY;
-            case BOOLEAN:
-                return BOOLEAN_ARRAY;
-            case BYTE:
-                return BYTE_ARRAY;
-            default:
-                return HANDLE;
-        }
+        return switch (type) {
+            case INT, SHORT, CHAR, LONG -> INT_ARRAY;
+            case FLOAT, DOUBLE -> FLOAT_ARRAY;
+            case BOOLEAN -> BOOLEAN_ARRAY;
+            case BYTE -> BYTE_ARRAY;
+            default -> HANDLE;
+        };
     }
 
     public static String getPrimitiveArrayType(String type) {
-        switch (type) {
-            case "[C":
-            case "[S":
-            case "[J":
-            case "[I":
-                return INT_ARRAY;
-            case "[D":
-            case "[F":
-                return FLOAT_ARRAY;
-            case "[B":
-                return BYTE_ARRAY;
-            case "[Z":
-                return BOOLEAN_ARRAY;
-            default:
-                return type;
-        }
+        return switch (type) {
+            case "[C", "[S", "[J", "[I" -> INT_ARRAY;
+            case "[D", "[F" -> FLOAT_ARRAY;
+            case "[B" -> BYTE_ARRAY;
+            case "[Z" -> BOOLEAN_ARRAY;
+            default -> type;
+        };
     }
 
     public static URLClassLoader getClassLoader(Set<String> jarPaths, ClassLoader parent) throws BindgenException {
@@ -381,7 +350,7 @@ public class BindgenUtils {
         BindgenUtils.outStream = outStream;
     }
 
-    public static String getAlias(Class className, Map<String, String> aliases) {
+    public static String getAlias(Class<?> className, Map<String, String> aliases) {
         if (!aliases.containsKey(className.getName())) {
             int i = 2;
             boolean notAdded = true;

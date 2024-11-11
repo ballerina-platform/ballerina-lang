@@ -148,7 +148,7 @@ public class WebServer {
          * @param ch The Channel which was registered.
          */
         @Override
-        public void initChannel(SocketChannel ch) throws Exception {
+        public void initChannel(SocketChannel ch) {
             final ChannelPipeline p = ch.pipeline();
             p.addLast("decoder", new HttpRequestDecoder(4096, 8192, 8192, false));
             p.addLast("aggregator", new HttpObjectAggregator(100 * 1024 * 1024));
@@ -190,11 +190,10 @@ public class WebServer {
          * @param o The HTTP request message.
          */
         @Override
-        protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object o) throws Exception {
-            if (!(o instanceof FullHttpRequest)) {
+        protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object o) {
+            if (!(o instanceof FullHttpRequest request)) {
                 return;
             }
-            final FullHttpRequest request = (FullHttpRequest) o;
 
             final HttpMethod method = request.method();
             final String uri = request.uri();

@@ -54,8 +54,6 @@ import org.ballerinalang.central.client.model.ToolSearchResult;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Proxy;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +81,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.APPLICATIO
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
 import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
 import static org.ballerinalang.central.client.CentralClientConstants.BALA_URL;
+import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_CENTRAL_TELEMETRY_DISABLED;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_PLATFORM;
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_TYPE;
@@ -99,6 +98,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.SHA256_ALG
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
+import static org.ballerinalang.central.client.Utils.SET_TEST_MODE_ACTIVE;
 import static org.ballerinalang.central.client.Utils.checkHash;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
@@ -285,9 +285,6 @@ public class CentralAPIClient {
             }
 
             throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature);
-        } catch (SocketTimeoutException e) {
-            throw new ConnectionErrorException(ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: " +
-                    e.getMessage());
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: " +
                     e.getMessage());
@@ -371,9 +368,6 @@ public class CentralAPIClient {
             }
 
             throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ".");
-        } catch (SocketTimeoutException | UnknownHostException e) {
-            throw new ConnectionErrorException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ". reason: " +
-                    e.getMessage());
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ". reason: " +
                     e.getMessage());
@@ -1681,16 +1675,14 @@ public class CentralAPIClient {
      * @return Http request builder
      */
     protected Request.Builder getNewRequest(String supportedPlatform, String ballerinaVersion) {
-        if (this.accessToken.isEmpty()) {
-            return new Request.Builder()
-                    .addHeader(BALLERINA_PLATFORM, supportedPlatform)
-                    .addHeader(USER_AGENT, ballerinaVersion);
-        } else {
-            return new Request.Builder()
-                    .addHeader(BALLERINA_PLATFORM, supportedPlatform)
-                    .addHeader(USER_AGENT, ballerinaVersion)
-                    .addHeader(AUTHORIZATION, getBearerToken(this.accessToken));
+        Request.Builder requestBuilder = new Request.Builder()
+                .addHeader(BALLERINA_PLATFORM, supportedPlatform)
+                .addHeader(USER_AGENT, ballerinaVersion)
+                .addHeader(BALLERINA_CENTRAL_TELEMETRY_DISABLED, String.valueOf(SET_TEST_MODE_ACTIVE));
+        if (!this.accessToken.isEmpty()) {
+            requestBuilder.addHeader(AUTHORIZATION, getBearerToken(this.accessToken));
         }
+        return requestBuilder;
     }
 
     public String accessToken() {
@@ -1825,11 +1817,10 @@ public class CentralAPIClient {
      * @param org          org name
      * @param body         response body
      * @param responseBody error message
-     * @throws IOException            when accessing response body
      * @throws CentralClientException with unauthorized error message
      */
     private void handleUnauthorizedResponse(String org, Optional<ResponseBody> body, String responseBody)
-            throws IOException, CentralClientException {
+            throws CentralClientException {
         if (body.isPresent()) {
             Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
             if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
@@ -1848,11 +1839,10 @@ public class CentralAPIClient {
      *
      * @param body         response body
      * @param responseBody error message
-     * @throws IOException            when accessing response body
      * @throws CentralClientException with unauthorized error message
      */
     private void handleUnauthorizedResponse(Optional<ResponseBody> body, String responseBody)
-            throws IOException, CentralClientException {
+            throws CentralClientException {
         if (body.isPresent()) {
             Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
             if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
@@ -1871,11 +1861,10 @@ public class CentralAPIClient {
      *
      * @param mediaType mediaType
      * @param responseBody response body
-     * @throws IOException            when accessing response body
      * @throws CentralClientException with unauthorized error message
      */
     private void handleUnauthorizedResponse(MediaType mediaType, String responseBody)
-            throws IOException, CentralClientException {
+            throws CentralClientException {
         Optional<MediaType> contentType = Optional.ofNullable(mediaType);
         StringBuilder message = new StringBuilder("unauthorized access token. " +
                     "check access token set in 'Settings.toml' file.");

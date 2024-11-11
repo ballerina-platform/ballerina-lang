@@ -20,7 +20,6 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.cli.utils.TestUtils;
-import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
@@ -50,7 +49,6 @@ import java.net.URISyntaxException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -58,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
@@ -81,19 +80,20 @@ public class TestCommandTest extends BaseCommandTest {
     private Path testDistCacheDirectory;
     ProjectEnvironmentBuilder projectEnvironmentBuilder;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
         try {
             this.testResources = super.tmpDir.resolve("test-cmd-test-resources");
-            Path testBuildDirectory = Paths.get("build").toAbsolutePath();
+            Path testBuildDirectory = Path.of("build").toAbsolutePath();
             this.testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-            Path customUserHome = Paths.get("build", "user-home");
+            Path customUserHome = Path.of("build/user-home");
             Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
             projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
             URI testResourcesURI = Objects.requireNonNull(
                     getClass().getClassLoader().getResource("test-resources")).toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI), new TestCommandTest.Copy(Paths.get(testResourcesURI),
+            Files.walkFileTree(Path.of(testResourcesURI), new TestCommandTest.Copy(Path.of(testResourcesURI),
                     this.testResources));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
@@ -102,7 +102,7 @@ public class TestCommandTest extends BaseCommandTest {
 
     @Test(description = "Test a valid ballerina file", dataProvider = "optimizeDependencyCompilation")
     public void testTestBalFile(Boolean optimizeDependencyCompilation) {
-        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
+        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file/sample_tests.bal");
 
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         // set valid source root
@@ -114,7 +114,7 @@ public class TestCommandTest extends BaseCommandTest {
 
     @Test(description = "Test a valid ballerina file with periods in the file name")
     public void testTestBalFileWithPeriods() {
-        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample.tests.bal");
+        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file/sample.tests.bal");
 
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         // set valid source root
@@ -126,7 +126,7 @@ public class TestCommandTest extends BaseCommandTest {
 
     @Test(description = "Test non .bal file")
     public void testNonBalFileTest() throws IOException {
-        Path nonBalFilePath = this.testResources.resolve("non-bal-file").resolve("hello_world.txt");
+        Path nonBalFilePath = this.testResources.resolve("non-bal-file/hello_world.txt");
         TestCommand testCommand = new TestCommand(nonBalFilePath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs(nonBalFilePath.toString());
         testCommand.execute();
@@ -139,7 +139,7 @@ public class TestCommandTest extends BaseCommandTest {
     @Test(description = "Test non existing bal file")
     public void testNonExistingBalFile() throws IOException {
         // valid source root path
-        Path validBalFilePath = this.testResources.resolve("valid-non-bal-file").resolve("xyz.bal");
+        Path validBalFilePath = this.testResources.resolve("valid-non-bal-file/xyz.bal");
         TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
         testCommand.execute();
@@ -152,7 +152,7 @@ public class TestCommandTest extends BaseCommandTest {
     @Test(description = "Test bal file containing syntax error")
     public void testBalFileWithSyntaxError() {
         // valid source root path
-        Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error").resolve("sample_tests.bal");
+        Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error/sample_tests.bal");
         TestCommand testCommand = new TestCommand(balFilePath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs(balFilePath.toString());
         try {
@@ -228,23 +228,20 @@ public class TestCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false , false);
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
-        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
-        String md5BinJar = DigestUtils.md5Hex(
-                Files.newInputStream(projectPath.resolve("target").resolve("bin").resolve("winery.jar")));
+        Assert.assertTrue(projectPath.resolve("target/bin/winery.jar").toFile().exists());
+        String md5BinJar = DigestUtils.md5Hex(Files.newInputStream(projectPath.resolve("target/bin/winery.jar")));
 
         // Run tests
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs();
         testCommand.execute();
-        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target/bin/winery.jar").toFile().exists());
         Assert.assertEquals(md5BinJar, DigestUtils.md5Hex(
-                Files.newInputStream(projectPath.resolve("target").resolve("bin").resolve("winery.jar"))));
-        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
-                .resolve("foo-winery-0.1.0.jar").toFile().exists());
-        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
-                .resolve("foo-winery-0.1.0-testable.jar").toFile().exists());
+                Files.newInputStream(projectPath.resolve("target/bin/winery.jar"))));
+        Assert.assertTrue(projectPath.resolve("target/cache/foo/winery/0.1.0/java21/foo-winery-0.1.0.jar")
+                .toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target/cache/foo/winery/0.1.0/java21/foo-winery-0.1.0-testable.jar")
+                .toFile().exists());
     }
 
     @Test(description = "Test a ballerina project with an invalid argument for --coverage-format",
@@ -276,14 +273,12 @@ public class TestCommandTest extends BaseCommandTest {
 
         Assert.assertFalse(Files.exists(customTargetDir.resolve("bin")));
         Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
-        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache").resolve("tests_cache").resolve("test_suit" +
-                ".json")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache/tests_cache/test_suit.json")));
         Assert.assertTrue(Files.exists(customTargetDir.resolve("build")));
         Assert.assertTrue(Files.exists(customTargetDir.resolve("report")));
-        Assert.assertTrue(Files.exists(customTargetDir.resolve("report").resolve("test_results.json")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("report/test_results.json")));
         Assert.assertTrue(Files.exists(customTargetDir.resolve("rerun_test.json")));
-        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache").resolve("tests_cache").resolve("test_suit" +
-                ".json")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache/tests_cache/test_suit.json")));
     }
 
     @Test(description = "Test a ballerina project with --test-report", dataProvider = "optimizeDependencyCompilation")
@@ -295,20 +290,20 @@ public class TestCommandTest extends BaseCommandTest {
         try (MockedStatic<TestUtils> testUtilsMockedStatic = Mockito.mockStatic(
                 TestUtils.class, Mockito.CALLS_REAL_METHODS)) {
             testUtilsMockedStatic.when(TestUtils::getReportToolsPath)
-                    .thenReturn(projectPath.resolve("resources").resolve("coverage").resolve("report.zip"));
+                    .thenReturn(projectPath.resolve("resources/coverage/report.zip"));
             testCommand.execute();
         }
-        Path reportDir = projectPath.resolve("target").resolve("report");
+        Path reportDir = projectPath.resolve("target/report");
 
         Assert.assertTrue(Files.exists(reportDir));
         Assert.assertTrue(Files.exists(reportDir.resolve("favicon.ico")));
         Assert.assertTrue(Files.exists(reportDir.resolve("index.html")));
         Assert.assertTrue(Files.exists(reportDir.resolve("test_results.json")));
         Assert.assertTrue(Files.exists(reportDir.resolve("manifest.json")));
-        Assert.assertTrue(Files.exists(reportDir.resolve("static").resolve("css").resolve("2.d5162072.chunk.css")));
-        Assert.assertTrue(Files.exists(reportDir.resolve("static").resolve("css").resolve("main.15691da7.chunk.css")));
-        Assert.assertTrue(Files.exists(reportDir.resolve("static").resolve("js").resolve("2.bc541f30.chunk.js")));
-        Assert.assertTrue(Files.exists(reportDir.resolve("static").resolve("js").resolve("main.ea323a3b.chunk.js")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static/css/2.d5162072.chunk.css")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static/css/main.15691da7.chunk.css")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static/js/2.bc541f30.chunk.js")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static/js/main.ea323a3b.chunk.js")));
     }
 
     @Test(description = "tests bal test command with sticky flag")
@@ -371,9 +366,8 @@ public class TestCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true).replace("\r", "").strip();
 
         Assert.assertEquals(buildLog, getOutput("test-project-with-dump-graph.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
-                .resolve("foo-package_a-0.1.0.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target/cache/foo/package_a/0.1.0/java21/foo-package_a-0.1.0.jar")
+                .toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
@@ -398,10 +392,8 @@ public class TestCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true).replace("\r", "").replace("\\", "/").strip();
 
         Assert.assertEquals(buildLog, getOutput("test-project-with-dump-raw-graphs.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
-                .resolve("foo-package_a-0.1.0.jar").toFile().exists());
-
+        Assert.assertTrue(projectPath.resolve("target/cache/foo/package_a/0.1.0/java21/foo-package_a-0.1.0.jar")
+                .toFile().exists());
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 
@@ -423,8 +415,9 @@ public class TestCommandTest extends BaseCommandTest {
 
     @Test(description = "Test an empty project with build tools")
     public void testTestEmptyProjectWithBuildTools() throws IOException {
-        BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
-                .resolve("ballerina-generate-file").toString(), testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(
+                testResources.resolve("buildToolResources/tools/ballerina-generate-file").toString(),
+                testDistCacheDirectory, projectEnvironmentBuilder);
         Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());
@@ -452,7 +445,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parseArgs("--cloud=docker");
         testCommand.execute();
         Path targetDir = projectPath.resolve("target");
-        Path testableJar = targetDir.resolve("bin").resolve("tests").resolve("winery-testable.jar");
+        Path testableJar = targetDir.resolve("bin/tests/winery-testable.jar");
         Assert.assertTrue(Files.exists(testableJar));
         Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
         Assert.assertTrue(Files.exists(mainArgsFile));
@@ -465,7 +458,7 @@ public class TestCommandTest extends BaseCommandTest {
             throw new SkipException("Currently failing on Windows");
         }
         Path projectPath = this.testResources.resolve("validProjectWithTests");
-        Path testableJar = projectPath.resolve("target").resolve("bin").resolve("tests").resolve("winery-testable.jar");
+        Path testableJar = projectPath.resolve("target/bin/tests/winery-testable.jar");
         Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
 
         // Read the main args from the file (line separated)
@@ -507,12 +500,12 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parseArgs("--cloud=docker");
         testCommand.execute();
         Path targetDir = projectPath.resolve("target");
-        Path testableJar = targetDir.resolve("bin").resolve("tests").resolve("projectWithMocks-testable.jar");
+        Path testableJar = targetDir.resolve("bin/tests/projectWithMocks-testable.jar");
         Assert.assertTrue(Files.exists(testableJar));
         Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
         Assert.assertTrue(Files.exists(mainArgsFile));
         //should exist only one testable jar
-        try (var testableJars = Files.list(testableJar.getParent())) {
+        try (Stream<Path> testableJars = Files.list(testableJar.getParent())) {
             Assert.assertEquals(testableJars.filter(path -> path.toString().endsWith(".jar"))
                                     .map(Path::toFile).toList().size(), 1);
         }
@@ -525,8 +518,7 @@ public class TestCommandTest extends BaseCommandTest {
             throw new SkipException("Currently failing on Windows");
         }
         Path projectPath = this.testResources.resolve("projectWithMocks");
-        Path testableJar = projectPath.resolve("target").resolve("bin").resolve("tests")
-                .resolve("projectWithMocks-testable.jar");
+        Path testableJar = projectPath.resolve("target/bin/tests/projectWithMocks-testable.jar");
         Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
 
         // Read the main args from the file (line separated)
@@ -570,12 +562,12 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parseArgs("--cloud=docker", "--graalvm");
         testCommand.execute();
         Path targetDir = projectPath.resolve("target");
-        Path testableJar = targetDir.resolve("bin").resolve("tests").resolve("winery-testable.jar");
+        Path testableJar = targetDir.resolve("bin/tests/winery-testable.jar");
         Assert.assertTrue(Files.exists(testableJar));
         Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
         Assert.assertTrue(Files.exists(mainArgsFile));
         //should exist only one testable jar
-        try (var testableJars = Files.list(testableJar.getParent())) {
+        try (Stream<Path> testableJars = Files.list(testableJar.getParent())) {
             Assert.assertEquals(testableJars.filter(path -> path.toString().endsWith(".jar"))
                                     .map(Path::toFile).toList().size(), 1);
         }
@@ -594,12 +586,12 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parseArgs("--cloud=docker", "--graalvm");
         testCommand.execute();
         Path targetDir = projectPath.resolve("target");
-        Path mainArgsFile = targetDir.resolve("bin").resolve("tests").resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
+        Path mainArgsFile = targetDir.resolve("bin/tests").resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
         Assert.assertTrue(Files.exists(mainArgsFile));
         //should exist only one testable jar
-        try (var files = Files.list(mainArgsFile.getParent())) {
+        try (Stream<Path> files = Files.list(mainArgsFile.getParent())) {
             List<File> testableJars = files.filter(path -> path.toString().endsWith(".jar"))
-                            .map(Path::toFile).toList();
+                    .map(Path::toFile).toList();
             Assert.assertEquals(testableJars.size(), 2);   //2 because default module and 1 sub module
             List<String> jarFileNames = Arrays.asList("projectWithMocks-testable.jar",
                     "projectWithMocks.mod1-testable.jar");
@@ -616,8 +608,7 @@ public class TestCommandTest extends BaseCommandTest {
             throw new SkipException("Currently failing on Windows");
         }
         Path projectPath = this.testResources.resolve("projectWithMocks");
-        Path mainArgsFile = projectPath.resolve("target").resolve("bin").resolve("tests")
-                .resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
+        Path mainArgsFile = projectPath.resolve("target/bin/tests").resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
 
         // Read the main args from the file (line separated)
         List<String> mainArgs = Files.readAllLines(mainArgsFile);
@@ -625,7 +616,7 @@ public class TestCommandTest extends BaseCommandTest {
         mainArgs.set(TesterinaConstants.RunTimeArgs.TEST_SUITE_JSON_PATH, TestUtils.getJsonFilePathInFatJar("/"));
         mainArgs.set(TesterinaConstants.RunTimeArgs.TARGET_DIR, projectPath.resolve("target").toString());
 
-        try (var files = Files.list(mainArgsFile.getParent())) {
+        try (Stream<Path> files = Files.list(mainArgsFile.getParent())) {
             List<Path> testableJars = files.filter(path -> path.toString().endsWith(".jar")).toList();
             for (Path testableJar : testableJars) {
                 List<String> pbArgs = new ArrayList<>(TestUtils.getInitialCmdArgs(null, null));
@@ -669,7 +660,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parseArgs("--cloud=docker", "main_tests.bal");
         testCommand.execute();
         Path targetDir = projectPath.resolve("target");
-        Path testableJar = targetDir.resolve("bin").resolve("tests").resolve("winery-testable.jar");
+        Path testableJar = targetDir.resolve("bin/tests/winery-testable.jar");
         Assert.assertFalse(Files.exists(testableJar));  //should not exist
         Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
         Assert.assertFalse(Files.exists(mainArgsFile)); //should not exist

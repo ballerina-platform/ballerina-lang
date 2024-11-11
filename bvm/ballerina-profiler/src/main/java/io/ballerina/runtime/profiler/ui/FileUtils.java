@@ -23,9 +23,8 @@ import io.ballerina.runtime.profiler.runtime.ProfilerRuntimeException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
-public class FileUtils {
+public final class FileUtils {
 
     // Maximum wait time for the file to be created. This will wait 600*100 ms = 60 s.
     private static final int MAX_WAIT_TIME_FOR_FILE = 600;
@@ -34,7 +33,7 @@ public class FileUtils {
     }
 
     static String readFileAsString(String file) throws IOException {
-        Path path = Paths.get(file);
+        Path path = Path.of(file);
         int count = 0;
         while (!Files.exists(path)) {
             if (count++ > MAX_WAIT_TIME_FOR_FILE) {

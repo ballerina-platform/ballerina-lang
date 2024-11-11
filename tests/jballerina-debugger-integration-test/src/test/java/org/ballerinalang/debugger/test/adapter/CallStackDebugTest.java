@@ -41,6 +41,7 @@ public class CallStackDebugTest extends BaseTestCase {
 
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "callstack-tests";
@@ -123,6 +124,7 @@ public class CallStackDebugTest extends BaseTestCase {
         Assert.assertEquals(threads.length, 1);
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

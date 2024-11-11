@@ -25,6 +25,9 @@ package org.ballerinalang.langlib.floatingpoint;
  */
 public class Abs {
 
+
+    private Abs() {
+    }
     public static double abs(double n) {
         return Math.abs(n);
     }

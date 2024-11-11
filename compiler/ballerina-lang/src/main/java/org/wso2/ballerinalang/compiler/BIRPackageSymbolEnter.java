@@ -143,14 +143,12 @@ public class BIRPackageSymbolEnter {
     private BIRPackageSymbolEnv env;
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
     private BStructureTypeSymbol currentStructure = null;
-    private LinkedList<Object> compositeStack = new LinkedList<>();
-
-    private static final int SERVICE_TYPE_TAG = 54;
+    private final LinkedList<Object> compositeStack = new LinkedList<>();
 
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
 
-    private Map<String, BVarSymbol> globalVarMap = new HashMap<>();
+    private final Map<String, BVarSymbol> globalVarMap = new HashMap<>();
 
     public static BIRPackageSymbolEnter getInstance(CompilerContext context) {
         BIRPackageSymbolEnter packageReader = context.get(COMPILED_PACKAGE_SYMBOL_ENTER_KEY);
@@ -397,7 +395,7 @@ public class BIRPackageSymbolEnter {
         String funcName = getStringCPEntryValue(dataInStream);
         String funcOrigName = getStringCPEntryValue(dataInStream);
         String workerName = getStringCPEntryValue(dataInStream);
-        var flags = dataInStream.readLong();
+        long flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
 
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
@@ -533,7 +531,7 @@ public class BIRPackageSymbolEnter {
         String typeDefName = getStringCPEntryValue(dataInStream);
         String typeDefOrigName = getStringCPEntryValue(dataInStream);
 
-        var flags = dataInStream.readLong();
+        long flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
 
         byte[] docBytes = readDocBytes(dataInStream);
@@ -693,7 +691,7 @@ public class BIRPackageSymbolEnter {
         String name = getStringCPEntryValue(dataInStream);
         String originalName = getStringCPEntryValue(dataInStream);
 
-        var flags = dataInStream.readLong();
+        long flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
         Location pos = readPosition(dataInStream);
 
@@ -751,7 +749,7 @@ public class BIRPackageSymbolEnter {
 
     private void defineConstant(DataInputStream dataInStream) throws IOException {
         String constantName = getStringCPEntryValue(dataInStream);
-        var flags = dataInStream.readLong();
+        long flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
         Location pos = readPosition(dataInStream);
 
@@ -869,7 +867,7 @@ public class BIRPackageSymbolEnter {
         Location pos = readPosition(dataInStream);
         dataInStream.readByte(); // Read and ignore the kind as it is anyway global variable
         String varName = getStringCPEntryValue(dataInStream);
-        var flags = dataInStream.readLong();
+        long flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
 
         byte[] docBytes = readDocBytes(dataInStream);
@@ -916,7 +914,7 @@ public class BIRPackageSymbolEnter {
         BInvokableType invokableType = (BInvokableType) invokableSymbol.type;
         for (int i = 0; i < requiredParamCount; i++) {
             String paramName = getStringCPEntryValue(dataInStream);
-            var flags = dataInStream.readLong();
+            long flags = dataInStream.readLong();
             BVarSymbol varSymbol = new BVarSymbol(flags, Names.fromString(paramName), this.env.pkgSymbol.pkgID,
                                                   invokableType.paramTypes.get(i), invokableSymbol,
                                                   symTable.builtinPos, COMPILED_SOURCE);
@@ -1071,7 +1069,7 @@ public class BIRPackageSymbolEnter {
         return stringCPEntry.value;
     }
 
-    private String getStringCPEntryValue(int cpIndex) throws IOException {
+    private String getStringCPEntryValue(int cpIndex) {
         StringCPEntry stringCPEntry = (StringCPEntry) this.env.constantPool[cpIndex];
         return stringCPEntry.value;
     }
@@ -1133,7 +1131,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private class BIRTypeReader {
-        private DataInputStream inputStream;
+        private final DataInputStream inputStream;
 
         public BIRTypeReader(DataInputStream inputStream) {
             this.inputStream = inputStream;
@@ -1154,7 +1152,7 @@ public class BIRPackageSymbolEnter {
             int params = inputStream.readInt();
             for (int i = 0; i < params; i++) {
                 String paramName = getStringCPEntryValue(inputStream);
-                var paramFlags = inputStream.readLong();
+                long paramFlags = inputStream.readLong();
                 byte[] docBytes = readDocBytes(inputStream);
                 BType fieldType = readTypeFromCp();
 
@@ -1170,7 +1168,7 @@ public class BIRPackageSymbolEnter {
             boolean hasRestParam = inputStream.readBoolean();
             if (hasRestParam) {
                 String fieldName = getStringCPEntryValue(inputStream);
-                var fieldFlags = inputStream.readLong();
+                long fieldFlags = inputStream.readLong();
                 byte[] docBytes = readDocBytes(inputStream);
                 BType fieldType = readTypeFromCp();
 
@@ -1193,7 +1191,7 @@ public class BIRPackageSymbolEnter {
 
         private BInvokableSymbol getSymbolOfClosure() throws IOException {
             String name = getStringCPEntryValue(inputStream);
-            var flags = inputStream.readLong();
+            long flags = inputStream.readLong();
             BType type = readTypeFromCp();
             int pkgCpIndex = inputStream.readInt();
             PackageID pkgId = getPackageId(pkgCpIndex);
@@ -1206,7 +1204,7 @@ public class BIRPackageSymbolEnter {
             int parameters = inputStream.readInt();
             for (int i = 0; i < parameters; i++) {
                 String fieldName = getStringCPEntryValue(inputStream);
-                var fieldFlags = inputStream.readLong();
+                long fieldFlags = inputStream.readLong();
                 byte[] docBytes = readDocBytes(inputStream);
                 BType fieldType = readTypeFromCp();
                 BVarSymbol varSymbol = new BVarSymbol(fieldFlags, Names.fromString(fieldName), pkgId, fieldType, null,
@@ -1220,7 +1218,7 @@ public class BIRPackageSymbolEnter {
         public BType readType(int cpI) throws IOException {
             byte tag = inputStream.readByte();
             Name name = Names.fromString(getStringCPEntryValue(inputStream));
-            var flags = inputStream.readLong();
+            long flags = inputStream.readLong();
 
             // Read the type flags to identify if type reference types are nullable.
             int typeFlags = inputStream.readInt();
@@ -1284,7 +1282,7 @@ public class BIRPackageSymbolEnter {
                     int recordFields = inputStream.readInt();
                     for (int i = 0; i < recordFields; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
-                        var fieldFlags = inputStream.readLong();
+                        long fieldFlags = inputStream.readLong();
 
                         byte[] docBytes = readDocBytes(inputStream);
 
@@ -1474,7 +1472,7 @@ public class BIRPackageSymbolEnter {
                     }
                     unionType.setOriginalMemberTypes(originalMemberTypes);
 
-                    var poppedUnionType = compositeStack.pop();
+                    Object poppedUnionType = compositeStack.pop();
                     assert poppedUnionType == unionType;
 
                     boolean isEnum = inputStream.readBoolean();
@@ -1600,7 +1598,7 @@ public class BIRPackageSymbolEnter {
                     return bFutureType;
                 case TypeTags.FINITE:
                     String finiteTypeName = getStringCPEntryValue(inputStream);
-                    var finiteTypeFlags = inputStream.readLong();
+                    long finiteTypeFlags = inputStream.readLong();
                     BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteTypeFlags,
                                                                   Names.fromString(finiteTypeName), env.pkgSymbol.pkgID,
                                                                   null, env.pkgSymbol, symTable.builtinPos,
@@ -1643,8 +1641,8 @@ public class BIRPackageSymbolEnter {
                     int fieldCount = inputStream.readInt();
                     for (int i = 0; i < fieldCount; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
-                        var fieldFlags = inputStream.readLong();
-                        var defaultable = inputStream.readBoolean();
+                        long fieldFlags = inputStream.readLong();
+                        boolean defaultable = inputStream.readBoolean();
                         byte[] docBytes = readDocBytes(inputStream);
 
                         BType fieldType = readTypeFromCp();
@@ -1696,8 +1694,6 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.FUNCTION_POINTER:
                     // TODO fix
                     break;
-                case SERVICE_TYPE_TAG:
-                    throw new AssertionError();
                 case TypeTags.SIGNED32_INT:
                     return symTable.signed32IntType;
                 case TypeTags.SIGNED16_INT:
@@ -1803,7 +1799,7 @@ public class BIRPackageSymbolEnter {
                                                                  BObjectTypeSymbol objectSymbol) throws IOException {
             String attachedFuncName = getStringCPEntryValue(inputStream);
             String attachedFuncOrigName = getStringCPEntryValue(inputStream);
-            var attachedFuncFlags = inputStream.readLong();
+            long attachedFuncFlags = inputStream.readLong();
             BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
             Name funcName = Names.fromString(Symbols.getAttachedFuncSymbolName(
                     objectSymbol.name.value, attachedFuncName));

@@ -77,7 +77,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class LangLibFunctionTest {
 
-    private static List<String> valueLangLib = List.of("clone", "cloneReadOnly", "cloneWithType",
+    private static final List<String> VALUE_LANG_LIB = List.of("clone", "cloneReadOnly", "cloneWithType",
             "isReadOnly", "toString", "toBalString", "toJson", "toJsonString",
             "fromJsonString", "fromJsonFloatString", "fromJsonDecimalString",
             "fromJsonWithType", "fromJsonStringWithType", "mergeJson");
@@ -255,11 +255,11 @@ public class LangLibFunctionTest {
         return new Object[][]{
                 {68, 8, XML, expFunctions},
                 {69, 17, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), elementFuncs.stream())
-                        .collect(Collectors.toList())},
+                        .toList()},
                 {79, 31, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), piFuncs.stream())
-                        .collect(Collectors.toList())},
+                        .toList()},
                 {80, 17, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), commentFuncs.stream())
-                        .collect(Collectors.toList())},
+                        .toList()},
                 {81, 14, TYPE_REFERENCE, expFunctions},
         };
     }
@@ -384,7 +384,7 @@ public class LangLibFunctionTest {
 
         return new Object[][]{
                 {64, 22, expFunctions},
-                {65, 32, Stream.concat(expFunctions.stream(), additionalFuncs.stream()).collect(Collectors.toList())},
+                {65, 32, Stream.concat(expFunctions.stream(), additionalFuncs.stream()).toList()},
                 {66, 37, expFunctions},
         };
     }

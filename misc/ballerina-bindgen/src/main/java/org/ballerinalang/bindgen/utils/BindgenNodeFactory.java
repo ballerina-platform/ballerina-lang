@@ -108,7 +108,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.QUESTION_MARK;
  *
  * @since 2.0.0
  */
-class BindgenNodeFactory {
+final class BindgenNodeFactory {
 
     private static final Token OPEN_PAREN_TOKEN = createToken(SyntaxKind.OPEN_PAREN_TOKEN);
     private static final Token CLOSED_PAREN_TOKEN = createToken(CLOSE_PAREN_TOKEN);
@@ -127,6 +127,9 @@ class BindgenNodeFactory {
     private static final ExpressionNode ARRAY_TOKEN_EXPRESSION = NodeFactory.createNilLiteralNode(
             createToken(SyntaxKind.OPEN_BRACKET_TOKEN),
             createToken(SyntaxKind.CLOSE_BRACKET_TOKEN));
+
+    private BindgenNodeFactory() {
+    }
 
     /**
      * Create an import declaration name node while providing the organization name, optional prefix, and module names.
@@ -301,7 +304,7 @@ class BindgenNodeFactory {
     private static String documentationReturnDescription(BFunction bFunction) {
         String paramDescription = null;
         if (bFunction.getReturnType() == null && bFunction.getErrorType() == null) {
-            return paramDescription;
+            return null;
         }
         if (bFunction.getKind() == BFunction.BFunctionKind.CONSTRUCTOR) {
             if (bFunction.getErrorType() != null) {

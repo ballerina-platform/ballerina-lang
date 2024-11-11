@@ -46,7 +46,10 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 0.995.0
  */
-public class MapUtils {
+public final class MapUtils {
+
+    private MapUtils() {
+    }
 
     public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value) {
         updateMapValue(TypeUtils.getImpliedType(mapValue.getType()), mapValue, fieldName, value);
@@ -66,8 +69,9 @@ public class MapUtils {
                                                                                expType, valuesType));
     }
 
-    public static boolean handleInherentTypeViolatingRecordUpdate(MapValue mapValue, BString fieldName, Object value,
-                                                                  BRecordType recType, boolean initialValue) {
+    public static boolean handleInherentTypeViolatingRecordUpdate(
+            MapValue<?, ?> mapValue, BString fieldName, Object value,
+            BRecordType recType, boolean initialValue) {
         Field recField = recType.getFields().get(fieldName.getValue());
         Type recFieldType;
 

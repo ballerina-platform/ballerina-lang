@@ -52,7 +52,6 @@ import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
@@ -71,9 +70,9 @@ public final class XmlItem extends XmlValue implements BXmlItem {
 
     private QName name;
     private XmlSequence children;
-    private AttributeMapValueImpl attributes;
+    private final AttributeMapValueImpl attributes;
     // Keep track of probable parents of xml element to detect probable cycles in xml.
-    private List<WeakReference<XmlItem>> probableParents;
+    private final List<WeakReference<XmlItem>> probableParents;
 
     public XmlItem(QName name, XmlSequence children, boolean readonly) {
         this.name = name;
@@ -385,7 +384,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
                 StringUtils.fromString("Cycle detected"));
     }
 
-    private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXml> appendingList) {
+    private void mergeAdjoiningTextNodesIntoList(List<BXml> leftList, List<BXml> appendingList) {
         XmlText lastChild = (XmlText) leftList.get(leftList.size() - 1);
         String firstChildContent = appendingList.get(0).getTextValue();
         String mergedTextContent = lastChild.getTextValue() + firstChildContent;
@@ -447,7 +446,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
             return omElement;
         } catch (BError e) {
             throw e;
-        } catch (OMException | XMLStreamException e) {
+        } catch (OMException e) {
             Throwable cause = e.getCause() == null ? e : e.getCause();
             throw ErrorCreator.createError(StringUtils.fromString((cause.getMessage())));
         } catch (Throwable e) {
@@ -509,8 +508,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
 
         MapValue<BString, BString> attributesMap = xmlItem.getAttributesMap();
         MapValue<BString, BString> copy = (MapValue<BString, BString>) this.getAttributesMap().copy(refs);
-        if (attributesMap instanceof MapValueImpl) {
-            MapValueImpl<BString, BString> map = (MapValueImpl<BString, BString>) attributesMap;
+        if (attributesMap instanceof MapValueImpl<BString, BString> map) {
             map.putAll((Map<BString, BString>) copy);
         } else {
             for (Map.Entry<BString, BString> entry : copy.entrySet()) {
@@ -663,9 +661,9 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<XmlItem> getIterator() {
         XmlItem that = this;
-        return new IteratorValue() {
+        return new IteratorValue<>() {
             boolean read = false;
 
             @Override
@@ -674,7 +672,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
             }
 
             @Override
-            public Object next() {
+            public XmlItem next() {
                 if (read) {
                     throw new NoSuchElementException();
                 }

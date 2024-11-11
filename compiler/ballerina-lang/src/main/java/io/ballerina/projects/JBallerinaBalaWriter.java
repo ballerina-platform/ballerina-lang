@@ -35,7 +35,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -58,7 +57,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
     public static final String LIBS = "libs";
     public static final String COMPILER_PLUGIN = "compiler-plugin";
     public static final String ANNON = "annon";
-    private JBallerinaBackend backend;
+    private final JBallerinaBackend backend;
 
     public JBallerinaBalaWriter(JBallerinaBackend backend) {
         this.backend = backend;
@@ -97,7 +96,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
             // null check is added for spot bug with the toml validation filename cannot be null
             String fileName = Optional.ofNullable(libPath.getFileName())
                     .map(Path::toString).orElse(ANNON);
-            Path entryPath = Paths.get(PLATFORM)
+            Path entryPath = Path.of(PLATFORM)
                     .resolve(target)
                     .resolve(fileName);
             // create a zip entry for each file
@@ -138,32 +137,28 @@ public class JBallerinaBalaWriter extends BalaWriter {
             List<String> compilerPluginLibPaths = new ArrayList<>();
             List<String> compilerPluginDependencies = this.compilerPluginToml.get().getCompilerPluginDependencies();
 
-            if (compilerPluginDependencies.get(0) == null) {
+            if (compilerPluginDependencies.isEmpty()) {
                 throw new ProjectException("No dependencies found in CompilerPlugin.toml file");
             }
 
-            if (!compilerPluginDependencies.isEmpty()) {
+            // Iterate through compiler plugin dependencies and add them to bala
+            // organization would be
+            // -- Bala Root
+            //   - compiler-plugin/
+            //     - libs
+            //       - java-library1.jar
+            //       - java-library2.jar
 
-                // Iterate through compiler plugin dependencies and add them to bala
-                // organization would be
-                // -- Bala Root
-                //   - compiler-plugin/
-                //     - libs
-                //       - java-library1.jar
-                //       - java-library2.jar
-
-
-                // Iterate jars and create directories for each target
-                for (String compilerPluginLib : compilerPluginDependencies) {
-                    Path libPath = this.packageContext.project().sourceRoot().resolve(compilerPluginLib);
-                    // null check is added for spot bug with the toml validation filename cannot be null
-                    String fileName = Optional.ofNullable(libPath.getFileName())
-                            .map(Path::toString).orElse(ANNON);
-                    Path entryPath = Paths.get("compiler-plugin").resolve("libs").resolve(fileName);
-                    // create a zip entry for each file
-                    putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
-                    compilerPluginLibPaths.add(entryPath.toString());
-                }
+            // Iterate jars and create directories for each target
+            for (String compilerPluginLib : compilerPluginDependencies) {
+                Path libPath = this.packageContext.project().sourceRoot().resolve(compilerPluginLib);
+                // null check is added for spot bug with the toml validation filename cannot be null
+                String fileName = Optional.ofNullable(libPath.getFileName())
+                        .map(Path::toString).orElse(ANNON);
+                Path entryPath = Path.of("compiler-plugin").resolve("libs").resolve(fileName);
+                // create a zip entry for each file
+                putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
+                compilerPluginLibPaths.add(entryPath.toString());
             }
 
             CompilerPluginJson compilerPluginJson = new CompilerPluginJson(
@@ -176,7 +171,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
                     .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
 
             try {
-                putZipEntry(balaOutputStream, Paths.get(COMPILER_PLUGIN, COMPILER_PLUGIN_JSON),
+                putZipEntry(balaOutputStream, Path.of(COMPILER_PLUGIN, COMPILER_PLUGIN_JSON),
                         new ByteArrayInputStream(
                                 gson.toJson(compilerPluginJson).getBytes(Charset.defaultCharset())));
             } catch (IOException e) {
@@ -209,7 +204,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
                 // null check is added for spot bug with the toml validation filename cannot be null
                 String fileName = Optional.ofNullable(libPath.getFileName())
                         .map(Path::toString).orElse(ANNON);
-                Path entryPath = Paths.get(TOOL).resolve(LIBS).resolve(fileName);
+                Path entryPath = Path.of(TOOL).resolve(LIBS).resolve(fileName);
                 // create a zip entry for each file
                 putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
                 balToolLibPaths.add(entryPath.toString());
@@ -222,7 +217,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
                 .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
 
         try {
-            putZipEntry(balaOutputStream, Paths.get(TOOL, BAL_TOOL_JSON),
+            putZipEntry(balaOutputStream, Path.of(TOOL, BAL_TOOL_JSON),
                     new ByteArrayInputStream(
                             gson.toJson(balToolJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
@@ -277,7 +272,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
     }
 
     private Optional<CompilerPluginDescriptor> readCompilerPluginToml() {
-        Optional<io.ballerina.projects.CompilerPluginToml> compilerPluginToml = backend.packageContext().project()
+        Optional<CompilerPluginToml> compilerPluginToml = backend.packageContext().project()
                 .currentPackage().compilerPluginToml();
 
         if (compilerPluginToml.isPresent()) {

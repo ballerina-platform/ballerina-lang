@@ -63,7 +63,7 @@ import static io.ballerina.runtime.internal.values.XmlItem.createXMLItemWithDefa
  * 
  * @since 0.995.0
  */
-public class XmlFactory {
+public final class XmlFactory {
 
     public static final StAXParserConfiguration STAX_PARSER_CONFIGURATION = StAXParserConfiguration.STANDALONE;
     public static final String PARSE_ERROR = "failed to parse xml";
@@ -216,7 +216,7 @@ public class XmlFactory {
      * @param table {@link io.ballerina.runtime.internal.values.TableValue} to convert
      * @return converted {@link XmlValue}
      */
-    public static BXml tableToXML(TableValueImpl table) {
+    public static BXml tableToXML(TableValueImpl<?, ?> table) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             XMLStreamWriter streamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
@@ -478,9 +478,8 @@ public class XmlFactory {
      *
      * @param xmlFragment the well-formed XML fragment
      * @return The OMElement created out of the string XML fragment.
-     * @throws XMLStreamException when unexpected processing error occur while parsing.
      */
-    public static OMElement stringToOM(String xmlFragment) throws XMLStreamException {
+    public static OMElement stringToOM(String xmlFragment) {
         return stringToOM(OMAbstractFactory.getOMFactory(), xmlFragment);
     }
 
@@ -491,9 +490,8 @@ public class XmlFactory {
      * @param omFactory the factory used to build the object model
      * @param xmlFragment the well-formed XML fragment
      * @return The OMElement created out of the string XML fragment.
-     * @throws XMLStreamException when unexpected processing error occur while parsing.
      */
-    private static OMElement stringToOM(OMFactory omFactory, String xmlFragment) throws XMLStreamException {
+    private static OMElement stringToOM(OMFactory omFactory, String xmlFragment) {
         return xmlFragment != null
                 ? OMXMLBuilderFactory
                     .createOMBuilder(omFactory, STAX_PARSER_CONFIGURATION, new StringReader(xmlFragment))
@@ -506,7 +504,7 @@ public class XmlFactory {
      *
      * @since 1.2
      */
-    public static class XMLTextUnescape {
+    public static final class XMLTextUnescape {
 
         private XMLTextUnescape() {}
 

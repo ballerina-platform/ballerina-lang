@@ -27,7 +27,10 @@ import io.ballerina.runtime.api.values.BXml;
  *
  * @since 1.0
  */
-public class ForEach {
+public final class ForEach {
+
+    private ForEach() {
+    }
 
     public static void forEach(Environment env, BXml x, BFunctionPointer func) {
         if (x.isSingleton()) {

@@ -82,7 +82,7 @@ public class ClientResourceAccessActionNegativeTest {
                 "missing required parameter 'name' in call to 'get()'",
                 78, 13);
         validateError(clientResourceAccessNegative, index++,
-                "undefined defaultable parameter 'b'",
+                "undefined parameter 'b'",
                 78, 38);
         validateError(clientResourceAccessNegative, index++,
                 "too many arguments in call to 'get()'", 79, 52);

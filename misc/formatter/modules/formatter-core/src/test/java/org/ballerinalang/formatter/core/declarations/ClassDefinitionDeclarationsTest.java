@@ -23,7 +23,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of class definition declarations.
@@ -33,6 +33,7 @@ import java.nio.file.Paths;
 public class ClassDefinitionDeclarationsTest extends FormatterTest {
 
 
+    @Override
     @Test(dataProvider = "test-file-provider")
     public void test(String source, String sourcePath) throws IOException {
         super.test(source, sourcePath);
@@ -56,6 +57,6 @@ public class ClassDefinitionDeclarationsTest extends FormatterTest {
      */
     @Override
     public String getTestResourceDir() {
-        return Paths.get("declarations", "class-definition").toString();
+        return Path.of("declarations", "class-definition").toString();
     }
 }

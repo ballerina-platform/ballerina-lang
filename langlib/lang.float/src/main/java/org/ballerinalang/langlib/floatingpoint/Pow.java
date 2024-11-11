@@ -25,6 +25,9 @@ package org.ballerinalang.langlib.floatingpoint;
  */
 public class Pow {
 
+    private Pow() {
+    }
+
     public static double pow(double x, double y) {
         return Math.pow(x, y);
     }

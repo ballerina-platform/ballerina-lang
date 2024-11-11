@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -31,12 +30,12 @@ public class SimpleEvaluatorTest extends AbstractEvaluatorTest {
     private static final String LITERALS_EVALUATOR_TESTCASE = "testcases/evaluator/values.literals.json";
 
     @Test
-    public void testEvaluateBasic() throws BallerinaShellException {
+    public void testEvaluateBasic() {
         testEvaluate(BASIC_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateLiterals() throws BallerinaShellException {
+    public void testEvaluateLiterals() {
         testEvaluate(LITERALS_EVALUATOR_TESTCASE);
     }
 }

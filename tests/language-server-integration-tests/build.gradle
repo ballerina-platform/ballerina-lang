@@ -15,9 +15,10 @@
  *
  */
 
-
-apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProjectWithExtBala'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations.all {
     resolutionStrategy {
@@ -40,11 +41,11 @@ dependencies {
     implementation project(path: ':language-server:language-server-core', configuration: 'tests')
     implementation project(':ballerina-test-utils')
 
-    implementation "com.google.code.gson:gson"
+    implementation libs.gson
 
-    testImplementation 'org.testng:testng'
-    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
-    testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
+    testImplementation libs.testng
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.testng
 
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-codeactions')
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-completion-providers')

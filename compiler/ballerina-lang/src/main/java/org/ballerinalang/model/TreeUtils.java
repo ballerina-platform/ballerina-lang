@@ -25,38 +25,41 @@ import java.util.Map;
 /**
  * This contains model tree related utility functions. 
  */
-public class TreeUtils {
-    
-    private static Map<String, TypeKind> stringTypeKindMap = new HashMap<>();
+public final class TreeUtils {
+
+    private static final Map<String, TypeKind> STRING_TYPE_KIND_MAP = new HashMap<>();
     
     static {
-        stringTypeKindMap.put("int", TypeKind.INT);
-        stringTypeKindMap.put("byte", TypeKind.BYTE);
-        stringTypeKindMap.put("float", TypeKind.FLOAT);
-        stringTypeKindMap.put("decimal", TypeKind.DECIMAL);
-        stringTypeKindMap.put("boolean", TypeKind.BOOLEAN);
-        stringTypeKindMap.put("string", TypeKind.STRING);
-        stringTypeKindMap.put("json", TypeKind.JSON);
-        stringTypeKindMap.put("xml", TypeKind.XML);
-        stringTypeKindMap.put("stream", TypeKind.STREAM);
-        stringTypeKindMap.put("table", TypeKind.TABLE);
-        stringTypeKindMap.put("any", TypeKind.ANY);
-        stringTypeKindMap.put("anydata", TypeKind.ANYDATA);
-        stringTypeKindMap.put("map", TypeKind.MAP);
-        stringTypeKindMap.put("future", TypeKind.FUTURE);
-        stringTypeKindMap.put("typedesc", TypeKind.TYPEDESC);
-        stringTypeKindMap.put("error", TypeKind.ERROR);
-        stringTypeKindMap.put("()", TypeKind.NIL);
-        stringTypeKindMap.put("null", TypeKind.NIL);
-        stringTypeKindMap.put("never", TypeKind.NEVER);
-        stringTypeKindMap.put("channel", TypeKind.CHANNEL);
-        stringTypeKindMap.put("service", TypeKind.SERVICE);
-        stringTypeKindMap.put("handle", TypeKind.HANDLE);
-        stringTypeKindMap.put("readonly", TypeKind.READONLY);
+        STRING_TYPE_KIND_MAP.put("int", TypeKind.INT);
+        STRING_TYPE_KIND_MAP.put("byte", TypeKind.BYTE);
+        STRING_TYPE_KIND_MAP.put("float", TypeKind.FLOAT);
+        STRING_TYPE_KIND_MAP.put("decimal", TypeKind.DECIMAL);
+        STRING_TYPE_KIND_MAP.put("boolean", TypeKind.BOOLEAN);
+        STRING_TYPE_KIND_MAP.put("string", TypeKind.STRING);
+        STRING_TYPE_KIND_MAP.put("json", TypeKind.JSON);
+        STRING_TYPE_KIND_MAP.put("xml", TypeKind.XML);
+        STRING_TYPE_KIND_MAP.put("stream", TypeKind.STREAM);
+        STRING_TYPE_KIND_MAP.put("table", TypeKind.TABLE);
+        STRING_TYPE_KIND_MAP.put("any", TypeKind.ANY);
+        STRING_TYPE_KIND_MAP.put("anydata", TypeKind.ANYDATA);
+        STRING_TYPE_KIND_MAP.put("map", TypeKind.MAP);
+        STRING_TYPE_KIND_MAP.put("future", TypeKind.FUTURE);
+        STRING_TYPE_KIND_MAP.put("typedesc", TypeKind.TYPEDESC);
+        STRING_TYPE_KIND_MAP.put("error", TypeKind.ERROR);
+        STRING_TYPE_KIND_MAP.put("()", TypeKind.NIL);
+        STRING_TYPE_KIND_MAP.put("null", TypeKind.NIL);
+        STRING_TYPE_KIND_MAP.put("never", TypeKind.NEVER);
+        STRING_TYPE_KIND_MAP.put("channel", TypeKind.CHANNEL);
+        STRING_TYPE_KIND_MAP.put("service", TypeKind.SERVICE);
+        STRING_TYPE_KIND_MAP.put("handle", TypeKind.HANDLE);
+        STRING_TYPE_KIND_MAP.put("readonly", TypeKind.READONLY);
+    }
+
+    private TreeUtils() {
     }
 
     public static TypeKind stringToTypeKind(String typeName) {
-        return stringTypeKindMap.get(typeName);
+        return STRING_TYPE_KIND_MAP.get(typeName);
     }
     
 }

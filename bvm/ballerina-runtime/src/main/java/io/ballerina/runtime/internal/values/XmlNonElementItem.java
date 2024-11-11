@@ -176,15 +176,15 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
     public abstract OMNode value();
 
     @Override
-    public IteratorValue getIterator() {
-        return new IteratorValue() {
+    public IteratorValue<?> getIterator() {
+        return new IteratorValue<>() {
             @Override
             public boolean hasNext() {
                 return false;
             }
 
             @Override
-            public Object next() {
+            public Void next() {
                 throw new NoSuchElementException();
             }
         };

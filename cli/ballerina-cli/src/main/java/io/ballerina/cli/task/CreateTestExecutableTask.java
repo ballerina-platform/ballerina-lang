@@ -43,8 +43,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -244,7 +244,7 @@ public class CreateTestExecutableTask implements Task {
 
             // Filter the testDependencies from the testSuite's test dependencies
             Collection<Path> requiredDependencies = testSuite.getTestExecutionDependencies().stream()
-                    .map(Paths::get).toList();
+                    .map(Path::of).toList();
             HashSet<JarLibrary> filteredTestDependencies = new HashSet<>();
             requiredDependencies.forEach(neededDependency -> {
                 String comparingStr = MODIFIED_JAR_SUFFIX;
@@ -341,7 +341,7 @@ public class CreateTestExecutableTask implements Task {
 
         // Write the cmdArgs to a file in path
         Path writingPath = path.resolve(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
-        try (BufferedWriter writer = java.nio.file.Files.newBufferedWriter(writingPath)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(writingPath)) {
             for (String arg : cmdArgs) {
                 writer.write(arg);
                 writer.newLine();

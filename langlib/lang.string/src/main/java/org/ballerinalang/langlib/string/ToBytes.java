@@ -26,7 +26,10 @@ import java.nio.charset.StandardCharsets;
 /**
  * Convert String to byte array.
  */
-public class ToBytes {
+public final class ToBytes {
+
+    private ToBytes() {
+    }
 
     public static BArray toBytes(BString value) {
 

@@ -26,10 +26,13 @@ import io.ballerina.runtime.api.values.BTable;
  *
  * @since 1.3.0
  */
-public class HasKey {
+public final class HasKey {
+
+    private HasKey() {
+    }
 
     @Deprecated
-    public static boolean hasKey(BTable tbl, Object key) {
+    public static boolean hasKey(BTable<?, ?> tbl, Object key) {
         return tbl.containsKey(key);
     }
 }

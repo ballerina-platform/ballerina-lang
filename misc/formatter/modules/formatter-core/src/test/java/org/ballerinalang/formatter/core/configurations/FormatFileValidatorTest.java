@@ -31,7 +31,7 @@ import java.nio.file.Path;
  */
 public class FormatFileValidatorTest {
 
-    private final Path resDir = Path.of("src", "test", "resources", "configurations", "validator");
+    private final Path resDir = Path.of("src/test/resources/configurations/validator");
 
     @Test(description = "Test validator on valid formatting configuration file")
     public void testValidatorOnValidFile() throws FormatterException {

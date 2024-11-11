@@ -23,8 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.stream.Stream;
 
 /**
  * Test running parser tests through compiler phases.
@@ -33,7 +33,7 @@ import java.util.HashSet;
  */
 public class ParserTestRunner {
 
-    private final Path ballerinaLangDir = Paths.get("").toAbsolutePath().getParent().getParent();
+    private final Path ballerinaLangDir = Path.of("").toAbsolutePath().getParent().getParent();
     private final Path parserDir = ballerinaLangDir.resolve("compiler").resolve("ballerina-parser");
 
     @Test(dataProvider = "parser-test-file-provider")
@@ -58,9 +58,8 @@ public class ParserTestRunner {
     @DataProvider(name = "parser-test-file-provider")
     public Object[][] dataProvider() {
         HashSet<String> skippedTests = skipList();
-        try {
-            return Files.walk(parserDir.resolve("src").resolve("test").resolve("resources"))
-                    .filter(path -> {
+        try (Stream<Path> paths = Files.walk(parserDir.resolve("src").resolve("test").resolve("resources"))) {
+            return paths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".bal")
                                 && !skippedTests.contains(file.getName());

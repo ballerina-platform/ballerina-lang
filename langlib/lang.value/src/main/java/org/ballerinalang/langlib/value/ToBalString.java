@@ -26,7 +26,11 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since Swan Lake
  */
-public class ToBalString {
+public final class ToBalString {
+
+    private ToBalString() {
+    }
+
     public static BString toBalString(Object value) {
         return StringUtils.fromString(StringUtils.getExpressionStringValue(value));
     }

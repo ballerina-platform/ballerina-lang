@@ -27,9 +27,12 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  * 
  * @since 0.88
  */
-public class Select {
+public final class Select {
 
     private static final String OPERATION = "select elements from xml";
+
+    private Select() {
+    }
 
     public static BXml select(Strand strand, BXml xml, String qname) {
         try {

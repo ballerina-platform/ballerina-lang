@@ -26,7 +26,10 @@ import static org.ballerinalang.langlib.string.utils.StringUtils.createNullRefer
 /**
  * Extern function ballerina.model.arrays:substring(string, int, int).
  */
-public class Substring {
+public final class Substring {
+
+    private Substring() {
+    }
 
     public static BString substring(BString value, long startIndex, long endIndex) {
         if (value == null) {

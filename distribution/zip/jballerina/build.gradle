@@ -17,10 +17,9 @@
 
 plugins {
     id 'base'
+    id 'repositories'
+    id 'javaLibsProject'
 }
-
-apply from: "$rootDir/gradle/repositories.gradle"
-apply from: "$rootDir/gradle/javaLibsProject.gradle"
 
 configurations {
     dist {

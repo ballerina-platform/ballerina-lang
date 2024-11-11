@@ -34,8 +34,10 @@ import io.ballerina.runtime.internal.types.BServiceType;
  *
  * @since 2.0.0
  */
-@SuppressWarnings("unused")
-public class Async {
+public final class Async {
+
+    private Async() {
+    }
 
     public static long getFieldValWithNoArgs(Environment env, BObject obj) {
         return startNonIsolatedWorker(env, obj, "getFieldValWithNoArgs");

@@ -26,12 +26,16 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  *
  * @since 1.3.0
  */
-public class Length {
 
-    public static long length(BTable tbl) {
+public final class Length {
+
+    private Length() {
+    }
+
+    public static long length(BTable<?, ?> tbl) {
         return tbl.size();
     }
-    public static long length_bstring(Strand strand, BTable tbl) {
+    public static long length_bstring(Strand strand, BTable<?, ?> tbl) {
         return length(tbl);
     }
 }

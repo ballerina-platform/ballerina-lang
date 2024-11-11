@@ -26,7 +26,7 @@ import io.ballerina.runtime.internal.TypeChecker;
 /**
  * Type check function ballerina/test#getBallerinaType.
  */
-public class BallerinaTypeCheck {
+public final class BallerinaTypeCheck {
 
     /**
      * Mark the constructor as private.

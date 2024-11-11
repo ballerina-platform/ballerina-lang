@@ -19,7 +19,6 @@ package org.ballerinalang.test.testarina;
 
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -28,7 +27,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
@@ -44,12 +43,12 @@ public class TestarinaTestCase extends BaseTest {
     private BMainInstance balClient;
 
     @BeforeClass(enabled = false)
-    public void setUp() throws IOException, BallerinaTestException {
-        tempProjectDirectory = Files.createTempDirectory("bal-test-integration-testartIna-project-");
+    public void setUp() throws IOException {
+        tempProjectDirectory = Files.createTempDirectory("bal-test-integration-testarina-project-");
 
         // copy TestProject1 to a temp
-        Path originalTestProj1 = Paths.get("src", "test", "resources",
-                "testartIna", "ServiceTestProject").toAbsolutePath();
+        Path originalTestProj1 = Path.of("src", "test", "resources",
+                "testarina", "ServiceTestProject").toAbsolutePath();
         this.serviceProjectPath = this.tempProjectDirectory.resolve("ServiceTestProject");
         copyFolder(originalTestProj1, this.serviceProjectPath);
 
@@ -71,7 +70,9 @@ public class TestarinaTestCase extends BaseTest {
 
 
     public void copyFolder(Path src, Path dest) throws IOException {
-        Files.walk(src).forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+        try (Stream<Path> paths = Files.walk(src)) {
+            paths.forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+        }
     }
 
     private void copy(Path source, Path dest) {

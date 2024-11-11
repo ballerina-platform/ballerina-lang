@@ -32,7 +32,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -52,7 +51,7 @@ public class PerformanceAnalyzerTest {
     private static final String BALLERINA = "ballerina";
     private static final String RESULT = "result";
     private static final String PERFORMANCE_ANALYZE = "performanceAnalyzer/getResourcesWithEndpoints";
-    private static final Path RES_DIR = Paths.get("src", "test", "resources").toAbsolutePath();
+    private static final Path RES_DIR = Path.of("src", "test", "resources").toAbsolutePath();
 
     @Test(description = "Test performance analyzer")
     public void testFunction() throws IOException, ExecutionException, InterruptedException {

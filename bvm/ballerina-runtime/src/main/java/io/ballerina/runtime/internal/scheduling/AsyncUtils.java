@@ -37,7 +37,7 @@ import java.util.function.Supplier;
 /**
  * Util functions for async invocations.
  */
-public class AsyncUtils {
+public final class AsyncUtils {
 
     public static Object handleNonIsolatedStrand(Strand strand, Supplier<?> resultSupplier) {
         // This check required for non strand Threads.
@@ -124,7 +124,6 @@ public class AsyncUtils {
         } else {
             result = handleNonIsolatedStrand(strand, () -> getAnyFutureResult(cFutures));
         }
-
         if (cFutures.length > 1 && result instanceof BError) {
             List<CompletableFuture<?>> nonErrorFutures = new ArrayList<>();
             for (CompletableFuture<?> completableFuture : cFutures) {

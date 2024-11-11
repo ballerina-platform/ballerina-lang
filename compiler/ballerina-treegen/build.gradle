@@ -16,7 +16,9 @@
  *  under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 description = 'Ballerina - Syntax Tree Generator'
 
@@ -26,10 +28,10 @@ tasks.register('treegen', JavaExec) {
 }
 
 dependencies {
-    implementation('com.google.code.gson:gson') {
+    implementation(libs.gson) {
         because("To read the json file that describes the syntax tree nodes")
     }
-    implementation('com.github.spullara.mustache.java:compiler') {
+    implementation(libs.mustache.java.compiler) {
         because("The templating library. The implementation of mustache.js for Java")
     }
 }

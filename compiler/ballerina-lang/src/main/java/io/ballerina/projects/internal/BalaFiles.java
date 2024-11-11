@@ -50,7 +50,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -82,7 +81,8 @@ import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
  *
  * @since 2.0.0
  */
-public class BalaFiles {
+public final class BalaFiles {
+
     private static final Gson gson = new Gson();
 
     // TODO change class name to utils
@@ -204,7 +204,7 @@ public class BalaFiles {
                     .filter(Files::isDirectory)
                     .map(modulePath -> modulePath.getFileName().toString())
                     .map(fullModuleName -> loadModule(pkgName, fullModuleName, packagePath))
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (IOException e) {
             throw new ProjectException("Failed to read modules from directory: " + modulesDirPath, e);
         }
@@ -397,9 +397,9 @@ public class BalaFiles {
                 try {
                     Files.createDirectories(libPath.getParent());
                     // TODO: Need to refactor this fix
-                    Path libPathInZip = Paths.get(dependencyPath);
+                    Path libPathInZip = Path.of(dependencyPath);
                     if (!dependencyPath.contains(COMPILER_PLUGIN_DIR)) {
-                        libPathInZip = Paths.get(COMPILER_PLUGIN_DIR, String.valueOf(libPathInZip));
+                        libPathInZip = Path.of(COMPILER_PLUGIN_DIR, String.valueOf(libPathInZip));
                     }
                     Files.copy(zipFileSystem.getPath(String.valueOf(libPathInZip)), libPath);
                 } catch (IOException e) {
@@ -423,9 +423,9 @@ public class BalaFiles {
             if (!Files.exists(libPath)) {
                 try {
                     Files.createDirectories(libPath.getParent());
-                    Path libPathInZip = Paths.get(dependencyPath);
+                    Path libPathInZip = Path.of(dependencyPath);
                     if (!dependencyPath.contains(TOOL_DIR)) {
-                        libPathInZip = Paths.get(TOOL_DIR, String.valueOf(libPathInZip));
+                        libPathInZip = Path.of(TOOL_DIR, String.valueOf(libPathInZip));
                     }
                     Files.copy(zipFileSystem.getPath(String.valueOf(libPathInZip)), libPath);
                 } catch (IOException e) {
@@ -653,7 +653,7 @@ public class BalaFiles {
     private static List<ModuleDescriptor> createModDescriptorList(List<ModuleDependency> modDepEntries) {
         return modDepEntries.stream()
                 .map(BalaFiles::getModuleDescriptorFromDependencyEntry)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static DependencyGraphJson readDependencyGraphJson(Path dependencyGraphJsonPath) {

@@ -184,7 +184,7 @@ public class BalRuntime extends Runtime {
     private void handleCallBeforeModuleInit(BObject object, String methodName) {
         if (!moduleInitialized) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION_BEFORE_MODULE_INIT,
-                    object.getType().getName() + ":" + methodName);
+                    object.getOriginalType().getName() + ":" + methodName);
         }
     }
 
@@ -235,5 +235,4 @@ public class BalRuntime extends Runtime {
         }
         return className;
     }
-
 }

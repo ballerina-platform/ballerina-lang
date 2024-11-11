@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  *
  * @since v0.964.0
  */
-public class CommandConstants {
+public final class CommandConstants {
 
     public static final String UNDEFINED_MODULE = "undefined module";
     public static final String UNDEFINED_FUNCTION = "undefined function";
@@ -224,4 +224,7 @@ public class CommandConstants {
     public static final String ADD_ALL_TO_CONFIG_TOML = "Add all to Config.toml";
 
     public static final String CREATE_CONFIG_TOML_COMMAND = "create.config.toml";
+
+    private CommandConstants() {
+    }
 }

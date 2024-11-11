@@ -86,9 +86,12 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
  *
  * @since 1.3.0
  */
-public class ImmutableTypeCloner {
+public final class ImmutableTypeCloner {
 
     private static final String AND_READONLY_SUFFIX = " & readonly";
+
+    private ImmutableTypeCloner() {
+    }
 
     public static BType getEffectiveImmutableType(Location pos, Types types,
                                                   BType type, SymbolEnv env,
@@ -262,7 +265,7 @@ public class ImmutableTypeCloner {
                                                     origAnyType.flags | Flags.READONLY, origAnyType.isNullable());
                     immutableAnyTSymbol.type = immutableAnyType;
                 } else {
-                    immutableAnyType = new BAnyType(origAnyType.tag, immutableAnyTSymbol,
+                    immutableAnyType = new BAnyType(origAnyType.tag, null,
                                                     getImmutableTypeName(names, TypeKind.ANY.typeName()),
                                                     origAnyType.flags | Flags.READONLY, origAnyType.isNullable());
                 }
@@ -462,9 +465,7 @@ public class ImmutableTypeCloner {
             effectiveTypeFromType.tsymbol = immutableTupleTSymbol;
             effectiveTypeFromType.flags |= (type.flags | Flags.READONLY);
 
-            if (immutableTupleTSymbol != null) {
-                immutableTupleTSymbol.type = effectiveTypeFromType;
-            }
+            immutableTupleTSymbol.type = effectiveTypeFromType;
         } else {
             effectiveTypeFromType.flags |= (type.flags | Flags.READONLY);
         }
@@ -771,7 +772,7 @@ public class ImmutableTypeCloner {
             immutableAnydataTSymbol.type = immutableAnydataType;
             return immutableAnydataType;
         }
-         return new BAnydataType(immutableAnydataTSymbol,
+         return new BAnydataType(null,
                                  getImmutableTypeName(names, TypeKind.ANYDATA.typeName()),
                                  type.flags | Flags.READONLY, type.isNullable());
     }
@@ -832,9 +833,7 @@ public class ImmutableTypeCloner {
             immutableType.effectiveType.tsymbol = immutableUnionTSymbol;
             immutableType.effectiveType.flags |= (type.flags | Flags.READONLY);
 
-            if (immutableUnionTSymbol != null) {
-                immutableUnionTSymbol.type = immutableType.effectiveType;
-            }
+            immutableUnionTSymbol.type = immutableType.effectiveType;
         } else {
             immutableType.effectiveType.flags |= (type.flags | Flags.READONLY);
         }

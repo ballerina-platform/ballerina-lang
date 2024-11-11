@@ -25,6 +25,10 @@ package org.ballerinalang.langlib.floatingpoint;
  */
 public class Log10 {
 
+
+    private Log10() {
+    }
+
     public static double log10(double x) {
         return Math.log10(x);
     }

@@ -34,7 +34,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,14 +49,11 @@ import java.util.StringJoiner;
  */
 public class BLangNodeTransformerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BLangNodeTransformerTest.class);
-    private static final JsonParser JSON_PARSER = new JsonParser();
-    public static final Path RES_DIR = Paths.get("src/test/resources/node-tree/").toAbsolutePath();
-
-    private final JsonParser jsonParser = new JsonParser();
+    public static final Path RES_DIR = Path.of("src/test/resources/node-tree/").toAbsolutePath();
 
     @Test(dataProvider = "testTransformationTestProvider", enabled = false)
     public void testTransformation(String configName, String sourcePackage)
-            throws IOException, IllegalAccessException {
+            throws IllegalAccessException {
         // Get expected result json
         JsonObject expJsonObj = fileContentAsObject(configName);
 
@@ -67,7 +63,7 @@ public class BLangNodeTransformerTest {
         BLangPackage bLangPackage = pkg.getCompilation().defaultModuleBLangPackage();
         Set<Class<?>> skipList = new HashSet<>();
         String jsonStr = generateFieldJson(bLangPackage.getClass(), bLangPackage, skipList, bLangPackage);
-        JsonObject actualJsonObj = jsonParser.parse(jsonStr).getAsJsonObject();
+        JsonObject actualJsonObj = JsonParser.parseString(jsonStr).getAsJsonObject();
 
         // Fix test cases replacing expected using responses
 //        if (!expJsonObj.equals(actualJsonObj)) {
@@ -174,10 +170,10 @@ public class BLangNodeTransformerTest {
                                       int[] level) throws IllegalAccessException {
         if (objVal instanceof Map) {
             builder.append("{");
-            Iterator<Map.Entry> entries = ((Map) objVal).entrySet().iterator();
+            Iterator<? extends Map.Entry<?, ?>> entries = ((Map<?, ?>) objVal).entrySet().iterator();
             StringJoiner joiner = new StringJoiner(",");
             while (entries.hasNext()) {
-                Map.Entry entry = entries.next();
+                Map.Entry<?, ?> entry = entries.next();
                 StringBuilder sBuilder = new StringBuilder("\"" + entry.getKey() + "\": ");
                 joiner.add(generateFieldValueJson(entry.getValue().getClass(), entry.getValue(), skipList, visitedList,
                                                   sBuilder, referenceNode, level));
@@ -189,7 +185,7 @@ public class BLangNodeTransformerTest {
             // Lists, Sets
             builder.append("[");
             StringJoiner joiner = new StringJoiner(",");
-            for (Object item : (Collection) objVal) {
+            for (Object item : (Collection<?>) objVal) {
                 joiner.add(generateFieldValueJson(item.getClass(), item, skipList, visitedList, new StringBuilder(""),
                                                   referenceNode, level));
             }
@@ -242,14 +238,14 @@ public class BLangNodeTransformerTest {
         } catch (IOException ex) {
             LOGGER.error(ex.getMessage());
         }
-        return JSON_PARSER.parse(contentAsString).getAsJsonObject();
+        return JsonParser.parseString(contentAsString).getAsJsonObject();
     }
 
     private static Project loadProject(String sourceFilePath) {
-        Path sourcePath = Paths.get(sourceFilePath);
+        Path sourcePath = Path.of(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = RES_DIR.resolve(sourcePath.getParent());
-        Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
+        Path projectPath = Path.of(sourceRoot.toString(), sourceFileName);
         return ProjectLoader.loadProject(projectPath);
     }
 }

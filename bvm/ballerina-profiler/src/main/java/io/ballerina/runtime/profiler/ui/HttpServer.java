@@ -29,7 +29,6 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -52,7 +51,7 @@ public class HttpServer {
         String profilerOutputDir = System.getProperty(WORKING_DIRECTORY);
         OUT_STREAM.printf("      Output: " + Constants.ANSI_YELLOW + "%s" + File.separator + HTML_PROFILER_REPORT +
                 Constants.ANSI_RESET + "%n", profilerOutputDir);
-        Path resourcePath = Paths.get(System.getenv(BALLERINA_HOME)).resolve("resources")
+        Path resourcePath = Path.of(System.getenv(BALLERINA_HOME)).resolve("resources")
                 .resolve("profiler");
 
         try {

@@ -387,7 +387,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_NAMESPACE_DECLARATION("BCE2624", "invalid.namespace.declaration"),
     CANNOT_UPDATE_XML_SEQUENCE("BCE2625", "cannot.update.xml.sequence"),
     INVALID_XML_NS_INTERPOLATION("BCE2626", "invalid.xml.ns.interpolation"),
-    CANNOT_FIND_XML_NAMESPACE("BCE2627", "cannot.find.xml.namespace.prefix"),
+    CANNOT_FIND_XML_NAMESPACE("BCE2627", "cannot.find.xml.prefix"),
     UNSUPPORTED_METHOD_INVOCATION_XML_NAV("BCE2628", "method.invocation.in.xml.navigation.expressions.not.supported"),
     DEPRECATED_XML_ATTRIBUTE_ACCESS("BCE2629", "deprecated.xml.attribute.access.expression"),
     UNSUPPORTED_MEMBER_ACCESS_IN_XML_NAVIGATION("BCE2630",
@@ -424,6 +424,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "invalid.field.binding.pattern.with.non.required.field"),
     INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION("BCE2654", "infer.size.only.supported.in.the.first.dimension"),
     FUNCTION_CALL_SYNTAX_NOT_DEFINED("BCE2655", "function.call.syntax.not.defined"),
+    UNDEFINED_CONSTANT_SYMBOL("BCE2656", "undefined.constant.symbol"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
@@ -731,7 +732,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     CONTINUE_NOT_ALLOWED("BCE3992", "continue.not.allowed"),
     BREAK_NOT_ALLOWED("BCE3993", "break.not.allowed"),
-    XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3995", "xml.function.does.not.support.argument.type"),
 
     INTERSECTION_NOT_ALLOWED_WITH_TYPE("BCE3996", "intersection.not.allowed.with.type"),
     ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION("BCE3997", "async.send.action.not.yet.supported.as.expression"),

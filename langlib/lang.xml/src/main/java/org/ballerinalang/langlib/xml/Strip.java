@@ -31,8 +31,10 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
  * @since 0.88
  */
 public class Strip {
-
     private static final String OPERATION = "strip xml";
+
+    private Strip() {
+    }
 
     public static BXml strip(BXml xml) {
         try {

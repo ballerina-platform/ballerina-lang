@@ -130,7 +130,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
  *
  * @since 1.2.0
  */
-public class JvmSignatures {
+public final class JvmSignatures {
 
     public static final String ADD_BALLERINA_INFO = "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";Z)V";
     public static final String ADD_COLLECTION = "(L" + COLLECTION + ";)Z";

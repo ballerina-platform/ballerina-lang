@@ -75,7 +75,7 @@ import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
  *
  * @since 2.0.0
  */
-public class BRunUtil {
+public final class BRunUtil {
 
     private static final Boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase(Locale.getDefault())
             .contains("win");
@@ -169,9 +169,9 @@ public class BRunUtil {
                     if (t instanceof BLangTestException) {
                         throw ErrorCreator.createError(StringUtils.fromString(t.getMessage()));
                     }
-                    if (t instanceof io.ballerina.runtime.api.values.BError) {
+                    if (t instanceof BError bError) {
                         throw ErrorCreator.createError(StringUtils.fromString(
-                                "error: " + ((io.ballerina.runtime.api.values.BError) t).getPrintableStackTrace()));
+                                "error: " + bError.getPrintableStackTrace()));
                     }
                     if (t instanceof StackOverflowError) {
                         throw ErrorCreator.createError(StringUtils.fromString("error: " +
@@ -356,9 +356,8 @@ public class BRunUtil {
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
             response = method.invoke(null, args);
-            if (response instanceof Throwable) {
-                throw new BLangTestException(String.format(errorMsg, funcName, response),
-                        (Throwable) response);
+            if (response instanceof Throwable throwable) {
+                throw new BLangTestException(String.format(errorMsg, funcName, response), throwable);
             }
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new BLangTestException(String.format(errorMsg, funcName, e.getMessage()), e);

@@ -25,6 +25,10 @@ package org.ballerinalang.langlib.floatingpoint;
  */
 public class IsFinite {
 
+
+    private IsFinite() {
+    }
+
     public static boolean isFinite(double x) {
         return Double.isFinite(x);
     }

@@ -22,7 +22,6 @@ import org.ballerinalang.test.context.Constant;
 import org.testng.Assert;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Testing the Echo service sample located in
@@ -31,7 +30,7 @@ import java.io.IOException;
 public class OrderProcessingServiceSampleTestCase {
 
 //    @Test(description = "Test whether files have been deleted after reading the content")
-    public void testFileDeletion() throws IOException, InterruptedException {
+    public void testFileDeletion() throws InterruptedException {
         // Wait till relevant contents are read and files are deleted.
         Thread.sleep(5000);
         ClassLoader classLoader = getClass().getClassLoader();

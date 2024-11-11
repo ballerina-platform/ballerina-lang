@@ -37,7 +37,10 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
  *
  * @since 1.0
  */
-public class Map {
+public final class Map {
+
+    private Map() {
+    }
 
     public static BArray map(Environment env, BArray arr, BFunctionPointer func) {
         Type elemType = ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType();

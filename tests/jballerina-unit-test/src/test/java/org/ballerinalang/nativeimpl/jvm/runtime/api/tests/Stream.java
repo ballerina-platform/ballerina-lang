@@ -32,7 +32,10 @@ import java.nio.charset.StandardCharsets;
  *
  * @since 2201.9.0
  */
-public class Stream {
+public final class Stream {
+
+    private Stream() {
+    }
 
     public static Object convertStringToType(BString s, BTypedesc t) {
         String str = s.getValue();

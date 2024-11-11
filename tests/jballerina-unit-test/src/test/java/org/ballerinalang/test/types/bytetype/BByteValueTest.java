@@ -39,6 +39,7 @@ import org.testng.annotations.Test;
  * @since 0.980
  */
 
+@SuppressWarnings("ConstantValue")
 public class BByteValueTest {
 
     private CompileResult result;

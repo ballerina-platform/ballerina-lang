@@ -45,6 +45,7 @@ under the License.
             <class name="io.ballerina.cli.cmd.DeprecateCommandTest"/>
             <class name="io.ballerina.cli.cmd.ToolCommandTest"/>
             <class name="io.ballerina.cli.cmd.RunBuildToolsTaskTest"/>
+            <class name="io.ballerina.cli.cmd.ProjectWatcherTest"/>
         </classes>
     </test>
 </suite>

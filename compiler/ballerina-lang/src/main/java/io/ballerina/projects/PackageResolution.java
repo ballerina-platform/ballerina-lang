@@ -246,7 +246,7 @@ public class PackageResolution {
                 .stream()
                 // Remove root package from this list.
                 .filter(resolvedPkg -> resolvedPkg.packageId() != rootPackageContext.packageId())
-                .collect(Collectors.toList());
+                .toList();
         return dependenciesWithTransitives;
     }
 
@@ -410,7 +410,7 @@ public class PackageResolution {
                 .filter(depNode -> !depNode.equals(rootNode) // Remove root node from the requests
                         && !depNode.errorNode()) // Remove error nodes from the requests
                 .map(this::createFromDepNode)
-                .collect(Collectors.toList());
+                .toList();
         Collection<ResolutionResponse> resolutionResponses =
                 packageResolver.resolvePackages(resolutionRequests, resolutionOptions);
 
@@ -447,7 +447,7 @@ public class PackageResolution {
                                 .map(directDepNode -> resolvedPkgContainer.get(
                                         directDepNode.pkgDesc().org(), directDepNode.pkgDesc().name()))
                                 .flatMap(Optional::stream)
-                                .collect(Collectors.toList());
+                                .toList();
                 depGraphBuilder.addDependencies(resolvedPkg, directPkgDependencies);
             }
         }
@@ -552,7 +552,7 @@ public class PackageResolution {
         List<ModuleName> moduleNames = rootPackageContext.moduleIds().stream()
                 .map(rootPackageContext::moduleContext)
                 .map(ModuleContext::moduleName)
-                .collect(Collectors.toList());
+                .toList();
         return new ModuleResolver(rootPackageContext.descriptor(), moduleNames, blendedManifest,
                 projectEnvContext.getService(PackageResolver.class), resolutionOptions);
     }

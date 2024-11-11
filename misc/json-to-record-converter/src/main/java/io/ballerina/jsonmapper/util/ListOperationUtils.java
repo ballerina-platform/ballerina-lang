@@ -18,8 +18,6 @@
 
 package io.ballerina.jsonmapper.util;
 
-import org.javatuples.Pair;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -39,12 +37,11 @@ public final class ListOperationUtils {
      * @param mapTwo Second set of Key, Value pairs to be compared with other
      * @return {@link Map} Intersection of first and second set of Key Value pairs
      */
-    public static <K, V> Map<K, Pair<V, V>> intersection(Map<K, V> mapOne, Map<K, V> mapTwo) {
-        Map<K, Pair<V, V>> intersection = new LinkedHashMap<>();
-        for (Map.Entry<K, V> key: mapOne.entrySet()) {
-            if (mapTwo.containsKey(key.getKey())) {
-                Pair<V, V> valuePair = new Pair<>(mapOne.get(key.getKey()), mapTwo.get(key.getKey()));
-                intersection.put(key.getKey(), valuePair);
+    public static <K, V> Map<K, Map.Entry<V, V>> intersection(Map<K, V> mapOne, Map<K, V> mapTwo) {
+        Map<K, Map.Entry<V, V>> intersection = new LinkedHashMap<>();
+        for (Map.Entry<K, V> entry: mapOne.entrySet()) {
+            if (mapTwo.containsKey(entry.getKey())) {
+                intersection.put(entry.getKey(), Map.entry(entry.getValue(), mapTwo.get(entry.getKey())));
             }
         }
         return intersection;
@@ -59,9 +56,9 @@ public final class ListOperationUtils {
      */
     public static <K, V> Map<K, V> union(Map<K, V> mapOne, Map<K, V> mapTwo) {
         Map<K, V> union = new LinkedHashMap<>(mapOne);
-        for (Map.Entry<K, V> key: mapTwo.entrySet()) {
-            if (!mapOne.containsKey(key.getKey())) {
-                union.put(key.getKey(), mapTwo.get(key.getKey()));
+        for (Map.Entry<K, V> entry: mapTwo.entrySet()) {
+            if (!mapOne.containsKey(entry.getKey())) {
+                union.put(entry.getKey(), entry.getValue());
             }
         }
         return union;
@@ -76,9 +73,9 @@ public final class ListOperationUtils {
      */
     public static <K, V> Map<K, V> difference(Map<K, V> mapOne, Map<K, V> mapTwo) {
         Map<K, V> unionMap = union(mapOne, mapTwo);
-        Map<K, Pair<V, V>> intersectionMap = intersection(mapOne, mapTwo);
-        for (Map.Entry<K, Pair<V, V>> key: intersectionMap.entrySet()) {
-            unionMap.remove(key.getKey());
+        Map<K, Map.Entry<V, V>> intersectionMap = intersection(mapOne, mapTwo);
+        for (K key: intersectionMap.keySet()) {
+            unionMap.remove(key);
         }
         return unionMap;
     }

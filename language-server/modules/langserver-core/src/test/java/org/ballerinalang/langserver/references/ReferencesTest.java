@@ -43,7 +43,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test goto definition language server feature.
@@ -52,12 +51,11 @@ public class ReferencesTest {
     protected Path configRoot;
     protected Path sourceRoot;
     protected Gson gson = new Gson();
-    protected JsonParser parser = new JsonParser();
     protected Endpoint serviceEndpoint;
     private static final Logger log = LoggerFactory.getLogger(ReferencesTest.class);
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         configRoot = FileUtils.RES_DIR.resolve("references").resolve("expected");
         sourceRoot = FileUtils.RES_DIR.resolve("references").resolve("sources");
         this.serviceEndpoint = getLanguageServerEndpoint();
@@ -75,7 +73,7 @@ public class ReferencesTest {
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         JsonArray expected = configObject.getAsJsonArray("result");
-        JsonArray actual = parser.parse(actualStr).getAsJsonObject().get("result").getAsJsonArray();
+        JsonArray actual = JsonParser.parseString(actualStr).getAsJsonObject().get("result").getAsJsonArray();
         this.alterExpectedUri(expected, sourceRoot);
         this.alterActualUri(actual);
         
@@ -84,7 +82,7 @@ public class ReferencesTest {
     
     @Test(dataProvider = "testReferencesWithinStdLibDataProvider")
     public void testReferencesWithinStdLib(String configPath) throws IOException, URISyntaxException {
-        Path ballerinaHome = Paths.get(CommonUtil.BALLERINA_HOME);
+        Path ballerinaHome = Path.of(CommonUtil.BALLERINA_HOME);
 
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
@@ -94,7 +92,7 @@ public class ReferencesTest {
         String actualStr = getReferencesResponseWithinStdLib(sourcePath, position);
 
         JsonArray expected = configObject.getAsJsonArray("result");
-        JsonArray actual = parser.parse(actualStr).getAsJsonObject().get("result").getAsJsonArray();
+        JsonArray actual = JsonParser.parseString(actualStr).getAsJsonObject().get("result").getAsJsonArray();
         this.alterExpectedUri(expected, ballerinaHome);
         this.alterActualStdLibUri(actual);
 
@@ -137,7 +135,7 @@ public class ReferencesTest {
     }
 
     @AfterClass
-    public void shutDownLanguageServer() throws IOException {
+    public void shutDownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
@@ -151,7 +149,7 @@ public class ReferencesTest {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
-            Path expectedPath = Paths.get(root.toUri());
+            Path expectedPath = Path.of(root.toUri());
             for (String uriComponent : uriComponents) {
                 expectedPath = expectedPath.resolve(uriComponent);
             }

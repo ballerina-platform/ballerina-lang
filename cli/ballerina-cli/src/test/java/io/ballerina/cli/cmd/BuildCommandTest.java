@@ -45,7 +45,6 @@ import java.nio.charset.Charset;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -69,12 +68,13 @@ import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
  */
 public class BuildCommandTest extends BaseCommandTest {
     private Path testResources;
-    private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath();
+    private static final Path testBuildDirectory = Path.of("build").toAbsolutePath();
     private static final Path testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-    Path customUserHome = Paths.get("build", "user-home");
+    Path customUserHome = Path.of("build", "user-home");
     Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
     ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -82,7 +82,7 @@ public class BuildCommandTest extends BaseCommandTest {
             this.testResources = super.tmpDir.resolve("build-test-resources");
             URI testResourcesURI = Objects.requireNonNull(
                     getClass().getClassLoader().getResource("test-resources")).toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI), new BuildCommandTest.Copy(Paths.get(testResourcesURI),
+            Files.walkFileTree(Path.of(testResourcesURI), new BuildCommandTest.Copy(Path.of(testResourcesURI),
                     this.testResources));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");

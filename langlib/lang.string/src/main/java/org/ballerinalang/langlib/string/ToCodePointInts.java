@@ -29,6 +29,10 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class ToCodePointInts {
 
+
+    private ToCodePointInts() {
+    }
+
     public static BArray toCodePointInts(BString str) {
         long[] ints = str.getValue().codePoints().asLongStream().toArray();
         return ValueCreator.createArrayValue(ints);

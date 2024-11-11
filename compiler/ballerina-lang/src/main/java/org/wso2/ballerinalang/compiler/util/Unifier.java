@@ -332,16 +332,16 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         }
 
         if (isSameType(newConstraint, originalType.constraint) &&
-                isSameType(newKeyTypeConstraint, originalType.keyTypeConstraint)) {
+                isSameType(null, originalType.keyTypeConstraint)) {
             return originalType;
         }
 
-        if (isSemanticErrorInInvocation(newConstraint) || isSemanticErrorInInvocation(newKeyTypeConstraint)) {
+        if (isSemanticErrorInInvocation(newConstraint) || isSemanticErrorInInvocation(null)) {
             return symbolTable.semanticError;
         }
 
         BTableType newTableType = new BTableType(TypeTags.TABLE, newConstraint, null);
-        newTableType.keyTypeConstraint = newKeyTypeConstraint;
+        newTableType.keyTypeConstraint = null;
         newTableType.fieldNameList = originalType.fieldNameList;
         newTableType.constraintPos = originalType.constraintPos;
         newTableType.isTypeInlineDefined = originalType.isTypeInlineDefined;
@@ -986,7 +986,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         for (BType inferableType : inferableTypes) {
             for (BType expectedType : expectedTypes) {
-                if (Types.getImpliedType(inferableType).tag == Types.getImpliedType(expectedType).tag) {
+                expectedType = Types.getImpliedType(expectedType);
+                if (Types.getImpliedType(inferableType).tag == expectedType.tag) {
                     matchedTypes.add(expectedType);
                 }
             }

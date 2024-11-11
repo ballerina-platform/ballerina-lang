@@ -38,7 +38,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -69,10 +68,11 @@ public class NewCommandTest extends BaseCommandTest {
         };
     }
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
-        testResources = Paths.get("src/test/resources/test-resources");
+        testResources = Path.of("src/test/resources/test-resources");
         centralCache = homeCache.resolve("repositories/central.ballerina.io").resolve("bala");
         Files.createDirectories(centralCache);
 
@@ -111,7 +111,7 @@ public class NewCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String name = Paths.get(args[0]).getFileName().toString();
+        String name = Path.of(args[0]).getFileName().toString();
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
@@ -165,7 +165,7 @@ public class NewCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String name = Paths.get(args[0]).getFileName().toString();
+        String name = Path.of(args[0]).getFileName().toString();
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
@@ -223,7 +223,7 @@ public class NewCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String name = Paths.get(args[0]).getFileName().toString();
+        String name = Path.of(args[0]).getFileName().toString();
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
@@ -319,7 +319,7 @@ public class NewCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(Files.exists(tempPackageDir));
         Assert.assertTrue(Files.exists(tempPackageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String name = Paths.get(args[0]).getFileName().toString();
+        String name = Path.of(args[0]).getFileName().toString();
         String tomlContent = Files.readString(
                 tempPackageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
@@ -413,7 +413,7 @@ public class NewCommandTest extends BaseCommandTest {
             packagePath = ".\\relative_project_name";
         }
         String[] args = {packagePath};
-        Path packageDir = Paths.get(packagePath);
+        Path packageDir = Path.of(packagePath);
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
@@ -422,11 +422,11 @@ public class NewCommandTest extends BaseCommandTest {
         // - Ballerina.toml
         // - main.bal
 
-        Path currentDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        Path relativeToCurrentDir = Paths.get(currentDir.toString(), packagePath).normalize();
+        Path currentDir = Path.of(System.getProperty(ProjectConstants.USER_DIR));
+        Path relativeToCurrentDir = Path.of(currentDir.toString(), packagePath).normalize();
         Assert.assertTrue(Files.exists(relativeToCurrentDir));
         Assert.assertTrue(Files.exists(relativeToCurrentDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String name = Paths.get(args[0]).getFileName().toString();
+        String name = Path.of(args[0]).getFileName().toString();
         String tomlContent = Files.readString(
                 relativeToCurrentDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
@@ -482,7 +482,7 @@ public class NewCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String packageName = Paths.get(args[0]).getFileName().toString();
+        String packageName = Path.of(args[0]).getFileName().toString();
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
@@ -566,7 +566,7 @@ public class NewCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
 
-        String packageName = Paths.get(args[0]).getFileName().toString();
+        String packageName = Path.of(args[0]).getFileName().toString();
         String expectedTomlContent = "[package]\n" +
                 "org = \"" + System.getProperty("user.name").replaceAll("[^a-zA-Z0-9_]", "_") + "\"\n" +
                 "name = \"" + packageName + "\"\n" +
@@ -600,7 +600,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.isDirectory(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String packageName = Paths.get(args[0]).getFileName().toString();
+        String packageName = Path.of(args[0]).getFileName().toString();
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
