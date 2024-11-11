@@ -98,12 +98,6 @@ public class BUnionType extends BType implements UnionType {
         this.env = env;
     }
 
-
-    public LinkedHashSet<SemType> getMemberSemTypes() {
-        populateMemberSemTypes(false);
-        return memberSemTypes;
-    }
-
     @Override
     public LinkedHashSet<BType> getMemberTypes() {
         return this.memberTypes;

@@ -27,8 +27,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
@@ -90,41 +88,39 @@ public class JvmTypeTestGen {
     }
 
     /**
-     * Checks if the type tested for is nil. That is the target type is nil. Example instructions include 'a is ()'
-     * where 'a' is a variable of type say any or a union with nil.
+     * Checks if we have <code>x is ()</code>.
+     * <br>
+     * In that case we can simplify <code>is</code>-check to a <code>x instanceof null</code> check.
      *
      * @param sourceType the declared variable type
      * @param targetType the RHS type in the type check instruction. Type to be tested for
      * @return whether instruction could be optimized using 'instanceof` check
      */
     private boolean canOptimizeNilCheck(BType sourceType, BType targetType) {
-        return JvmCodeGenUtil.getImpliedType(targetType).tag == TypeTags.NIL &&
-                types.isAssignable(targetType, sourceType);
+        return PredefinedType.NIL.equals(targetType.semType()) &&
+                SemTypes.containsBasicType(sourceType.semType(), PredefinedType.NIL);
     }
 
     /**
-     * This checks for any variable declaration containing a nil in a union of two types. Examples include string? or
-     * error? or int?.
+     * Checks if we have <code>x is T</code> in which <code>x</code>'s static type is <code>T'=T|()</code>.
+     * <br>
+     * In that case we can simplify <code>is</code>-check to a <code>!(x instanceof null)</code> check.
      *
      * @param sourceType the declared variable type
      * @param targetType the RHS type in the type check instruction. Type to be tested for
      * @return whether instruction could be optimized using 'instanceof` check for null
      */
     private boolean canOptimizeNilUnionCheck(BType sourceType, BType targetType) {
-        sourceType = JvmCodeGenUtil.getImpliedType(sourceType);
-        if (isInValidUnionType(sourceType)) {
+        SemType sourceTy = sourceType.semType();
+        if (!SemTypes.containsBasicType(sourceTy, PredefinedType.NIL)) {
             return false;
         }
-        boolean foundNil = false;
-        SemType otherTy = null;
-        for (SemType s : ((BUnionType) sourceType).getMemberSemTypes()) {
-            if (PredefinedType.NIL.equals(s)) {
-                foundNil = true;
-            } else {
-                otherTy = s;
-            }
+
+        SemType tyButNil = Core.diff(sourceTy, PredefinedType.NIL);
+        if (Core.isNever(tyButNil)) {
+            return false;
         }
-        return foundNil && SemTypes.isSameType(types.typeCtx(), otherTy, targetType.semType());
+        return SemTypes.isSameType(types.typeCtx(), tyButNil, targetType.semType());
     }
 
     /**
@@ -173,18 +169,11 @@ public class JvmTypeTestGen {
         return SemTypes.isSameType(types.typeCtx(), tyButError, targetType.semType());
     }
 
-    private boolean isInValidUnionType(BType rhsType) {
-        if (rhsType.tag != TypeTags.UNION) {
-            return true;
-        }
-        return ((BUnionType) rhsType).getMemberSemTypes().size() != 2;
-    }
-
     private void handleNilUnionType(BIRNonTerminator.TypeTest typeTestIns) {
         jvmInstructionGen.loadVar(typeTestIns.rhsOp.variableDcl);
         jvmCastGen.addBoxInsn(this.mv, typeTestIns.rhsOp.variableDcl.type);
         Label ifLabel = new Label();
-        if (JvmCodeGenUtil.getImpliedType(typeTestIns.type).tag == TypeTags.NIL) {
+        if (PredefinedType.NIL.equals(typeTestIns.type.semType())) {
             mv.visitJumpInsn(IFNONNULL, ifLabel);
         } else {
             mv.visitJumpInsn(IFNULL, ifLabel);
