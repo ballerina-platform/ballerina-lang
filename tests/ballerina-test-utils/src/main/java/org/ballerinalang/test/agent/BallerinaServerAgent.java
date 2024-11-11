@@ -161,13 +161,13 @@ public final class BallerinaServerAgent {
             } catch (Throwable e) {
                 OUT_STREAM.println("Error initializing agent server, error - " + e.getMessage());
             }
-        }).start();
+        });
         OUT_STREAM.println("Ballerina agent started on host - " + agentHost + ", port - " + agentPort);
     }
 
     private static void shutdownServer() {
         OUT_STREAM.println("Shutting down Ballerina server with agent port - " + agentPort);
-        Thread.startVirtualThread(() -> Runtime.getRuntime().exit(exitStatus)).start();
+        Thread.startVirtualThread(() -> Runtime.getRuntime().exit(exitStatus));
 
         if (timeout <= 0) {
             return;
