@@ -39,10 +39,10 @@ import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMut
  *
  * @since 2201.11.0
  */
-public class ListDefinition implements Definition {
+public class ListDefinition extends Definition {
 
-    private RecAtom rec = null;
-    private SemType semType = null;
+    private volatile RecAtom rec = null;
+    private volatile SemType semType = null;
 
     @Override
     public SemType getSemType(Env env) {
@@ -63,7 +63,9 @@ public class ListDefinition implements Definition {
         }
         SemType restCell =
                 Builder.getCellContaining(env, union(rest, getUndefType()), isNever(rest) ? CELL_MUT_NONE : mut);
-        return define(env, initialCells, fixedLength, restCell);
+        SemType semType = define(env, initialCells, fixedLength, restCell);
+        notifyContainer();
+        return semType;
     }
 
     private SemType define(Env env, SemType[] initial, int fixedLength, SemType rest) {

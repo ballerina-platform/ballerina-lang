@@ -32,10 +32,10 @@ import io.ballerina.runtime.api.types.semtype.SemType;
  *
  * @since 2201.11.0
  */
-public class FunctionDefinition implements Definition {
+public class FunctionDefinition extends Definition {
 
-    private RecAtom rec;
-    private SemType semType;
+    private volatile RecAtom rec;
+    private volatile SemType semType;
 
     @Override
     public SemType getSemType(Env env) {
@@ -65,7 +65,9 @@ public class FunctionDefinition implements Definition {
         } else {
             atom = env.functionAtom(atomicType);
         }
-        return this.createSemType(atom);
+        SemType semType = this.createSemType(atom);
+        notifyContainer();
+        return semType;
     }
 
 }

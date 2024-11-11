@@ -232,7 +232,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
-        var result = defn.setDefinition(FunctionDefinition::new);
+        var result = defn.trySetDefinition(FunctionDefinition::new);
         if (!result.updated()) {
             return defn.getSemType(env);
         }

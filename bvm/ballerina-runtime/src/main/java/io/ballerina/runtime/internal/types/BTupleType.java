@@ -336,7 +336,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
-        var result = defn.setDefinition(ListDefinition::new);
+        var result = defn.trySetDefinition(ListDefinition::new);
         if (!result.updated()) {
             return defn.getSemType(env);
         }
@@ -405,7 +405,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
         if (acceptedTypeDefn.isDefinitionReady()) {
             return Optional.of(acceptedTypeDefn.getSemType(env));
         }
-        var result = acceptedTypeDefn.setDefinition(ListDefinition::new);
+        var result = acceptedTypeDefn.trySetDefinition(ListDefinition::new);
         if (!result.updated()) {
             return Optional.of(acceptedTypeDefn.getSemType(env));
         }

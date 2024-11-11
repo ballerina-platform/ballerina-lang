@@ -42,10 +42,10 @@ import static io.ballerina.runtime.api.types.semtype.Core.union;
  *
  * @since 2201.11.0
  */
-public class MappingDefinition implements Definition {
+public class MappingDefinition extends Definition {
 
-    private RecAtom rec = null;
-    private SemType semType = null;
+    private volatile RecAtom rec = null;
+    private volatile SemType semType = null;
 
     @Override
     public SemType getSemType(Env env) {
@@ -75,7 +75,9 @@ public class MappingDefinition implements Definition {
         }
         SemType restCell = Builder.getCellContaining(env, union(rest, getUndefType()),
                 isNever(rest) ? CellAtomicType.CellMutability.CELL_MUT_NONE : mut);
-        return define(env, cellFields, restCell);
+        SemType semType = define(env, cellFields, restCell);
+        notifyContainer();
+        return semType;
     }
 
     SemType define(Env env, BCellField[] cellFields, SemType rest) {

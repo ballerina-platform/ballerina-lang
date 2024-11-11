@@ -35,7 +35,7 @@ import static io.ballerina.runtime.api.types.semtype.Core.subTypeData;
  *
  * @since 2201.11.0
  */
-public class StreamDefinition implements Definition {
+public class StreamDefinition extends Definition {
 
     private final ListDefinition listDefinition = new ListDefinition();
 
@@ -50,7 +50,9 @@ public class StreamDefinition implements Definition {
         }
         SemType tuple = listDefinition.defineListTypeWrapped(env, new SemType[]{valueType, completionType}, 2,
                 Builder.getNeverType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED);
-        return streamContaining(tuple);
+        SemType semType = streamContaining(tuple);
+        notifyContainer();
+        return semType;
     }
 
     private SemType streamContaining(SemType tupleType) {
