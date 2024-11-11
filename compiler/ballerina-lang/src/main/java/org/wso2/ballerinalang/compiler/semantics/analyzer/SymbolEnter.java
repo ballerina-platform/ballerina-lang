@@ -3674,38 +3674,39 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * Checks if annotation type descriptor is valid.
+     * <p>
+     * The type must be a subtype of one of the following three types:
+     * <ul>
+     *   <li>true</li>
+     *   <li>map&lt;value:Cloneable&gt;</li>
+     *   <li>map&lt;value:Cloneable&gt;[]</li>
+     * </ul>
+     *
+     * @param type type to be checked
+     * @return boolean
+     */
     public boolean isValidAnnotationType(BType type) {
-        type = Types.getImpliedType(type);
-        if (type == symTable.semanticError) {
-            return false;
+        SemType t = type.semType();
+        if (SemTypes.isSubtype(types.semTypeCtx, t, symTable.trueType.semType())) {
+            return true;
         }
 
-        switch (type.tag) {
-            case TypeTags.MAP:
-                return types.isAssignable(((BMapType) type).constraint, symTable.cloneableType);
-            case TypeTags.RECORD:
-                BRecordType recordType = (BRecordType) type;
-                for (BField field : recordType.fields.values()) {
-                    if (!types.isAssignable(field.type, symTable.cloneableType)) {
-                        return false;
-                    }
-                }
-
-                BType recordRestType = recordType.restFieldType;
-                if (recordRestType == null || recordRestType == symTable.noType) {
-                    return true;
-                }
-
-                return types.isAssignable(recordRestType, symTable.cloneableType);
-            case TypeTags.ARRAY:
-                BType elementType = Types.getImpliedType(((BArrayType) type).eType);
-                if ((elementType.tag == TypeTags.MAP) || (elementType.tag == TypeTags.RECORD)) {
-                    return isValidAnnotationType(elementType);
-                }
-                return false;
+        SemType cloneable = Core.createCloneable(types.semTypeCtx);
+        if (SemTypes.isSubtypeSimple(t, PredefinedType.MAPPING)) {
+            return SemTypes.isSubtype(types.semTypeCtx, t, cloneable);
         }
 
-        return types.isAssignable(type, symTable.trueType);
+        if (SemTypes.isSubtypeSimple(t, PredefinedType.LIST)) {
+            // Using projection to get T from T[]
+            SemType memberTy = Core.listMemberTypeInnerVal(types.semTypeCtx, t, PredefinedType.INT);
+            if (SemTypes.isSubtypeSimple(memberTy, PredefinedType.MAPPING)) {
+                return SemTypes.isSubtype(types.semTypeCtx, memberTy, cloneable);
+            }
+        }
+
+        return false;
     }
 
     /**
