@@ -153,7 +153,7 @@ public class BStreamType extends BType implements StreamType {
         if (definition.isDefinitionReady()) {
             return definition.getSemType(env);
         }
-        var result = definition.setDefinition(StreamDefinition::new);
+        var result = definition.trySetDefinition(StreamDefinition::new);
         if (!result.updated()) {
             return definition.getSemType(env);
         }

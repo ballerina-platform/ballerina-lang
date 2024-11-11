@@ -232,7 +232,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
-        var result = defn.setDefinition(ListDefinition::new);
+        var result = defn.trySetDefinition(ListDefinition::new);
         if (!result.updated()) {
             return defn.getSemType(env);
         }
@@ -294,7 +294,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         if (acceptedTypeDefn.isDefinitionReady()) {
             return Optional.of(acceptedTypeDefn.getSemType(cx.env));
         }
-        var result = acceptedTypeDefn.setDefinition(ListDefinition::new);
+        var result = acceptedTypeDefn.trySetDefinition(ListDefinition::new);
         if (!result.updated()) {
             return Optional.of(acceptedTypeDefn.getSemType(env));
         }

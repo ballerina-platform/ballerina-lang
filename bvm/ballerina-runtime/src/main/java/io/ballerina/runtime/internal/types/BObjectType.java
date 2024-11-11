@@ -291,7 +291,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
         if (defn.isDefinitionReady()) {
             innerType = defn.getSemType(env);
         } else {
-            var result = defn.setDefinition(ObjectDefinition::new);
+            var result = defn.trySetDefinition(ObjectDefinition::new);
             if (!result.updated()) {
                 innerType = defn.getSemType(env);
             } else {
@@ -393,7 +393,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
         if (acceptedTypeDefn.isDefinitionReady()) {
             innerType = acceptedTypeDefn.getSemType(env);
         } else {
-            var result = acceptedTypeDefn.setDefinition(ObjectDefinition::new);
+            var result = acceptedTypeDefn.trySetDefinition(ObjectDefinition::new);
             if (!result.updated()) {
                 innerType = acceptedTypeDefn.getSemType(env);
             } else {

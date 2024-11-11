@@ -250,7 +250,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
-        var result = defn.setDefinition(MappingDefinition::new);
+        var result = defn.trySetDefinition(MappingDefinition::new);
         if (!result.updated()) {
             return defn.getSemType(env);
         }
@@ -393,7 +393,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         if (acceptedTypeDefn.isDefinitionReady()) {
             return Optional.of(acceptedTypeDefn.getSemType(env));
         }
-        var result = acceptedTypeDefn.setDefinition(MappingDefinition::new);
+        var result = acceptedTypeDefn.trySetDefinition(MappingDefinition::new);
         if (!result.updated()) {
             return Optional.of(acceptedTypeDefn.getSemType(env));
         }
