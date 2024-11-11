@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.api;
 
+import io.ballerina.runtime.api.repository.Repository;
 import io.ballerina.runtime.api.types.Parameter;
 
 import java.util.function.Supplier;

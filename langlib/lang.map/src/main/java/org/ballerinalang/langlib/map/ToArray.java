@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
@@ -32,7 +32,7 @@ import org.ballerinalang.langlib.map.util.MapLibUtils;
 
 import java.util.Collection;
 
-import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
+import static io.ballerina.runtime.internal.utils.MapUtils.createOpNotSupportedError;
 
 /**
  * Function for returning the values of the map as an array. T[] vals = m.toArray();

@@ -103,7 +103,7 @@ public final class JvmConstants {
 
     // types related classes
     public static final String TYPE = "io/ballerina/runtime/api/types/Type";
-    public static final String PREDEFINED_TYPES = "io/ballerina/runtime/api/PredefinedTypes";
+    public static final String PREDEFINED_TYPES = "io/ballerina/runtime/api/types/PredefinedTypes";
 
     public static final String ARRAY_TYPE = "io/ballerina/runtime/api/types/ArrayType";
     public static final String XML_TYPE = "io/ballerina/runtime/api/types/XmlType";
@@ -184,37 +184,37 @@ public final class JvmConstants {
     public static final String BAL_RUNTIME = "io/ballerina/runtime/internal/BalRuntime";
     public static final String TYPE_CHECKER = "io/ballerina/runtime/internal/TypeChecker";
     public static final String SCHEDULER = "io/ballerina/runtime/internal/scheduling/Scheduler";
-    public static final String JSON_UTILS = "io/ballerina/runtime/internal/JsonInternalUtils";
+    public static final String JSON_UTILS = "io/ballerina/runtime/internal/json/JsonInternalUtils";
     public static final String STRAND_CLASS = "io/ballerina/runtime/internal/scheduling/Strand";
-    public static final String STRAND_METADATA = "io/ballerina/runtime/api/async/StrandMetadata";
+    public static final String STRAND_METADATA = "io/ballerina/runtime/api/concurrent/StrandMetadata";
     public static final String BAL_ENV_CLASS = "io/ballerina/runtime/internal/BalEnvironment";
     public static final String BAL_ENV = "io/ballerina/runtime/api/Environment";
     public static final String TYPE_CONVERTER = "io/ballerina/runtime/internal/TypeConverter";
     public static final String VALUE_CREATOR = "io/ballerina/runtime/internal/values/ValueCreator";
-    public static final String XML_FACTORY = "io/ballerina/runtime/internal/XmlFactory";
+    public static final String XML_FACTORY = "io/ballerina/runtime/internal/xml/XmlFactory";
     public static final String XML_SEQUENCE = "io/ballerina/runtime/internal/values/XmlSequence";
     public static final String ASYNC_UTILS = "io/ballerina/runtime/internal/scheduling/AsyncUtils";
     public static final String WORKER_UTILS = "io/ballerina/runtime/internal/scheduling/WorkerUtils";
     public static final String WORKER_CHANNEL_MAP = "io/ballerina/runtime/internal/scheduling/WorkerChannelMap";
-    public static final String MAP_UTILS = "io/ballerina/runtime/internal/MapUtils";
-    public static final String TABLE_UTILS = "io/ballerina/runtime/internal/TableUtils";
+    public static final String MAP_UTILS = "io/ballerina/runtime/internal/utils/MapUtils";
+    public static final String TABLE_UTILS = "io/ballerina/runtime/internal/utils/TableUtils";
     public static final String STRING_UTILS = "io/ballerina/runtime/api/utils/StringUtils";
-    public static final String ERROR_UTILS = "io/ballerina/runtime/internal/ErrorUtils";
-    public static final String RUNTIME_UTILS = "io/ballerina/runtime/internal/util/RuntimeUtils";
-    public static final String LARGE_STRUCTURE_UTILS = "io/ballerina/runtime/internal/util/LargeStructureUtils";
+    public static final String ERROR_UTILS = "io/ballerina/runtime/internal/utils/ErrorUtils";
+    public static final String RUNTIME_UTILS = "io/ballerina/runtime/internal/utils/RuntimeUtils";
+    public static final String LARGE_STRUCTURE_UTILS = "io/ballerina/runtime/internal/utils/LargeStructureUtils";
     public static final String OPTION = "io/ballerina/runtime/internal/cli/Option";
     public static final String OPERAND = "io/ballerina/runtime/internal/cli/Operand";
     public static final String CLI_SPEC = "io/ballerina/runtime/internal/cli/CliSpec";
     public static final String LAUNCH_UTILS = "io/ballerina/runtime/internal/launch/LaunchUtils";
-    public static final String MATH_UTILS = "io/ballerina/runtime/internal/MathUtils";
+    public static final String MATH_UTILS = "io/ballerina/runtime/internal/utils/MathUtils";
     public static final String ERROR_REASONS = "io/ballerina/runtime/internal/errors/ErrorReasons";
     public static final String ERROR_CODES = "io/ballerina/runtime/internal/errors/ErrorCodes";
     public static final String ERROR_HELPER = "io/ballerina/runtime/internal/errors/ErrorHelper";
-    public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/internal/util/CompatibilityChecker";
+    public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/internal/utils/CompatibilityChecker";
     public static final String RUNTIME_REGISTRY_CLASS = "io/ballerina/runtime/internal/scheduling/RuntimeRegistry";
-    public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
+    public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/utils/ValueComparisonUtils";
     public static final String REG_EXP_FACTORY = "io/ballerina/runtime/internal/regexp/RegExpFactory";
-    public static final String REPOSITORY_IMPL = "io/ballerina/runtime/internal/RepositoryImpl";
+    public static final String REPOSITORY_IMPL = "io/ballerina/runtime/internal/repository/RepositoryImpl";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -238,7 +238,7 @@ public final class JvmConstants {
     public static final String SYSTEM = "java/lang/System";
 
     // service objects, annotation processing related classes
-    public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
+    public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/utils/AnnotationUtils";
     public static final String ANNOTATION_MAP_NAME = "$annotation_data";
     public static final String ANNOTATIONS_FIELD = "$annotations";
     public static final String DEFAULTABLE_ARGS_ANOT_NAME = "DefaultableArgs";

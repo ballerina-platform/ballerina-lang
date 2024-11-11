@@ -18,13 +18,13 @@
 
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
-import io.ballerina.runtime.api.Artifact;
+import io.ballerina.runtime.api.repository.Artifact;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.Node;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.Repository;
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.repository.Node;
+import io.ballerina.runtime.api.types.PredefinedTypes;
+import io.ballerina.runtime.api.repository.Repository;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;

@@ -28,7 +28,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.ValueComparisonUtils;
+import io.ballerina.runtime.internal.utils.ValueComparisonUtils;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_TYPE_TO_SORT;

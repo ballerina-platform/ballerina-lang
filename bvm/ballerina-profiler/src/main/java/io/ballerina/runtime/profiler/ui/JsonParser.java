@@ -19,7 +19,7 @@
 package io.ballerina.runtime.profiler.ui;
 
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.internal.JsonInternalUtils;
+import io.ballerina.runtime.internal.json.JsonInternalUtils;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.values.BmpStringValue;
 
@@ -30,10 +30,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_JSON;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
 import static io.ballerina.runtime.profiler.util.Constants.PERFORMANCE_JSON;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_JSON;
 
 /**
  * This class contains the JSON parser of the Ballerina profiler.
@@ -108,7 +108,7 @@ public class JsonParser {
     }
 
     private List<StackTraceItem> populateStackTraceItems(String jsonInput) {
-        Object jsonObj = io.ballerina.runtime.internal.JsonParser.parse(jsonInput, TYPE_JSON);
+        Object jsonObj = io.ballerina.runtime.internal.json.JsonParser.parse(jsonInput, TYPE_JSON);
         BArray arr = (BArray) jsonObj;
         ArrayList<StackTraceItem> stackTraceItems = new ArrayList<>();
         for (int i = 0; i < arr.getLength(); i++) {

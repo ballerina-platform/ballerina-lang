@@ -30,7 +30,7 @@ import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProv
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.troubleshoot.StrandDump;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import sun.misc.Signal;
 
 import java.io.File;

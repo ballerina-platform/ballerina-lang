@@ -17,11 +17,11 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -34,20 +34,20 @@ import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
-import io.ballerina.runtime.internal.CycleUtils;
-import io.ballerina.runtime.internal.IteratorUtils;
-import io.ballerina.runtime.internal.JsonGenerator;
-import io.ballerina.runtime.internal.JsonInternalUtils;
-import io.ballerina.runtime.internal.MapUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.json.JsonGenerator;
+import io.ballerina.runtime.internal.json.JsonInternalUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.utils.CycleUtils;
+import io.ballerina.runtime.internal.utils.IteratorUtils;
+import io.ballerina.runtime.internal.utils.MapUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -66,15 +66,15 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
-import static io.ballerina.runtime.internal.JsonInternalUtils.mergeJson;
 import static io.ballerina.runtime.internal.TypeChecker.isEqual;
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.INVALID_READONLY_VALUE_UPDATE;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
-import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
-import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
+import static io.ballerina.runtime.internal.json.JsonInternalUtils.mergeJson;
+import static io.ballerina.runtime.internal.utils.StringUtils.getExpressionStringVal;
+import static io.ballerina.runtime.internal.utils.StringUtils.getStringVal;
+import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.values.ReadOnlyUtils.handleInvalidUpdate;
 
 /**

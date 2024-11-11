@@ -17,7 +17,7 @@
 
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.AnnotatableType;
@@ -58,17 +58,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.runtime.api.TypeTags.ARRAY_TAG;
-import static io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG;
-import static io.ballerina.runtime.api.TypeTags.BYTE_TAG;
-import static io.ballerina.runtime.api.TypeTags.DECIMAL_TAG;
-import static io.ballerina.runtime.api.TypeTags.FLOAT_TAG;
-import static io.ballerina.runtime.api.TypeTags.INT_TAG;
-import static io.ballerina.runtime.api.TypeTags.OBJECT_TYPE_TAG;
-import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
-import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
-import static io.ballerina.runtime.api.TypeTags.XML_COMMENT_TAG;
-import static io.ballerina.runtime.api.TypeTags.XML_ELEMENT_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.ARRAY_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.BOOLEAN_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.BYTE_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.DECIMAL_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.FLOAT_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.INT_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.OBJECT_TYPE_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.RECORD_TYPE_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.STRING_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.XML_COMMENT_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.XML_ELEMENT_TAG;
 
 /**
  * Native methods for testing functions with variable return types.

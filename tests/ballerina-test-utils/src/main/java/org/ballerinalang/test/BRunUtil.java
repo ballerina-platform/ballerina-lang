@@ -21,8 +21,8 @@ package org.ballerinalang.test;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.PackageManifest;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.BalRuntime;
@@ -182,6 +182,7 @@ public final class BRunUtil {
                 }
             };
             BalRuntime runtime = compileResult.getRuntime();
+
             runtime.moduleInitialized = true;
             final FutureValue future = runtime.scheduler.startNonIsolatedWorker(func, null,
                     PredefinedTypes.TYPE_ANY, "test", null, args);
