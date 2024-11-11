@@ -30,6 +30,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.identifier.Utils;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
+import org.ballerinalang.debugadapter.BreakpointProcessor.DynamicBreakpointMode;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.completion.CompletionGenerator;
 import org.ballerinalang.debugadapter.completion.context.CompletionContext;
@@ -215,6 +216,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<SetBreakpointsResponse> setBreakpoints(SetBreakpointsArguments args) {
         return CompletableFuture.supplyAsync(() -> {
+            SetBreakpointsResponse bpResponse = new SetBreakpointsResponse();
+            if (isNoDebugMode()) {
+                return bpResponse;
+            }
+
             BalBreakpoint[] balBreakpoints = Arrays.stream(args.getBreakpoints())
                     .map((SourceBreakpoint sourceBreakpoint) -> toBreakpoint(sourceBreakpoint, args.getSource()))
                     .toArray(BalBreakpoint[]::new);
@@ -224,7 +230,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 breakpointsMap.put(bp.getLine(), bp);
             }
 
-            SetBreakpointsResponse bpResponse = new SetBreakpointsResponse();
             String sourcePathUri = args.getSource().getPath();
             Optional<String> qualifiedClassName = getQualifiedClassName(context, sourcePathUri);
             if (qualifiedClassName.isEmpty()) {
@@ -425,7 +430,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<ContinueResponse> continue_(ContinueArguments args) {
-        prepareFor(DebugInstruction.CONTINUE);
+        prepareFor(DebugInstruction.CONTINUE, args.getThreadId());
         context.getDebuggeeVM().resume();
         ContinueResponse continueResponse = new ContinueResponse();
         continueResponse.setAllThreadsContinued(true);
@@ -434,27 +439,23 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> next(NextArguments args) {
-        prepareFor(DebugInstruction.STEP_OVER);
+        prepareFor(DebugInstruction.STEP_OVER, args.getThreadId());
         eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_OVER);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> stepIn(StepInArguments args) {
-        prepareFor(DebugInstruction.STEP_IN);
+        prepareFor(DebugInstruction.STEP_IN, args.getThreadId());
         eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> stepOut(StepOutArguments args) {
-        stepOut(args.getThreadId());
+        prepareFor(DebugInstruction.STEP_OUT, args.getThreadId());
+        eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_OUT);
         return CompletableFuture.completedFuture(null);
-    }
-
-    void stepOut(int threadId) {
-        prepareFor(DebugInstruction.STEP_OUT);
-        eventProcessor.sendStepRequest(threadId, StepRequest.STEP_OUT);
     }
 
     @Override
@@ -1119,10 +1120,23 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     /**
      * Clears previous state information and prepares for the given debug instruction type execution.
      */
-    private void prepareFor(DebugInstruction instruction) {
+    private void prepareFor(DebugInstruction instruction, int threadId) {
         clearState();
-        eventProcessor.getBreakpointProcessor().restoreUserBreakpoints(instruction);
-        context.setLastInstruction(instruction);
+        BreakpointProcessor bpProcessor = eventProcessor.getBreakpointProcessor();
+        DebugInstruction prevInstruction = context.getPrevInstruction();
+        if (prevInstruction == DebugInstruction.STEP_OVER && instruction == DebugInstruction.CONTINUE) {
+            bpProcessor.restoreUserBreakpoints();
+        } else if (prevInstruction == DebugInstruction.CONTINUE && instruction == DebugInstruction.STEP_OVER) {
+            bpProcessor.activateDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT, false);
+        } else if (instruction == DebugInstruction.STEP_OVER) {
+            bpProcessor.activateDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT, true);
+        }
+        context.setPrevInstruction(instruction);
+    }
+
+    private boolean isNoDebugMode() {
+        ClientConfigHolder confHolder = context.getAdapter().getClientConfigHolder();
+        return confHolder instanceof ClientLaunchConfigHolder launchConfigHolder && launchConfigHolder.isNoDebugMode();
     }
 
     /**
