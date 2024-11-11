@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
@@ -127,55 +128,49 @@ public class JvmTypeTestGen {
     }
 
     /**
-     * Checks if the type tested for is error. That is the target type is error. Example instructions include 'a is
-     * error' where 'a' is a variable of type say any or a union with nil.
+     * Checks if we have <code>x is E</code> where <code>E</code> is a subtype of <code>error</code> and error part
+     * of <code>x</code> is a subtype of <code>E</code>.
+     * <br>
+     * In that case we can simplify <code>is</code>-check to a <code>x instanceof BError</code> check.
      *
      * @param sourceType the declared variable type
      * @param targetType the RHS type in the type check instruction. Type to be tested for
      * @return whether instruction could be optimized using 'instanceof` check for BError
      */
     private boolean canOptimizeErrorCheck(BType sourceType, BType targetType) {
-        sourceType = JvmCodeGenUtil.getImpliedType(sourceType);
-        targetType = JvmCodeGenUtil.getImpliedType(targetType);
-        if (targetType.tag != TypeTags.ERROR || sourceType.tag != TypeTags.UNION) {
+        SemType targetTy = targetType.semType();
+        if (!Core.isSubtypeSimple(targetTy, PredefinedType.ERROR)) {
             return false;
         }
-        SemType errorTy = null;
-        int foundError = 0;
-        for (SemType s : ((BUnionType) sourceType).getMemberSemTypes()) {
-            if (SemTypes.isSubtypeSimpleNotNever(s, PredefinedType.ERROR)) {
-                foundError++;
-                errorTy = s;
-            }
-        }
 
-        return (foundError == 1 && types.isSubtype(errorTy, targetType.semType())) ||
-                (foundError > 0 && "error".equals(targetType.tsymbol.name.value));
+        SemType errIntersect = SemTypes.intersect(sourceType.semType(), PredefinedType.ERROR);
+        if (Core.isNever(errIntersect)) {
+            return false;
+        }
+        return SemTypes.isSubtype(types.typeCtx(), errIntersect, targetTy);
     }
 
     /**
-     * This checks for any variable declaration containing a error in a union of two types. Examples include
-     * string|error or error|error or int|error.
+     * Checks if we have <code>x is T</code> in which <code>x</code>'s static type is <code>T'=T|E</code> where
+     * <code>E</code> is a non-empty error type.
+     * <br>
+     * In that case we can simplify <code>is</code>-check to a <code>!(x instanceof BError)</code> check.
      *
      * @param sourceType the declared variable type
      * @param targetType the RHS type in the type check instruction. Type to be tested for
      * @return whether instruction could be optimized using 'instanceof` check for BError
      */
     private boolean canOptimizeErrorUnionCheck(BType sourceType, BType targetType) {
-        sourceType = JvmCodeGenUtil.getImpliedType(sourceType);
-        if (isInValidUnionType(sourceType)) {
+        SemType sourceTy = sourceType.semType();
+        if (!SemTypes.containsBasicType(sourceTy, PredefinedType.ERROR)) {
             return false;
         }
-        SemType otherTy = null;
-        int foundError = 0;
-        for (SemType s : ((BUnionType) sourceType).getMemberSemTypes()) {
-            if (SemTypes.isSubtypeSimpleNotNever(s, PredefinedType.ERROR)) {
-                foundError++;
-            } else {
-                otherTy = s;
-            }
+
+        SemType tyButError = Core.diff(sourceTy, PredefinedType.ERROR);
+        if (Core.isNever(tyButError)) {
+            return false;
         }
-        return foundError == 1 && SemTypes.isSameType(types.typeCtx(), otherTy, targetType.semType());
+        return SemTypes.isSameType(types.typeCtx(), tyButError, targetType.semType());
     }
 
     private boolean isInValidUnionType(BType rhsType) {
@@ -210,7 +205,7 @@ public class JvmTypeTestGen {
     private void handleErrorUnionType(BIRNonTerminator.TypeTest typeTestIns) {
         jvmInstructionGen.loadVar(typeTestIns.rhsOp.variableDcl);
         mv.visitTypeInsn(INSTANCEOF, BERROR);
-        if (JvmCodeGenUtil.getImpliedType(typeTestIns.type).tag != TypeTags.ERROR) {
+        if (!Core.isSubtypeSimple(typeTestIns.type.semType(), PredefinedType.ERROR)) {
             generateNegateBoolean();
         }
         jvmInstructionGen.storeToVar(typeTestIns.lhsOp.variableDcl);
