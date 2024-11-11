@@ -29,15 +29,18 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
  * Utility class for test integration common functions.
  */
-public class Utils {
+public final class Utils {
 
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
+
+    private Utils() {}
 
     /**
      * This method will wait for given ports to open until given timeout period.
@@ -45,20 +48,16 @@ public class Utils {
      * @param ports    The port values that needs to be checked
      * @param timeout  The timeout waiting for the port to open
      * @param verbose  if verbose is set to true,
-     * @param hostName The hostname that needs to be checked
+     * @param address host address
      * @throws RuntimeException if the port is not opened within the timeout
      */
-    public static void waitForPortsToOpen(int[] ports, long timeout, boolean verbose, String hostName)
+    public static void waitForPortsToOpen(int[] ports, long timeout, boolean verbose, InetAddress address)
             throws RuntimeException {
-
-        Arrays.stream(ports).parallel().forEach(port -> {
+        for (int port : ports) {
             long startTime = System.currentTimeMillis();
             boolean isPortOpen = false;
             while (!isPortOpen && (System.currentTimeMillis() - startTime) < timeout) {
-                Socket socket = null;
-                try {
-                    InetAddress address = InetAddress.getByName(hostName);
-                    socket = new Socket(address, port);
+                try (Socket socket = new Socket(address, port)) {
                     isPortOpen = socket.isConnected();
                     if (isPortOpen) {
                         if (verbose) {
@@ -73,20 +72,12 @@ public class Utils {
                         Thread.sleep(1000);
                     } catch (InterruptedException ignored) {
                     }
-                } finally {
-                    try {
-                        if ((socket != null) && (socket.isConnected())) {
-                            socket.close();
-                        }
-                    } catch (IOException e) {
-                        log.error("Can not close the socket with is used to check the server status ", e);
-                    }
                 }
             }
             if (!isPortOpen) {
                 throw new RuntimeException("Port '" + port + "' is not open");
             }
-        });
+        }
     }
 
     /**
@@ -94,11 +85,12 @@ public class Utils {
      *
      * @param ports   - http ports values
      * @param timeout - max time to wait
+     *
      */
-    public static void waitForPortsToClose(int[] ports, int timeout) {
-        Arrays.stream(ports).parallel().forEach(port -> {
+    public static void waitForPortsToClose(int[] ports, int timeout, InetAddress address) {
+        for (int port : ports) {
             long time = System.currentTimeMillis() + timeout;
-            boolean portOpen = Utils.isPortOpen(port);
+            boolean portOpen = Utils.isPortOpen(port, address);
             while (portOpen && System.currentTimeMillis() < time) {
                 // wait until server shutdown is completed
                 try {
@@ -106,38 +98,24 @@ public class Utils {
                 } catch (InterruptedException ignored) {
                     //ignore
                 }
-                portOpen = Utils.isPortOpen(port);
+                portOpen = Utils.isPortOpen(port, address);
             }
             if (portOpen) {
                 throw new RuntimeException("Port '" + port + "' not closed properly when stopping server");
             }
-        });
-    }
-
-    /**
-     * Check whether given port is in use or not.
-     *
-     * @param port - port number
-     * @throws BallerinaTestException if port is already in use
-     */
-    public static void checkPortAvailability(int port) throws BallerinaTestException {
-
-        //check whether http port is already occupied
-        if (isPortOpen(port)) {
-            throw new BallerinaTestException("Unable to start ballerina server on port " +
-                                                     (port) + " : Port already in use");
         }
     }
 
     /**
      * Check whether given ports are in use or not.
      *
-     * @param ports - http ports values
+     * @param ports   - http ports values
+     * @param address
      */
-    public static void checkPortsAvailability(int[] ports) {
+    public static void checkPortsAvailability(int[] ports, InetAddress address) {
 
         Arrays.stream(ports).parallel().forEach(port -> {
-            if (isPortOpen(port)) {
+            if (isPortOpen(port, address)) {
                 throw new RuntimeException("Unable to start ballerina server on port " +
                         (port) + " : Port already in use");
             }
@@ -148,13 +126,13 @@ public class Utils {
      * Check whether the provided port is open.
      *
      * @param port The port that needs to be checked
+     * @param address The host address
      * @return true if the port is open and false otherwise
      */
-    private static boolean isPortOpen(int port) {
+    private static boolean isPortOpen(int port, InetAddress address) {
         Socket socket = null;
         boolean isPortOpen;
         try {
-            InetAddress address = InetAddress.getLocalHost();
             socket = new Socket(address, port);
             isPortOpen = socket.isConnected();
             if (isPortOpen) {
@@ -260,6 +238,15 @@ public class Utils {
      */
     public static String getOSName() {
         return System.getProperty("os.name");
+    }
+
+    /**
+     * Return whether the operating system is Windows.
+     *
+     * @return true if the operating system is Windows, otherwise false
+     */
+    public static boolean isWindowsOS() {
+        return getOSName().toLowerCase(Locale.ENGLISH).contains("windows");
     }
 
     /**

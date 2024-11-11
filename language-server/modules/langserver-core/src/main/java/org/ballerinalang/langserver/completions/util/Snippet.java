@@ -185,6 +185,10 @@ public enum Snippet {
 
     KW_JOIN(SnippetGenerator.getJoinKeywordSnippet()),
 
+    KW_GROUPBY(SnippetGenerator.getGroupByKeywordSnippet()),
+
+    KW_COLLECT(SnippetGenerator.getCollectKeywordSnippet()),
+
     KW_ORDERBY(SnippetGenerator.getOrderByKeywordSnippet()),
 
     KW_LIMIT(SnippetGenerator.getLimitKeywordSnippet()),
@@ -356,6 +360,8 @@ public enum Snippet {
     CLAUSE_DO(SnippetGenerator.getDoClauseSnippet()),
 
     CLAUSE_LET(SnippetGenerator.getLetClauseSnippet()),
+
+    CLAUSE_GROUPBY(SnippetGenerator.getGroupByClauseSnippet()),
 
     CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet()),
 

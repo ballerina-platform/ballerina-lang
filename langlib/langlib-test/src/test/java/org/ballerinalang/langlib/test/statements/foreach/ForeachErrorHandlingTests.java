@@ -18,10 +18,10 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -50,11 +50,12 @@ public class ForeachErrorHandlingTests {
         BRunUtil.invoke(program, "testArrayForeachAndTrap");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp =
-            "error: \\{ballerina/lang.int\\}NumberParsingError \\{\"message\":\"'string' value 'waruna' cannot be " +
-                    "converted to 'int'\"\\}\n" +
-                    "\tat ballerina.lang.int.0:fromString\\(int.bal:175\\)\n" +
-                    "\t   foreach_error_handling:\\$lambda\\$_0\\(foreach_error_handling.bal:41\\)")
+    @Test(expectedExceptions = BLangTestException.class, expectedExceptionsMessageRegExp =
+            """
+                    error: \\{ballerina/lang.int\\}NumberParsingError \\{"message":"'string' value 'waruna' cannot be \
+                    converted to 'int'"\\}
+                    \tat ballerina.lang.int.0:fromString\\(int.bal:175\\)
+                    \t   foreach_error_handling:\\$lambda\\$_0\\(foreach_error_handling.bal:41\\)""")
     public void testArrayForeachAndPanic() {
         BRunUtil.invoke(program, "testArrayForeachAndPanic");
     }

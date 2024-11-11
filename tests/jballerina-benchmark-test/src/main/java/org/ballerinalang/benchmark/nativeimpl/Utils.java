@@ -33,7 +33,7 @@ import java.util.IllegalFormatConversionException;
  *
  * @since 2.0.0
  */
-public class Utils {
+public final class Utils {
 
     private static final BString NOT_ENOUGH_FORMAT_ARGUMENTS = StringUtils.fromString("not enough format arguments");
 
@@ -48,7 +48,7 @@ public class Utils {
         }
         for (Object value : values) {
             if (value != null) {
-                out.print(StringUtils.getStringValue(value, null));
+                out.print(StringUtils.getStringValue(value));
             }
         }
     }
@@ -62,7 +62,7 @@ public class Utils {
         StringBuilder content = new StringBuilder();
         for (Object value : values) {
             if (value != null) {
-                content.append(StringUtils.getStringValue(value, null));
+                content.append(StringUtils.getStringValue(value));
             }
         }
         out.println(content);
@@ -112,8 +112,7 @@ public class Utils {
                             break;
                         case 's':
                             if (ref != null) {
-                                result.append(String.format("%" + padding + "s", StringUtils.getStringValue(ref,
-                                        null)));
+                                result.append(String.format("%" + padding + "s", StringUtils.getStringValue(ref)));
                             }
                             break;
                         case '%':
@@ -147,7 +146,7 @@ public class Utils {
 
     private static void formatHexString(StringBuilder result, int k, StringBuilder padding, char x, Object... args) {
         final Object argsValues = args[k];
-        final Type type = TypeUtils.getReferredType(TypeUtils.getType(argsValues));
+        final Type type = TypeUtils.getImpliedType(TypeUtils.getType(argsValues));
         if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((ArrayType) type).getElementType().getTag()) {
             BArray byteArray = ((BArray) argsValues);
             for (int i = 0; i < byteArray.size(); i++) {

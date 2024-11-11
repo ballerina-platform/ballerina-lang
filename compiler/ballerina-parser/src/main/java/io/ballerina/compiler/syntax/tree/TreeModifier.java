@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -20,6 +20,7 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 /**
@@ -1335,13 +1336,16 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(namedWorkerDeclarationNode.returnTypeDesc().orElse(null));
         BlockStatementNode workerBody =
                 modifyNode(namedWorkerDeclarationNode.workerBody());
+        OnFailClauseNode onFailClause =
+                modifyNode(namedWorkerDeclarationNode.onFailClause().orElse(null));
         return namedWorkerDeclarationNode.modify(
                 annotations,
                 transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
-                workerBody);
+                workerBody,
+                onFailClause);
     }
 
     @Override
@@ -2129,20 +2133,32 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public CollectClauseNode transform(
+            CollectClauseNode collectClauseNode) {
+        Token collectKeyword =
+                modifyToken(collectClauseNode.collectKeyword());
+        ExpressionNode expression =
+                modifyNode(collectClauseNode.expression());
+        return collectClauseNode.modify(
+                collectKeyword,
+                expression);
+    }
+
+    @Override
     public QueryExpressionNode transform(
             QueryExpressionNode queryExpressionNode) {
         QueryConstructTypeNode queryConstructType =
                 modifyNode(queryExpressionNode.queryConstructType().orElse(null));
         QueryPipelineNode queryPipeline =
                 modifyNode(queryExpressionNode.queryPipeline());
-        SelectClauseNode selectClause =
-                modifyNode(queryExpressionNode.selectClause());
+        ClauseNode resultClause =
+                modifyNode(queryExpressionNode.resultClause());
         OnConflictClauseNode onConflictClause =
                 modifyNode(queryExpressionNode.onConflictClause().orElse(null));
         return queryExpressionNode.modify(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                resultClause,
                 onConflictClause);
     }
 
@@ -2449,7 +2465,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ReceiveFieldsNode receiveFieldsNode) {
         Token openBrace =
                 modifyToken(receiveFieldsNode.openBrace());
-        SeparatedNodeList<NameReferenceNode> receiveFields =
+        SeparatedNodeList<Node> receiveFields =
                 modifySeparatedNodeList(receiveFieldsNode.receiveFields());
         Token closeBrace =
                 modifyToken(receiveFieldsNode.closeBrace());
@@ -2457,6 +2473,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 openBrace,
                 receiveFields,
                 closeBrace);
+    }
+
+    @Override
+    public AlternateReceiveNode transform(
+            AlternateReceiveNode alternateReceiveNode) {
+        SeparatedNodeList<SimpleNameReferenceNode> workers =
+                modifySeparatedNodeList(alternateReceiveNode.workers());
+        return alternateReceiveNode.modify(
+                workers);
     }
 
     @Override
@@ -2772,9 +2797,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(xMLStepExpressionNode.expression());
         Node xmlStepStart =
                 modifyNode(xMLStepExpressionNode.xmlStepStart());
+        NodeList<Node> xmlStepExtend =
+                modifyNodeList(xMLStepExpressionNode.xmlStepExtend());
         return xMLStepExpressionNode.modify(
                 expression,
-                xmlStepStart);
+                xmlStepStart,
+                xmlStepExtend);
     }
 
     @Override
@@ -2790,6 +2818,36 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 startToken,
                 xmlNamePattern,
                 gtToken);
+    }
+
+    @Override
+    public XMLStepIndexedExtendNode transform(
+            XMLStepIndexedExtendNode xMLStepIndexedExtendNode) {
+        Token openBracket =
+                modifyToken(xMLStepIndexedExtendNode.openBracket());
+        ExpressionNode expression =
+                modifyNode(xMLStepIndexedExtendNode.expression());
+        Token closeBracket =
+                modifyToken(xMLStepIndexedExtendNode.closeBracket());
+        return xMLStepIndexedExtendNode.modify(
+                openBracket,
+                expression,
+                closeBracket);
+    }
+
+    @Override
+    public XMLStepMethodCallExtendNode transform(
+            XMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
+        Token dotToken =
+                modifyToken(xMLStepMethodCallExtendNode.dotToken());
+        SimpleNameReferenceNode methodName =
+                modifyNode(xMLStepMethodCallExtendNode.methodName());
+        ParenthesizedArgList parenthesizedArgList =
+                modifyNode(xMLStepMethodCallExtendNode.parenthesizedArgList());
+        return xMLStepMethodCallExtendNode.modify(
+                dotToken,
+                methodName,
+                parenthesizedArgList);
     }
 
     @Override
@@ -3119,23 +3177,53 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public GroupByClauseNode transform(
+            GroupByClauseNode groupByClauseNode) {
+        Token groupKeyword =
+                modifyToken(groupByClauseNode.groupKeyword());
+        Token byKeyword =
+                modifyToken(groupByClauseNode.byKeyword());
+        SeparatedNodeList<Node> groupingKey =
+                modifySeparatedNodeList(groupByClauseNode.groupingKey());
+        return groupByClauseNode.modify(
+                groupKeyword,
+                byKeyword,
+                groupingKey);
+    }
+
+    @Override
+    public GroupingKeyVarDeclarationNode transform(
+            GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        TypeDescriptorNode typeDescriptor =
+                modifyNode(groupingKeyVarDeclarationNode.typeDescriptor());
+        BindingPatternNode simpleBindingPattern =
+                modifyNode(groupingKeyVarDeclarationNode.simpleBindingPattern());
+        Token equalsToken =
+                modifyToken(groupingKeyVarDeclarationNode.equalsToken());
+        ExpressionNode expression =
+                modifyNode(groupingKeyVarDeclarationNode.expression());
+        return groupingKeyVarDeclarationNode.modify(
+                typeDescriptor,
+                simpleBindingPattern,
+                equalsToken,
+                expression);
+    }
+
+    @Override
     public OnFailClauseNode transform(
             OnFailClauseNode onFailClauseNode) {
         Token onKeyword =
                 modifyToken(onFailClauseNode.onKeyword());
         Token failKeyword =
                 modifyToken(onFailClauseNode.failKeyword());
-        TypeDescriptorNode typeDescriptor =
-                modifyNode(onFailClauseNode.typeDescriptor().orElse(null));
-        IdentifierToken failErrorName =
-                modifyNode(onFailClauseNode.failErrorName().orElse(null));
+        TypedBindingPatternNode typedBindingPattern =
+                modifyNode(onFailClauseNode.typedBindingPattern().orElse(null));
         BlockStatementNode blockStatement =
                 modifyNode(onFailClauseNode.blockStatement());
         return onFailClauseNode.modify(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement);
     }
 
@@ -3620,7 +3708,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 mostTimesMatchedDigit,
                 closeBraceToken);
     }
-  
+
+    @Override
     public MemberTypeDescriptorNode transform(
             MemberTypeDescriptorNode memberTypeDescriptorNode) {
         NodeList<AnnotationNode> annotations =
@@ -3630,6 +3719,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return memberTypeDescriptorNode.modify(
                 annotations,
                 typeDescriptor);
+    }
+
+    @Override
+    public ReceiveFieldNode transform(
+            ReceiveFieldNode receiveFieldNode) {
+        SimpleNameReferenceNode fieldName =
+                modifyNode(receiveFieldNode.fieldName());
+        Token colon =
+                modifyToken(receiveFieldNode.colon());
+        SimpleNameReferenceNode peerWorker =
+                modifyNode(receiveFieldNode.peerWorker());
+        return receiveFieldNode.modify(
+                fieldName,
+                colon,
+                peerWorker);
     }
 
     // Tokens
@@ -3654,7 +3758,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     protected <T extends Node> SeparatedNodeList<T> modifySeparatedNodeList(SeparatedNodeList<T> nodeList) {
-        Function<NonTerminalNode, SeparatedNodeList> nodeListCreator = SeparatedNodeList::new;
+        Function<NonTerminalNode, SeparatedNodeList<T>> nodeListCreator = SeparatedNodeList::new;
         if (nodeList.isEmpty()) {
             return nodeList;
         }
@@ -3688,7 +3792,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             return nodeList;
         }
 
-        STNode stNodeList = STNodeFactory.createNodeList(java.util.Arrays.asList(newSTNodes));
+        STNode stNodeList = STNodeFactory.createNodeList(Arrays.asList(newSTNodes));
         return nodeListCreator.apply(stNodeList.createUnlinkedFacade());
     }
 
@@ -3714,7 +3818,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             return nodeList;
         }
 
-        STNode stNodeList = STNodeFactory.createNodeList(java.util.Arrays.asList(newSTNodes));
+        STNode stNodeList = STNodeFactory.createNodeList(Arrays.asList(newSTNodes));
         return nodeListCreator.apply(stNodeList.createUnlinkedFacade());
     }
 

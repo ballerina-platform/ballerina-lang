@@ -1,0 +1,16 @@
+[package]
+org = "foo"
+name = "pkg_b"
+version = "1.0.0"
+
+[[platform.java17.dependency]]
+groupId = "com.example.greeting"
+artifactId = "testProject2"
+version = "1.0.0"
+path = "libs/testProject2-1.0.0.jar"
+
+[[platform.java17.dependency]]
+groupId = "com.example"
+artifactId = "project1"
+version = "1.0"
+path = "libs/project1-1.0.0.jar"

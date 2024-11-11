@@ -18,10 +18,10 @@
  */
 package org.ballerinalang.test.types.tuples;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -50,7 +50,7 @@ public class TupleLValueFillTest {
         BRunUtil.invoke(compileResult, "testRestMemberFill");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
                   "\\{\"message\":\"array of " +
                   "length 0 cannot be expanded into array of length 2 without filler values.*")
@@ -58,7 +58,7 @@ public class TupleLValueFillTest {
         BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
                   "\\{\"message\":\"tuple of " +
                   "length 1 cannot be expanded into tuple of length 3 without filler values.*")

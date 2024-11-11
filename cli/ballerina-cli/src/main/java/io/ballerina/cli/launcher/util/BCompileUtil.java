@@ -18,30 +18,23 @@ package io.ballerina.cli.launcher.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Utility methods for compile Ballerina files.
  *
  * @since 0.94
  */
-public class BCompileUtil {
+public final class BCompileUtil {
 
-    //TODO find a way to remove below line.
-    private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
+    private BCompileUtil() {
+    }
 
     public static String readFileAsString(String path) throws IOException {
-        InputStream is = ClassLoader.getSystemResourceAsStream(path);
-        InputStreamReader inputStreamREader = null;
-        BufferedReader br = null;
         StringBuilder sb = new StringBuilder();
-        try {
-            inputStreamREader = new InputStreamReader(is, StandardCharsets.UTF_8);
-            br = new BufferedReader(inputStreamREader);
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(ClassLoader.getSystemResourceAsStream(path), StandardCharsets.UTF_8))) {
             String content = br.readLine();
             if (content == null) {
                 return sb.toString();
@@ -51,19 +44,6 @@ public class BCompileUtil {
 
             while ((content = br.readLine()) != null) {
                 sb.append('\n').append(content);
-            }
-        } finally {
-            if (inputStreamREader != null) {
-                try {
-                    inputStreamREader.close();
-                } catch (IOException ignore) {
-                }
-            }
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException ignore) {
-                }
             }
         }
         return sb.toString();

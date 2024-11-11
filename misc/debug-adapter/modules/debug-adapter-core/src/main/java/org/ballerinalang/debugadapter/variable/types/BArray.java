@@ -29,7 +29,6 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
@@ -48,10 +47,9 @@ public class BArray extends IndexedCompoundVariable {
     @Override
     public String computeValue() {
         try {
-            if (!(jvmValue instanceof ObjectReference)) {
+            if (!(jvmValue instanceof ObjectReference jvmValueRef)) {
                 return UNKNOWN_VALUE;
             }
-            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             String arrayType = getArrayType(jvmValueRef);
             int arraySize = getArraySize(jvmValueRef);
             return String.format("%s[%d]", arrayType, arraySize);
@@ -63,14 +61,13 @@ public class BArray extends IndexedCompoundVariable {
     @Override
     protected Either<Map<String, Value>, List<Value>> computeChildVariables(int start, int count) {
         try {
-            if (!(jvmValue instanceof ObjectReference)) {
+            if (!(jvmValue instanceof ObjectReference jvmValueRef)) {
                 return Either.forRight(new ArrayList<>());
             }
-            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             List<Field> fields = jvmValueRef.referenceType().allFields();
             Field arrayValueField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
                     fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("Values"))
-                    .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+                    .map(Map.Entry::getKey).toList().get(0);
 
             // If count > 0, returns a sublist of the child variables
             // If count == 0, returns all child variables
@@ -126,7 +123,7 @@ public class BArray extends IndexedCompoundVariable {
                 .filter(fieldValueEntry -> fieldValueEntry.getValue() != null &&
                         fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toList()).get(0);
+                .toList().get(0);
         arraySize = ((IntegerValue) arrayRef.getValue(arraySizeField)).value();
     }
 }

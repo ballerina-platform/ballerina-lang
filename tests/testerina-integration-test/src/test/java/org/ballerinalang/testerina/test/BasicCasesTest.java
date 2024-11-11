@@ -20,13 +20,12 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
-import org.ballerinalang.testerina.test.utils.CommonUtils;
 import org.ballerinalang.testerina.test.utils.FileUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 /**
@@ -38,11 +37,10 @@ public class BasicCasesTest extends BaseTestCase {
     private String projectPath;
 
     @BeforeClass()
-    public void setup() throws BallerinaTestException, IOException {
+    public void setup() throws IOException {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.toString();
-        FileUtils.copyFolder(Paths.get("build/libs"),
-                Paths.get(projectPath, "runtime-api-tests", "libs"));
+        FileUtils.copyFolder(Path.of("build/libs"), Path.of(projectPath, "runtime-api-tests", "libs"));
     }
 
     @Test
@@ -95,16 +93,9 @@ public class BasicCasesTest extends BaseTestCase {
 
     @Test
     public void testAnnotationAccess() throws BallerinaTestException, IOException {
-        String endString = " SEVERE {b7a.log.crash} - ";
-        String firstString = "We thank you for helping make us better.";
-        String endString2 = "********";
-        String firstString2 = "unnamed module of loader 'app')";
         String[] args = mergeCoverageArgs(new String[]{"annotation-access"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        output = output + "********";
-        output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        output = CommonUtils.replaceVaryingString(firstString2, endString2, output);
         AssertionUtils.assertOutput("BasicCasesTest-testAnnotationAccess.txt", output);
     }
 

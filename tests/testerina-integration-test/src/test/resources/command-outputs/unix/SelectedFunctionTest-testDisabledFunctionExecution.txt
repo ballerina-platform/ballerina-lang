@@ -9,3 +9,5 @@ Running Tests
 
 
 		No tests found
+
+		Test execution time :*****s

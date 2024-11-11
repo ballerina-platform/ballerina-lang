@@ -19,7 +19,7 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.values.XmlComment;
 import io.ballerina.runtime.internal.values.XmlItem;
 import io.ballerina.runtime.internal.values.XmlPi;
@@ -27,7 +27,6 @@ import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlText;
 
 import java.io.CharArrayWriter;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -67,17 +66,11 @@ public class BallerinaXmlSerializer extends OutputStream {
     private Deque<Set<String>> parentNSSet;
     private int nsNumber;
     private boolean withinElement;
-    private static boolean isDefaultFactory = false;
 
     static {
         xmlOutputFactory = XMLOutputFactory.newInstance();
-        if (xmlOutputFactory.getClass().getName().equals(OUTPUT_FACTORY)) {
-            xmlOutputFactory.setProperty(OUTPUT_VALIDATE_PROPERTY, false);
-            xmlOutputFactory.setProperty(AUTOMATIC_END_ELEMENTS, false);
-        } else {
-            xmlOutputFactory.setProperty("escapeCharacters", false);
-            isDefaultFactory = true;
-        }
+        xmlOutputFactory.setProperty(OUTPUT_VALIDATE_PROPERTY, false);
+        xmlOutputFactory.setProperty(AUTOMATIC_END_ELEMENTS, false);
     }
 
     public BallerinaXmlSerializer(OutputStream outputStream) {
@@ -85,7 +78,7 @@ public class BallerinaXmlSerializer extends OutputStream {
             xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(outputStream);
             parentNSSet = new ArrayDeque<>();
         } catch (XMLStreamException e) {
-            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
+            ErrorHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 
@@ -99,16 +92,16 @@ public class BallerinaXmlSerializer extends OutputStream {
         try {
             xmlStreamWriter.flush();
         } catch (XMLStreamException e) {
-            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
+            ErrorHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         try {
             xmlStreamWriter.close();
         } catch (XMLStreamException e) {
-            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
+            ErrorHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 
@@ -137,7 +130,7 @@ public class BallerinaXmlSerializer extends OutputStream {
                     throw new IllegalStateException("Unexpected value: " + xmlValue.getNodeType());
             }
         } catch (XMLStreamException e) {
-            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
+            ErrorHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 
@@ -152,7 +145,7 @@ public class BallerinaXmlSerializer extends OutputStream {
     private void writeXMLText(XmlText xmlValue) throws XMLStreamException {
         // No need to escape xml text when they are within xml element or if it is not from default stream writer.
         // It's handled by xml stream  writer.
-        if (this.withinElement && !isDefaultFactory) {
+        if (this.withinElement) {
             String textValue = xmlValue.getTextValue();
             if (!textValue.isEmpty()) {
                 xmlStreamWriter.writeCharacters(textValue);
@@ -293,7 +286,7 @@ public class BallerinaXmlSerializer extends OutputStream {
     }
 
     private void writeAttributes(HashSet<String> curNSSet, Map<String, String> attributeMap) throws XMLStreamException {
-        String defaultNS = xmlStreamWriter.getNamespaceContext().getNamespaceURI(XMLNS);
+        String defaultNS = xmlStreamWriter.getNamespaceContext().getNamespaceURI("");
         for (Map.Entry<String, String> attributeEntry : attributeMap.entrySet()) {
             String key = attributeEntry.getKey();
             int closingCurlyPos = key.lastIndexOf('}');

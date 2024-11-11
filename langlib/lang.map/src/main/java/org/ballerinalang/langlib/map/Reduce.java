@@ -29,19 +29,19 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
-import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
+import static org.ballerinalang.langlib.map.util.Constants.MAP_VERSION;
 
 /**
  * Native implementation of lang.map:reduce(map&lt;Type&gt;, function, Type1).
  *
  * @since 1.0
  */
-public class Reduce {
+public final class Reduce {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "reduce");
 
-    public static Object reduce(BMap<?, ?> m, BFunctionPointer<Object, Object> func, Object initial) {
+    public static Object reduce(BMap<?, ?> m, BFunctionPointer<Object[], Object> func, Object initial) {
         int size = m.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);

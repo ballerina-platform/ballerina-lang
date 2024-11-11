@@ -203,3 +203,52 @@ public function findRefsIn() {
             .reduce(function (int val1, int val2) => val1 + val2, 0);
 
 }
+
+function testRefsInsideFuncCall() {
+    string|int value = "Jam";
+
+    func1(s1 = "Sam", s2 = value);
+    func2(xFunc = func1);
+    func2(xFunc = func4);
+    func2(func3(s1 = "abc"));
+}
+
+function func1(string s1, string|int s2) {
+}
+
+function func2(function xFunc) {
+}
+
+function (int) returns int func4 = a => a + a;
+
+function func3(string s1) returns function (int) returns int {
+    return func4;
+}
+
+function testAlternateReceive() {
+    worker w1 {
+        3 -> w3;
+    }
+
+    worker w2 {
+        4 -> w3;
+    }
+
+    worker w3 {
+        int _ = <- w1|w2;
+    }
+}
+
+function testMultipleReceive() {
+    worker w1 {
+        5 -> w3;
+    }
+
+    worker w2 {
+        6 -> w3;
+    }
+
+    worker w3 {
+        _ = <- {a: w1, b: w2};
+    }
+}

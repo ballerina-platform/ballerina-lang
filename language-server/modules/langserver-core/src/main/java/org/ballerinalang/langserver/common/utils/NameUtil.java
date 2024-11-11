@@ -46,7 +46,10 @@ import java.util.stream.Collectors;
  *
  * @since 2201.1.1
  */
-public class NameUtil {
+public final class NameUtil {
+
+    private NameUtil() {
+    }
 
     /**
      * Generates a random name.
@@ -87,18 +90,11 @@ public class NameUtil {
                 name = typeSymbol.getName().get();
             } else {
                 TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
-                switch (rawType.typeKind()) {
-                    case RECORD:
-                        name = "mappingResult";
-                        break;
-                    case TUPLE:
-                    case ARRAY:
-                        name = "listResult";
-                        break;
-                    default:
-                        name = rawType.typeKind().getName() + "Result";
-                        break;
-                }
+                name = switch (rawType.typeKind()) {
+                    case RECORD -> "mappingResult";
+                    case TUPLE, ARRAY -> "listResult";
+                    default -> rawType.typeKind().getName() + "Result";
+                };
             }
             return generateVariableName(1, name, names);
         } else {
@@ -174,7 +170,7 @@ public class NameUtil {
             }
 
             return -3;
-        }).filter(integer -> integer >= 0).sorted().collect(Collectors.toList());
+        }).filter(integer -> integer >= 0).sorted().toList();
 
         for (int i = 0; i < suffixList.size(); i++) {
             Integer suffix = suffixList.get(i);
@@ -211,7 +207,8 @@ public class NameUtil {
      * @return Signature
      */
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
-        String typeSignature = typeSymbol.signature();
+        String typeSignature = typeSymbol.typeKind() == 
+                TypeDescKind.COMPILATION_ERROR ? "" : typeSymbol.signature();
         return CommonUtil.getModifiedSignature(context, typeSignature);
     }
 
@@ -314,7 +311,7 @@ public class NameUtil {
             // Remove '_' underscores
             while (newName.contains("_")) {
                 String[] parts = newName.split("_");
-                List<String> restParts = Arrays.stream(parts, 1, parts.length).collect(Collectors.toList());
+                List<String> restParts = Arrays.stream(parts, 1, parts.length).toList();
                 newName = parts[0] + StringUtils.capitalize(String.join("", restParts));
             }
             // If empty, revert to original name

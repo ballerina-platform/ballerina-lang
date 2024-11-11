@@ -65,9 +65,9 @@ public class PackageMd {
      */
     public static class Modifier {
         private String content;
-        private String name;
-        private DocumentId documentId;
-        private Package oldPackage;
+        private final String name;
+        private final DocumentId documentId;
+        private final Package oldPackage;
 
         private Modifier(PackageMd oldDocument) {
             this.content = oldDocument.mdDocumentContext.content();

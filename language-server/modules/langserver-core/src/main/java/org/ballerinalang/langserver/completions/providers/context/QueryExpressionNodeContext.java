@@ -22,7 +22,6 @@ import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.QueryPipelineNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -47,8 +46,7 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, QueryExpressionNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, QueryExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (node.queryConstructType().isPresent() && 
@@ -122,7 +120,9 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
                 new SnippetCompletionItem(context, Snippet.KW_JOIN.get()),
                 new SnippetCompletionItem(context, Snippet.CLAUSE_JOIN.get()),
                 new SnippetCompletionItem(context, Snippet.KW_ORDERBY.get()),
-                new SnippetCompletionItem(context, Snippet.KW_LIMIT.get())
+                new SnippetCompletionItem(context, Snippet.KW_LIMIT.get()),
+                new SnippetCompletionItem(context, Snippet.KW_GROUPBY.get()),
+                new SnippetCompletionItem(context, Snippet.CLAUSE_GROUPBY.get())
         );
 
         // Need to specifically check if from keyword is missing because from clause can be there in the syntax tree
@@ -133,9 +133,10 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
             completionItems = new ArrayList<>(completionItems);
             /*
              * It is mandatory to have at least one pipeline clause.
-             * Only if that is true we suggest the select clause
+             * Only if that is true we suggest the select and collect clauses
              */
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SELECT.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_COLLECT.get()));
             // Similarly do clause requires at least one query pipeline clause
             completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_DO.get()));
         }

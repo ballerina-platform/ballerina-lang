@@ -16,65 +16,41 @@
  * under the License.
  *
  */
- 
-//apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
-//apply from: "$rootDir/gradle/birTestableProject.gradle"
-//apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 dependencies {
-    implementation 'org.slf4j:slf4j-api'
+    implementation libs.slf4j.api
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(':ballerina-lang-test')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang:value');
     implementation project(':ballerina-lang:regexp');
-    implementation project(':observability-symbol-collector');
 
-    testCompile 'org.mockito:mockito-all'
-    testCompile 'org.wso2.transport.http:org.wso2.transport.http.netty'
-    testCompile 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
-    testCompile 'org.testng:testng'
-    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile project(':ballerina-runtime')
-    testRuntime project(':ballerina-runtime')
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.testng
+    testImplementation libs.wso2.transport.http
+    testImplementation libs.wso2.carbon.messaging
+    testImplementation libs.testng
+    testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testImplementation project(':ballerina-runtime')
+    testRuntimeOnly project(':ballerina-runtime')
 
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
-
-//    balaTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
-////    balaTestImplementation project(path: ':ballerina-transactions', configuration: 'balaImplementation')
-////    balaTestImplementation project(path: ':ballerina-http', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-log-api', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-file', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-auth', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-mime', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-cache', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-time', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-task', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-crypto', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-reflect', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-lang:jballerina.java', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-observability', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-system', configuration: 'balaImplementation')
-//    balaImplementation project(path: ':testerina:testerina-core', configuration: 'balaImplementation')
-//    balaImplementation project(path: ':ballerina-lang-test', configuration: 'balaImplementation')
 }
 
 description = 'JBallerina - Unit Test Module'
-
-//task createBre(type: org.gradle.api.tasks.Copy) {
-//    from configurations.balRuntime
-//    into "$buildDir/bre/lib"
-//}
 
 test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "enableJBallerinaTests", "true"
 
-    jvmArgs = ['-Xms512m', '-Xmx3g']
+    jvmArgs = ['-Xms512m', '-Xmx3g', '--add-opens=java.base/java.util=ALL-UNNAMED',
+               '--add-opens=java.base/java.lang=ALL-UNNAMED']
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'
@@ -91,19 +67,15 @@ test {
             exceptionFormat "full"
         }
     }
-
-//    dependsOn createBre
 }
 
 configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
-    testCompile.exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
-    testCompile.exclude group: 'org.codehaus.woodstox', module: 'stax2-api'
-    testCompile.exclude(group: 'com.fasterxml.woodstox', module: 'woodstox-core')
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
+tasks.compileTestJava.dependsOn(':ballerina-lang-test:copyInteropImports')

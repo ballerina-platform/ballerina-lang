@@ -18,12 +18,14 @@
 
 package io.ballerina.compiler.api.symbols.resourcepath.util;
 
+import io.ballerina.compiler.api.symbols.Symbol;
+
 /**
  * Represents a segment of a resource segment path list.
  *
  * @since 2.0.0
  */
-public interface PathSegment {
+public interface PathSegment extends Symbol {
 
     /**
      * Returns the type of the path segment.

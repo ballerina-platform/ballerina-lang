@@ -63,7 +63,8 @@ import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_TRUE
  *
  * @since 0.985.0
  */
-public class ObserveUtils {
+public final class ObserveUtils {
+
     private static final List<BallerinaObserver> observers = new CopyOnWriteArrayList<>();
     private static final boolean enabled;
     private static final boolean metricsEnabled;
@@ -94,6 +95,9 @@ public class ObserveUtils {
         tracingEnabled = readConfig(tracingEnabledKey, enabledKey, false);
         tracingProvider = readConfig(tracingProviderKey, providerKey, StringUtils.fromString("choreo"));
         enabled = metricsEnabled || tracingEnabled;
+    }
+
+    private ObserveUtils() {
     }
 
     private static <T> T readConfig(VariableKey specificKey, VariableKey inheritedKey, T defaultValue) {
@@ -379,7 +383,7 @@ public class ObserveUtils {
         }   // Else normal function
 
         if (typeDef != null) {
-            ObjectType type = (ObjectType) TypeUtils.getReferredType(typeDef.getType());
+            ObjectType type = (ObjectType) TypeUtils.getImpliedType(typeDef.getType());
             Module typeModule = type.getPackage();
             String objectName = typeModule.getOrg() + "/" + typeModule.getName() + "/" + type.getName();
 

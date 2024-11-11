@@ -4,6 +4,7 @@
     "character": 30
   },
   "source": "function_def/source/projectls/defaultable_param.bal",
+  "description": "",
   "items": [
     {
       "label": "start",
@@ -53,11 +54,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -77,11 +78,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -101,11 +102,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -125,11 +126,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -149,11 +150,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -173,11 +174,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -237,11 +238,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -261,11 +262,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -550,11 +551,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -574,11 +575,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -598,11 +599,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -622,11 +623,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -646,11 +647,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },

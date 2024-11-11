@@ -225,7 +225,7 @@ public class ExpressionTypeTest {
     public void testObjecTypeInit(int sLine, int sCol, int eLine, int eCol) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) type).getName().get(), "PersonObj");
+        assertEquals(type.getName().get(), "PersonObj");
         assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), OBJECT);
     }
 

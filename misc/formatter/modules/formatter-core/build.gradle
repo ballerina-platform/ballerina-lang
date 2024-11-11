@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 configurations.all {
     resolutionStrategy {
@@ -27,8 +29,11 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
-    testImplementation 'com.google.code.gson:gson'
-    testCompile 'org.testng:testng'
+    implementation libs.apache.commons.lang3
+    implementation project(':toml-parser')
+
+    testImplementation libs.gson
+    testImplementation libs.testng
 }
 
 description = 'Ballerina - Formatter Core'
@@ -41,20 +46,11 @@ test {
 
 ext.moduleName = 'ballerina.metrics'
 
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
-task parserTests(type: Copy) {
+tasks.register('parserTests', Copy) {
     from "../../../../compiler/ballerina-parser/src/test/resources"
     into "$buildDir/resources/test/parser-tests"
     include "**/*.bal"
 }
 
 tasks.test.dependsOn("parserTests")
+tasks.checkstyleTest.dependsOn(":formatter:formatter-core:parserTests")

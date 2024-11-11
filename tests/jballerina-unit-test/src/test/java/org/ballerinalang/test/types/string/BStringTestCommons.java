@@ -21,6 +21,7 @@ package org.ballerinalang.test.types.string;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 
 /**
  * Has utility functions related to the tests.
@@ -32,5 +33,10 @@ public class BStringTestCommons {
         Object returns = BRunUtil.invoke(result, funcName);
         Assert.assertEquals(returns.getClass(), Long.class);
         Assert.assertEquals(returns, length);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

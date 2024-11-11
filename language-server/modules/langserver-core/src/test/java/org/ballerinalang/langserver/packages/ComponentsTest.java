@@ -30,7 +30,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +42,6 @@ public class ComponentsTest {
 
     private static final String NAME = "name";
     private static final String MODULES = "modules";
-    private static final JsonParser JSON_PARSER = new JsonParser();
     private static final Gson GSON = new Gson();
 
     private Path resourceRoot;
@@ -56,12 +54,11 @@ public class ComponentsTest {
     }
 
     @Test(description = "Test package components API", dataProvider = "components-data-provider")
-    public void packageComponentsTestCase(String[] projects, String expected) throws IOException {
+    public void packageComponentsTestCase(String[] projects, String expected) {
         Path configsPath = this.resourceRoot.resolve("configs");
         List<String> filePaths = new ArrayList<>();
         for (String project : projects) {
             Path path = configsPath.resolve(project).resolve("main.bal").toAbsolutePath();
-            TestUtil.openDocument(serviceEndpoint, path);
             filePaths.add(path.toString());
         }
 
@@ -80,7 +77,7 @@ public class ComponentsTest {
         JsonArray expectedJsonArray =
                 FileUtils.fileContentAsObject(expectedPath.toAbsolutePath().toString()).getAsJsonArray("result");
         JsonArray responseJsonArray =
-                JSON_PARSER.parse(response).getAsJsonObject().getAsJsonObject("result").getAsJsonArray("packages");
+                JsonParser.parseString(response).getAsJsonObject().getAsJsonObject("result").getAsJsonArray("packages");
 
         Assert.assertEquals(responseJsonArray.size(), expectedJsonArray.size(), "Package ComponentsTest fails with " +
                 "incorrect package count.");
@@ -133,7 +130,8 @@ public class ComponentsTest {
                 {new String[]{"project", "project-functions", "project-services", "single-file"},
                         "multiple-packages_expected.json"},
                 {new String[]{"single-file"}, "single-file-package_expected.json"},
-                {new String[]{"project-other"}, "project-other_expected.json"}
+                {new String[]{"project-other"}, "project-other_expected.json"},
+                {new String[]{"non-exist"}, "project-exception_expected.json"}
         };
     }
 }

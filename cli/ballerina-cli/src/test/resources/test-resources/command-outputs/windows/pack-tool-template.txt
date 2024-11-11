@@ -1,0 +1,5 @@
+Compiling source
+	testuserorg/tool_sample:0.1.0
+
+Creating bala
+	target\bala\testuserorg-tool_sample-java17-0.1.0.bala

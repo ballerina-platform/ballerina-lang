@@ -163,8 +163,107 @@ function testMapFromBalString() {
     }
 
     assert(result3, mapVal3);
-}
 
+    string mapExpString = string `{"name":"John","city":"London"}`;
+    anydata|error output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"name": "John", "city": "London"});
+    }
+
+    string mapExpString1 = string `{"key1": [ 1, 2, "three", ["",4,{"key1":"val1", "key2": 2}]],  "key2"  : `;
+    string mapExpString2 = string `{"key1": [1, 2, "three", ["",4,{"key1":"val1", "key2": 2}]],  "key2": "London"}}`;
+    mapExpString = mapExpString1 + mapExpString2;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"key1":[1,2,"three",["",4,{"key1":"val1","key2":2}]],
+        "key2":{"key1":[1,2,"three",["",4,{"key1":"val1","key2":2}]],"key2":"London"}});
+    }
+
+    mapExpString = string `{"name":"John",city:"London"}`;
+    output = mapExpString.fromBalString();
+    assert(output is error, true);
+    if (output is error) {
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
+        <string>checkpanic output.detail()["message"]);
+    }
+
+    mapExpString = string `{name:"John",city:"London"}`;
+    output = mapExpString.fromBalString();
+    assert(output is error, true);
+    if (output is error) {
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
+        <string>checkpanic output.detail()["message"]);
+    }
+
+    mapExpString = string `{"   name    ":"                John","     city ":"        London                    "}`;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"   name    ": "                John", "     city ": "        London                    "});
+    }
+
+    mapExpString = string `   {"name" :    "John"  ,  "city"  :  "London"}   `;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"name": "John", "city": "London"});
+    }
+
+    mapExpString = string `
+              {                 "name"  :
+                "John" ,
+                         "city" : "London"      }`;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"name": "John", "city": "London"});
+    }
+
+    mapExpString = string `
+              {                 "intval"  :
+                3 ,
+                         "floatval" : 12.55      }`;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {intval: 3, floatval: 12.55});
+    }
+
+    mapExpString = string `
+              {                 "name"  :
+                "John" ,
+                         city : "London"      }`;
+    output = mapExpString.fromBalString();
+    assert(output is error, true);
+    if (output is error) {
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
+        <string>checkpanic output.detail()["message"]);
+    }
+
+    mapExpString = string `
+              {                 "name"  :
+                3 ,
+                         city" : 12.55      }`;
+    output = mapExpString.fromBalString();
+    assert(output is error, true);
+    if (output is error) {
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
+        <string>checkpanic output.detail()["message"]);
+    }
+
+    mapExpString = string `
+              {                 name"  :
+                3 ,
+                         city" : 12.55      }`;
+    output = mapExpString.fromBalString();
+    assert(output is error, true);
+    if (output is error) {
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
+        <string>checkpanic output.detail()["message"]);
+    }
+}
 
 function testTableFromBalString() {
     string s1 = "table key(name) [{\"id\":1,\"name\":\"Mary\",\"grade\":12}," +
@@ -516,74 +615,65 @@ function testFromStringOnRegExpNegative() {
     string s = "re `AB+^*`";
     anydata|error x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing backslash before '*' token in 'AB+^*'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `AB\\hCD`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Invalid character '\\h'", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: invalid character 'h' after backslash in 'AB\\hCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `AB\\pCD`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Invalid character '\\p'", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing open brace '{' token in 'AB\\pCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `AB\\uCD`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Invalid character '\\u'", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: invalid character 'u' after backslash in 'AB\\uCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `AB\\u{001CD`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Invalid character '\\u{001CD'", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing close brace '}' token in 'AB\\u{001CD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `AB\\p{sc=Lu`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Missing '}' character", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing close brace '}' token in 'AB\\p{sc=Lu'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `[^abc`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Missing ']' character", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing close bracket ']' token in '[^abc'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `(abc`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Missing ')' character", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing close parenthesis ')' token in '(abc'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `(ab^*)`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing backslash before '*' token in '(ab^*)'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 }
 
 function assert(anydata|error actual, anydata|error expected) {

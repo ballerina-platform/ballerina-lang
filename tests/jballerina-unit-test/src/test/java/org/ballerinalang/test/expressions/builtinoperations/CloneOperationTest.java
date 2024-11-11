@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -74,23 +75,23 @@ public class CloneOperationTest {
         BArray results = (BArray) returns;
         Assert.assertNotNull(results);
 
-        BMap record = (BMap) results.get(0);
-        BMap fieldA = (BMap) record.get(StringUtils.fromString("a"));
+        BMap<?, ?> record = (BMap<?, ?>) results.get(0);
+        BMap<?, ?> fieldA = (BMap<?, ?>) record.get(StringUtils.fromString("a"));
 
         BArray arr = (BArray) fieldA.get(StringUtils.fromString("arr"));
-        BMap fieldB = (BMap) record.get(StringUtils.fromString("b"));
-        BMap fieldAOfB = (BMap) fieldB.get(StringUtils.fromString("aa"));
+        BMap<?, ?> fieldB = (BMap<?, ?>) record.get(StringUtils.fromString("b"));
+        BMap<?, ?> fieldAOfB = (BMap<?, ?>) fieldB.get(StringUtils.fromString("aa"));
         BArray arrOfAA = (BArray) fieldAOfB.get(StringUtils.fromString("arr"));
 
         Assert.assertEquals(arr.getInt(0), 10);
         Assert.assertEquals(arrOfAA.getInt(0), 10);
 
-        record = (BMap) results.get(1);
-        BMap fieldA1 = (BMap) record.get(StringUtils.fromString("a"));
+        record = (BMap<?, ?>) results.get(1);
+        BMap<?, ?> fieldA1 = (BMap<?, ?>) record.get(StringUtils.fromString("a"));
 
         arr = (BArray) fieldA1.get(StringUtils.fromString("arr"));
-        fieldB = (BMap) record.get(StringUtils.fromString("b"));
-        BMap fieldAOfB1 = (BMap) fieldB.get(StringUtils.fromString("aa"));
+        fieldB = (BMap<?, ?>) record.get(StringUtils.fromString("b"));
+        BMap<?, ?> fieldAOfB1 = (BMap<?, ?>) fieldB.get(StringUtils.fromString("aa"));
         arrOfAA = (BArray) fieldAOfB1.get(StringUtils.fromString("arr"));
 
         Assert.assertEquals(arr.getInt(0), 1);
@@ -113,11 +114,11 @@ public class CloneOperationTest {
         arr[0] = (BArray) results.get(0);
         arr[1] = (BArray) results.get(1);
 
-        BMap record1 = (BMap) arr[0].getRefValue(2);
-        BMap record2 = (BMap) arr[0].getRefValue(3);
+        BMap<?, ?> record1 = (BMap<?, ?>) arr[0].getRefValue(2);
+        BMap<?, ?> record2 = (BMap<?, ?>) arr[0].getRefValue(3);
 
-        BMap record3 = (BMap) arr[1].getRefValue(2);
-        BMap record4 = (BMap) arr[1].getRefValue(3);
+        BMap<?, ?> record3 = (BMap<?, ?>) arr[1].getRefValue(2);
+        BMap<?, ?> record4 = (BMap<?, ?>) arr[1].getRefValue(3);
 
         BArray intArr1 = (BArray) record1.get(StringUtils.fromString("arr"));
         BArray intArr2 = (BArray) record2.get(StringUtils.fromString("arr"));
@@ -147,5 +148,12 @@ public class CloneOperationTest {
                 "cloneAnydata", "cloneFrozenAnydata", "cloneNullJson", "cloneNilAnydata", "testCloneArrayWithError",
                 "testCloneMapWithError", "cloneRecordWithArrayField", "cloneArrayWithRecordElement"
         };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
+        taintCheckResult = null;
     }
 }

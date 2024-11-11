@@ -48,6 +48,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
@@ -223,6 +226,21 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
     }
 
     @Override
+    public void visit(BLangCollectClause node, AnalyzerData data) {
+
+    }
+
+    @Override
+    public void visit(BLangGroupByClause node, AnalyzerData data) {
+
+    }
+
+    @Override
+    public void visit(BLangGroupingKey node, AnalyzerData data) {
+
+    }
+
+    @Override
     public void visit(BLangClassDefinition classDefinition, AnalyzerData data) {
         validateParameters(classDefinition, classDefinition.fields, null, DiagnosticWarningCode.UNDOCUMENTED_FIELD,
                 DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED);
@@ -363,14 +381,14 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
 
     private BSymbol resolveFullyQualifiedSymbol(Location location, SymbolEnv env, String packageId,
                                                 String type, String identifier, long tag) {
-        Name identifierName = names.fromString(identifier);
-        Name pkgName = names.fromString(packageId);
-        Name typeName = names.fromString(type);
+        Name identifierName = Names.fromString(identifier);
+        Name pkgName = Names.fromString(packageId);
+        Name typeName = Names.fromString(type);
         SymbolEnv pkgEnv = env;
 
         if (pkgName != Names.EMPTY) {
             BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(env, pkgName,
-                    names.fromString(location.lineRange().fileName()));
+                    Names.fromString(location.lineRange().fileName()));
 
             if (pkgSymbol == symTable.notFoundSymbol) {
                 return symTable.notFoundSymbol;
@@ -404,7 +422,7 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
             // If the type is available at the global scope or package level then lets dive in to the scope of the type
             // `pkgEnv` is `env` if no package was identified or else it's the package's environment
             String functionID = typeName + "." + identifierName;
-            Name functionName = names.fromString(functionID);
+            Name functionName = Names.fromString(functionID);
             return symResolver.lookupMemberSymbol(location, objectTypeSymbol.scope, pkgEnv, functionName, tag);
         }
 

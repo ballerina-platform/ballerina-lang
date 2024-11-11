@@ -15,8 +15,10 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 dependencies {
     implementation project(':ballerina-tools-api')
@@ -24,11 +26,11 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':toml-parser')
 
-    testCompile project(':ballerina-test-utils')
-    testCompile project(':ballerina-lang')
-    testRuntime project(':ballerina-runtime')
-    testImplementation 'org.testng:testng'
-    testImplementation 'com.google.code.gson:gson'
+    testImplementation project(':ballerina-test-utils')
+    testImplementation project(':ballerina-lang')
+    testRuntimeOnly project(':ballerina-runtime')
+    testImplementation libs.testng
+    testImplementation libs.gson
 }
 
 description = 'Ballerina - Compiler Linter Plugin'
@@ -47,16 +49,8 @@ processResources {
     filter { String line -> line.replace('${project.version}', "${project.version}")}
     filter { String line -> line.replace('${short.version}', "${project.version}")}
     filter { String line -> line.replace('${spec.version}', "${project.specVersion}")}
+    filter { String line -> line.replace('${apiDocs.version}', "${project.apiDocsVersion}")}
 }
 
 ext.moduleName = 'io.ballerina.compiler.linter'
 
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}

@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
+plugins {
+    id 'ballerinaStdLibBuild'
+}
 
 dependencies {
     balaCreat project(':lib-creator')
@@ -23,10 +25,10 @@ dependencies {
     implementation project(':ballerina-cli')
     implementation project(':ballerina-runtime')
 
-    testCompile 'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-jdk14'
-    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile project(':ballerina-cli')
+    testImplementation libs.testng
+    testImplementation libs.slf4j.jdk14
+    testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testImplementation project(':ballerina-cli')
 }
 
 configurations.all {
@@ -39,7 +41,7 @@ configurations.testCompileClasspath {
     }
 }
 
-task updateVersion {
+tasks.register('updateVersion') {
     doLast {
         ant.replaceregexp(
                 file: "${project.buildDir}/ballerina-src/Ballerina.toml",
@@ -52,9 +54,11 @@ task updateVersion {
 copyBallerinaProject.finalizedBy(updateVersion)
 
 configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
+tasks.generateMetadataFileForMavenJavaPublication.dependsOn(":language-server:language-server-stdlib:copyInteropImports")
+tasks.javadoc.dependsOn(":language-server:language-server-stdlib:copyInteropImports")
 description = 'Language Server - Standard Libs'

@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.internal.diagnostics;
 
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
@@ -32,20 +32,20 @@ import java.util.List;
  */
 public class RuntimeDiagnosticLog {
 
-    private List<RuntimeDiagnostic> diagnosticList = new LinkedList<>();
+    private final List<RuntimeDiagnostic> diagnosticList = new LinkedList<>();
 
     private int errorCount = 0;
 
     private int warnCount = 0;
 
-    public void error(RuntimeErrors errorCode, String location, Object... args) {
+    public void error(ErrorCodes errorCode, String location, Object... args) {
         errorCount += 1;
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(errorCode.diagnosticId(), errorCode.messageKey(),
                                                            DiagnosticSeverity.ERROR);
         diagnosticList.add(new RuntimeDiagnostic(diagnosticInfo, location, args));
     }
 
-    public void warn(RuntimeErrors errorCode, String location, Object... args) {
+    public void warn(ErrorCodes errorCode, String location, Object... args) {
         warnCount += 1;
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(errorCode.diagnosticId(), errorCode.messageKey(),
                                                            DiagnosticSeverity.WARNING);

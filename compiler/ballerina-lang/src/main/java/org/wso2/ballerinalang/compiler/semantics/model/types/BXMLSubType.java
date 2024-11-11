@@ -23,17 +23,12 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.util.Optional;
-
 /**
  * Represents Builtin Subtype of integer.
  *
  * @since 1.2.0
  */
 public class BXMLSubType extends BType implements SelectivelyImmutableReferenceType {
-
-    private BIntersectionType intersectionType = null;
-
     public BXMLSubType(int tag, Name name) {
 
         super(tag, null, name, 0);
@@ -44,11 +39,13 @@ public class BXMLSubType extends BType implements SelectivelyImmutableReferenceT
         super(tag, null, name, flags);
     }
 
+    @Override
     public boolean isNullable() {
 
         return false;
     }
 
+    @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
 
         return visitor.visit(this, t);
@@ -72,6 +69,7 @@ public class BXMLSubType extends BType implements SelectivelyImmutableReferenceT
         return Names.XML.value + Names.ALIAS_SEPARATOR + name;
     }
 
+    @Override
     public String getQualifiedTypeName() {
 
         return Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value
@@ -80,15 +78,5 @@ public class BXMLSubType extends BType implements SelectivelyImmutableReferenceT
 
     public boolean isAnydata() {
         return true;
-    }
-
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
     }
 }

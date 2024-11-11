@@ -139,10 +139,12 @@ public class BTupleType extends BAnnotatableType implements TupleType {
         return readOnlyTypes;
     }
 
+    @Override
     public List<Type> getTupleTypes() {
         return tupleTypes;
     }
 
+    @Override
     public Type getRestType() {
         return restType;
     }
@@ -227,10 +229,9 @@ public class BTupleType extends BAnnotatableType implements TupleType {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof BTupleType)) {
+        if (!(o instanceof BTupleType that)) {
             return false;
         }
-        BTupleType that = (BTupleType) o;
 
         if (this.isCyclic || that.isCyclic) {
             if (this.isCyclic != that.isCyclic) {
@@ -261,6 +262,7 @@ public class BTupleType extends BAnnotatableType implements TupleType {
         return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.PURETYPE);
     }
 
+    @Override
     public int getTypeFlags() {
         return this.typeFlags;
     }

@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jballerina.java;
 import ballerina/lang.runtime;
 
 boolean globalVar = false;
@@ -30,6 +31,7 @@ function bar() {
 
     @strand {thread: "any"}
     worker w1 {
+        println("w1 started");
         lock {
             while (true) {
                 globalVar = !globalVar;
@@ -40,39 +42,64 @@ function bar() {
     @strand {thread: "any"}
     worker w2 {
         runtime:sleep(1);
+        println("w2 started");
         lock {
             globalVar = !globalVar;
         }
     }
 
     worker w3 {
+        println("w3 started");
         10 ->> w4;
     }
 
     worker w4 {
+        println("w4 started");
         runtime:sleep(100);
         int x = <- w3;
     }
 
     worker w5 {
         20 -> function;
+        println("w5 started");
         error? unionResult = flush;
     }
 
     worker w6 {
+        println("w6 started");
         runtime:sleep(100);
         30 -> w7;
     }
 
     worker w7 returns int {
+        println("w7 started");
         int x = <- w6;
         return x;
     }
 
     worker w8 {
+        println("w8 started");
         int intResult = wait w7;
     }
 
+    println("main started");
     runtime:sleep(100);
     int y = <- w5;
 }
+
+function println(string value) {
+    handle strValue = java:fromString(value);
+    handle stdout1 = stdout();
+    printlnInternal(stdout1, strValue);
+}
+
+function stdout() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java/lang/System"
+} external;
+
+function printlnInternal(handle receiver, handle strValue) = @java:Method {
+    name: "println",
+    'class: "java/io/PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;

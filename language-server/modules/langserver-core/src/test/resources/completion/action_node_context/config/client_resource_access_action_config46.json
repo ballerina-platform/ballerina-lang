@@ -1,0 +1,160 @@
+{
+  "position": {
+    "line": 17,
+    "character": 14
+  },
+  "source": "action_node_context/source/client_resource_access_action_source38.bal",
+  "description": "Test completions after a resource path with the same prefix",
+  "items": [
+    {
+      "label": "/First",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "CA",
+      "filterText": "First|get",
+      "insertText": "/First;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 13
+            },
+            "end": {
+              "line": 17,
+              "character": 14
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/First/[string second]",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second"
+        }
+      },
+      "sortText": "CB",
+      "filterText": "First|get",
+      "insertText": "/First/[${1:\"path\"}];",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 13
+            },
+            "end": {
+              "line": 17,
+              "character": 14
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/First/<second>",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "First|get",
+      "insertText": "/First/${1:path};",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 13
+            },
+            "end": {
+              "line": 17,
+              "character": 14
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/First/[string second]/Third",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "First|Third|get",
+      "insertText": "/First/[${1:\"path\"}]/Third;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 13
+            },
+            "end": {
+              "line": 17,
+              "character": 14
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/First/<second>/Third",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second"
+        }
+      },
+      "sortText": "CE",
+      "filterText": "First|Third|get",
+      "insertText": "/First/${1:path}/Third;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 13
+            },
+            "end": {
+              "line": 17,
+              "character": 14
+            }
+          },
+          "newText": ""
+        }
+      ]
+    }
+  ]
+}

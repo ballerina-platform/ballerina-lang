@@ -6,6 +6,7 @@ class Foo {
     function getName() {
 
     }
+
     remote function get() {
     }
 }

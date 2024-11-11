@@ -15,8 +15,10 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations {
     balRuntime
@@ -25,33 +27,33 @@ configurations {
 dependencies {
     implementation project(':ballerina-lang')
 
-    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile project(path: ':ballerina-runtime')
-    testCompile 'org.testng:testng'
+    testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testImplementation project(path: ':ballerina-runtime')
+    testImplementation libs.testng
 
-    testRuntime project(':ballerina-lang:annotations')
-    testRuntime project(':ballerina-lang:array')
-    testRuntime project(':ballerina-lang:decimal')
-    testRuntime project(':ballerina-lang:error')
-    testRuntime project(':ballerina-lang:floatingpoint')
-    testRuntime project(':ballerina-lang:function')
-    testRuntime project(':ballerina-lang:future')
-    testRuntime project(':ballerina-lang:integer')
-    testRuntime project(':ballerina-lang:map')
-    testRuntime project(':ballerina-lang:object')
-    testRuntime project(':ballerina-lang:stream')
-    testRuntime project(':ballerina-lang:string')
-    testRuntime project(':ballerina-lang:table')
-    testRuntime project(':ballerina-lang:typedesc')
-    testRuntime project(':ballerina-lang:value')
-    testRuntime project(':ballerina-lang:xml')
-    testRuntime project(':ballerina-lang:bool')
-    testRuntime project(':ballerina-runtime')
-    testRuntime project(':ballerina-lang:internal')
-    testRuntime project(':ballerina-lang:query')
-    testRuntime project(':ballerina-lang:regexp')
-    testRuntime project(':ballerina-lang:transaction')
-    testRuntime 'org.slf4j:slf4j-jdk14'
+    testRuntimeOnly project(':ballerina-lang:annotations')
+    testRuntimeOnly project(':ballerina-lang:array')
+    testRuntimeOnly project(':ballerina-lang:decimal')
+    testRuntimeOnly project(':ballerina-lang:error')
+    testRuntimeOnly project(':ballerina-lang:floatingpoint')
+    testRuntimeOnly project(':ballerina-lang:function')
+    testRuntimeOnly project(':ballerina-lang:future')
+    testRuntimeOnly project(':ballerina-lang:integer')
+    testRuntimeOnly project(':ballerina-lang:map')
+    testRuntimeOnly project(':ballerina-lang:object')
+    testRuntimeOnly project(':ballerina-lang:stream')
+    testRuntimeOnly project(':ballerina-lang:string')
+    testRuntimeOnly project(':ballerina-lang:table')
+    testRuntimeOnly project(':ballerina-lang:typedesc')
+    testRuntimeOnly project(':ballerina-lang:value')
+    testRuntimeOnly project(':ballerina-lang:xml')
+    testRuntimeOnly project(':ballerina-lang:bool')
+    testRuntimeOnly project(':ballerina-runtime')
+    testRuntimeOnly project(':ballerina-lang:internal')
+    testRuntimeOnly project(':ballerina-lang:query')
+    testRuntimeOnly project(':ballerina-lang:regexp')
+    testRuntimeOnly project(':ballerina-lang:transaction')
+    testRuntimeOnly libs.slf4j.jdk14
 }
 
 description = 'Ballerina - Compiler plugin tests'
@@ -71,7 +73,7 @@ test {
 }
 
 configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }

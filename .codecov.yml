@@ -2,10 +2,3 @@ codecov:
   require_ci_to_pass: no
   max_report_age: off
 
-fixes:
-  - "ballerina/lang$0046*/*/::langlib/lang.*/src/main/ballerina/"
-
-ignore:
-  - "**/tests"
-  - "tests/language-server-simulator"
-

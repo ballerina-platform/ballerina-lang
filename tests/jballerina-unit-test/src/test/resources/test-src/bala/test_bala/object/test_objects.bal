@@ -466,6 +466,29 @@ function testSubTypingForDifferentOrgNameAndVersionWithAllPublicFields() {
     assertTrue((<any> ob3) is foo2:ObjectWithPublicFieldsAndMethods);
 }
 
+readonly client class FooClass {
+    *foo2:FooObj;
+
+    isolated remote function execute(string aVar, int bVar) returns int {
+        return bVar;
+    }
+}
+
+// TODO: Uncomment after fixing https://github.com/ballerina-platform/ballerina-lang/issues/41105
+// readonly client class Foo2Class {
+//     *foo2:BarClass;
+
+//     public isolated function patch(int[] artifacts, boolean publish) returns byte[] {
+//         return [0, 0, 1, 1, 1];
+//     }
+// }
+
+function testObjectInclusionWithMethodWithParameters() {
+    FooClass foo = new;
+    int result = foo->execute("a", 1);
+    assertEquals(1, result);
+}
+
 function assertTrue(anydata actual) {
     assertEquals(true, actual);
 }

@@ -81,6 +81,15 @@ function testRegExpValueWithCharacterClass() {
 
     string:RegExp x7 = re `[\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA\)]??`;
     assertEquality("[\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA\\)]??", x7.toString());
+    
+    string:RegExp x8 = re `abc[a-z\]A-Z${"abc"}]`;
+    assertEquality("abc[a-z\\]A-Z${\"abc\"}]", x8.toString());
+    
+    string:RegExp x9 = re `abc\[a-z\]A-Z${"abc"}`;
+    assertEquality("abc\\[a-z\\]A-Zabc", x9.toString());
+    
+    string:RegExp x10 = re `\[${"a"}\]`;
+    assertEquality("\\[a\\]", x10.toString());
 }
 
 function testRegExpValueWithCharacterClass2() {
@@ -389,102 +398,88 @@ function testInvalidInsertionsInRegExp() {
     string a = "*";
     string:RegExp|error x1 = trap re `${a}`;
     assertEquality(true, x1 is error);
-    if (x1 is error) {
-        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
-        assertEquality("Invalid insertion in regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>x1).message());
+    assertEquality("missing backslash before '*' token in insertion substring '*'", 
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     x1 = trap re `abc${a}`;
     assertEquality(true, x1 is error);
-    if (x1 is error) {
-        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
-        assertEquality("Invalid insertion in regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>x1).message());
+    assertEquality("missing backslash before '*' token in insertion substring '*'", 
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     x1 = trap re `abc(${a})`;
     assertEquality(true, x1 is error);
-    if (x1 is error) {
-        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
-        assertEquality("Invalid insertion in regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>x1).message());
+    assertEquality("missing backslash before '*' token in insertion substring '*'", 
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     x1 = trap re `abc(?i:${a})`;
     assertEquality(true, x1 is error);
-    if (x1 is error) {
-        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
-        assertEquality("Invalid insertion in regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>x1).message());
+    assertEquality("missing backslash before '*' token in insertion substring '*'", 
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     x1 = trap re `abc(?i-m:${a})`;
     assertEquality(true, x1 is error);
-    if (x1 is error) {
-        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
-        assertEquality("Invalid insertion in regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>x1).message());
+    assertEquality("missing backslash before '*' token in insertion substring '*'", 
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     x1 = trap re `${constValue}`;
     assertEquality(true, x1 is error);
-    if (x1 is error) {
-        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
-        assertEquality("Invalid insertion in regular expression: Invalid character '{'", <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>x1).message());
+    assertEquality("missing backslash before '{' token in insertion substring '{'", 
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     x1 = trap re `abc${constValue}`;
     assertEquality(true, x1 is error);
-    if (x1 is error) {
-        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
-        assertEquality("Invalid insertion in regular expression: Invalid character '{'", <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>x1).message());
+    assertEquality("missing backslash before '{' token in insertion substring '{'", 
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     x1 = trap re `abc(?i:${constValue})`;
     assertEquality(true, x1 is error);
-    if (x1 is error) {
-        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
-        assertEquality("Invalid insertion in regular expression: Invalid character '{'", <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>x1).message());
+    assertEquality("missing backslash before '{' token in insertion substring '{'", 
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     x1 = trap re `abc(?i-m:${constValue})`;
     assertEquality(true, x1 is error);
-    if (x1 is error) {
-        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
-        assertEquality("Invalid insertion in regular expression: Invalid character '{'", <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>x1).message());
+    assertEquality("missing backslash before '{' token in insertion substring '{'", 
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     x1 = trap getRegExpValue();
     assertEquality(true, x1 is error);
-    if (x1 is error) {
-        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
-        assertEquality("Invalid insertion in regular expression: Invalid character '+'", <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>x1).message());
+    assertEquality("missing backslash before '+' token in insertion substring '+'", 
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     Rec rec = {b: "+"};
     x1 = trap re `abc(?i:${rec.b})`;
     assertEquality(true, x1 is error);
-    if (x1 is error) {
-        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
-        assertEquality("Invalid insertion in regular expression: Invalid character '+'", <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>x1).message());
+    assertEquality("missing backslash before '+' token in insertion substring '+'", 
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     x1 = trap re `abc(?i:${rec.a})`;
     assertEquality(true, x1 is error);
-    if (x1 is error) {
-        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
-        assertEquality("Invalid insertion in regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>x1).message());
+    assertEquality("missing backslash before '*' token in insertion substring '*'", 
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     x1 = trap re `abc${getChar()}`;
     assertEquality(true, x1 is error);
-    if (x1 is error) {
-        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
-        assertEquality("Invalid insertion in regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>x1).message());
+    assertEquality("missing backslash before '*' token in insertion substring '*'", 
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     x1 = trap re `abc(?i:${getChar()})`;
     assertEquality(true, x1 is error);
-    if (x1 is error) {
-        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
-        assertEquality("Invalid insertion in regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>x1).message());
+    assertEquality("missing backslash before '*' token in insertion substring '*'", 
+        <string>checkpanic (<error>x1).detail()["message"]);
 }
 
 function getRegExpValue(string val = "+") returns string:RegExp {

@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 21,
+    "character": 68
+  },
+  "source": "action_node_context/source/client_resource_access_method_call_source2.bal",
+  "description": "Tests completions in method call context of client resource access action",
+  "items": [
+    {
+      "label": "id = ...",
+      "kind": "Snippet",
+      "detail": "id = \"\"",
+      "sortText": "AR",
+      "filterText": "id",
+      "insertText": "id = ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "age = ...",
+      "kind": "Snippet",
+      "detail": "age = \"\"",
+      "sortText": "AR",
+      "filterText": "age",
+      "insertText": "age = ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

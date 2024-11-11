@@ -17,10 +17,10 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="formatter-test-suite">
-    <test name="formatter-tests" preserve-order="true" parallel="false">
+    <test name="formatter-tests" preserve-order="true">
         <groups>
             <run>
                 <exclude name="broken"/>
@@ -33,6 +33,7 @@ under the License.
             <package name="org.ballerinalang.formatter.core.declarations.*" />
             <package name="org.ballerinalang.formatter.core.statements.*" />
             <package name="org.ballerinalang.formatter.core.misc.*" />
+            <package name="org.ballerinalang.formatter.core.configurations.*" />
         </packages>
         <classes>
             <class name="org.ballerinalang.formatter.core.ParserTestFormatter" />

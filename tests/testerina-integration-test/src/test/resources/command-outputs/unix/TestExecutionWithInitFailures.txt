@@ -1,0 +1,34 @@
+Compiling source
+	wso2/testExecutionWithModuleInitFailure:0.0.0
+
+Running Tests
+
+	testExecutionWithModuleInitFailure.moduleD
+		[pass] testFunc
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+		Test execution time :*****s
+
+	testExecutionWithModuleInitFailure
+error: {ballerina}DivisionByZero {"message":" / by zero"}
+
+	testExecutionWithModuleInitFailure.moduleA
+error: {ballerina}DivisionByZero {"message":" / by zero"}
+
+	testExecutionWithModuleInitFailure.moduleC
+		[pass] testFunc
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+		Test execution time :*****s
+
+	testExecutionWithModuleInitFailure.moduleB
+error: {ballerina}DivisionByZero {"message":" / by zero"}
+error: there are test failures

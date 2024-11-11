@@ -65,6 +65,7 @@ import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializedParams;
+import org.eclipse.lsp4j.InlayHintParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PrepareRenameParams;
 import org.eclipse.lsp4j.Range;
@@ -100,7 +101,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -114,7 +114,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Common utils that are reused within test suits.
  */
-public class TestUtil {
+public final class TestUtil {
 
     private static final String HOVER = "textDocument/hover";
 
@@ -137,6 +137,8 @@ public class TestUtil {
     private static final String CODE_ACTION = "textDocument/codeAction";
 
     private static final String CODE_ACTION_RESOLVE = "codeAction/resolve";
+
+    private static final String INLAY_HINT = "textDocument/inlayHint";
 
     private static final String FORMATTING = "textDocument/formatting";
 
@@ -348,6 +350,13 @@ public class TestUtil {
         return getResponseString(result);
     }
 
+    public static String getInlayHintsResponse(Endpoint serviceEndpoint, String filePath, Range range) {
+        TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
+        InlayHintParams inlayHintsParams = new InlayHintParams(identifier, range);
+        CompletableFuture<?> result = serviceEndpoint.request(INLAY_HINT, inlayHintsParams);
+        return getResponseString(result);
+    }
+
     /**
      * Get the workspace/executeCommand response.
      *
@@ -447,9 +456,7 @@ public class TestUtil {
     public static String getPackageComponentsResponse(Endpoint serviceEndpoint, Iterator<String> filePaths) {
         PackageComponentsRequest packageComponentsRequest = new PackageComponentsRequest();
         List<TextDocumentIdentifier> documentIdentifiers = new ArrayList<>();
-        filePaths.forEachRemaining(filePath -> {
-            documentIdentifiers.add(getTextDocumentIdentifier(filePath));
-        });
+        filePaths.forEachRemaining(filePath -> documentIdentifiers.add(getTextDocumentIdentifier(filePath)));
         packageComponentsRequest.setDocumentIdentifiers(documentIdentifiers.toArray(new TextDocumentIdentifier[0]));
         return getResponseString(serviceEndpoint.request(PACKAGE_COMPONENTS, packageComponentsRequest));
     }
@@ -525,9 +532,8 @@ public class TestUtil {
      * @param serviceEndpoint Language Server Service Endpoint
      * @param fileUri         uri of the document to open
      * @param content         File content
-     * @throws IOException Exception while reading the file content
      */
-    public static void openDocument(Endpoint serviceEndpoint, String fileUri, String content) throws IOException {
+    public static void openDocument(Endpoint serviceEndpoint, String fileUri, String content) {
         DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
         TextDocumentItem textDocumentItem = new TextDocumentItem();
 
@@ -660,7 +666,7 @@ public class TestUtil {
     @Deprecated
     public static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier();
-        identifier.setUri(Paths.get(filePath).toUri().toString());
+        identifier.setUri(Path.of(filePath).toUri().toString());
 
         return identifier;
     }
@@ -822,6 +828,7 @@ public class TestUtil {
         private OutputStream outputStream;
         private InitializeParams initializeParams;
         private final Map<String, Object> initOptions = new HashMap<>();
+        private ExtendedLanguageClient client;
 
         public LanguageServerBuilder withLanguageServer(BallerinaLanguageServer languageServer) {
             this.languageServer = languageServer;
@@ -843,6 +850,11 @@ public class TestUtil {
             return this;
         }
 
+        public LanguageServerBuilder withClient(ExtendedLanguageClient client) {
+            this.client = client;
+            return this;
+        }
+
         public Endpoint build() {
             if (languageServer == null) {
                 languageServer = new BallerinaLanguageServer();
@@ -856,9 +868,12 @@ public class TestUtil {
                 outputStream = OutputStream.nullOutputStream();
             }
 
-            Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(this.languageServer,
-                    ExtendedLanguageClient.class, inputStream, outputStream);
-            ExtendedLanguageClient client = launcher.getRemoteProxy();
+            if (client == null) {
+                Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(this.languageServer,
+                        ExtendedLanguageClient.class, inputStream, outputStream);
+                this.client = launcher.getRemoteProxy();
+            }
+
             languageServer.connect(client);
 
             if (initializeParams == null) {
@@ -909,9 +924,12 @@ public class TestUtil {
 
             Map<String, Object> initializationOptions = new HashMap<>();
             initializationOptions.put(InitializationOptions.KEY_ENABLE_SEMANTIC_TOKENS, true);
+            initializationOptions.put(InitializationOptions.KEY_ENABLE_INLAY_HINTS, true);
             initializationOptions.put(InitializationOptions.KEY_BALA_SCHEME_SUPPORT, true);
             if (!initOptions.isEmpty()) {
                 initializationOptions.putAll(initOptions);
+            } else {
+                initializationOptions.put(InitializationOptions.KEY_ENABLE_INDEX_PACKAGES, false);
             }
             initializeParams.setInitializationOptions(GSON.toJsonTree(initializationOptions));
 

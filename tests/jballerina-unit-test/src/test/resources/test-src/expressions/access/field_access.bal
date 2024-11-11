@@ -536,6 +536,14 @@ function validateJSONOperationErrorMsg(json|error val) {
     assertEquals(<anydata> checkpanic err.detail()["message"], "JSON value is not a mapping");
 }
 
+function testValidXMLmapFieldAccess() {
+    map<xml> m = {a: xml `foo`, b: xml `bar`};
+    xml? x = m["a"];
+    xml? y = m["c"];
+    assertEquals(x, xml `foo`);
+    assertEquals(y, null);
+}
+
 isolated function isEqual(anydata|error val1, anydata|error val2) returns boolean {
     if (val1 is anydata && val2 is anydata) {
         return (val1 == val2);
@@ -553,4 +561,13 @@ function assertEquals(anydata actual, anydata expected) {
         return;
     }
     panic error(string `expected '${expected.toString()}', found '${actual.toString()}'`);
+}
+
+type IntSubtypeRecord record {|
+    int:Signed16 value;
+|};
+
+function testFieldAccessOnIntSubtype() returns int:Signed16 {
+    IntSubtypeRecord r = {value: 1};
+    return r.value;
 }

@@ -75,6 +75,12 @@ public function main() {
 
     err = trap error_utils:getDistinctErrorWithNullDetailNegative2("error message");
     test:assertValueEqual(err.message(), "error message");
+
+    err = error_utils:getNullDetailError("error message");
+    error? c = err.cause();
+    test:assertValueEqual(c is (), false);
+    error cause = <error> c;
+    test:assertValueEqual(cause.message(), "cause for the error");
 }
 
 function testTypeIds() {

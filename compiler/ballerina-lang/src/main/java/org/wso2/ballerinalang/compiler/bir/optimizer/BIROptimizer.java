@@ -18,6 +18,10 @@
 
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeMapInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodCallInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -32,8 +36,10 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -44,7 +50,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Optimize BIR.
@@ -57,8 +62,8 @@ public class BIROptimizer {
     private final RHSTempVarOptimizer rhsTempVarOptimizer;
     private final LHSTempVarOptimizer lhsTempVarOptimizer;
     private final BIRLockOptimizer lockOptimizer;
-//    private final BirVariableOptimizer variableOptimizer;
     private final BIRBasicBlockOptimizer bbOptimizer;
+    private final LargeMethodOptimizer largeMethodOptimizer;
 
     public static BIROptimizer getInstance(CompilerContext context) {
         BIROptimizer birGen = context.get(BIR_OPTIMIZER);
@@ -74,23 +79,27 @@ public class BIROptimizer {
         this.rhsTempVarOptimizer = new RHSTempVarOptimizer();
         this.lhsTempVarOptimizer = new LHSTempVarOptimizer();
         this.lockOptimizer = new BIRLockOptimizer();
-//        this.variableOptimizer = new BirVariableOptimizer();
         this.bbOptimizer = new BIRBasicBlockOptimizer();
+        this.largeMethodOptimizer = new LargeMethodOptimizer(SymbolTable.getInstance(context));
     }
 
     public void optimizePackage(BIRPackage pkg) {
         // RHS temp var optimization
         pkg.accept(this.rhsTempVarOptimizer);
-
+        // Split large BIR functions into smaller methods based on maps and arrays
+        largeMethodOptimizer.splitLargeBIRFunctions(pkg);
         // LHS temp var optimization
         this.lhsTempVarOptimizer.optimizeNode(pkg, null);
 
         // Optimize lock statements
         this.lockOptimizer.optimizeNode(pkg);
-//        variableOptimizer.optimizeNode(pkg);
 
         // Optimize BB - unnecessary goto removal
         bbOptimizer.optimizeNode(pkg, null);
+
+        // Optimize record value creation for default values - remove unnecessary method call
+        BIRRecordValueOptimizer recordValueOptimizer = new BIRRecordValueOptimizer();
+        recordValueOptimizer.optimizeNode(pkg);
     }
 
     /**
@@ -268,9 +277,8 @@ public class BIROptimizer {
             birFunction.errorTable.forEach(ee -> this.optimizeNode(ee, funcOpEnv));
 
             // Remove unused temp vars
-            birFunction.localVars = birFunction.localVars.stream()
-                    .filter(l -> l.kind != VarKind.TEMP || !funcOpEnv.tempVars
-                            .containsKey(l)).collect(Collectors.toList());
+            birFunction.localVars = new ArrayList<>(birFunction.localVars.stream()
+                    .filter(l -> l.kind != VarKind.TEMP || !funcOpEnv.tempVars.containsKey(l)).toList());
             // Reuse lhs temp vars
             Set<BIRVariableDcl> replaceableVarSet = new HashSet<>();
             reuseTempVariables(birFunction.localVars, funcOpEnv.tempVarsList, replaceableVarSet);
@@ -470,6 +478,16 @@ public class BIROptimizer {
             this.optimizeNode(workerSend.data, this.env);
         }
 
+        @Override
+        public void visit(BIRTerminator.WorkerAlternateReceive workerReceive) {
+            this.optimizeNode(workerReceive.lhsOp, this.env);
+        }
+
+        @Override
+        public void visit(BIRTerminator.WorkerMultipleReceive workerReceive) {
+            this.optimizeNode(workerReceive.lhsOp, this.env);
+        }
+
         // Non-terminating instructions
 
         @Override
@@ -478,9 +496,25 @@ public class BIROptimizer {
                 this.env.newInstructions.add(birMove);
                 return;
             }
+            if (isIrreplaceableVar(birMove.rhsOp.variableDcl)) {
+                this.env.newInstructions.add(birMove);
+                this.env.irreplaceableTempVars.add(birMove.lhsOp.variableDcl);
+                return;
+            }
             if (birMove.rhsOp.variableDcl.kind != VarKind.TEMP) {
                 this.env.tempVars.put(birMove.lhsOp.variableDcl, birMove.rhsOp.variableDcl);
             }
+        }
+
+        private boolean isIrreplaceableVar(BIRVariableDcl variableDcl) {
+            if (variableDcl.kind != VarKind.GLOBAL) {
+                return false;
+            }
+            int typeTag = variableDcl.type.tag;
+            return switch (typeTag) {
+                case TypeTags.BYTE, TypeTags.BOOLEAN, TypeTags.FLOAT -> true;
+                default -> TypeTags.isIntegerTypeTag(typeTag);
+            };
         }
 
         @Override
@@ -726,6 +760,33 @@ public class BIROptimizer {
             this.optimizeNode(reFlagOnOff.flags, this.env);
         }
 
+        @Override
+        public void visit(BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad) {
+            this.optimizeNode(recordDefaultFPLoad.lhsOp, this.env);
+        }
+
+        @Override
+        public void visit(JMethodCallInstruction jMethodCallInstruction) {
+            for (BIROperand arg : jMethodCallInstruction.args) {
+                this.optimizeNode(arg, this.env);
+            }
+        }
+
+        @Override
+        public void visit(JLargeArrayInstruction jLargeArrayInstruction) {
+            this.optimizeNode(jLargeArrayInstruction.lhsOp, this.env);
+            this.optimizeNode(jLargeArrayInstruction.sizeOp, this.env);
+            this.optimizeNode(jLargeArrayInstruction.values, this.env);
+            this.optimizeNode(jLargeArrayInstruction.typedescOp, this.env);
+        }
+
+        @Override
+        public void visit(JLargeMapInstruction jLargeMapInstruction) {
+            this.optimizeNode(jLargeMapInstruction.lhsOp, this.env);
+            this.optimizeNode(jLargeMapInstruction.rhsOp, this.env);
+            this.optimizeNode(jLargeMapInstruction.initialValues, this.env);
+        }
+
         // Operands
         @Override
         public void visit(BIROperand birVarRef) {
@@ -744,6 +805,8 @@ public class BIROptimizer {
         // key - temp var, value - real var
         private final Map<BIRVariableDcl, BIRVariableDcl> tempVars = new HashMap<>();
 
+        private final Set<BIRVariableDcl> irreplaceableTempVars = new HashSet<>();
+
         private List<BIRNonTerminator> newInstructions;
 
         private final List<BIROperand> tempVarsList = new ArrayList<>();
@@ -760,7 +823,7 @@ public class BIROptimizer {
 
         public void addTempBirOperand(BIROperand birOperand) {
             BIRVariableDcl variableDcl = birOperand.variableDcl;
-            if (variableDcl.kind != VarKind.TEMP) {
+            if (variableDcl.kind != VarKind.TEMP || irreplaceableTempVars.contains(variableDcl)) {
                 return;
             }
             tempVarsList.add(birOperand);

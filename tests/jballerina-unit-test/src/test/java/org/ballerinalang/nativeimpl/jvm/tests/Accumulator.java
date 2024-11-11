@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.values.ObjectValue;
+import org.testng.Assert;
 
 /**
  * This class is used for Java interoperability tests.
@@ -34,12 +35,15 @@ import io.ballerina.runtime.internal.values.ObjectValue;
  *
  * @since 1.0.0
  */
-public class Accumulator {
+public final class Accumulator {
+
+    private Accumulator() {
+    }
 
     public static void accumulate(Environment env, ObjectValue intFunction, long from, long to) {
         Runtime runtime = env.getRuntime();
         Future future = env.markAsync();
-        assert from <= to;
+        Assert.assertTrue(from <= to);
         accumulateI(intFunction, from, to, runtime, future, new long[1]);
     }
 
@@ -59,8 +63,8 @@ public class Accumulator {
 
             @Override
             public void notifyFailure(BError error) {
-                assert error == null;
-                assert false;
+                Assert.assertNull(error);
+                Assert.fail();
             }
         }, null, PredefinedTypes.TYPE_NULL, i, true);
     }

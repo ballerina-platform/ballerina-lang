@@ -71,7 +71,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
 
         Optional<TypeSymbol> typeDescriptor = getExpectedTypeSymbol(positionDetails);
         if (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() != TypeDescKind.UNION
-                || isUnionCompErrorTyped((UnionTypeSymbol) typeDescriptor.get())) {
+                || isCompilationErrorTyped((UnionTypeSymbol) typeDescriptor.get())) {
             return Collections.emptyList();
         }
 
@@ -92,8 +92,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         createVarTextEdits.imports.stream().filter(edit -> !edits.contains(edit)).forEach(edits::add);
 
         CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
-        addRenamePopup(context, edits, createVarTextEdits.edits.get(0), codeAction,
-                createVarTextEdits.renamePositions.get(0), createVarTextEdits.varRenamePosition.get(0),
+        addRenamePopup(context, codeAction, createVarTextEdits.varRenamePosition.get(0),
                 createVarTextEdits.imports.size());
         return Collections.singletonList(codeAction);
     }

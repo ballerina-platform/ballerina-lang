@@ -21,15 +21,18 @@ package org.wso2.ballerinalang.programfile;
  * @since 0.94
  */
 @Deprecated
-public class ProgramFileConstants {
+public final class ProgramFileConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
     public static final short VERSION_NUMBER = 50;
-    public static final int BIR_VERSION_NUMBER = 68;
-    public static final short MIN_SUPPORTED_VERSION = 68;
-    public static final short MAX_SUPPORTED_VERSION = 68;
+    public static final int BIR_VERSION_NUMBER = 72;
+    public static final short MIN_SUPPORTED_VERSION = 72;
+    public static final short MAX_SUPPORTED_VERSION = 72;
 
     // todo move this to a proper place
-    public static final String[] SUPPORTED_PLATFORMS = {"java11"};
+    public static final String[] SUPPORTED_PLATFORMS = {"java17", "java11"};
     public static final String ANY_PLATFORM = "any";
+
+    private ProgramFileConstants() {
+    }
 }

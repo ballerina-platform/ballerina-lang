@@ -17,8 +17,6 @@
 */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.runtime.internal.values.IteratorValue;
-
 /**
  * Interface representing ballerina strings.
  *
@@ -40,6 +38,6 @@ public interface BString {
 
     BString substring(int beginIndex, int endIndex);
 
-    IteratorValue getIterator();
+    BIterator<String> getIterator();
 
 }

@@ -59,13 +59,13 @@
       ]
     },
     {
-      "label": "reduce(function (array:Type1 accum, array:Type val) returns array:Type1 func, array:Type1 initial)",
+      "label": "reduce(function (NodeCredential accum, NodeCredential val) returns NodeCredential func, NodeCredential initial)",
       "kind": "Function",
-      "detail": "array:Type1",
+      "detail": "NodeCredential",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nCombines the members of an array using a combining function.\n\nThe combining function takes the combined value so far and a member of the array,\nand returns a new combined value.\n\n```ballerina\n[1, 2, 3].reduce(isolated function (int total, int next) returns int => total + next, 0) ⇒ 6\n```\n\n```\nreduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)\n```  \n**Params**  \n- `function (array:Type1 accum, array:Type val) returns array:Type1` func: combining function  \n- `array:Type1` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `array:Type1`   \n- result of combining the members of parameter `arr` using parameter `func`  \n  \nFor example  \nis the same as `sum(1, 2, 3)`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nCombines the members of an array using a combining function.\n\nThe combining function takes the combined value so far and a member of the array,\nand returns a new combined value.\n\n```ballerina\n[1, 2, 3].reduce(isolated function (int total, int next) returns int => total + next, 0) ⇒ 6\n```\n\n```\nreduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)\n```  \n**Params**  \n- `function (NodeCredential accum, NodeCredential val) returns NodeCredential` func: combining function  \n- `NodeCredential` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `NodeCredential`   \n- result of combining the members of parameter `arr` using parameter `func`  \n  \nFor example  \nis the same as `sum(1, 2, 3)`.  \n  \n"
         }
       },
       "sortText": "CD",
@@ -78,13 +78,13 @@
       }
     },
     {
-      "label": "forEach(function (array:Type val) returns () func)",
+      "label": "forEach(function (NodeCredential val) returns () func)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nApplies a function to each member of an array.\n\nThe parameter `func` is applied to each member of parameter `arr` in order.\n\n```ballerina\nint total = 0;\n[1, 2, 3].forEach(function (int i) {\n    total += i;\n});\ntotal ⇒ 6\n```\n  \n**Params**  \n- `function (array:Type val) returns ()` func: a function to apply to each member"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nApplies a function to each member of an array.\n\nThe parameter `func` is applied to each member of parameter `arr` in order.\n\n```ballerina\nint total = 0;\n[1, 2, 3].forEach(function (int i) {\n    total += i;\n});\ntotal ⇒ 6\n```\n  \n**Params**  \n- `function (NodeCredential val) returns ()` func: a function to apply to each member"
         }
       },
       "sortText": "CD",
@@ -97,13 +97,13 @@
       }
     },
     {
-      "label": "sort(array:SortDirection direction, function (array:Type val) returns array:OrderedType? key)",
+      "label": "sort(array:SortDirection direction, function (NodeCredential val) returns array:OrderedType? key)",
       "kind": "Function",
       "detail": "NodeCredential[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nSorts an array.\n\nIf the member type of the array is not ordered, then the parameter `key` function\nmust be specified.\nSorting works the same as with the parameter `sort` clause of query expressions.\n\n```ballerina\nstring[] strings = [\"c\", \"a\", \"B\"];\nstrings.sort() ⇒ [\"B\",\"a\",\"c\"]\nstrings.sort(\"descending\") ⇒ [\"c\",\"a\",\"B\"]\nstrings.sort(key = string:toLowerAscii) ⇒ [\"a\",\"B\",\"c\"]\nstrings.sort(\"descending\", string:toLowerAscii) ⇒ [\"c\",\"B\",\"a\"]\n```\n  \n**Params**  \n- `array:SortDirection` direction: direction in which to sort(Defaultable)  \n- `function (array:Type val) returns array:OrderedType?` key: function that returns a key to use to sort the members(Defaultable)  \n  \n**Return** `NodeCredential[]`   \n- a new array consisting of the members of parameter `arr` in sorted order  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nSorts an array.\n\nIf the member type of the array is not ordered, then the parameter `key` function\nmust be specified.\nSorting works the same as with the parameter `sort` clause of query expressions.\n\n```ballerina\nstring[] strings = [\"c\", \"a\", \"B\"];\nstrings.sort() ⇒ [\"B\",\"a\",\"c\"]\nstrings.sort(\"descending\") ⇒ [\"c\",\"a\",\"B\"]\nstrings.sort(key = string:toLowerAscii) ⇒ [\"a\",\"B\",\"c\"]\nstrings.sort(\"descending\", string:toLowerAscii) ⇒ [\"c\",\"B\",\"a\"]\n```\n  \n**Params**  \n- `array:SortDirection` direction: direction in which to sort(Defaultable)  \n- `function (NodeCredential val) returns array:OrderedType?` key: function that returns a key to use to sort the members(Defaultable)  \n  \n**Return** `NodeCredential[]`   \n- a new array consisting of the members of parameter `arr` in sorted order  \n  \n"
         }
       },
       "sortText": "CD",
@@ -154,13 +154,13 @@
       }
     },
     {
-      "label": "filter(function (array:Type val) returns boolean func)",
+      "label": "filter(function (NodeCredential val) returns boolean func)",
       "kind": "Function",
       "detail": "NodeCredential[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nSelects the members from an array for which a function returns true.\n\n```ballerina\nint[] numbers = [12, 43, 60, 75, 10];\nnumbers.filter(n => n > 50) ⇒ [60,75]\n```\n  \n**Params**  \n- `function (array:Type val) returns boolean` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `NodeCredential[]`   \n- new array only containing members of parameter `arr` for which parameter `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nSelects the members from an array for which a function returns true.\n\n```ballerina\nint[] numbers = [12, 43, 60, 75, 10];\nnumbers.filter(n => n > 50) ⇒ [60,75]\n```\n  \n**Params**  \n- `function (NodeCredential val) returns boolean` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `NodeCredential[]`   \n- new array only containing members of parameter `arr` for which parameter `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "CD",
@@ -344,13 +344,13 @@
       }
     },
     {
-      "label": "'map(function (array:Type val) returns array:Type1 func)",
+      "label": "'map(function (NodeCredential val) returns NodeCredential func)",
       "kind": "Function",
-      "detail": "array:Type1[]",
+      "detail": "NodeCredential[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nApplies a function to each member of an array and returns an array of the results.\n\n```ballerina\nint[] numbers = [0, 1, 2];\nnumbers.map(n => n * 2) ⇒ [0,2,4]\n```\n  \n**Params**  \n- `function (array:Type val) returns array:Type1` func: a function to apply to each member  \n  \n**Return** `array:Type1[]`   \n- new array containing result of applying parameter `func` to each member of parameter `arr` in order  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nApplies a function to each member of an array and returns an array of the results.\n\n```ballerina\nint[] numbers = [0, 1, 2];\nnumbers.map(n => n * 2) ⇒ [0,2,4]\n```\n  \n**Params**  \n- `function (NodeCredential val) returns NodeCredential` func: a function to apply to each member  \n  \n**Return** `NodeCredential[]`   \n- new array containing result of applying parameter `func` to each member of parameter `arr` in order  \n  \n"
         }
       },
       "sortText": "CD",
@@ -440,11 +440,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {|NodeCredential value;|}?;}",
+      "detail": "object {public isolated function next() returns record {|NodeCredential value; NodeCredential...;|}?;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns an iterator over an array.\n\n```ballerina\nobject {\n    public isolated function next() returns record {|int value;|}?;\n} iterator = [2, 4, 6, 8].iterator();\niterator.next() ⇒ {\"value\":2}\n```\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|NodeCredential value;|}?;}`   \n- a new iterator object that will iterate over the members of parameter `arr`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns an iterator over an array.\n\n```ballerina\nobject {\n    public isolated function next() returns record {|int value;|}?;\n} iterator = [2, 4, 6, 8].iterator();\niterator.next() ⇒ {\"value\":2}\n```\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|NodeCredential value; NodeCredential...;|}?;}`   \n- a new iterator object that will iterate over the members of parameter `arr`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -588,13 +588,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "some(function (array:Type val) returns boolean func)",
+      "label": "some(function (NodeCredential val) returns boolean func)",
       "kind": "Function",
       "detail": "boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nTests whether a function returns true for some member of an array.\n\nThe parameter `func` is called for each member of parameter `arr` in order unless and until a call returns true.\nWhen the array is empty, returns false.\n\n```ballerina\nint[] numbers = [1, 2, 3, 5];\nnumbers.some(n => n % 2 == 0) ⇒ true\n```\n  \n**Params**  \n- `function (array:Type val) returns boolean` func: function to apply to each member  \n  \n**Return** `boolean`   \n- true if applying parameter `func` returns true for some member of `arr`; otherwise, false  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nTests whether a function returns true for some member of an array.\n\nThe parameter `func` is called for each member of parameter `arr` in order unless and until a call returns true.\nWhen the array is empty, returns false.\n\n```ballerina\nint[] numbers = [1, 2, 3, 5];\nnumbers.some(n => n % 2 == 0) ⇒ true\n```\n  \n**Params**  \n- `function (NodeCredential val) returns boolean` func: function to apply to each member  \n  \n**Return** `boolean`   \n- true if applying parameter `func` returns true for some member of `arr`; otherwise, false  \n  \n"
         }
       },
       "sortText": "CD",
@@ -607,13 +607,13 @@
       }
     },
     {
-      "label": "every(function (array:Type val) returns boolean func)",
+      "label": "every(function (NodeCredential val) returns boolean func)",
       "kind": "Function",
       "detail": "boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nTests whether a function returns true for every member of an array.\n\nThe parameter `func` is called for each member of `arr` in order unless and until a call returns false.\nWhen the array is empty, returns true.\n\n```ballerina\nint[] numbers = [1, 2, 3, 5];\nnumbers.every(n => n % 2 == 0) ⇒ false\n```\n  \n**Params**  \n- `function (array:Type val) returns boolean` func: function to apply to each member  \n  \n**Return** `boolean`   \n- true if applying parameter func returns true for every member of `arr`; otherwise, false  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nTests whether a function returns true for every member of an array.\n\nThe parameter `func` is called for each member of `arr` in order unless and until a call returns false.\nWhen the array is empty, returns true.\n\n```ballerina\nint[] numbers = [1, 2, 3, 5];\nnumbers.every(n => n % 2 == 0) ⇒ false\n```\n  \n**Params**  \n- `function (NodeCredential val) returns boolean` func: function to apply to each member  \n  \n**Return** `boolean`   \n- true if applying parameter func returns true for every member of `arr`; otherwise, false  \n  \n"
         }
       },
       "sortText": "CD",

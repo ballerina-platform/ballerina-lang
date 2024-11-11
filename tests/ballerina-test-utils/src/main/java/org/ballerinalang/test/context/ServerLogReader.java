@@ -36,11 +36,11 @@ public class ServerLogReader implements Runnable {
     private static final String STREAM_TYPE_IN = "inputStream";
     private static final String STREAM_TYPE_ERROR = "errorStream";
     private final Logger log = LoggerFactory.getLogger(ServerLogReader.class);
-    private String streamType;
-    private InputStream inputStream;
+    private final String streamType;
+    private final InputStream inputStream;
     private volatile boolean running = true;
 
-    private Set<LogLeecher> leechers = ConcurrentHashMap.newKeySet();
+    private final Set<LogLeecher> leechers = ConcurrentHashMap.newKeySet();
 
     /**
      * Initialize the reader with reader name and stream to read.
@@ -112,6 +112,7 @@ public class ServerLogReader implements Runnable {
     /**
      * This will get executed when log reading is started.
      */
+    @Override
     public void run() {
         InputStreamReader inputStreamReader = null;
         BufferedReader bufferedReader = null;

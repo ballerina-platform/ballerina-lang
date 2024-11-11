@@ -1,0 +1,9 @@
+w1 started
+main started
+w8 started
+w7 started
+w6 started
+w5 started
+w4 started
+w3 started
+w2 started

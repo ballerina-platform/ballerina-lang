@@ -26,8 +26,8 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 
 import java.io.UnsupportedEncodingException;
@@ -48,53 +48,52 @@ import java.util.regex.PatternSyntaxException;
  *
  * @since 2.0.0
  */
-public class StringUtils {
+public final class StringUtils {
 
     private static final String CHAR_PREFIX = "$";
-    private static List<String> specialCharacters = new ArrayList<>(Arrays.asList(",", "\\n", "\\r", "\\t", "\n", "\r",
-            "\t",
-            "\"", "\\", "!", "`"));
-    private static List<String> bracketCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")"));
-    private static List<String> regexSpecialCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")",
-            "+", "^", "|"));
+    private static final List<String> SPECIAL_CHARACTERS = new ArrayList<>(
+            Arrays.asList(",", "\\n", "\\r", "\\t", "\n", "\r", "\t", "\"", "\\", "!", "`"));
+    private static final List<String> BRACKET_CHARACTERS = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")"));
+    private static final List<String> REGEX_SPECIAL_CHARACTERS = new ArrayList<>(
+            Arrays.asList("{", "}", "[", "]", "(", ")", "+", "^", "|"));
 
     private StringUtils() {
     }
 
     public static Object matchWildcard(BString functionName, BString functionPattern) {
-        Object encodedFunctionPattern = encode(functionPattern.getValue(), regexSpecialCharacters);
-        Object encodedFunctionName = encode(functionName.getValue(), regexSpecialCharacters);
+        Object encodedFunctionPattern = encode(functionPattern.getValue(), REGEX_SPECIAL_CHARACTERS);
+        Object encodedFunctionName = encode(functionName.getValue(), REGEX_SPECIAL_CHARACTERS);
 
         if (encodedFunctionPattern instanceof BError) {
-            return (BError) encodedFunctionPattern;
+            return encodedFunctionPattern;
         }
 
         if (encodedFunctionName instanceof BError) {
-            return (BError) encodedFunctionName;
+            return encodedFunctionName;
         }
 
         try {
             return Pattern.matches(((String) encodedFunctionPattern).replace(TesterinaConstants.WILDCARD,
                     TesterinaConstants.DOT + TesterinaConstants.WILDCARD), (String) encodedFunctionName);
         } catch (PatternSyntaxException e) {
-            return BLangExceptionHelper.getRuntimeException(
-                    RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR, "Invalid wildcard pattern: " + e.getMessage());
+            return ErrorHelper.getRuntimeException(
+                    ErrorCodes.OPERATION_NOT_SUPPORTED_ERROR, "Invalid wildcard pattern: " + e.getMessage());
         }
     }
 
     public static Object escapeSpecialCharacters(BString key) {
         Object updatedKeyOrError = key.getValue();
         if (!isBalanced((String) updatedKeyOrError)) {
-            updatedKeyOrError = encode((String) updatedKeyOrError, bracketCharacters);
+            updatedKeyOrError = encode((String) updatedKeyOrError, BRACKET_CHARACTERS);
         }
 
         if (updatedKeyOrError instanceof BError) {
-            return (BError) updatedKeyOrError;
+            return updatedKeyOrError;
         }
-        updatedKeyOrError = encode((String) updatedKeyOrError, specialCharacters);
+        updatedKeyOrError = encode((String) updatedKeyOrError, SPECIAL_CHARACTERS);
 
         if (updatedKeyOrError instanceof BError) {
-            return (BError) updatedKeyOrError;
+            return updatedKeyOrError;
         }
         return io.ballerina.runtime.api.utils.StringUtils.fromString((String) updatedKeyOrError);
     }
@@ -146,14 +145,9 @@ public class StringUtils {
         String encodedKey = key;
         String encodedValue;
         for (String character : specialCharacters) {
-            try {
-                if (encodedKey.contains(character)) {
-                    encodedValue = URLEncoder.encode(character, StandardCharsets.UTF_8.toString());
-                    encodedKey = encodedKey.replace(character, encodedValue);
-                }
-            } catch (UnsupportedEncodingException e) {
-                return BLangExceptionHelper.getRuntimeException(
-                        RuntimeErrors.INCOMPATIBLE_ARGUMENTS, "Error while encoding: " + e.getMessage());
+            if (encodedKey.contains(character)) {
+                encodedValue = URLEncoder.encode(character, StandardCharsets.UTF_8);
+                encodedKey = encodedKey.replace(character, encodedValue);
             }
         }
         return encodedKey;
@@ -163,12 +157,12 @@ public class StringUtils {
         try {
             String javaStr = str.getValue();
             javaStr = javaStr.replaceAll("%(?![0-9a-fA-F]{2})", "%25");
-            javaStr = javaStr.replaceAll("\\+", "%2B");
+            javaStr = javaStr.replace("+", "%2B");
             return io.ballerina.runtime.api.utils.StringUtils.fromString(
                     URLDecoder.decode(javaStr, charset.getValue()));
         } catch (UnsupportedEncodingException | IllegalArgumentException e) {
-            return BLangExceptionHelper.getRuntimeException(
-                    RuntimeErrors.INCOMPATIBLE_ARGUMENTS, "Error while decoding: " + e.getMessage());
+            return ErrorHelper.getRuntimeException(
+                    ErrorCodes.INCOMPATIBLE_ARGUMENTS, "Error while decoding: " + e.getMessage());
         }
     }
 
@@ -183,7 +177,7 @@ public class StringUtils {
 
                 if (k >= args.length) {
                     // there's not enough arguments
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.NOT_ENOUGH_FORMAT_ARGUMENTS);
+                    throw ErrorHelper.getRuntimeException(ErrorCodes.NOT_ENOUGH_FORMAT_ARGUMENTS);
                 }
                 StringBuilder padding = new StringBuilder();
                 while (Character.isDigit(format.getValue().charAt(j)) || format.getValue().charAt(j) == '.') {
@@ -199,7 +193,7 @@ public class StringUtils {
                         case 'd':
                         case 'f':
                             if (ref == null) {
-                                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                                throw ErrorHelper.getRuntimeException(ErrorCodes.ILLEGAL_FORMAT_CONVERSION,
                                         format.getValue().charAt(j) + " != ()");
                             }
                             result.append(String.format("%" + padding + formatSpecifier, ref));
@@ -207,7 +201,7 @@ public class StringUtils {
                         case 'x':
                         case 'X':
                             if (ref == null) {
-                                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                                throw ErrorHelper.getRuntimeException(ErrorCodes.ILLEGAL_FORMAT_CONVERSION,
                                         format.getValue().charAt(j) + " != ()");
                             }
                             formatHexString(result, k, padding, formatSpecifier, args);
@@ -215,7 +209,7 @@ public class StringUtils {
                         case 's':
                             if (ref != null) {
                                 result.append(String.format("%" + padding + "s",
-                                        io.ballerina.runtime.api.utils.StringUtils.getStringValue(ref, null)));
+                                        io.ballerina.runtime.api.utils.StringUtils.getStringValue(ref)));
                             }
                             break;
                         case '%':
@@ -223,11 +217,11 @@ public class StringUtils {
                             break;
                         default:
                             // format string not supported
-                            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_FORMAT_SPECIFIER,
+                            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FORMAT_SPECIFIER,
                                     format.getValue().charAt(j));
                     }
                 } catch (IllegalFormatConversionException e) {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                    throw ErrorHelper.getRuntimeException(ErrorCodes.ILLEGAL_FORMAT_CONVERSION,
                             format.getValue().charAt(j) + " != " +
                                     TypeChecker.getType(args[k]));
                 }
@@ -248,7 +242,7 @@ public class StringUtils {
 
     private static void formatHexString(StringBuilder result, int k, StringBuilder padding, char x, Object... args) {
         final Object argsValues = args[k];
-        final Type type = TypeUtils.getReferredType(TypeChecker.getType(argsValues));
+        final Type type = TypeUtils.getImpliedType(TypeChecker.getType(argsValues));
         if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((ArrayType) type).getElementType().getTag()) {
             BArray byteArray = ((BArray) argsValues);
             for (int i = 0; i < byteArray.size(); i++) {

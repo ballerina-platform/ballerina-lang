@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 8,
+    "character": 20
+  },
+  "source": "add_lock24.bal",
+  "description": "Wrap in a lock statement for a isolated variable within a match",
+  "expected": [
+    {
+      "title": "Surround with lock",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 0
+            },
+            "end": {
+              "line": 9,
+              "character": 0
+            }
+          },
+          "newText": "            lock {\n\t            return arr[2].toString();\n            }\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

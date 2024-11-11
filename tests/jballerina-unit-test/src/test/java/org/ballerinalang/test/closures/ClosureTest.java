@@ -22,7 +22,9 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -263,5 +265,32 @@ public class ClosureTest {
     @Test(description = "Test error constructor with closure")
     public void errorConstructorWithClosureTest() {
         BRunUtil.invoke(compileResult, "errorConstructorWithClosureTest");
+    }
+
+
+    @Test(description = "Test closure levels with forEach")
+    public void forEachWithClosure() {
+        BRunUtil.invoke(compileResult, "test30");
+    }
+
+    @Test(description = "Test closure with binding type param", dataProvider = "closureWithBindingPatternTypeParam")
+    public void testClosureWithBindingPatternTypeParam(String functionName) {
+        BRunUtil.invoke(compileResult, functionName);
+    }
+
+    @DataProvider(name = "closureWithBindingPatternTypeParam")
+    private Object[] closureWithBindingPatternTypeParam() {
+        return new String[]{
+                "testClosureWithStructuredBindingTypeParams",
+                "testClosureWithTupleBindingTypeParams",
+                "testClosureWithBindingPatternDefaultValues",
+                "testClosureWithErrorBindingPatterns",
+                "testClosureWithBindingPatternsInForEach"
+        };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

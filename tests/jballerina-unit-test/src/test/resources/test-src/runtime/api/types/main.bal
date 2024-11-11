@@ -27,6 +27,7 @@ public function main() {
     testParamTypesString();
     testConstituentTypes();
     testTypeIds();
+    testObjectInitParameters();
 }
 
 function testConstituentTypes() {
@@ -75,4 +76,9 @@ function testRemoteFunctionParameters() {
 function testParamTypesString() {
     //Need to be removed after removing getParamTypes() API
     test:assertEquals(objects:getParamTypesString(obj.testFunction), "int decimal string ");
+}
+
+function testObjectInitParameters() {
+    objects:Person person = new(16154, "Tim Cook", 36);
+    test:assertEquals(objects:getParamNamesFromObjectInit(person), ["id", "name", "age"]);
 }

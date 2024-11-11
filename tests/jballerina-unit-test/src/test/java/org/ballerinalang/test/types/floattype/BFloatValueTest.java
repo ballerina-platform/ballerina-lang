@@ -299,6 +299,7 @@ public class BFloatValueTest {
         BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 18, 23);
         BAssertUtil.validateError(result, i++, "missing digit after exponent indicator", 18, 26);
         BAssertUtil.validateError(result, i++, "missing semicolon token", 18, 26);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '3ef', found 'float'", 18, 31);
         BAssertUtil.validateError(result, i++, "missing digit after exponent indicator", 18, 31);
         BAssertUtil.validateError(result, i++, "missing equal token", 18, 31);
         BAssertUtil.validateError(result, i++, "missing semicolon token", 18, 34);

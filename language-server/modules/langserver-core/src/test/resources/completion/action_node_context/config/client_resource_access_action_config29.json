@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 30,
+    "character": 27
+  },
+  "source": "action_node_context/source/client_resource_access_action_source26.bal",
+  "description": "Test completions in positional argument context",
+  "items": [
+    {
+      "label": "name = ...",
+      "kind": "Snippet",
+      "detail": "name = \"\"",
+      "sortText": "AR",
+      "filterText": "name",
+      "insertText": "name = ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "age = ...",
+      "kind": "Snippet",
+      "detail": "age = 0",
+      "sortText": "AR",
+      "filterText": "age",
+      "insertText": "age = ${1:0}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

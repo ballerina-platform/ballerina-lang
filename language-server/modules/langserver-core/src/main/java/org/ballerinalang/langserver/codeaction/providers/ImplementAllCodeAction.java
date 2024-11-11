@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.codeaction.CodeActionUtil.computePositionDetails;
 
@@ -50,6 +49,7 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction im
 
     public static final String NAME = "Implement All";
 
+    @Override
     public List<SyntaxKind> getSyntaxKinds() {
         return Arrays.asList(SyntaxKind.CLASS_DEFINITION,
                 SyntaxKind.SERVICE_DECLARATION,
@@ -89,7 +89,7 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction im
                         .isRangeWithinRange(context.range(), PositionUtil.toRange(diag.location().lineRange()))
                 )
                 .filter(diagnostic -> DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()))
-                .collect(Collectors.toList());
+                .toList();
 
         if (diags.isEmpty() || diags.size() == 1) {
             return Collections.emptyList();

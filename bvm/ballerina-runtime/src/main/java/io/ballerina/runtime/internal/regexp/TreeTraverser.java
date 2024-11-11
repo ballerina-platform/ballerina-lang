@@ -17,7 +17,9 @@
  */
 package io.ballerina.runtime.internal.regexp;
 
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 import java.util.ArrayDeque;
 
@@ -27,11 +29,11 @@ import java.util.ArrayDeque;
  * @since 2201.3.0
  */
 public class TreeTraverser {
-    private CharReader reader;
+
+    private final CharReader reader;
     private ParserMode mode;
-    private ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
-    private final String errorMsgStart = "Invalid character '";
-    
+    private final ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
+
     public TreeTraverser(CharReader charReader) {
         this.reader = charReader;
         this.mode = ParserMode.RE_DISJUNCTION;
@@ -39,48 +41,33 @@ public class TreeTraverser {
     }
 
     public Token nextToken() {
-        switch (this.mode) {
-            case RE_DISJUNCTION:
-            case RE_CAPTURING_GROUP_RE_DISJUNCTION:
-                return readTokenInReDisjunction();
-            case RE_ESCAPE:
-                return readTokenInReEscape();
-            case RE_UNICODE_PROP_ESCAPE:
-                return readTokenInReUnicodePropertyEscape();
-            case RE_UNICODE_PROP_START:
-                return readTokenInReUnicodePropertyStart();
-            case RE_UNICODE_PROPERTY_VALUE:
-                return readTokenInReUnicodePropertyValue();
-            case RE_UNICODE_GENERAL_CATEGORY_NAME:
-                return readTokenInReUnicodeGeneralCategoryName();
-            case RE_CHAR_SET:
-            case RE_NEGATED_CHAR_CLASS_START:
-                return readTokenInCharacterClass();
-            case RE_CHAR_SET_RANGE_RHS:
-            case RE_CHAR_SET_RANGE_RHS_START:
-                return readTokenInReCharSetRangeRhs();
-            case RE_CHAR_SET_NO_DASH:
-                return readTokenInReCharSetNoDash();
-            case RE_CHAR_SET_RANGE_NO_DASH_RHS_START:
-            case RE_CHAR_SET_RANGE_NO_DASH_RHS:
-                return readTokenInReCharSetRangeNoDashRhs();
-            case RE_FLAGS_START:
-            case RE_FLAGS:
-                return readTokenInFlagsExpression();
-            case RE_QUANTIFIER:
-            case RE_NON_GREEDY_QUANTIFIER:
-                return readTokenInQuantifier();
-            case RE_BRACED_QUANTIFIER:
-            case RE_BRACED_QUANTIFIER_LEAST_DIGITS:
-            case RE_BRACED_QUANTIFIER_MOST_DIGITS_START:
-            case RE_BRACED_QUANTIFIER_MOST_DIGITS:
-                return readTokenInBracedQuantifier();
-            default:
-                // Should not reach here.
-                return null;
-        }
+        return switch (this.mode) {
+            case RE_DISJUNCTION -> readTokenInReDisjunction();
+            case RE_UNICODE_PROP_ESCAPE,
+                 RE_UNICODE_GENERAL_CATEGORY_NAME -> readTokenInReUnicodePropertyEscape();
+            case RE_UNICODE_PROPERTY_VALUE -> readTokenInReUnicodePropertyValue();
+            // Should not reach here.
+            default -> null;
+        };
     }
 
+    /**
+     * Read a token in {@link ParserMode#RE_DISJUNCTION} mode.
+     * <p>
+     * <code>
+     * ReDisjunction := ReSequence ("|" ReSequence)*
+     * </code>
+     * <code>
+     * ReSequence := ReTerm*
+     * </code>
+     * <code>
+     * ReTerm :=
+     * ReAtom [ReQuantifier]
+     * | ReAssertion
+     * </code>
+     *
+     * @return Next token
+     */
     private Token readTokenInReDisjunction() {
         reader.mark();
         if (this.reader.isEOF()) {
@@ -88,155 +75,33 @@ public class TreeTraverser {
         }
 
         int nextChar = peek();
-        switch (nextChar) {
-            case Terminals.DOLLAR:
-                // Cannot have insertions.
-                if (this.reader.peek(1) == Terminals.OPEN_BRACE) {
-                    throw new BallerinaException("Invalid insertion with ${");
-                }
-                break;
-            case Terminals.PIPE:
-                reader.advance();
-                // Pipe cannot be the end of the regular expression.
-                if (this.reader.isEOF()) {
-                    throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
-                }
-                return getRegExpToken(TokenKind.PIPE_TOKEN);
-            default:
-                break;
-        }
-
-        // ReSequence has zero or more ReTerm.
-        return readTokenInReTerm();
-    }
-
-    private Token readTokenInReTerm() {
-        reader.mark();
-        if (reader.isEOF()) {
-            return getRegExpToken(TokenKind.EOF_TOKEN);
-        }
-
-        int nextChar = peek();
-        switch (nextChar) {
-            case Terminals.BITWISE_XOR:
-            case Terminals.DOLLAR:
-                this.reader.advance();
-                return getRegExpText(TokenKind.RE_ASSERTION_VALUE);
-            case Terminals.DOT:
-                this.reader.advance();
-                startMode(ParserMode.RE_QUANTIFIER);
-                return getRegExpText(TokenKind.RE_CHAR);
-            case Terminals.BACKSLASH:
-                boolean processed = processOnlyNumericEscapeOrControlEscape();
-                if (processed) {
-                    startMode(ParserMode.RE_QUANTIFIER);
-                    return getRegExpText(TokenKind.RE_ESCAPE);
-                }
-                this.reader.advance();
-                return getRegExpToken(TokenKind.BACK_SLASH_TOKEN);
-            // Handle "[" ["^"] [ReCharSet] "]".
-            case Terminals.OPEN_BRACKET:
-                this.reader.advance();
-                if (peek() == Terminals.BITWISE_XOR) {
-                    startMode(ParserMode.RE_NEGATED_CHAR_CLASS_START);
-                } else {
-                    startMode(ParserMode.RE_CHAR_SET);
-                }
-                return getRegExpToken(TokenKind.OPEN_BRACKET_TOKEN);
-            // Handle "(" ["?" ReFlagsOnOff ":"] ReDisjunction ")".
-            case Terminals.OPEN_PARENTHESIS:
-                if (this.reader.peek(1) == Terminals.QUESTION_MARK) {
-                    startMode(ParserMode.RE_FLAGS_START);
-                } else {
-                    startMode(ParserMode.RE_CAPTURING_GROUP_RE_DISJUNCTION);
-                }
-                this.reader.advance();
-                return getRegExpToken(TokenKind.OPEN_PAREN_TOKEN);
-            case Terminals.CLOSE_PARENTHESIS:
-                this.reader.advance();
-                if (this.mode == ParserMode.RE_CAPTURING_GROUP_RE_DISJUNCTION) {
-                    switchMode(ParserMode.RE_QUANTIFIER);
-                    return getRegExpToken(TokenKind.CLOSE_PAREN_TOKEN);
-                }
-                throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
-            default:
-                // Handle ReLiteralChar.
-                this.reader.advance();
-                if (!isReSyntaxChar(nextChar)) {
-                    startMode(ParserMode.RE_QUANTIFIER);
-                    return getRegExpText(TokenKind.RE_CHAR);
-                }
-                throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
-        }
-    }
-
-    /**
-     * Read tokens in ReQuoteEscape or ReSimpleCharClassEscape.
-     * It can be either p, P, {, or }.
-     * <p>
-     * <code>
-     * ReQuoteEscape := "\" ReSyntaxChar
-     * </code>
-     * <code>
-     * ReSimpleCharClassEscape := "\" ReSimpleCharClassCode
-     * </code>
-     *
-     * @return Next token
-     */
-    private Token readTokenInReEscape() {
-        this.reader.mark();
-
-        int nextToken = peek();
-        boolean isReSyntaxChar = isReSyntaxChar(nextToken);
 
         this.reader.advance();
-        endMode();
-        switchParserModeFollowingReEscape();
-
-        return getRegExpText(isReSyntaxChar ? TokenKind.RE_SYNTAX_CHAR : TokenKind.RE_SIMPLE_CHAR_CLASS_CODE);
-    }
-
-    private void switchParserModeFollowingReEscape() {
-        switch (this.mode) {
-            case RE_CHAR_SET_NO_DASH:
-                // An ReCharSetAtomNoDash can be followed by - in a ReCharSetRangeNoDash.
-                if (isStartOfCharSetRange()) {
-                    // Switch parser mode to handle rhs of the ReCharSetRangeNoDash.
-                    switchMode(ParserMode.RE_CHAR_SET_RANGE_NO_DASH_RHS_START);
-                    break;
+        return switch (nextChar) {
+            case Terminals.BITWISE_XOR -> getRegExpToken(TokenKind.BITWISE_XOR_TOKEN);
+            case Terminals.DOLLAR -> getRegExpToken(TokenKind.DOLLAR_TOKEN);
+            case Terminals.DOT -> getRegExpToken(TokenKind.DOT_TOKEN);
+            case Terminals.ASTERISK -> getRegExpToken(TokenKind.ASTERISK_TOKEN);
+            case Terminals.PLUS -> getRegExpToken(TokenKind.PLUS_TOKEN);
+            case Terminals.QUESTION_MARK -> getRegExpToken(TokenKind.QUESTION_MARK_TOKEN);
+            case Terminals.BACKSLASH -> processEscape();
+            case Terminals.OPEN_BRACKET -> getRegExpToken(TokenKind.OPEN_BRACKET_TOKEN);
+            case Terminals.CLOSE_BRACKET -> getRegExpToken(TokenKind.CLOSE_BRACKET_TOKEN);
+            case Terminals.OPEN_BRACE -> getRegExpToken(TokenKind.OPEN_BRACE_TOKEN);
+            case Terminals.CLOSE_BRACE -> getRegExpToken(TokenKind.CLOSE_BRACE_TOKEN);
+            case Terminals.OPEN_PARENTHESIS -> getRegExpToken(TokenKind.OPEN_PAREN_TOKEN);
+            case Terminals.CLOSE_PARENTHESIS -> getRegExpToken(TokenKind.CLOSE_PAREN_TOKEN);
+            case Terminals.COMMA -> getRegExpToken(TokenKind.COMMA_TOKEN);
+            case Terminals.MINUS -> getRegExpToken(TokenKind.MINUS_TOKEN);
+            case Terminals.COLON -> getRegExpToken(TokenKind.COLON_TOKEN);
+            case Terminals.PIPE -> getRegExpToken(TokenKind.PIPE_TOKEN);
+            default -> {
+                if (isDigit(nextChar)) {
+                    yield getRegExpText(TokenKind.DIGIT);
                 }
-                // An ReCharSetAtomNoDash can be followed by ReCharSetNoDash.
-                if (peek() != Terminals.CLOSE_BRACKET) {
-                    // Switch parser mode to handle ReCharSetNoDash.
-                    switchMode(ParserMode.RE_CHAR_SET_NO_DASH);
-                    break;
-                }
-                switchMode(ParserMode.RE_CHAR_SET);
-                break;
-            case RE_CHAR_SET:
-            case RE_NEGATED_CHAR_CLASS_START:
-                // An ReCharSetAtom can be followed by - in a ReCharSetRange.
-                if (isStartOfCharSetRange()) {
-                    // Switch parser mode to handle rhs of the ReCharSetRange.
-                    switchMode(ParserMode.RE_CHAR_SET_RANGE_RHS_START);
-                    break;
-                }
-                // An ReCharSetAtom can be followed by ReCharSetNoDash.
-                if (peek() != Terminals.CLOSE_BRACKET) {
-                    // Switch parser mode to handle ReCharSetNoDash.
-                    switchMode(ParserMode.RE_CHAR_SET_NO_DASH);
-                }
-                break;
-            case RE_CHAR_SET_RANGE_RHS:
-            case RE_CHAR_SET_RANGE_RHS_START:
-            case RE_CHAR_SET_RANGE_NO_DASH_RHS_START:
-            case RE_CHAR_SET_RANGE_NO_DASH_RHS:
-                switchMode(ParserMode.RE_CHAR_SET);
-                break;
-            default:
-                startMode(ParserMode.RE_QUANTIFIER);
-                break;
-        }
+                yield getRegExpText(TokenKind.RE_LITERAL_CHAR);
+            }
+        };
     }
 
     /**
@@ -248,55 +113,186 @@ public class TreeTraverser {
     private Token readTokenInReUnicodePropertyEscape() {
         this.reader.mark();
 
-        if (peek() == Terminals.OPEN_BRACE) {
-            this.reader.advance();
-            switchMode(ParserMode.RE_UNICODE_PROP_START);
-            return getRegExpToken(TokenKind.OPEN_BRACE_TOKEN);
-        }
-
-        if (peek() == Terminals.CLOSE_BRACE) {
-            this.reader.advance();
-            endMode();
-            switchParserModeFollowingReEscape();
-            return getRegExpToken(TokenKind.CLOSE_BRACE_TOKEN);
-        }
-
-        this.reader.advance();
-        return getRegExpText(TokenKind.RE_PROPERTY);
-    }
-
-    /**
-     * Read token at the start of a ReUnicodeProperty.
-     * It can be either sc=, gc= or ReUnicodeGeneralCategoryName.
-     *
-     * @return Next token
-     */
-    private Token readTokenInReUnicodePropertyStart() {
-        this.reader.mark();
-
         if (this.reader.isEOF()) {
             return getRegExpToken(TokenKind.EOF_TOKEN);
         }
 
-        if (peek() == 's' && this.reader.peek(1) == 'c' && this.reader.peek(2) == '=') {
-            switchMode(ParserMode.RE_UNICODE_PROPERTY_VALUE);
-            this.reader.advance(3);
-            return getRegExpText(TokenKind.RE_UNICODE_SCRIPT_START);
+        int nextChar = peek();
+
+        switch (nextChar) {
+            case 'p':
+            case 'P':
+                if (this.mode != ParserMode.RE_UNICODE_GENERAL_CATEGORY_NAME) {
+                    this.reader.advance();
+                    return getRegExpText(TokenKind.RE_PROPERTY);
+                }
+                break;
+            case Terminals.OPEN_BRACE:
+                this.reader.advance();
+                this.switchMode(ParserMode.RE_UNICODE_GENERAL_CATEGORY_NAME);
+                return getRegExpToken(TokenKind.OPEN_BRACE_TOKEN);
+            case 's':
+                if (this.reader.peek(1) == 'c' && this.reader.peek(2) == '=') {
+                    this.reader.advance(3);
+                    this.switchMode(ParserMode.RE_UNICODE_PROPERTY_VALUE);
+                    return getRegExpText(TokenKind.RE_UNICODE_SCRIPT_START);
+                }
+                break;
+            case 'g':
+                if (this.reader.peek(1) == 'c' && this.reader.peek(2) == '=') {
+                    this.reader.advance(3);
+                    return getRegExpText(TokenKind.RE_UNICODE_GENERAL_CATEGORY_START);
+                }
+                break;
+            case Terminals.CLOSE_BRACE:
+                this.reader.advance();
+                this.endMode();
+                return getRegExpToken(TokenKind.CLOSE_BRACE_TOKEN);
+            default:
+                break;
         }
 
-        if (peek() == 'g' && this.reader.peek(1) == 'c' && this.reader.peek(2) == '=') {
-            switchMode(ParserMode.RE_UNICODE_GENERAL_CATEGORY_NAME);
-            this.reader.advance(3);
-            return getRegExpText(TokenKind.RE_UNICODE_GENERAL_CATEGORY_START);
-        }
+        return processReUnicodeGeneralCategoryAbbr();
+    }
 
-        processReUnicodePropertyValue();
-        endMode();
-        if (peek() == Terminals.CLOSE_BRACE) {
-            startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
+    private Token processReUnicodeGeneralCategoryAbbr() {
+        switch (peek()) {
+            case 'L':
+                this.reader.advance();
+                processAbbrWithLetter();
+                break;
+            case 'M':
+                this.reader.advance();
+                processAbbrWithMark();
+                break;
+            case 'N':
+                this.reader.advance();
+                processAbbrWithNumber();
+                break;
+            case 'S':
+                this.reader.advance();
+                processAbbrWithSymbol();
+                break;
+            case 'P':
+                this.reader.advance();
+                processAbbrWithPunctuation();
+                break;
+            case 'Z':
+                this.reader.advance();
+                processAbbrWithSeparator();
+                break;
+            case 'C':
+                this.reader.advance();
+                processAbbrWithOther();
+                break;
+            default:
+                while (!isEndOfUnicodePropertyEscape()) {
+                    this.reader.advance();
+                }
+                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
         }
 
         return getRegExpText(TokenKind.RE_UNICODE_GENERAL_CATEGORY_NAME);
+    }
+
+    private void processAbbrWithLetter() {
+        switch (peek()) {
+            case 'u':
+            case 'l':
+            case 't':
+            case 'm':
+            case 'o':
+                this.reader.advance();
+                break;
+            default:
+                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
+        }
+    }
+
+    private void processAbbrWithMark() {
+        switch (peek()) {
+            case 'n':
+            case 'c':
+            case 'e':
+                this.reader.advance();
+                break;
+            default:
+                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
+        }
+    }
+
+    private void processAbbrWithNumber() {
+        switch (peek()) {
+            case 'd':
+            case 'l':
+            case 'o':
+                this.reader.advance();
+                break;
+            default:
+                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
+        }
+    }
+
+    private void processAbbrWithSymbol() {
+        switch (peek()) {
+            case 'm':
+            case 'c':
+            case 'k':
+            case 'o':
+                this.reader.advance();
+                break;
+            default:
+                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
+        }
+    }
+
+    private void processAbbrWithPunctuation() {
+        switch (peek()) {
+            case 'c':
+            case 'd':
+            case 's':
+            case 'e':
+            case 'i':
+            case 'f':
+            case 'o':
+                this.reader.advance();
+                break;
+            default:
+                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
+        }
+    }
+
+    private void processAbbrWithSeparator() {
+        switch (peek()) {
+            case 's':
+            case 'l':
+            case 'p':
+                this.reader.advance();
+                break;
+            default:
+                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
+        }
+    }
+
+    private void processAbbrWithOther() {
+        switch (peek()) {
+            case 'c':
+            case 'f':
+            case 'o':
+            case 'n':
+                this.reader.advance();
+                break;
+            default:
+                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
+        }
     }
 
     /**
@@ -326,36 +322,18 @@ public class TreeTraverser {
     private void processReUnicodePropertyValue() {
         if (!isReUnicodePropertyValueChar(peek())) {
             this.reader.advance();
-            throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
+            throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
+                    ErrorCodes.REGEXP_INVALID_UNICODE_PROPERTY_VALUE.messageKey(), getMarkedChars()));
         }
 
         while (!isEndOfUnicodePropertyEscape()) {
             if (!isReUnicodePropertyValueChar(peek())) {
                 this.reader.advance();
-                throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
+                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
+                        ErrorCodes.REGEXP_INVALID_UNICODE_PROPERTY_VALUE.messageKey(), getMarkedChars()));
             }
             this.reader.advance();
         }
-    }
-
-    /**
-     * Read token in ReUnicodeGeneralCategoryName.
-     *
-     * @return Next token
-     */
-    private Token readTokenInReUnicodeGeneralCategoryName() {
-        this.reader.mark();
-
-        if (this.reader.isEOF()) {
-            return getRegExpToken(TokenKind.EOF_TOKEN);
-        }
-
-        processReUnicodePropertyValue();
-        endMode();
-        if (peek() == Terminals.CLOSE_BRACE) {
-            startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
-        }
-        return getRegExpText(TokenKind.RE_UNICODE_GENERAL_CATEGORY_NAME);
     }
 
     private boolean isEndOfUnicodePropertyEscape() {
@@ -375,435 +353,61 @@ public class TreeTraverser {
     }
 
     /**
-     * Read token in character class.
-     *
-     * @return Next token
-     */
-    private Token readTokenInCharacterClass() {
-        this.reader.mark();
-
-        if (this.reader.isEOF()) {
-            return getRegExpToken(TokenKind.EOF_TOKEN);
-        }
-
-        switch (peek()) {
-            case Terminals.BITWISE_XOR:
-                // Handle negation token at the start of a character class.
-                if (this.mode == ParserMode.RE_NEGATED_CHAR_CLASS_START) {
-                    this.reader.advance();
-                    switchMode(ParserMode.RE_CHAR_SET);
-                    return getRegExpToken(TokenKind.BITWISE_XOR_TOKEN);
-                }
-                break;
-            // Handle end of a character class.
-            case Terminals.CLOSE_BRACKET:
-                endMode();
-                this.reader.advance();
-                startMode(ParserMode.RE_QUANTIFIER);
-                return getRegExpToken(TokenKind.CLOSE_BRACKET_TOKEN);
-            default:
-        }
-
-        // Process the first ReCharSetAtom.
-        boolean processed = processReCharSetAtom();
-        if (!processed) {
-            // Handle ReEscapes separately.
-            this.reader.advance();
-            return getRegExpToken(TokenKind.BACK_SLASH_TOKEN);
-        }
-
-        // An ReCharSetAtom can be followed by - in a ReCharSetRange.
-        if (isStartOfCharSetRange()) {
-            // Switch parser mode to handle rhs of the ReCharSetRange.
-            switchMode(ParserMode.RE_CHAR_SET_RANGE_RHS_START);
-            return getRegExpText(TokenKind.RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM);
-        }
-
-        // An ReCharSetAtom can be followed by ReCharSetNoDash.
-        if (peek() != Terminals.CLOSE_BRACKET) {
-            // Switch parser mode to handle ReCharSetNoDash.
-            switchMode(ParserMode.RE_CHAR_SET_NO_DASH);
-        }
-
-        return getRegExpText(TokenKind.RE_CHAR_SET_ATOM);
-    }
-
-    private boolean isStartOfCharSetRange() {
-        return peek() == Terminals.MINUS && this.reader.peek(1) != Terminals.CLOSE_BRACKET;
-    }
-
-    /**
-     * Read "-" ReCharSetAtom tokens in rhs of a ReCharSetRange.
-     *
-     * @return Next token
-     */
-    private Token readTokenInReCharSetRangeRhs() {
-        this.reader.mark();
-
-        if (this.reader.isEOF()) {
-            return getRegExpToken(TokenKind.EOF_TOKEN);
-        }
-
-        // Handle "-" in ReCharSetRange.
-        if (this.mode == ParserMode.RE_CHAR_SET_RANGE_RHS_START && peek() == Terminals.MINUS) {
-            this.reader.advance();
-            // If the close bracket is missing, "-" might be incorrectly identified as a part of ReCharSetRange.
-            // Instead it should be identified as a part of ReCharSet.
-            if (this.reader.isEOF()) {
-                endMode();
-                return getRegExpText(TokenKind.RE_CHAR_SET_ATOM);
-            }
-            switchMode(ParserMode.RE_CHAR_SET_RANGE_RHS);
-            return getRegExpToken(TokenKind.MINUS_TOKEN);
-        }
-
-        // Process ReCharSetAtom in the rhs of a ReCharSetRange.
-        boolean processed = processReCharSetAtom();
-        if (!processed) {
-            // Handle ReEscapes separately.
-            this.reader.advance();
-            return getRegExpToken(TokenKind.BACK_SLASH_TOKEN);
-        }
-
-        // Switch parser mode to handle the following ReCharSet if available.
-        switchMode(ParserMode.RE_CHAR_SET);
-
-        return getRegExpText(TokenKind.RE_CHAR_SET_ATOM);
-    }
-
-    /**
-     * Read token in ReCharSetNoDash.
-     *
-     * @return Next token
-     */
-    private Token readTokenInReCharSetNoDash() {
-        this.reader.mark();
-
-        if (this.reader.isEOF()) {
-            return getRegExpToken(TokenKind.EOF_TOKEN);
-        }
-
-        // Handle "-" in ReCharSetAtom which can be a ReCharSetNoDash.
-        // It cannot be followed by any other char. Hence end the current parser mode.
-        if (peek() == Terminals.MINUS) {
-            this.reader.advance();
-            switchMode(ParserMode.RE_CHAR_SET);
-            return getRegExpText(TokenKind.RE_CHAR_SET_ATOM);
-        }
-
-        // Process the first ReCharSetAtomNoDash.
-        boolean processed = processReCharSetAtomNoDash(peek());
-        if (!processed) {
-            // Handle ReEscapes separately.
-            this.reader.advance();
-            return getRegExpToken(TokenKind.BACK_SLASH_TOKEN);
-        }
-
-        // An ReCharSetAtomNoDash can be followed by - in a ReCharSetRangeNoDash.
-        if (isStartOfCharSetRange()) {
-            // Switch parser mode to handle rhs of the ReCharSetRangeNoDash.
-            switchMode(ParserMode.RE_CHAR_SET_RANGE_NO_DASH_RHS_START);
-            return getRegExpText(TokenKind.RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH);
-        }
-
-        // An ReCharSetAtomNoDash can be followed by ReCharSetNoDash.
-        if (peek() != Terminals.CLOSE_BRACKET) {
-            // Switch parser mode to handle ReCharSetNoDash.
-            switchMode(ParserMode.RE_CHAR_SET_NO_DASH);
-        } else {
-            switchMode(ParserMode.RE_CHAR_SET);
-        }
-
-        return getRegExpText(TokenKind.RE_CHAR_SET_ATOM_NO_DASH);
-    }
-
-    /**
-     * Read "-" ReCharSetAtom tokens in rhs of a ReCharSetRangeNoDash.
-     *
-     * @return Next token
-     */
-    private Token readTokenInReCharSetRangeNoDashRhs() {
-        this.reader.mark();
-
-        if (this.reader.isEOF()) {
-            return getRegExpToken(TokenKind.EOF_TOKEN);
-        }
-
-        // Handle "-" in ReCharSetRangeNoDash.
-        if (this.mode == ParserMode.RE_CHAR_SET_RANGE_NO_DASH_RHS_START && peek() == Terminals.MINUS) {
-            this.reader.advance();
-            // If the close bracket is missing, "-" might be incorrectly identified as a part of ReCharSetRangeNoDash.
-            // Instead it should be identified as a part of ReCharSetNoDash.
-            if (this.reader.isEOF()) {
-                endMode();
-                return getRegExpText(TokenKind.RE_CHAR_SET_ATOM);
-            }
-            switchMode(ParserMode.RE_CHAR_SET_RANGE_NO_DASH_RHS);
-            return getRegExpToken(TokenKind.MINUS_TOKEN);
-        }
-
-        // Process ReCharSetAtom in the rhs of a ReCharSetRangeNoDash.
-        boolean processed = processReCharSetAtom();
-        if (!processed) {
-            // Handle ReEscapes separately.
-            this.reader.advance();
-            return getRegExpToken(TokenKind.BACK_SLASH_TOKEN);
-        }
-
-        // Switch parser mode to handle the following ReCharSet if available.
-        switchMode(ParserMode.RE_CHAR_SET);
-
-        return getRegExpText(TokenKind.RE_CHAR_SET_ATOM);
-    }
-
-    /**
-     * Process ReCharSetAtom.
-     * <p>
-     * <code>
-     * ReCharSetAtom :=
-     *   ReCharSetAtomNoDash
-     *   | "-"
-     * </code>
-     */
-    private boolean processReCharSetAtom() {
-        int nextToken = peek();
-        if (nextToken == Terminals.MINUS) {
-            this.reader.advance();
-            return true;
-        }
-        return processReCharSetAtomNoDash(nextToken);
-    }
-
-    /**
-     * Process ReCharSetAtomNoDash.
-     * <p>
-     * <code>
-     * ReCharSetAtomNoDash :=
-     *   ReCharSetLiteralChar
-     *   | ReEscape
-     *   | "\-"
-     * </code>
-     */
-    private boolean processReCharSetAtomNoDash(int nextToken) {
-        if (isReCharSetLiteralChar(nextToken)) {
-            this.reader.advance();
-            return true;
-        }
-
-        if (nextToken == Terminals.BACKSLASH) {
-            if (this.reader.peek(1) == Terminals.MINUS) {
-                this.reader.advance(2);
-                return true;
-            }
-            return processOnlyNumericEscapeOrControlEscape();
-        }
-
-        return true;
-    }
-
-    /**
-     * Read token in ReQuantifier.
-     * <p>
-     * <code>
-     * ReQuantifier := ReBaseQuantifier ["?"]
-     * ReBaseQuantifier :=
-     *    "*"
-     *   | "+"
-     *   | "?"
-     *   | "{" Digit+ ["," Digit*] "}"
-     * </code>
-     */
-    private Token readTokenInQuantifier() {
-        reader.mark();
-
-        if (reader.isEOF()) {
-            return getRegExpToken(TokenKind.EOF_TOKEN);
-        }
-
-        if (this.mode == ParserMode.RE_NON_GREEDY_QUANTIFIER && peek() == Terminals.QUESTION_MARK) {
-            this.reader.advance();
-            endMode();
-            return getRegExpText(TokenKind.QUESTION_MARK_TOKEN);
-        }
-
-        switch (peek()) {
-            // Handle ReBaseQuantifier
-            case Terminals.ASTERISK:
-            case Terminals.PLUS:
-            case Terminals.QUESTION_MARK:
-                this.reader.advance();
-                endMode();
-                if (peek() == Terminals.QUESTION_MARK) {
-                    startMode(ParserMode.RE_NON_GREEDY_QUANTIFIER);
-                }
-                return getRegExpText(TokenKind.RE_BASE_QUANTIFIER_VALUE);
-            case Terminals.OPEN_BRACE:
-                this.reader.advance();
-                switchMode(ParserMode.RE_BRACED_QUANTIFIER);
-                return getRegExpToken(TokenKind.OPEN_BRACE_TOKEN);
-            default:
-                break;
-        }
-
-        endMode();
-        return nextToken();
-    }
-
-    /**
-     * Read token in braced quantifier.
-     * <p>
-     * <code>
-     * ReBracedQuantifier := "{" Digit+ ["," Digit*] "}"
-     * </code>
-     */
-    private Token readTokenInBracedQuantifier() {
-        reader.mark();
-
-        if (reader.isEOF()) {
-            return getRegExpToken(TokenKind.EOF_TOKEN);
-        }
-
-        if (this.mode == ParserMode.RE_BRACED_QUANTIFIER_MOST_DIGITS_START && peek() == Terminals.COMMA) {
-            this.reader.advance();
-            switchMode(ParserMode.RE_BRACED_QUANTIFIER_MOST_DIGITS);
-            return getRegExpText(TokenKind.COMMA_TOKEN);
-        }
-
-        if ((this.mode == ParserMode.RE_BRACED_QUANTIFIER_MOST_DIGITS ||
-                this.mode == ParserMode.RE_BRACED_QUANTIFIER_LEAST_DIGITS) && peek() == Terminals.CLOSE_BRACE) {
-            this.reader.advance();
-            endMode();
-            if (peek() == Terminals.QUESTION_MARK) {
-                startMode(ParserMode.RE_NON_GREEDY_QUANTIFIER);
-            }
-            return getRegExpToken(TokenKind.CLOSE_BRACE_TOKEN);
-        }
-
-        if (!isDigit(peek())) {
-            throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
-        }
-
-        this.reader.advance();
-
-        if (this.mode == ParserMode.RE_BRACED_QUANTIFIER) {
-            switchMode(ParserMode.RE_BRACED_QUANTIFIER_LEAST_DIGITS);
-        }
-
-        if (this.mode == ParserMode.RE_BRACED_QUANTIFIER_LEAST_DIGITS && peek() == Terminals.COMMA) {
-            switchMode(ParserMode.RE_BRACED_QUANTIFIER_MOST_DIGITS_START);
-        }
-
-        return getRegExpText(TokenKind.RE_BRACED_QUANTIFIER_DIGIT);
-    }
-
-    /**
-     * Read token in ReFlagsOnOff.
-     * <p>
-     * <code>
-     * ReFlagsOnOff := ReFlags ["-" ReFlags]
-     * </code>
-     */
-    private Token readTokenInFlagsExpression() {
-        this.reader.mark();
-
-        if (reader.isEOF()) {
-            return getRegExpToken(TokenKind.EOF_TOKEN);
-        }
-
-        if (this.mode == ParserMode.RE_FLAGS_START && peek() == Terminals.QUESTION_MARK) {
-            this.reader.advance();
-            return getRegExpToken(TokenKind.QUESTION_MARK_TOKEN);
-        }
-
-        if (peek() == Terminals.COLON) {
-            this.reader.advance();
-            // Colon marks the end of the flags.
-            switchMode(ParserMode.RE_CAPTURING_GROUP_RE_DISJUNCTION);
-            return getRegExpToken(TokenKind.COLON_TOKEN);
-        }
-
-        if (this.mode == ParserMode.RE_FLAGS_START && peek() == Terminals.MINUS) {
-            this.reader.advance();
-            switchMode(ParserMode.RE_FLAGS);
-            return getRegExpToken(TokenKind.MINUS_TOKEN);
-        }
-
-        if (!isReFlag(peek())) {
-            throw new BallerinaException("invalid flag in regular expression");
-        }
-
-        this.reader.advance();
-
-        if (peek() == Terminals.MINUS) {
-            switchMode(ParserMode.RE_FLAGS_START);
-        }
-
-        return getRegExpText(TokenKind.RE_FLAGS_VALUE);
-    }
-
-    /**
      * Process ReEscape.
      * <p>
      * <code>
      * ReEscape :=
-     *    NumericEscape
-     *    | ControlEscape
-     *    | ReQuoteEscape
-     *    | ReUnicodePropEscape
-     *    | ReSimpleCharClassEscape
+     * NumericEscape
+     * | ControlEscape
+     * | ReQuoteEscape
+     * | ReUnicodePropEscape
+     * | ReSimpleCharClassEscape
      * </code>
      */
-    private boolean processOnlyNumericEscapeOrControlEscape() {
-        switch (this.reader.peek(1)) {
+    private Token processEscape() {
+        switch (peek()) {
             // Handle NumericEscape.
             case 'u':
-                if (this.reader.peek(2) == Terminals.OPEN_BRACE) {
+                if (this.reader.peek(1) == Terminals.OPEN_BRACE) {
                     processNumericEscape();
-                    return true;
+                    return getRegExpText(TokenKind.RE_NUMERIC_ESCAPE);
                 }
                 break;
             // Handle ControlEscape.
             case 'n':
             case 't':
             case 'r':
-                this.reader.advance(2);
-                return true;
+                this.reader.advance();
+                return getRegExpText(TokenKind.RE_CONTROL_ESCAPE);
             // Handle ReUnicodePropertyEscape separately.
             case 'p':
             case 'P':
-                if (this.reader.peek(2) == Terminals.OPEN_BRACE) {
-                    startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
-                    return false;
-                }
+                startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
                 break;
             default:
-                // Handle ReQuoteEscape and ReSimpleCharClassEscape.
-                if (isReSyntaxChar(this.reader.peek(1)) || isReSimpleCharClassCode(this.reader.peek(1))) {
-                    startMode(ParserMode.RE_ESCAPE);
-                    return false;
-                }
+                break;
         }
-        // Invalid ReEscape.
-        this.reader.advance(2);
-        throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
+        return getRegExpToken(TokenKind.BACK_SLASH_TOKEN);
     }
 
     private void processNumericEscape() {
         // Process '\ u {'
-        this.reader.advance(3);
+        this.reader.advance(2);
 
         // Process code-point.
         if (!isHexDigit(this.reader.peek())) {
-            throw new BallerinaException();
+            throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
+                    ErrorCodes.REGEXP_INVALID_HEX_DIGIT.messageKey()));
         }
 
         reader.advance();
         while (isHexDigit(this.reader.peek())) {
             reader.advance();
         }
-        
+
         if (this.reader.peek() != Terminals.CLOSE_BRACE) {
-            throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
+            throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
+                    ErrorCodes.REGEXP_MISSING_CLOSE_BRACE.messageKey()));
         }
 
         this.reader.advance();
@@ -820,7 +424,7 @@ public class TreeTraverser {
     private Token getRegExpText(TokenKind kind) {
         return new Token(kind, getMarkedChars());
     }
-    
+
     /**
      * Returns the next character from the reader, without consuming the stream.
      *
@@ -864,33 +468,18 @@ public class TreeTraverser {
      * <p>
      * <code>
      * ReSyntaxChar :=
-     *   "^" | "$" | "\" | "." | "*" | "+" | "?"
-     *   | "(" | ")" | "[" | "]" | "{" | "}" | "|"
+     * "^" | "$" | "\" | "." | "*" | "+" | "?"
+     * | "(" | ")" | "[" | "]" | "{" | "}" | "|"
      * </code>
      *
      * @param c character to check
      * @return <code>true</code>, if the character is ReSyntaxChar. <code>false</code> otherwise.
      */
     private static boolean isReSyntaxChar(int c) {
-        switch (c) {
-            case '^':
-            case '$':
-            case '\\':
-            case '.':
-            case '*':
-            case '+':
-            case '?':
-            case '(':
-            case ')':
-            case '[':
-            case ']':
-            case '{':
-            case '}':
-            case '|':
-                return true;
-            default:
-                return false;
-        }
+        return switch (c) {
+            case '^', '$', '\\', '.', '*', '+', '?', '(', ')', '[', ']', '{', '}', '|' -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -904,64 +493,10 @@ public class TreeTraverser {
      * @return <code>true</code>, if the character is ReSimpleCharClassCode. <code>false</code> otherwise.
      */
     private static boolean isReSimpleCharClassCode(int c) {
-        switch (c) {
-            case 'd':
-            case 'D':
-            case 's':
-            case 'S':
-            case 'w':
-            case 'W':
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    /**
-     * Check whether a given char is ReCharSetLiteralChar.
-     * <p>
-     * <code>
-     * ReCharSetLiteralChar := ^ ("\" | "]" | "-")
-     * </code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character is ReCharSetLiteralChar. <code>false</code> otherwise.
-     */
-    private static boolean isReCharSetLiteralChar(int c) {
-        switch (c) {
-            case '\\':
-            case ']':
-            case '-':
-                return false;
-            default:
-                return true;
-        }
-    }
-
-    /**
-     * Check whether a given char is ReFlag.
-     * <p>
-     * <code>
-     * ReFlag :=
-     *   ReMultilineFlag
-     *   | ReDotAllFlag
-     *   | ReIgnoreCaseFlag
-     *   | ReCommentFlag
-     * </code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character is ReFlag. <code>false</code> otherwise.
-     */
-    private static boolean isReFlag(int c) {
-        switch (c) {
-            case 'm':
-            case 's':
-            case 'i':
-            case 'x':
-                return true;
-            default:
-                return false;
-        }
+        return switch (c) {
+            case 'd', 'D', 's', 'S', 'w', 'W' -> true;
+            default -> false;
+        };
     }
 
     private static boolean isHexDigit(int c) {

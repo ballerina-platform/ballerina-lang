@@ -18,19 +18,25 @@
 package org.ballerinalang.formatter.core;
 
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
+import org.ballerinalang.formatter.core.options.FormattingOptions;
+import org.ballerinalang.formatter.core.options.WrappingFormattingOptions;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * The abstract class that is extended by all formatting test classes.
@@ -41,8 +47,10 @@ public abstract class FormatterTest {
 
     // TODO: Add test cases for syntax error scenarios as well
 
-    private final Path resourceDirectory = Paths.get("src").resolve("test").resolve("resources").toAbsolutePath();
-    private Path buildDirectory = Paths.get("build").toAbsolutePath().normalize();
+
+    private final Path resourceDirectory = Path.of("src/test/resources").toAbsolutePath();
+    private final Path buildDirectory = Path.of("build").toAbsolutePath().normalize();
+
     private static final String ASSERT_DIR = "assert";
     private static final String SOURCE_DIR = "source";
 
@@ -54,8 +62,8 @@ public abstract class FormatterTest {
      */
     @Test(dataProvider = "test-file-provider")
     public void test(String source, String sourcePath) throws IOException {
-        Path assertFilePath = Paths.get(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
-        Path sourceFilePath = Paths.get(resourceDirectory.toString(), sourcePath, SOURCE_DIR, source);
+        Path assertFilePath = Path.of(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
+        Path sourceFilePath = Path.of(resourceDirectory.toString(), sourcePath, SOURCE_DIR, source);
         String content = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
@@ -67,14 +75,49 @@ public abstract class FormatterTest {
         }
     }
 
+    public void testWithConfigurationFile(String source, String sourcePath) throws IOException, FormatterException {
+        Path sourceDir = Path.of(resourceDirectory.toString(), sourcePath, SOURCE_DIR);
+        Path sourceFilePath = Path.of(sourceDir.toString(), source);
+        Path assertFilePath = Path.of(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
+        Path tomlPath = Path.of(sourceDir.toString(), ProjectConstants.BALLERINA_TOML);
+        String content = getSourceText(sourceFilePath);
+        TextDocument textDocument = TextDocuments.from(content);
+        String tomlContent = Files.readString(tomlPath);
+        TomlDocument tomlDocument = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
+        Map<String, Object> tomlConfig = FormatterUtils.parseConfigurationToml(tomlDocument);
+        FormattingOptions formattingOptions = FormattingOptions.builder().build(sourceDir, tomlConfig.get("format"));
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
+        try {
+            SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, formattingOptions);
+            Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
+        } catch (FormatterException e) {
+            Assert.fail(e.getMessage(), e);
+        }
+    }
+
     public void testWithOptions(String source, String sourcePath) throws IOException {
-        Path assertFilePath = Paths.get(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
-        Path sourceFilePath = Paths.get(resourceDirectory.toString(), sourcePath, SOURCE_DIR, source);
+        Path assertFilePath = Path.of(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
+        Path sourceFilePath = Path.of(resourceDirectory.toString(), sourcePath, SOURCE_DIR, source);
         String content = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
-        FormattingOptions formattingOptions =
-                FormattingOptions.builder().setLineWrapping(true).setColumnLimit(120).build();
+        FormattingOptions formattingOptions = FormattingOptions.builder().setWrappingFormattingOptions(
+                WrappingFormattingOptions.builder().setMaxLineLength(120).setLineWrap(true).build()).build();
+        try {
+            SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, formattingOptions);
+            Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
+        } catch (FormatterException e) {
+            Assert.fail(e.getMessage(), e);
+        }
+    }
+
+    public void testWithCustomOptions(String source, String sourcePath, FormattingOptions formattingOptions)
+            throws IOException {
+        Path assertFilePath = Path.of(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
+        Path sourceFilePath = Path.of(resourceDirectory.toString(), sourcePath, SOURCE_DIR, source);
+        String content = getSourceText(sourceFilePath);
+        TextDocument textDocument = TextDocuments.from(content);
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
         try {
             SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, formattingOptions);
             Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
@@ -89,7 +132,7 @@ public abstract class FormatterTest {
      * @param sourcePath Source path of the parser test
      */
     public void testParserResources(String sourcePath) throws IOException {
-        Path filePath = Paths.get(sourcePath);
+        Path filePath = Path.of(sourcePath);
         String content = getSourceText(filePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
@@ -128,6 +171,16 @@ public abstract class FormatterTest {
     }
 
     /**
+     * Specify the file names to be tested with specific tests during the test execution.
+     *
+     * @return Test scenarios for execution
+     */
+    @DataProvider(name = "test-file-provider-custom")
+    public Object[][] dataProviderWithCustomTests(Method testName) {
+        return new Object[0][];
+    }
+
+    /**
      * Returns the directory path inside resources which holds the test files.
      *
      * @return Directory path of test files
@@ -139,9 +192,9 @@ public abstract class FormatterTest {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
-        try {
-            return Files.walk(this.resourceDirectory.resolve(this.getTestResourceDir()).resolve(ASSERT_DIR))
-                    .filter(path -> {
+        try (Stream<Path> assertPaths =
+                     Files.walk(this.resourceDirectory.resolve(this.getTestResourceDir()).resolve(ASSERT_DIR))) {
+            return assertPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".bal")
                                 && !skippedTests.contains(file.getName());
@@ -158,10 +211,9 @@ public abstract class FormatterTest {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
-        try {
-            return Files.walk(this.buildDirectory.resolve("resources").resolve("test")
-                    .resolve(this.getTestResourceDir()))
-                    .filter(path -> {
+        try (Stream<Path> testPaths = Files.walk(this.buildDirectory.resolve("resources/test")
+                                .resolve(this.getTestResourceDir()))) {
+            return testPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".bal")
                                 && !skippedTests.contains(file.getName());

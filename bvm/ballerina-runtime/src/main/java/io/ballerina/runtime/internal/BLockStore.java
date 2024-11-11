@@ -19,8 +19,8 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +34,7 @@ public class BLockStore {
     /**
      * The map of locks inferred.
      */
-    private  Map<String, BLock> globalLockMap;
+    private final Map<String, BLock> globalLockMap;
 
     public BLockStore() {
         globalLockMap = new ConcurrentHashMap<>();
@@ -45,14 +45,12 @@ public class BLockStore {
     }
 
     public BLock getLockFromMap(String lockName) {
-        return globalLockMap.computeIfAbsent(lockName, (k) -> {
-            return new BLock();
-        });
+        return globalLockMap.computeIfAbsent(lockName, (k) -> new BLock());
     }
 
     public void panicIfInLock(Strand strand) {
         if (strand.acquiredLockCount > 0) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.ASYNC_CALL_INSIDE_LOCK);
+            throw ErrorCreator.createError(ErrorReasons.ASYNC_CALL_INSIDE_LOCK);
         }
     }
 }

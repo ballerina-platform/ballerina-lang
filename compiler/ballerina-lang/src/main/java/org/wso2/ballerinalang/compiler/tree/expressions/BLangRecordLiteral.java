@@ -21,9 +21,6 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -33,7 +30,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_KEY_VALUE;
@@ -292,13 +288,9 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangStructLiteral extends BLangRecordLiteral {
 
-        public BAttachedFunction initializer;
-        public TreeMap<Integer, BVarSymbol> enclMapSymbols;
-
-        public BLangStructLiteral(Location pos, BType structType, BTypeSymbol typeSymbol, List<RecordField> fields) {
+        public BLangStructLiteral(Location pos, BType structType, List<RecordField> fields) {
             super(pos);
             this.setBType(structType);
-            this.initializer = ((BRecordTypeSymbol) typeSymbol).initializerFunc;
             this.fields = fields;
         }
 
@@ -344,29 +336,6 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         @Override
         public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
             return modifier.transform(this, props);
-        }
-    }
-
-    /**
-     * This class represents a channel type literal expression.
-     *
-     * @since 0.982.0
-     */
-    @Deprecated
-    public static class BLangChannelLiteral extends BLangRecordLiteral {
-
-        // TODO: #AST_CLEAN
-        public String channelName;
-
-        public BLangChannelLiteral(Location pos, BType channelType, String channelName) {
-            super(pos);
-            this.setBType(channelType);
-            this.channelName = channelName;
-        }
-
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            visitor.visit(this);
         }
     }
 }

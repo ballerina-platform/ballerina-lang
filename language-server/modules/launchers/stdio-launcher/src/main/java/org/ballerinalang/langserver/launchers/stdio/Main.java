@@ -23,17 +23,22 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
  * Entry point of the stdio launcher.
  */
-public class Main {
+public final class Main {
+
+    private Main() {
+    }
+
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         LogManager.getLogManager().reset();
-        Logger globalLogger = Logger.getLogger(java.util.logging.Logger.GLOBAL_LOGGER_NAME);
-        globalLogger.setLevel(java.util.logging.Level.OFF);
+        Logger globalLogger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        globalLogger.setLevel(Level.OFF);
         startServer(System.in, System.out);
     }
 

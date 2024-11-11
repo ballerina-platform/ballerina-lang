@@ -1,0 +1,4 @@
+ballerina: no keyword given.
+
+USAGE:
+    bal tool search [<tool-id>|<text>]

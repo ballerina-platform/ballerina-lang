@@ -17,9 +17,8 @@
  */
 package io.ballerina.runtime.api.values;
 
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.internal.util.exceptions.BLangFreezeException;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -42,6 +41,7 @@ public interface BRefValue extends BValue {
      *
      * @return  A new copy of the value
      */
+    @Override
     Object copy(Map<Object, Object> refs);
 
     /**
@@ -52,6 +52,7 @@ public interface BRefValue extends BValue {
      *
      * @return  A new copy of the value
      */
+    @Override
     Object frozenCopy(Map<Object, Object> refs);
 
     /**
@@ -79,7 +80,7 @@ public interface BRefValue extends BValue {
      * the {@link BRefValue} is in the middle of freezing by another process.
      */
      default void freezeDirect() {
-        throw new BLangFreezeException("'freezeDirect()' not allowed on '" + getType() + "'");
+        throw ErrorCreator.createError(StringUtils.fromString("'freezeDirect()' not allowed on '" + getType() + "'"));
     }
 
     /**
@@ -91,7 +92,7 @@ public interface BRefValue extends BValue {
         try {
             outputStream.write(StringUtils.getJsonString(this).getBytes(Charset.defaultCharset()));
         } catch (IOException e) {
-            throw new BallerinaException("error occurred while serializing data", e);
+            throw ErrorCreator.createError(StringUtils.fromString("error occurred while serializing data"), e);
         }
     }
 

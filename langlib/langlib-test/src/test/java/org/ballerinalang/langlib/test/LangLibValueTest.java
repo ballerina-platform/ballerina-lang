@@ -262,6 +262,11 @@ public class LangLibValueTest {
     }
 
     @Test
+    public void testXMLSequenceWithOneTextElement() {
+        BRunUtil.invoke(compileResult, "testXMLSequenceWithOneTextElement");
+    }
+
+    @Test
     public void testToStringForTable() {
         BRunUtil.invoke(compileResult, "testToStringMethodForTable");
     }
@@ -371,6 +376,7 @@ public class LangLibValueTest {
                 "testCloneWithTypeWithAmbiguousUnion", "testCloneWithTypeXmlToUnion",
                 "testCloneWithTypeWithTuples", "testCloneWithTypeToJson",
                 "testCloneWithTypeToUnion",
+                "testCloneWithTypeWithUnionOfRecordsWithTypeInclusion",
                 "testCloneWithTypeTable",
                 "testCloneWithTypeOnRegExp",
                 "testCloneWithTypeOnRegExpNegative",
@@ -378,7 +384,9 @@ public class LangLibValueTest {
                 "testCloneWithTypeRecordWithXMLField",
                 "testConvertToUnionWithAmbiguousMemberTypes", "testConvertingToReferenceTypes",
                 "testCloneWithTypeTableToAnydata", "testUnionNestedTypeConversionErrors",
-                "testCloneWithTypeToUnionOfTypeReference", "testCloneWithTypeToTableNegative"
+                "testCloneWithTypeToUnionOfTypeReference", "testCloneWithTypeToTableNegative",
+                "testCloneWithTypeRecordDefaultValues", "testCloneWithTypeToRecordWithIntersectingUnionMembers",
+                "testCloneWithTypeToRecordWithSpecialChars"
         };
     }
 
@@ -449,7 +457,8 @@ public class LangLibValueTest {
                 { "testFromJsonWithTypeNestedRecordsNegative" },
                 { "testFromJsonWithTypeOnRegExp" },
                 { "testFromJsonWithTypeOnRegExpNegative" },
-                {"testFromJsonWithTypeToUnionOfTypeReference"}
+                {"testFromJsonWithTypeToUnionOfTypeReference"},
+                {"testFromJsonStringWithUnexpectedChars"}
         };
     }
 
@@ -469,7 +478,9 @@ public class LangLibValueTest {
                 { "testFromJsonStringWithTypeStringArray" },
                 { "testFromJsonStringWithTypeArrayNegative" },
                 { "testFromJsonStringWithTypeIntArray" },
-                { "testFromJsonStringWithTypeWithInferredArgument" }
+                { "testFromJsonStringWithTypeWithInferredArgument" },
+                { "testFromJsonStringWithTypeRecordWithXML" },
+                { "testFromJsonWithTypeArray" }
         };
     }
 

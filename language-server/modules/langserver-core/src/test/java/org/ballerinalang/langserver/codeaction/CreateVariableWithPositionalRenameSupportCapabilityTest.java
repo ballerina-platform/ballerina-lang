@@ -128,6 +128,10 @@ public class CreateVariableWithPositionalRenameSupportCapabilityTest extends Abs
                 {"createVariableForOptionalFieldAccess1.json"},
                 {"createVariableForOptionalFieldAccess2.json"},
                 {"createVariableWithTypeDesc.json"},
+                {"createVariableInQueryAction1.json"},
+                {"createVariableInQueryAction2.json"},
+                {"createVariableInQueryAction3.json"},
+                {"createVariableInQueryAction4.json"},
 
                 // Tuple related
                 {"createVariableWithTuple1.json"},
@@ -149,7 +153,27 @@ public class CreateVariableWithPositionalRenameSupportCapabilityTest extends Abs
                 {"createVariableWithCheck3.json"},
                 {"createVariableWithCheck4.json"},
                 {"createVariableWithCheck5.json"},
-                {"createVariableWithCheck6.json"}
+                {"createVariableWithCheck6.json"},
+                {"createVariableWithCheck7.json"},
+                {"createVariableWithCheck8.json"},
+                {"createVariableWithCheck9.json"},
+                {"createVariableWithCheck10.json"},
+                {"createVariableWithCheck11.json"},
+                {"createVariableWithCheck12.json"},
+                {"createVariableWithCheck13.json"},
+                {"createVariableWithCheck14.json"},
+                {"createVariableWithCheck15.json"},
+                {"createVariableWithCheck16.json"},
+                {"createVariableWithCheck17.json"},
+                {"createVariableWithCheck18.json"},
+                {"createVariableWithCheck19.json"},
+                {"createVariableWithCheck20.json"},
+
+                // Related to imported types
+                {"createVariableWithInferredType1.json"},
+                {"createVariableWithInferredType2.json"},
+                {"createVariableWithInferredType3.json"},
+                {"createVariableWithInferredType4.json"}
         };
     }
 
@@ -159,7 +183,9 @@ public class CreateVariableWithPositionalRenameSupportCapabilityTest extends Abs
                 {"createVariableNegative1.json"},
                 {"createVariableNegative2.json"},
                 {"createVariableNegative3.json"},
-                {"createVariableNegative4.json"}
+                {"createVariableNegative4.json"},
+                {"createVariableInQueryActionNegative.json"},
+                {"createVariableWithCheckNegative1.json"},
         };
     }
 }

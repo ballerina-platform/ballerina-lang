@@ -29,6 +29,7 @@ public enum LSContextOperation implements LSOperation {
     DIAGNOSTICS("debouncer/diagnostics"),
     TXT_DID_OPEN("text/didOpen"),
     TXT_HOVER("text/hover"),
+    TXT_INLAY_HINT("text/inlayHint"),
     TXT_SIGNATURE("text/signature"),
     TXT_DEFINITION("text/definition"),
     TXT_REFERENCES("text/references"),

@@ -24,17 +24,31 @@ package io.ballerina.projects.internal.model;
  */
 public class Central {
     private String accesstoken = "";
+    private int connectTimeout = 60;
+    private int readTimeout = 60;
+    private int writeTimeout = 60;
+    private int callTimeout = 60;
+    private int maxRetries = 1;
 
-    private Central(String accesstoken) {
+
+    private Central(String accesstoken, int connectTimeout, int readTimeout, int writeTimeout,
+                    int callTimeout, int maxRetries) {
         this.accesstoken = accesstoken;
+        this.connectTimeout = connectTimeout;
+        this.readTimeout = readTimeout;
+        this.writeTimeout = writeTimeout;
+        this.callTimeout = callTimeout;
+        this.maxRetries = maxRetries;
+
     }
 
-    public static Central from(String accesstoken) {
-        return new Central(accesstoken);
+    public static Central from(String accesstoken, int connectTimeout, int readTimeout, int writeTimeout,
+                               int callTimeout, int maxRetries) {
+        return new Central(accesstoken, connectTimeout, readTimeout, writeTimeout, callTimeout, maxRetries);
     }
 
     public static Central from() {
-        return new Central("");
+        return new Central("", 60, 60, 60, 0, 1);
     }
 
     /**
@@ -44,6 +58,51 @@ public class Central {
      */
     public String getAccessToken() {
         return accesstoken;
+    }
+
+    /**
+     * Get the connection timeout.
+     *
+     * @return connection timeout
+     */
+    public int getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    /**
+     * Get the read timeout.
+     *
+     * @return read timeout
+     */
+    public int getReadTimeout() {
+        return readTimeout;
+    }
+
+    /**
+     * Get the write timeout.
+     *
+     * @return write timeout
+     */
+    public int getWriteTimeout() {
+        return writeTimeout;
+    }
+
+    /**
+     * Get the call timeout.
+     *
+     * @return call timeout
+     */
+    public int getCallTimeout() {
+        return callTimeout;
+    }
+
+    /**
+     * Get the max retries.
+     *
+     * @return max retries
+     */
+    public int getMaxRetries() {
+        return maxRetries;
     }
 
     /**

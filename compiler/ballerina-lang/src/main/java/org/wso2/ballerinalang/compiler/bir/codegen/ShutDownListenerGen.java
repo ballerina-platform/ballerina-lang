@@ -22,8 +22,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 
-import java.util.Map;
-
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -34,10 +32,11 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_REGISTRY_VARIABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_REGISTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUNTIME_REGISTRY;
@@ -49,11 +48,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
  * @since 2.0.0
  */
 public class ShutDownListenerGen {
-    void generateShutdownSignalListener(String initClass, Map<String, byte[]> jarEntries) {
+
+    void generateShutdownSignalListener(String initClass, JarEntries jarEntries) {
         String innerClassName = initClass + "$SignalListener";
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);
-        FieldVisitor fv = cw.visitField(ACC_PRIVATE , RUNTIME_REGISTRY_VARIABLE,
+        cw.visit(V17, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);
+        FieldVisitor fv = cw.visitField(ACC_PRIVATE, RUNTIME_REGISTRY_VARIABLE,
                 GET_RUNTIME_REGISTRY, null, null);
         fv.visitEnd();
 
@@ -64,7 +64,7 @@ public class ShutDownListenerGen {
         genRunMethod(initClass, innerClassName, cw);
 
         cw.visitEnd();
-        jarEntries.put(innerClassName + ".class", cw.toByteArray());
+        jarEntries.put(innerClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
     }
 
     private void genConstructor(String innerClassName, ClassWriter cw) {
@@ -74,8 +74,7 @@ public class ShutDownListenerGen {
         mv.visitMethodInsn(INVOKESPECIAL, JAVA_THREAD, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
-        mv.visitFieldInsn(PUTFIELD, innerClassName , RUNTIME_REGISTRY_VARIABLE,
-                GET_RUNTIME_REGISTRY);
+        mv.visitFieldInsn(PUTFIELD, innerClassName, RUNTIME_REGISTRY_VARIABLE, GET_RUNTIME_REGISTRY);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_INIT_METHOD, innerClassName);
         mv.visitEnd();
@@ -84,11 +83,11 @@ public class ShutDownListenerGen {
     private void genRunMethod(String initClass, String innerClassName, ClassWriter cw) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "run", VOID_METHOD_DESC, null, null);
         mv.visitCode();
+        // Create a scheduler. A new scheduler is used here, to make the stop function to not
+        // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, innerClassName , RUNTIME_REGISTRY_VARIABLE,
-                GET_RUNTIME_REGISTRY);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP_METHOD,
-                INIT_RUNTIME_REGISTRY, false);
+        mv.visitFieldInsn(GETFIELD, innerClassName, RUNTIME_REGISTRY_VARIABLE, GET_RUNTIME_REGISTRY);
+        mv.visitMethodInsn(INVOKESTATIC, initClass, CURRENT_MODULE_STOP, JvmSignatures.CURRENT_MODULE_STOP, false);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, "run", innerClassName);
         mv.visitEnd();

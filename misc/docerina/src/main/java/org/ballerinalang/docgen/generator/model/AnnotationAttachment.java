@@ -17,6 +17,8 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.List;
+
 /**
  * Represent documentation for an Annotation Attachment.
  */
@@ -28,9 +30,10 @@ public class AnnotationAttachment extends Construct {
     @Expose
     public String version;
 
-    public AnnotationAttachment(String name, String description, boolean isDeprecated, String orgName,
+    public AnnotationAttachment(String name, String description, List<String> descriptionSections,
+                                boolean isDeprecated, String orgName,
                                 String moduleName, String version) {
-        super(name, description, isDeprecated);
+        super(name, description, descriptionSections, isDeprecated);
         this.orgName = orgName;
         this.version = version;
         this.moduleName = moduleName;

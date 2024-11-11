@@ -16,14 +16,14 @@
 
 import ballerina/test;
 import largeMethods.functions as f;
-import largeMethods.records as r;
 import largeMethods.objects as o;
 
 public function main() {
     test:assertTrue(checkpanic f:largeMethod());
     boolean|error largeMethodWithCheckResult = f:largeMethodWithCheck();
     test:assertTrue(largeMethodWithCheckResult is error);
-    r:testLargeRecord();
     o:largeClass largeObject = new();
     largeObject.validate();
+    f:testFunctionWithWorkers();
+    f:testInvalidRegExp();
 }

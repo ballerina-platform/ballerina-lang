@@ -22,33 +22,37 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.MapValue;
 
 import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for MapValue insertion/manipulation.
  *
  * @since 0.995.0
  */
-public class MapUtils {
+public final class MapUtils {
+
+    private MapUtils() {
+    }
 
     public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value) {
-        updateMapValue(mapValue.getType(), mapValue, fieldName, value);
+        updateMapValue(TypeUtils.getImpliedType(mapValue.getType()), mapValue, fieldName, value);
     }
 
     public static void handleInherentTypeViolatingMapUpdate(Object value, BMapType mapType) {
@@ -61,12 +65,13 @@ public class MapUtils {
 
         throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                                       BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_MAP_INSERTION,
+                                       ErrorHelper.getErrorDetails(ErrorCodes.INVALID_MAP_INSERTION,
                                                                                expType, valuesType));
     }
 
-    public static boolean handleInherentTypeViolatingRecordUpdate(MapValue mapValue, BString fieldName, Object value,
-                                                                  BRecordType recType, boolean initialValue) {
+    public static boolean handleInherentTypeViolatingRecordUpdate(
+            MapValue<?, ?> mapValue, BString fieldName, Object value,
+            BRecordType recType, boolean initialValue) {
         Field recField = recType.getFields().get(fieldName.getValue());
         Type recFieldType;
 
@@ -79,8 +84,8 @@ public class MapUtils {
 
                 throw ErrorCreator.createError(
                         getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.RECORD_INVALID_READONLY_FIELD_UPDATE,
-                                                             fieldName, recType));
+                        ErrorHelper.getErrorDetails(ErrorCodes.RECORD_INVALID_READONLY_FIELD_UPDATE,
+                                                             fieldName, mapValue.getType()));
             }
 
             // If it can be updated, use it.
@@ -95,9 +100,8 @@ public class MapUtils {
         } else {
             // If both of the above conditions fail, the implication is that this is an attempt to insert a
             // value to a non-existent field in a closed record.
-            throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
-                                           BLangExceptionHelper.getErrorDetails(
-                                                      RuntimeErrors.INVALID_RECORD_FIELD_ACCESS, fieldName, recType));
+            throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, ErrorHelper.getErrorDetails(
+                    ErrorCodes.INVALID_RECORD_FIELD_ACCESS, fieldName, mapValue.getType()));
         }
 
         if (TypeChecker.checkIsType(value, recFieldType)) {
@@ -107,16 +111,15 @@ public class MapUtils {
 
         throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                                       BLangExceptionHelper.getErrorDetails(
-                                                  RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType,
+                                       ErrorHelper.getErrorDetails(
+                                                  ErrorCodes.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType,
                                                   valuesType));
     }
 
     private static boolean containsNilType(Type type) {
+        type = TypeUtils.getImpliedType(type);
         int tag = type.getTag();
-        if (tag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            return containsNilType(((BTypeReferenceType) type).getReferredType());
-        } else if (tag == TypeTags.UNION_TAG) {
+        if (tag == TypeTags.UNION_TAG) {
             List<Type> memTypes = ((BUnionType) type).getMemberTypes();
             for (Type memType : memTypes) {
                 if (containsNilType(memType)) {
@@ -124,16 +127,16 @@ public class MapUtils {
                 }
             }
         }
-        return type.getTag() == TypeTags.NULL_TAG;
+        return tag == TypeTags.NULL_TAG;
     }
 
     public static BError createOpNotSupportedError(Type type, String op) {
         return ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                BLangExceptionHelper.getErrorDetails(RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR, op, type));
+                ErrorHelper.getErrorDetails(ErrorCodes.OPERATION_NOT_SUPPORTED_ERROR, op, type));
     }
 
     public static void checkIsMapOnlyOperation(Type mapType, String op) {
-        switch (mapType.getTag()) {
+        switch (TypeUtils.getImpliedType(mapType).getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -145,6 +148,7 @@ public class MapUtils {
 
     private static void updateMapValue(Type mapType, MapValue<BString, Object> mapValue, BString fieldName,
                                        Object value) {
+
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
                 handleInherentTypeViolatingMapUpdate(value, (BMapType) mapType);

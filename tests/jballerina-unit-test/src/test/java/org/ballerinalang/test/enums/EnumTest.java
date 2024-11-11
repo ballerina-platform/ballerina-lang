@@ -78,8 +78,8 @@ public class EnumTest {
         int i = 0;
         validateError(negativeTest, i++, "missing identifier", 19, 1);
         validateError(negativeTest, i++, "missing identifier", 23, 1);
-        validateError(negativeTest, i++, "incompatible types: expected 'string', found 'int'", 37, 16);
-        validateError(negativeTest, i++, "incompatible types: expected 'string', found 'float'", 38, 13);
+        validateError(negativeTest, i++, "incompatible types: expected 'string', found '1'", 37, 16);
+        validateError(negativeTest, i++, "incompatible types: expected 'string', found '2.0f'", 38, 13);
         validateError(negativeTest, i++, "redeclared symbol 'OPEN'", 43, 5);
         validateError(negativeTest, i++, "symbol 'CLOSED' is already initialized with '0'", 50, 5);
         validateError(negativeTest, i++, "symbol 'HOLD' is already initialized with 'HOD'", 51, 5);
@@ -95,8 +95,8 @@ public class EnumTest {
         validateError(negativeTest, i++, "symbol 'A' is already initialized", 74, 5);
         validateError(negativeTest, i++, "expression is not a constant expression", 75, 1);
         validateError(negativeTest, i++, "missing expression", 75, 1);
-        validateError(negativeTest, i++, "illegal cyclic reference '[CYCLIC1, CYCLIC2]'", 79, 15);
-        validateError(negativeTest, i++, "illegal cyclic reference '[D, E]'", 83, 18);
+        validateError(negativeTest, i++, "illegal cyclic reference '[CYCLIC1, CYCLIC2]'", 78, 5);
+        validateError(negativeTest, i++, "illegal cyclic reference '[D, E]'", 82, 1);
         validateError(negativeTest, i++, "symbol 'D' is already initialized", 86, 5);
         validateError(negativeTest, i++, "symbol 'E' is already initialized", 87, 5);
         assertEquals(negativeTest.getErrorCount(), i);

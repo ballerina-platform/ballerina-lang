@@ -416,13 +416,13 @@ function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError
     EvenNumberGenerator evenGen = new();
     stream<int, error> evenNumberStream = new(evenGen);
 
-    map<int> map1 = map from var item in (from var integer in evenNumberStream select integer)
+    map<int> map1 = map from var item in (stream from var integer in evenNumberStream select integer)
                         select [item.toBalString(), item];
 
-    table<ResultValue> table1 = table key() from var item in (from var integer in evenNumberStream select integer)
+    table<ResultValue> table1 = table key() from var item in (stream from var integer in evenNumberStream select integer)
                                     select {value: item};
 
-    table<NumberRecord> key(id) table2 = table key(id) from var item in (from var integer in evenNumberStream select integer)
+    table<NumberRecord> key(id) table2 = table key(id) from var item in (stream from var integer in evenNumberStream select integer)
                                             select {id: item, value: item.toBalString()};
 
     map<int>|error map2 = map from var item in (map from var firstNo in [1, 4, 4, 10]

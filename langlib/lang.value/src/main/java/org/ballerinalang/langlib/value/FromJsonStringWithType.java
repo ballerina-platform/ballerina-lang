@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.JsonParser;
 
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 
 /**
  * Extern function lang.values:fromJsonWithType.
@@ -32,18 +32,13 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  *
  * @since 2.0
  */
-public class FromJsonStringWithType {
+public final class FromJsonStringWithType {
+
+    private FromJsonStringWithType() {}
 
     public static Object fromJsonStringWithType(BString value, BTypedesc t) {
-
-        String str = value.getValue();
         try {
-            if (str.equals("null")) {
-                return FromJsonWithType.fromJsonWithType(null, t);
-            } else {
-                Object jsonFromString = JsonParser.parse(str);
-                return FromJsonWithType.fromJsonWithType(jsonFromString, t);
-            }
+            return JsonParser.parse(value.getValue(), t.getDescribingType());
         } catch (BError e) {
             return ErrorCreator.createError(VALUE_LANG_LIB_CONVERSION_ERROR,
                                             StringUtils.fromString(e.getMessage()));

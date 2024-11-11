@@ -12,4 +12,6 @@ Running Tests
 
 		2 passing
 		0 failing
-		0 skipped
+		0 skipped
+
+		Test execution time :*****s

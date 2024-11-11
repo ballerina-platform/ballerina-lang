@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.ISOLATED_KEYWORD;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.PUBLIC_KEYWORD;
@@ -164,13 +163,12 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
 
     private List<Diff> compareFunctionParams() {
         List<Diff> paramDiffs = new ArrayList<>();
-        List<ParameterNode> newParams = newNode.functionSignature().parameters().stream().collect(Collectors.toList());
-        List<ParameterNode> oldParams = oldNode.functionSignature().parameters().stream().collect(Collectors.toList());
+        List<ParameterNode> newParams = newNode.functionSignature().parameters().stream().toList();
+        List<ParameterNode> oldParams = oldNode.functionSignature().parameters().stream().toList();
 
         ParamListComparator paramComparator = new ParamListComparator(newParams, oldParams);
-        paramComparator.computeDiff().ifPresent(diff -> {
-            paramDiffs.addAll(extractTerminalDiffs(diff, new LinkedList<>()));
-        });
+        paramComparator.computeDiff().ifPresent(diff ->
+            paramDiffs.addAll(extractTerminalDiffs(diff, new LinkedList<>())));
 
         return paramDiffs;
     }

@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -33,18 +33,18 @@ import java.util.Collections;
 public class STQueryExpressionNode extends STExpressionNode {
     public final STNode queryConstructType;
     public final STNode queryPipeline;
-    public final STNode selectClause;
+    public final STNode resultClause;
     public final STNode onConflictClause;
 
     STQueryExpressionNode(
             STNode queryConstructType,
             STNode queryPipeline,
-            STNode selectClause,
+            STNode resultClause,
             STNode onConflictClause) {
         this(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                resultClause,
                 onConflictClause,
                 Collections.emptyList());
     }
@@ -52,27 +52,28 @@ public class STQueryExpressionNode extends STExpressionNode {
     STQueryExpressionNode(
             STNode queryConstructType,
             STNode queryPipeline,
-            STNode selectClause,
+            STNode resultClause,
             STNode onConflictClause,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.QUERY_EXPRESSION, diagnostics);
         this.queryConstructType = queryConstructType;
         this.queryPipeline = queryPipeline;
-        this.selectClause = selectClause;
+        this.resultClause = resultClause;
         this.onConflictClause = onConflictClause;
 
         addChildren(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                resultClause,
                 onConflictClause);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STQueryExpressionNode(
                 this.queryConstructType,
                 this.queryPipeline,
-                this.selectClause,
+                this.resultClause,
                 this.onConflictClause,
                 diagnostics);
     }
@@ -80,12 +81,12 @@ public class STQueryExpressionNode extends STExpressionNode {
     public STQueryExpressionNode modify(
             STNode queryConstructType,
             STNode queryPipeline,
-            STNode selectClause,
+            STNode resultClause,
             STNode onConflictClause) {
         if (checkForReferenceEquality(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                resultClause,
                 onConflictClause)) {
             return this;
         }
@@ -93,11 +94,12 @@ public class STQueryExpressionNode extends STExpressionNode {
         return new STQueryExpressionNode(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                resultClause,
                 onConflictClause,
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QueryExpressionNode(this, position, parent);
     }

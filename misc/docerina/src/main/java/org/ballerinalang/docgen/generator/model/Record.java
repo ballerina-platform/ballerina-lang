@@ -29,9 +29,9 @@ public class Record extends Construct {
     @Expose
     public boolean isClosed;
 
-    public Record(String name, String description, boolean isDeprecated, boolean isClosed,
-                  List<DefaultableVariable> fields) {
-        super(name, description, isDeprecated);
+    public Record(String name, String description, List<String> descriptionSections, boolean isDeprecated,
+                  boolean isClosed, List<DefaultableVariable> fields) {
+        super(name, description, descriptionSections, isDeprecated);
         this.isClosed = isClosed;
         this.fields = fields;
     }

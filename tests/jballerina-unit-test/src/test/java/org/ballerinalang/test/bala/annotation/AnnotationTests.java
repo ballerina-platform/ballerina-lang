@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -79,6 +78,11 @@ public class AnnotationTests {
     @Test
     public void testAnnotationsOnTupleFields() {
         BRunUtil.invoke(result, "testAnnotOnTupleFields");
+    }
+
+    @Test
+    public void testConstAnnotationAccess() {
+        BRunUtil.invoke(result, "testConstAnnotationAccess");
     }
 
     @Test(description = "Test the deprecated construct from external module")
@@ -128,6 +132,11 @@ public class AnnotationTests {
     @Test
     public void testAnnotOnBoundMethod() {
         BRunUtil.invoke(result, "testAnnotOnBoundMethod");
+    }
+
+    @Test
+    public void testAnnotationWithReferredType() {
+        BRunUtil.invoke(result, "testAnnotationsOnTypeRefTypes");
     }
 
     @Test
@@ -273,10 +282,7 @@ public class AnnotationTests {
         Assert.assertEquals(mapValue.size(), 1);
         Assert.assertEquals(mapValue.get("i").value, 1L);
         BType type = constAttachmentSymbol.attachmentValueSymbol.type;
-        Assert.assertEquals(type.tag, TypeTags.INTERSECTION);
-        BIntersectionType intersectionType = (BIntersectionType) type;
-        BType effectiveType = intersectionType.effectiveType;
-        Assert.assertEquals(effectiveType.tag, TypeTags.RECORD);
+        Assert.assertEquals(type.tag, TypeTags.RECORD);
 
         params = detachMethod.symbol.params;
         annotationAttachmentSymbols = params.get(0).getAnnotations();
@@ -298,8 +304,6 @@ public class AnnotationTests {
             Assert.assertEquals(mapValue.size(), 1);
             Assert.assertTrue(members.remove(mapValue.get("i").value));
             type = constAttachmentSymbol.attachmentValueSymbol.type;
-            Assert.assertEquals(type.tag, TypeTags.INTERSECTION);
-            type = ((BIntersectionType) type).effectiveType;
             Assert.assertEquals(type.tag, TypeTags.RECORD);
         }
     }
@@ -642,5 +646,6 @@ public class AnnotationTests {
     @AfterClass
     public void tearDown() {
         result = null;
+        birTestResult = null;
     }
 }

@@ -730,19 +730,12 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         //  stream from...
         //  from...
         // In such cases, we take the member type
-        switch (typeSymbol.get().typeKind()) {
-            case TABLE:
-                TableTypeSymbol tableType = (TableTypeSymbol) typeSymbol.get();
-                return Optional.of(tableType.rowTypeParameter());
-            case STREAM:
-                StreamTypeSymbol streamType = (StreamTypeSymbol) typeSymbol.get();
-                return Optional.of(streamType.typeParameter());
-            case ARRAY:
-                ArrayTypeSymbol arrayType = (ArrayTypeSymbol) typeSymbol.get();
-                return Optional.of(arrayType.memberTypeDescriptor());
-            default:
-                return typeSymbol;
-        }
+        return switch (typeSymbol.get().typeKind()) {
+            case TABLE -> Optional.of(((TableTypeSymbol) typeSymbol.get()).rowTypeParameter());
+            case STREAM -> Optional.of(((StreamTypeSymbol) typeSymbol.get()).typeParameter());
+            case ARRAY -> Optional.of(((ArrayTypeSymbol) typeSymbol.get()).memberTypeDescriptor());
+            default -> typeSymbol;
+        };
     }
 
     //    @Override

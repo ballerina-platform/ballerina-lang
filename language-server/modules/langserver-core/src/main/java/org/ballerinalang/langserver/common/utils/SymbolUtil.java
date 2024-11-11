@@ -41,13 +41,13 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.completions.CompletionSearchProvider;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -56,7 +56,7 @@ import javax.annotation.Nonnull;
  *
  * @since 2.0.0
  */
-public class SymbolUtil {
+public final class SymbolUtil {
 
     public static final String SELF_KW = "self";
     
@@ -219,34 +219,22 @@ public class SymbolUtil {
         if (symbol == null) {
             return Optional.empty();
         }
-        switch (symbol.kind()) {
-            case TYPE_DEFINITION:
-                return Optional.ofNullable(((TypeDefinitionSymbol) symbol).typeDescriptor());
-            case VARIABLE:
-                return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor());
-            case PARAMETER:
-                return Optional.ofNullable(((ParameterSymbol) symbol).typeDescriptor());
-            case ANNOTATION:
-                return ((AnnotationSymbol) symbol).typeDescriptor();
-            case FUNCTION:
-            case METHOD:
-                return Optional.ofNullable(((FunctionSymbol) symbol).typeDescriptor());
-            case CONSTANT:
-            case ENUM_MEMBER:
-                return Optional.ofNullable(((ConstantSymbol) symbol).typeDescriptor());
-            case CLASS:
-                return Optional.of((ClassSymbol) symbol);
-            case RECORD_FIELD:
-                return Optional.ofNullable(((RecordFieldSymbol) symbol).typeDescriptor());
-            case OBJECT_FIELD:
-                return Optional.of(((ObjectFieldSymbol) symbol).typeDescriptor());
-            case CLASS_FIELD:
-                return Optional.of(((ClassFieldSymbol) symbol).typeDescriptor());
-            case TYPE:
-                return Optional.of((TypeSymbol) symbol);
-            default:
-                return Optional.empty();
-        }
+        return switch (symbol.kind()) {
+            case TYPE_DEFINITION -> Optional.ofNullable(((TypeDefinitionSymbol) symbol).typeDescriptor());
+            case VARIABLE -> Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor());
+            case PARAMETER -> Optional.ofNullable(((ParameterSymbol) symbol).typeDescriptor());
+            case ANNOTATION -> ((AnnotationSymbol) symbol).typeDescriptor();
+            case FUNCTION,
+                 METHOD -> Optional.ofNullable(((FunctionSymbol) symbol).typeDescriptor());
+            case CONSTANT,
+                 ENUM_MEMBER -> Optional.ofNullable(((ConstantSymbol) symbol).typeDescriptor());
+            case CLASS -> Optional.of((ClassSymbol) symbol);
+            case RECORD_FIELD -> Optional.ofNullable(((RecordFieldSymbol) symbol).typeDescriptor());
+            case OBJECT_FIELD -> Optional.of(((ObjectFieldSymbol) symbol).typeDescriptor());
+            case CLASS_FIELD -> Optional.of(((ClassFieldSymbol) symbol).typeDescriptor());
+            case TYPE -> Optional.of((TypeSymbol) symbol);
+            default -> Optional.empty();
+        };
     }
 
     /**
@@ -441,21 +429,44 @@ public class SymbolUtil {
         if (prefix.isEmpty()) {
             return Collections.emptyList();
         }
+
+        Map<String, Symbol> symbolMapWithoutPrefix = new HashMap<>();
+        Map<String, Symbol> symbolMapWithPrefix = new HashMap<>();
+        for (Symbol symbol : symbolList) {
+            if (symbol.getName().isEmpty()) {
+                continue;
+            }
+            String symbolName = symbol.getName().get();
+            symbolMapWithoutPrefix.put(symbolName, symbol);
+
+            if (moduleId.modulePrefix().isEmpty()) {
+                symbolMapWithPrefix.put(moduleId.moduleName() + ":" + symbolName, symbol);
+            } else {
+                symbolMapWithPrefix.put(moduleId.modulePrefix() + ":" + symbolName, symbol);
+            }
+        }
+
         CompletionSearchProvider completionSearchProvider = CompletionSearchProvider
                 .getInstance(context.languageServercontext());
         if (!completionSearchProvider.checkModuleIndexed(moduleId)) {
-            completionSearchProvider.indexModule(moduleId, symbolList.stream().map(symbol -> symbol.getName().get())
-                    .collect(Collectors.toList()));
+            completionSearchProvider.indexModuleAndModuleSymbolNames(moduleId, symbolList.stream()
+                    .map(symbol -> symbol.getName().get())
+                    .toList(), new ArrayList<>(symbolMapWithPrefix.keySet()));
         }
 
         List<String> stringList = completionSearchProvider.getSuggestions(prefix);
 
-        Map<String, Symbol> symbolMap = new HashMap<>();
-        for (Symbol symbol : symbolList) {
-            symbolMap.put(symbol.getName().get(), symbol);
+        if (symbolMapWithoutPrefix.entrySet().stream().anyMatch(stringSymbolEntry -> stringList.contains(
+                stringSymbolEntry.getKey().toLowerCase()))) {
+            return getFilteredList(symbolMapWithoutPrefix, stringList);
+        } else {
+            return getFilteredList(symbolMapWithPrefix, stringList);
         }
-        return symbolMap.entrySet().stream().filter(stringSymbolEntry -> stringList.contains(stringSymbolEntry.getKey()
-                        .toLowerCase()))
-                .map(Map.Entry::getValue).collect(Collectors.toList());
+    }
+
+    private static List<Symbol> getFilteredList(Map<String, Symbol> symbolMap, List<String> stringList) {
+        return symbolMap.entrySet().stream().filter(stringSymbolEntry ->
+                        stringList.contains(stringSymbolEntry.getKey().toLowerCase())).map(Map.Entry::getValue)
+                .toList();
     }
 }

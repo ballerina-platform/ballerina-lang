@@ -21,9 +21,9 @@ package io.ballerina.runtime.observability.metrics;
  * Defines the types of the metrics supported.
  * @since 0.980.0
  */
-public class MetricConstants {
+public final class MetricConstants {
 
-    private MetricConstants(){}
+    private MetricConstants() {}
 
     public static final String COUNTER = "counter";
     public static final String GAUGE = "gauge";

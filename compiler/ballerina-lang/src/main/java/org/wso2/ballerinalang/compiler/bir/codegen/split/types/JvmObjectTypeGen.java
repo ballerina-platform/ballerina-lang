@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
@@ -62,9 +63,10 @@ import static org.objectweb.asm.Opcodes.L2I;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLIENT_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
@@ -89,6 +91,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.POPULATE_ATTACHED_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RESOURCE_METHOD_TYPE_ARRAY_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RESOURCE_METHOD_TYPE_IMPL_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_METHODS;
@@ -119,12 +122,12 @@ public class JvmObjectTypeGen {
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
         this.objectTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        this.objectTypesCw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, objectTypesClass, null, OBJECT, null);
+        this.objectTypesCw.visit(V17, ACC_PUBLIC + ACC_SUPER, objectTypesClass, null, OBJECT, null);
     }
 
-    public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, Map<String, byte[]> jarEntries) {
+    public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JarEntries jarEntries) {
         objectTypesCw.visitEnd();
-        jarEntries.put(objectTypesClass + ".class", jvmPackageGen.getBytes(objectTypesCw, module));
+        jarEntries.put(objectTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(objectTypesCw, module));
     }
 
     /**
@@ -166,9 +169,9 @@ public class JvmObjectTypeGen {
         addObjectFields(mv, methodName, bType.fields);
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;
         addObjectInitFunction(mv, objectTypeSymbol.generatedInitializerFunc, bType, indexMap,
-                "$init$", "setGeneratedInitializer", symbolTable);
+                "$init$",  symbolTable, true);
         addObjectInitFunction(mv, objectTypeSymbol.initializerFunc, bType, indexMap, "init",
-                "setInitializer", symbolTable);
+                symbolTable, false);
         addObjectAttachedFunctions(cw, mv, fieldName, objectTypeSymbol.attachedFuncs, bType,
                 symbolTable);
         addResourceMethods(cw, mv, fieldName, objectTypeSymbol.attachedFuncs, bType,
@@ -209,8 +212,7 @@ public class JvmObjectTypeGen {
             mv.visitVarInsn(ALOAD, 0);
         }
         // Set the fields of the object
-        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setMethods",
-                SET_METHODS, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setMethods", SET_METHODS, false);
     }
 
     private int splitObjectAttachedFunctions(ClassWriter cw, String methodName,
@@ -267,9 +269,9 @@ public class JvmObjectTypeGen {
         return methodCount;
     }
 
-    private void addObjectInitFunction(MethodVisitor mv, BAttachedFunction initFunction,
-                                       BObjectType objType, BIRVarToJVMIndexMap indexMap, String funcName,
-                                       String initializerFuncName, SymbolTable symbolTable) {
+    private void addObjectInitFunction(MethodVisitor mv, BAttachedFunction initFunction, BObjectType objType,
+                                       BIRVarToJVMIndexMap indexMap, String funcName,
+                                       SymbolTable symbolTable, boolean isGeneratedInit) {
 
         if (initFunction == null || !initFunction.funcName.value.contains(funcName)) {
             return;
@@ -283,8 +285,12 @@ public class JvmObjectTypeGen {
         mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
         mv.visitInsn(DUP);
         mv.visitInsn(POP);
-        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, initializerFuncName,
-                METHOD_TYPE_IMPL_PARAM, false);
+        if (isGeneratedInit) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setGeneratedInitMethod",
+                    METHOD_TYPE_IMPL_PARAM, false);
+        } else {
+            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setInitMethod", SET_INIT_METHOD, false);
+        }
     }
 
     private void addResourceMethods(ClassWriter cw, MethodVisitor mv, String fieldName,
@@ -381,7 +387,7 @@ public class JvmObjectTypeGen {
     }
 
     /**
-     * Create a attached function information for objects.
+     * Create an attached function information for objects.
      *
      * @param mv           method visitor
      * @param attachedFunc object attached function

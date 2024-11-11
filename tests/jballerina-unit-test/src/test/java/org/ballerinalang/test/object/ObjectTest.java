@@ -43,20 +43,17 @@ public class ObjectTest {
             "cannot use 'check' in the default expression of a record field";
     private static final String INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT =
             "cannot use 'check' in an object field initializer of an object with no 'init' method";
+    private static final String CANNOT_ASSIGN_TO_FINAL_SELF = "cannot assign a value to final 'self'";
 
     private CompileResult checkInInitializerResult;
     private CompileResult checkFunctionReferencesResult;
+    private CompileResult checkObjectWithDefaultValuesResult;
 
     @BeforeClass
     public void setUp() {
         checkInInitializerResult = BCompileUtil.compile("test-src/object/object_field_initializer_with_check.bal");
         checkFunctionReferencesResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
-    }
-
-    @AfterClass
-    public void tearDown() {
-        checkInInitializerResult = null;
-        checkFunctionReferencesResult = null;
+        checkObjectWithDefaultValuesResult = BCompileUtil.compile("test-src/object/object-with-defaultable-field.bal");
     }
 
     @Test(description = "Test Basic object as struct")
@@ -132,8 +129,7 @@ public class ObjectTest {
 
     @Test(description = "Test object with defaultable field in init function")
     public void testObjectWithDefaultableField() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/object-with-defaultable-field.bal");
-        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectWithSimpleInit");
+        BArray returns = (BArray) BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testObjectWithSimpleInit");
 
         Assert.assertEquals(returns.size(), 4);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -511,6 +507,16 @@ public class ObjectTest {
                 19, 5);
         BAssertUtil.validateError(result, 1, "object 'init' method cannot have an 'external' implementation",
                 23, 5);
+    }
+
+    @Test
+    public void testObjectSelfBeingImplicitlyFinal() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_self_final_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, CANNOT_ASSIGN_TO_FINAL_SELF, 25, 9);
+        BAssertUtil.validateError(result, index++, CANNOT_ASSIGN_TO_FINAL_SELF, 40, 9);
+        BAssertUtil.validateError(result, index++, CANNOT_ASSIGN_TO_FINAL_SELF, 47, 13);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 
     @Test(description = "Test nillable initialization")
@@ -901,8 +907,18 @@ public class ObjectTest {
                 " with the return type of the 'init' method: expected 'MyError?', found 'error'", 226, 51);
         BAssertUtil.validateWarning(result, i++, "unused variable 'a'", 233, 5);
         BAssertUtil.validateWarning(result, i++, "unused variable 'b'", 234, 5);
-        Assert.assertEquals(result.getErrorCount(), i - 3);
-        Assert.assertEquals(result.getWarnCount(), 3);
+        BAssertUtil.validateError(result, i++, "cannot use 'check' in an object field initializer of an object with " +
+                "no 'init' method", 242, 14);
+        BAssertUtil.validateWarning(result, i++, "invalid usage of the 'check' expression operator: no expression " +
+                "type is equivalent to error type", 242, 20);
+        BAssertUtil.validateError(result, i++, "cannot use 'check' in an object field initializer of an object with " +
+                "no 'init' method", 243, 14);
+        BAssertUtil.validateWarning(result, i++, "invalid usage of the 'check' expression operator: no expression " +
+                "type is equivalent to error type", 247, 20);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 248, 14);
+        Assert.assertEquals(result.getErrorCount(), i - 5);
+        Assert.assertEquals(result.getWarnCount(), 5);
     }
 
     @Test(dataProvider = "checkInObjectFieldInitializerTests")
@@ -934,5 +950,21 @@ public class ObjectTest {
     public void testNonPublicSymbolsWarningInServiceClass() {
         CompileResult result = BCompileUtil.compile("test-src/object/service_class_decl_with_non_public_symbols.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testClassWithModuleLevelVarAsDefaultValue() {
+        BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testClassWithModuleLevelVarAsDefaultValue");
+    }
+
+    @Test
+    public void testObjectConstructorWithModuleLevelVarAsDefaultValue() {
+        BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testObjectConstructorWithModuleLevelVarAsDefaultValue");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        checkFunctionReferencesResult = null;
+        checkInInitializerResult = null;
     }
 }

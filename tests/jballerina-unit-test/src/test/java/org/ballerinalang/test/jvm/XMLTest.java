@@ -74,14 +74,14 @@ public class XMLTest {
                 "<root xmlns=\"http://ballerina.com/\" " +
                         "xmlns:ns0=\"http://ballerina.com/a\" ns0:id=\"456\">" +
                         "<foo>123</foo>" +
-                        "<bar xmlns:ns1=\"http://ballerina.com/c\" ns1:status=\"complete\"></bar></root>");
+                        "<bar xmlns:ns1=\"http://ballerina.com/c\" ns1:status=\"complete\"/></root>");
 
         Assert.assertTrue(returns.get(1) instanceof BXml);
         BXmlSequence seq = (BXmlSequence) returns.get(1);
         Assert.assertEquals(seq.toString(),
                 "<foo xmlns=\"http://ballerina.com/\">123</foo>" +
                         "<bar xmlns=\"http://ballerina.com/\" " +
-                        "xmlns:ns1=\"http://ballerina.com/c\" ns1:status=\"complete\"></bar>");
+                        "xmlns:ns1=\"http://ballerina.com/c\" ns1:status=\"complete\"/>");
 
         BArray items = (BArray) seq.value();
         Assert.assertEquals(items.size(), 2);

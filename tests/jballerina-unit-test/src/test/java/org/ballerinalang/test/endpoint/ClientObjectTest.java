@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -133,5 +134,10 @@ public class ClientObjectTest {
                 String.format(doubleDeclMessage, "$anonType$_1.a"), 196, 25);
         BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol '$anonType$_2.a'", 206, 25);
         Assert.assertEquals(compileResult.getErrorCount(), errIdx);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        remoteBasic = null;
     }
 }

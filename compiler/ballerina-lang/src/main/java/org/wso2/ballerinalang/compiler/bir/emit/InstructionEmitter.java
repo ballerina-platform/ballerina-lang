@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.emit;
 
+import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
@@ -39,6 +40,7 @@ import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitSpaces;
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitTabs;
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitValue;
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitVarRef;
+import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitVarRefs;
 import static org.wso2.ballerinalang.compiler.bir.emit.TypeEmitter.emitTypeRef;
 
 /**
@@ -46,7 +48,11 @@ import static org.wso2.ballerinalang.compiler.bir.emit.TypeEmitter.emitTypeRef;
  *
  * @since 1.2.0
  */
-class InstructionEmitter {
+final class InstructionEmitter {
+
+    private static final byte INITIAL_VALUE_COUNT = 10;
+
+    private InstructionEmitter() {}
 
     static String emitInstructions(List<? extends BIRInstruction> instructions, int tabs) {
 
@@ -68,65 +74,65 @@ class InstructionEmitter {
             return emitInsUnaryOp((BIRNonTerminator.UnaryOP) ins, tabs);
         }
 
-        switch (kind) {
-            case CONST_LOAD:
-                return emitInsConstantLoad((BIRNonTerminator.ConstantLoad) ins, tabs);
-            case NEW_STRUCTURE:
-                return emitInsNewMap((BIRNonTerminator.NewStructure) ins, tabs);
-            case NEW_INSTANCE:
-                return emitInsNewInstance((BIRNonTerminator.NewInstance) ins, tabs);
-            case NEW_ARRAY:
-                return emitInsNewArray((BIRNonTerminator.NewArray) ins, tabs);
-            case NEW_ERROR:
-                return emitInsNewError((BIRNonTerminator.NewError) ins, tabs);
-            case FP_LOAD:
-                return emitInsFPLoad((BIRNonTerminator.FPLoad) ins, tabs);
-            case MAP_LOAD:
-            case MAP_STORE:
-            case ARRAY_LOAD:
-            case ARRAY_STORE:
-            case OBJECT_LOAD:
-            case OBJECT_STORE:
-            case XML_ATTRIBUTE_LOAD:
-            case XML_ATTRIBUTE_STORE:
-            case XML_SEQ_LOAD:
-            case STRING_LOAD:
-            case TABLE_LOAD:
-            case TABLE_STORE:
-                return emitInsFieldAccess((BIRNonTerminator.FieldAccess) ins, tabs);
-            case TYPE_CAST:
-                return emitInsTypeCast((BIRNonTerminator.TypeCast) ins, tabs);
-            case IS_LIKE:
-                return emitInsIsLike((BIRNonTerminator.IsLike) ins, tabs);
-            case TYPE_TEST:
-                return emitInsTypeTest((BIRNonTerminator.TypeTest) ins, tabs);
-            case MOVE:
-                return emitInsMove((BIRNonTerminator.Move) ins, tabs);
-            case NEW_XML_ELEMENT:
-                return emitInsNewXMLElement((BIRNonTerminator.NewXMLElement) ins, tabs);
-            case NEW_XML_SEQUENCE:
-                return emitInsNewXMLSequence((BIRNonTerminator.NewXMLSequence) ins, tabs);
-            case NEW_XML_QNAME:
-                return emitInsNewXMLQName((BIRNonTerminator.NewXMLQName) ins, tabs);
-            case NEW_STRING_XML_QNAME:
-                return emitInsNewStringXMLQName((BIRNonTerminator.NewStringXMLQName) ins, tabs);
-            case XML_LOAD_ALL:
-            case XML_SEQ_STORE:
-                return emitInsXMLAccess((BIRNonTerminator.XMLAccess) ins, tabs);
-            case NEW_XML_TEXT:
-                return emitInsNewXMLText((BIRNonTerminator.NewXMLText) ins, tabs);
-            case NEW_XML_COMMENT:
-                return emitInsNewXMLComment((BIRNonTerminator.NewXMLComment) ins, tabs);
-            case NEW_XML_PI:
-                return emitInsNewXMLPI((BIRNonTerminator.NewXMLProcIns) ins, tabs);
-            case NEW_TYPEDESC:
-                return emitInsNewTypeDesc((BIRNonTerminator.NewTypeDesc) ins, tabs);
-            case NEW_TABLE:
-                return emitInsNewTable((BIRNonTerminator.NewTable) ins, tabs);
-            default:
-                throw new IllegalStateException("Not an instruction");
+        return switch (kind) {
+            case CONST_LOAD -> emitInsConstantLoad((BIRNonTerminator.ConstantLoad) ins, tabs);
+            case NEW_STRUCTURE -> emitInsNewMap((BIRNonTerminator.NewStructure) ins, tabs);
+            case NEW_INSTANCE -> emitInsNewInstance((BIRNonTerminator.NewInstance) ins, tabs);
+            case NEW_ARRAY -> emitInsNewArray((BIRNonTerminator.NewArray) ins, tabs);
+            case NEW_ERROR -> emitInsNewError((BIRNonTerminator.NewError) ins, tabs);
+            case FP_LOAD -> emitInsFPLoad((BIRNonTerminator.FPLoad) ins, tabs);
+            case RECORD_DEFAULT_FP_LOAD -> emitInsRecordDefaultFpLoad((BIRNonTerminator.RecordDefaultFPLoad) ins, tabs);
+            case MAP_LOAD, MAP_STORE, ARRAY_LOAD, ARRAY_STORE, OBJECT_LOAD, OBJECT_STORE, XML_ATTRIBUTE_LOAD,
+                    XML_ATTRIBUTE_STORE, XML_SEQ_LOAD, STRING_LOAD, TABLE_LOAD, TABLE_STORE ->
+                    emitInsFieldAccess((BIRNonTerminator.FieldAccess) ins, tabs);
+            case TYPE_CAST -> emitInsTypeCast((BIRNonTerminator.TypeCast) ins, tabs);
+            case IS_LIKE -> emitInsIsLike((BIRNonTerminator.IsLike) ins, tabs);
+            case TYPE_TEST -> emitInsTypeTest((BIRNonTerminator.TypeTest) ins, tabs);
+            case MOVE -> emitInsMove((BIRNonTerminator.Move) ins, tabs);
+            case NEW_XML_ELEMENT -> emitInsNewXMLElement((BIRNonTerminator.NewXMLElement) ins, tabs);
+            case NEW_XML_SEQUENCE -> emitInsNewXMLSequence((BIRNonTerminator.NewXMLSequence) ins, tabs);
+            case NEW_XML_QNAME -> emitInsNewXMLQName((BIRNonTerminator.NewXMLQName) ins, tabs);
+            case NEW_STRING_XML_QNAME -> emitInsNewStringXMLQName((BIRNonTerminator.NewStringXMLQName) ins, tabs);
+            case XML_LOAD_ALL, XML_SEQ_STORE -> emitInsXMLAccess((BIRNonTerminator.XMLAccess) ins, tabs);
+            case NEW_XML_TEXT -> emitInsNewXMLText((BIRNonTerminator.NewXMLText) ins, tabs);
+            case NEW_XML_COMMENT -> emitInsNewXMLComment((BIRNonTerminator.NewXMLComment) ins, tabs);
+            case NEW_XML_PI -> emitInsNewXMLPI((BIRNonTerminator.NewXMLProcIns) ins, tabs);
+            case NEW_TYPEDESC -> emitInsNewTypeDesc((BIRNonTerminator.NewTypeDesc) ins, tabs);
+            case NEW_TABLE -> emitInsNewTable((BIRNonTerminator.NewTable) ins, tabs);
+            default -> emitBIRInstruction(ins.getClass().getSimpleName(), ((BIRAbstractInstruction) ins).lhsOp,
+                    ((BIRAbstractInstruction) ins).getRhsOperands(), tabs);
+        };
+    }
 
-        }
+    private static String emitInsRecordDefaultFpLoad(BIRNonTerminator.RecordDefaultFPLoad ins, int tabs) {
+        String anonLoadIns = "";
+        anonLoadIns += emitTabs(tabs);
+        anonLoadIns += "_";
+        anonLoadIns += emitSpaces(1);
+        anonLoadIns += "=";
+        anonLoadIns += emitSpaces(1);
+        anonLoadIns += emitTypeRef(ins.enclosedType, tabs);
+        anonLoadIns += " Default => ";
+        anonLoadIns += ins.fieldName;
+        anonLoadIns += emitSpaces(1);
+        anonLoadIns += "<";
+        anonLoadIns += emitVarRef(ins.lhsOp);
+        anonLoadIns += ">";
+        return anonLoadIns;
+    }
+
+    private static String emitBIRInstruction(String ins, BIROperand lhsOp, BIROperand[] rhsOperands, int tabs) {
+        String str = "";
+        str += emitTabs(tabs);
+        str += emitVarRef(lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += ins;
+        str += emitSpaces(1);
+        str += emitVarRefs(rhsOperands);
+        str += ";";
+        return str;
     }
 
     private static String emitInsConstantLoad(BIRNonTerminator.ConstantLoad ins, int tabs) {
@@ -155,8 +161,29 @@ class InstructionEmitter {
         nMapStr += "NewMap";
         nMapStr += emitSpaces(1);
         nMapStr += emitVarRef(ins.rhsOp);
+        nMapStr += "{";
+        nMapStr += emitMapValues(ins.initialValues);
+        nMapStr += "}";
         nMapStr += ";";
         return nMapStr;
+    }
+
+    private static String emitMapValues(List<BIRNode.BIRMappingConstructorEntry> initialValues) {
+        if (initialValues.isEmpty()) {
+            return "";
+        }
+        StringBuilder outStr = new StringBuilder();
+        for (int i = 0; i < Math.min(initialValues.size(), INITIAL_VALUE_COUNT); i++) {
+            BIRNode.BIRMappingConstructorEntry mappingEntry = initialValues.get(i);
+            if (mappingEntry instanceof BIRNode.BIRMappingConstructorKeyValueEntry entry) {
+                outStr.append(emitVarRef(entry.keyOp)).append(":").append(emitVarRef(entry.valueOp)).append(",");
+            } else {
+                outStr.append(emitVarRef(((BIRNode.BIRMappingConstructorSpreadFieldEntry) mappingEntry).exprOp))
+                        .append(",");
+            }
+        }
+        return initialValues.size() > INITIAL_VALUE_COUNT ? outStr.append("...").toString()
+                : outStr.substring(0, outStr.length() - 1);
     }
 
     private static String emitInsNewTable(BIRNonTerminator.NewTable ins, int tabs) {
@@ -209,7 +236,7 @@ class InstructionEmitter {
         str += emitSpaces(1);
         str += "newArray";
         str += emitSpaces(1);
-        BType type = Types.getReferredType(ins.type);
+        BType type = Types.getImpliedType(ins.type);
         if (type.tag == TypeTags.TUPLE) {
             str += emitVarRef(ins.typedescOp);
         } else {
@@ -218,8 +245,21 @@ class InstructionEmitter {
         str += "[";
         str += emitVarRef(ins.sizeOp);
         str += "]";
+        str += "{";
+        str += emitArrayValues(ins.values);
+        str += "}";
         str += ";";
         return str;
+    }
+
+    private static String emitArrayValues(List<BIRNode.BIRListConstructorEntry> values) {
+        int operandArraySize = Math.min(INITIAL_VALUE_COUNT, values.size());
+        BIROperand[] valueOperands = new BIROperand[operandArraySize];
+        for (int i = 0; i < operandArraySize; i++) {
+            valueOperands[i] = values.get(i).exprOp;
+        }
+        String result = emitVarRefs(valueOperands);
+        return values.size() > INITIAL_VALUE_COUNT ? result + ",..." : result;
     }
 
     private static String emitInsNewError(BIRNonTerminator.NewError ins, int tabs) {
@@ -267,7 +307,7 @@ class InstructionEmitter {
 
     private static String emitClosureParams(List<BIROperand> closureVars) {
         String str = "";
-        if (closureVars.size() > 0) {
+        if (!closureVars.isEmpty()) {
             str += "(";
             str += closureVars.stream().map(EmitterUtils::emitVarRef).collect(Collectors.joining(","));
             str += ")";
@@ -558,40 +598,44 @@ class InstructionEmitter {
     /////////////// Emit Terminator instructions ////////////////////
     static String emitTerminator(BIRTerminator term, int tabs) {
 
-        switch (term.kind) {
-            case WAIT:
-                return emitWait((BIRTerminator.Wait) term, tabs);
-            case FLUSH:
-                return emitFlush((BIRTerminator.Flush) term, tabs);
-            case WK_RECEIVE:
-                return emitWorkerReceive((BIRTerminator.WorkerReceive) term, tabs);
-            case WK_SEND:
-                return emitWorkerSend((BIRTerminator.WorkerSend) term, tabs);
-            case CALL:
-                return emitCall((BIRTerminator.Call) term, tabs);
-            case ASYNC_CALL:
-                return emitAsyncCall((BIRTerminator.AsyncCall) term, tabs);
-            case BRANCH:
-                return emitBranch((BIRTerminator.Branch) term, tabs);
-            case GOTO:
-                return emitGOTO((BIRTerminator.GOTO) term, tabs);
-            case LOCK:
-                return emitLock((BIRTerminator.Lock) term, tabs);
-            case FIELD_LOCK:
-                return emitFieldLock((BIRTerminator.FieldLock) term, tabs);
-            case UNLOCK:
-                return emitUnlock((BIRTerminator.Unlock) term, tabs);
-            case RETURN:
-                return emitReturn((BIRTerminator.Return) term, tabs);
-            case PANIC:
-                return emitPanic((BIRTerminator.Panic) term, tabs);
-            case FP_CALL:
-                return emitFPCall((BIRTerminator.FPCall) term, tabs);
-            case WAIT_ALL:
-                return emitWaitAll((BIRTerminator.WaitAll) term, tabs);
-            default:
-                throw new IllegalStateException("Not a terminator instruction");
-        }
+        return switch (term.kind) {
+            case WAIT -> emitWait((BIRTerminator.Wait) term, tabs);
+            case FLUSH -> emitFlush((BIRTerminator.Flush) term, tabs);
+            case WK_RECEIVE -> emitWorkerReceive((BIRTerminator.WorkerReceive) term, tabs);
+            case WK_SEND -> emitWorkerSend((BIRTerminator.WorkerSend) term, tabs);
+            case CALL -> emitCall((BIRTerminator.Call) term, tabs);
+            case ASYNC_CALL -> emitAsyncCall((BIRTerminator.AsyncCall) term, tabs);
+            case BRANCH -> emitBranch((BIRTerminator.Branch) term, tabs);
+            case GOTO -> emitGOTO((BIRTerminator.GOTO) term, tabs);
+            case LOCK -> emitLock((BIRTerminator.Lock) term, tabs);
+            case FIELD_LOCK -> emitFieldLock((BIRTerminator.FieldLock) term, tabs);
+            case UNLOCK -> emitUnlock((BIRTerminator.Unlock) term, tabs);
+            case RETURN -> emitReturn(tabs);
+            case PANIC -> emitPanic((BIRTerminator.Panic) term, tabs);
+            case FP_CALL -> emitFPCall((BIRTerminator.FPCall) term, tabs);
+            case WAIT_ALL -> emitWaitAll((BIRTerminator.WaitAll) term, tabs);
+            default -> emitBIRTerminator(term.getClass().getSimpleName(), term.lhsOp, term.getRhsOperands(), tabs,
+                    term.thenBB);
+        };
+    }
+
+    private static String emitBIRTerminator(String ins, BIROperand lhsOp, BIROperand[] rhsOperands, int tabs,
+                                            BIRNode.BIRBasicBlock thenBB) {
+        String str = "";
+        str += emitTabs(tabs);
+        str += emitVarRef(lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += ins;
+        str += emitSpaces(1);
+        str += emitVarRefs(rhsOperands);
+        str += emitSpaces(1);
+        str += "->";
+        str += emitSpaces(1);
+        str += emitBasicBlockRef(thenBB);
+        str += ";";
+        return str;
     }
 
     private static String emitWait(BIRTerminator.Wait term, int tabs) {
@@ -832,18 +876,16 @@ class InstructionEmitter {
 
     private static String emitUnlock(BIRTerminator.Unlock term, int tabs) {
 
-        StringBuilder str = new StringBuilder();
-        str.append(emitTabs(tabs));
-        str.append("unlock");
-        str.append(emitSpaces(1));
-        str.append("->");
-        str.append(emitSpaces(1));
-        str.append(emitBasicBlockRef(term.unlockBB));
-        str.append(";");
-        return str.toString();
+        return emitTabs(tabs) +
+                "unlock" +
+                emitSpaces(1) +
+                "->" +
+                emitSpaces(1) +
+                emitBasicBlockRef(term.unlockBB) +
+                ";";
     }
 
-    private static String emitReturn(BIRTerminator.Return term, int tabs) {
+    private static String emitReturn(int tabs) {
 
         String retStr = "";
         retStr += emitTabs(tabs);

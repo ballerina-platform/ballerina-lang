@@ -60,8 +60,6 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 278, 24);
         validateError(compileResult, index++, "a type compatible with mapping constructor expressions " +
                 "not found in type 'string'", 292, 24);
-        validateError(compileResult, index++, "ambiguous type '[xml, xml]'", 314, 24);
-        validateError(compileResult, index++, "ambiguous type '[string, string]'", 327, 24);
         validateError(compileResult, index++, "redeclared symbol 'fname'", 351, 36);
         validateError(compileResult, index++, "redeclared symbol 'age'", 364, 21);
         validateError(compileResult, index++, "redeclared symbol 'age'", 381, 44);
@@ -117,6 +115,20 @@ public class QueryNegativeTests {
     }
 
     @Test
+    public void testAmbiguousTypesInUnionExpectedType() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/query/query_ambiguous_type_negative.bal");
+        int index = 0;
+        validateError(compileResult, index++, "ambiguous type '[string:Char, string]'", 26, 58);
+        validateError(compileResult, index++, "ambiguous type '[string, string:Char]'", 27, 58);
+        validateError(compileResult, index++, "ambiguous type '[string, string:Char]'", 28, 103);
+        validateError(compileResult, index++, "ambiguous type '[xml, xml:Element]'", 32, 16);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found 'string:Char'", 41, 65);
+        validateError(compileResult, index++, "incompatible types: expected '(stream<int,error?>|string)', found " +
+                "'stream<string>'", 42, 36);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
+    }
+
+    @Test
     public void testFromClauseWithInvalidAssignmentToFinalVar() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query_dataflow_negative.bal");
         int index = 0;
@@ -166,6 +178,26 @@ public class QueryNegativeTests {
         validateWarning(compileResult, index++, "unused variable 'err'", 46, 5);
         validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
                 "type 'never' not allowed here", 48, 17);
+        Assert.assertEquals(compileResult.getDiagnostics().length, index);
+    }
+
+    @Test
+    public void testQueryExpressionWithMismatchedReturnType() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/query/query-with-mismatch-return.bal");
+        int index = 0;
+        validateError(compileResult, index++, "missing non-defaultable required record field 'y'", 39, 16);
+        validateError(compileResult, index++, "missing non-defaultable required record field 'x'", 47, 24);
+        Assert.assertEquals(compileResult.getDiagnostics().length, index);
+    }
+
+    @Test(description = "Test the query actions having select or collect clauses")
+    public void testQueryActionsWithInvalidFinalClause() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/query/query_action_with_final_clause_negative.bal");
+        int index = 0;
+        validateError(compileResult, index++, "select clause in query action", 3, 5);
+        validateError(compileResult, index++, "collect clause in query action", 11, 5);
+        validateError(compileResult, index++, "collect clause in query action", 19, 5);
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 }

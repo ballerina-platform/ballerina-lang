@@ -39,7 +39,8 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class TypeCompletionItemBuilder {
+public final class TypeCompletionItemBuilder {
+
     private TypeCompletionItemBuilder() {
     }
 
@@ -79,7 +80,8 @@ public class TypeCompletionItemBuilder {
         typeDescriptor = (typeDescriptor.isPresent() && typeDescriptor.get().typeKind() == TypeDescKind.TYPE_REFERENCE)
                 ? Optional.of(((TypeReferenceTypeSymbol) typeDescriptor.get()).typeDescriptor()) : typeDescriptor;
 
-        if (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() == null) {
+        if (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() == null || typeDescriptor.get().typeKind() ==
+                TypeDescKind.COMPILATION_ERROR) {
             item.setKind(CompletionItemKind.Unit);
             item.setDetail("type");
             return;

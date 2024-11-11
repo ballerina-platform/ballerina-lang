@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 2,
+    "character": 12
+  },
+  "source": "createUndefinedFunctionInCompoundStatement3.bal",
+  "expected": [
+    {
+      "title": "Create function 'concat(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 1
+            },
+            "end": {
+              "line": 3,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction concat(any a) returns string {\n    return \"\";\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunctionInCompoundStatement3.bal",
+        "range": {
+          "start": {
+            "line": 2,
+            "character": 9
+          },
+          "end": {
+            "line": 2,
+            "character": 18
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 2.0,
+              "character": 9.0
+            },
+            "end": {
+              "line": 2.0,
+              "character": 18.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -17,7 +17,7 @@
   ~ under the License.
   -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-langlib-test-suite">
 
@@ -25,7 +25,7 @@
         <!--<listener class-name="org.ballerinalang.langlib.test.utils.TestEventListener"/>-->
     </listeners>
 
-    <test name="lang-lib-test" parallel="false">
+    <test name="lang-lib-test">
         <parameter name="enableJBallerinaTests" value="true" />
 
         <classes>

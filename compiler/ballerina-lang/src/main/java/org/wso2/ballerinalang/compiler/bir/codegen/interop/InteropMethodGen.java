@@ -34,6 +34,18 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.CatchIns;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JCast;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JErrorEntry;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JFieldBIRFunction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JIConstructorCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethod;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodBIRFunction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodKind;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JavaField;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -98,16 +110,15 @@ import static org.objectweb.asm.Opcodes.T_INT;
 import static org.objectweb.asm.Opcodes.T_LONG;
 import static org.objectweb.asm.Opcodes.T_SHORT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_CODES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_HELPER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.getNextDesugarBBId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING_FOR_ARRAY_INDEX;
@@ -117,7 +128,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRI
  *
  * @since 1.2.0
  */
-public class InteropMethodGen {
+public final class InteropMethodGen {
 
     static void genJFieldForInteropField(JFieldBIRFunction birFunc, ClassWriter classWriter, PackageID birModule,
                                          JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
@@ -142,7 +153,7 @@ public class InteropMethodGen {
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         LabelGenerator labelGen = new LabelGenerator();
         JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, birModule, instGen,
-                jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
+                jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
         mv.visitCode();
 
         Label paramLoadLabel = labelGen.getLabel("param_load");
@@ -153,8 +164,7 @@ public class InteropMethodGen {
         // the JVM method local variable index for each parameter is assigned
         List<BIRNode.BIRFunctionParameter> birFuncParams = new ArrayList<>();
         for (BIRVariableDcl birLocalVarOptional : birFunc.localVars) {
-            if (birLocalVarOptional instanceof BIRNode.BIRFunctionParameter) {
-                BIRNode.BIRFunctionParameter functionParameter = (BIRNode.BIRFunctionParameter) birLocalVarOptional;
+            if (birLocalVarOptional instanceof BIRNode.BIRFunctionParameter functionParameter) {
                 birFuncParams.add(functionParameter);
                 indexMap.addIfNotExists(functionParameter.name.value, functionParameter.type);
             }
@@ -179,12 +189,12 @@ public class InteropMethodGen {
             mv.visitJumpInsn(IFNONNULL, elseBlockLabel);
             Label thenBlockLabel = labelGen.getLabel("receiver_null_check_then");
             mv.visitLabel(thenBlockLabel);
-            mv.visitFieldInsn(GETSTATIC, BAL_ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR", "L" + STRING_VALUE + ";");
-            mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE", "L" + RUNTIME_ERRORS + ";");
+            mv.visitFieldInsn(GETSTATIC, ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR", "L" + STRING_VALUE + ";");
+            mv.visitFieldInsn(GETSTATIC, ERROR_CODES, "JAVA_NULL_REFERENCE", "L" + ERROR_CODES + ";");
             mv.visitInsn(ICONST_0);
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
-            mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
-                    "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";", false);
+            mv.visitMethodInsn(INVOKESTATIC, ERROR_HELPER, "getRuntimeException",
+                    "(L" + STRING_VALUE + ";L" + ERROR_CODES + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";", false);
             mv.visitInsn(ATHROW);
             mv.visitLabel(elseBlockLabel);
         }
@@ -216,9 +226,10 @@ public class InteropMethodGen {
         BIRVariableDcl retVarDcl = new BIRVariableDcl(retType, new Name("$_ret_var_$"), null, VarKind.LOCAL);
         int returnVarRefIndex = indexMap.addIfNotExists(retVarDcl.name.value, retType);
 
-        if (retType.tag == TypeTags.NIL) {
+        int retTypeTag = JvmCodeGenUtil.getImpliedType(retType).tag;
+        if (retTypeTag == TypeTags.NIL) {
             mv.visitInsn(ACONST_NULL);
-        } else if (retType.tag == TypeTags.HANDLE) {
+        } else if (retTypeTag == TypeTags.HANDLE) {
             // Here the corresponding Java method parameter type is 'jvm:RefType'. This has been verified before
             int returnJObjectVarRefIndex = indexMap.addIfNotExists("$_ret_jobject_var_$",
                                                                    jvmPackageGen.symbolTable.anyType);
@@ -241,7 +252,7 @@ public class InteropMethodGen {
         Label retLabel = labelGen.getLabel("return_lable");
         mv.visitLabel(retLabel);
         mv.visitLineNumber(birFunc.pos.lineRange().endLine().line() + 1, retLabel);
-        termGen.genReturnTerm(returnVarRefIndex, birFunc, -1);
+        termGen.genReturnTerm(returnVarRefIndex, birFunc, -1, 0);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, birFunc.name.value, birFunc.javaField.getDeclaringClassName());
         mv.visitEnd();
     }
@@ -256,27 +267,33 @@ public class InteropMethodGen {
         Class<?>[] jMethodParamTypes = jMethod.getParamTypes();
         JType jMethodRetType = JInterop.getJType(jMethod.getReturnType());
 
-        if (jMethodRetType == JType.jVoid && jMethod.isBalEnvAcceptingMethod()) {
+        if (jMethodRetType == JType.J_VOID && jMethod.isBalEnvAcceptingMethod()) {
             jMethodRetType = JType.getJTypeForBType(birFunc.returnVariable.type);
         }
 
         initMethodGen.resetIds();
-        String bbPrefix = WRAPPER_GEN_BB_ID_NAME;
-
-        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, bbPrefix, initMethodGen);
-        BIRBasicBlock retBB = new BIRBasicBlock(getNextDesugarBBId(bbPrefix, initMethodGen));
+        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, initMethodGen);
         BIROperand receiverOp = null;
         List<BIROperand> args = new ArrayList<>();
         List<BIROperand> resourcePathArgs = new ArrayList<>();
+        List<BIROperand> functionArgs = new ArrayList<>();
         List<BIRNode.BIRFunctionParameter> birFuncParams = birFunc.parameters;
 
         int birFuncParamIndex = 0;
+        int bReceiverParamIndex = 0;
+        boolean isJavaInstanceMethod = jMethod.kind == JMethodKind.METHOD && !jMethod.isStatic();
         // Load receiver which is the 0th parameter in the birFunc
-        if (jMethod.kind == JMethodKind.METHOD && !jMethod.isStatic()) {
-            BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
+        if (isJavaInstanceMethod) {
+            int pathParamCount = 0;
+            for (BIRNode.BIRFunctionParameter birFuncParam : birFuncParams) {
+                if (birFuncParam.isPathParameter) {
+                    pathParamCount++;
+                }
+            }
+            bReceiverParamIndex = pathParamCount;
+            BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(bReceiverParamIndex);
             BIROperand argRef = new BIROperand(birFuncParam);
             args.add(argRef);
-            birFuncParamIndex = 1;
         }
 
         JType varArgType = null;
@@ -292,6 +309,10 @@ public class InteropMethodGen {
 
         int paramCount = birFuncParams.size();
         while (birFuncParamIndex < paramCount) {
+            if (birFuncParamIndex == bReceiverParamIndex && isJavaInstanceMethod) {
+                birFuncParamIndex++;
+                continue;
+            }
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
             BType bPType = birFuncParam.type;
             BIROperand argRef = new BIROperand(birFuncParam);
@@ -301,6 +322,14 @@ public class InteropMethodGen {
                     jMethodParamIndex++;
                 }
                 resourcePathArgs.add(argRef);
+                birFuncParamIndex++;
+                continue;
+            }
+            if (jMethod.hasBundledFunctionParams && !birFuncParam.isPathParameter) {
+                if (functionArgs.isEmpty()) {
+                    jMethodParamIndex++;
+                }
+                functionArgs.add(argRef);
                 birFuncParamIndex++;
                 continue;
             }
@@ -345,12 +374,13 @@ public class InteropMethodGen {
 
         BIROperand jRetVarRef = null;
 
-        BIRBasicBlock thenBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, bbPrefix, initMethodGen);
+        BIRBasicBlock thenBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, initMethodGen);
+        BIRBasicBlock retBB = new BIRBasicBlock(getNextDesugarBBId(initMethodGen));
         thenBB.terminator = new BIRTerminator.GOTO(birFunc.pos, retBB);
 
-        if (retType.tag != TypeTags.NIL) {
+        if (JvmCodeGenUtil.getImpliedType(retType).tag != TypeTags.NIL) {
             BIROperand retRef = new BIROperand(birFunc.localVars.get(0));
-            if (JType.jVoid != jMethodRetType) {
+            if (JType.J_VOID != jMethodRetType) {
                 BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(jMethodRetType, new Name("$_ret_jobject_var_$"),
                         null, VarKind.LOCAL);
                 birFunc.localVars.add(retJObjectVarDcl);
@@ -363,9 +393,9 @@ public class InteropMethodGen {
                 thenBB.instructions.add(jToBCast);
             }
 
-            BIRBasicBlock catchBB = new BIRBasicBlock(getNextDesugarBBId(bbPrefix, initMethodGen));
+            BIRBasicBlock catchBB = new BIRBasicBlock(getNextDesugarBBId(initMethodGen));
             JErrorEntry ee = new JErrorEntry(beginBB, thenBB, retRef, catchBB);
-            for (Class exception : birFunc.jMethod.getExceptionTypes()) {
+            for (Class<?> exception : birFunc.jMethod.getExceptionTypes()) {
                 BIRTerminator.Return exceptionRet = new BIRTerminator.Return(birFunc.pos);
                 CatchIns catchIns = new CatchIns();
                 catchIns.errorClass = exception.getName().replace(".", "/");
@@ -382,6 +412,7 @@ public class InteropMethodGen {
             jCall.args = args;
             jCall.receiver = receiverOp;
             jCall.resourcePathArgs = resourcePathArgs;
+            jCall.functionArgs = functionArgs;
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;
             jCall.lhsOp = jRetVarRef;
@@ -395,6 +426,7 @@ public class InteropMethodGen {
             jCall.args = args;
             jCall.receiver = receiverOp;
             jCall.resourcePathArgs = resourcePathArgs;
+            jCall.functionArgs = functionArgs;
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;
             jCall.lhsOp = jRetVarRef;
@@ -412,30 +444,30 @@ public class InteropMethodGen {
         retBB.terminator = new BIRTerminator.Return(birFunc.pos);
     }
 
-    private static boolean isMatchingBAndJType(BType sourceTypes, JType targetType) {
-
-        return (TypeTags.isIntegerTypeTag(sourceTypes.tag) && targetType.jTag == JTypeTags.JLONG) ||
-                (sourceTypes.tag == TypeTags.FLOAT && targetType.jTag == JTypeTags.JDOUBLE) ||
-                (sourceTypes.tag == TypeTags.BOOLEAN && targetType.jTag == JTypeTags.JBOOLEAN);
+    private static boolean isMatchingBAndJType(BType sourceType, JType targetType) {
+        int sourceTypeTag = JvmCodeGenUtil.getImpliedType(sourceType).tag;
+        return (TypeTags.isIntegerTypeTag(sourceTypeTag) && targetType.jTag == JTypeTags.JLONG) ||
+                (sourceTypeTag == TypeTags.FLOAT && targetType.jTag == JTypeTags.JDOUBLE) ||
+                (sourceTypeTag == TypeTags.BOOLEAN && targetType.jTag == JTypeTags.JBOOLEAN);
     }
 
     // These conversions are already validate beforehand, therefore I am just emitting type conversion instructions
     // here. We can improve following logic with a type lattice.
     private static void performWideningPrimitiveConversion(MethodVisitor mv, BType bType, JType jType) {
-
-        if (TypeTags.isIntegerTypeTag(bType.tag) && jType.jTag == JTypeTags.JLONG) {
-            // NOP
-        } else if (bType.tag == TypeTags.FLOAT && jType.jTag == JTypeTags.JDOUBLE) {
-            // NOP
-        } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            mv.visitInsn(I2L);
-        } else if (bType.tag == TypeTags.FLOAT) {
-            if (jType.jTag == JTypeTags.JLONG) {
-                mv.visitInsn(L2D);
-            } else if (jType.jTag == JTypeTags.JFLOAT) {
-                mv.visitInsn(F2D);
-            } else {
-                mv.visitInsn(I2D);
+        int typeTag = JvmCodeGenUtil.getImpliedType(bType).tag;
+        if (!TypeTags.isIntegerTypeTag(typeTag) || jType.jTag != JTypeTags.JLONG) {
+            if (typeTag != TypeTags.FLOAT || jType.jTag != JTypeTags.JDOUBLE) {
+                if (TypeTags.isIntegerTypeTag(typeTag)) {
+                    mv.visitInsn(I2L);
+                } else if (typeTag == TypeTags.FLOAT) {
+                    if (jType.jTag == JTypeTags.JLONG) {
+                        mv.visitInsn(L2D);
+                    } else if (jType.jTag == JTypeTags.JFLOAT) {
+                        mv.visitInsn(F2D);
+                    } else {
+                        mv.visitInsn(I2D);
+                    }
+                }
             }
         }
     }
@@ -459,26 +491,17 @@ public class InteropMethodGen {
             return "[" + getJTypeSignature(eType);
         }
 
-        switch (jType.jTag) {
-            case JTypeTags.JBYTE:
-                return "B";
-            case JTypeTags.JCHAR:
-                return "C";
-            case JTypeTags.JSHORT:
-                return "S";
-            case JTypeTags.JINT:
-                return "I";
-            case JTypeTags.JLONG:
-                return "J";
-            case JTypeTags.JFLOAT:
-                return "F";
-            case JTypeTags.JDOUBLE:
-                return "D";
-            case JTypeTags.JBOOLEAN:
-                return "Z";
-            default:
-                throw new BLangCompilerException("invalid element type: " + jType);
-        }
+        return switch (jType.jTag) {
+            case JTypeTags.JBYTE -> "B";
+            case JTypeTags.JCHAR -> "C";
+            case JTypeTags.JSHORT -> "S";
+            case JTypeTags.JINT -> "I";
+            case JTypeTags.JLONG -> "J";
+            case JTypeTags.JFLOAT -> "F";
+            case JTypeTags.JDOUBLE -> "D";
+            case JTypeTags.JBOOLEAN -> "Z";
+            default -> throw new BLangCompilerException("invalid element type: " + jType);
+        };
     }
 
     public static String getSignatureForJType(JType jType) {
@@ -486,34 +509,24 @@ public class InteropMethodGen {
             return ((JType.JRefType) jType).typeValue;
         } else if (jType.jTag == JTypeTags.JARRAY) { //must be JArrayType
             JType eType = ((JType.JArrayType) jType).elementType;
-            String sig = "[";
+            StringBuilder sig = new StringBuilder("[");
             while (eType.jTag == JTypeTags.JARRAY) {
                 eType = ((JType.JArrayType) eType).elementType;
-                sig += "[";
+                sig.append("[");
             }
 
-            switch (eType.jTag) {
-                case JTypeTags.JREF:
-                    return sig + "L" + getSignatureForJType(eType) + ";";
-                case JTypeTags.JBYTE:
-                    return sig + "B";
-                case JTypeTags.JCHAR:
-                    return sig + "C";
-                case JTypeTags.JSHORT:
-                    return sig + "S";
-                case JTypeTags.JINT:
-                    return sig + "I";
-                case JTypeTags.JLONG:
-                    return sig + "J";
-                case JTypeTags.JFLOAT:
-                    return sig + "F";
-                case JTypeTags.JDOUBLE:
-                    return sig + "D";
-                case JTypeTags.JBOOLEAN:
-                    return sig + "Z";
-                default:
-                    throw new BLangCompilerException("invalid element type: " + eType);
-            }
+            return switch (eType.jTag) {
+                case JTypeTags.JREF -> sig + "L" + getSignatureForJType(eType) + ";";
+                case JTypeTags.JBYTE -> sig + "B";
+                case JTypeTags.JCHAR -> sig + "C";
+                case JTypeTags.JSHORT -> sig + "S";
+                case JTypeTags.JINT -> sig + "I";
+                case JTypeTags.JLONG -> sig + "J";
+                case JTypeTags.JFLOAT -> sig + "F";
+                case JTypeTags.JDOUBLE -> sig + "D";
+                case JTypeTags.JBOOLEAN -> sig + "Z";
+                default -> throw new BLangCompilerException("invalid element type: " + eType);
+            };
         } else {
             throw new BLangCompilerException("invalid element type: " + jType);
         }
@@ -524,6 +537,7 @@ public class InteropMethodGen {
 
         JType jElementType;
         BType bElementType;
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (jvmType.jTag == JTypeTags.JARRAY && bType.tag == TypeTags.ARRAY) {
             jElementType = ((JType.JArrayType) jvmType).elementType;
             bElementType = ((BArrayType) bType).eType;
@@ -564,32 +578,25 @@ public class InteropMethodGen {
         mv.visitVarInsn(ALOAD, varArgIndex);
         mv.visitVarInsn(ILOAD, indexVarIndex);
         mv.visitInsn(I2L);
-
-        if (TypeTags.isIntegerTypeTag(bElementType.tag)) {
+        
+        int elementTypeTag = JvmCodeGenUtil.getImpliedType(bElementType).tag;
+        if (TypeTags.isIntegerTypeTag(elementTypeTag)) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
-        } else if (TypeTags.isStringTypeTag(bElementType.tag)) {
+        } else if (TypeTags.isStringTypeTag(elementTypeTag)) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBString",
                                GET_BSTRING_FOR_ARRAY_INDEX, true);
         } else {
-            switch (bElementType.tag) {
-                case TypeTags.BOOLEAN:
-                    mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);
-                    break;
-                case TypeTags.BYTE:
-                    mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getByte", "(J)B", true);
-                    break;
-                case TypeTags.FLOAT:
-                    mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getFloat", "(J)D", true);
-                    break;
-                case TypeTags.HANDLE:
+            switch (elementTypeTag) {
+                case TypeTags.BOOLEAN -> mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);
+                case TypeTags.BYTE -> mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getByte", "(J)B", true);
+                case TypeTags.FLOAT -> mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getFloat", "(J)D", true);
+                case TypeTags.HANDLE -> {
                     mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", GET_STRING_FROM_ARRAY,
                             true);
                     mv.visitTypeInsn(CHECKCAST, HANDLE_VALUE);
-                    break;
-                default:
-                    mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", GET_STRING_FROM_ARRAY,
-                            true);
-                    break;
+                }
+                default -> mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", GET_STRING_FROM_ARRAY,
+                        true);
             }
         }
 
@@ -609,34 +616,16 @@ public class InteropMethodGen {
 
     private static void genArrayStore(MethodVisitor mv, JType jType) {
 
-        int code;
-        switch (jType.jTag) {
-            case JTypeTags.JINT:
-                code = IASTORE;
-                break;
-            case JTypeTags.JLONG:
-                code = LASTORE;
-                break;
-            case JTypeTags.JDOUBLE:
-                code = DASTORE;
-                break;
-            case JTypeTags.JBYTE:
-            case JTypeTags.JBOOLEAN:
-                code = BASTORE;
-                break;
-            case JTypeTags.JSHORT:
-                code = SASTORE;
-                break;
-            case JTypeTags.JCHAR:
-                code = CASTORE;
-                break;
-            case JTypeTags.JFLOAT:
-                code = FASTORE;
-                break;
-            default:
-                code = AASTORE;
-                break;
-        }
+        int code = switch (jType.jTag) {
+            case JTypeTags.JINT -> IASTORE;
+            case JTypeTags.JLONG -> LASTORE;
+            case JTypeTags.JDOUBLE -> DASTORE;
+            case JTypeTags.JBYTE, JTypeTags.JBOOLEAN -> BASTORE;
+            case JTypeTags.JSHORT -> SASTORE;
+            case JTypeTags.JCHAR -> CASTORE;
+            case JTypeTags.JFLOAT -> FASTORE;
+            default -> AASTORE;
+        };
 
         mv.visitInsn(code);
     }
@@ -644,34 +633,15 @@ public class InteropMethodGen {
     private static void genArrayNew(MethodVisitor mv, JType elementType) {
 
         switch (elementType.jTag) {
-            case JTypeTags.JINT:
-                mv.visitIntInsn(NEWARRAY, T_INT);
-                break;
-            case JTypeTags.JLONG:
-                mv.visitIntInsn(NEWARRAY, T_LONG);
-                break;
-            case JTypeTags.JDOUBLE:
-                mv.visitIntInsn(NEWARRAY, T_DOUBLE);
-                break;
-            case JTypeTags.JBYTE:
-            case JTypeTags.JBOOLEAN:
-                mv.visitIntInsn(NEWARRAY, T_BOOLEAN);
-                break;
-            case JTypeTags.JSHORT:
-                mv.visitIntInsn(NEWARRAY, T_SHORT);
-                break;
-            case JTypeTags.JCHAR:
-                mv.visitIntInsn(NEWARRAY, T_CHAR);
-                break;
-            case JTypeTags.JFLOAT:
-                mv.visitIntInsn(NEWARRAY, T_FLOAT);
-                break;
-            case JTypeTags.JREF:
-            case JTypeTags.JARRAY:
-                mv.visitTypeInsn(ANEWARRAY, getSignatureForJType(elementType));
-                break;
-            default:
-                throw new BLangCompilerException("invalid type for var-arg: " + elementType);
+            case JTypeTags.JINT -> mv.visitIntInsn(NEWARRAY, T_INT);
+            case JTypeTags.JLONG -> mv.visitIntInsn(NEWARRAY, T_LONG);
+            case JTypeTags.JDOUBLE -> mv.visitIntInsn(NEWARRAY, T_DOUBLE);
+            case JTypeTags.JBYTE, JTypeTags.JBOOLEAN -> mv.visitIntInsn(NEWARRAY, T_BOOLEAN);
+            case JTypeTags.JSHORT -> mv.visitIntInsn(NEWARRAY, T_SHORT);
+            case JTypeTags.JCHAR -> mv.visitIntInsn(NEWARRAY, T_CHAR);
+            case JTypeTags.JFLOAT -> mv.visitIntInsn(NEWARRAY, T_FLOAT);
+            case JTypeTags.JREF, JTypeTags.JARRAY -> mv.visitTypeInsn(ANEWARRAY, getSignatureForJType(elementType));
+            default -> throw new BLangCompilerException("invalid type for var-arg: " + elementType);
         }
     }
 

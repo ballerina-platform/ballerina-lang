@@ -22,18 +22,21 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.REGEXP_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.REG_EXP_PARSING_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.REG_EXP_PARSING_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Converts a string to the corresponding regular expression representation.
  *
  * @since 2201.3.0
  */
-public class FromString {
+public final class FromString {
 
     private static final BString ERROR_REASON = getModulePrefixedReason(REGEXP_LANG_LIB,
             REG_EXP_PARSING_ERROR_IDENTIFIER);
+
+    private FromString() {
+    }
 
     public static Object fromString(BString string) {
         try {

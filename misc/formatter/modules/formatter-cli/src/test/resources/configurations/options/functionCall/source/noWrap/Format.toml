@@ -1,0 +1,6 @@
+[functionCall]
+argumentsWrap = "NoWrap"
+newLineAfterLeftParen = true
+
+[wrapping]
+maxLineLength = 80

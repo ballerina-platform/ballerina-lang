@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -30,15 +29,22 @@ public class QueryEvaluatorTest extends AbstractEvaluatorTest {
     private static final String QUERY_EXPR_EVALUATOR_TESTCASE = "testcases/evaluator/query.expr.json";
     private static final String QUERY_JOIN_EVALUATOR_TESTCASE = "testcases/evaluator/query.join.json";
 
+    private static final String QUERY_ACTION_EVALUATOR_TESTCASE = "testcases/evaluator/query.action.json";
+
     @Test
-    public void testEvaluateQueryExpr() throws BallerinaShellException {
+    public void testEvaluateQueryExpr() {
         // TODO: (#28389) Compiler crashes for module-level query expression which uses var
         testEvaluate(QUERY_EXPR_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateQueryJoin() throws BallerinaShellException {
+    public void testEvaluateQueryJoin() {
         // TODO: (#28390) Module-level query expressions don't work
         testEvaluate(QUERY_JOIN_EVALUATOR_TESTCASE);
+    }
+
+    @Test
+    public void testEvaluateQueryAction() {
+        testEvaluate(QUERY_ACTION_EVALUATOR_TESTCASE);
     }
 }

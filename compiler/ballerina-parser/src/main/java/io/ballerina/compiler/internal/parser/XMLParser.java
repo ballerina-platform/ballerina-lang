@@ -76,17 +76,16 @@ public class XMLParser extends AbstractParser {
      * @return <code>true</code> if this is the end of the back-tick literal. <code>false</code> otherwise
      */
     private boolean isEndOfXMLContent(SyntaxKind kind, boolean isInXMLElement) {
-        switch (kind) {
-            case EOF_TOKEN:
-            case BACKTICK_TOKEN:
-                return true;
-            case LT_TOKEN:
+        return switch (kind) {
+            case EOF_TOKEN,
+                 BACKTICK_TOKEN -> true;
+            case LT_TOKEN -> {
                 STToken nextNextToken = getNextNextToken();
-                return isInXMLElement &&
+                yield isInXMLElement &&
                         (nextNextToken.kind == SyntaxKind.SLASH_TOKEN || nextNextToken.kind == SyntaxKind.LT_TOKEN);
-            default:
-                return false;
-        }
+            }
+            default -> false;
+        };
     }
 
     /**
@@ -104,20 +103,14 @@ public class XMLParser extends AbstractParser {
      */
     private STNode parseXMLContentItem() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case LT_TOKEN:
-                return parseXMLElement();
-            case XML_COMMENT_START_TOKEN:
-                return parseXMLComment();
-            case XML_PI_START_TOKEN:
-                return parseXMLPI();
-            case INTERPOLATION_START_TOKEN:
-                return parseInterpolation();
-            case XML_CDATA_START_TOKEN:
-                return parseXMLCdataSection();
-            default:
-                return parseXMLText();
-        }
+        return switch (nextToken.kind) {
+            case LT_TOKEN -> parseXMLElement();
+            case XML_COMMENT_START_TOKEN -> parseXMLComment();
+            case XML_PI_START_TOKEN -> parseXMLPI();
+            case INTERPOLATION_START_TOKEN -> parseInterpolation();
+            case XML_CDATA_START_TOKEN -> parseXMLCdataSection();
+            default -> parseXMLText();
+        };
     }
 
     /**
@@ -338,19 +331,17 @@ public class XMLParser extends AbstractParser {
      * @return <code>true</code> if this is the end of the XML attributes. <code>false</code> otherwise
      */
     private boolean isEndOfXMLAttributes(SyntaxKind kind) {
-        switch (kind) {
-            case EOF_TOKEN:
-            case BACKTICK_TOKEN:
-            case GT_TOKEN:
-            case LT_TOKEN:
-            case SLASH_TOKEN:
-            case XML_COMMENT_START_TOKEN:
-            case XML_PI_START_TOKEN:
-            case XML_CDATA_START_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case EOF_TOKEN,
+                 BACKTICK_TOKEN,
+                 GT_TOKEN,
+                 LT_TOKEN,
+                 SLASH_TOKEN,
+                 XML_COMMENT_START_TOKEN,
+                 XML_PI_START_TOKEN,
+                 XML_CDATA_START_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -432,18 +423,17 @@ public class XMLParser extends AbstractParser {
     }
 
     private boolean isEndOfXMLAttributeValue(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case EOF_TOKEN:
-            case BACKTICK_TOKEN:
-            case LT_TOKEN:
-            case GT_TOKEN:
-            case DOUBLE_QUOTE_TOKEN:
-            case SINGLE_QUOTE_TOKEN:
-            case IDENTIFIER_TOKEN: // Lexer will return identifier if the start quote is missing    
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextTokenKind) {
+            case EOF_TOKEN,
+                 BACKTICK_TOKEN,
+                 LT_TOKEN,
+                 GT_TOKEN,
+                 DOUBLE_QUOTE_TOKEN,
+                 SINGLE_QUOTE_TOKEN,
+                 IDENTIFIER_TOKEN -> // Lexer will return identifier if the start quote is missing
+                    true;
+            default -> false;
+        };
     }
 
     /**
@@ -459,16 +449,16 @@ public class XMLParser extends AbstractParser {
      */
     private STNode parseXMLText() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case INTERPOLATION_START_TOKEN:
-            case EOF_TOKEN:
-            case BACKTICK_TOKEN:
-            case LT_TOKEN:
-                return null;
-            default:
+        return switch (nextToken.kind) {
+            case INTERPOLATION_START_TOKEN,
+                 EOF_TOKEN,
+                 BACKTICK_TOKEN,
+                 LT_TOKEN -> null;
+            default -> {
                 STNode content = parseCharData();
-                return STNodeFactory.createXMLTextNode(content);
-        }
+                yield STNodeFactory.createXMLTextNode(content);
+            }
+        };
     }
 
     /**
@@ -477,7 +467,12 @@ public class XMLParser extends AbstractParser {
      * @return XML char-data token
      */
     private STNode parseCharData() {
-        return consume();
+        STToken token = consume();
+        if (token.kind != SyntaxKind.XML_TEXT_CONTENT) {
+            return STNodeFactory.createLiteralValueToken(SyntaxKind.XML_TEXT_CONTENT, token.text(),
+                    token.leadingMinutiae(), token.trailingMinutiae(), token.diagnostics());
+        }
+        return token;
     }
 
     /**
@@ -535,16 +530,14 @@ public class XMLParser extends AbstractParser {
     }
 
     private boolean isEndOfXMLComment(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case EOF_TOKEN:
-            case BACKTICK_TOKEN:
-            case LT_TOKEN:
-            case GT_TOKEN:
-            case XML_COMMENT_END_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextTokenKind) {
+            case EOF_TOKEN,
+                 BACKTICK_TOKEN,
+                 LT_TOKEN,
+                 GT_TOKEN,
+                 XML_COMMENT_END_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -578,14 +571,12 @@ public class XMLParser extends AbstractParser {
     }
 
     private boolean isEndOfXMLCdata(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case EOF_TOKEN:
-            case BACKTICK_TOKEN:
-            case XML_CDATA_END_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextTokenKind) {
+            case EOF_TOKEN,
+                 BACKTICK_TOKEN,
+                 XML_CDATA_END_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -665,16 +656,14 @@ public class XMLParser extends AbstractParser {
     }
 
     private boolean isEndOfXMLPI(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case EOF_TOKEN:
-            case BACKTICK_TOKEN:
-            case LT_TOKEN:
-            case GT_TOKEN:
-            case XML_PI_END_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextTokenKind) {
+            case EOF_TOKEN,
+                 BACKTICK_TOKEN,
+                 LT_TOKEN,
+                 GT_TOKEN,
+                 XML_PI_END_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -684,14 +673,11 @@ public class XMLParser extends AbstractParser {
      */
     private STNode parseXMLCharacterSet() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case XML_TEXT_CONTENT:
-                return consume();
-            case INTERPOLATION_START_TOKEN:
-                return parseInterpolation();
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (nextToken.kind) {
+            case XML_TEXT_CONTENT -> consume();
+            case INTERPOLATION_START_TOKEN -> parseInterpolation();
+            default -> throw new IllegalStateException();
+        };
     }
 
     private Solution recover(STToken token, ParserRuleContext currentCtx) {

@@ -28,19 +28,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+import static org.ballerinalang.langlib.xml.utils.Constants.XML_VERSION;
 
 /**
  * Native implementation of lang.xml:forEach(map&lt;Type&gt;, function).
  *
  * @since 1.0
  */
-public class ForEach {
+public final class ForEach {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                       XML_VERSION, "forEach");
 
-    public static void forEach(BXml x, BFunctionPointer<Object, Object> func) {
+    private ForEach() {
+    }
+
+    public static void forEach(BXml x, BFunctionPointer<Object[], Object> func) {
         if (x.isSingleton()) {
             func.asyncCall(new Object[]{x, true}, METADATA);
             return;

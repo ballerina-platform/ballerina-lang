@@ -24,10 +24,10 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
@@ -43,12 +43,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.internal.TypeChecker.isEqual;
+import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
+import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 
 /**
  * <p>
@@ -62,7 +66,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CL
  */
 public class ErrorValue extends BError implements RefValue {
 
-    private static final long serialVersionUID = 1L;
     private static final PrintStream outStream = System.err;
 
     private final Type type;
@@ -71,7 +74,7 @@ public class ErrorValue extends BError implements RefValue {
     private final BError cause;
     private final Object details;
 
-    private static final String GENERATE_OBJECT_CLASS_PREFIX = "$value$";
+    private static final String GENERATED_CLASS_TEXTS_REGEX = "\\$value\\$|\\$split\\$\\d|lambdas.\\$_generated\\d*";
     private static final String GENERATE_PKG_INIT = "___init_";
     private static final String GENERATE_PKG_START = "___start_";
     private static final String GENERATE_PKG_STOP = "___stop_";
@@ -106,7 +109,7 @@ public class ErrorValue extends BError implements RefValue {
         this.details = details;
         BTypeIdSet typeIdSet = new BTypeIdSet();
         typeIdSet.add(typeIdPkg, typeIdName, true);
-        ((BErrorType) TypeUtils.getReferredType(type)).setTypeIdSet(typeIdSet);
+        ((BErrorType) TypeUtils.getImpliedType(type)).setTypeIdSet(typeIdSet);
     }
 
     @Override
@@ -140,13 +143,13 @@ public class ErrorValue extends BError implements RefValue {
 
     private String getDetailsToString(BLink parent) {
         StringJoiner sj = new StringJoiner(",");
-        for (Object key : ((MapValue) details).getKeys()) {
-            Object value = ((MapValue) details).get(key);
+        for (Object key : ((MapValue<?, ?>) details).getKeys()) {
+            Object value = ((MapValue<?, ?>) details).get(key);
             if (value == null) {
                 sj.add(key + "=null");
             } else {
                 Type type = TypeChecker.getType(value);
-                switch (type.getTag()) {
+                switch (TypeUtils.getImpliedType(type).getTag()) {
                     case TypeTags.STRING_TAG:
                     case TypeTags.XML_TAG:
                     case TypeTags.XML_ELEMENT_TAG:
@@ -158,7 +161,7 @@ public class ErrorValue extends BError implements RefValue {
                         sj.add(key + "=" + ((BValue) value).informalStringValue(parent));
                         break;
                     default:
-                        sj.add(key + "=" + StringUtils.getStringValue(value, parent));
+                        sj.add(key + "=" + getStringVal(value, parent));
                         break;
                 }
             }
@@ -172,9 +175,9 @@ public class ErrorValue extends BError implements RefValue {
 
     private String getDetailsToBalString(BLink parent) {
         StringJoiner sj = new StringJoiner(",");
-        for (Object key : ((MapValue) details).getKeys()) {
-            Object value = ((MapValue) details).get(key);
-            sj.add(key + "=" + StringUtils.getExpressionStringValue(value, parent));
+        for (Object key : ((MapValue<?, ?>) details).getKeys()) {
+            Object value = ((MapValue<?, ?>) details).get(key);
+            sj.add(key + "=" + getExpressionStringVal(value, parent));
         }
         return "," + sj;
     }
@@ -187,7 +190,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String getModuleNameToBalString() {
-        Type type = TypeUtils.getReferredType(this.type);
+        Type type = TypeUtils.getImpliedType(this.type);
         if (((BErrorType) type).typeIdSet == null) {
             return "";
         }
@@ -256,9 +259,10 @@ public class ErrorValue extends BError implements RefValue {
      *
      * @return detail record
      */
+    @Override
     public Object getDetails() {
-        if (details instanceof RefValue) {
-            return ((RefValue) details).frozenCopy(new HashMap<>());
+        if (details instanceof BRefValue bRefValue) {
+            return bRefValue.frozenCopy(new HashMap<>());
         }
         return details;
     }
@@ -299,6 +303,7 @@ public class ErrorValue extends BError implements RefValue {
      * Returns error stack trace as a string.
      * @return stack trace string
      */
+    @Override
     public String getPrintableStackTrace() {
         String errorMsg = getPrintableError();
         StringBuilder sb = new StringBuilder();
@@ -396,7 +401,7 @@ public class ErrorValue extends BError implements RefValue {
         if (details == null) {
             return true;
         }
-        return (details instanceof MapValue) && ((MapValue<?, ?>) details).isEmpty();
+        return (details instanceof MapValue<?, ?> mapValue) && mapValue.isEmpty();
     }
 
     private Optional<StackTraceElement> filterStackTraceElement(StackTraceElement stackFrame, int currentIndex) {
@@ -439,10 +444,25 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String cleanupClassName(String className) {
-        return className.replace(GENERATE_OBJECT_CLASS_PREFIX, "");
+        return className.replaceAll(GENERATED_CLASS_TEXTS_REGEX, "");
     }
 
     private boolean isCompilerAddedName(String name) {
         return name != null && name.startsWith("$") && name.endsWith("$");
+    }
+
+    /**
+     * Deep equality check for error values.
+     *
+     * @param o The error value to be compared
+     * @param visitedValues Visited values due to circular references
+     * @return True if the error values are equal, false otherwise
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        ErrorValue errorValue = (ErrorValue) o;
+        return isEqual(this.getMessage(), errorValue.getMessage(), visitedValues) &&
+                ((MapValueImpl<?, ?>) this.getDetails()).equals(errorValue.getDetails(), visitedValues) &&
+                isEqual(this.getCause(), errorValue.getCause(), visitedValues);
     }
 }

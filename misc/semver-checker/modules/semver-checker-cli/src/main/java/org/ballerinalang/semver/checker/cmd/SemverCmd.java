@@ -28,7 +28,8 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+
+import static io.ballerina.cli.cmd.Constants.SEMVER_COMMAND;
 
 /**
  * Class to implement `semver` command for Ballerina.
@@ -36,8 +37,8 @@ import java.nio.file.Paths;
  *
  * @since 2201.2.0
  */
-@CommandLine.Command(name = "semver", description = "check semver compliance between the source code changes and " +
-        "the package version")
+@CommandLine.Command(name = "semver", description = "Show SemVer compatibility and local package changes against " +
+        "published packages in Ballerina Central")
 public class SemverCmd implements BLauncherCmd {
 
     private final PrintStream outStream;
@@ -64,7 +65,7 @@ public class SemverCmd implements BLauncherCmd {
     private boolean showDiff;
 
     public SemverCmd() {
-        this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
         this.errStream = System.err;
     }
@@ -113,6 +114,7 @@ public class SemverCmd implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
+        out.append(BLauncherCmd.getCommandUsageInfo(SEMVER_COMMAND));
     }
 
     @Override

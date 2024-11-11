@@ -1,7 +1,10 @@
 module io.ballerina.lang {
     uses io.ballerina.projects.plugins.CompilerPlugin;
+    uses io.ballerina.projects.buildtools.CodeGeneratorTool;
+    uses org.ballerinalang.spi.CompilerBackendCodeGenerator;
+    uses org.ballerinalang.compiler.plugins.CompilerPlugin;
+    uses org.ballerinalang.spi.EmbeddedExecutor;
     requires java.compiler;
-    requires toml4j;
     requires com.google.gson;
     requires java.xml;
     requires org.objectweb.asm;
@@ -13,8 +16,9 @@ module io.ballerina.lang {
     requires org.apache.commons.io;
     requires io.ballerina.toml;
     requires io.ballerina.central.client;
-    requires java.semver;
     requires io.ballerina.identifier;
+    requires java.semver;
+    requires maven.resolver;
     exports io.ballerina.compiler.api;
     exports io.ballerina.compiler.api.symbols;
     exports io.ballerina.compiler.api.symbols.resourcepath;
@@ -60,7 +64,6 @@ module io.ballerina.lang {
     exports org.wso2.ballerinalang.compiler.parser;
     exports org.ballerinalang.model.symbols;
     exports org.ballerinalang.repository.fs;
-    exports org.wso2.ballerinalang.compiler.spi;
     exports org.ballerinalang.util;
     exports org.wso2.ballerinalang.compiler.tree.clauses;
     exports org.ballerinalang.model.clauses;
@@ -83,4 +86,6 @@ module io.ballerina.lang {
     exports io.ballerina.projects.internal.bala;
     exports io.ballerina.projects.internal.configschema to org.ballerinalang.config.schema.generator,
             io.ballerina.language.server.core;
+    exports io.ballerina.projects.plugins.completion;
+    exports io.ballerina.projects.buildtools;
 }

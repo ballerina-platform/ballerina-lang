@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 /**
  * Slice and return a subsequence of the an XML sequence.
@@ -33,15 +33,18 @@ import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 //                @Argument(name = "endIndex", type = TypeKind.INT) },
 //        returnType = { @ReturnType(type = TypeKind.XML) }, isPublic = true
 //)
-public class Slice {
+public final class Slice {
 
     private static final String OPERATION = "slice xml";
 
+    private Slice() {
+    }
+
     public static BXml slice(BXml xml, long startIndex, long endIndex) {
         try {
-            return (BXml) xml.slice(startIndex, endIndex);
+            return xml.slice(startIndex, endIndex);
         } catch (Throwable e) {
-            BLangExceptionHelper.handleXMLException(OPERATION, e);
+            ErrorHelper.handleXMLException(OPERATION, e);
         }
         return null;
     }

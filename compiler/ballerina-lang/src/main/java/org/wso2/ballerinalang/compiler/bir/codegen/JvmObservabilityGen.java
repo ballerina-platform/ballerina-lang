@@ -24,8 +24,8 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -177,7 +177,7 @@ class JvmObservabilityGen {
             }
         }
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(typeDef.type);
+            BType bType = JvmCodeGenUtil.getImpliedType(typeDef.type);
             if ((typeDef.flags & Flags.CLASS) != Flags.CLASS && bType.tag == TypeTags.OBJECT) {
                 continue;
             }
@@ -890,7 +890,7 @@ class JvmObservabilityGen {
      * @return The injected new BB
      */
     private BIRBasicBlock insertBasicBlock(BIRFunction func, int insertIndex) {
-        BIRBasicBlock newBB = new BIRBasicBlock(new Name(NEW_BB_PREFIX + desugaredBBIndex++));
+        BIRBasicBlock newBB = new BIRBasicBlock(NEW_BB_PREFIX, desugaredBBIndex++);
         func.basicBlocks.add(insertIndex, newBB);
         return newBB;
     }
@@ -986,8 +986,7 @@ class JvmObservabilityGen {
      */
     private boolean isErrorAssignable(BIRVariableDcl variableDcl) {
         boolean isErrorAssignable = false;
-        if (variableDcl.type instanceof BUnionType) {
-            BUnionType returnUnionType = (BUnionType) variableDcl.type;
+        if (variableDcl.type instanceof BUnionType returnUnionType) {
             boolean b = false;
             for (BType type : returnUnionType.getMemberTypes()) {
                 if (type instanceof BErrorType) {

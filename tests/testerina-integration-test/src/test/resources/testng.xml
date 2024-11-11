@@ -17,12 +17,12 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="testerina-intg-test-suite">
 
     <!-- ballerina.test Related Test Cases. -->
-    <test name="testerina-intg-tests" parallel="false">
+    <test name="testerina-intg-tests">
         <parameter name="enableTesterinaTests" value="true" />
         <groups>
             <run>
@@ -48,6 +48,8 @@ under the License.
             <class name="org.ballerinalang.testerina.test.ImportTest" />
             <class name="org.ballerinalang.testerina.test.ModuleExecutionTest" />
             <class name="org.ballerinalang.testerina.test.ModuleExecutionFlowTest" />
+            <class name="org.ballerinalang.testerina.test.ModuleGracefulStopTest" />
+            <class name="org.ballerinalang.testerina.test.ModuleExecutionWithInitStartFailuresTest" />
             <class name="org.ballerinalang.testerina.test.CodeCoverageReportTest" />
             <class name="org.ballerinalang.testerina.test.SourcelessTestExecutionTests"/>
             <class name="org.ballerinalang.testerina.test.DataProviderTest"/>
@@ -55,6 +57,10 @@ under the License.
             <class name="org.ballerinalang.testerina.test.ExcludeFromCodeCoverageTest"/>
             <class name="org.ballerinalang.testerina.test.ConfigurableCliArgsTest"/>
             <class name="org.ballerinalang.testerina.test.negative.InvalidConfigurableCliArgsTestCase"/>
+            <class name="org.ballerinalang.testerina.test.TestparallelizationTest"/>
+            <class name="org.ballerinalang.testerina.test.SingleTestExecutionWithInitFailuresTest"/>
+            <class name="org.ballerinalang.testerina.test.TestExecutionWithInitFailuresTest"/>
+            <class name="org.ballerinalang.testerina.test.EscapedIdentifiersValidationTest"/>
         </classes>
     </test>
 </suite>

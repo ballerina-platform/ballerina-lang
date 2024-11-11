@@ -32,14 +32,7 @@ import org.testng.annotations.Test;
  */
 public class ErrorBindingPatternTest {
     private CompileResult result, restPatternResult, resultNegative;
-    private String patternNotMatched = "pattern will not be matched";
-
-    @AfterClass
-    public void tearDown() {
-        result = null;
-        restPatternResult = null;
-        resultNegative = null;
-    }
+    private final String patternNotMatched = "pattern will not be matched";
 
     @BeforeClass
     public void setup() {
@@ -104,5 +97,12 @@ public class ErrorBindingPatternTest {
         BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 25, 9);
 
         Assert.assertEquals(resultNegative.getWarnCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        restPatternResult = null;
+        resultNegative = null;
     }
 }

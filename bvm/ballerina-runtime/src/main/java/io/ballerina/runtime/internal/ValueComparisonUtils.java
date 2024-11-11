@@ -34,7 +34,10 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
  *
  * @since 2.0.0
  */
-public class ValueComparisonUtils {
+public final class ValueComparisonUtils {
+
+    private ValueComparisonUtils() {
+    }
 
     /**
      * Check if left hand side ordered type value is less than right hand side ordered type value.
@@ -175,13 +178,13 @@ public class ValueComparisonUtils {
      * @param lhsValue The value on the left hand side
      * @param rhsValue The value on the right hand side
      * @param direction Sort direction ascending/descending/""
-     * @return 1 if the left hand side value > right hand side value,
-     * -1 if left hand side value < right hand side value,
+     * @return 1 if the left hand side value &gt; right hand side value,
+     * -1 if left hand side value &lt; right hand side value,
      * 0 left hand side value = right hand side value
      */
     public static int compareValues(Object lhsValue, Object rhsValue, String direction) {
-        int lhsTypeTag = TypeUtils.getReferredType(TypeChecker.getType(lhsValue)).getTag();
-        int rhsTypeTag = TypeUtils.getReferredType(TypeChecker.getType(rhsValue)).getTag();
+        int lhsTypeTag = TypeUtils.getImpliedType(TypeChecker.getType(lhsValue)).getTag();
+        int rhsTypeTag = TypeUtils.getImpliedType(TypeChecker.getType(rhsValue)).getTag();
         boolean inRelationalExpr = false;
         if (direction.isEmpty()) {
             inRelationalExpr = true;
@@ -305,14 +308,11 @@ public class ValueComparisonUtils {
     }
 
     private static boolean checkDecimalGreaterThan(DecimalValue lhsValue, DecimalValue rhsValue) {
-        switch (lhsValue.valueKind) {
-            case ZERO:
-            case OTHER:
-                return (isDecimalRealNumber(rhsValue) &&
-                        lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) > 0);
-            default:
-                return false;
-        }
+        return switch (lhsValue.valueKind) {
+            case ZERO,
+                 OTHER -> (isDecimalRealNumber(rhsValue) &&
+                    lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) > 0);
+        };
     }
 
     private static boolean isDecimalRealNumber(DecimalValue decimalValue) {

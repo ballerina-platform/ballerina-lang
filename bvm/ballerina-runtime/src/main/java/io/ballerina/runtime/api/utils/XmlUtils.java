@@ -25,17 +25,18 @@ import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.XmlValidator;
 import io.ballerina.runtime.internal.values.TableValueImpl;
-import io.ballerina.runtime.internal.values.XmlQName;
 
 import java.io.InputStream;
 import java.io.Reader;
 
 /**
- * Class @{@link XmlUtils} provides APIs to handle xml values.
+ * Class {@link XmlUtils} provides APIs to handle xml values.
  *
  * @since 2.0.0
  */
-public class XmlUtils {
+public final class XmlUtils {
+
+    private XmlUtils() {}
 
     /**
      * Create a XML item from string literal.
@@ -89,25 +90,25 @@ public class XmlUtils {
     }
 
     /**
-     * Converts a {@link io.ballerina.runtime.internal.values.TableValue} to {@link BXml}.
+     * Converts a {@link BTable} to {@link BXml}.
      *
-     * @param table {@link io.ballerina.runtime.internal.values.TableValue} to convert
+     * @param table {@link BTable} to convert
      * @return converted {@link BXml}
      */
-    public static BXml parse(BTable table) {
-        return XmlFactory.tableToXML((TableValueImpl) table);
+    public static BXml parse(BTable<?, ?> table) {
+        return XmlFactory.tableToXML((TableValueImpl<?, ?>) table);
     }
 
     /**
      * <p>
-     * Validate a {@link XmlQName} against the XSD definition.
+     * Validate a {@link BXmlQName} against the XSD definition.
      * </p>
      * <i>
      * NCName ::= (Letter | '_') (NCNameChar)*
      * NCNameChar ::= Letter | Digit | '.' | '-' | '_' | CombiningChar | Extender
      * </i>
      *
-     * @param qname {@link XmlQName} to check the validity
+     * @param qname {@link BXmlQName} to check the validity
      * @throws BError if invalid XML qname
      */
     public static void validateXmlQName(BXmlQName qname) throws BError {

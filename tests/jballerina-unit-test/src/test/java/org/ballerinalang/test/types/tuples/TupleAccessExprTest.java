@@ -20,10 +20,10 @@ package org.ballerinalang.test.types.tuples;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -77,7 +77,7 @@ public class TupleAccessExprTest {
     }
 
     @Test(description = "Test accessing a tuple with an invalid index passed as a dynamic index",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
                     "\\{\"message\":\"tuple index out of range: index: -1, size: 3.*")
     public void tupleInvalidIndexAsFunction() {
@@ -101,7 +101,7 @@ public class TupleAccessExprTest {
     }
 
     @Test(description = "Test index out of bounds due to a dynamic index",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
                     "\\{\"message\":\"tuple index out of range: index: 2, size: 2.*")
     public void tupleIndexOutOfBoundTest1() {
@@ -109,7 +109,7 @@ public class TupleAccessExprTest {
     }
 
     @Test(description = "Test index out of bounds due to a dynamic index",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
                     "\\{\"message\":\"tuple index " +
                     "out of range: index: -1, size: 2.*")
@@ -118,7 +118,7 @@ public class TupleAccessExprTest {
     }
 
     @Test(description = "Test index out of bounds due to a dynamic index",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
                     "\\{\"message\":\"tuple index " +
                     "out of range: index: 2, size: 2.*")
@@ -127,7 +127,7 @@ public class TupleAccessExprTest {
     }
 
     @Test(description = "Test index out of bounds due to a dynamic index",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
                     "\\{\"message\":\"tuple index " +
                     "out of range: index: -1, size: 2.*")
@@ -156,7 +156,7 @@ public class TupleAccessExprTest {
     }
 
     @Test(description = "Test invalid type inserted to tuple due to a dynamic index",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
                     "\\{\"message\":\"incompatible types: expected 'string', found 'boolean'.*")
     public void testInvalidInsertionToTuple() {
@@ -185,7 +185,7 @@ public class TupleAccessExprTest {
     }
 
     @Test(description = "Test invalid type inserted to tuple due to a dynamic index",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
                     "\\{\"message\":\"tuple index " +
                     "out of range: index: 4, size: 4.*")
@@ -194,7 +194,7 @@ public class TupleAccessExprTest {
     }
 
     @Test(description = "Test invalid tuple access using a dynamic index",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
                     "\\{\"message\":\"tuple index " +
                     "out of range: index: 6, size: 4.*")

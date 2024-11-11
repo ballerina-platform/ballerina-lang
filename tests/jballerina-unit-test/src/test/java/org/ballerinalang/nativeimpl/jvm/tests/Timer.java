@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.internal.values.ObjectValue;
+import org.testng.Assert;
 
 /**
  * This class is used for Java interoperability tests.
@@ -29,7 +30,10 @@ import io.ballerina.runtime.internal.values.ObjectValue;
  *
  * @since 1.0.0
  */
-public class Timer {
+public final class Timer {
+
+    private Timer() {
+    }
 
     public static void startTimer(Environment env, int interval, int count, ObjectValue object) {
         Runtime runtime = env.getRuntime();
@@ -47,7 +51,7 @@ public class Timer {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            assert false;
+            Assert.fail(e.getMessage());
         }
     }
 }

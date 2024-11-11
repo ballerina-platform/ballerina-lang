@@ -16,8 +16,10 @@
  *  under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations {
     compile.transitive = false
@@ -29,7 +31,7 @@ dependencies {
     compileOnly project(':ballerina-lang')
     compileOnly project(':formatter:formatter-core')
     compileOnly project(':language-server:language-server-commons')
-    compileOnly "com.fasterxml.jackson.core:jackson-databind"
+    compileOnly libs.jackson.databind
     implementation project(':ballerina-tools-api')
     implementation project(':json-mapper')
     implementation ("io.swagger.parser.v3:swagger-parser-v2-converter") {
@@ -38,15 +40,15 @@ dependencies {
         exclude group: "javax.validation", module: "validation-api"
         exclude group: 'com.google.guava', module: 'guava'
     }
-    implementation "com.google.code.gson:gson:${project.gsonVersion}"
-    implementation "com.google.guava:guava:${project.guavaVersion}"  // Required during runtime
-    compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
+    implementation libs.gson
+    implementation libs.guava // Required during runtime
+    compileOnly libs.eclipse.lsp4j
 
-    testCompile 'org.testng:testng'
-    testCompile project(':ballerina-parser')
-    testCompile project(':formatter:formatter-core')
-    testCompile project(':language-server:language-server-core')
-    testCompile (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
+    testImplementation libs.testng
+    testImplementation project(':ballerina-parser')
+    testImplementation project(':formatter:formatter-core')
+    testImplementation project(':language-server:language-server-core')
+    testImplementation libs.eclipse.lsp4j
 }
 
 test {
@@ -62,14 +64,20 @@ ext.moduleName = 'json-to-record-converter'
 compileJava {
     inputs.property("moduleName", moduleName)
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
         classpath = files()
     }
 }
 
 jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes "Main-Class": "io.ballerina.converters.JsonToRecordConverterService"
     }

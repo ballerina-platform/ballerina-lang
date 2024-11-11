@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BField} represents a field in user defined type in Ballerina.
+ * {@code Field} represents a field in user defined type in Ballerina.
  *
  * @since 2.0.0
  */

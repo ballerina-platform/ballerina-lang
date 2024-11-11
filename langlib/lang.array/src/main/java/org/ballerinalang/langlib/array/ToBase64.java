@@ -30,21 +30,24 @@ import io.ballerina.runtime.api.values.BString;
 import java.util.Base64;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.array:toBase64(byte[]).
  *
  * @since 1.0
  */
-public class ToBase64 {
+public final class ToBase64 {
 
     private static final BString NOT_SUPPORT_DETAIL_ERROR = StringUtils
             .fromString("toBase64() is only supported on 'byte[]'");
 
+    private ToBase64() {
+    }
+
     public static BString toBase64(BArray arr) {
-        Type arrType = TypeUtils.getReferredType(arr.getType());
+        Type arrType = TypeUtils.getImpliedType(arr.getType());
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
                 ((ArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
             throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,

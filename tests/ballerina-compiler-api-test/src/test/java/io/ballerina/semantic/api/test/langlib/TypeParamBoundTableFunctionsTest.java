@@ -129,7 +129,7 @@ public class TypeParamBoundTableFunctionsTest {
         TypeSymbol rowTypeParameterSymbol = ((TableTypeSymbol) mapFnRetType).rowTypeParameter();
         assertEquals(rowTypeParameterSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
         assertEquals(((TypeReferenceTypeSymbol) rowTypeParameterSymbol).typeDescriptor().typeKind(),
-                TypeDescKind.MAP);
+                TypeDescKind.RECORD);
     }
 
     @Test
@@ -202,7 +202,6 @@ public class TypeParamBoundTableFunctionsTest {
 
         assertEquals(params.size(), 2);
         assertFirstParam(params.get(0));
-
         TypeSymbol removeFnRetType = removeFnType.returnTypeDescriptor().get();
         assertTypeRef(removeFnRetType);
     }

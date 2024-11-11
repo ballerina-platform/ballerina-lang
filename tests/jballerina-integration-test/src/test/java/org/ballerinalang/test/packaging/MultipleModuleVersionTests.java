@@ -25,14 +25,15 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
+
 
 /**
  * Tests usage of multiple package versions.
  */
 public class MultipleModuleVersionTests extends BaseTest {
 
-    private static final String testFileLocation = Paths.get("src", "test", "resources", "packaging", "versions")
+    private static final String testFileLocation = Path.of("src/test/resources/packaging/versions")
             .toAbsolutePath().toString();
     private BMainInstance bMainInstance;
 
@@ -40,9 +41,9 @@ public class MultipleModuleVersionTests extends BaseTest {
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
         // Build and push down stream packages.
-        compilePackageAndPushToLocal(Paths.get(testFileLocation, "http1.1.1").toString(), "waruna-http-any-1.1.1");
-        compilePackageAndPushToLocal(Paths.get(testFileLocation, "http1.1.2").toString(), "waruna-http-any-1.1.2");
-        compilePackageAndPushToLocal(Paths.get(testFileLocation, "websub").toString(), "waruna-websub-any-1.0.1");
+        compilePackageAndPushToLocal(Path.of(testFileLocation, "http1.1.1").toString(), "waruna-http-any-1.1.1");
+        compilePackageAndPushToLocal(Path.of(testFileLocation, "http1.1.2").toString(), "waruna-http-any-1.1.2");
+        compilePackageAndPushToLocal(Path.of(testFileLocation, "websub").toString(), "waruna-websub-any-1.0.1");
     }
 
     private void compilePackageAndPushToLocal(String packagePath, String balaFileName) throws BallerinaTestException {

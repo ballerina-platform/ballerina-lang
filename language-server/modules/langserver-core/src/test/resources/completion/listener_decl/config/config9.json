@@ -4,6 +4,7 @@
     "character": 27
   },
   "source": "listener_decl/source/source9.bal",
+  "description": "",
   "items": [
     {
       "label": "mod",
@@ -26,11 +27,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -50,11 +51,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -74,11 +75,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -98,11 +99,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -122,11 +123,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -140,14 +141,6 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "object",
       "insertTextFormat": "Snippet"
     },
     {
@@ -186,11 +179,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -210,11 +203,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -234,11 +227,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -258,11 +251,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -282,11 +275,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -372,6 +365,14 @@
       "detail": "Typedesc",
       "sortText": "N",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "lang",
       "insertTextFormat": "Snippet"
     }
   ]

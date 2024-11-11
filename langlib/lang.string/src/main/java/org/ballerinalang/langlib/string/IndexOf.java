@@ -19,12 +19,12 @@
 package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 import static org.ballerinalang.langlib.string.utils.StringUtils.createNullReferenceError;
 
 /**
@@ -32,7 +32,10 @@ import static org.ballerinalang.langlib.string.utils.StringUtils.createNullRefer
  *
  * @since 0.8.0
  */
-public class IndexOf {
+public final class IndexOf {
+
+    private IndexOf() {
+    }
 
     public static Object indexOf(BString bStr, BString subString, long startIndx) {
 
@@ -40,9 +43,9 @@ public class IndexOf {
             throw createNullReferenceError();
         }
         if (startIndx > Integer.MAX_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,
+            throw ErrorHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,
                     INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndx);
+                    ErrorCodes.INDEX_NUMBER_TOO_LARGE, startIndx);
         }
         return bStr.indexOf(subString, (int) startIndx);
     }

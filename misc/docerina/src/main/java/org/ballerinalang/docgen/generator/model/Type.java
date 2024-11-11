@@ -42,6 +42,7 @@ import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.KeyTypeConstraintNode;
 import io.ballerina.compiler.syntax.tree.MapTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.MemberTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.NilTypeDescriptorNode;
@@ -61,7 +62,9 @@ import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypeParameterNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.ballerinalang.docgen.Generator;
@@ -73,8 +76,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Represents a Ballerina Type.
@@ -91,6 +94,8 @@ public class Type {
     @Expose
     public String description;
     @Expose
+    public List<String> descriptionSections;
+    @Expose
     public String category;
     @Expose
     public boolean isAnonymousUnionType;
@@ -100,6 +105,8 @@ public class Type {
     public boolean isArrayType;
     @Expose
     public boolean isNullable;
+    @Expose
+    public boolean isOptional;
     @Expose
     public boolean isTuple;
     @Expose
@@ -134,10 +141,9 @@ public class Type {
     public Type() {
     }
 
-    public static Type fromNode(Node node, SemanticModel semanticModel) {
+    public static Type fromNode(Node node, SemanticModel semanticModel, Module module) {
         Type type = new Type();
-        if (node instanceof SimpleNameReferenceNode) {
-            SimpleNameReferenceNode simpleNameReferenceNode = (SimpleNameReferenceNode) node;
+        if (node instanceof SimpleNameReferenceNode simpleNameReferenceNode) {
             type.name = simpleNameReferenceNode.name().text();
             type.category = "reference";
             Optional<Symbol> symbol = Optional.empty();
@@ -149,17 +155,16 @@ public class Type {
                 }
             }
             if (symbol != null && symbol.isPresent()) {
-                if (symbol.get() instanceof TypeReferenceTypeSymbol &&
-                        !Type.isPublic(((TypeReferenceTypeSymbol) symbol.get()).definition())) {
-                    type = fromSemanticSymbol(symbol.get(), Optional.empty(), null, false);
+                if (symbol.get() instanceof TypeReferenceTypeSymbol typeReferenceTypeSymbol &&
+                        !Type.isPublic(typeReferenceTypeSymbol.definition())) {
+                    type = fromSemanticSymbol(symbol.get(), Optional.empty(), null, false, module);
                 } else {
-                    resolveSymbolMetaData(type, symbol.get());
+                    resolveSymbolMetaData(type, symbol.get(), module);
                 }
             } else {
                 type.generateUserDefinedTypeLink = false;
             }
-        } else if (node instanceof QualifiedNameReferenceNode) {
-            QualifiedNameReferenceNode qualifiedNameReferenceNode = (QualifiedNameReferenceNode) node;
+        } else if (node instanceof QualifiedNameReferenceNode qualifiedNameReferenceNode) {
             type.moduleName = qualifiedNameReferenceNode.modulePrefix().text();
             type.category = "reference";
             type.name = qualifiedNameReferenceNode.identifier().text();
@@ -172,15 +177,21 @@ public class Type {
                 }
             }
             if (symbol != null && symbol.isPresent()) {
-                if (symbol.get() instanceof TypeReferenceTypeSymbol &&
-                        !Type.isPublic(((TypeReferenceTypeSymbol) symbol.get()).definition())) {
-                    type = fromSemanticSymbol(symbol.get(), Optional.empty(), null, false);
+                if (symbol.get() instanceof TypeReferenceTypeSymbol typeReferenceTypeSymbol &&
+                        !Type.isPublic(typeReferenceTypeSymbol.definition())) {
+                    type = fromSemanticSymbol(symbol.get(), Optional.empty(), null, false, module);
                 } else {
-                    resolveSymbolMetaData(type, symbol.get());
+                    resolveSymbolMetaData(type, symbol.get(), module);
                 }
             } else {
                 type.generateUserDefinedTypeLink = false;
             }
+        } else if (node instanceof KeyTypeConstraintNode) {
+            TypeParameterNode typeParameterNode = (TypeParameterNode) ((KeyTypeConstraintNode) node).
+                    typeParameterNode();
+            type.name = "key";
+            type.category = "key";
+            type.constraint = fromNode(typeParameterNode.typeNode(), semanticModel, module);
         } else if (node instanceof TypeReferenceNode) {
             Optional<Symbol> symbol = Optional.empty();
             try {
@@ -191,95 +202,90 @@ public class Type {
                 }
             }
             if (symbol != null && symbol.isPresent()) {
-                type = fromSemanticSymbol(symbol.get(), Optional.empty(), null, true);
+                type = fromSemanticSymbol(symbol.get(), Optional.empty(), null, true, module);
             }
-        } else if (node instanceof BuiltinSimpleNameReferenceNode) {
-            BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode = (BuiltinSimpleNameReferenceNode) node;
+        } else if (node instanceof BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
             type.name = builtinSimpleNameReferenceNode.name().text();
             type.category = "builtin";
         } else if (node instanceof NilTypeDescriptorNode) {
             type.name = node.toString();
             type.category = "builtin";
-        } else if (node instanceof ArrayTypeDescriptorNode) {
-            ArrayTypeDescriptorNode arrayTypeDescriptorNode = (ArrayTypeDescriptorNode) node;
+        } else if (node instanceof ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
             type.isArrayType = true;
-            type.arrayDimensions = 1;
-            type.elementType = fromNode(arrayTypeDescriptorNode.memberTypeDesc(), semanticModel);
-        } else if (node instanceof OptionalTypeDescriptorNode) {
-            OptionalTypeDescriptorNode optionalTypeDescriptorNode = (OptionalTypeDescriptorNode) node;
-            type = fromNode(optionalTypeDescriptorNode.typeDescriptor(), semanticModel);
+            type.arrayDimensions = arrayTypeDescriptorNode.dimensions().size();
+            type.elementType = fromNode(arrayTypeDescriptorNode.memberTypeDesc(), semanticModel, module);
+        } else if (node instanceof OptionalTypeDescriptorNode optionalTypeDescriptorNode) {
+            type = fromNode(optionalTypeDescriptorNode.typeDescriptor(), semanticModel, module);
             type.isNullable = true;
         } else if (node instanceof UnionTypeDescriptorNode) {
             type.isAnonymousUnionType = true;
-            addUnionMemberTypes(node, semanticModel, type.memberTypes);
+            addUnionMemberTypes(node, semanticModel, type.memberTypes, module);
         } else if (node instanceof IntersectionTypeDescriptorNode) {
             type.isIntersectionType = true;
-            addIntersectionMemberTypes(node, semanticModel, type.memberTypes);
-        } else if (node instanceof RecordTypeDescriptorNode) {
-            RecordTypeDescriptorNode recordNode = (RecordTypeDescriptorNode) node;
+            addIntersectionMemberTypes(node, semanticModel, type.memberTypes, module);
+        } else if (node instanceof RecordTypeDescriptorNode recordNode) {
             List<Type> fields = new ArrayList<>();
             recordNode.fields().forEach(node1 -> {
-                if (node1 instanceof RecordFieldWithDefaultValueNode) {
-                    RecordFieldWithDefaultValueNode recordField = (RecordFieldWithDefaultValueNode) node1;
+                if (node1 instanceof RecordFieldWithDefaultValueNode recordField) {
                     Type defField = new Type();
                     defField.name = recordField.fieldName().text();
-                    defField.elementType = fromNode(recordField.typeName(), semanticModel);
+                    defField.elementType = fromNode(recordField.typeName(), semanticModel, module);
                     fields.add(defField);
-                } else if (node1 instanceof RecordFieldNode) {
-                    RecordFieldNode recordField = (RecordFieldNode) node1;
+                } else if (node1 instanceof RecordFieldNode recordField) {
                     Type recField = new Type();
                     recField.name = recordField.fieldName().text();
-                    recField.elementType = fromNode(recordField.typeName(), semanticModel);
+                    recField.elementType = fromNode(recordField.typeName(), semanticModel, module);
                     fields.add(recField);
                 }
             });
             if (recordNode.recordRestDescriptor().isPresent()) {
                 Type restField = new Type();
-                restField.elementType = fromNode(recordNode.recordRestDescriptor().get(), semanticModel);
+                restField.elementType = fromNode(recordNode.recordRestDescriptor().get(), semanticModel, module);
                 fields.add(restField);
             }
             type.category = (recordNode.bodyStartDelimiter()).kind().equals(SyntaxKind.OPEN_BRACE_PIPE_TOKEN) &&
                     recordNode.recordRestDescriptor().isEmpty() ?
                     CATEGORY_INLINE_CLOSED_RECORD : CATEGORY_INLINE_RECORD;
             type.memberTypes = fields;
-        } else if (node instanceof StreamTypeDescriptorNode) {
-            StreamTypeDescriptorNode streamNode = (StreamTypeDescriptorNode) node;
+        } else if (node instanceof StreamTypeDescriptorNode streamNode) {
             StreamTypeParamsNode streamParams = streamNode.streamTypeParamsNode().isPresent() ?
                     (StreamTypeParamsNode) streamNode.streamTypeParamsNode().get() : null;
             type.name = streamNode.streamKeywordToken().text();
             type.category = "stream";
             if (streamParams != null) {
-                type.memberTypes.add(fromNode(streamParams.leftTypeDescNode(), semanticModel));
+                type.memberTypes.add(fromNode(streamParams.leftTypeDescNode(), semanticModel, module));
                 if (streamParams.rightTypeDescNode().isPresent()) {
-                    type.memberTypes.add(fromNode(streamParams.rightTypeDescNode().get(), semanticModel));
+                    type.memberTypes.add(fromNode(streamParams.rightTypeDescNode().get(), semanticModel, module));
                 }
             }
-        } else if (node instanceof FunctionTypeDescriptorNode) {
+        } else if (node instanceof FunctionTypeDescriptorNode functionDescNode) {
             FunctionType functionType = new FunctionType();
             functionType.isLambda = true;
-            FunctionTypeDescriptorNode functionDescNode = (FunctionTypeDescriptorNode) node;
             functionType.isIsolated =
                     Generator.containsToken(functionDescNode.qualifierList(), SyntaxKind.ISOLATED_KEYWORD);
             if (functionDescNode.functionSignature().isPresent()) {
                 FunctionSignatureNode functionSignature = functionDescNode.functionSignature().get();
                 List<DefaultableVariable> variables =
                         Generator.getDefaultableVariableList(functionSignature.parameters(), Optional.empty(),
-                                semanticModel);
+                                semanticModel, module);
                 functionType.paramTypes.addAll(variables.stream().map((defaultableVariable) -> defaultableVariable.type)
-                        .collect(Collectors.toList()));
+                        .toList());
                 if (functionSignature.returnTypeDesc().isPresent()) {
                     ReturnTypeDescriptorNode returnType = functionSignature.returnTypeDesc().get();
-                    functionType.returnType = Type.fromNode(returnType.type(), semanticModel);
+                    functionType.returnType = Type.fromNode(returnType.type(), semanticModel, module);
                 }
             }
             type = functionType;
-        } else if (node instanceof MapTypeDescriptorNode) {
-            MapTypeDescriptorNode mapTypeDesc = (MapTypeDescriptorNode) node;
+        } else if (node instanceof MapTypeDescriptorNode mapTypeDesc) {
             type.name = "map";
             type.category = "map";
-            type.constraint = fromNode(mapTypeDesc.mapTypeParamsNode().typeNode(), semanticModel);
-        } else if (node instanceof ParameterizedTypeDescriptorNode) {
-            ParameterizedTypeDescriptorNode parameterizedTypeNode = (ParameterizedTypeDescriptorNode) node;
+            type.constraint = fromNode(mapTypeDesc.mapTypeParamsNode().typeNode(), semanticModel, module);
+        } else if (node instanceof TableTypeDescriptorNode tableTypeDesc) {
+            type.name = "table";
+            type.category = "table";
+            type.constraint = fromNode(((TypeParameterNode) tableTypeDesc.rowTypeParameterNode()).typeNode(),
+                    semanticModel, module);
+        } else if (node instanceof ParameterizedTypeDescriptorNode parameterizedTypeNode) {
             SyntaxKind typeKind = node.kind();
             if (typeKind == SyntaxKind.ERROR_TYPE_DESC || typeKind == SyntaxKind.XML_TYPE_DESC) {
                 type.name = parameterizedTypeNode.keywordToken().text();
@@ -287,38 +293,32 @@ public class Type {
             } else if (typeKind == SyntaxKind.FUTURE_TYPE_DESC) {
                 type.category = "future";
                 type.elementType = parameterizedTypeNode.typeParamNode().map(typeParameterNode ->
-                        Type.fromNode(typeParameterNode.typeNode(), semanticModel)).orElse(null);
+                        Type.fromNode(typeParameterNode.typeNode(), semanticModel, module)).orElse(null);
             } else if (typeKind == SyntaxKind.TYPEDESC_TYPE_DESC) {
                 type.elementType = parameterizedTypeNode.typeParamNode().map(typeParameterNode ->
-                        Type.fromNode(typeParameterNode.typeNode(), semanticModel)).orElse(null);
+                        Type.fromNode(typeParameterNode.typeNode(), semanticModel, module)).orElse(null);
                 type.isTypeDesc = true;
             }
-        } else if (node instanceof ObjectTypeDescriptorNode) {
-            ObjectTypeDescriptorNode objectType = (ObjectTypeDescriptorNode) node;
+        } else if (node instanceof ObjectTypeDescriptorNode objectType) {
             type.name = objectType.toString();
             type.category = "other";
             type.generateUserDefinedTypeLink = false;
-        } else if (node instanceof SingletonTypeDescriptorNode) {
-            SingletonTypeDescriptorNode singletonTypeDesc = (SingletonTypeDescriptorNode) node;
+        } else if (node instanceof SingletonTypeDescriptorNode singletonTypeDesc) {
             type.name = singletonTypeDesc.simpleContExprNode().toString();
             type.category = "other";
             type.generateUserDefinedTypeLink = false;
-        } else if (node instanceof ParenthesisedTypeDescriptorNode) {
-            ParenthesisedTypeDescriptorNode parenthesisedNode = (ParenthesisedTypeDescriptorNode) node;
-            type.elementType = fromNode(parenthesisedNode.typedesc(), semanticModel);
+        } else if (node instanceof ParenthesisedTypeDescriptorNode parenthesisedNode) {
+            type.elementType = fromNode(parenthesisedNode.typedesc(), semanticModel, module);
             type.isParenthesisedType = true;
-        } else if (node instanceof TupleTypeDescriptorNode) {
-            TupleTypeDescriptorNode typeDescriptor = (TupleTypeDescriptorNode) node;
+        } else if (node instanceof TupleTypeDescriptorNode typeDescriptor) {
             type.memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(memberType ->
-                    Type.fromNode(memberType, semanticModel)).collect(Collectors.toList()));
+                    Type.fromNode(memberType, semanticModel, module)).toList());
             type.isTuple = true;
-        } else if (node instanceof MemberTypeDescriptorNode) {
-            MemberTypeDescriptorNode member = (MemberTypeDescriptorNode) node;
-            type = fromNode(member.typeDescriptor(), semanticModel);
-        } else if (node instanceof RecordRestDescriptorNode) {
-            RecordRestDescriptorNode recordRestDescriptorNode = (RecordRestDescriptorNode) node;
+        } else if (node instanceof MemberTypeDescriptorNode member) {
+            type = fromNode(member.typeDescriptor(), semanticModel, module);
+        } else if (node instanceof RecordRestDescriptorNode recordRestDescriptorNode) {
             type.isRestParam = true;
-            type.elementType = fromNode(recordRestDescriptorNode.typeName(), semanticModel);
+            type.elementType = fromNode(recordRestDescriptorNode.typeName(), semanticModel, module);
         } else {
             type.name = node.toSourceCode();
             type.generateUserDefinedTypeLink = false;
@@ -328,10 +328,10 @@ public class Type {
     }
 
     public static Type fromSemanticSymbol(Symbol symbol, Optional<Documentation> documentation,
-                                          TypeReferenceTypeSymbol parentTypeRefSymbol, boolean isTypeInclusion) {
+                                          TypeReferenceTypeSymbol parentTypeRefSymbol, boolean isTypeInclusion,
+                                          Module module) {
         Type type = new Type();
-        if (symbol instanceof TypeReferenceTypeSymbol) {
-            TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) symbol;
+        if (symbol instanceof TypeReferenceTypeSymbol typeReferenceTypeSymbol) {
             Symbol typeDefinition = typeReferenceTypeSymbol.definition();
 
             // The following condition is required to avoid stackoverflow error, caused by cyclic defintions,
@@ -340,23 +340,22 @@ public class Type {
             if (!typeReferenceTypeSymbol.equals(parentTypeRefSymbol) &&
                     (!Type.isPublic(typeReferenceTypeSymbol.definition()) || isTypeInclusion)) {
                 // Further process type details
-                if (typeDefinition instanceof TypeDefinitionSymbol) {
+                if (typeDefinition instanceof TypeDefinitionSymbol typeDefinitionSymbol) {
                     type = fromSemanticSymbol(typeReferenceTypeSymbol.typeDescriptor(),
-                            ((TypeDefinitionSymbol) typeDefinition).documentation(), typeReferenceTypeSymbol,
-                            false);
-                } else if (typeDefinition instanceof ClassSymbol) {
+                            typeDefinitionSymbol.documentation(), typeReferenceTypeSymbol,
+                            false, module);
+                } else if (typeDefinition instanceof ClassSymbol classSymbol) {
                     type = fromSemanticSymbol(typeReferenceTypeSymbol.typeDescriptor(),
-                            ((ClassSymbol) typeDefinition).documentation(), typeReferenceTypeSymbol,
-                            false);
+                            classSymbol.documentation(), typeReferenceTypeSymbol,
+                            false, module);
                 }
             }
             if (Type.isPublic(typeReferenceTypeSymbol.definition())) {
-                resolveSymbolMetaData(type, symbol);
+                resolveSymbolMetaData(type, symbol, module);
                 type.isPublic = true;
             }
             type.name = typeReferenceTypeSymbol.getName().isPresent() ? typeReferenceTypeSymbol.getName().get() : null;
-        } else if (symbol instanceof RecordTypeSymbol) {
-            RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) symbol;
+        } else if (symbol instanceof RecordTypeSymbol recordTypeSymbol) {
             Type recordType = type;
             recordType.name = recordTypeSymbol.getName().isPresent() ? recordTypeSymbol.getName().get() : "";
             recordType.description = documentation.isPresent() && documentation.get().description().isPresent() ?
@@ -366,31 +365,33 @@ public class Type {
                 recField.name = name;
                 recField.description = documentation.isPresent() ? documentation.get().parameterMap().get(name) : "";
                 recField.elementType = fromSemanticSymbol(field.typeDescriptor(), documentation, parentTypeRefSymbol,
-                        isTypeInclusion);
+                        isTypeInclusion, module);
                 recordType.memberTypes.add(recField);
             });
             recordTypeSymbol.restTypeDescriptor().ifPresent(typeSymbol -> {
                 Type restField = new Type();
                 restField.isRestParam = true;
                 restField.elementType = fromSemanticSymbol(typeSymbol, documentation, parentTypeRefSymbol,
-                        isTypeInclusion);
+                        isTypeInclusion, module);
                 restField.description = Generator.REST_FIELD_DESCRIPTION;
                 Type recField = new Type();
                 recField.elementType = restField;
                 recordType.memberTypes.add(recField);
             });
             recordType.category = CATEGORY_INLINE_RECORD;
-        } else if (symbol instanceof ObjectTypeSymbol) {
-            ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) symbol;
+        } else if (symbol instanceof ObjectTypeSymbol objectTypeSymbol) {
             ObjectType objType = new ObjectType();
             objType.name = objectTypeSymbol.getName().isPresent() ? objectTypeSymbol.getName().get() : "";
             objectTypeSymbol.fieldDescriptors().forEach((name, field) -> {
-                Type objField = new Type();
-                objField.name = name;
-                objField.description = documentation.isPresent() ? documentation.get().parameterMap().get(name) : "";
-                objField.elementType = fromSemanticSymbol(field.typeDescriptor(), documentation, parentTypeRefSymbol,
-                        isTypeInclusion);
-                objType.memberTypes.add(objField);
+                if (field.qualifiers().contains(Qualifier.PUBLIC)) {
+                    Type objField = new Type();
+                    objField.name = name;
+                    objField.description = documentation.isPresent() ?
+                            documentation.get().parameterMap().get(name) : "";
+                    objField.elementType = fromSemanticSymbol(field.typeDescriptor(), documentation,
+                            parentTypeRefSymbol, isTypeInclusion, module);
+                    objType.memberTypes.add(objField);
+                }
             });
             List<FunctionType> functionTypes = new ArrayList<>();
             objectTypeSymbol.methods().forEach((methodName, methodSymbol) -> {
@@ -424,7 +425,7 @@ public class Type {
                         Type paramType = new Type();
                         paramType.name = parameterSymbol.getName().isPresent() ? parameterSymbol.getName().get() : "";
                         paramType.elementType = fromSemanticSymbol(parameterSymbol.typeDescriptor(),
-                                methodSymbol.documentation(), parentTypeRefSymbol, isTypeInclusion);
+                                methodSymbol.documentation(), parentTypeRefSymbol, isTypeInclusion, module);
                         paramType.isDeprecated = parameterSymbol.annotations().stream()
                                 .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
                         functionType.paramTypes.add(paramType);
@@ -432,14 +433,14 @@ public class Type {
                 if (methodSymbol.typeDescriptor().restParam().isPresent()) {
                     ParameterSymbol restParam = methodSymbol.typeDescriptor().restParam().get();
                     Type restType = fromSemanticSymbol(restParam, methodSymbol.documentation(), parentTypeRefSymbol,
-                            isTypeInclusion);
+                            isTypeInclusion, module);
                     restType.isDeprecated = restParam.annotations().stream()
                             .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
                     functionType.paramTypes.add(restType);
                 }
                 if (methodSymbol.typeDescriptor().returnTypeDescriptor().isPresent()) {
                     Type returnType = fromSemanticSymbol(methodSymbol.typeDescriptor().returnTypeDescriptor().get(),
-                            methodSymbol.documentation(), parentTypeRefSymbol, isTypeInclusion);
+                            methodSymbol.documentation(), parentTypeRefSymbol, isTypeInclusion, module);
                     functionType.returnType = returnType;
                 }
                 });
@@ -447,60 +448,55 @@ public class Type {
             });
             objType.functionTypes = functionTypes;
             type = objType;
-        } else if (symbol instanceof MapTypeSymbol) {
-            MapTypeSymbol mapTypeSymbol = (MapTypeSymbol) symbol;
+        } else if (symbol instanceof MapTypeSymbol mapTypeSymbol) {
             type.name = "map";
             type.category = "map";
             type.constraint = fromSemanticSymbol(mapTypeSymbol.typeParam(), documentation, parentTypeRefSymbol,
-                    isTypeInclusion);
-        } else if (symbol instanceof UnionTypeSymbol) {
-            UnionTypeSymbol unionSymbol = (UnionTypeSymbol) symbol;
+                    isTypeInclusion, module);
+        } else if (symbol instanceof UnionTypeSymbol unionSymbol) {
             type.isAnonymousUnionType = true;
             List<Type> unionMembers = new ArrayList<>();
             unionSymbol.memberTypeDescriptors().forEach(typeSymbol -> unionMembers.add(fromSemanticSymbol(typeSymbol,
-                    documentation, parentTypeRefSymbol, isTypeInclusion)));
+                    documentation, parentTypeRefSymbol, isTypeInclusion, module)));
             type.memberTypes = unionMembers;
-        } else if (symbol instanceof IntersectionTypeSymbol) {
-            IntersectionTypeSymbol intersectionSymbol = (IntersectionTypeSymbol) symbol;
+        } else if (symbol instanceof IntersectionTypeSymbol intersectionSymbol) {
             type.isIntersectionType = true;
             List<Type> intersectionMembers = new ArrayList<>();
             intersectionSymbol.memberTypeDescriptors().forEach(typeSymbol -> intersectionMembers.add(
-                    fromSemanticSymbol(typeSymbol, documentation, parentTypeRefSymbol, isTypeInclusion)));
+                    fromSemanticSymbol(typeSymbol, documentation, parentTypeRefSymbol, isTypeInclusion, module)));
             type.memberTypes = intersectionMembers;
-        } else if (symbol instanceof ArrayTypeSymbol) {
-            ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) symbol;
+        } else if (symbol instanceof ArrayTypeSymbol arrayTypeSymbol) {
             type.isArrayType = true;
             type.arrayDimensions = 1;
             type.elementType = fromSemanticSymbol(arrayTypeSymbol.memberTypeDescriptor(), documentation,
-                    parentTypeRefSymbol, isTypeInclusion);
-        } else if (symbol instanceof TypeSymbol) {
+                    parentTypeRefSymbol, isTypeInclusion, module);
+        } else if (symbol instanceof TypeSymbol typeSymbol) {
             type.category = "builtin";
-            type.name = ((TypeSymbol) symbol).signature();
+            type.name = typeSymbol.signature();
         }
         return type;
     }
 
-    public static void addUnionMemberTypes(Node node, SemanticModel semanticModel, List<Type> members) {
-        if (node instanceof UnionTypeDescriptorNode) {
-            UnionTypeDescriptorNode unionTypeNode = (UnionTypeDescriptorNode) node;
-            addUnionMemberTypes(unionTypeNode.leftTypeDesc(), semanticModel, members);
-            addUnionMemberTypes(unionTypeNode.rightTypeDesc(), semanticModel, members);
+    public static void addUnionMemberTypes(Node node, SemanticModel semanticModel, List<Type> members, Module module) {
+        if (node instanceof UnionTypeDescriptorNode unionTypeNode) {
+            addUnionMemberTypes(unionTypeNode.leftTypeDesc(), semanticModel, members, module);
+            addUnionMemberTypes(unionTypeNode.rightTypeDesc(), semanticModel, members, module);
             return;
         }
-        members.add(fromNode(node, semanticModel));
+        members.add(fromNode(node, semanticModel, module));
     }
 
-    public static void addIntersectionMemberTypes(Node node, SemanticModel semanticModel, List<Type> members) {
-        if (node instanceof IntersectionTypeDescriptorNode) {
-            IntersectionTypeDescriptorNode intersectionTypeNode = (IntersectionTypeDescriptorNode) node;
-            addIntersectionMemberTypes(intersectionTypeNode.leftTypeDesc(), semanticModel, members);
-            addIntersectionMemberTypes(intersectionTypeNode.rightTypeDesc(), semanticModel, members);
+    public static void addIntersectionMemberTypes(Node node, SemanticModel semanticModel, List<Type> members,
+                                                  Module module) {
+        if (node instanceof IntersectionTypeDescriptorNode intersectionTypeNode) {
+            addIntersectionMemberTypes(intersectionTypeNode.leftTypeDesc(), semanticModel, members, module);
+            addIntersectionMemberTypes(intersectionTypeNode.rightTypeDesc(), semanticModel, members, module);
             return;
         }
-        members.add(fromNode(node, semanticModel));
+        members.add(fromNode(node, semanticModel, module));
     }
 
-    public static void resolveSymbolMetaData(Type type, Symbol symbol) {
+    public static void resolveSymbolMetaData(Type type, Symbol symbol, Module module) {
         ModuleID moduleID = symbol.getModule().isPresent() ? symbol.getModule().get().id() : null;
 
         if (moduleID != null) {
@@ -513,8 +509,10 @@ public class Type {
             type.version = "UNK_VER";
         }
 
-        if (symbol instanceof TypeReferenceTypeSymbol) {
-            TypeReferenceTypeSymbol typeSymbol = (TypeReferenceTypeSymbol) symbol;
+        if (!type.orgName.equals("UNK_ORG") && (!Objects.equals(type.moduleName, module.id) ||
+                !Objects.equals(type.orgName, module.orgName))) {
+            type.category = "libs";
+        } else if (symbol instanceof TypeReferenceTypeSymbol typeSymbol) {
             if (typeSymbol.definition().kind().equals(SymbolKind.ENUM)) {
                 type.category = "enums";
             } else if (typeSymbol.typeDescriptor() != null) {
@@ -522,13 +520,11 @@ public class Type {
             }
         } else if (symbol instanceof ConstantSymbol) {
             type.category = "constants";
-        } else if (symbol instanceof VariableSymbol) {
-            VariableSymbol variableSymbol = (VariableSymbol) symbol;
+        } else if (symbol instanceof VariableSymbol variableSymbol) {
             if (variableSymbol.typeDescriptor() != null) {
                 type.category = getTypeCategory(variableSymbol.typeDescriptor());
             }
-        } else if (symbol instanceof TypeDefinitionSymbol) {
-            TypeDefinitionSymbol typeDefSymbol = (TypeDefinitionSymbol) symbol;
+        } else if (symbol instanceof TypeDefinitionSymbol typeDefSymbol) {
             if (typeDefSymbol.typeDescriptor() != null) {
                 type.category = getTypeCategory(typeDefSymbol.typeDescriptor());
             }
@@ -568,6 +564,10 @@ public class Type {
                 return "types";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.INTERSECTION)) {
                 return getIntersectionTypeCategory((IntersectionTypeSymbol) typeDescriptor);
+            } else if (typeDescriptor.typeKind().equals(TypeDescKind.ANY)) {
+                return "types";
+            } else {
+                return "types";
             }
         } else if (typeDescriptor.kind().equals(SymbolKind.CLASS)) {
             Qualifiable classSymbol = (Qualifiable) typeDescriptor;
@@ -598,9 +598,10 @@ public class Type {
         this.category = "builtin";
     }
 
-    public Type(String name, String description, boolean isDeprecated) {
+    public Type(String name, String description, List<String> descriptionSections, boolean isDeprecated) {
         this.name = name;
         this.description = description;
+        this.descriptionSections = descriptionSections;
         this.isDeprecated = isDeprecated;
     }
 

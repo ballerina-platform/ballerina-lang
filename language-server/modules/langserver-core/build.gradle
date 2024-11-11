@@ -15,8 +15,10 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProjectWithExtBala'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations.all {
     resolutionStrategy {
@@ -31,7 +33,7 @@ configurations {
     dependency {
         transitive false
     }
-    libs
+    lib
     distributionBala
     tests {
         transitive true
@@ -39,6 +41,7 @@ configurations {
 }
 
 dependencies {
+    dist project(':ballerina-rt')
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
@@ -55,41 +58,40 @@ dependencies {
     implementation project(':ballerina-lang:annotations')
     implementation project(':language-server:language-server-stdlib')
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
-    implementation 'io.netty:netty-buffer'
-    implementation 'org.slf4j:slf4j-jdk14'
-    implementation 'com.google.code.findbugs:jsr305'
-    implementation ('org.eclipse.lsp4j:org.eclipse.lsp4j') {
+    implementation libs.jackson.databind
+    implementation libs.jackson.dataformat.yaml
+    implementation libs.netty.buffer
+    implementation libs.slf4j.jdk14
+    implementation libs.findbugs.jsr305
+    implementation (libs.eclipse.lsp4j) {
         exclude group: 'com.google.guava', module: 'guava'
     }
-    implementation ('org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc') {
+    implementation (libs.eclipse.lsp4j.jsonrpc) {
         exclude group: 'com.google.guava', module: 'guava'
     }
-    implementation 'org.apache.commons:commons-lang3'
-    implementation 'commons-io:commons-io'
-    implementation "com.google.guava:guava:${project.guavaVersion}"
-    implementation 'com.moandjiezana.toml:toml4j'
+    implementation libs.apache.commons.lang3
+    implementation libs.commons.io
+    implementation libs.guava
+    implementation libs.toml4j
 
     distributionBala project(path: ':language-server:language-server-stdlib', configuration: 'distributionBala')
 
-    dependency "org.eclipse.lsp4j:org.eclipse.lsp4j:${project.eclipseLsp4jVersion}"
-    dependency "org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:${project.eclipseLsp4jJsonrpcVersion}"
-    dependency "commons-io:commons-io:${project.commonsIoVersion}"
-    dependency "com.google.guava:guava:${project.guavaVersion}"
-    
-    testCompile 'org.testng:testng'
-    testCompile 'org.mockito:mockito-all'
-    testCompile 'org.awaitility:awaitility'
-    testImplementation 'org.powermock:powermock-mockito-release-full'
-    testImplementation 'org.powermock:powermock-module-testng-common'
+    dependency libs.eclipse.lsp4j
+    dependency libs.eclipse.lsp4j.jsonrpc
+    dependency libs.commons.io
+    dependency libs.guava
+
+    testImplementation libs.testng
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.testng
+    testImplementation libs.awaitility
 }
 
 description = 'Ballerina - Language server - Core'
 
 // Fix for windows class path too long issue
-task pathingJar(type: Jar) {
-    appendix = "pathing"
+tasks.register('pathingJar', Jar) {
+    archiveAppendix = "pathing"
     doFirst {
         manifest {
             attributes "Class-Path": sourceSets.main.runtimeClasspath.files.collect {
@@ -99,38 +101,63 @@ task pathingJar(type: Jar) {
     }
 }
 
-task clearPathingJar(type: Delete) {
+tasks.register('clearPathingJar', Delete) {
     delete pathingJar.archiveFile
 }
 
-task createZip(type: Zip) {
+tasks.register('createZip', Zip) {
     dependsOn createBalHome
 }
 
-task testJar(type: Jar, dependsOn: testClasses) {
-    baseName = "test-${project.archivesBaseName}"
+tasks.register('testJar', Jar) {
+    dependsOn testClasses
+    archiveBaseName = "test-${project.archivesBaseName}"
     from sourceSets.test.output
 }
 
 artifacts {
     dist file: file(createZip.archiveFile), builtBy: createZip
-    libs configurations.dependency.files
+    lib configurations.dependency.files
     
     tests testJar
 }
 
-createJavadoc {
-    // TODO: remove following, it fails at org.eclipse currently
-    exclude "**"
+compileJava {
+    doFirst {
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
 }
 
-task deleteGeneratedModules(type:Delete) {
+javadoc {
+    doFirst {
+        logger.info(classpath.toList().toString())
+        options.modulePath = classpath.toList()
+        classpath = files()
+    }
+}
+
+tasks.register('deleteGeneratedModules', Delete) {
     delete 'build/resources/test/command/generate-module-for-client-decl/source/client_decl/generated'
+}
+
+// This is need for the run via ls (fast-run) feature to be tested.
+tasks.register('copyRuntime') {
+    dependsOn configurations.dist
+    doFirst {
+        configurations.dist.each { artifact ->
+            copy {
+                from artifact.getPath()
+                into "$buildDir/bre/lib"
+            }
+        }
+    }
 }
 
 test {
     dependsOn deleteGeneratedModules
     dependsOn loadDistributionCache
+    dependsOn copyRuntime
     systemProperty "ballerina.home", "$buildDir/"
     systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version
@@ -140,7 +167,7 @@ test {
     }
 }
 
-task buildAndCopy(type: Copy) {
+tasks.register('buildAndCopy', Copy) {
     dependsOn build
     from 'build/libs/language-server-core-' + project.version + '.jar'
     into project(':jballerina-tools').projectDir.absolutePath +
@@ -148,3 +175,5 @@ task buildAndCopy(type: Copy) {
             '/bre/lib'
 }
 
+tasks.compileJava.dependsOn(':language-server:language-server-stdlib:copyInteropImports')
+tasks.javadoc.dependsOn(":language-server:language-server-stdlib:copyInteropImports")

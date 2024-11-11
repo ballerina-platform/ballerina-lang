@@ -14,8 +14,10 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/javaProject.gradle"
+
+plugins {
+    id 'javaProject'
+}
 
 configurations {
     dist {
@@ -31,7 +33,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-cli')
     implementation project(':docerina')
-    implementation 'com.moandjiezana.toml:toml4j'
+    implementation libs.toml4j
 
     dist project(':ballerina-lang')
     dist project(':ballerina-cli')
@@ -43,6 +45,9 @@ description = 'Ballerina - Library creation utility'
 
 // Creating uber jar of lib-creator to avoid windows gradle build issue with long class path with java commands.
 jar {
+    dependsOn ':testerina:testerina-core:copyInteropImports'
+    dependsOn ':ballerina-cli:jar'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from {
         configurations.dist.collect { it.isDirectory() ? it : zipTree(it) }
     } {

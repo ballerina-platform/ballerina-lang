@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -59,7 +60,7 @@ public class EqualAndNotEqualOperationsTest {
                 "checkDecimalEquality", "checkStringEquality", "checkEqualityToNil", "checkAnyDataEquality",
                 "testIntByteEqualityPositive", "testIntByteEqualityNegative", "testIntersectingUnionEquality",
                 "testTableEquality", "testEqualityWithNonAnydataType", "testEqualityByteWithIntSubTypes",
-                "checkFiniteTypeEquality"
+                "checkFiniteTypeEquality", "testEqualityWithCyclicReferences"
         };
     }
 
@@ -170,7 +171,7 @@ public class EqualAndNotEqualOperationsTest {
         BRunUtil.invoke(result, "checkJsonEqualityNegative", new Object[]{jsonVal, jsonValTwo});
 
         jsonValTwo = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\", \"helloThree\": " +
-                "\"worldThree\"}");
+                                      "\"worldThree\"}");
         BRunUtil.invoke(result, "checkJsonEqualityNegative", new Object[]{jsonVal, jsonValTwo});
     }
 
@@ -189,7 +190,8 @@ public class EqualAndNotEqualOperationsTest {
                 "testUnequalXmlIgnoringAttributeOrder", "testEqualXmlWithPI", "testUnequalXmlWithUnequalPI",
                 "testUnequalXmlWithPIInWrongOrder", "testUnequalXmlWithMultiplePIInWrongOrder",
                 "testUnequalXmlWithMissingPI", "testXmlWithNamespacesPositive", "testXmlWithNamespacesNegative",
-                "testXmlSequenceAndXmlItemEqualityPositive", "testXmlSequenceAndXmlItemEqualityNegative"
+                "testXmlSequenceAndXmlItemEqualityPositive", "testXmlSequenceAndXmlItemEqualityNegative",
+                "testXmlSequenceLHSEquals"
         };
     }
 
@@ -340,5 +342,11 @@ public class EqualAndNotEqualOperationsTest {
                 "testEqualityWithUnionOfSimpleTypes",
                 "testExactEqualityWithUnionOfNonSimpleTypes"
         };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
     }
 }

@@ -1,0 +1,4 @@
+[package]
+org = "numericliteral"
+name = "testproject"
+version = "0.1.0"

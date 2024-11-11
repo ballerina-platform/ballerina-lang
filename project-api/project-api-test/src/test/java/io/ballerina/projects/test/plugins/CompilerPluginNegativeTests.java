@@ -23,7 +23,6 @@ import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Contains negative cases to test compiler plugin loading and running.
@@ -49,15 +48,17 @@ public class CompilerPluginNegativeTests {
     private static final String EXCEPTION_MESSAGE_6 = "Failed to load the compiler plugin in package: " +
             "'samjs:package_compiler_plugin_6:1.1.0'. io/samjs/jarlibrary/diagnosticutils/DiagnosticUtils";
     private static final String EXCEPTION_MESSAGE_20 = "Failed to initialize the compiler plugin in package: " +
-            "'samjs:package_compiler_plugin_20:1.1.0'. null";
+            "'samjs:package_compiler_plugin_20:1.1.0'. Cannot invoke \"String.toCharArray\\(\\)\" because " +
+            "the return value of \"io.samjs.plugins.badsad.BadSadCompilerPlugin20.getStr\\(\\)\" is null";
     private static final String EXCEPTION_MESSAGE_21 = "Failed to initialize the compiler plugin in package: " +
             "'samjs:package_compiler_plugin_21:1.1.0'. The value cannot be less than zero";
     private static final String EXCEPTION_MESSAGE_40 = "The compiler extension in package " +
             "'samjs:package_compiler_plugin_40:1.1.0' failed to complete. The value cannot be less than zero";
     private static final String EXCEPTION_MESSAGE_41 = "The compiler extension in package " +
             "'samjs:package_compiler_plugin_41:1.1.0' failed to complete. The value cannot be less than zero";
+    private static final String EXCEPTION_MESSAGE_42 = "No dependencies found in CompilerPlugin.toml file";
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get(
+    private static final Path RESOURCE_DIRECTORY = Path.of(
             "src/test/resources/compiler_plugin_tests/negative_cases").toAbsolutePath();
 
     @Test(expectedExceptions = ProjectException.class, expectedExceptionsMessageRegExp = EXCEPTION_MESSAGE_1)
@@ -103,6 +104,11 @@ public class CompilerPluginNegativeTests {
     @Test(expectedExceptions = ProjectException.class, expectedExceptionsMessageRegExp = EXCEPTION_MESSAGE_41)
     public void testLoadingCompilerPluginCase41() {
         loadCompilationPackage(41);
+    }
+
+    @Test(expectedExceptions = ProjectException.class, expectedExceptionsMessageRegExp = EXCEPTION_MESSAGE_42)
+    public void testLoadingCompilerPluginCase42() {
+        loadCompilationPackage(42);
     }
 
     private void loadCompilationPackage(int testCase) {

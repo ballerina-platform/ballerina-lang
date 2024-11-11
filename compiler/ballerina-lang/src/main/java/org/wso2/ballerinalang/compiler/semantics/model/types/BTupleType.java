@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -35,7 +34,6 @@ import java.util.stream.Collectors;
  * @since 0.966.0
  */
 public class BTupleType extends BType implements TupleType {
-
     private List<BTupleMember> members;
     private List<BType> memberTypes;
     public BType restType;
@@ -43,7 +41,7 @@ public class BTupleType extends BType implements TupleType {
     public boolean resolvingToString = false;
     public boolean isCyclic = false;
 
-    private BIntersectionType intersectionType = null;
+    public BTupleType mutableType;
 
     public BTupleType(List<BTupleMember> members) {
         super(TypeTags.TUPLE, null);
@@ -131,20 +129,10 @@ public class BTupleType extends BType implements TupleType {
         this.resolvingToString = true;
 
         String stringRep = "[" + members.stream().map(BTupleMember::toString).collect(Collectors.joining(","))
-                + ((restType != null) ? (members.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
+                + ((restType != null) ? (!members.isEmpty() ? "," : "") + restType.toString() + "...]" : "]");
 
         this.resolvingToString = false;
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
-    }
-
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
     }
 
     // In the case of a cyclic tuple, this aids in
@@ -183,7 +171,7 @@ public class BTupleType extends BType implements TupleType {
     }
 
     public void setMembers(List<BTupleMember> members) {
-        assert members.size() == 0;
+        assert members.isEmpty();
         this.memberTypes = null;
         this.members = members;
     }
@@ -193,28 +181,24 @@ public class BTupleType extends BType implements TupleType {
             return;
         }
 
-        if (type instanceof BArrayType) {
-            BArrayType arrayType = (BArrayType) type;
+        if (type instanceof BArrayType arrayType) {
             if (arrayType.eType == this) {
                 isCyclic = true;
             }
         }
 
-        if (type instanceof BMapType) {
-            BMapType mapType = (BMapType) type;
+        if (type instanceof BMapType mapType) {
             if (mapType.constraint == this) {
                 isCyclic = true;
             }
         }
 
-        if (type instanceof BTableType) {
-            BTableType tableType = (BTableType) type;
+        if (type instanceof BTableType tableType) {
             if (tableType.constraint == this) {
                 isCyclic = true;
             }
 
-            if (tableType.constraint instanceof BMapType) {
-                BMapType mapType = (BMapType) tableType.constraint;
+            if (tableType.constraint instanceof BMapType mapType) {
                 if (mapType.constraint == this) {
                     isCyclic = true;
                 }

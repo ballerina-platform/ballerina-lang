@@ -22,32 +22,39 @@ import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.XML_OPERATION_ERROR;
 
 /**
  * Return attribute value matching attribute name `attrName`.
  *
  * @since 1.2.0
  */
-public class GetAttribute {
+public final class GetAttribute {
+
+    private GetAttribute() {
+    }
 
     public static Object getAttribute(BXml xmlVal, BString attrName, boolean optionalFiledAccess) {
-        if (xmlVal.getNodeType() == XmlNodeType.SEQUENCE && xmlVal.size() == 0) {
+        if (xmlVal.getNodeType() == XmlNodeType.SEQUENCE && xmlVal.isEmpty()) {
+            if (!optionalFiledAccess) {
+                return createError(XML_OPERATION_ERROR, ErrorHelper.getErrorDetails(
+                        ErrorCodes.EMPTY_XML_SEQUENCE_HAS_NO_ATTRIBUTES));
+            }
             return null;
         }
         if (!IsElement.isElement(xmlVal)) {
-            return createError(XML_OPERATION_ERROR, BLangExceptionHelper.getErrorDetails(
-                    RuntimeErrors.INVALID_XML_ATTRIBUTE_ERROR, xmlVal.getNodeType().value()));
+            return createError(XML_OPERATION_ERROR, ErrorHelper.getErrorDetails(
+                    ErrorCodes.INVALID_XML_ATTRIBUTE_ERROR, xmlVal.getNodeType().value()));
         }
         BXmlQName qname = ValueCreator.createXmlQName(attrName);
         BString attrVal = xmlVal.getAttribute(qname.getLocalName(), qname.getUri());
         if (attrVal == null && !optionalFiledAccess) {
             return createError(XML_OPERATION_ERROR,
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.ATTRIBUTE_NOT_FOUND_ERROR, attrName));
+                    ErrorHelper.getErrorDetails(ErrorCodes.ATTRIBUTE_NOT_FOUND_ERROR, attrName));
         }
         return attrVal;
     }

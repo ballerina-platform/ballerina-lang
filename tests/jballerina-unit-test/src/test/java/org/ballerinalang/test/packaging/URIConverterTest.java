@@ -27,7 +27,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
@@ -43,7 +42,7 @@ public class URIConverterTest {
         URIConverter subject = new URIConverter(baseURI, new HashMap<>());
 
         List<URI> urls = patten.convert(subject, null)
-                               .collect(Collectors.toList());
+                               .toList();
 
         URI expected = URI.create("http://staging.central.ballerina.io:9090/modules/natasha/foo.bar/1.0.5/");
         Assert.assertEquals(urls, Collections.singletonList(expected));

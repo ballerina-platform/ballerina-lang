@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 
 import static io.ballerina.projects.test.TestUtils.isWindows;
@@ -51,7 +50,7 @@ import static io.ballerina.projects.test.TestUtils.resetPermissions;
  * @since 2.0.0
  */
 public class TestSingleFileProject {
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/");
 
     @Test (description = "tests loading a valid standalone Ballerina file")
     public void testLoadSingleFile() {
@@ -87,7 +86,7 @@ public class TestSingleFileProject {
         Path targetDirPath = project.targetDir();
         Assert.assertNotNull(targetDirPath);
         Assert.assertTrue(targetDirPath.toFile().exists());
-        Assert.assertEquals(Paths.get(System.getProperty("java.io.tmpdir")), targetDirPath.getParent());
+        Assert.assertEquals(Path.of(System.getProperty("java.io.tmpdir")), targetDirPath.getParent());
     }
 
     @Test (description = "tests loading a valid standalone Ballerina file")
@@ -248,7 +247,7 @@ public class TestSingleFileProject {
         PackageCompilation compilation = currentPackage.getCompilation();
 
         Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 1);
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
         Assert.assertEquals(jBallerinaBackend.diagnosticResult().diagnosticCount(), 1);
 
         Assert.assertEquals(

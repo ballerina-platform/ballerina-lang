@@ -59,7 +59,7 @@ public class SymbolsInResourceAccessActionTest {
         srcFile = getDocumentForSingleSource(project);
     }
 
-    @Test(dataProvider = "ResourceAccessActionPosition")
+    @Test(dataProvider = "ResourceAccessActionPositionAndPathSegments")
     public void testResourceAccessAction(int line, int col, String name, Map<String, PathSegment.Kind> pathSegments) {
         ResourceMethodSymbol sym = (ResourceMethodSymbol)
                 assertBasicsAndGetSymbol(model, srcFile, line, col, name, SymbolKind.RESOURCE_METHOD);
@@ -69,19 +69,25 @@ public class SymbolsInResourceAccessActionTest {
         assertEquals(functionTypeSymbol.typeKind(), TypeDescKind.FUNCTION);
     }
 
-    @DataProvider(name = "ResourceAccessActionPosition")
+    @DataProvider(name = "ResourceAccessActionPositionAndPathSegments")
     public Object[][] getResourceAccessActionPosAndPathSegments() {
         return new Object[][]{
-                {40, 34, "get", Map.of(
+                {42, 34, "get", Map.of(
                         "foo", PathSegment.Kind.NAMED_SEGMENT,
                         "bar", PathSegment.Kind.NAMED_SEGMENT,
                         "[string id]", PathSegment.Kind.PATH_PARAMETER)},
-                {41, 25, "get", Map.of(
+                {43, 25, "get", Map.of(
                         "foo", PathSegment.Kind.NAMED_SEGMENT,
                         "[string id]", PathSegment.Kind.PATH_PARAMETER)},
-                {42, 28, "post", Map.of(
+                {44, 39, "post", Map.of(
                         "bar", PathSegment.Kind.NAMED_SEGMENT,
                         "[string... ids]", PathSegment.Kind.PATH_REST_PARAMETER)},
+                {66, 11, "get", Map.of(
+                        "[string s1]", PathSegment.Kind.PATH_PARAMETER,
+                        "[string s2]", PathSegment.Kind.PATH_PARAMETER)},
+                {76, 11, "get", Map.of(
+                        "path1", PathSegment.Kind.NAMED_SEGMENT,
+                        "path2", PathSegment.Kind.NAMED_SEGMENT)},
         };
     }
 
@@ -101,20 +107,74 @@ public class SymbolsInResourceAccessActionTest {
     @DataProvider(name = "SymbolPosInResourceAccessAction")
     public Object[][] getSymbolPosInResourceAccessAction() {
         return new Object[][]{
-                {40, 23, "fooClient", SymbolKind.VARIABLE}, // <c>fooClient->/foo
-                {40, 32, null, null},   // -><c>/foo
-                {40, 34, "get", SymbolKind.RESOURCE_METHOD},    // <c>->
-//                {40, 35, "foo", <undefined>}, // ->/<c>foo    //TODO: Enable this after fixing #37604
-                {40, 49, "x", SymbolKind.CONSTANT}  // ["3"](<c>x, 2);
+                {42, 23, "fooClient", SymbolKind.VARIABLE}, // <c>fooClient->/foo
+                {42, 32, "get", SymbolKind.RESOURCE_METHOD},   // -><c>/foo
+                {42, 34, "get", SymbolKind.RESOURCE_METHOD},    // -><c>/
+                {42, 35, "foo", SymbolKind.PATH_NAME_SEGMENT}, // ->/<c>foo
+                {42, 49, "x", SymbolKind.CONSTANT},  // ["3"](<c>x, 2);
+                {78, 10, "get", SymbolKind.RESOURCE_METHOD}  // -><c>/()
         };
+    }
+
+    @Test(dataProvider = "ResourceAccessActionPosWithTargetFunctionSignature")
+    public void testTargetFunctionOfResourceAccessAction(int line, int col, String signature) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), SymbolKind.RESOURCE_METHOD);
+        assertEquals(((ResourceMethodSymbol) symbol.get()).signature(), signature);
+    }
+
+    @DataProvider(name = "ResourceAccessActionPosWithTargetFunctionSignature")
+    public Object[][] getResourceAccessActionPosAndFunctionSignatures() {
+        return new Object[][]{
+                // Resource method: [string s1]/[string s2]()
+                {66, 10, "resource function get [string s1]/[string s2] () returns ()"},
+                {67, 10, "resource function get [string s1]/[string s2] () returns ()"},
+                {68, 10, "resource function get [string s1]/[string s2] () returns ()"},
+
+                // Resource method: [string... ss]()
+                {70, 10, "resource function get [string... ss] () returns ()"},
+                {71, 10, "resource function get [string... ss] () returns ()"},
+                {72, 10, "resource function get [string... ss] () returns ()"},
+
+                // Resource method: path1/path2()
+                {74, 10, "resource function get path1/path2 () returns ()"},
+                {76, 10, "resource function get path1/path2 () returns ()"},
+
+                // Resource method: .()
+                {78, 10, "resource function get . () returns ()"},
+        };
+    }
+
+    @Test(dataProvider = "ResourceAccessActionPathPos")
+    public void testResourceAccessActionPath2(int line, int col, String signature) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), SymbolKind.PATH_NAME_SEGMENT);
+        assertEquals(((PathSegment) symbol.get()).signature(), signature);
+    }
+
+    @DataProvider(name = "ResourceAccessActionPathPos")
+    public Object[][] getResourceAccessActionPathPos() {
+        return new Object[][]{
+                // Resource method: path1/path2()
+                {74, 11, "path1"},   // quxCl->/<CURSOR>path1/path2()
+                {76, 12, "path1"},   // quxCl->/[<CURSOR>"path1"]/["path2"]()
+        };
+    }
+
+    @Test
+    public void testPathSegmentOfAmbiguousResourceFunction() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(91, 9));
+        assertTrue(symbol.isEmpty()); // Resource method is ambiguous
     }
 
     // Utils
     private void assertPathSegment(Map<String, PathSegment.Kind> expected, List<PathSegment> actual) {
         expected.forEach((expName, expKind) ->
-            assertTrue(actual.stream()
-                    .anyMatch(actualName ->
-                            actualName.signature().equals(expName) && actualName.pathSegmentKind().equals(expKind)))
+                assertTrue(actual.stream()
+                        .anyMatch(actualName ->
+                                actualName.signature().equals(expName) && actualName.pathSegmentKind().equals(expKind)))
         );
     }
 }

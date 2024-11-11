@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Module;
@@ -27,16 +28,21 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Function generator utilities.
  */
-public class FunctionGenerator {
+public final class FunctionGenerator {
 
     public static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN =
             Pattern.compile("([\\w]+)\\/([\\w.]+):([^:]+):([\\w]+)[\\|]?");
+
+    private FunctionGenerator() {
+    }
 
     /**
      * Returns signature of the provided type.
@@ -86,7 +92,43 @@ public class FunctionGenerator {
         if (nextStart != 0) {
             newText.append(text.substring(nextStart));
         }
-        return newText.length() > 0 ? newText.toString() : text;
+        return !newText.isEmpty() ? newText.toString() : text;
+    }
+
+    /**
+     * Given a text like "ballerina/module1:0.1.0:Response", this will output "module1:Response" after filtering the
+     * version and org information from the full qualified module name.
+     *
+     * @param text Text to be processed
+     * @return Processed text
+     */
+    public static String processModuleIDsInText(String text) {
+        StringBuilder newText = new StringBuilder();
+        Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(text);
+        int nextStart = 0;
+        while (matcher.find()) {
+            // Append up-to start of the match
+            newText.append(text, nextStart, matcher.start(1));
+
+            String modPart = matcher.group(2);
+            int last = modPart.lastIndexOf(".");
+            if (last != -1) {
+                modPart = modPart.substring(last + 1);
+            }
+
+            String typeName = matcher.group(4);
+
+            newText.append(modPart);
+            newText.append(":");
+            newText.append(typeName);
+            // Update next-start position
+            nextStart = matcher.end(4);
+        }
+        // Append the remaining
+        if (nextStart != 0 && nextStart < text.length()) {
+            newText.append(text.substring(nextStart));
+        }
+        return !newText.isEmpty() ? newText.toString() : text;
     }
 
     /**
@@ -197,6 +239,23 @@ public class FunctionGenerator {
         }
 
         return fnBuilder.toString();
+    }
+
+    /**
+     * Generates a unique function name based on the provided function prefix and the list of visible symbols.
+     * The function name is generated in such a way that it does not conflict with any of the visible symbol names.
+     *
+     * @param functionPrefix The prefix to be used for the function name.
+     * @param visibleSymbols The list of visible symbols in the current scope.
+     * @return A unique function name.
+     */
+    public static String generateFunctionName(String functionPrefix, List<Symbol> visibleSymbols) {
+        Set<String> visibleSymbolNames = visibleSymbols.stream()
+                .map(Symbol::getName)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+        return NameUtil.generateTypeName(functionPrefix, visibleSymbolNames);
     }
 
     /**

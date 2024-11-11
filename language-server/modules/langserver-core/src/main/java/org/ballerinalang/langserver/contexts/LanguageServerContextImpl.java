@@ -28,25 +28,29 @@ import java.util.Map;
  * @since 2.0.0
  */
 public class LanguageServerContextImpl implements LanguageServerContext {
-    private Map<LanguageServerContext.Key<?>, Object> props = new HashMap<>();
-    private Map<Class<?>, Object> objects = new HashMap<>();
+    private final Map<LanguageServerContext.Key<?>, Object> props = new HashMap<>();
+    private final Map<Class<?>, Object> objects = new HashMap<>();
 
     public LanguageServerContextImpl() {
     }
 
+    @Override
     public <V> void put(LanguageServerContext.Key<V> key, V value) {
         props.put(key, value);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <V> V get(LanguageServerContext.Key<V> key) {
         return (V) props.get(key);
     }
 
+    @Override
     public <V> void put(Class<V> clazz, V value) {
         objects.put(clazz, value);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <V> V get(Class<V> clazz) {
         return (V) objects.get(clazz);

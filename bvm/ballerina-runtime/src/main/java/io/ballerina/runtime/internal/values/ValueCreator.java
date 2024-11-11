@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
@@ -25,7 +26,6 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -86,7 +86,8 @@ public abstract class ValueCreator {
 
     public static ValueCreator getValueCreator(String key) {
         if (!runtimeValueCreators.containsKey(key)) {
-            throw new BallerinaException("Value creator object is not available for: " + key);
+            throw ErrorCreator.createError(StringUtils.fromString(
+                    "Value creator object is not available for: " + key));
         }
         return runtimeValueCreators.get(key);
     }

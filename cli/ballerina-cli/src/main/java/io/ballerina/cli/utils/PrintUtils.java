@@ -18,11 +18,15 @@
 
 package io.ballerina.cli.utils;
 
+import io.ballerina.projects.BalToolsManifest;
+import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.model.Package;
+import org.ballerinalang.central.client.model.Tool;
 
 import java.io.PrintStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -31,11 +35,58 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class PrintUtils {
+public final class PrintUtils {
 
-    private static PrintStream outStream = System.out;
+    private static final PrintStream outStream = System.out;
 
     private PrintUtils() {
+    }
+
+    /**
+     * Print locally available tool information as a table in the CLI.
+     *
+     * @param tools       List of tools
+     */
+    public static void printLocalTools(List<BalToolsManifest.Tool> tools, String terminalWidth) {
+        int rightMargin = 3;
+        int width = Integer.parseInt(terminalWidth) - rightMargin;
+        int maxToolIdNameLength = 0;
+        for (BalToolsManifest.Tool tool: tools) {
+            if (maxToolIdNameLength < tool.id().length()) {
+                maxToolIdNameLength = tool.id().length();
+            }
+        }
+        int versionColWidth = 15;
+        int repositoryColWidth = 10;
+        int padding = 2;
+        int minimumToolIdColWidth = 20;
+        int remainingWidth = Math.max(minimumToolIdColWidth, width - versionColWidth);
+        int toolIdColWidth = Math.max(minimumToolIdColWidth, Math.min(maxToolIdNameLength, remainingWidth)) + padding;
+
+        printListLocalTableHeader(toolIdColWidth, versionColWidth, repositoryColWidth);
+
+        for (BalToolsManifest.Tool tool: tools) {
+            String repository = ProjectConstants.LOCAL_REPOSITORY_NAME.equals(tool.repository()) ? "local" : "central";
+            String activeIndicator = tool.active() ? "* " : "  ";
+            printInCLI("|" + tool.id(), toolIdColWidth);
+            printInCLI(activeIndicator + tool.version(), versionColWidth);
+            printInCLI(repository, repositoryColWidth);
+            outStream.println();
+        }
+        outStream.println();
+        outStream.println(tools.size() + " tools found.");
+    }
+
+    private static void printListLocalTableHeader(int toolIdColWidth, int versionColWidth, int repositoryColWidth) {
+        printInCLI("|TOOL ID", toolIdColWidth);
+        printInCLI("VERSION", versionColWidth);
+        printInCLI("REPO", repositoryColWidth);
+        outStream.println();
+
+        printCharacter("|-", toolIdColWidth, "-", true);
+        printCharacter("-", versionColWidth, "-", true);
+        printCharacter("-", repositoryColWidth, "-", true);
+        outStream.println();
     }
 
     /**
@@ -59,16 +110,73 @@ public class PrintUtils {
         int versionColWidth = getColWidth(remainingWidth, versionColFactor, nameColFactor, descColFactor);
         int minDescColWidth = 60;
 
-        printTitle();
-        printTableHeader(dateColWidth, versionColWidth, nameColWidth, descColWidth, minDescColWidth, authorsColWidth);
+        String[] columnNames;
+        int[] columnWidths;
+        if (descColWidth >= minDescColWidth) {
+            columnNames = new String[]{"NAME", "DESCRIPTION", "AUTHOR", "DATE", "VERSION"};
+            columnWidths = new int[]{
+                    nameColWidth, descColWidth - authorsColWidth, authorsColWidth, dateColWidth, versionColWidth};
+        } else {
+            columnNames = new String[]{"NAME", "DESCRIPTION", "DATE", "VERSION"};
+            columnWidths = new int[]{nameColWidth, descColWidth, dateColWidth, versionColWidth};
+        }
+        printBallerinaCentralTitle();
+        printPackageSearchTableHeader(columnNames, columnWidths);
 
         for (Package aPackage : packages) {
-            printPackage(aPackage, dateColWidth, versionColWidth, authorsColWidth, nameColWidth, descColWidth,
+            outStream.print("|");
+            printPackage(aPackage, dateColWidth, versionColWidth, authorsColWidth, nameColWidth - 1, descColWidth,
                          minDescColWidth);
             outStream.println();
         }
         outStream.println();
         outStream.println(packages.size() + " packages found");
+    }
+
+    /**
+     * Print package information as a table in the CLI.
+     *
+     * @param tools       packages array
+     * @param terminalWidth terminal width of the CLI
+     */
+    public static void printTools(List<Tool> tools, String terminalWidth) {
+        int rightMargin = 3;
+        int width = Integer.parseInt(terminalWidth) - rightMargin;
+        int dateColWidth = 15;
+        int authorsColWidth = 15;
+        double idColFactor = 7.0;
+        double nameColFactor = 7.0;
+        double descColFactor = 14.0;
+        double versionColFactor = 4.0;
+        int additionalSpace = 7;
+        double remainingWidth = (double) width - (dateColWidth + additionalSpace);
+        int idColWidth = getColWidth(remainingWidth, idColFactor, nameColFactor, descColFactor, versionColFactor);
+        int nameColWidth = getColWidth(remainingWidth, idColFactor, nameColFactor, descColFactor, versionColFactor);
+        int descColWidth = getColWidth(remainingWidth, idColFactor, descColFactor, nameColFactor, versionColFactor);
+        int versionColWidth = getColWidth(remainingWidth, idColFactor, versionColFactor, nameColFactor, descColFactor);
+        int minDescColWidth = 60;
+
+        String[] columnNames;
+        int[] columnWidths;
+        if (descColWidth >= minDescColWidth) {
+            columnNames = new String[]{"ID", "PACKAGE", "DESCRIPTION", "AUTHOR", "DATE", "VERSION"};
+            columnWidths = new int[]{ idColWidth, nameColWidth, descColWidth - authorsColWidth, authorsColWidth,
+                    dateColWidth, versionColWidth};
+        } else {
+            columnNames = new String[]{"ID", "PACKAGE", "DESCRIPTION", "DATE", "VERSION"};
+            columnWidths = new int[]{idColWidth, nameColWidth, descColWidth, dateColWidth, versionColWidth};
+        }
+        printBallerinaCentralTitle();
+        printPackageSearchTableHeader(columnNames, columnWidths);
+
+        for (Tool tool : tools) {
+            printInCLI("|" + tool.getBalToolId(), idColWidth);
+            printTool(tool, dateColWidth, versionColWidth, authorsColWidth, nameColWidth, descColWidth,
+                    minDescColWidth);
+            outStream.println();
+        }
+        outStream.println();
+        outStream.println(tools.size() + " tools found.");
     }
 
     /**
@@ -84,7 +192,7 @@ public class PrintUtils {
      */
     private static void printPackage(Package aPackage, int dateColWidth, int versionColWidth, int authorsColWidth,
             int nameColWidth, int descColWidth, int minDescColWidth) {
-        printInCLI("|" + aPackage.getOrganization() + "/" + aPackage.getName(), nameColWidth);
+        printInCLI(aPackage.getOrganization() + "/" + aPackage.getName(), nameColWidth);
 
         String summary = getSummary(aPackage);
 
@@ -114,9 +222,51 @@ public class PrintUtils {
     }
 
     /**
-     * Print the tile.
+     * Print tool row.
+     *
+     * @param tool        tool information
+     * @param dateColWidth    date column width
+     * @param versionColWidth version column width
+     * @param nameColWidth    name column width
+     * @param descColWidth    description column width
+     * @param minDescColWidth minimum description column width
+     * @param authorsColWidth authors column width
      */
-    private static void printTitle() {
+    private static void printTool(Tool tool, int dateColWidth, int versionColWidth, int authorsColWidth,
+                                     int nameColWidth, int descColWidth, int minDescColWidth) {
+        printInCLI(tool.getOrganization() + "/" + tool.getName(), nameColWidth);
+
+        String summary = getSummary(tool);
+
+        if (descColWidth >= minDescColWidth) {
+            printInCLI(summary, descColWidth - authorsColWidth);
+            String authors = "";
+            List<String> authorsArr = tool.getAuthors();
+
+            if (!authorsArr.isEmpty()) {
+                for (int j = 0; j < authorsArr.size(); j++) {
+                    if (j == 0) {
+                        authors = authorsArr.get(j);
+                    } else if (j == authorsArr.size() - 1) {
+                        authors = authorsArr.get(j);
+                    } else {
+                        authors = ", " + authorsArr.get(j);
+                    }
+                }
+            }
+            printInCLI(authors, authorsColWidth);
+        } else {
+            printInCLI(summary, descColWidth);
+        }
+
+        printInCLI(getDateCreated(tool.getCreatedDate()), dateColWidth);
+        printInCLI(tool.getVersion(), versionColWidth);
+    }
+
+    /**
+     * Print the ballerina central tile.
+     */
+    private static void printBallerinaCentralTitle() {
         outStream.println();
         outStream.println("Ballerina Central");
         outStream.println("=================");
@@ -176,69 +326,40 @@ public class PrintUtils {
     }
 
     /**
-     * Print table header.
+     * Print table header for the package search.
      *
-     * @param dateColWidth    date column width
-     * @param versionColWidth version column width
-     * @param nameColWidth    name column width
-     * @param descColWidth    description column width
-     * @param minDescColWidth minimum description column width
-     * @param authorsColWidth authors column width
+     * @param columnNames    array of column names
+     * @param columnWidths    array of column widths
      */
-    private static void printTableHeader(int dateColWidth, int versionColWidth, int nameColWidth, int descColWidth,
-            int minDescColWidth, int authorsColWidth) {
-        printHeadingRow(dateColWidth, versionColWidth, nameColWidth, descColWidth, minDescColWidth, authorsColWidth);
-        printDashRow(dateColWidth, versionColWidth, nameColWidth, descColWidth, minDescColWidth, authorsColWidth);
+    private static void printPackageSearchTableHeader(String[] columnNames, int[] columnWidths) {
+        printHeadingRow(columnNames, columnWidths);
+        printDashRow(columnWidths);
     }
 
     /**
      * Print heading row of the table header.
      *
-     * @param dateColWidth    date column width
-     * @param versionColWidth version column width
-     * @param nameColWidth    name column width
-     * @param descColWidth    description column width
-     * @param minDescColWidth minimum description column width
-     * @param authorsColWidth authors column width
+     * @param columnNames    array of column names
+     * @param columnWidths    array of column widths
      */
-    private static void printHeadingRow(int dateColWidth, int versionColWidth, int nameColWidth, int descColWidth,
-            int minDescColWidth, int authorsColWidth) {
-        printInCLI("|NAME", nameColWidth);
-        if (descColWidth >= minDescColWidth) {
-            printInCLI("DESCRIPTION", descColWidth - authorsColWidth);
-            printInCLI("AUTHOR", authorsColWidth);
-        } else {
-            printInCLI("DESCRIPTION", descColWidth);
+    private static void printHeadingRow(String[] columnNames, int[] columnWidths) {
+        printInCLI("|" + columnNames[0], columnWidths[0]);
+        for (int i = 1; i < columnNames.length; i++) {
+            printInCLI(columnNames[i], columnWidths[i]);
         }
-        printInCLI("DATE", dateColWidth);
-        printInCLI("VERSION", versionColWidth);
         outStream.println();
     }
 
     /**
      * Print dash row of the table header.
      *
-     * @param dateColWidth    date column width
-     * @param versionColWidth version column width
-     * @param nameColWidth    name column width
-     * @param descColWidth    description column width
-     * @param minDescColWidth minimum description column width
-     * @param authorsColWidth authors column width
+     * @param columnWidths  array of column widths
      */
-    private static void printDashRow(int dateColWidth, int versionColWidth, int nameColWidth, int descColWidth,
-            int minDescColWidth, int authorsColWidth) {
-        printCharacter("|-", nameColWidth, "-", true);
-
-        if (descColWidth >= minDescColWidth) {
-            printCharacter("-", descColWidth - authorsColWidth, "-", true);
-            printCharacter("-", authorsColWidth, "-", true);
-        } else {
-            printCharacter("-", descColWidth, "-", true);
+    private static void printDashRow(int[] columnWidths) {
+        printCharacter("|-", columnWidths[0], "-", true);
+        for (int i = 1; i < columnWidths.length; i++) {
+            printCharacter("-", columnWidths[i], "-", true);
         }
-
-        printCharacter("-", dateColWidth, "-", true);
-        printCharacter("-", versionColWidth, "-", true);
-
         outStream.println();
     }
 
@@ -254,8 +375,19 @@ public class PrintUtils {
         return summary;
     }
 
-    private static int getColWidth(double remainingWidth, double colFactor, double otherColFactor1,
-            double otherColFactor2) {
-        return (int) Math.round(remainingWidth * (colFactor / (colFactor + otherColFactor1 + otherColFactor2)));
+    private static String getSummary(Tool tool) {
+        String summary = tool.getSummary();
+        if (summary == null) {
+            String readme = tool.getReadme();
+            if (readme == null) {
+                return "";
+            }
+            summary = readme.substring(0, readme.indexOf('\n'));
+        }
+        return summary;
+    }
+
+    private static int getColWidth(double remainingWidth, double colFactor, double... otherColFactors) {
+        return (int) Math.round(remainingWidth * (colFactor / (colFactor + Arrays.stream(otherColFactors).sum())));
     }
 }

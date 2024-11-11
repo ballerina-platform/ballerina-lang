@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/ballerinaStdLibBuildInternal.gradle"
+plugins {
+    id 'ballerinaStdLibBuildInternal'
+}
 
 
 dependencies {
@@ -23,10 +25,10 @@ dependencies {
     implementation project(':ballerina-lang')
 
 
-    implementation 'org.slf4j:slf4j-api'
+    implementation libs.slf4j.api
 }
 
-task updateVersion {
+tasks.register('updateVersion') {
     doLast {
         ant.replaceregexp(
                 file: "${project.buildDir}/ballerina-src/Ballerina.toml",
@@ -37,5 +39,7 @@ task updateVersion {
 }
 
 copyBallerinaProject.finalizedBy(updateVersion)
+
+tasks.generateMetadataFileForMavenJavaPublication.dependsOn(':ballerina-lang-test:copyInteropImports')
 
 description = 'ballerina/lang.test Implementation'

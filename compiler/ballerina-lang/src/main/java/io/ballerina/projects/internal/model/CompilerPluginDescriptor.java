@@ -40,8 +40,8 @@ public class CompilerPluginDescriptor {
     private static final String DEPENDENCY = "dependency";
     private static final String CLASS = "class";
 
-    private Plugin plugin;
-    private List<Dependency> dependencies;
+    private final Plugin plugin;
+    private final List<Dependency> dependencies;
 
     private CompilerPluginDescriptor(Plugin plugin, List<Dependency> dependencies) {
         this.plugin = plugin;

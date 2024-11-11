@@ -18,8 +18,8 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -47,6 +47,7 @@ public class BIRVarToJVMIndexMap {
 
     private void add(String varRefName, BType bType) {
         this.jvmLocalVarIndexMap.put(varRefName, this.localVarIndex);
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag) || bType.tag == TypeTags.FLOAT) {
             this.localVarIndex = this.localVarIndex + 2;
         } else if (bType.tag == JTypeTags.JTYPE) {
@@ -63,7 +64,7 @@ public class BIRVarToJVMIndexMap {
 
     public int addIfNotExists(String varRefName, BType bType) {
         if (!(this.jvmLocalVarIndexMap.containsKey(varRefName))) {
-            this.add(varRefName, JvmCodeGenUtil.getReferredType(bType));
+            this.add(varRefName, JvmCodeGenUtil.getImpliedType(bType));
         }
         return get(varRefName);
     }

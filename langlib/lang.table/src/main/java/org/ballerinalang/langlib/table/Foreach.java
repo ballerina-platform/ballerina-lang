@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+import static org.ballerinalang.langlib.table.utils.Constants.TABLE_VERSION;
 
 /**
  * Native implementation of lang.table:forEach(table&lt;Type&gt;, function).
@@ -40,12 +40,15 @@ import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 //        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
 //        isPublic = true
 //)
-public class Foreach {
+public final class Foreach {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "forEach");
 
-    public static void forEach(BTable tbl, BFunctionPointer<Object, Object> func) {
+    private Foreach() {
+    }
+
+    public static void forEach(BTable<?, ?> tbl, BFunctionPointer<Object[], Object> func) {
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         Object[] values = tbl.values().toArray();
@@ -53,5 +56,4 @@ public class Foreach {
                 () -> new Object[]{values[index.incrementAndGet()], true}, result -> {
                 }, () -> null, Scheduler.getStrand().scheduler);
     }
-
 }

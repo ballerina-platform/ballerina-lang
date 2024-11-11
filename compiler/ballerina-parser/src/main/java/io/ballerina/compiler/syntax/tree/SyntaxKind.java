@@ -131,6 +131,8 @@ public enum SyntaxKind {
 
     // Contextual keywords
     RE_KEYWORD(400, "re"), // Any kind above this is considered as a keyword
+    GROUP_KEYWORD(401, "group"),
+    COLLECT_KEYWORD(402, "collect"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -333,6 +335,8 @@ public enum SyntaxKind {
     ASTERISK_LITERAL(1343),
     REQUIRED_EXPRESSION(1344),
     ERROR_CONSTRUCTOR(1345),
+    XML_STEP_METHOD_CALL_EXTEND(1346),
+    XML_STEP_INDEXED_EXTEND(1347),
 
     // Type descriptors
     TYPE_DESC(2000),
@@ -478,6 +482,12 @@ public enum SyntaxKind {
     COMPUTED_RESOURCE_ACCESS_SEGMENT(3088),
     RESOURCE_ACCESS_REST_SEGMENT(3089),
     MEMBER_TYPE_DESC(3090),
+    GROUPING_KEY_VAR_DECLARATION(3091),
+    GROUPING_KEY_VAR_NAME(3092),
+    GROUP_BY_CLAUSE(3093),
+    COLLECT_CLAUSE(3094),
+    ALTERNATE_RECEIVE(3095),
+    RECEIVE_FIELD(3096),
 
     // XML
     XML_ELEMENT(4000),

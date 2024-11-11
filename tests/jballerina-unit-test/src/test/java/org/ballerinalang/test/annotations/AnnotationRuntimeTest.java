@@ -18,16 +18,27 @@ package org.ballerinalang.test.annotations;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.AnnotatableType;
+import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.RemoteMethodType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
+import io.ballerina.runtime.api.types.ServiceType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
+import org.ballerinalang.nativeimpl.jvm.servicetests.ServiceValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -127,7 +138,7 @@ public class AnnotationRuntimeTest {
         CompileResult resultFour = BCompileUtil.compile("test-src/annotations/annot_availability.bal");
         Assert.assertEquals(resultFour.getErrorCount(), 0);
         Object obj = BRunUtil.invokeAndGetJVMResult(resultFour, "testStructureAnnots");
-        Assert.assertEquals(TypeChecker.getType(obj).getTag(), io.ballerina.runtime.api.TypeTags.TUPLE_TAG);
+        Assert.assertEquals(TypeChecker.getType(obj).getTag(), TypeTags.TUPLE_TAG);
 
         TupleValueImpl tupleValue = (TupleValueImpl) obj;
 
@@ -135,7 +146,7 @@ public class AnnotationRuntimeTest {
         Assert.assertEquals(annotatableType.getAnnotation(StringUtils.fromString("W")), true);
 
         Object fieldAnnots = annotatableType.getAnnotation(StringUtils.fromString("$field$.i"));
-        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), io.ballerina.runtime.api.TypeTags.MAP_TAG);
+        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), TypeTags.MAP_TAG);
         MapValueImpl<BString, Object> fieldAnnotMap = (MapValueImpl<BString, Object>) fieldAnnots;
 
         Object annotValue = fieldAnnotMap.get(StringUtils.fromString("Z"));
@@ -143,7 +154,7 @@ public class AnnotationRuntimeTest {
         Assert.assertTrue((Boolean) annotValue);
 
         annotValue = fieldAnnotMap.get(StringUtils.fromString("X"));
-        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), io.ballerina.runtime.api.TypeTags.MAP_TAG);
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), TypeTags.MAP_TAG);
 
         MapValueImpl<BString, Object> mapValue = (MapValueImpl<BString, Object>) annotValue;
         Assert.assertEquals(mapValue.size(), 1);
@@ -152,15 +163,15 @@ public class AnnotationRuntimeTest {
         annotatableType = (AnnotatableType) ((TypedescValue) tupleValue.get(1)).getDescribingType();
         Assert.assertEquals(annotatableType.getAnnotation(StringUtils.fromString("W")), true);
         fieldAnnots = annotatableType.getAnnotation(StringUtils.fromString("$field$.j"));
-        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), io.ballerina.runtime.api.TypeTags.MAP_TAG);
+        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), TypeTags.MAP_TAG);
         fieldAnnotMap = (MapValueImpl<BString, Object>) fieldAnnots;
 
         annotValue = fieldAnnotMap.get(StringUtils.fromString("Z"));
-        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG);
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), TypeTags.BOOLEAN_TAG);
         Assert.assertTrue((Boolean) annotValue);
 
         annotValue = fieldAnnotMap.get(StringUtils.fromString("Y"));
-        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), io.ballerina.runtime.api.TypeTags.MAP_TAG);
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), TypeTags.MAP_TAG);
 
         mapValue = (MapValueImpl<BString, Object>) annotValue;
         Assert.assertEquals(mapValue.size(), 2);
@@ -170,11 +181,11 @@ public class AnnotationRuntimeTest {
         annotatableType = (AnnotatableType) ((TypedescValue) tupleValue.get(2)).getDescribingType();
         Assert.assertEquals(annotatableType.getAnnotation(StringUtils.fromString("W")), true);
         fieldAnnots = annotatableType.getAnnotation(StringUtils.fromString("$field$.j"));
-        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), io.ballerina.runtime.api.TypeTags.MAP_TAG);
+        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), TypeTags.MAP_TAG);
         fieldAnnotMap = (MapValueImpl<BString, Object>) fieldAnnots;
 
         annotValue = fieldAnnotMap.get(StringUtils.fromString("Z"));
-        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG);
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), TypeTags.BOOLEAN_TAG);
         Assert.assertTrue((Boolean) annotValue);
     }
 
@@ -207,5 +218,70 @@ public class AnnotationRuntimeTest {
     @Test
     public void testListExprInConstAnnot() {
         BRunUtil.invoke(resultOne, "testListExprInConstAnnot");
+    }
+
+    @Test
+    public void testServiceRemoteMethodAnnotations() {
+        CompileResult result = BCompileUtil.compile("test-src/annotations/service_remote_method_annotations.bal");
+        BRunUtil.invoke(result, "testServiceRemoteMethodAnnotations");
+    }
+
+    @Test
+    public void testConstTypeAnnotAccess() {
+        BRunUtil.invoke(resultOne, "testConstTypeAnnotAccess");
+    }
+
+    @Test
+    public void testObjectTypeAnnotations() {
+        BRunUtil.invoke(resultOne, "testObjectTypeAnnotations");
+    }
+
+    @Test
+    public void testServiceObjectTypeAnnotations() {
+        BRunUtil.invoke(resultOne, "testServiceObjectTypeAnnotations");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        resultOne = null;
+        resultAccessNegative = null;
+    }
+
+    public static Object getMethodAnnotations(BTypedesc bTypedesc, BString method, BString annotName) {
+        Type describingType = TypeUtils.getImpliedType(bTypedesc.getDescribingType());
+        int tag = describingType.getTag();
+        assert tag == TypeTags.OBJECT_TYPE_TAG || tag == TypeTags.SERVICE_TAG;
+
+        ObjectType objectType = (ObjectType) describingType;
+        String methodName = method.getValue();
+        for (MethodType methodType : objectType.getMethods()) {
+            if (methodType.getName().equals(methodName)) {
+                return methodType.getAnnotation(annotName);
+            }
+        }
+        return null;
+    }
+
+    public static Object getRemoteMethodAnnotations(BTypedesc bTypedesc, BString method, BString annotName) {
+        String methodName = method.getValue();
+        for (RemoteMethodType methodType :
+                ((ServiceType) TypeUtils.getImpliedType(bTypedesc.getDescribingType())).getRemoteMethods()) {
+            if (methodType.getName().equals(methodName)) {
+                return methodType.getAnnotation(annotName);
+            }
+        }
+        return null;
+    }
+
+    public static Object getResourceMethodAnnotations(BTypedesc bTypedesc, BString method, ArrayValue path,
+                                                      BString annotName) {
+        String methodName = ServiceValue.generateMethodName(method, path);
+        for (ResourceMethodType methodType :
+                ((ServiceType) TypeUtils.getImpliedType(bTypedesc.getDescribingType())).getResourceMethods()) {
+            if (methodType.getName().equals(methodName)) {
+                return methodType.getAnnotation(annotName);
+            }
+        }
+        return null;
     }
 }

@@ -275,7 +275,7 @@ type Foo record {
     int i;
 };
 
-const Foo f = { s: "const string", i: 1 };
+const Foo f = { s: "const string", i: 1 }; // Valid case.
 
 const json j = 1;
 
@@ -355,3 +355,6 @@ const decimal d4 = -1E6144d - 9.999999999999999999999999999999999E6144d;
 const decimal d5 = 1E614d / 2E-5800d;
 
 const int ANS13 = -int:MIN_VALUE;
+
+const int var1 = 1;
+const T1 = typeof var1;

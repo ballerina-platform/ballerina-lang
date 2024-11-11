@@ -9,7 +9,7 @@ Running Tests with Coverage
 	[fail] [after test function for the test]:
 	    error("{ballerina}DivisionByZero",message=" / by zero")
 			callableName: afterFailsFunction moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 153
-			callableName: afterFailsFunction$lambda37$ moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 160
+			callableName: afterFailsFunction$lambda65$ moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 160
 		
 		[pass] testDividingValuesWithAfterFailing#0
 		[pass] testDividingValuesWithAfterFailing#1
@@ -23,10 +23,14 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
+		Test execution time :*****s
+
 	dataproviders.module1
 
 
 		No tests found
+
+		Test execution time :*****s
 
 Generating Test Report
 	data-providers/target/report/test_results.json

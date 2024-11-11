@@ -460,6 +460,11 @@ public class SimpleConstantTest {
                         "testDecimalConstsWithTypeReferenceTypeDescriptorsDefinedWithNumericLiterals");
     }
 
+    @Test
+    public void testAssigningConstToByte() {
+        BRunUtil.invoke(compileResult, "testAssigningConstToByte");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

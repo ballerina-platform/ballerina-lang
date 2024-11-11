@@ -16,8 +16,10 @@
  *  under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations {
     compile.transitive = false
@@ -28,14 +30,14 @@ dependencies {
     compileOnly project(':language-server:language-server-commons')
     compileOnly project(':central-client')
     compileOnly project(':ballerina-lang')
-    compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
-    implementation 'com.google.code.gson:gson:2.8.8'
+    compileOnly libs.eclipse.lsp4j
+    implementation libs.gson
 
-    testCompile 'org.testng:testng'
-    testCompile project(':language-server:language-server-commons')
-    testCompile project(':language-server:language-server-core')
-    testCompile 'com.google.code.gson:gson:2.8.8'
-    testCompile (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
+    testImplementation libs.testng
+    testImplementation project(':language-server:language-server-commons')
+    testImplementation project(':language-server:language-server-core')
+    testImplementation libs.gson
+    testImplementation libs.eclipse.lsp4j
 }
 
 test {
@@ -52,14 +54,20 @@ ext.moduleName = 'trigger-service'
 compileJava {
     inputs.property("moduleName", moduleName)
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
         classpath = files()
     }
 }
 
 jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes "Main-Class": "io.ballerina.trigger.BallerinaTriggerService"
     }

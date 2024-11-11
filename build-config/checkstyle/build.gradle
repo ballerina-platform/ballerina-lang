@@ -1,10 +1,13 @@
 plugins {
-    id "de.undercouch.download" version "3.4.3"
+    id "de.undercouch.download" version "5.4.0"
     id 'base'
 }
 
-task downloadFile(type: Download) {
-    src 'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/checkstyle.xml'
+tasks.register('downloadFile', Download) {
+    src([
+            'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.4/checkstyle/jdk-17/checkstyle.xml',
+            'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.4/checkstyle/jdk-17/suppressions.xml'
+    ])
     dest buildDir
     overwrite false
     outputs.files("$project.buildDir/checkstyle.xml")

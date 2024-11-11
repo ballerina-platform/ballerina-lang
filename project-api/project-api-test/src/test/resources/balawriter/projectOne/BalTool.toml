@@ -1,0 +1,5 @@
+[tool]
+id = "openapi"
+
+[[dependency]]
+path = "./libs/ballerina-io-1.4.0-java.jar"

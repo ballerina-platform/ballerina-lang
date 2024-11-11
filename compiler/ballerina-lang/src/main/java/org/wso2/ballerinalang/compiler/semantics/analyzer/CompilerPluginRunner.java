@@ -71,7 +71,6 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * Invoke {@link CompilerPlugin} plugins.
@@ -84,20 +83,20 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private static final CompilerContext.Key<CompilerPluginRunner> COMPILER_PLUGIN_RUNNER_KEY =
             new CompilerContext.Key<>();
 
-    private SymbolTable symTable;
-    private PackageCache packageCache;
-    private SymbolResolver symResolver;
-    private Names names;
+    private final SymbolTable symTable;
+    private final PackageCache packageCache;
+    private final SymbolResolver symResolver;
+    private final Names names;
     private final Types types;
-    private BLangDiagnosticLog dlog;
+    private final BLangDiagnosticLog dlog;
 
     private Location defaultPos;
-    private CompilerContext context;
-    private List<CompilerPlugin> pluginList;
-    private Map<DefinitionID, Set<CompilerPlugin>> processorMap;
-    private Map<CompilerPlugin, List<DefinitionID>> resourceTypeProcessorMap;
-    private Map<CompilerPlugin, BType> serviceListenerMap;
-    private List<CompilerPlugin> failedPlugins;
+    private final CompilerContext context;
+    private final List<CompilerPlugin> pluginList;
+    private final Map<DefinitionID, Set<CompilerPlugin>> processorMap;
+    private final Map<CompilerPlugin, List<DefinitionID>> resourceTypeProcessorMap;
+    private final Map<CompilerPlugin, BType> serviceListenerMap;
+    private final List<CompilerPlugin> failedPlugins;
 
 
     public static CompilerPluginRunner getInstance(CompilerContext context) {
@@ -138,6 +137,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         return pkgNode;
     }
 
+    @Override
     public void visit(BLangPackage pkgNode) {
         if (pkgNode.completedPhases.contains(CompilerPhase.COMPILER_PLUGIN)) {
             return;
@@ -177,6 +177,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangTestablePackage testablePkgNode) {
         if (testablePkgNode.completedPhases.contains(CompilerPhase.COMPILER_PLUGIN)) {
             return;
@@ -193,16 +194,19 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         testablePkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
     }
 
+    @Override
     public void visit(BLangAnnotation annotationNode) {
         List<BLangAnnotationAttachment> attachmentList = annotationNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(annotationNode, list));
     }
 
+    @Override
     public void visit(BLangFunction funcNode) {
         List<BLangAnnotationAttachment> attachmentList = funcNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(funcNode, list));
     }
 
+    @Override
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
@@ -213,6 +217,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         pkgEnv.node.accept(this);
     }
 
+    @Override
     public void visit(BLangService serviceNode) {
         List<BLangAnnotationAttachment> attachmentList = serviceNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(serviceNode, list));
@@ -220,6 +225,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
                 (processor, list) -> processor.process(serviceNode, list));
     }
 
+    @Override
     public void visit(BLangTypeDefinition typeDefNode) {
         List<BLangAnnotationAttachment> attachmentList = typeDefNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(typeDefNode, list));
@@ -235,6 +241,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         notifyProcessors(attachmentList, (processor, list) -> processor.process(classDefinition, list));
     }
 
+    @Override
     public void visit(BLangSimpleVariable varNode) {
         List<BLangAnnotationAttachment> attachmentList = varNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(varNode, list));
@@ -255,13 +262,16 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         /* ignore */
     }
 
+    @Override
     public void visit(BLangXMLNS xmlnsNode) {
     }
 
+    @Override
     public void visit(BLangConstant constant) {
         /* ignore */
     }
 
+    @Override
     public void visit(BLangLetExpression letExpression) {
     }
 
@@ -374,7 +384,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         BType listenerType = null;
         if (!resParamTypes.expectedListenerType().name().isEmpty() && !resParamTypes.expectedListenerType()
                 .packageName().isEmpty()) {
-            Name listenerName = names.fromString(resParamTypes.expectedListenerType().name());
+            Name listenerName = Names.fromString(resParamTypes.expectedListenerType().name());
             String packageQName =
                     resParamTypes.expectedListenerType().orgName() + "/" + resParamTypes.expectedListenerType()
                             .packageName();
@@ -389,7 +399,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         }
 
         List<DefinitionID> definitions = Arrays.stream(supportedTypes)
-                .map(type -> new DefinitionID(type.packageName(), type.name())).collect(Collectors.toList());
+                .map(type -> new DefinitionID(type.packageName(), type.name())).toList();
         resourceTypeProcessorMap.put(plugin, definitions);
         serviceListenerMap.put(plugin, listenerType);
     }

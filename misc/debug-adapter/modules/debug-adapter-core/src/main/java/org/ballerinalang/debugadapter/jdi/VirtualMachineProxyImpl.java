@@ -103,7 +103,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
         virtualMachine.topLevelThreadGroups().forEach(this::threadGroupCreated);
     }
 
-    public VirtualMachine getVirtualMachine() {
+    public final VirtualMachine getVirtualMachine() {
         return myVirtualMachine;
     }
 
@@ -196,14 +196,14 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
                 Collectors.toList());
     }
 
-    public void threadGroupCreated(ThreadGroupReference threadGroupReference) {
+    private void threadGroupCreated(ThreadGroupReference threadGroupReference) {
         if (!isJ2ME()) {
             ThreadGroupReferenceProxyImpl proxy = new ThreadGroupReferenceProxyImpl(this, threadGroupReference);
             myThreadGroups.put(threadGroupReference, proxy);
         }
     }
 
-    public boolean isJ2ME() {
+    private boolean isJ2ME() {
         return isJ2ME(getVirtualMachine());
     }
 
@@ -227,7 +227,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
      * @deprecated use {@link #mirrorOfVoid()} instead
      */
     @Deprecated
-    public VoidValue mirrorOf() throws JdiProxyException {
+    public VoidValue mirrorOf() {
         return mirrorOfVoid();
     }
 
@@ -305,7 +305,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     };
 
     @Override
-    public boolean canWatchFieldModification() {
+    public final boolean canWatchFieldModification() {
         return myWatchFielsModification.isAvailable();
     }
 
@@ -429,7 +429,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
         }
     };
 
-    public boolean canRedefineClasses() {
+    public final boolean canRedefineClasses() {
         return myRedefineClasses.isAvailable();
     }
 
@@ -462,7 +462,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
         }
     };
 
-    public boolean canPopFrames() {
+    private boolean canPopFrames() {
         return myPopFrames.isAvailable();
     }
 
@@ -498,7 +498,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
         return myCanGetInstanceInfo.isAvailable();
     }
 
-    public boolean canBeModified() {
+    public final boolean canBeModified() {
         return myVirtualMachine.canBeModified();
     }
 
@@ -592,15 +592,15 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
 
     public ObjectReferenceProxyImpl getObjectReferenceProxy(ObjectReference objectReference) {
         if (objectReference != null) {
-            if (objectReference instanceof ThreadReference) {
-                return getThreadReferenceProxy((ThreadReference) objectReference);
-            } else if (objectReference instanceof ThreadGroupReference) {
-                return getThreadGroupReferenceProxy((ThreadGroupReference) objectReference);
+            if (objectReference instanceof ThreadReference threadReference) {
+                return getThreadReferenceProxy(threadReference);
+            } else if (objectReference instanceof ThreadGroupReference threadGroupReference) {
+                return getThreadGroupReferenceProxy(threadGroupReference);
             } else {
                 ObjectReferenceProxyImpl proxy = myObjectReferenceProxies.get(objectReference);
                 if (proxy == null) {
-                    if (objectReference instanceof StringReference) {
-                        proxy = new StringReferenceProxyImpl(this, (StringReference) objectReference);
+                    if (objectReference instanceof StringReference stringReference) {
+                        proxy = new StringReferenceProxyImpl(this, stringReference);
                     } else {
                         proxy = new ObjectReferenceProxyImpl(this, objectReference);
                     }
@@ -701,6 +701,9 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
             }
         }
 
+        private JNITypeParserReflect() {
+        }
+
         static String typeNameToSignature(String name) {
             if (typeNameToSignatureMethod != null) {
                 try {
@@ -711,7 +714,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
             return null;
         }
 
-        private static Method getDeclaredMethod(Class<?> aClass, String name, Class... parameters) {
+        private static Method getDeclaredMethod(Class<?> aClass, String name, Class<?>... parameters) {
             try {
                 Method declaredMethod = aClass.getDeclaredMethod(name, parameters);
                 declaredMethod.setAccessible(true);

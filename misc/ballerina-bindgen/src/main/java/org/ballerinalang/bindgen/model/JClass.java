@@ -23,6 +23,7 @@ import org.ballerinalang.bindgen.utils.BindgenUtils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -48,23 +49,23 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicMethod;
  */
 public class JClass {
 
-    private BindgenEnv env;
-    private String prefix;
-    private String packageName;
-    private String shortClassName;
-    private Class currentClass;
+    private final BindgenEnv env;
+    private final Class<?> currentClass;
+    private final String prefix;
+    private final String packageName;
+    private final boolean modulesFlag;
 
-    private boolean modulesFlag;
+    private String shortClassName;
     private boolean importJavaArraysModule = false;
 
-    private Map<String, String> superClassPackage = new HashMap<>();
-    private Set<String> importedPackages = new HashSet<>();
-    private List<JField> fieldList = new ArrayList<>();
-    private List<JMethod> methodList = new ArrayList<>();
-    private List<JConstructor> constructorList = new ArrayList<>();
-    private Map<String, Integer> overloadedMethods = new HashMap<>();
+    private final Map<String, String> superClassPackage = new HashMap<>();
+    private final Set<String> importedPackages = new HashSet<>();
+    private final List<JField> fieldList = new ArrayList<>();
+    private final List<JMethod> methodList = new ArrayList<>();
+    private final List<JConstructor> constructorList = new ArrayList<>();
+    private final Map<String, Integer> overloadedMethods = new HashMap<>();
 
-    public JClass(Class c, BindgenEnv env) {
+    public JClass(Class<?> c, BindgenEnv env) {
         this.env = env;
         currentClass = c;
         prefix = c.getName().replace(".", "_").replace("$", "_");
@@ -73,7 +74,7 @@ public class JClass {
         shortClassName = getExceptionName(c, shortClassName);
         modulesFlag = env.getModulesFlag();
 
-        Class sClass = c.getSuperclass();
+        Class<?> sClass = c.getSuperclass();
         // Iterate until a public super class is found.
         while (sClass != null && !isPublicClass(sClass)) {
             sClass = sClass.getSuperclass();
@@ -86,7 +87,12 @@ public class JClass {
         }
 
         if (env.isDirectJavaClass()) {
-            populateConstructors(c.getConstructors());
+            // skips Ballerina bindings generation for constructors of abstract classes
+            boolean isAbstract = Modifier.isAbstract(c.getModifiers());
+            if (!isAbstract) {
+                populateConstructors(c.getConstructors());
+            }
+
             populateMethods(c);
             populateFields(c.getFields());
         }
@@ -96,7 +102,7 @@ public class JClass {
         }
     }
 
-    private String getExceptionName(Class exception, String name) {
+    private String getExceptionName(Class<?> exception, String name) {
         try {
             // Append the exception class prefix in front of bindings generated for Java exceptions.
             if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())
@@ -111,7 +117,7 @@ public class JClass {
         return name;
     }
 
-    private List<Method> getMethodsAsList(Class classObject) {
+    private List<Method> getMethodsAsList(Class<?> classObject) {
         Method[] declaredMethods = classObject.getMethods();
         List<Method> classMethods = new LinkedList<>();
         for (Method m : declaredMethods) {
@@ -122,16 +128,16 @@ public class JClass {
         return classMethods;
     }
 
-    private void populateConstructors(Constructor[] constructors) {
+    private void populateConstructors(Constructor<?>[] constructors) {
         int i = 1;
         List<JConstructor> tempList = new ArrayList<>();
-        for (Constructor constructor : constructors) {
+        for (Constructor<?> constructor : constructors) {
             if (isPublicConstructor(constructor)) {
                 tempList.add(new JConstructor(constructor, env, this, null));
             }
         }
         tempList.sort(Comparator.comparing(JConstructor::getParamTypes));
-        for (JConstructor constructor:tempList) {
+        for (JConstructor constructor : tempList) {
             JConstructor jConstructor = new JConstructor(constructor.getConstructor(), env,
                     this, "new" + shortClassName + i);
             if (modulesFlag) {
@@ -145,7 +151,7 @@ public class JClass {
         }
     }
 
-    private void populateMethods(Class c) {
+    private void populateMethods(Class<?> c) {
         List<JMethod> tempList = sortInheritedMethods(getMethodsAsList(c), new ArrayList<>(), c);
         for (JMethod method : tempList) {
             setMethodCount(method.getJavaMethodName());
@@ -163,7 +169,7 @@ public class JClass {
     }
 
     private List<JMethod> sortInheritedMethods(List<Method> methods, List<JMethod> sortedMethods,
-                                               Class declaringClass) {
+                                               Class<?> declaringClass) {
         if (declaringClass == null) {
             return sortedMethods;
         }
@@ -171,7 +177,7 @@ public class JClass {
         List<JMethod> tempList = new ArrayList<>();
         List<Method> tempMethodList = new ArrayList<>(methods);
         for (Method method : tempMethodList) {
-            boolean isInherited = superClassMethods.stream().anyMatch(m-> method.getName().equals(m.getName())
+            boolean isInherited = superClassMethods.stream().anyMatch(m -> method.getName().equals(m.getName())
                     && Arrays.equals(method.getParameterTypes(), m.getParameterTypes()));
             if (!isInherited) {
                 tempList.add(new JMethod(method, env, prefix, currentClass, 0));
@@ -183,7 +189,7 @@ public class JClass {
         return sortInheritedMethods(methods, sortedMethods, declaringClass.getSuperclass());
     }
 
-    private List<Method> getSuperClassMethods(Class superClass, List<Method> methods) {
+    private List<Method> getSuperClassMethods(Class<?> superClass, List<Method> methods) {
         if (superClass == null) {
             return methods;
         }
@@ -251,7 +257,7 @@ public class JClass {
         return overloadedMethods.get(methodName);
     }
 
-    public Class getCurrentClass() {
+    public Class<?> getCurrentClass() {
         return currentClass;
     }
 

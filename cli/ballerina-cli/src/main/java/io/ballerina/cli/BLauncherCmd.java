@@ -53,7 +53,9 @@ public interface BLauncherCmd {
      * Print usgae info for the command.
      *
      * @param out a {@link StringBuilder} instance
+     * @deprecated this method will be removed in a future version
      */
+    @Deprecated
     void printUsage(StringBuilder out);
 
     /**
@@ -70,10 +72,6 @@ public interface BLauncherCmd {
      * @return usage info for the specified command
      */
     static String getCommandUsageInfo(String commandName) {
-        if (commandName == null) {
-            throw LauncherUtils.createUsageExceptionWithHelp("invalid command");
-        }
-
         String fileName = "cli-help/ballerina-" + commandName + ".help";
         try {
             return BCompileUtil.readFileAsString(fileName);

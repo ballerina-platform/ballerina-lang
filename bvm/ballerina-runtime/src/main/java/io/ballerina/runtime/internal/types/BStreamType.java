@@ -35,8 +35,8 @@ import java.util.Objects;
  */
 public class BStreamType extends BType implements StreamType {
 
-    private Type constraint;
-    private Type completionType;
+    private final Type constraint;
+    private final Type completionType;
 
     /**
      * Creates a {@link BStreamType} which represents the stream type.
@@ -86,10 +86,12 @@ public class BStreamType extends BType implements StreamType {
         this(TypeConstants.STREAM_TNAME, constraint, null);
     }
 
+    @Override
     public Type getConstrainedType() {
         return constraint;
     }
 
+    @Override
     public Type getCompletionType() {
         return completionType;
     }
@@ -118,11 +120,10 @@ public class BStreamType extends BType implements StreamType {
 
     @Override
     public boolean equals(Object obj) {
-        if (!super.equals(obj) || !(obj instanceof BStreamType)) {
+        if (!super.equals(obj) || !(obj instanceof BStreamType other)) {
             return false;
         }
 
-        BStreamType other = (BStreamType) obj;
         if (constraint == other.constraint && completionType == other.completionType) {
             return true;
         }

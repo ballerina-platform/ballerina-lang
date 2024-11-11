@@ -15,8 +15,10 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations {
     testLibs {
@@ -43,35 +45,31 @@ configurations {
 
 dependencies {
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m2-SNAPSHOT'
+    implementation project(':ballerina-io-internal')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-cli')
-//    implementation project(':ballerina-http')
-//    implementation project(':ballerina-transactions')
-    implementation project(':ballerina-cli')
-//    implementation project(':ballerina-transactions')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
-    implementation 'org.slf4j:slf4j-api'
+    implementation project(':ballerina-shell:shell-core')
+    implementation project(':ballerina-shell:shell-cli')
+    implementation libs.slf4j.api
 
     balRuntime project(':ballerina-runtime')
+    testRuntimeOnly project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
 
-//    balaTestImplementation project(path: ':ballerina-http', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-transactions', configuration: 'balaImplementation')
-    testRuntime project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
-
-    testCompile 'org.slf4j:slf4j-jdk14'
-    testCompile 'io.netty:netty-transport'
-    testCompile 'io.netty:netty-codec-http'
-    testCompile 'io.netty:netty-codec-http2'
-    testCompile 'io.netty:netty-handler'
-    testCompile 'org.yaml:snakeyaml'
-    testCompile 'org.awaitility:awaitility'
-    testCompile 'org.hsqldb:hsqldb'
-    testCompile 'io.ballerina.messaging:broker-amqp'
-    testCompile 'org.apache.commons:commons-text'
-    testCompile 'org.testng:testng'
+    testImplementation libs.slf4j.jdk14
+    testImplementation libs.netty.transport
+    testImplementation libs.netty.codec.http
+    testImplementation libs.netty.codec.http2
+    testImplementation libs.netty.handler
+    testImplementation libs.snakeyaml
+    testImplementation libs.awaitility
+    testImplementation libs.hsqldb
+    testImplementation libs.bal.messaging.broker.amqp
+    testImplementation libs.apache.commons.text
+    testImplementation libs.testng
 
     testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
@@ -81,10 +79,12 @@ dependencies {
     launchListenerTestUtils project(':test-launch-listener-03')
     launchListenerTestUtils project(':test-launch-listener-04')
 
-    testLibs 'org.hsqldb:hsqldb:2.4.1'
+    testLibs 'org.hsqldb:hsqldb:2.7.1'
+
+    distributionBala project(path: ':ballerina-io-internal', configuration: 'distributionBala')
 }
 
-task createBre(type: Copy) {
+tasks.register('createBre', Copy) {
     from configurations.balRuntime
     into '$buildDir/bre/lib'
 }
@@ -118,16 +118,18 @@ configurations.all {
     resolutionStrategy.preferProjectModules()
 }
 
-task copyToLib(type: Copy) {
+tasks.register('copyToLib', Copy) {
     into "${buildDir}/libs"
     from configurations.testLibs
 }
 
 test.dependsOn(copyToLib)
 
-task createLaunchListenerUtilsLib(type: Copy) {
+tasks.register('createLaunchListenerUtilsLib', Copy) {
     from configurations.launchListenerTestUtils
     into "${buildDir}/launch-listener/libs"
 }
 
-test.dependsOn(createLaunchListenerUtilsLib)
+tasks.test.dependsOn(createLaunchListenerUtilsLib)
+tasks.compileTestJava.dependsOn(":ballerina-io-internal:copyInteropImports")
+generateMetadataFileForMavenJavaPublication.dependsOn(copyToLib)

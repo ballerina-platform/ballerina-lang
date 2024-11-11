@@ -21,8 +21,10 @@ package org.ballerinalang.langlib.map;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 import static io.ballerina.runtime.internal.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;
@@ -33,18 +35,25 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFie
  *
  * @since 1.2.0
  */
-public class RemoveIfHasKey {
+public final class RemoveIfHasKey {
+
+    private RemoveIfHasKey() {
+    }
 
     public static Object removeIfHasKey(BMap<?, ?> m, BString k) {
         String op = "removeIfHasKey()";
 
-        checkIsMapOnlyOperation(TypeUtils.getReferredType(m.getType()), op);
+        checkIsMapOnlyOperation(TypeUtils.getImpliedType(m.getType()), op);
         validateRequiredFieldForRecord(m, k.getValue());
         try {
             return m.remove(k);
-        } catch (io.ballerina.runtime.internal.util.exceptions.BLangFreezeException e) {
-            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
-                                           StringUtils.fromString("Failed to remove element: " + e.getDetail()));
+        } catch (BError e) {
+            String errorMsgDetail = "Failed to remove element";
+            if (ErrorHelper.hasMessageDetail(e)) {
+                errorMsgDetail += ": " +
+                        ((BMap<BString, Object>) e.getDetails()).get(StringUtils.fromString("message")).toString();
+            }
+            throw ErrorCreator.createError(e.getErrorMessage(), StringUtils.fromString(errorMsgDetail));
         }
     }
 }

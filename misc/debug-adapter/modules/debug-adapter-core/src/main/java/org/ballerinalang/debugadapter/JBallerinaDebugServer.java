@@ -123,7 +123,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getInjectedExpressionNode;
@@ -228,19 +227,27 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 breakpointsMap.put(bp.getLine(), bp);
             }
 
-            SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
+            SetBreakpointsResponse bpResponse = new SetBreakpointsResponse();
             String sourcePathUri = args.getSource().getPath();
             Optional<String> qualifiedClassName = getQualifiedClassName(context, sourcePathUri);
-            qualifiedClassName.ifPresent(className -> {
-                eventProcessor.enableBreakpoints(className, breakpointsMap);
-                BreakpointProcessor breakpointProcessor = eventProcessor.getBreakpointProcessor();
-                Breakpoint[] breakpoints = breakpointProcessor.getUserBreakpoints().get(qualifiedClassName.get())
-                        .values().stream()
-                        .map(BalBreakpoint::getAsDAPBreakpoint)
-                        .toArray(Breakpoint[]::new);
-                breakpointsResponse.setBreakpoints(breakpoints);
-            });
-            return breakpointsResponse;
+            if (qualifiedClassName.isEmpty()) {
+                LOGGER.warn("Failed to set breakpoints. Source path is not a valid Ballerina source: " + sourcePathUri);
+                return bpResponse;
+            }
+
+            eventProcessor.enableBreakpoints(qualifiedClassName.get(), breakpointsMap);
+            BreakpointProcessor bpProcessor = eventProcessor.getBreakpointProcessor();
+            Map<Integer, BalBreakpoint> userBpMap = bpProcessor.getUserBreakpoints().get(qualifiedClassName.get());
+            if (userBpMap == null) {
+                LOGGER.warn("Failed to set breakpoints for source: " + sourcePathUri);
+                return bpResponse;
+            }
+
+            Breakpoint[] breakpoints = userBpMap.values().stream()
+                    .map(BalBreakpoint::getAsDAPBreakpoint)
+                    .toArray(Breakpoint[]::new);
+            bpResponse.setBreakpoints(breakpoints);
+            return bpResponse;
         });
     }
 
@@ -315,7 +322,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             return CompletableFuture.completedFuture(threadsResponse);
         }
         Thread[] threads = new Thread[threadsMap.size()];
-        threadsMap.values().stream().map(this::toDapThread).collect(Collectors.toList()).toArray(threads);
+        threadsMap.values().stream().map(this::toDapThread).toList().toArray(threads);
         threadsResponse.setThreads(threads);
         return CompletableFuture.completedFuture(threadsResponse);
     }
@@ -888,8 +895,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     outputLogger.sendProgramOutput(line);
                 }
             } catch (Exception e) {
-                String host = clientConfigHolder instanceof ClientAttachConfigHolder ?
-                        ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST) : LOCAL_HOST;
+                String host = clientConfigHolder instanceof ClientAttachConfigHolder clientAttachConfigHolder ?
+                        clientAttachConfigHolder.getHostName().orElse(LOCAL_HOST) : LOCAL_HOST;
                 String portName;
                 try {
                     portName = Integer.toString(clientConfigHolder.getDebuggePort());

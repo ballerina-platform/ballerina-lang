@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -95,8 +96,8 @@ public class BIRTypeWriter implements TypeVisitor {
     private final ByteBuf buff;
 
     private final ConstantPool cp;
-    private static IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
-    private static IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
+    private static final IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
+    private static final IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
 
     public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
         this.buff = buff;
@@ -175,12 +176,12 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeLong(tsymbol.flags);
         buff.writeInt(bFiniteType.getValueSpace().size());
         for (BLangExpression valueLiteral : bFiniteType.getValueSpace()) {
-            if (!(valueLiteral instanceof BLangLiteral)) {
+            if (!(valueLiteral instanceof BLangLiteral bLangLiteral)) {
                 throw new AssertionError(
                         "Type serialization is not implemented for finite type with value: " + valueLiteral.getKind());
             }
             writeTypeCpIndex(valueLiteral.getBType());
-            writeValue(((BLangLiteral) valueLiteral).value, valueLiteral.getBType());
+            writeValue(bLangLiteral.value, valueLiteral.getBType());
         }
     }
 
@@ -362,9 +363,9 @@ public class BIRTypeWriter implements TypeVisitor {
         writeMembers(bUnionType.getMemberTypes());
         writeMembers(bUnionType.getOriginalMemberTypes());
 
-        if (tsymbol instanceof BEnumSymbol) {
+        if (tsymbol instanceof BEnumSymbol enumSymbol) {
             buff.writeBoolean(true);
-            writeEnumSymbolInfo((BEnumSymbol) tsymbol);
+            writeEnumSymbolInfo(enumSymbol);
         } else {
             buff.writeBoolean(false);
         }
@@ -423,30 +424,17 @@ public class BIRTypeWriter implements TypeVisitor {
                     getBIRAnnotAttachments(field.symbol.getAnnotations()));
         }
 
-        BAttachedFunction initializerFunc = tsymbol.initializerFunc;
-        if (initializerFunc == null) {
-            buff.writeByte(0);
-            return;
-        }
-
-        buff.writeByte(1);
-        buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
-        buff.writeLong(initializerFunc.symbol.flags);
-        writeTypeCpIndex(initializerFunc.type);
-
         writeTypeInclusions(bRecordType.typeInclusions);
+
+        buff.writeInt(tsymbol.defaultValues.size());
+        tsymbol.defaultValues.forEach((k, v) -> {
+            buff.writeInt(addStringCPEntry(k));
+            writeSymbolOfClosure(v);
+        });
     }
 
     @Override
     public void visit(BObjectType bObjectType) {
-        //This is to say this is an object, this is a temporary fix object - 1, service - 0,
-        // ideal fix would be to use the type tag to
-        // differentiate. TODO fix later
-        if ((bObjectType.flags & Flags.SERVICE) == Flags.SERVICE) {
-            buff.writeByte(1);
-        } else {
-            buff.writeByte(0);
-        }
         writeObjectAndServiceTypes(bObjectType);
         writeTypeIds(bObjectType.typeIdSet);
     }
@@ -460,9 +448,7 @@ public class BIRTypeWriter implements TypeVisitor {
         BTypeDefinitionSymbol typDefSymbol = ((BObjectTypeSymbol) tSymbol).typeDefinitionSymbol;
         buff.writeInt(addStringCPEntry(Objects.requireNonNullElse(typDefSymbol, tSymbol).name.value));
 
-        //TODO below two line are a temp solution, introduce a generic concept
-        buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)); // Abstract object or not
-        buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT));
+        buff.writeLong(tSymbol.flags);
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields.values()) {
             buff.writeInt(addStringCPEntry(field.name.value));
@@ -590,7 +576,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     private void writeValue(Object value, BType typeOfValue) {
         ByteBuf byteBuf = Unpooled.buffer();
-        switch (typeOfValue.tag) {
+        switch (Types.getImpliedType(typeOfValue).tag) {
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
             case TypeTags.SIGNED16_INT:

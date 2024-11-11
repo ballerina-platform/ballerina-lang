@@ -47,6 +47,12 @@ public [int, float] [a, b] = [1, 1.5];
 # A public variable of string type
 public string pubString = "123";
 
+# A configurable variable of string type without default value
+configurable string confString = ?;
+
+# A configurable variable of string type with default value
+configurable string defaultConfString = "confidential";
+
 public type Coordinates record {|
     decimal latitude;
     decimal longitude;
@@ -202,7 +208,16 @@ public class Listener {
     # ```
     #
     # + return - An `error` if an error occurred during the listener stopping process or else `()`
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
+    }
+
+    # Stops the service listener immediately. Already-accepted requests will be served before the connection closure.
+    # ```ballerina
+    # error? result = listenerEp.__immediateStop();
+    # ```
+    #
+    # + return - An `error` if an error occurred during the listener stopping process or else `()`
+    public function immediateStop() returns error? {
     }
 
     # Gets called every time a service attaches itself to this endpoint - also happens at module init time.
@@ -214,6 +229,17 @@ public class Listener {
     # + name - Name of the service
     # + return - An `error` if encounters an error while attaching the service or else `()`
     public function attach(int s, string? name = ()) returns error? {
+    }
+
+    # Gets called every time detaches a service itself to this endpoint - also happens at module init time.
+    # ```ballerina
+    # error? result = listenerEp.__detach(helloService);
+    # ```
+    #
+    # + s - The type of the service to be registered
+    # + name - Name of the service
+    # + return - An `error` if encounters an error while attaching the service or else `()`
+    public function detach(int s, string? name = ()) returns error? {
     }
 }
 

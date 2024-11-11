@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
     <Match>
-        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD,BC_UNCONFIRMED_CAST,BC_UNCONFIRMED_CAST_OF_RETURN_VALUE,DM_EXIT,DM_CONVERT_CASE,URF_UNREAD_FIELD"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD,BC_UNCONFIRMED_CAST,BC_UNCONFIRMED_CAST_OF_RETURN_VALUE,
+        DM_EXIT,DM_CONVERT_CASE,URF_UNREAD_FIELD,EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
     <Match>
         <Package name="org.ballerinalang.docgen.model"/>
@@ -13,5 +14,9 @@
     </Match>
     <Match>
         <Class name="org.ballerinalang.docgen.docs.BallerinaDocGenerator"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.docgen.generator.model.Type"/>
+        <Bug pattern="DCN_NULLPOINTER_EXCEPTION"/>
     </Match>
 </FindBugsFilter>

@@ -5,6 +5,7 @@
 
 [ballerina]
 dependencies-toml-version = "2"
+distribution-version = "2201.6.0-SNAPSHOT"
 
 [[package]]
 org = "ballerina"
@@ -16,10 +17,19 @@ modules = [
 
 [[package]]
 org = "ballerina"
-name = "test"
+name = "lang.error"
 version = "0.0.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
+]
+
+[[package]]
+org = "ballerina"
+name = "test"
+version = "0.0.0"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.error"}
 ]
 modules = [
 	{org = "ballerina", packageName = "test", moduleName = "test"}
@@ -60,5 +70,4 @@ modules = [
 	{org = "waruna", packageName = "websub", moduleName = "websub"},
 	{org = "waruna", packageName = "websub", moduleName = "websub.server"}
 ]
-
 

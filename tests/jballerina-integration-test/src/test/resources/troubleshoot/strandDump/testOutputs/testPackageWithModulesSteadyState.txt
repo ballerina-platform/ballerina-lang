@@ -1,0 +1,17 @@
+main main
+balfunc w1
+balfunc main
+bar main
+balfunc w8
+bar w2
+balfunc w7
+sleep_and_wait_nested main
+balfunc w6
+func3 w2
+func3 w2 anotherutils
+balfunc w5
+sleep_and_wait_nested anotherutils
+sleep_and_wait_nested utils
+balfunc w4
+balfunc w3
+balfunc w2

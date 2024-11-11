@@ -14,7 +14,11 @@
  * limitations under the License.
  *
  */
-apply from: "$rootDir/gradle/javaProject.gradle"
+
+plugins {
+    id 'javaProject'
+}
+
 import org.apache.tools.ant.taskdefs.condition.Os
 
 description = 'Ballerina - Performance Tests'
@@ -24,15 +28,15 @@ configurations {
     testLibs {
         transitive false
     }
-    testCompileClasspath {
+    testImplementationClasspath {
         resolutionStrategy.preferProjectModules()
     }
     all {
         resolutionStrategy.preferProjectModules()
     }
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
 dependencies {
@@ -40,32 +44,24 @@ dependencies {
 
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
-    implementation 'org.slf4j:slf4j-api'
-    implementation 'com.github.chewiebug:gcviewer'
+    implementation libs.slf4j.api
+    implementation libs.chewiebug.gcviewer
 
-    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile 'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-jdk14'
-    testLibs "com.github.chewiebug:gcviewer:${project.chewiebugGcviewerVersion}"
+    testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testImplementation libs.testng
+    testImplementation libs.slf4j.jdk14
+    testLibs libs.chewiebug.gcviewer
 }
 
-task copyToLib(type: Copy) {
+tasks.register('copyToLib', Copy) {
     into "${buildDir}/libs"
     from configurations.testLibs
 }
 
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath
-        ]
-        classpath = files()
-    }
-}
-
 jar {
     // we omit the version since the jar is refered from ballerina.toml
-    archiveName 'jballerina-benchmark-test.jar'
+    archiveBaseName = 'jballerina-benchmark-test'
+    version = null
 }
 
 test {
@@ -114,3 +110,4 @@ test {
     }
 }
 
+generateMetadataFileForMavenJavaPublication.dependsOn(copyToLib)

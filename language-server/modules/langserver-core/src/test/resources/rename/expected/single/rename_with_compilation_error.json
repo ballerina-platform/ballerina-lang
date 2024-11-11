@@ -7,9 +7,38 @@
     "character": 8
   },
   "prepareRename": {
-    "valid": false
+    "valid": true
   },
   "result": {
-    "changes": {}
+    "changes": {
+      "rename_with_compilation_error.bal": [
+        {
+          "range": {
+            "start": {
+              "line":0,
+              "character":5
+            },
+            "end": {
+              "line":0,
+              "character":12
+            }
+          },
+          "newText":"NewTypeMap"
+        },
+        {
+          "range": {
+            "start": {
+              "line":3,
+              "character":4
+            },
+            "end": {
+              "line":3,
+              "character":11
+            }
+          },
+          "newText":"NewTypeMap"
+        }
+      ]
+    }
   } 
 }

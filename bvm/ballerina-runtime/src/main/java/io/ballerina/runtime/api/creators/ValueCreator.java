@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
@@ -69,6 +70,7 @@ import io.ballerina.runtime.internal.values.XmlSequence;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -80,7 +82,7 @@ import javax.xml.namespace.QName;
  *
  * @since 1.1.0
  */
-public class ValueCreator {
+public final class ValueCreator {
 
     /**
      * Creates a new array with given array type.
@@ -297,46 +299,53 @@ public class ValueCreator {
         return new DecimalValue(value);
     }
 
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
     /**
      * Create a decimal from given string and value kind.
      *
      * @param value     string value
      * @param valueKind value kind
      * @return          decimal value
+     * @deprecated      use {@link #createDecimalValue(String)} instead.
      */
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     public static BDecimal createDecimalValue(String value, DecimalValueKind valueKind) {
         return new DecimalValue(value, valueKind);
     }
 
     /**
-     * Create function pointer to the given function with given {@code BType}.
+     * Create function pointer to the given function with given {@code FunctionType}.
      *
      * @param function pointing function
-     * @param type     {@code BFunctionType} of the function pointer
+     * @param type     {@code FunctionType} of the function pointer
      * @return         function pointer
      */
-    public static BFunctionPointer createFPValue(Function function, FunctionType type) {
-        return new FPValue(function, type, null, false);
+    public static BFunctionPointer<?, ?> createFPValue(Function<Object[], ?> function, FunctionType type) {
+        return new FPValue<>(function, type, null, false);
     }
 
     /**
-     * Create function pointer to the given function with given {@code BType}.
+     * Create function pointer to the given function with given {@code FunctionType}.
      *
      * @param function   pointing function
-     * @param type       {@code BFunctionType} of the function pointer
+     * @param type       {@code FunctionType} of the function pointer
      * @param strandName name for newly creating strand which is used to run the function pointer
      * @return           function pointer
      */
-    public static BFunctionPointer createFPValue(Function function, FunctionType type, String strandName) {
-        return new FPValue(function, type, strandName, false);
+    public static BFunctionPointer<?, ?> createFPValue(Function<Object[], ?> function,
+                                                       FunctionType type, String strandName) {
+        return new FPValue<>(function, type, strandName, false);
     }
 
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
     /**
      * Create {@code StreamingJsonValue} with given datasource.
      *
      * @param datasource {@code JSONDataSource} to be used
      * @return           created {@code StreamingJsonValue}
+     * @deprecated
      */
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     public static BStreamingJson createStreamingJsonValue(JsonDataSource datasource) {
         return new StreamingJsonValue(datasource);
     }
@@ -365,7 +374,7 @@ public class ValueCreator {
     /**
      * Create a type descriptor value.
      *
-     * @param describingType {@code BType} of the value describe by this value
+     * @param describingType {@code Type} of the value describe by this value
      * @return               type descriptor
      */
     public static BTypedesc createTypedescValue(Type describingType) {
@@ -373,73 +382,73 @@ public class ValueCreator {
     }
 
     /**
-     * Create an empty {@code XMLItem}.
+     * Create an empty {@code BXmlItem}.
      *
-     * @return {@code XMLItem}
+     * @return {@code BXmlItem}
      */
     public static BXmlItem createXmlItem() {
         return new XmlItem(new QName(null), new XmlSequence());
     }
 
     /**
-     * Create a {@code XMLItem} from a XML string.
+     * Create a {@code BXmlItem} from a XML string.
      *
      * @param name     QName
      * @param children Xml sequence
-     * @return         {@code XMLItem}
+     * @return         {@code BXmlItem}
      */
     public static BXmlItem createXmlItem(QName name, BXmlSequence children) {
         return new XmlItem(name, (XmlSequence) children);
     }
 
     /**
-     * Create a {@code XMLItem} from a XML string.
+     * Create a {@code BXmlItem} from a XML string.
      *
      * @param name QName
-     * @return     {@code XMLItem}
+     * @return     {@code BXmlItem}
      */
     public static BXmlItem createXmlItem(QName name) {
         return new XmlItem(name);
     }
 
     /**
-     * Create a {@code XMLItem} from a XML string.
+     * Create a {@code BXmlItem} from a XML string.
      *
      * @param name     QName
      * @param readonly Whether the element is immutable
-     * @return         {@code XMLItem}
+     * @return         {@code BXmlItem}
      */
     public static BXmlItem createXmlItem(QName name, boolean readonly) {
         return new XmlItem(name, readonly);
     }
 
     /**
-     * Create a {@code XMLItem} from a XML string.
+     * Create a {@code BXmlItem} from a XML string.
      *
      * @param name     QName
      * @param children Xml sequence
      * @param readonly Whether the element is immutable
-     * @return         {@code XMLItem}
+     * @return         {@code BXmlItem}
      */
     public static BXmlItem createXmlItem(QName name, BXmlSequence children, boolean readonly) {
         return new XmlItem(name, (XmlSequence) children, readonly);
     }
 
     /**
-     * Create a {@code XMLItem} from a XML string.
+     * Create a {@code BXml} from a XML string.
      *
      * @param xmlValue A XML string
-     * @return         {@code XMLItem}
+     * @return         {@code BXml}
      */
     public static BXml createXmlValue(String xmlValue) {
         return XmlFactory.parse(xmlValue);
     }
 
     /**
-     * Create a {@code XMLItem} from a {@link InputStream}.
+     * Create a {@code BXml} from a {@link InputStream}.
      *
      * @param inputStream Input Stream
-     * @return            {@code XMLItem}
+     * @return            {@code BXml}
      */
     public static BXml createXmlValue(InputStream inputStream) {
         return XmlFactory.parse(inputStream);
@@ -572,7 +581,15 @@ public class ValueCreator {
      * @return         xml sequence
      */
     public static BXmlSequence createXmlSequence(List<BXml> sequence) {
-        return XmlFactory.createXmlSequence(sequence);
+        List<BXml> flattenedSequence = new ArrayList<>();
+        for (BXml item : sequence) {
+            if (item.getNodeType() == XmlNodeType.SEQUENCE) {
+                flattenedSequence.addAll(((XmlSequence) item).getChildrenList());
+            } else {
+                flattenedSequence.add(item);
+            }
+        }
+        return XmlFactory.createXmlSequence(flattenedSequence);
     }
 
     /**
@@ -770,7 +787,7 @@ public class ValueCreator {
      * @param mappingValue mapping value
      * @return             spread field entry
      */
-    public static BMapInitialValueEntry createSpreadFieldEntry(BMap mappingValue) {
+    public static BMapInitialValueEntry createSpreadFieldEntry(BMap<?, ?> mappingValue) {
         return new MappingInitialValueEntry.SpreadFieldEntry(mappingValue);
     }
 
@@ -825,7 +842,7 @@ public class ValueCreator {
      * @return               value of the record
      * @throws BError        if given record type is not defined in the ballerina module.
      */
-    public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName) {
+    public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName) throws BError {
         return ValueUtils.createRecordValue(packageId, recordTypeName);
     }
 
@@ -840,7 +857,7 @@ public class ValueCreator {
      * @throws BError        if given record type is not defined in the ballerina module.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
-                                                          Map<String, Object> valueMap) {
+                                                          Map<String, Object> valueMap) throws BError {
         valueMap = RuntimeUtils.validateBMapValues(valueMap);
         return ValueUtils.createRecordValue(packageId, recordTypeName, valueMap);
     }
@@ -856,7 +873,7 @@ public class ValueCreator {
      * @throws BError        if given record type is not defined in the ballerina module.
      */
     public static BMap<BString, Object> createReadonlyRecordValue(Module packageId, String recordTypeName,
-                                                                  Map<String, Object> valueMap) {
+                                                                  Map<String, Object> valueMap) throws BError {
         valueMap = RuntimeUtils.validateBMapValues(valueMap);
         MapValueImpl<BString, Object> bMapValue = (MapValueImpl<BString, Object>) ValueUtils.createRecordValue(
                 packageId, recordTypeName, valueMap);
@@ -875,7 +892,7 @@ public class ValueCreator {
      * @throws BError        if given record type is not defined in the ballerina module.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
-                                                          BMap<BString, Object> valueMap) {
+                                                          BMap<BString, Object> valueMap) throws BError {
         valueMap = RuntimeUtils.validateBMapValues(valueMap);
         return ValueUtils.createRecordValue(packageId, recordTypeName, valueMap);
     }
@@ -891,7 +908,7 @@ public class ValueCreator {
      * @throws BError        if given record type is not defined in the ballerina module.
      */
     public static BMap<BString, Object> createReadonlyRecordValue(Module packageId, String recordTypeName,
-                                                                  BMap<BString, Object> valueMap) {
+                                                                  BMap<BString, Object> valueMap) throws BError {
         valueMap = RuntimeUtils.validateBMapValues(valueMap);
         MapValueImpl<BString, Object> bMapValue = (MapValueImpl<BString, Object>) ValueUtils.createRecordValue(
                 packageId, recordTypeName, valueMap);
@@ -920,7 +937,8 @@ public class ValueCreator {
      * @return               value of the object
      * @throws BError        if given object type is not defined in the ballerina module.
      */
-    public static BObject createObjectValue(Module packageId, String objectTypeName, Object... fieldValues) {
+    public static BObject createObjectValue(Module packageId, String objectTypeName, Object... fieldValues)
+            throws BError {
         return ValueUtils.createObjectValue(packageId, objectTypeName, fieldValues);
     }
 
@@ -940,8 +958,8 @@ public class ValueCreator {
      * @param tableType table type
      * @return          table value for given type
      */
-    public static BTable createTableValue(TableType tableType) {
-        return new TableValueImpl(tableType);
+    public static BTable<?, ?> createTableValue(TableType tableType) {
+        return new TableValueImpl<>(tableType);
     }
 
     /**
@@ -952,8 +970,8 @@ public class ValueCreator {
      * @param fieldNames table field names
      * @return           table value for given type
      */
-    public static BTable createTableValue(TableType tableType, BArray data, BArray fieldNames) {
-        return new TableValueImpl(tableType, (ArrayValue) data, (ArrayValue) fieldNames);
+    public static BTable<?, ?> createTableValue(TableType tableType, BArray data, BArray fieldNames) {
+        return new TableValueImpl<>(tableType, (ArrayValue) data, (ArrayValue) fieldNames);
     }
 
     private ValueCreator() {

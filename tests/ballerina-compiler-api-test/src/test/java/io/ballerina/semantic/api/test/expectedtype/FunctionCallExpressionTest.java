@@ -18,6 +18,8 @@
 package io.ballerina.semantic.api.test.expectedtype;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
@@ -28,6 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
@@ -53,8 +56,7 @@ public class FunctionCallExpressionTest {
 
     @Test(dataProvider = "LinePosProvider")
     public void testExpectedType(int line, int col, TypeDescKind typeDescKind) {
-        Optional<TypeSymbol> typeSymbol = model.
-                expectedType(srcFile, LinePosition.from(line, col));
+        Optional<TypeSymbol> typeSymbol = model.expectedType(srcFile, LinePosition.from(line, col));
         assertEquals(typeSymbol.get().typeKind(), typeDescKind);
     }
 
@@ -86,6 +88,38 @@ public class FunctionCallExpressionTest {
                 {124, 22, TypeDescKind.INT},
                 {136, 32, TypeDescKind.STRING},
                 {144, 39, TypeDescKind.FUNCTION}
+        };
+    }
+
+    @Test(dataProvider = "LinePosProviderForFunctionTypeTypeParam")
+    public void testExpectedTypeOfFunctionTypeTypeParam(int line, int col, List<TypeDescKind> paramKinds,
+                                                        TypeDescKind retKind) {
+        Optional<TypeSymbol> typeSymbol = model.expectedType(srcFile, LinePosition.from(line, col));
+        assertEquals(typeSymbol.get().typeKind(), TypeDescKind.FUNCTION, "Expected type mismatch:");
+
+        FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) typeSymbol.get();
+        List<ParameterSymbol> actualParams = functionTypeSymbol.params().get();
+        assertEquals(paramKinds.size(), actualParams.size(), "Count of parameters mismatch:");
+        for (int i = 0; i < paramKinds.size(); i++) {
+            assertEquals(actualParams.get(i).typeDescriptor().typeKind(), paramKinds.get(i),
+                    String.format("Parameter type mismatch at %d:", i));
+        }
+        assertEquals(functionTypeSymbol.returnTypeDescriptor().get().typeKind(), retKind, "Return type mismatch:");
+    }
+
+    @DataProvider(name = "LinePosProviderForFunctionTypeTypeParam")
+    public Object[][] getLinePosForFunctionTypeTypeParam() {
+        return new Object[][]{
+                {154, 21, List.of(TypeDescKind.STRING), TypeDescKind.STRING},
+                {155, 17, List.of(TypeDescKind.STRING), TypeDescKind.STRING},
+                {156, 19, List.of(TypeDescKind.STRING), TypeDescKind.BOOLEAN},
+                {157, 20, List.of(TypeDescKind.STRING), TypeDescKind.NIL},
+                {158, 37, List.of(TypeDescKind.INT), TypeDescKind.INT},
+                {159, 38, List.of(TypeDescKind.INT), TypeDescKind.BOOLEAN},
+                {160, 38, List.of(TypeDescKind.INT, TypeDescKind.INT), TypeDescKind.INT},
+                {161, 17, List.of(TypeDescKind.INT), TypeDescKind.INT},
+                {162, 19, List.of(TypeDescKind.INT), TypeDescKind.NIL},
+                {163, 18, List.of(TypeDescKind.INT, TypeDescKind.INT), TypeDescKind.INT}
         };
     }
 }

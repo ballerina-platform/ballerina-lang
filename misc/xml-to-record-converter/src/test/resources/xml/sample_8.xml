@@ -1,0 +1,17 @@
+<ns0:bookStore status="online" xmlns:ns0="http://sample.com/test">
+    <ns0:storeName>foo</ns0:storeName>
+    <ns0:postalCode>94</ns0:postalCode>
+    <ns0:isOpen>true</ns0:isOpen>
+    <ns0:address>
+        <ns0:street>foo</ns0:street>
+        <ns0:city>bar</ns0:city>
+        <ns0:country>Sri Lanka</ns0:country>
+    </ns0:address>
+    <ns0:codes>
+        <ns0:code>4</ns0:code>
+        <ns0:code>8</ns0:code>
+        <ns0:code>9</ns0:code>
+    </ns0:codes>
+</ns0:bookStore>
+        <!-- some comment -->
+        <?doc document="book.doc"?>

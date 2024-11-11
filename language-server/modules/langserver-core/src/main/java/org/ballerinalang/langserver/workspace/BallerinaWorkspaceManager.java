@@ -21,6 +21,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.BalToolToml;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.CloudToml;
@@ -29,6 +30,10 @@ import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarLibrary;
+import io.ballerina.projects.JarResolver;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.Package;
@@ -41,6 +46,8 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
@@ -50,6 +57,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
@@ -58,6 +66,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
+import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
@@ -67,13 +76,18 @@ import org.eclipse.lsp4j.FileChangeType;
 import org.eclipse.lsp4j.FileEvent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -82,6 +96,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -90,6 +106,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
 
 /**
  * Contains a set of utility methods to manage projects.
@@ -105,7 +123,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     /**
      * Mapping of source root to project instance.
      */
-    protected final Map<Path, ProjectPair> sourceRootToProject;
+    protected final Map<Path, ProjectContext> sourceRootToProject;
     protected final LSClientLogger clientLogger;
     private final LanguageServerContext serverContext;
     private final Set<Path> openedDocuments = new HashSet<>();
@@ -119,6 +137,20 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 .build();
         this.pathToSourceRootCache = cache.asMap();
         this.sourceRootToProject = new SourceRootToProjectMap<>(pathToSourceRootCache);
+
+        // We are only doing a best effort cleanup here. If we held a strong reference to the map
+        // GC will not be able to clean the projects. It impacts tests since all run in the same JVM.
+        WeakReference<Map<Path, ProjectContext>> weekMap = new WeakReference<>(sourceRootToProject);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            Map<Path, ProjectContext> map = weekMap.get();
+            if (map == null) {
+                return;
+            }
+            for (ProjectContext projectContext : map.values()) {
+                // Since we are anyway shutting down no need to acquire locks for each
+                projectContext.process().ifPresent(Process::destroy);
+            }
+        }));
     }
 
     @Override
@@ -139,6 +171,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @param filePath ballerina project or standalone file path
      * @return project root
      */
+    @Override
     public Path projectRoot(Path filePath) {
         return pathToSourceRootCache.computeIfAbsent(filePath, this::computeProjectRoot);
     }
@@ -157,7 +190,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      */
     @Override
     public Optional<Project> project(Path filePath) {
-        return projectPair(projectRoot(filePath)).map(ProjectPair::project);
+        return projectContext(projectRoot(filePath)).map(ProjectContext::project);
     }
 
     /**
@@ -169,7 +202,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     @Override
     public Project loadProject(Path filePath) throws ProjectException, WorkspaceDocumentException, EventSyncException {
         Project project;
-        Optional<Project> optionalProject = project(ProjectPaths.packageRoot(filePath));
+        Optional<Project> optionalProject = project(filePath);
 
         if (optionalProject.isPresent()) {
             project = optionalProject.get();
@@ -244,7 +277,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * Returns syntax tree from the path provided.
      *
      * @param filePath file path of the document
-     * @return {@link io.ballerina.compiler.syntax.tree.SyntaxTree}
+     * @return {@link SyntaxTree}
      */
     @Override
     public Optional<SyntaxTree> syntaxTree(Path filePath) {
@@ -274,8 +307,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     public Optional<SemanticModel> semanticModel(Path filePath) {
         Optional<Module> module = this.module(filePath);
         Optional<PackageCompilation> packageCompilation = waitAndGetPackageCompilation(filePath);
-        Optional<ProjectPair> projectPair = projectPair(projectRoot(filePath));
-        if (module.isEmpty() || packageCompilation.isEmpty() || projectPair.isEmpty() || projectPair.get().crashed()) {
+        Optional<ProjectContext> projectPair = projectContext(projectRoot(filePath));
+        if (module.isEmpty() || packageCompilation.isEmpty() || projectPair.isEmpty()
+                || projectPair.get().compilationCrashed()) {
             return Optional.empty();
         }
         return Optional.of(packageCompilation.get().getSemanticModel(module.get().moduleId()));
@@ -285,8 +319,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     public Optional<SemanticModel> semanticModel(Path filePath, @Nonnull CancelChecker cancelChecker) {
         Optional<Module> module = this.module(filePath);
         Optional<PackageCompilation> packageCompilation = waitAndGetPackageCompilation(filePath, cancelChecker);
-        Optional<ProjectPair> projectPair = projectPair(projectRoot(filePath));
-        if (module.isEmpty() || packageCompilation.isEmpty() || projectPair.isEmpty() || projectPair.get().crashed()) {
+        Optional<ProjectContext> projectPair = projectContext(projectRoot(filePath));
+        if (module.isEmpty() || packageCompilation.isEmpty() || projectPair.isEmpty()
+                || projectPair.get().compilationCrashed()) {
             return Optional.empty();
         }
         return Optional.of(packageCompilation.get().getSemanticModel(module.get().moduleId()));
@@ -295,14 +330,14 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     /**
      * Returns module compilation from the file path provided.
      *
-     * @param filePath file path of the document
+     * @param filePath       file path of the document
      * @param isSourceChange True if the given file's source is changed
      * @return {@link ModuleCompilation}
      */
     public Optional<PackageCompilation> waitAndGetPackageCompilation(Path filePath, boolean isSourceChange) {
         // Get Project and Lock
-        Optional<ProjectPair> projectPair = projectPair(projectRoot(filePath));
-        if (projectPair.isEmpty() || (projectPair.get().crashed() && !isSourceChange)) {
+        Optional<ProjectContext> projectPair = projectContext(projectRoot(filePath));
+        if (projectPair.isEmpty() || (projectPair.get().compilationCrashed() && !isSourceChange)) {
             return Optional.empty();
         }
 
@@ -310,15 +345,15 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Lock lock = projectPair.get().lockAndGet();
         try {
             PackageCompilation compilation = projectPair.get().project().currentPackage().getCompilation();
-            if (projectPair.get().crashed) {
-                projectPair.get().setCrashed(false);
+            if (projectPair.get().compilationCrashed()) {
+                projectPair.get().setCompilationCrashed(false);
             }
             if (compilation.diagnosticResult().diagnostics().stream()
-                    .anyMatch(diagnostic -> 
-                            Arrays.asList(DiagnosticErrorCode.BAD_SAD_FROM_COMPILER.diagnosticId(), 
+                    .anyMatch(diagnostic ->
+                            Arrays.asList(DiagnosticErrorCode.BAD_SAD_FROM_COMPILER.diagnosticId(),
                                             DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId())
-                            .contains(diagnostic.diagnosticInfo().code()))) {
-                projectPair.get().setCrashed(true);
+                                    .contains(diagnostic.diagnosticInfo().code()))) {
+                projectPair.get().setCompilationCrashed(true);
                 projectPair.get().project().clearCaches();
             }
             return Optional.of(compilation);
@@ -357,24 +392,27 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         // Add the document to the opened documents set and the entry will only be removed via didClose.
         // Hence we assume the safe concurrent access for a given document path
         this.openedDocuments.add(filePath);
-        ProjectPair projectPair = createOrGetProjectPair(filePath, LSContextOperation.TXT_DID_OPEN.getName());
-
-        Project project = projectPair.project();
+        ProjectContext projectContext = createOrGetProjectPair(filePath,
+                LSContextOperation.TXT_DID_OPEN.getName(), true);
+        Project project = projectContext.project();
         if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.BALLERINA_TOML))) {
             // Create or update Ballerina.toml
-            updateBallerinaToml(params.getTextDocument().getText(), projectPair, true);
+            updateBallerinaToml(params.getTextDocument().getText(), projectContext, true);
         } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.DEPENDENCIES_TOML))) {
             // Create or update Dependencies.toml
-            updateDependenciesToml(params.getTextDocument().getText(), projectPair, true);
+            updateDependenciesToml(params.getTextDocument().getText(), projectContext, true);
         } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.CLOUD_TOML))) {
             // Create or update Cloud.toml
-            updateCloudToml(params.getTextDocument().getText(), projectPair, true);
+            updateCloudToml(params.getTextDocument().getText(), projectContext, true);
         } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.COMPILER_PLUGIN_TOML))) {
             // Create or update Compiler-plugin.toml
-            updateCompilerPluginToml(params.getTextDocument().getText(), projectPair, true);
+            updateCompilerPluginToml(params.getTextDocument().getText(), projectContext, true);
+        } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.BAL_TOOL_TOML))) {
+            // Create or update BalTool.toml
+            updateBalToolToml(params.getTextDocument().getText(), projectContext, true);
         } else if (ProjectPaths.isBalFile(filePath) && project.kind() != ProjectKind.BALA_PROJECT) {
-            // Create or update .bal document
-            updateBalDocument(filePath, params.getTextDocument().getText(), projectPair, true);
+            // Create a new .bal document.
+            createBalDocument(filePath, params.getTextDocument().getText(), projectContext);
         }
     }
 
@@ -388,24 +426,28 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     @Override
     public void didChange(Path filePath, DidChangeTextDocumentParams params) throws WorkspaceDocumentException {
         // Get Project and Lock
-        ProjectPair projectPair = createOrGetProjectPair(filePath, LSContextOperation.TXT_DID_CHANGE.getName());
+        ProjectContext projectContext = createOrGetProjectPair(filePath,
+                LSContextOperation.TXT_DID_CHANGE.getName(), true);
 
-        Project project = projectPair.project();
+        Project project = projectContext.project();
         if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.BALLERINA_TOML))) {
             // Update Ballerina.toml
-            updateBallerinaToml(params.getContentChanges().get(0).getText(), projectPair, false);
+            updateBallerinaToml(params.getContentChanges().get(0).getText(), projectContext, false);
         } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.DEPENDENCIES_TOML))) {
             // create or update Dependencies.toml
-            updateDependenciesToml(params.getContentChanges().get(0).getText(), projectPair, false);
+            updateDependenciesToml(params.getContentChanges().get(0).getText(), projectContext, false);
         } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.CLOUD_TOML))) {
             // create or update Cloud.toml
-            updateCloudToml(params.getContentChanges().get(0).getText(), projectPair, false);
+            updateCloudToml(params.getContentChanges().get(0).getText(), projectContext, false);
         } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.COMPILER_PLUGIN_TOML))) {
             // create or update Compiler-plugin.toml
-            updateCompilerPluginToml(params.getContentChanges().get(0).getText(), projectPair, false);
+            updateCompilerPluginToml(params.getContentChanges().get(0).getText(), projectContext, false);
+        } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.BAL_TOOL_TOML))) {
+            // create or update BalTool.toml
+            updateBalToolToml(params.getContentChanges().get(0).getText(), projectContext, false);
         } else if (ProjectPaths.isBalFile(filePath) && project.kind() != ProjectKind.BALA_PROJECT) {
             // Update .bal document
-            updateBalDocument(filePath, params.getContentChanges().get(0).getText(), projectPair, false);
+            updateBalDocument(filePath, params.getContentChanges().get(0).getText(), projectContext);
         }
     }
 
@@ -421,7 +463,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (!LSClientConfigHolder.getInstance(serverContext).getConfig().isEnableFileWatcher()) {
             return;
         }
-        Optional<ProjectPair> optProject = getProjectOfWatchedFileChange(filePath, fileEvent);
+        Optional<ProjectContext> optProject = getProjectOfWatchedFileChange(filePath, fileEvent);
         if (optProject.isEmpty()) {
             clientLogger.logTrace(
                     String.format("Operation '%s' No matching project found, {fileUri: '%s' event: '%s'} ignored",
@@ -430,16 +472,18 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                             fileEvent.getType().name()));
             return;
         }
-        ProjectPair projectPair = optProject.get();
-        Project project = projectPair.project();
+        ProjectContext projectContext = optProject.get();
+        Project project = projectContext.project();
         String fileName = filePath.getFileName().toString();
         boolean isBallerinaSourceChange = fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT);
         boolean isBallerinaTomlChange = filePath.endsWith(ProjectConstants.BALLERINA_TOML);
         boolean isDependenciesTomlChange = filePath.endsWith(ProjectConstants.DEPENDENCIES_TOML);
         boolean isCloudTomlChange = filePath.endsWith(ProjectConstants.CLOUD_TOML);
         boolean isCompilerPluginTomlChange = filePath.endsWith(ProjectConstants.COMPILER_PLUGIN_TOML);
+        boolean isBalToolTomlChange = filePath.endsWith(ProjectConstants.BAL_TOOL_TOML);
         if (fileEvent.getType() == FileChangeType.Created &&
-                (isBallerinaSourceChange || isBallerinaTomlChange || isCloudTomlChange || isCompilerPluginTomlChange)
+                (isBallerinaSourceChange || isBallerinaTomlChange || isCloudTomlChange || isCompilerPluginTomlChange
+                        || isBalToolTomlChange)
                 && hasDocumentOrToml(filePath, project)) {
             // Document might already exists when text/didOpen hits before workspace/didChangeWatchedFiles,
             // Thus, return silently
@@ -452,17 +496,19 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
 
         if (isBallerinaSourceChange) {
-            handleWatchedBalSourceChange(filePath, fileEvent, projectPair);
+            handleWatchedBalSourceChange(filePath, fileEvent, projectContext);
         } else if (isBallerinaTomlChange) {
-            handleWatchedBallerinaTomlChange(filePath, fileEvent, projectPair);
+            handleWatchedBallerinaTomlChange(filePath, fileEvent, projectContext);
         } else if (isCloudTomlChange) {
-            handleWatchedCloudTomlChange(filePath, fileEvent, projectPair);
+            handleWatchedCloudTomlChange(filePath, fileEvent, projectContext);
         } else if (isDependenciesTomlChange) {
-            handleWatchedDependenciesTomlChange(filePath, fileEvent, projectPair);
+            handleWatchedDependenciesTomlChange(filePath, fileEvent, projectContext);
         } else if (isCompilerPluginTomlChange) {
-            handleWatchedCompilerPluginTomlChange(filePath, fileEvent, projectPair);
+            handleWatchedCompilerPluginTomlChange(filePath, fileEvent, projectContext);
+        } else if (isBalToolTomlChange) {
+            handleWatchedBalToolTomlChange(filePath, fileEvent, projectContext);
         } else {
-            handleWatchedModuleChange(filePath, fileEvent, projectPair);
+            handleWatchedModuleChange(filePath, fileEvent, projectContext);
         }
     }
 
@@ -483,10 +529,10 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             if (!this.openedDocuments.contains(filePath) || fileEvent.getType() == FileChangeType.Deleted) {
                 // If already opened in the cache, this will be captured via the textDocument/didChange event
                 this.didChangeWatched(filePath, fileEvent);
-                Optional<ProjectPair> optProject = getProjectOfWatchedFileChange(filePath, fileEvent);
+                Optional<ProjectContext> optProject = getProjectOfWatchedFileChange(filePath, fileEvent);
                 if (optProject.isPresent()) {
-                    ProjectPair projectPair = optProject.get();
-                    Project project = projectPair.project();
+                    ProjectContext projectContext = optProject.get();
+                    Project project = projectContext.project();
                     return List.of(project.sourceRoot());
                 }
             }
@@ -511,14 +557,19 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
 
         reloadableProjects.forEach(path -> {
-            Optional<ProjectPair> projectPair = this.projectPair(path);
+            Optional<ProjectContext> projectPair = this.projectContext(path);
             if (projectPair.isEmpty()) {
                 return;
             }
             Lock lock = projectPair.get().lockAndGet();
             try {
-                ProjectPair project = createProject(path, LSContextOperation.WS_WF_CHANGED.getName());
-                projectPair.get().setProject(project.project());
+                Optional<ProjectContext> projectContext =
+                        createProjectContext(path, LSContextOperation.WS_WF_CHANGED.getName());
+                if (projectContext.isEmpty()) {
+                    // NOTE: This will never happen since we create a project if not exists
+                    throw new WorkspaceDocumentException("Cannot find the project of uri: " + path.toString());
+                }
+                projectPair.get().setProject(projectContext.get().project());
             } catch (Throwable e) {
                 // Failed to reload the project
                 String message = "Failed to reload project: ["
@@ -536,13 +587,165 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         return "file";
     }
 
+    @Override
+    public Optional<Process> run(Path filePath) throws IOException {
+        Optional<ProjectContext> projectPairOpt = projectContext(projectRoot(filePath));
+        if (projectPairOpt.isEmpty()) {
+            String msg = "Run command execution aborted because project is not loaded";
+            UserErrorException e = new UserErrorException(msg);
+            clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
+            return Optional.empty();
+        }
+        ProjectContext projectContext = projectPairOpt.get();
+        if (!stopProject(projectContext)) {
+            String msg = "Run command execution aborted because couldn't stop the previous run";
+            UserErrorException e = new UserErrorException(msg);
+            clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
+            return Optional.empty();
+        }
+
+        Project project = projectContext.project();
+        Package pkg = project.currentPackage();
+        Module executableModule = pkg.getDefaultModule();
+        Optional<PackageCompilation> packageCompilation = waitAndGetPackageCompilation(project.sourceRoot(), true);
+        if (packageCompilation.isEmpty()) {
+            return Optional.empty();
+        }
+        JBallerinaBackend jBallerinaBackend = execBackend(projectContext, packageCompilation.get());
+        Collection<Diagnostic> diagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
+        if (diagnostics.stream().anyMatch(BallerinaWorkspaceManager::isError)) {
+            String msg = "Run command execution aborted due to compilation errors: " + diagnostics;
+            UserErrorException e = new UserErrorException(msg);
+            clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
+            return Optional.empty();
+        }
+        JarResolver jarResolver = jBallerinaBackend.jarResolver();
+        String initClassName = JarResolver.getQualifiedClassName(
+                executableModule.packageInstance().packageOrg().toString(),
+                executableModule.packageInstance().packageName().toString(),
+                executableModule.packageInstance().packageVersion().toString(),
+                MODULE_INIT_CLASS_NAME);
+        List<String> commands = new ArrayList<>();
+        commands.add(System.getProperty("java.command"));
+        commands.add("-XX:+HeapDumpOnOutOfMemoryError");
+        commands.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
+        commands.add("-cp");
+        commands.add(getAllClassPaths(jarResolver));
+        commands.add(initClassName);
+        ProcessBuilder pb = new ProcessBuilder(commands);
+
+        Lock lock = projectContext.lockAndGet();
+        try {
+            Optional<Process> existing = projectContext.process();
+            if (existing.isPresent()) {
+                // We just removed this in above `stopProject`. This means there is a parallel command running.
+                String msg = "Run command execution aborted because another run is in progress";
+                UserErrorException e = new UserErrorException(msg);
+                clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
+                return Optional.empty();
+            }
+            Process ps = pb.start();
+            projectContext.setProcess(ps);
+            return Optional.of(ps);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private static JBallerinaBackend execBackend(ProjectContext projectContext,
+                                                 PackageCompilation packageCompilation) {
+        Lock lock = projectContext.lockAndGet();
+        try {
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17, false);
+            Package pkg = projectContext.project.currentPackage();
+            for (Module module : pkg.modules()) {
+                for (DocumentId id : module.documentIds()) {
+                    module.document(id).modify().apply();
+                }
+            }
+            return jBallerinaBackend;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+
+    @Override
+    public boolean stop(Path filePath) {
+        Optional<ProjectContext> projectPairOpt = projectContext(projectRoot(filePath));
+        if (projectPairOpt.isEmpty()) {
+            clientLogger.logWarning("Failed to stop process: Project not found");
+            return false;
+        }
+        ProjectContext projectContext = projectPairOpt.get();
+        return stopProject(projectContext);
+    }
+
+    @Override
+    public CompletableFuture<Map<Path, Project>> workspaceProjects() {
+        ExtendedLanguageClient extendedLanguageClient = serverContext.get(ExtendedLanguageClient.class);
+        CompletableFuture<List<WorkspaceFolder>> future = extendedLanguageClient.workspaceFolders();
+        return future.thenApply(workspaceFolders -> {
+            Map<Path, Project> filteredProjects = new HashMap<>();
+            workspaceFolders.forEach(workspaceFolder -> {
+                Path workspaceFolderPath = Path.of(URI.create(workspaceFolder.getUri()));
+                sourceRootToProject.entrySet().stream()
+                        .filter(pathProjectContextEntry -> pathProjectContextEntry.getKey().toAbsolutePath()
+                                .startsWith(workspaceFolderPath))
+                        .forEach(pathProjectContextEntry ->
+                                filteredProjects.put(pathProjectContextEntry.getKey(),
+                                        pathProjectContextEntry.getValue().project()));
+            });
+            return filteredProjects;
+        });
+    }
+
+    private boolean stopProject(ProjectContext projectContext) {
+        Lock lock = projectContext.lockAndGet();
+        try {
+            Optional<Process> existing = projectContext.process();
+            if (existing.isEmpty()) {
+                return true;
+            }
+            boolean killed = killProcess(existing.get());
+            if (killed) {
+                projectContext.removeProcess();
+            }
+            return killed;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private boolean killProcess(Process process) {
+        process.destroy();
+        try {
+            process.waitFor(2, TimeUnit.SECONDS);
+        } catch (InterruptedException ignored) {
+            clientLogger.logWarning("Waiting for process to stop was interrupted");
+            Thread.currentThread().interrupt();
+        }
+        if (process.isAlive()) {
+            process.destroyForcibly();
+        }
+        return !process.isAlive();
+    }
+
+    private String getAllClassPaths(JarResolver jarResolver) {
+        StringJoiner cp = new StringJoiner(File.pathSeparator);
+        for (JarLibrary lib : jarResolver.getJarFilePathsRequiredForExecution()) {
+            cp.add(lib.path().toString());
+        }
+        return cp.toString();
+    }
+
     /**
      * Refresh the project by cloning it internally and clearing caches.
      *
      * @param filePath A path of a file in the project
      */
     public void refreshProject(Path filePath) throws WorkspaceDocumentException {
-        Optional<ProjectPair> projectPairOpt = projectPair(projectRoot(filePath));
+        Optional<ProjectContext> projectPairOpt = projectContext(projectRoot(filePath));
         if (projectPairOpt.isEmpty()) {
             throw new WorkspaceDocumentException("Project not found for filePath: " + filePath);
         }
@@ -555,20 +758,21 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
-    private Optional<ProjectPair> projectOfWatchedFileChange(Path filePath, FileEvent fileEvent,
-                                                             boolean isBallerinaSourceChange,
-                                                             boolean isBallerinaTomlChange,
-                                                             boolean isDependenciesTomlChange,
-                                                             boolean isCloudTomlChange,
-                                                             boolean isCompilerPluginTomlChange,
-                                                             boolean isModuleChange) {
+    private Optional<ProjectContext> projectOfWatchedFileChange(Path filePath, FileEvent fileEvent,
+                                                                boolean isBallerinaSourceChange,
+                                                                boolean isBallerinaTomlChange,
+                                                                boolean isDependenciesTomlChange,
+                                                                boolean isCloudTomlChange,
+                                                                boolean isCompilerPluginTomlChange,
+                                                                boolean isBalToolTomlChange,
+                                                                boolean isModuleChange) {
         if (isBallerinaSourceChange) {
             if (fileEvent.getType() == FileChangeType.Created) {
-                return projectPair(projectRoot(filePath));
+                return projectContext(projectRoot(filePath));
             } else {
                 // DELETED event
                 // First try as a single-file-project
-                Optional<ProjectPair> optProject = projectPair(filePath);
+                Optional<ProjectContext> optProject = projectContext(filePath);
                 if (optProject.isPresent()) {
                     return optProject;
                 }
@@ -587,31 +791,31 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                     // If a generated source for a non-default module, get parent of parent
                     parent = parent.getParent();
                 }
-                return projectPair(parent);
+                return projectContext(parent);
             }
         } else if (isBallerinaTomlChange) {
             if (fileEvent.getType() == FileChangeType.Created) {
                 // Check for a project upgrade from a single-file to a build-project
                 // In such scenario, project will be only available with the key of that single file path.
-                Optional<ProjectPair> optProject = sourceRootToProject.entrySet().stream()
-                        .filter(entry -> entry.getValue().project.kind() == ProjectKind.SINGLE_FILE_PROJECT &&
+                Optional<ProjectContext> optProject = sourceRootToProject.entrySet().stream()
+                        .filter(entry -> entry.getValue().project().kind() == ProjectKind.SINGLE_FILE_PROJECT &&
                                 entry.getKey().getParent().equals(filePath.getParent()))
                         .findFirst()
                         .map(Map.Entry::getValue);
                 if (optProject.isEmpty()) {
                     // Single-file project is unavailable if we just downgraded a build-project removing Ballerina.toml
                     // Thus, loading a new build-project here
-                    optProject = Optional.of(createProject(filePath, LSContextOperation.WS_WF_CHANGED.getName()));
+                    optProject = createProjectContext(filePath, LSContextOperation.WS_WF_CHANGED.getName());
                     sourceRootToProject.put(optProject.get().project().sourceRoot(), optProject.get());
 
                 }
                 return optProject;
             } else {
                 // Check for a project downgrade from a build-project to a single-file
-                return projectPair(filePath.getParent());
+                return projectContext(filePath.getParent());
             }
-        } else if (isCloudTomlChange || isCompilerPluginTomlChange || isDependenciesTomlChange) {
-            return projectPair(filePath.getParent());
+        } else if (isCloudTomlChange || isCompilerPluginTomlChange || isBalToolTomlChange || isDependenciesTomlChange) {
+            return projectContext(filePath.getParent());
         } else if (isModuleChange) {
             Path projectRoot;
             if (ProjectConstants.MODULES_ROOT.equals(filePath.getFileName().toString()) ||
@@ -622,29 +826,29 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 // If it is **/projectRoot/modules/mod2 OR **/projectRoot/generated/mod2
                 projectRoot = filePath.getParent().getParent();
             }
-            return projectPair(projectRoot);
+            return projectContext(projectRoot);
         } else {
             // Skip if unrecognized file change
             return Optional.empty();
         }
     }
 
-    private void handleWatchedBalSourceChange(Path filePath, FileEvent fileEvent, ProjectPair projectPair) {
+    private void handleWatchedBalSourceChange(Path filePath, FileEvent fileEvent, ProjectContext projectContext) {
         switch (fileEvent.getType()) {
             case Created: {
                 // Creating new document requires finding the module it resides
                 // Thus, reloading the project
-                reloadProject(projectPair, filePath, LSContextOperation.WS_WF_CHANGED.getName());
+                reloadProject(projectContext, filePath, LSContextOperation.WS_WF_CHANGED.getName());
                 break;
             }
             case Changed: {
                 if (!this.openedDocuments.contains(filePath)) {
-                    reloadProject(projectPair, filePath, LSContextOperation.WS_WF_CHANGED.getName());
+                    reloadProject(projectContext, filePath, LSContextOperation.WS_WF_CHANGED.getName());
                 }
                 break;
             }
             case Deleted: {
-                Project project = projectPair.project();
+                Project project = projectContext.project();
                 if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
                     // If it is a single-file-project, remove project from mapping
                     Path projectRoot = project.sourceRoot();
@@ -658,11 +862,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                     // If it is a build-project, need to remove particular file from project
                     Optional<Document> document = document(filePath, project, null);
                     if (document.isPresent()) {
-                        Lock lock = projectPair.lockAndGet();
+                        Lock lock = projectContext.lockAndGet();
                         try {
                             Project updatedProj = document.get().module().modify().removeDocument(
                                     document.get().documentId()).apply().project();
-                            projectPair.setProject(updatedProj);
+                            projectContext.setProject(updatedProj);
                             clientLogger.logTrace(String.format("Operation '%s' {fileUri: '%s'} removed",
                                     LSContextOperation.WS_WF_CHANGED.getName(),
                                     fileEvent.getUri()));
@@ -672,27 +876,27 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                     } else {
                         // If document-id not found, reload project
                         Path ballerinaTomlPath = project.sourceRoot().resolve(ProjectConstants.BALLERINA_TOML);
-                        reloadProject(projectPair, ballerinaTomlPath, LSContextOperation.WS_WF_CHANGED.getName());
+                        reloadProject(projectContext, ballerinaTomlPath, LSContextOperation.WS_WF_CHANGED.getName());
                     }
                 }
             }
         }
     }
 
-    private void handleWatchedBallerinaTomlChange(Path filePath, FileEvent fileEvent, ProjectPair projectPair)
+    private void handleWatchedBallerinaTomlChange(Path filePath, FileEvent fileEvent, ProjectContext projectContext)
             throws WorkspaceDocumentException {
-        Project project = projectPair.project();
+        Project project = projectContext.project();
         switch (fileEvent.getType()) {
             case Created:
                 try {
-                    updateBallerinaToml(Files.readString(filePath), projectPair, true);
+                    updateBallerinaToml(Files.readString(filePath), projectContext, true);
                 } catch (IOException e) {
                     throw new WorkspaceDocumentException("Could not handle Ballerina.toml creation!", e);
                 }
                 break;
             case Changed: {
                 if (!this.openedDocuments.contains(filePath)) {
-                    reloadProject(projectPair, filePath, LSContextOperation.WS_WF_CHANGED.getName());
+                    reloadProject(projectContext, filePath, LSContextOperation.WS_WF_CHANGED.getName());
                 }
                 break;
             }
@@ -700,7 +904,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 if (project.kind() == ProjectKind.BUILD_PROJECT) {
                     // This results down-grading a build-project into a single-file-project
                     // Thus, removing the project and allow subsequent changes to create single-file-projects
-                    Lock lock = projectPair.lockAndGet();
+                    Lock lock = projectContext.lockAndGet();
                     try {
                         Path projectRoot = project.sourceRoot();
                         sourceRootToProject.remove(projectRoot);
@@ -708,7 +912,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                                 String.format("Operation '%s' {project: '%s', kind: '%s'} removed",
                                         LSContextOperation.WS_WF_CHANGED.getName(),
                                         project.sourceRoot().toUri().toString(),
-                                        projectPair.project().kind().name()
+                                        projectContext.project().kind().name()
                                                 .toLowerCase(Locale.getDefault())));
                     } finally {
                         // Unlock Project Instance
@@ -721,12 +925,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
-    private void handleWatchedDependenciesTomlChange(Path filePath, FileEvent fileEvent, ProjectPair projectPair)
+    private void handleWatchedDependenciesTomlChange(Path filePath, FileEvent fileEvent, ProjectContext projectContext)
             throws WorkspaceDocumentException {
         switch (fileEvent.getType()) {
             case Created:
                 try {
-                    updateDependenciesToml(Files.readString(filePath), projectPair, true);
+                    updateDependenciesToml(Files.readString(filePath), projectContext, true);
                     clientLogger.logTrace(String.format("Operation '%s' {fileUri: '%s'} created",
                             LSContextOperation.WS_WF_CHANGED.getName(),
                             fileEvent.getUri()));
@@ -736,19 +940,19 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 break;
             case Changed:
                 if (!this.openedDocuments.contains(filePath)) {
-                    reloadProject(projectPair, filePath, LSContextOperation.WS_WF_CHANGED.getName());
+                    reloadProject(projectContext, filePath, LSContextOperation.WS_WF_CHANGED.getName());
                 }
                 break;
             case Deleted:
                 // When removing Dependencies.toml, we are just reloading the project due to api-limitations.
-                Lock lock = projectPair.lockAndGet();
+                Lock lock = projectContext.lockAndGet();
                 try {
                     clientLogger.logTrace(String.format("Operation '%s' {fileUri: '%s'} removed",
                             LSContextOperation.WS_WF_CHANGED.getName(),
                             fileEvent.getUri()));
                     Path ballerinaTomlFile = filePath.getParent().resolve(ProjectConstants.BALLERINA_TOML);
-                    projectPair.setProject(
-                            createProject(ballerinaTomlFile, LSContextOperation.WS_WF_CHANGED.getName()).project());
+                    createProjectContext(ballerinaTomlFile, LSContextOperation.WS_WF_CHANGED.getName())
+                            .ifPresent(newProjectContext -> projectContext.setProject(newProjectContext.project()));
                 } finally {
                     // Unlock Project Instance
                     lock.unlock();
@@ -756,12 +960,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
-    private void handleWatchedCloudTomlChange(Path filePath, FileEvent fileEvent, ProjectPair projectPair)
+    private void handleWatchedCloudTomlChange(Path filePath, FileEvent fileEvent, ProjectContext projectContext)
             throws WorkspaceDocumentException {
         switch (fileEvent.getType()) {
             case Created:
                 try {
-                    updateCloudToml(Files.readString(filePath), projectPair, true);
+                    updateCloudToml(Files.readString(filePath), projectContext, true);
                     clientLogger.logTrace(String.format("Operation '%s' {fileUri: '%s'} created",
                             LSContextOperation.WS_WF_CHANGED.getName(),
                             fileEvent.getUri()));
@@ -771,20 +975,20 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 break;
             case Changed: {
                 if (!this.openedDocuments.contains(filePath)) {
-                    reloadProject(projectPair, filePath, LSContextOperation.WS_WF_CHANGED.getName());
+                    reloadProject(projectContext, filePath, LSContextOperation.WS_WF_CHANGED.getName());
                 }
                 break;
             }
             case Deleted:
                 // When removing Cloud.toml, we are just reloading the project due to api-limitations.
-                Lock lock = projectPair.lockAndGet();
+                Lock lock = projectContext.lockAndGet();
                 try {
                     clientLogger.logTrace(String.format("Operation '%s' {fileUri: '%s'} removed",
                             LSContextOperation.WS_WF_CHANGED.getName(),
                             fileEvent.getUri()));
                     Path ballerinaTomlFile = filePath.getParent().resolve(ProjectConstants.BALLERINA_TOML);
-                    projectPair.setProject(
-                            createProject(ballerinaTomlFile, LSContextOperation.WS_WF_CHANGED.getName()).project());
+                    createProjectContext(ballerinaTomlFile, LSContextOperation.WS_WF_CHANGED.getName())
+                            .ifPresent(newProject -> projectContext.setProject(newProject.project));
                 } finally {
                     // Unlock Project Instance
                     lock.unlock();
@@ -792,12 +996,13 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
-    private void handleWatchedCompilerPluginTomlChange(Path filePath, FileEvent fileEvent, ProjectPair projectPair)
+    private void handleWatchedCompilerPluginTomlChange(Path filePath, FileEvent fileEvent,
+                                                       ProjectContext projectContext)
             throws WorkspaceDocumentException {
         switch (fileEvent.getType()) {
             case Created:
                 try {
-                    updateCompilerPluginToml(Files.readString(filePath), projectPair, true);
+                    updateCompilerPluginToml(Files.readString(filePath), projectContext, true);
                     clientLogger.logTrace(String.format("Operation '%s' {fileUri: '%s'} created",
                             LSContextOperation.WS_WF_CHANGED.getName(),
                             fileEvent.getUri()));
@@ -807,20 +1012,20 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 break;
             case Changed: {
                 if (!this.openedDocuments.contains(filePath)) {
-                    reloadProject(projectPair, filePath, LSContextOperation.WS_WF_CHANGED.getName());
+                    reloadProject(projectContext, filePath, LSContextOperation.WS_WF_CHANGED.getName());
                 }
                 break;
             }
             case Deleted:
                 // When removing Compiler-plugin.toml, we are just reloading the project due to api-limitations.
-                Lock lock = projectPair.lockAndGet();
+                Lock lock = projectContext.lockAndGet();
                 try {
                     clientLogger.logTrace(String.format("Operation '%s' {fileUri: '%s'} removed",
                             LSContextOperation.WS_WF_CHANGED.getName(),
                             fileEvent.getUri()));
                     Path ballerinaTomlFile = filePath.getParent().resolve(ProjectConstants.BALLERINA_TOML);
-                    projectPair.setProject(
-                            createProject(ballerinaTomlFile, LSContextOperation.WS_WF_CHANGED.getName()).project());
+                    createProjectContext(ballerinaTomlFile, LSContextOperation.WS_WF_CHANGED.getName())
+                            .ifPresent(newProject -> projectContext.setProject(newProject.project()));
                 } finally {
                     // Unlock Project Instance
                     lock.unlock();
@@ -828,7 +1033,43 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
-    private void handleWatchedModuleChange(Path filePath, FileEvent fileEvent, ProjectPair projectPair) {
+    private void handleWatchedBalToolTomlChange(Path filePath, FileEvent fileEvent, ProjectContext projectContext)
+            throws WorkspaceDocumentException {
+        switch (fileEvent.getType()) {
+            case Created:
+                try {
+                    updateBalToolToml(Files.readString(filePath), projectContext, true);
+                    clientLogger.logTrace(String.format("Operation '%s' {fileUri: '%s'} created",
+                            LSContextOperation.WS_WF_CHANGED.getName(),
+                            fileEvent.getUri()));
+                } catch (IOException e) {
+                    throw new WorkspaceDocumentException("Could not handle BalTool.toml creation!", e);
+                }
+                break;
+            case Changed: {
+                if (!this.openedDocuments.contains(filePath)) {
+                    reloadProject(projectContext, filePath, LSContextOperation.WS_WF_CHANGED.getName());
+                }
+                break;
+            }
+            case Deleted:
+                // When removing BalTool.toml, we are just reloading the project due to api-limitations.
+                Lock lock = projectContext.lockAndGet();
+                try {
+                    clientLogger.logTrace(String.format("Operation '%s' {fileUri: '%s'} removed",
+                            LSContextOperation.WS_WF_CHANGED.getName(),
+                            fileEvent.getUri()));
+                    Path ballerinaTomlFile = filePath.getParent().resolve(ProjectConstants.BALLERINA_TOML);
+                    createProjectContext(ballerinaTomlFile, LSContextOperation.WS_WF_CHANGED.getName())
+                            .ifPresent(newProject -> projectContext.setProject(newProject.project()));
+                } finally {
+                    // Unlock Project Instance
+                    lock.unlock();
+                }
+        }
+    }
+
+    private void handleWatchedModuleChange(Path filePath, FileEvent fileEvent, ProjectContext projectContext) {
         String fileName = filePath.getFileName().toString();
         switch (fileEvent.getType()) {
             case Created:
@@ -838,7 +1079,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                         LSContextOperation.WS_WF_CHANGED.getName(),
                         fileName, filePath.toUri().toString()));
                 Path ballerinaTomlPath = filePath.getParent().getParent().resolve(ProjectConstants.BALLERINA_TOML);
-                reloadProject(projectPair, ballerinaTomlPath, LSContextOperation.WS_WF_CHANGED.getName());
+                reloadProject(projectContext, ballerinaTomlPath, LSContextOperation.WS_WF_CHANGED.getName());
                 break;
             case Deleted:
                 if (ProjectConstants.MODULES_ROOT.equals(filePath.getFileName().toString())) {
@@ -847,7 +1088,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                     clientLogger.logTrace(String.format("Operation '%s' {uri: '%s'} removed all modules",
                             LSContextOperation.WS_WF_CHANGED.getName(),
                             filePath.toUri().toString()));
-                    reloadProject(projectPair, tomlPath, LSContextOperation.WS_WF_CHANGED.getName());
+                    reloadProject(projectContext, tomlPath, LSContextOperation.WS_WF_CHANGED.getName());
                 } else {
                     // If removing a particular module
                     Path tomlPath = filePath.getParent().getParent().resolve(ProjectConstants.BALLERINA_TOML);
@@ -855,31 +1096,36 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                             LSContextOperation.WS_WF_CHANGED.getName(),
                             fileName,
                             filePath.toUri().toString()));
-                    reloadProject(projectPair, tomlPath, LSContextOperation.WS_WF_CHANGED.getName());
+                    reloadProject(projectContext, tomlPath, LSContextOperation.WS_WF_CHANGED.getName());
                 }
                 break;
         }
     }
 
-    private void updateBallerinaToml(String content, ProjectPair projectPair, boolean createIfNotExists)
+    private void updateBallerinaToml(String content, ProjectContext projectContext, boolean createIfNotExists)
             throws WorkspaceDocumentException {
         // Lock Project Instance
-        Lock lock = projectPair.lockAndGet();
+        Lock lock = projectContext.lockAndGet();
         try {
-            Optional<BallerinaToml> ballerinaToml = projectPair.project().currentPackage().ballerinaToml();
+            Optional<BallerinaToml> ballerinaToml = projectContext.project().currentPackage().ballerinaToml();
             // Get toml
             if (ballerinaToml.isEmpty()) {
                 if (createIfNotExists) {
-                    if (projectPair.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                    if (projectContext.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
                         // This results upgrading a single-file-project into a build-project
                         // When changing project type; need to remove key as well
                         // First, remove single-file-project key
-                        sourceRootToProject.remove(projectPair.project().sourceRoot());
+                        sourceRootToProject.remove(projectContext.project().sourceRoot());
                         // Then, add the project as a build-project
-                        Path ballerinaTomlFilePath = projectPair.project().sourceRoot().getParent()
+                        Path ballerinaTomlFilePath = projectContext.project().sourceRoot().getParent()
                                 .resolve(ProjectConstants.BALLERINA_TOML);
-                        projectPair = createProject(ballerinaTomlFilePath, LSContextOperation.WS_WF_CHANGED.getName());
-                        sourceRootToProject.put(projectPair.project().sourceRoot(), projectPair);
+                        Optional<ProjectContext> newProjectContext = createProjectContext(ballerinaTomlFilePath,
+                                LSContextOperation.WS_WF_CHANGED.getName());
+                        if (newProjectContext.isEmpty()) {
+                            throw new WorkspaceDocumentException("Invalid operation, cannot create Ballerina.toml!");
+                        }
+                        projectContext = newProjectContext.get();
+                        sourceRootToProject.put(projectContext.project().sourceRoot(), projectContext);
                         return;
                     } else {
                         throw new WorkspaceDocumentException("Invalid operation, cannot create Ballerina.toml!");
@@ -890,19 +1136,19 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             // Update toml
             BallerinaToml updatedToml = ballerinaToml.get().modify().withContent(content).apply();
             // Update project instance
-            projectPair.setProject(updatedToml.packageInstance().project());
+            projectContext.setProject(updatedToml.packageInstance().project());
         } finally {
             // Unlock Project Instance
             lock.unlock();
         }
     }
 
-    private void updateDependenciesToml(String content, ProjectPair projectPair, boolean createIfNotExists)
+    private void updateDependenciesToml(String content, ProjectContext projectContext, boolean createIfNotExists)
             throws WorkspaceDocumentException {
         // Lock Project Instance
-        Lock lock = projectPair.lockAndGet();
+        Lock lock = projectContext.lockAndGet();
         try {
-            Optional<DependenciesToml> dependenciesToml = projectPair.project().currentPackage().dependenciesToml();
+            Optional<DependenciesToml> dependenciesToml = projectContext.project().currentPackage().dependenciesToml();
             // Get toml
             if (dependenciesToml.isEmpty()) {
                 if (createIfNotExists) {
@@ -910,31 +1156,31 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                             DocumentId.create(ProjectConstants.DEPENDENCIES_TOML, null), content,
                             ProjectConstants.DEPENDENCIES_TOML
                     );
-                    Package pkg = projectPair.project().currentPackage().modify()
+                    Package pkg = projectContext.project().currentPackage().modify()
                             .addDependenciesToml(documentConfig)
                             .apply();
                     // Update project instance
-                    projectPair.setProject(pkg.project());
+                    projectContext.setProject(pkg.project());
                     return;
                 }
-                throw new WorkspaceDocumentException(ProjectConstants.DEPENDENCIES_TOML + " does not exists!");
+                throw new WorkspaceDocumentException(ProjectConstants.DEPENDENCIES_TOML + " does not exist!");
             }
             // Update toml
             DependenciesToml updatedToml = dependenciesToml.get().modify().withContent(content).apply();
             // Update project instance
-            projectPair.setProject(updatedToml.packageInstance().project());
+            projectContext.setProject(updatedToml.packageInstance().project());
         } finally {
             // Unlock Project Instance
             lock.unlock();
         }
     }
 
-    private void updateCloudToml(String content, ProjectPair projectPair, boolean createIfNotExists)
+    private void updateCloudToml(String content, ProjectContext projectContext, boolean createIfNotExists)
             throws WorkspaceDocumentException {
         // Lock Project Instance
-        Lock lock = projectPair.lockAndGet();
+        Lock lock = projectContext.lockAndGet();
         try {
-            Optional<CloudToml> cloudToml = projectPair.project().currentPackage().cloudToml();
+            Optional<CloudToml> cloudToml = projectContext.project().currentPackage().cloudToml();
             // Get toml
             if (cloudToml.isEmpty()) {
                 if (createIfNotExists) {
@@ -942,11 +1188,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                             DocumentId.create(ProjectConstants.CLOUD_TOML, null), content,
                             ProjectConstants.CLOUD_TOML
                     );
-                    Package pkg = projectPair.project().currentPackage().modify()
+                    Package pkg = projectContext.project().currentPackage().modify()
                             .addCloudToml(documentConfig)
                             .apply();
                     // Update project instance
-                    projectPair.setProject(pkg.project());
+                    projectContext.setProject(pkg.project());
                     return;
                 }
                 throw new WorkspaceDocumentException(ProjectConstants.CLOUD_TOML + " does not exists!");
@@ -954,20 +1200,20 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             // Update toml
             CloudToml updatedToml = cloudToml.get().modify().withContent(content).apply();
             // Update project instance
-            projectPair.setProject(updatedToml.packageInstance().project());
+            projectContext.setProject(updatedToml.packageInstance().project());
         } finally {
             // Unlock Project Instance
             lock.unlock();
         }
     }
 
-    private void updateCompilerPluginToml(String content, ProjectPair projectPair, boolean createIfNotExists)
+    private void updateCompilerPluginToml(String content, ProjectContext projectContext, boolean createIfNotExists)
             throws WorkspaceDocumentException {
         // Lock Project Instance
-        Lock lock = projectPair.lockAndGet();
+        Lock lock = projectContext.lockAndGet();
         try {
             Optional<CompilerPluginToml> compilerPluginToml =
-                    projectPair.project().currentPackage().compilerPluginToml();
+                    projectContext.project().currentPackage().compilerPluginToml();
             // Get toml
             if (compilerPluginToml.isEmpty()) {
                 if (createIfNotExists) {
@@ -975,11 +1221,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                             DocumentId.create(ProjectConstants.COMPILER_PLUGIN_TOML, null), content,
                             ProjectConstants.COMPILER_PLUGIN_TOML
                     );
-                    Package pkg = projectPair.project().currentPackage().modify()
+                    Package pkg = projectContext.project().currentPackage().modify()
                             .addCompilerPluginToml(documentConfig)
                             .apply();
                     // Update project instance
-                    projectPair.setProject(pkg.project());
+                    projectContext.setProject(pkg.project());
                     return;
                 }
                 throw new WorkspaceDocumentException(ProjectConstants.COMPILER_PLUGIN_TOML + " does not exists!");
@@ -987,38 +1233,85 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             // Update toml
             CompilerPluginToml updatedToml = compilerPluginToml.get().modify().withContent(content).apply();
             // Update project instance
-            projectPair.setProject(updatedToml.packageInstance().project());
+            projectContext.setProject(updatedToml.packageInstance().project());
         } finally {
             // Unlock Project Instance
             lock.unlock();
         }
     }
 
-    private void updateBalDocument(Path filePath, String content, ProjectPair projectPair, boolean createIfNotExists)
+    private void updateBalToolToml(String content, ProjectContext projectContext, boolean createIfNotExists)
             throws WorkspaceDocumentException {
         // Lock Project Instance
-        Lock lock = projectPair.lockAndGet();
+        Lock lock = projectContext.lockAndGet();
+        try {
+            Optional<BalToolToml> balToolToml =
+                    projectContext.project().currentPackage().balToolToml();
+            // Get toml
+            if (balToolToml.isEmpty()) {
+                if (createIfNotExists) {
+                    DocumentConfig documentConfig = DocumentConfig.from(
+                            DocumentId.create(ProjectConstants.BAL_TOOL_TOML, null), content,
+                            ProjectConstants.BAL_TOOL_TOML
+                    );
+                    Package pkg = projectContext.project().currentPackage().modify()
+                            .addBalToolToml(documentConfig)
+                            .apply();
+                    // Update project instance
+                    projectContext.setProject(pkg.project());
+                    return;
+                }
+                throw new WorkspaceDocumentException(ProjectConstants.BAL_TOOL_TOML + " does not exists!");
+            }
+            // Update toml
+            BalToolToml updatedToml = balToolToml.get().modify().withContent(content).apply();
+            // Update project instance
+            projectContext.setProject(updatedToml.packageInstance().project());
+        } finally {
+            // Unlock Project Instance
+            lock.unlock();
+        }
+    }
+
+    private void updateBalDocument(Path filePath, String content, ProjectContext projectContext)
+            throws WorkspaceDocumentException {
+        // Lock Project Instance
+        Lock lock = projectContext.lockAndGet();
         try {
             // Get document
-            Optional<Document> document = document(filePath, projectPair.project(), null);
+            Optional<Document> document = document(filePath, projectContext.project(), null);
             if (document.isEmpty()) {
-                if (createIfNotExists) {
-                    //TODO: Need to create document here, Need to address with workspace events
-                    // Reload the project
-                    projectPair.setProject(
-                            createProject(filePath, LSContextOperation.TXT_DID_OPEN.getName()).project());
-                    document = document(filePath, projectPair.project(), null);
-                } else {
-                    throw new WorkspaceDocumentException("Document does not exist in path: " + filePath.toString());
-                }
+                throw new WorkspaceDocumentException("Document does not exist in path: " + filePath.toString());
             }
+            document.get().modify().withContent(content).apply();
+        } finally {
+            // Unlock Project Instance
+            lock.unlock();
+        }
+    }
 
-            // Update file
-            if (document.isPresent()) {
-                Document updatedDoc = document.get().modify().withContent(content).apply();
-                // Update project instance
-                projectPair.setProject(updatedDoc.module().project());
+    private void createBalDocument(Path filePath, String content, ProjectContext projectContext)
+            throws WorkspaceDocumentException {
+        // Lock Project Instance
+        Lock lock = projectContext.lockAndGet();
+        try {
+            Optional<ProjectContext> newProjectContext =
+                    createProjectContext(filePath, LSContextOperation.TXT_DID_OPEN.getName());
+            if (newProjectContext.isEmpty()) {
+                //Client is notified about the error in the createProjectContext method.
+                throw new WorkspaceDocumentException("Could not find the project for file path: "
+                        + filePath.toString());
             }
+            Optional<Document> document = document(filePath, newProjectContext.get().project(), null);
+            if (document.isEmpty()) {
+                projectContext.setProjectCrashed(true);
+                throw new WorkspaceDocumentException("Could not create a new document for file path: "
+                        + filePath.toString());
+            }
+            //Update the document with the content received via the request
+            Document updatedDoc = document.get().modify().withContent(content).apply();
+            //Update project instance
+            projectContext.setProject(updatedDoc.module().project());
         } finally {
             // Unlock Project Instance
             lock.unlock();
@@ -1068,11 +1361,19 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         return new ImmutablePair<>(ProjectKind.BALA_PROJECT, ProjectPaths.packageRoot(path));
     }
 
-    private Optional<ProjectPair> projectPair(Path projectRoot) {
+    private Optional<ProjectContext> projectContext(Path projectRoot) {
         return Optional.ofNullable(sourceRootToProject.get(projectRoot));
     }
 
-    private ProjectPair createProject(Path filePath, String operationName) {
+    private Optional<ProjectContext> createProjectContext(Path filePath, String operationName) {
+        Project project = createProject(filePath, operationName);
+        if (project == null) {
+            return Optional.empty();
+        }
+        return Optional.of(ProjectContext.from(project));
+    }
+
+    private Project createProject(Path filePath, String operationName) {
         Pair<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndProjectRoot(filePath);
         ProjectKind projectKind = projectKindAndProjectRootPair.getLeft();
         Path projectRoot = projectKindAndProjectRootPair.getRight();
@@ -1093,8 +1394,10 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             clientLogger.logTrace("Operation '" + operationName +
                     "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
                     project.kind().name().toLowerCase(Locale.getDefault()) + "'} created");
-            return ProjectPair.from(project);
+            return project;
         } catch (ProjectException e) {
+            //If there is an error the project crash status should be set.
+            this.projectContext(projectRoot).ifPresent(projectContext -> projectContext.setProjectCrashed(true));
             clientLogger.notifyUser("Project load failed: " + e.getMessage(), e);
             clientLogger.logError(LSContextOperation.CREATE_PROJECT, "Operation '" + operationName +
                             "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
@@ -1119,68 +1422,91 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
     private boolean hasDocumentOrToml(Path filePath, Project project) {
         String fileName = Optional.of(filePath.getFileName()).get().toString();
-        switch (fileName) {
-            case ProjectConstants.BALLERINA_TOML:
-                return project.currentPackage().ballerinaToml().isPresent();
-            case ProjectConstants.CLOUD_TOML:
-                return project.currentPackage().cloudToml().isPresent();
-            case ProjectConstants.COMPILER_PLUGIN_TOML:
-                return project.currentPackage().compilerPluginToml().isPresent();
-            case ProjectConstants.DEPENDENCIES_TOML:
-                return project.currentPackage().dependenciesToml().isPresent();
-            default:
+        return switch (fileName) {
+            case ProjectConstants.BALLERINA_TOML -> project.currentPackage().ballerinaToml().isPresent();
+            case ProjectConstants.CLOUD_TOML -> project.currentPackage().cloudToml().isPresent();
+            case ProjectConstants.COMPILER_PLUGIN_TOML -> project.currentPackage().compilerPluginToml().isPresent();
+            case ProjectConstants.BAL_TOOL_TOML -> project.currentPackage().balToolToml().isPresent();
+            case ProjectConstants.DEPENDENCIES_TOML -> project.currentPackage().dependenciesToml().isPresent();
+            default -> {
                 if (fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
-                    return document(filePath, project, null).isPresent();
+                    yield document(filePath, project, null).isPresent();
                 }
-                return false;
-        }
+                yield false;
+            }
+        };
     }
 
-    private void reloadProject(ProjectPair projectPair, Path filePath, String operationName) {
+    private void reloadProject(ProjectContext projectContext, Path filePath, String operationName) {
         // Lock Project Instance
-        Lock lock = projectPair.lockAndGet();
+        Lock lock = projectContext.lockAndGet();
         try {
-            projectPair.setProject(createProject(filePath, operationName).project());
+            Optional<ProjectContext> newProjectContext = createProjectContext(filePath, operationName);
+            if (newProjectContext.isEmpty()) {
+                //Client is notified about this in the createProjectContext() method.
+                return;
+            }
+            projectContext.setProject(newProjectContext.get().project());
         } finally {
             // Unlock Project Instance
             lock.unlock();
         }
     }
 
-    private ProjectPair createOrGetProjectPair(Path filePath, String operationName) throws WorkspaceDocumentException {
-        Path projectRoot = projectRoot(filePath);
-        sourceRootToProject.computeIfAbsent(projectRoot, path -> createProject(filePath, operationName));
+    private ProjectContext createOrGetProjectPair(Path filePath, String operationName)
+            throws WorkspaceDocumentException {
+        return createOrGetProjectPair(filePath, operationName, false);
+    }
 
-        // Get document
-        ProjectPair projectPair = sourceRootToProject.get(projectRoot);
-        if (projectPair == null) {
-            // NOTE: This will never happen since we create a project if not exists
+    private ProjectContext createOrGetProjectPair(Path filePath, String operationName, boolean isSourceChange)
+            throws WorkspaceDocumentException {
+        Path projectRoot = projectRoot(filePath);
+        ProjectContext projectContext = sourceRootToProject.get(projectRoot);
+        //Check if the project is crashed and create a new project if there is a change in the source files.
+        if (projectContext != null && !(projectContext.isProjectCrashed() && isSourceChange)) {
+            return projectContext;
+        }
+        //Try to create the project again.
+        Optional<ProjectContext> newProjectContext = createProjectContext(projectRoot, operationName);
+        if (newProjectContext.isEmpty()) {
             throw new WorkspaceDocumentException("Cannot find the project of uri: " + filePath.toString());
         }
-        return projectPair;
+        if (projectContext == null) {
+            projectContext = newProjectContext.get();
+            sourceRootToProject.put(projectRoot, projectContext);
+            return projectContext;
+        }
+        projectContext.setProject(newProjectContext.get().project());
+        projectContext.setProjectCrashed(false);
+        return projectContext;
     }
 
     /**
      * This class holds project and its lock.
      */
-    public static class ProjectPair {
+    public static class ProjectContext {
 
         private final Lock lock;
         private Project project;
 
-        private boolean crashed;
+        private boolean compilationCrashed;
 
-        private ProjectPair(Project project, Lock lock) {
+        private Process process;
+
+        private boolean projectCrashed;
+
+        private ProjectContext(Project project, Lock lock) {
             this.project = project;
             this.lock = lock;
+            this.compilationCrashed = false;
         }
 
-        public static ProjectPair from(Project project) {
-            return new ProjectPair(project, new ReentrantLock(true));
+        public static ProjectContext from(Project project) {
+            return new ProjectContext(project, new ReentrantLock(true));
         }
 
-        public static ProjectPair from(Project project, Lock lock) {
-            return new ProjectPair(project, lock);
+        public static ProjectContext from(Project project, Lock lock) {
+            return new ProjectContext(project, lock);
         }
 
         /**
@@ -1223,26 +1549,66 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         /**
          * Check if the project is in a crashed state.
          *
-         * @return whether the project is in a crashed state
+         * @return whether the compilation is in a crashed state
          */
-        public boolean crashed() {
-            return Boolean.TRUE.equals(this.crashed);
+        public boolean compilationCrashed() {
+            return this.compilationCrashed;
         }
 
         /**
          * Set the crashed state.
          *
-         * @param crashed crashed state
+         * @param compilationCrashed crashed state
          */
-        public void setCrashed(boolean crashed) {
-            this.crashed = crashed;
+        public void setCompilationCrashed(boolean compilationCrashed) {
+            this.compilationCrashed = compilationCrashed;
+        }
+
+        /**
+         * Set the project crashed status.
+         *
+         * @param projectCrashed whether the project is in a crashed state
+         */
+        public void setProjectCrashed(boolean projectCrashed) {
+            this.projectCrashed = projectCrashed;
+        }
+
+        public boolean isProjectCrashed() {
+            return projectCrashed;
+        }
+
+        /**
+         * Project lock should be acquired before modifying (such as destroying) the process.
+         *
+         * @return Process associated with the project.
+         */
+        public Optional<Process> process() {
+            return Optional.ofNullable(this.process);
+        }
+
+        /**
+         * Set the process associated with the project. Project lock should be acquired before calling.
+         *
+         * @param process Process to be associated with the project.
+         */
+        public void setProcess(Process process) {
+            this.process = process;
+        }
+
+        /**
+         * Remove the process associated with the project. Project lock should be acquired before calling.
+         */
+        public void removeProcess() {
+            this.process = null;
         }
     }
 
     /**
-     * Represents a map of Path to ProjectPair.
-     * <p>
-     * Clear out front-faced cache implementation whenever a modification operation triggered for this map.
+     * Represents a map of Path to ProjectContext.
+     *
+     * @param <K> cache key
+     * @param <V> cache value
+     *            Clear out front-faced cache implementation whenever a modification operation triggered for this map.
      */
     private static class SourceRootToProjectMap<K, V> extends HashMap<K, V> {
 
@@ -1262,6 +1628,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             return old;
         }
 
+        @Override
         public V remove(Object key) {
             V result = super.remove(key);
             // Clear dependent cache
@@ -1290,13 +1657,14 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         return Optional.empty();
     }
 
-    private Optional<ProjectPair> getProjectOfWatchedFileChange(Path filePath, FileEvent fileEvent) {
+    private Optional<ProjectContext> getProjectOfWatchedFileChange(Path filePath, FileEvent fileEvent) {
         String fileName = filePath.getFileName().toString();
         boolean isBallerinaSourceChange = fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT);
         boolean isBallerinaTomlChange = filePath.endsWith(ProjectConstants.BALLERINA_TOML);
         boolean isDependenciesTomlChange = filePath.endsWith(ProjectConstants.DEPENDENCIES_TOML);
         boolean isCloudTomlChange = filePath.endsWith(ProjectConstants.CLOUD_TOML);
         boolean isCompilerPluginTomlChange = filePath.endsWith(ProjectConstants.COMPILER_PLUGIN_TOML);
+        boolean isBalToolTomlChange = filePath.endsWith(ProjectConstants.BAL_TOOL_TOML);
 
         // NOTE: Need to specifically check Deleted events, since `filePath.toFile().isDirectory()`
         // fails when physical file is deleted from the disk
@@ -1304,12 +1672,13 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 filePath.getParent().endsWith(ProjectConstants.MODULES_ROOT) ||
                 filePath.getParent().endsWith(ProjectConstants.GENERATED_MODULES_ROOT) ||
                 (fileEvent.getType() == FileChangeType.Deleted && !isBallerinaSourceChange && !isBallerinaTomlChange &&
-                        !isCloudTomlChange && !isDependenciesTomlChange && !isCompilerPluginTomlChange);
+                        !isCloudTomlChange && !isDependenciesTomlChange && !isCompilerPluginTomlChange &&
+                        !isBalToolTomlChange);
 
         return projectOfWatchedFileChange(filePath, fileEvent,
                 isBallerinaSourceChange, isBallerinaTomlChange,
                 isDependenciesTomlChange, isCloudTomlChange,
-                isCompilerPluginTomlChange, isModuleChange);
+                isCompilerPluginTomlChange, isBalToolTomlChange, isModuleChange);
     }
 
     private boolean hasBallerinaToml(Path filePath) {
@@ -1320,5 +1689,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     private boolean hasPackageJson(Path filePath) {
         Path absFilePath = filePath.toAbsolutePath().normalize();
         return absFilePath.resolve(ProjectConstants.PACKAGE_JSON).toFile().exists();
+    }
+
+    private static boolean isError(Diagnostic diagnostic) {
+        return diagnostic.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR);
     }
 }

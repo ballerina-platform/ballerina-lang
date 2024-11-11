@@ -1,0 +1,46 @@
+{
+  "packages": [
+    {
+      "org": "testorg",
+      "name": "projectProvidedScope",
+      "version": "1.0.0",
+      "transitive": false,
+      "dependencies": [
+        {
+          "org": "ballerina",
+          "name": "jballerina.java",
+          "version": "0.0.0",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        }
+      ],
+      "modules": []
+    },
+    {
+      "org": "ballerina",
+      "name": "jballerina.java",
+      "version": "0.0.0",
+      "transitive": false,
+      "dependencies": [],
+      "modules": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "testorg",
+      "package_name": "projectProvidedScope",
+      "version": "1.0.0",
+      "module_name": "projectProvidedScope",
+      "dependencies": [
+        {
+          "org": "ballerina",
+          "package_name": "jballerina.java",
+          "version": "0.0.0",
+          "module_name": "jballerina.java",
+          "dependencies": []
+        }
+      ]
+    }
+  ]
+}

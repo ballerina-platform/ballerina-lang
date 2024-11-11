@@ -51,8 +51,11 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
  *
  * @since 2201.1.1
  */
-public class ModuleUtil {
-    
+public final class ModuleUtil {
+
+    private ModuleUtil() {
+    }
+
     /**
      * Filter a type in the module by the name.
      *
@@ -130,15 +133,16 @@ public class ModuleUtil {
             List<ImportDeclarationNode> existingModuleImports = context.currentDocImportsMap().keySet().stream()
                     .filter(importDeclarationNode ->
                             CodeActionModuleId.from(importDeclarationNode).moduleName().equals(moduleID.moduleName()))
-                    .collect(Collectors.toList());
+                    .toList();
 
             if (existingModuleImports.size() == 1) {
                 ImportDeclarationNode importDeclarationNode = existingModuleImports.get(0);
                 if (importDeclarationNode.prefix().isPresent()) {
                     pkgPrefix = importDeclarationNode.prefix().get().prefix().text();
                 }
-            } else if (existingModuleImports.isEmpty() && context instanceof PositionedOperationContext) {
-                pkgPrefix = NameUtil.getValidatedSymbolName((PositionedOperationContext) context, pkgPrefix);
+            } else if (existingModuleImports.isEmpty() &&
+                    context instanceof PositionedOperationContext positionedOperationContext) {
+                pkgPrefix = NameUtil.getValidatedSymbolName(positionedOperationContext, pkgPrefix);
             }
             CodeActionModuleId codeActionModuleId =
                     CodeActionModuleId.from(orgName, moduleName, pkgPrefix, moduleID.version());

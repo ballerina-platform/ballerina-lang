@@ -16,7 +16,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "CA",
       "filterText": "path1|get",
       "insertText": "/path1;",
       "insertTextFormat": "Snippet",
@@ -46,7 +46,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` a  \n- `int` b"
         }
       },
-      "sortText": "C",
+      "sortText": "CB",
       "filterText": "post",
       "insertText": "/.post(${1});",
       "insertTextFormat": "Snippet",
@@ -80,7 +80,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
         }
       },
-      "sortText": "C",
+      "sortText": "CC",
       "filterText": "get",
       "insertText": "/[${1:\"path\"}];",
       "insertTextFormat": "Snippet",
@@ -101,7 +101,7 @@
       ]
     },
     {
-      "label": "/<path>",
+      "label": "/<ids>",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -110,7 +110,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
         }
       },
-      "sortText": "C",
+      "sortText": "CD",
       "filterText": "get",
       "insertText": "/${1:path};",
       "insertTextFormat": "Snippet",
@@ -140,7 +140,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1"
         }
       },
-      "sortText": "C",
+      "sortText": "CE",
       "filterText": "path1|get",
       "insertText": "/path1/[${1:\"path\"}];",
       "insertTextFormat": "Snippet",
@@ -161,7 +161,7 @@
       ]
     },
     {
-      "label": "/path1/<path>",
+      "label": "/path1/<id1>",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -170,7 +170,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1"
         }
       },
-      "sortText": "C",
+      "sortText": "CF",
       "filterText": "path1|get",
       "insertText": "/path1/${1:path};",
       "insertTextFormat": "Snippet",
@@ -200,7 +200,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "CG",
       "filterText": "path1|path2|get",
       "insertText": "/path1/[${1:\"path\"}]/path2;",
       "insertTextFormat": "Snippet",
@@ -221,7 +221,7 @@
       ]
     },
     {
-      "label": "/path1/<path>/path2",
+      "label": "/path1/<id1>/path2",
       "kind": "Function",
       "detail": "int",
       "documentation": {
@@ -230,7 +230,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "CH",
       "filterText": "path1|path2|get",
       "insertText": "/path1/${1:path}/path2;",
       "insertTextFormat": "Snippet",
@@ -260,7 +260,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string[]` ids  \n- `string` b  \n- `string[]` ids2"
         }
       },
-      "sortText": "C",
+      "sortText": "CI",
       "filterText": "path1|path2|post",
       "insertText": "/path1/[${1:\"path\"}]/path2/[${2:\"path\"}].post(${3});",
       "insertTextFormat": "Snippet",
@@ -285,7 +285,7 @@
       }
     },
     {
-      "label": "/path1/<path>/path2/<path>.post(string b, string... ids2)",
+      "label": "/path1/<id1>/path2/<ids>.post(string b, string... ids2)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -294,7 +294,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string[]` ids  \n- `string` b  \n- `string[]` ids2"
         }
       },
-      "sortText": "C",
+      "sortText": "CJ",
       "filterText": "path1|path2|post",
       "insertText": "/path1/${1:path}/path2/${2:path}.post(${3});",
       "insertTextFormat": "Snippet",
@@ -328,7 +328,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string` b  \n- `string[]` ids2"
         }
       },
-      "sortText": "C",
+      "sortText": "CK",
       "filterText": "path1|path3|post",
       "insertText": "/path1/[${1:\"path\"}]/path3.post(${2});",
       "insertTextFormat": "Snippet",
@@ -353,7 +353,7 @@
       }
     },
     {
-      "label": "/path1/<path>/path3.post(string b, string... ids2)",
+      "label": "/path1/<id1>/path3.post(string b, string... ids2)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -362,7 +362,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string` b  \n- `string[]` ids2"
         }
       },
-      "sortText": "C",
+      "sortText": "CL",
       "filterText": "path1|path3|post",
       "insertText": "/path1/${1:path}/path3.post(${2});",
       "insertTextFormat": "Snippet",

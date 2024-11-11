@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -206,7 +207,7 @@ public class FuncInvocationExprTest {
         validateError(funcInvocationNegative, i++,
                 "incompatible types: expected 'int[]', found 'anydata[]'", 74, 29);
         validateError(funcInvocationNegative, i++,
-                "too many arguments in call to 'sum()'", 102, 18);
+                "named argument not allowed for rest parameter", 102, 18);
         validateError(funcInvocationNegative, i++,
                 "too many arguments in call to 'sum()'", 103, 18);
         validateError(funcInvocationNegative, i++,
@@ -214,10 +215,18 @@ public class FuncInvocationExprTest {
         validateError(funcInvocationNegative, i++,
                 "missing required parameter 's' in call to 'fromString()'", 106, 16);
         validateError(funcInvocationNegative, i++,
-                "undefined defaultable parameter 'ss'", 106, 31);
+                "undefined parameter 'ss'", 106, 31);
         validateError(funcInvocationNegative, i++, "variable assignment is required", 110, 5);
         validateError(funcInvocationNegative, i++, "variable assignment is required", 111, 5);
         validateError(funcInvocationNegative, i++, "variable assignment is required", 112, 5);
+        validateError(funcInvocationNegative, i++,
+                "named argument not allowed for rest parameter", 121, 11);
+        validateError(funcInvocationNegative, i++,
+                "named argument not allowed for rest parameter", 122, 11);
+        validateError(funcInvocationNegative, i++,
+                "named argument not allowed for rest parameter", 123, 14);
+        validateError(funcInvocationNegative, i++,
+                "named argument not allowed for rest parameter", 124, 18);
         Assert.assertEquals(i, funcInvocationNegative.getErrorCount());
     }
 
@@ -247,5 +256,12 @@ public class FuncInvocationExprTest {
                 44, 26);
         validateError(methodInvocationNegative, i++, "incompatible types: expected 'boolean', found 'float'", 50, 22);
         Assert.assertEquals(i, methodInvocationNegative.getErrorCount());
+    }
+
+    @AfterClass
+    public void tearDown() {
+        funcInvocationNegative = null;
+        funcInvocationNegative = null;
+        methodInvocationNegative = null;
     }
 }

@@ -35,32 +35,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
-import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+import static org.ballerinalang.langlib.array.utils.Constants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:filter(Type[], function).
  *
  * @since 1.0
  */
-public class Filter {
+public final class Filter {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
                                                                       ARRAY_VERSION, "filter");
 
-    public static BArray filter(BArray arr, BFunctionPointer<Object, Boolean> func) {
+    public static BArray filter(BArray arr, BFunctionPointer<Object[], Boolean> func) {
         BArray newArr;
-        Type arrType = TypeUtils.getReferredType(arr.getType());
-        switch (arrType.getTag()) {
-            case TypeTags.ARRAY_TAG:
-                newArr = ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));
-                break;
-            case TypeTags.TUPLE_TAG:
-                newArr = ArrayUtils.createEmptyArrayFromTuple(arr);
-                break;
-            default:
-                throw createOpNotSupportedError(arrType, "filter()");
-
-        }
+        Type arrType = TypeUtils.getImpliedType(arr.getType());
+        newArr = switch (arrType.getTag()) {
+            case TypeTags.ARRAY_TAG -> ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));
+            case TypeTags.TUPLE_TAG -> ArrayUtils.createEmptyArrayFromTuple(arr);
+            default -> throw createOpNotSupportedError(arrType, "filter()");
+        };
         int size = arr.size();
         AtomicInteger newArraySize = new AtomicInteger(-1);
         AtomicInteger index = new AtomicInteger(-1);

@@ -32,7 +32,7 @@ public class LineOfCodeTest {
     CompileResult compileResult;
 
     @BeforeClass(description = "Compiling ballerina program with 37000 lines of code")
-    public void testCompileProgramWithHighLineOfCodes() {
+    public void testImplementationProgramWithHighLineOfCodes() {
         compileResult = BCompileUtil.compile("test-src/loc/high_loc.bal");
     }
 

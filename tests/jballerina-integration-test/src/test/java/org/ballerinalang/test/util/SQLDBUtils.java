@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -36,26 +36,12 @@ import java.sql.Statement;
 /**
  * Util class for SQL DB Tests.
  */
-public class SQLDBUtils {
+public final class SQLDBUtils {
 
     public static final String DB_DIRECTORY = System.getProperty("libdir") + File.separator + "tempdb" + File.separator;
     private static final Logger LOG = LoggerFactory.getLogger(SQLDBUtils.class);
 
-    /**
-     * Delete the given directory along with all files and sub directories.
-     *
-     * @param directory Directory to delete.
-     */
-    public static boolean deleteDirectory(File directory) {
-        if (directory.isDirectory()) {
-            for (File f : directory.listFiles()) {
-                boolean success = deleteDirectory(f);
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-        return directory.delete();
+    private SQLDBUtils() {
     }
 
     /**
@@ -68,7 +54,7 @@ public class SQLDBUtils {
         if (directory.isDirectory()) {
             for (File f : directory.listFiles()) {
                 if (f.getName().startsWith(affix) || f.getName().endsWith(affix)) {
-                    deleteDirectory(f);
+                    BFileUtil.deleteDirectory(f);
                 }
             }
         }
@@ -78,7 +64,7 @@ public class SQLDBUtils {
         URL fileResource = BCompileUtil.class.getClassLoader().getResource(path);
         try {
             if (fileResource == null) {
-                fileResource = Paths.get(path).toUri().toURL();
+                fileResource = Path.of(path).toUri().toURL();
             }
             return FileUtils.readFileToString(new File(fileResource.toURI()), StandardCharsets.UTF_8);
         } catch (IOException | URISyntaxException e) {
@@ -138,7 +124,7 @@ public class SQLDBUtils {
      * This class represents a file based database used for testing data clients.
      */
     public static class FileBasedTestDatabase extends TestDatabase {
-        private String dbDirectory;
+        private final String dbDirectory;
 
         public FileBasedTestDatabase(DBType dbType, String databaseScript, String dbDirectory, String dbName) {
             this.dbDirectory = dbDirectory;
@@ -161,8 +147,9 @@ public class SQLDBUtils {
             initDatabase(jdbcUrl, username, password, databaseScript);
         }
 
+        @Override
         public void stop() {
-            SQLDBUtils.deleteDirectory(new File(this.dbDirectory));
+            BFileUtil.deleteDirectory(new File(this.dbDirectory));
         }
     }
 

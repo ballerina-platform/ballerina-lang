@@ -30,9 +30,11 @@ import io.ballerina.runtime.api.values.BArray;
 //        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "i", type = TypeKind.INT)},
 //        isPublic = true
 //)
-public class SetLength {
+public final class SetLength {
 
     public static void setLength(BArray arr, long i) {
         arr.setLength(i);
     }
+
+    private SetLength() {}
 }

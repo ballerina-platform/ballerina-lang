@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
@@ -44,11 +43,7 @@ import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
  * @since 0.966.0
  */
 public class BUnionType extends BType implements UnionType {
-
     public boolean resolvingToString = false;
-
-    private BIntersectionType intersectionType = null;
-
     private boolean nullable;
     private String cachedToString;
 
@@ -115,7 +110,7 @@ public class BUnionType extends BType implements UnionType {
     }
 
     public void setMemberTypes(LinkedHashSet<BType> memberTypes) {
-        assert memberTypes.size() == 0;
+        assert memberTypes.isEmpty();
         this.memberTypes = memberTypes;
         this.originalMemberTypes = new LinkedHashSet<>(memberTypes);
     }
@@ -281,28 +276,24 @@ public class BUnionType extends BType implements UnionType {
             return;
         }
 
-        if (type instanceof BArrayType) {
-            BArrayType arrayType = (BArrayType) type;
+        if (type instanceof BArrayType arrayType) {
             if (arrayType.eType == this) {
                 isCyclic = true;
             }
         }
 
-        if (type instanceof BMapType) {
-            BMapType mapType = (BMapType) type;
+        if (type instanceof BMapType mapType) {
             if (mapType.constraint == this) {
                 isCyclic = true;
             }
         }
 
-        if (type instanceof BTableType) {
-            BTableType tableType = (BTableType) type;
+        if (type instanceof BTableType tableType) {
             if (tableType.constraint == this) {
                 isCyclic = true;
             }
 
-            if (tableType.constraint instanceof BMapType) {
-                BMapType mapType = (BMapType) tableType.constraint;
+            if (tableType.constraint instanceof BMapType mapType) {
                 if (mapType.constraint == this) {
                     isCyclic = true;
                 }
@@ -358,31 +349,27 @@ public class BUnionType extends BType implements UnionType {
         }
         this.isCyclic = true;
         for (BType member : unionType.getMemberTypes()) {
-            if (member instanceof BArrayType) {
-                BArrayType arrayType = (BArrayType) member;
-                if (arrayType.eType == unionType) {
+            if (member instanceof BArrayType arrayType) {
+                if (getImpliedType(arrayType.eType) == unionType) {
                     BArrayType newArrayType = new BArrayType(this, arrayType.tsymbol, arrayType.size,
                             arrayType.state, arrayType.flags);
                     this.add(newArrayType);
                     continue;
                 }
-            } else if (member instanceof BMapType) {
-                BMapType mapType = (BMapType) member;
-                if (mapType.constraint == unionType) {
+            } else if (member instanceof BMapType mapType) {
+                if (getImpliedType(mapType.constraint) == unionType) {
                     BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
                     this.add(newMapType);
                     continue;
                 }
-            } else if (member instanceof BTableType) {
-                BTableType tableType = (BTableType) member;
-                if (tableType.constraint == unionType) {
+            } else if (member instanceof BTableType tableType) {
+                if (getImpliedType(tableType.constraint) == unionType) {
                     BTableType newTableType = new BTableType(tableType.tag, this, tableType.tsymbol,
                             tableType.flags);
                     this.add(newTableType);
                     continue;
-                } else if (tableType.constraint instanceof BMapType) {
-                    BMapType mapType = (BMapType) tableType.constraint;
-                    if (mapType.constraint == unionType) {
+                } else if (tableType.constraint instanceof BMapType mapType) {
+                    if (getImpliedType(mapType.constraint) == unionType) {
                         BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
                         BTableType newTableType = new BTableType(tableType.tag, newMapType, tableType.tsymbol,
                                 tableType.flags);
@@ -404,10 +391,10 @@ public class BUnionType extends BType implements UnionType {
         return this.memberTypes.iterator();
     }
 
-    private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
+    public static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         return types.stream()
                 .flatMap(type -> {
-                    BType refType = getReferredType(type);
+                    BType refType = getImpliedType(type);
                     if (refType.tag == TypeTags.UNION && !isTypeParamAvailable(type)) {
                         return ((BUnionType) refType).memberTypes.stream();
                     }
@@ -415,12 +402,29 @@ public class BUnionType extends BType implements UnionType {
                 }).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private static BType getReferredType(BType type) {
-        BType constraint = type;
-        if (type.tag == TypeTags.TYPEREFDESC) {
-            constraint = getReferredType(((BTypeReferenceType) type).referredType);
+    /**
+     * Retrieve the referred type if a given type is a type reference type or
+     * retrieve the effective type if the given type is an intersection type.
+     *
+     * @param type type to retrieve the implied type
+     * @return the implied type if provided with a type reference type or an intersection type,
+     * else returns the original type
+     */
+    public static BType getImpliedType(BType type) {
+        type = getReferredType(type);
+        if (type != null && type.tag == TypeTags.INTERSECTION) {
+            return getImpliedType(((BIntersectionType) type).effectiveType);
         }
-        return constraint;
+
+        return type;
+    }
+
+    private static BType getReferredType(BType type) {
+        if (type != null && type.tag == TypeTags.TYPEREFDESC) {
+            return getReferredType(((BTypeReferenceType) type).referredType);
+        }
+
+        return type;
     }
 
     private static boolean isTypeParamAvailable(BType type) {
@@ -500,7 +504,7 @@ public class BUnionType extends BType implements UnionType {
         if (type.tag == NEVER) {
             return true;
         } else if (type.tag == TypeTags.TYPEREFDESC) {
-            return isNeverType(getReferredType(type));
+            return isNeverType(getImpliedType(type));
         } else if (type.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                 if (!isNeverType(memberType)) {
@@ -510,15 +514,5 @@ public class BUnionType extends BType implements UnionType {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
     }
 }

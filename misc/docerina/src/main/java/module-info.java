@@ -5,7 +5,8 @@ module io.ballerina.docerina {
     requires io.ballerina.lang;
     requires com.google.gson;
     requires org.apache.commons.io;
-    requires slf4j.api;
+    requires org.slf4j;
     requires io.ballerina.parser;
     requires io.ballerina.tools.api;
+    requires okhttp3;
 }

@@ -18,7 +18,6 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.util.Collection;
 import java.util.Map;
@@ -55,43 +54,43 @@ public interface BTable<K, V> extends BRefValue, BCollection {
     /**
      * Associates the specified value with the specified key in this map (optional operation). If the map
      * previously contained a mapping for the key, the old value is replaced by the specified value. (A map
-     * <tt>m</tt> is said to contain a mapping for a key <tt>k</tt> if and only if {@link #containsKey(Object)
-     * m.containsKey(k)} would return <tt>true</tt>.)
+     * {@code m} is said to contain a mapping for a key {@code k} if and only if {@link #containsKey(Object)
+     * m.containsKey(k)} would return {@code true}.)
      *
      * @param key key with which the specified value is to be associated
      * @param value value to be associated with the specified key
-     * @return the previous value associated with <tt>key</tt>, or <tt>null</tt> if there was no mapping for
-     *         <tt>key</tt>. (A <tt>null</tt> return can also indicate that the map previously associated
-     *         <tt>null</tt> with <tt>key</tt>, if the implementation supports <tt>null</tt> values.)
+     * @return the previous value associated with {@code key}, or {@code null} if there was no mapping for
+     *         {@code key}. (A {@code null} return can also indicate that the map previously associated
+     *         {@code null} with {@code key}, if the implementation supports {@code null} values.)
      */
     V put(K key, V value);
 
     /**
      * Removes the mapping for a key from this map if it is present (optional operation). Returns the value
-     * to which this map previously associated the key, or <tt>null</tt> if the map contained no mapping for
+     * to which this map previously associated the key, or {@code null} if the map contained no mapping for
      * the key.
      *
      * <p>
-     * If this map permits null values, then a return value of <tt>null</tt> does not <i>necessarily</i>
+     * If this map permits null values, then a return value of {@code null} does not <i>necessarily</i>
      * indicate that the map contained no mapping for the key; it's also possible that the map explicitly
-     * mapped the key to <tt>null</tt>.
+     * mapped the key to {@code null}.
      *
      * <p>
      * The map will not contain a mapping for the specified key once the
      * call returns.
      *
      * @param key key whose mapping is to be removed from the map
-     * @return the previous value associated with <tt>key</tt>, or <tt>null</tt> if there was no mapping for
-     *         <tt>key</tt>.
+     * @return the previous value associated with {@code key}, or {@code null} if there was no mapping for
+     *         {@code key}.
      */
     V remove(Object key);
 
     /**
-     * Returns <tt>true</tt> if this map contains a mapping for the specified
+     * Returns {@code true} if this map contains a mapping for the specified
      * key.
      *
      * @param key key whose presence in this map is to be tested
-     * @return <tt>true</tt> if this map contains a mapping for the specified key
+     * @return {@code true} if this map contains a mapping for the specified key
      */
     boolean containsKey(Object key);
 
@@ -116,19 +115,19 @@ public interface BTable<K, V> extends BRefValue, BCollection {
     void clear();
 
     /**
-     * Returns the value to which the specified key is mapped. A {@link BallerinaException} will be thrown
+     * Returns the value to which the specified key is mapped. A {@link BError} will be thrown
      * if the key does not exists.
      *
      * @param key the key whose associated value is to be returned
      * @return the value to which the specified key is mapped
-     * @throws BallerinaException if the key does not exists
+     * @throws BError if the key does not exists
      */
-    V getOrThrow(Object key);
+    V getOrThrow(Object key) throws BError;
 
     /**
      * Returns the value for the given key from map. If the key does not exist, but there exists a filler
-     * value for the expected type, a new value will be created and added and then returned. A {@link
-     * BallerinaException} will be thrown if the key does not exists and a filler value does not exist.
+     * value for the expected type, a new value will be created and added and then returned. A {@link BError}
+     * will be thrown if the key does not exists and a filler value does not exist.
      *
      * @param key key used to get the value
      * @return value associated with the key
@@ -147,12 +146,13 @@ public interface BTable<K, V> extends BRefValue, BCollection {
      *
      * @return the number of key-value mappings in this map
      */
+    @Override
     int size();
 
     /**
-     * Returns <tt>true</tt> if this map contains no key-value mappings.
+     * Returns {@code true} if this map contains no key-value mappings.
      *
-     * @return <tt>true</tt> if this map contains no key-value mappings
+     * @return {@code true} if this map contains no key-value mappings
      */
     boolean isEmpty();
 

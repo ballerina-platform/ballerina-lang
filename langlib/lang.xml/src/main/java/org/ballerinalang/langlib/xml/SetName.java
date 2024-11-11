@@ -21,8 +21,8 @@ import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlItem;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 import javax.xml.namespace.QName;
 
@@ -39,14 +39,18 @@ import javax.xml.namespace.QName;
 //        returnType = {@ReturnType(type = TypeKind.NIL)},
 //        isPublic = true
 //)
-public class SetName {
+public final class SetName {
+
     private static final String OPERATION = "set element name in xml";
+
+    private SetName() {
+    }
 
 
     public static void setName(BXml xmlVal, BString newNameBStr) {
         String newName = newNameBStr.getValue();
         if (!IsElement.isElement(xmlVal)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "setName", "element");
+            throw ErrorHelper.getRuntimeException(ErrorCodes.XML_FUNC_TYPE_ERROR, "setName", "element");
         }
 
         try {
@@ -64,7 +68,7 @@ public class SetName {
                 ((BXmlItem) xmlVal).setQName(newQName);
             }
         } catch (Throwable e) {
-            BLangExceptionHelper.handleXMLException(OPERATION, e);
+            ErrorHelper.handleXMLException(OPERATION, e);
         }
     }
 }

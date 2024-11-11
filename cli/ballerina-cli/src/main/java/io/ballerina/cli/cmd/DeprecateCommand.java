@@ -23,7 +23,6 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Settings;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -40,12 +39,12 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
  *
  * @since 2201.5.0
  */
-@CommandLine.Command(name = DEPRECATE_COMMAND, description = "deprecate a package in Ballerina Central")
+@CommandLine.Command(name = DEPRECATE_COMMAND, description = "Deprecate a package in Ballerina Central")
 public class DeprecateCommand implements BLauncherCmd {
 
-    private PrintStream outStream;
-    private PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final PrintStream outStream;
+    private final PrintStream errStream;
+    private final boolean exitWhenFinish;
 
     private static final String USAGE_TEXT =
             "bal deprecate {<org-name>/<package-name>:<version>} [OPTIONS]";
@@ -137,7 +136,7 @@ public class DeprecateCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("deprecates a package in Ballerina Central \n");
+        out.append(BLauncherCmd.getCommandUsageInfo(DEPRECATE_COMMAND));
     }
 
     @Override
@@ -157,26 +156,25 @@ public class DeprecateCommand implements BLauncherCmd {
     private void deprecateInCentral(String packageInfo) {
         try {
             Settings settings;
-            try {
-                settings = RepoUtils.readSettings();
-                // Ignore Settings.toml diagnostics in the deprecate command
-            } catch (SettingsTomlException e) {
-                // Ignore 'Settings.toml' parsing errors and return empty Settings object
-                settings = Settings.from();
-            }
+            settings = RepoUtils.readSettings();
+            // Ignore Settings.toml diagnostics in the deprecate command
+
             String packageValue = packageInfo;
             if (packageInfo.split(":").length != 2) {
                 packageValue = packageInfo + ":*";
             }
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                    initializeProxy(settings.getProxy()),
-                    getAccessTokenOfCLI(settings));
+                    initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                    settings.getProxy().password(),
+                    getAccessTokenOfCLI(settings), settings.getCentral().getConnectTimeout(),
+                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                    settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
             client.deprecatePackage(packageValue, deprecationMsg,
-                    JvmTarget.JAVA_11.code(),
+                    JvmTarget.JAVA_17.code(),
                     RepoUtils.getBallerinaVersion(), this.undoFlag);
         } catch (CentralClientException e) {
             String errorMessage = e.getMessage();
-            if (null != errorMessage && !"".equals(errorMessage.trim())) {
+            if (null != errorMessage && !errorMessage.trim().isEmpty()) {
                 // removing the error stack
                 if (errorMessage.contains("\n\tat")) {
                     errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));

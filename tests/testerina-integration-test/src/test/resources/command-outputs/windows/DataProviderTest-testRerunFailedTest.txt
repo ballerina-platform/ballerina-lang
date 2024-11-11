@@ -7,6 +7,12 @@ Running Tests with Coverage
 
 	dataproviders
 
+	intDataProviderTest:Case1 has failed.
+
+
+	intDataProviderTest:Case2 has failed.
+
+
 		[fail] intDataProviderTest#Case1:
 
 		    error {ballerina/test:0}TestError ("The sum is not correct
@@ -16,7 +22,7 @@ Running Tests with Coverage
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 				callableName: intDataProviderTest moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 25
-				callableName: intDataProviderTest$lambda0$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 3
+				callableName: intDataProviderTest$lambda0$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 4
 			
 
 		[fail] intDataProviderTest#Case2:
@@ -28,7 +34,7 @@ Running Tests with Coverage
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 				callableName: intDataProviderTest moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 25
-				callableName: intDataProviderTest$lambda0$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 3
+				callableName: intDataProviderTest$lambda0$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 4
 			
 
 
@@ -36,12 +42,16 @@ Running Tests with Coverage
 		2 failing
 		0 skipped
 
+		Test execution time :*****s
+
 	dataproviders.module1
 
 
 		No tests found
 
+		Test execution time :*****s
+
 Generating Test Report
 	data-providers\target\report\test_results.json
 
-error: there are test failures
+error: there are test failures

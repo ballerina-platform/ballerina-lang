@@ -25,45 +25,46 @@ import io.ballerina.compiler.syntax.tree.Token;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
- * This is a generated internal syntax tree node.
+ * Represents a missing token in the internal syntax tree.
  *
  * @since 2.0.0
  */
 public class STMissingToken extends STToken {
 
     STMissingToken(SyntaxKind kind) {
-        super(kind, 0, new STNodeList(new ArrayList<>(0)), new STNodeList(new ArrayList<>(0)));
+        this(kind, Collections.emptyList());
     }
 
     STMissingToken(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics) {
-        super(kind, 0, new STNodeList(new ArrayList<>(0)), new STNodeList(new ArrayList<>(0)), diagnostics);
+        this(kind, new STNodeList(new ArrayList<>(0)), new STNodeList(new ArrayList<>(0)), diagnostics);
     }
 
     STMissingToken(SyntaxKind kind,
                    STNode leadingMinutiae,
                    STNode trailingMinutiae,
                    Collection<STNodeDiagnostic> diagnostics) {
-        super(kind, 0,  leadingMinutiae, trailingMinutiae, diagnostics);
+        super(kind, 0,  leadingMinutiae, trailingMinutiae, diagnostics, true);
     }
 
+    @Override
     public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMissingToken(this.kind, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
     }
 
+    @Override
     public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
         return new STMissingToken(this.kind, leadingMinutiae, trailingMinutiae, this.diagnostics);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        switch (kind) {
-            case IDENTIFIER_TOKEN:
-                return new IdentifierToken(this, position, parent);
-            default:
-                return new Token(this, position, parent);
-        }
+        return switch (kind) {
+            case IDENTIFIER_TOKEN -> new IdentifierToken(this, position, parent);
+            default -> new Token(this, position, parent);
+        };
     }
 
     @Override

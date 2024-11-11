@@ -10,11 +10,13 @@ Running Tests
 	[fail] beforeSuite[before test suite function]:
 	    error("{ballerina}DivisionByZero",message=" / by zero")
 			callableName: beforeSuite  fileName: skip-when-beforeSuite-fails.bal lineNumber: 24
-			callableName: beforeSuite$lambda1$  fileName: skip-when-beforeSuite-fails.bal lineNumber: 75
+			callableName: beforeSuite$lambda1$  fileName: skip-when-beforeSuite-fails.bal lineNumber: 76
 		
 
 
 		0 passing
 		0 failing
 		3 skipped
+
+		Test execution time :*****s
 error: there are test failures

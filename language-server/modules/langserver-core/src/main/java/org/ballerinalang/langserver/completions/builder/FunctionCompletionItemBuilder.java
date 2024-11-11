@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -65,7 +64,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -164,7 +162,7 @@ public final class FunctionCompletionItemBuilder {
         return item;
     }
 
-    protected static void setMeta(CompletionItem item, FunctionSymbol functionSymbol, BallerinaCompletionContext ctx) {
+    static void setMeta(CompletionItem item, FunctionSymbol functionSymbol, BallerinaCompletionContext ctx) {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setKind(CompletionItemKind.Function);
         if (functionSymbol != null) {
@@ -201,7 +199,7 @@ public final class FunctionCompletionItemBuilder {
             functionParameters.addAll(functionTypeDesc.params().get());
             defaultParams.addAll(functionParameters.stream()
                     .filter(parameter -> parameter.paramKind() == ParameterKind.DEFAULTABLE)
-                    .collect(Collectors.toList()));
+                    .toList());
         }
 
         MarkupContent docMarkupContent = new MarkupContent();
@@ -332,19 +330,18 @@ public final class FunctionCompletionItemBuilder {
     }
 
     /**
-     * Given a path parameter symbol generates the corresponding 
+     * Given a path parameter symbol generates the corresponding
      * resource access action's syntax part.
-     * 
+     *
      * @param param path parameter symbol
-     * @param ctx completion context
+     * @param ctx   completion context
      * @return {@link Optional<String>} signature part
      */
     public static Optional<String> getFunctionParameterSyntax(PathParameterSymbol param,
                                                               BallerinaCompletionContext ctx) {
 
         if (param.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
-            ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) param.typeDescriptor();
-            return Optional.of(NameUtil.getModifiedTypeName(ctx, typeSymbol.memberTypeDescriptor())
+            return Optional.of(NameUtil.getModifiedTypeName(ctx, param.typeDescriptor())
                     + (param.getName().isEmpty() ? "" : "... "
                     + param.getName().get()));
         }
@@ -354,7 +351,7 @@ public final class FunctionCompletionItemBuilder {
             return Optional.empty();
         } else {
             return Optional.of(NameUtil.getModifiedTypeName(ctx, param.typeDescriptor()) +
-                    (param.getName().isEmpty() ? "" : " " + param.getName().get()));
+                    ((param.getName().isEmpty() || param.isTypeOnlyParam()) ? "" : " " + param.getName().get()));
         }
     }
 
@@ -381,7 +378,7 @@ public final class FunctionCompletionItemBuilder {
     /**
      * Creates and returns the main function completion item.
      *
-     * @param context   Ballerina completion context
+     * @param context Ballerina completion context
      * @return {@link CompletionItem} generated main function completion item.
      */
     public static LSCompletionItem buildMainFunction(BallerinaCompletionContext context) {

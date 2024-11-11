@@ -23,11 +23,11 @@ package io.ballerina.shell.cli.handlers.help;
  */
 public class BbeRecord {
 
-    private String name;
-    private String url;
-    private String verifyBuild;
-    private String verifyOutput;
-    private String isLearnByExample;
+    private final String name;
+    private final String url;
+    private final String verifyBuild;
+    private final String verifyOutput;
+    private final String isLearnByExample;
 
     public BbeRecord(String name, String url, String verifyBuild, String verifyOutput, String isLearnByExample) {
         this.name = name;

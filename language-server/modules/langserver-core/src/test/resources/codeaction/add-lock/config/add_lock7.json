@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 4,
+    "character": 10
+  },
+  "source": "add_lock7.bal",
+  "description": "Wrap in a lock statement for updating a mutable storage",
+  "expected": [
+    {
+      "title": "Surround with lock",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 0
+            },
+            "end": {
+              "line": 5,
+              "character": 0
+            }
+          },
+          "newText": "        lock {\n\t        self.mp[\"a\"] = inputArr;\n        }\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

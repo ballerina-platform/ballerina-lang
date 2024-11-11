@@ -17,7 +17,9 @@
  */
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 /**
  * <p>
@@ -31,4 +33,9 @@ import io.ballerina.runtime.api.values.BObject;
  */
 public interface ObjectValue extends BObject {
 
+    @Override
+    Object call(Strand strand, String funcName, Object... args);
+
+    @Override
+    BFuture start(Strand strand, String funcName, Object... args);
 }

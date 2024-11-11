@@ -49,11 +49,12 @@ public class UnionTypeBalaTest {
     }
 
     @DataProvider(name = "unionTestFunctions")
-    public Object[][] unionTestFunctions() {
-        return new Object[][]{
-                {"testUnionPositive"},
-                {"testUnionNegative"},
-                {"testUnionRuntimeToString"}
+    public Object[] unionTestFunctions() {
+        return new Object[]{
+                "testUnionPositive",
+                "testUnionNegative",
+                "testUnionRuntimeToString",
+                "testTernaryWithQueryForModuleImportedVariable"
         };
     }
 

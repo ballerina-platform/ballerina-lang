@@ -16,11 +16,15 @@
 package org.ballerinalang.langserver;
 
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
+import org.ballerinalang.formatter.core.FormatterUtils;
+import org.ballerinalang.formatter.core.options.FormattingOptions;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderHolder;
 import org.ballerinalang.langserver.common.utils.PathUtil;
@@ -32,6 +36,7 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.DocumentSymbolContext;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
+import org.ballerinalang.langserver.commons.InlayHintContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
@@ -48,6 +53,7 @@ import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.foldingrange.FoldingRangeProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
+import org.ballerinalang.langserver.inlayhint.InlayHintProvider;
 import org.ballerinalang.langserver.references.ReferencesUtil;
 import org.ballerinalang.langserver.rename.RenameUtil;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
@@ -74,6 +80,8 @@ import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
+import org.eclipse.lsp4j.InlayHint;
+import org.eclipse.lsp4j.InlayHintParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
@@ -106,7 +114,8 @@ import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+
+import static org.ballerinalang.formatter.core.FormatterUtils.buildFormattingOptions;
 
 /**
  * Text document service implementation for ballerina.
@@ -335,7 +344,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         cancelChecker);
                 return LangExtensionDelegator.instance().codeActions(params, context, this.serverContext).stream()
                         .map((Function<CodeAction, Either<Command, CodeAction>>) Either::forRight)
-                        .collect(Collectors.toList());
+                        .toList();
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Code Action", e);
             } catch (CancellationException ignore) {
@@ -435,7 +444,16 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 if (syntaxTree.isEmpty()) {
                     return Collections.emptyList();
                 }
-                String formattedSource = Formatter.format(syntaxTree.get()).toSourceCode();
+                String formattedSource;
+                if (FormatterUtils.isBuildProject(context.currentModule())) {
+                    Path rootPath = context.workspace().projectRoot(context.filePath());
+                    BuildProject project = BuildProject.load(rootPath, BuildOptions.builder().build());
+                    FormattingOptions options = buildFormattingOptions(project);
+                    formattedSource = Formatter.format(syntaxTree.get(), options).toSourceCode();
+                } else {
+                    formattedSource = Formatter.format(syntaxTree.get()).toSourceCode();
+                }
+
                 LinePosition eofPos = syntaxTree.get().rootNode().lineRange().endLine();
                 Range range = new Range(new Position(0, 0), new Position(eofPos.line() + 1, eofPos.offset()));
                 TextEdit textEdit = new TextEdit(range, formattedSource);
@@ -669,6 +687,30 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
 
             return new SemanticTokens(new ArrayList<>());
+        });
+    }
+
+    @Override
+    public CompletableFuture<List<InlayHint>> inlayHint(InlayHintParams params) {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
+            try {
+                InlayHintContext context = ContextBuilder.buildInlayHintContext(
+                        params.getTextDocument().getUri(),
+                        this.workspaceManagerProxy.get(),
+                        this.serverContext,
+                        cancelChecker);
+
+                return InlayHintProvider.getInlayHint(context);
+            } catch (CancellationException ignore) {
+                // Ignore cancellation exception
+            } catch (Throwable e) {
+                String msg = "Operation 'textDocument/inlayHint' failed!";
+                this.clientLogger.logError(LSContextOperation.TXT_INLAY_HINT, msg, e,
+                        new TextDocumentIdentifier(params.getTextDocument().getUri()),
+                        (Position) null);
+            }
+
+            return Collections.emptyList();
         });
     }
 }

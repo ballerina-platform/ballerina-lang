@@ -29,4 +29,12 @@
             </And>
         </Or>
     </Match>
+    <Match>
+        <Package name="io.ballerina.semver.checker.diff"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Package name="io.ballerina.semver.checker"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
 </FindBugsFilter>

@@ -1808,6 +1808,11 @@
                 {
                     "name": "workerBody",
                     "type": "BlockStatementNode"
+                },
+                {
+                    "name": "onFailClause",
+                    "type": "OnFailClauseNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -2883,6 +2888,21 @@
             ]
         },
         {
+            "name": "CollectClauseNode",
+            "base": "ClauseNode",
+            "kind": "COLLECT_CLAUSE",
+            "attributes": [
+                {
+                    "name": "collectKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
             "name": "QueryExpressionNode",
             "base": "ExpressionNode",
             "kind": "QUERY_EXPRESSION",
@@ -2897,8 +2917,8 @@
                     "type": "QueryPipelineNode"
                 },
                 {
-                    "name": "selectClause",
-                    "type": "SelectClauseNode"
+                    "name": "resultClause",
+                    "type": "ClauseNode"
                 },
                 {
                     "name": "onConflictClause",
@@ -3312,12 +3332,24 @@
                 },
                 {
                     "name": "receiveFields",
-                    "type": "NameReferenceNode",
+                    "type": "Node",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeBrace",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "AlternateReceiveNode",
+            "base": "Node",
+            "kind": "ALTERNATE_RECEIVE",
+            "attributes": [
+                {
+                    "name": "workers",
+                    "type": "SimpleNameReferenceNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
                 }
             ]
         },
@@ -3742,6 +3774,11 @@
                 {
                     "name": "xmlStepStart",
                     "type": "Node"
+                },
+                {
+                    "name": "xmlStepExtend",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
                 }
             ]
         },
@@ -3762,6 +3799,44 @@
                 {
                     "name": "gtToken",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "XMLStepIndexedExtendNode",
+            "base": "Node",
+            "kind": "XML_STEP_INDEXED_EXTEND",
+            "attributes": [
+                {
+                    "name": "openBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "closeBracket",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "XMLStepMethodCallExtendNode",
+            "base": "Node",
+            "kind": "XML_STEP_METHOD_CALL_EXTEND",
+            "attributes": [
+                {
+                    "name": "dotToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "methodName",
+                    "type": "SimpleNameReferenceNode"
+                },
+                {
+                    "name": "parenthesizedArgList",
+                    "type": "ParenthesizedArgList"
                 }
             ]
         },
@@ -4196,6 +4271,49 @@
             ]
         },
         {
+            "name": "GroupByClauseNode",
+            "base": "IntermediateClauseNode",
+            "kind": "GROUP_BY_CLAUSE",
+            "attributes": [
+                {
+                    "name": "groupKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "byKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "groupingKey",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                }
+            ]
+        },
+        {
+            "name": "GroupingKeyVarDeclarationNode",
+            "base": "Node",
+            "kind": "GROUPING_KEY_VAR_DECLARATION",
+            "attributes": [
+                {
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode"
+                },
+                {
+                    "name": "simpleBindingPattern",
+                    "type": "BindingPatternNode"
+                },
+                {
+                    "name": "equalsToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
             "name": "OnFailClauseNode",
             "base": "ClauseNode",
             "kind": "ON_FAIL_CLAUSE",
@@ -4209,13 +4327,8 @@
                     "type": "Token"
                 },
                 {
-                    "name": "typeDescriptor",
-                    "type": "TypeDescriptorNode",
-                    "isOptional": true
-                },
-                {
-                    "name": "failErrorName",
-                    "type": "IdentifierToken",
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode",
                     "isOptional": true
                 },
                 {
@@ -4885,6 +4998,25 @@
                 {
                     "name": "typeDescriptor",
                     "type": "TypeDescriptorNode"
+                }
+            ]
+        },
+        {
+            "name": "ReceiveFieldNode",
+            "base": "Node",
+            "kind": "RECEIVE_FIELD",
+            "attributes": [
+                {
+                    "name": "fieldName",
+                    "type": "SimpleNameReferenceNode"
+                },
+                {
+                    "name": "colon",
+                    "type": "Token"
+                },
+                {
+                    "name": "peerWorker",
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         }

@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TYPE_NOT_SUPPORTED;
 
 /**
  * Class that resolve the configurations on given providers.
@@ -168,7 +168,7 @@ public class ConfigResolver {
             return configValue;
         }
         if (exceptionList.isEmpty() && key.isRequired) {
-            diagnosticLog.error(RuntimeErrors.CONFIG_VALUE_NOT_PROVIDED, key.location, key.variable);
+            diagnosticLog.error(ErrorCodes.CONFIG_VALUE_NOT_PROVIDED, key.location, key.variable);
             return configValue;
         }
         exceptionList.forEach(e -> diagnosticLog.error(e.getErrorCode(), key.location, e.getArgs()));

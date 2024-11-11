@@ -62,3 +62,13 @@ public function getObjectWithModuleLevelVisibilityMethod() returns ObjectWithMod
     new (2, false);
 
 public function getObjectWithPublicFieldsAndMethods() returns ObjectWithPublicFieldsAndMethods => new (3);
+
+public type FooObj readonly & distinct client object {
+    isolated remote function execute(string aVar, int bVar) returns int;
+};
+
+public readonly class BarClass {
+    public isolated function patch(int[] artifacts, boolean publish) returns byte[] {
+        return [1, 0, 1];
+    }
+}

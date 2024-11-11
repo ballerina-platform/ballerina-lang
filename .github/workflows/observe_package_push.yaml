@@ -12,16 +12,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Checkout Tag
         run: git checkout ${{ github.event.inputs.repoTag }}
-      - name: Set up JDK 11
-        uses: actions/setup-java@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '17.0.7'
+
       - name: Build with Gradle
         env:
           packageUser: ${{ github.actor }}

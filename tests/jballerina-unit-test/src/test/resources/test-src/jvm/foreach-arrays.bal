@@ -239,12 +239,98 @@ function testArrayWithNullElements() returns string {
     return output;
 }
 
+function testQueryInsideLoop() {
+    string[] values = ["a", "b", "c"];
+    int sum = 0;
+    foreach string entity in values {
+        string[] relationFields = from string each in values
+            where entity + each != "foo"
+            select each;
+        sum += relationFields.length();
+    }
+    assertEquality(9, sum);
+}
+
+function testMutatingArray() {
+    int[] vals = [1, 2, 3];
+    int sum = 0;
+    foreach int val in vals {
+        vals = [1, ...vals];
+        sum += vals[0];
+    }
+    assertEquality(3, sum);
+    int[] prefixVals = [1, 2, 3];
+    sum = 0;
+    foreach int val in prefixVals {
+        vals.push(10);
+        sum += val;
+    }
+    assertEquality(6, sum);
+    sum = 0;
+    vals = [1, 2, 3];
+    foreach int val in vals {
+        sum += val;
+        vals = [4, 5, 6];
+    }
+    assertEquality(6, sum);
+}
+
+function testListConstructor() {
+    int sum = 0;
+    foreach int val in [1, 2, 3] {
+        sum += val;
+    }
+    assertEquality(6, sum);
+}
+
+function testTuple() {
+    int sum = 0;
+    [int, int, int] vals = [1, 2, 3];
+    foreach int val in vals {
+        sum += val;
+    }
+    assertEquality(6, sum);
+    sum = 0;
+    [int, int, int...] moreVals = [1, 2, 3, 4, 5];
+    foreach int val in moreVals {
+        sum += val;
+    }
+    assertEquality(15, sum);
+}
+
+function testRemoveElementsWhileIterating() {
+    int[] vals = [1, 2, 3];
+    foreach int val in vals {
+        var _ = vals.pop();
+    }
+}
+
 function testEmptyArray() {
     output = "hello";
     foreach var item in [] {
         output += "hello";
     }
     assertEquality(output, "hello");
+}
+
+function testFunctionCall() {
+    int sum = 0;
+    foreach int val in foo() {
+        sum += val;
+    }
+    assertEquality(6, sum);
+}
+
+function foo() returns int[] {
+    return [1, 2, 3];
+}
+
+function testQueryExpressions() {
+    int sum = 0;
+    foreach int val in from int i in [1, 2, 3] select i {
+        sum += val;
+    }
+    assertEquality(6, sum);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -78,7 +78,7 @@ public interface BDecimal {
     BigDecimal value();
 
     /**
-     * Returns the {@code BType} of the value.
+     * Returns the {@code Type} of the value.
      *
      * @return the type
      */
@@ -102,8 +102,8 @@ public interface BDecimal {
     BDecimal subtract(BDecimal subtrahend);
 
     /**
-     * Returns a decimal whose value is <tt>(this &times;
-     * multiplicand)</tt>.
+     * Returns a decimal whose value is {@code (this &times;
+     * multiplicand)}.
      *
      * @param multiplicand value to be multiplied
      * @return value after multiplication
@@ -135,11 +135,14 @@ public interface BDecimal {
      */
     BDecimal negate();
 
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
     /**
-     * Returns value kind of {@code (-this)}.
+     * Returns value kind of {@code this}.
      *
-     * @return value kind
+     * @return      value kind
+     * @deprecated  use {@link #decimalValue()} instead.
      */
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     DecimalValueKind getValueKind();
 
     /**

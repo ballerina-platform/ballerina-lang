@@ -21,9 +21,8 @@ import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
-import io.ballerina.runtime.internal.values.XmlComment;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.values.XmlPi;
 import io.ballerina.runtime.internal.values.XmlSequence;
 
@@ -32,7 +31,10 @@ import io.ballerina.runtime.internal.values.XmlSequence;
  *
  * @since 0.90
  */
-public class GetContent {
+public final class GetContent {
+
+    private GetContent() {
+    }
 
     public static BString getContent(Object xmlVal) {
         BXml value = (BXml) xmlVal;
@@ -41,13 +43,13 @@ public class GetContent {
         } else if (IsComment.isComment(value)) {
             return getCommentContent(value);
         }
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getContent",
+        throw ErrorHelper.getRuntimeException(ErrorCodes.XML_FUNC_TYPE_ERROR, "getContent",
                                                        "processing instruction|comment");
     }
 
     private static BString getCommentContent(BXml value) {
         if (value.getNodeType() == XmlNodeType.COMMENT) {
-            return StringUtils.fromString(((XmlComment) value).getTextValue());
+            return StringUtils.fromString(value.getTextValue());
         }
         return getCommentContent(((XmlSequence) value).getItem(0));
     }

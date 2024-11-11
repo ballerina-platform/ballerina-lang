@@ -28,7 +28,7 @@ import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 
 /**
- * {@code BTypeType} represents type of type in Ballerina type system.
+ * {@code BTypedescType} represents a type of a type in the Ballerina type system.
  *
  * @since 0.995.0
  */
@@ -64,12 +64,13 @@ public class BTypedescType extends BType implements TypedescType {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof BTypedescType) {
-            return constraint.equals(((BTypedescType) obj).getConstraint());
+        if (obj instanceof BTypedescType typedescType) {
+            return constraint.equals(typedescType.getConstraint());
         }
         return false;
     }
 
+    @Override
     public Type getConstraint() {
         return constraint;
     }

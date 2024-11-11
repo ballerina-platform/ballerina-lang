@@ -17,37 +17,37 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-toml-parser-test-suite">
-    <test name="ballerina-blang-node-transformer-test-suite" preserve-order="true" parallel="false">
+    <test name="ballerina-blang-node-transformer-test-suite" preserve-order="true">
         <classes>
             <class name="org.wso2.ballerinalang.compiler.BLangNodeTransformerTest"/>
             <class name="org.wso2.ballerinalang.compiler.SourceDirectoryManagerTest"/>
         </classes>
     </test>
-    <test name="ballerina-toml-parser-test-suite" preserve-order="true" parallel="false">
+    <test name="ballerina-toml-parser-test-suite" preserve-order="true">
         <packages>
             <package name="org.ballerinalang.toml.*"/>
         </packages>
     </test>
-    <test name="ballerina-compiler-util-test-suite" preserve-order="true" parallel="false">
+    <test name="ballerina-compiler-util-test-suite" preserve-order="true">
         <packages>
             <package name="org.wso2.ballerinalang.compiler.util"/>
         </packages>
     </test>
-    <test name="ballerina-diagnostic-code-test-suite" preserve-order="true" parallel="false">
+    <test name="ballerina-diagnostic-code-test-suite" preserve-order="true">
         <packages>
             <package name="org.ballerinalang.util.*"/>
         </packages>
     </test>
-    <test name="ballerina-diagnostic-log-test-suite" preserve-order="true" parallel="false">
+    <test name="ballerina-diagnostic-log-test-suite" preserve-order="true">
         <packages>
             <package name="org.wso2.ballerinalang.compiler.diagnostic"/>
         </packages>
     </test>
 
-    <test name="ballerina-project-api-test-suite" preserve-order="true" parallel="false">
+    <test name="ballerina-project-api-test-suite" preserve-order="true">
         <packages>
             <package name="io.ballerina.projects.*"/>
         </packages>

@@ -258,13 +258,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "forEach(function (xml:ItemType item) returns () func)",
+      "label": "forEach(function (xml:Element item) returns () func)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence.\n\nEach item is represented as a singleton value.\n\n```ballerina\nxml books = xml `<book>Sherlock Holmes</book><book>Invisible Man</book>`;\nxml titles = xml ``;\nbooks.forEach(function (xml xmlItem) {\n    titles += xml `<novel>${xmlItem.data()}</novel>`;\n});\ntitles ⇒ <novel>Sherlock Holmes</novel><novel>Invisible Man</novel>\n```\n  \n**Params**  \n- `function (xml:ItemType item) returns ()` func: a function to apply to each item in parameter `x`"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence.\n\nEach item is represented as a singleton value.\n\n```ballerina\nxml books = xml `<book>Sherlock Holmes</book><book>Invisible Man</book>`;\nxml titles = xml ``;\nbooks.forEach(function (xml xmlItem) {\n    titles += xml `<novel>${xmlItem.data()}</novel>`;\n});\ntitles ⇒ <novel>Sherlock Holmes</novel><novel>Invisible Man</novel>\n```\n  \n**Params**  \n- `function (xml:Element item) returns ()` func: a function to apply to each item in parameter `x`"
         }
       },
       "sortText": "CD",
@@ -292,13 +292,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "filter(function (xml:ItemType item) returns boolean func)",
+      "label": "filter(function (xml:Element item) returns boolean func)",
       "kind": "Function",
-      "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
+      "detail": "xml<xml:Element|xml:Text>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects the items from an xml sequence for which a function returns true.\n\nEach item is represented as a singleton value.\n\n```ballerina\nxml x = xml `<novel>Sherlock Holemes</novel><play>Hamlet</play><novel>Invisible Man</novel><play>Romeo and Juliet</play>`;\nx.filter(x => x is xml:Element && x.getName() == \"play\") ⇒ <play>Hamlet</play><play>Romeo and Juliet</play>\n```\n  \n**Params**  \n- `function (xml:ItemType item) returns boolean` func: a predicate to apply to each item to test whether it should be selected  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- new xml sequence containing items in parameter `x` for which function `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects the items from an xml sequence for which a function returns true.\n\nEach item is represented as a singleton value.\n\n```ballerina\nxml x = xml `<novel>Sherlock Holemes</novel><play>Hamlet</play><novel>Invisible Man</novel><play>Romeo and Juliet</play>`;\nx.filter(x => x is xml:Element && x.getName() == \"play\") ⇒ <play>Hamlet</play><play>Romeo and Juliet</play>\n```\n  \n**Params**  \n- `function (xml:Element item) returns boolean` func: a predicate to apply to each item to test whether it should be selected  \n  \n**Return** `xml<xml:Element|xml:Text>`   \n- new xml sequence containing items in parameter `x` for which function `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "CD",
@@ -590,13 +590,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "'map(function (xml:ItemType item) returns xml:XmlType func)",
+      "label": "'map(function (xml:Element item) returns xml:XmlType func)",
       "kind": "Function",
       "detail": "xml<xml:XmlType>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\n\nEach item is represented as a singleton value.\n\n```ballerina\nxml x = xml `<book>Hamlet</book><book>Macbeth</book>`;\nx.map(function (xml xmlContent) returns xml => \n  xml `<book kind=\"play\">${xmlContent.children()}</book>`\n) ⇒ <book kind=\"play\">Hamlet</book><book kind=\"play\">Macbeth</book>\n```\n  \n**Params**  \n- `function (xml:ItemType item) returns xml:XmlType` func: a function to apply to each child or `item`  \n  \n**Return** `xml<xml:XmlType>`   \n- new xml value containing result of applying parameter `func` to each child or `item`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\n\nEach item is represented as a singleton value.\n\n```ballerina\nxml x = xml `<book>Hamlet</book><book>Macbeth</book>`;\nx.map(function (xml xmlContent) returns xml => \n  xml `<book kind=\"play\">${xmlContent.children()}</book>`\n) ⇒ <book kind=\"play\">Hamlet</book><book kind=\"play\">Macbeth</book>\n```\n  \n**Params**  \n- `function (xml:Element item) returns xml:XmlType` func: a function to apply to each child or `item`  \n  \n**Return** `xml<xml:XmlType>`   \n- new xml value containing result of applying parameter `func` to each child or `item`  \n  \n"
         }
       },
       "sortText": "CD",

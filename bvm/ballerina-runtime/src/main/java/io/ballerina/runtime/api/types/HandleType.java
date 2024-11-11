@@ -18,7 +18,8 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BAnyType} represents any type in Ballerina. It is the root of the Ballerina type system.
+ * {@code HandleType} represents a handle type in Ballerina.
+ * A handle value is a reference to a storage managed externally by a Ballerina program.
  *
  * @since 1.0.0
  */

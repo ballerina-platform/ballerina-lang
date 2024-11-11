@@ -33,11 +33,6 @@ public interface InitializationOptions {
     String KEY_ENABLE_SEMANTIC_TOKENS = "enableSemanticHighlighting";
 
     /**
-     * Whether the client supports rename popup.
-     */
-    String KEY_RENAME_SUPPORT = "supportRenamePopup";
-
-    /**
      * Whether the client supports {@link org.eclipse.lsp4j.Position} based rename popup.
      */
     String KEY_POSITIONAL_RENAME_SUPPORT = "supportPositionalRenamePopup";
@@ -53,6 +48,21 @@ public interface InitializationOptions {
     String KEY_ENABLE_LIGHTWEIGHT_MODE = "enableLightWeightMode";
 
     /**
+     * Whether the client supports inlay hints.
+     */
+    String KEY_ENABLE_INLAY_HINTS = "enableInlayHints";
+
+    /**
+     * Whether the LS should index packages from BallerinaUserHome.
+     */
+    String KEY_ENABLE_INDEX_PACKAGES = "enableIndexPackages";
+
+    /**
+     * Whether the client supports memory usage monitor.
+     */
+    String KEY_ENABLE_MEMORY_USAGE_MONITOR = "enableMemoryUsageMonitor";
+
+    /**
      * Return if the client support bala URI scheme.
      *
      * @return True if bala URi scheme is supported.
@@ -65,13 +75,6 @@ public interface InitializationOptions {
      * @return True if supported, false otherwise
      */
     boolean isEnableSemanticTokens();
-
-    /**
-     * Returns if the client supports rename popup.
-     *
-     * @return True if supported, false otherwise
-     */
-    boolean isRefactorRenameSupported();
 
     /**
      * Returns if the client supports {@link org.eclipse.lsp4j.Position} based rename.
@@ -92,4 +95,25 @@ public interface InitializationOptions {
      * @return True if enabled, false otherwise
      */
     boolean isEnableLightWeightMode();
+
+    /**
+     * Returns if the client supports inlay hints.
+     *
+     * @return True if supported, false otherwise
+     */
+    boolean isEnableInlayHints();
+
+    /**
+     * Returns if the LS has indexed BallerinaUserHome.
+     *
+     * @return True if supported, false otherwise
+     */
+    boolean isEnableIndexPackages();
+
+    /**
+     * Returns if the client supports memory usage monitor.
+     *
+     * @return True if supported, false otherwise
+     */
+    boolean isEnableMemoryUsageMonitor();
 }

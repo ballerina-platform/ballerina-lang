@@ -56,7 +56,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class TypeCreator {
+public final class TypeCreator {
 
     /**
      * Creates a new array type with given element type.
@@ -213,7 +213,7 @@ public class TypeCreator {
     }
 
     /**
-     * Create a {@code BRecordType} which represents the user defined record type.
+     * Create a {@code RecordType} which represents the user defined record type.
      *
      * @param typeName  string name of the record type
      * @param module    package of the record type
@@ -228,7 +228,7 @@ public class TypeCreator {
     }
 
     /**
-     * Create a {@code BRecordType} which represents the user defined record type.
+     * Create a {@code RecordType} which represents the user defined record type.
      *
      * @param typeName      string name of the record type
      * @param module        package of the record type
@@ -319,7 +319,7 @@ public class TypeCreator {
     }
 
     /**
-     * Create a {@code BUnionType} which represents the union type.
+     * Create a {@code UnionType} which represents the union type.
      *
      * @param memberTypes of the union type
      * @return the new union type
@@ -329,7 +329,7 @@ public class TypeCreator {
     }
 
     /**
-     * Create a {@code BUnionType} which represents the union type.
+     * Create a {@code UnionType} which represents the union type.
      *
      * @param memberTypes of the union type
      * @param typeFlags   flags associated with the type
@@ -340,7 +340,7 @@ public class TypeCreator {
     }
 
     /**
-     * Create a {@code BUnionType} which represents the union type.
+     * Create a {@code UnionType} which represents the union type.
      *
      * @param memberTypes of the union type
      * @param readonly    whether immutable
@@ -351,7 +351,7 @@ public class TypeCreator {
     }
 
     /**
-     * Create a {@code BUnionType} which represents the union type.
+     * Create a {@code UnionType} which represents the union type.
      *
      * @param memberTypes of the union type
      * @param typeFlags   flags associated with the type
@@ -363,7 +363,7 @@ public class TypeCreator {
     }
 
     /**
-     * Create a {@code BUnionType} which represents the union type.
+     * Create a {@code UnionType} which represents the union type.
      *
      * @param memberTypes list of member types in the union type
      * @param name      type name

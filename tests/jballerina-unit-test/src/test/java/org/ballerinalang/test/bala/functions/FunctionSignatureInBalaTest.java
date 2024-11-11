@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -41,6 +42,8 @@ public class FunctionSignatureInBalaTest {
 
     @BeforeClass
     public void setup() {
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_utils");
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_functions");
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
         compileResult =
                 BCompileUtil.compile("test-src/bala/test_bala/functions/test_different_function_signatures.bal");
@@ -361,6 +364,16 @@ public class FunctionSignatureInBalaTest {
     }
 
     @Test
+    public void testCyclicFuncCallWhenFuncDefinedInModuleWithSameName() {
+        BRunUtil.invoke(compileResult, "testCyclicFuncCallWhenFuncDefinedInModuleWithSameName");
+    }
+
+    @Test
+    public void testFuncCallingFuncFromDifferentModuleAsParamDefault() {
+        BRunUtil.invoke(compileResult, "testFuncCallingFuncFromDifferentModuleAsParamDefault");
+    }
+    
+    @Test
     public void testNegativeFunctionInvocations() {
         int i = 0;
         validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams()'",
@@ -416,5 +429,11 @@ public class FunctionSignatureInBalaTest {
         validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'float'", 85, 22);
 
         Assert.assertEquals(i,  resultNegative.getErrorCount());
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        resultNegative = null;
     }
 }

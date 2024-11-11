@@ -92,7 +92,9 @@ public class IsolationAnalysisTest {
                 "testAccessingFinalIsolatedObjectInIsolatedFunction",
                 "testIsolationOfBoundMethods",
                 "testFinalReadOnlyServiceAccessInIsolatedFunction",
-                "testFinalReadOnlyRawTemplateAccessInIsolatedFunction"
+                "testFinalReadOnlyRawTemplateAccessInIsolatedFunction",
+                "testIsolatedFunctionWithSelfAsCapturedVariable",
+                "testIsolatedFPCallInIsolatedFunction"
         };
     }
 
@@ -114,6 +116,14 @@ public class IsolationAnalysisTest {
         for (Diagnostic diagnostic : result.getDiagnostics()) {
             Assert.assertTrue(diagnostic.message().startsWith("unused variable"));
         }
+    }
+
+    @Test
+    public void testIsolationAnalysisForAsyncActions() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/isolation-analysis/isolation_analysis_for_async_actions.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+        Assert.assertEquals(result.getWarnCount(), 0);
     }
 
     @Test
@@ -243,6 +253,19 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 311, 70);
         validateWarning(result, i++, "unused variable 'fn9'", 313, 4);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 313, 76);
+        validateError(result, i++, "invalid access of mutable storage in an 'isolated' function", 322, 81);
+        validateError(result, i++, "invalid access of mutable storage in an 'isolated' function", 331, 64);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 339, 16);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 341, 16);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 344, 13);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 347, 9);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 350, 9);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 354, 5);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 357, 5);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 365, 9);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 368, 9);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 383, 13);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 386, 20);
         Assert.assertEquals(result.getErrorCount(), i - 23);
         Assert.assertEquals(result.getWarnCount(), 23);
     }

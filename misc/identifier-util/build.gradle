@@ -15,22 +15,15 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 dependencies {
-    implementation 'org.apache.commons:commons-text'
+    implementation libs.apache.commons.text
 }
 
 description = 'Identifier Utils'
 
 ext.moduleName = 'io.ballerina.identifier'
 
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}

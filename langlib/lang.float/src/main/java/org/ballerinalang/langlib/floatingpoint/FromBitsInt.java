@@ -29,7 +29,10 @@ package org.ballerinalang.langlib.floatingpoint;
 //        returnType = {@ReturnType(type = TypeKind.FLOAT)},
 //        isPublic = true
 //)
-public class FromBitsInt {
+public final class FromBitsInt {
+
+    private FromBitsInt() {
+    }
 
     public static double fromBitsInt(long x) {
         return Double.longBitsToDouble(x);

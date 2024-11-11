@@ -30,22 +30,26 @@ import java.net.URISyntaxException;
  * Test goto definition language server feature with bala URI scheme enabled.
  */
 public class BalaSchemeDefinitionTest extends DefinitionTest {
-    
+
+    @Override
     @Test(description = "Test goto definitions", dataProvider = "testDataProvider")
     public void test(String configPath, String configDir) throws IOException {
         super.test(configPath, configDir);
     }
 
-    @Test(description = "Test goto definitions for standard libs", dataProvider = "testStdLibDataProvider")
+    @Override
+    @Test(description = "Test goto definitions for standard libs",
+            dataProvider = "testStdLibDataProvider")
     public void testStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
         super.testStdLibDefinition(configPath, configDir);
     }
 
+    @Override
     @Test(dataProvider = "testInterStdLibDataProvider")
     public void testInterStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
         super.testInterStdLibDefinition(configPath, configDir);
     }
-    
+
     @Override
     protected Endpoint getServiceEndpoint() {
         return TestUtil.newLanguageServer()
@@ -53,6 +57,7 @@ public class BalaSchemeDefinitionTest extends DefinitionTest {
                 .build();
     }
 
+    @Override
     protected String getExpectedUriScheme() {
         return CommonUtil.URI_SCHEME_BALA;
     }

@@ -28,7 +28,9 @@ public class BLangTestablePackage extends BLangPackage {
     public BLangPackage parent;
     // Semantic Data
     //Map to maintain all the mock functions
-    private Map<String, String> mockFunctionNamesMap = new HashMap<>();
+    private final Map<String, String> mockFunctionNamesMap = new HashMap<>();
+
+    private final Map<String, Boolean> isLegacyMockingMap = new HashMap<>();
     public Map<String, String> getMockFunctionNamesMap() {
         return mockFunctionNamesMap;
     }
@@ -45,5 +47,13 @@ public class BLangTestablePackage extends BLangPackage {
     @Override
     public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
         return modifier.transform(this, props);
+    }
+
+    public Map<String, Boolean> getIsLegacyMockingMap() {
+        return isLegacyMockingMap;
+    }
+
+    public void addIsLegacyMockingMap(String id, Boolean isLegacy) {
+        this.isLegacyMockingMap.put(id, isLegacy);
     }
 }

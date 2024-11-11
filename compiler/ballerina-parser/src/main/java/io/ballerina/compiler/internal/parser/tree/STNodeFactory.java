@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -979,7 +979,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode workerKeyword,
             STNode workerName,
             STNode returnTypeDesc,
-            STNode workerBody) {
+            STNode workerBody,
+            STNode onFailClause) {
 
         return new STNamedWorkerDeclarationNode(
                 annotations,
@@ -987,7 +988,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
-                workerBody);
+                workerBody,
+                onFailClause);
     }
 
     public static STNode createNamedWorkerDeclarator(
@@ -1570,16 +1572,25 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
+    public static STNode createCollectClauseNode(
+            STNode collectKeyword,
+            STNode expression) {
+
+        return new STCollectClauseNode(
+                collectKeyword,
+                expression);
+    }
+
     public static STNode createQueryExpressionNode(
             STNode queryConstructType,
             STNode queryPipeline,
-            STNode selectClause,
+            STNode resultClause,
             STNode onConflictClause) {
 
         return new STQueryExpressionNode(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                resultClause,
                 onConflictClause);
     }
 
@@ -1815,6 +1826,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBrace);
     }
 
+    public static STNode createAlternateReceiveNode(
+            STNode workers) {
+
+        return new STAlternateReceiveNode(
+                workers);
+    }
+
     public static STNode createRestDescriptorNode(
             STNode typeDescriptor,
             STNode ellipsisToken) {
@@ -2041,11 +2059,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createXMLStepExpressionNode(
             STNode expression,
-            STNode xmlStepStart) {
+            STNode xmlStepStart,
+            STNode xmlStepExtend) {
 
         return new STXMLStepExpressionNode(
                 expression,
-                xmlStepStart);
+                xmlStepStart,
+                xmlStepExtend);
     }
 
     public static STNode createXMLNamePatternChainingNode(
@@ -2057,6 +2077,28 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 startToken,
                 xmlNamePattern,
                 gtToken);
+    }
+
+    public static STNode createXMLStepIndexedExtendNode(
+            STNode openBracket,
+            STNode expression,
+            STNode closeBracket) {
+
+        return new STXMLStepIndexedExtendNode(
+                openBracket,
+                expression,
+                closeBracket);
+    }
+
+    public static STNode createXMLStepMethodCallExtendNode(
+            STNode dotToken,
+            STNode methodName,
+            STNode parenthesizedArgList) {
+
+        return new STXMLStepMethodCallExtendNode(
+                dotToken,
+                methodName,
+                parenthesizedArgList);
     }
 
     public static STNode createXMLAtomicNamePatternNode(
@@ -2300,18 +2342,40 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 orderDirection);
     }
 
+    public static STNode createGroupByClauseNode(
+            STNode groupKeyword,
+            STNode byKeyword,
+            STNode groupingKey) {
+
+        return new STGroupByClauseNode(
+                groupKeyword,
+                byKeyword,
+                groupingKey);
+    }
+
+    public static STNode createGroupingKeyVarDeclarationNode(
+            STNode typeDescriptor,
+            STNode simpleBindingPattern,
+            STNode equalsToken,
+            STNode expression) {
+
+        return new STGroupingKeyVarDeclarationNode(
+                typeDescriptor,
+                simpleBindingPattern,
+                equalsToken,
+                expression);
+    }
+
     public static STNode createOnFailClauseNode(
             STNode onKeyword,
             STNode failKeyword,
-            STNode typeDescriptor,
-            STNode failErrorName,
+            STNode typedBindingPattern,
             STNode blockStatement) {
 
         return new STOnFailClauseNode(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement);
     }
 
@@ -2670,7 +2734,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 mostTimesMatchedDigit,
                 closeBraceToken);
     }
-  
+
     public static STNode createMemberTypeDescriptorNode(
             STNode annotations,
             STNode typeDescriptor) {
@@ -2678,6 +2742,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STMemberTypeDescriptorNode(
                 annotations,
                 typeDescriptor);
+    }
+
+    public static STNode createReceiveFieldNode(
+            STNode fieldName,
+            STNode colon,
+            STNode peerWorker) {
+
+        return new STReceiveFieldNode(
+                fieldName,
+                colon,
+                peerWorker);
     }
 }
 

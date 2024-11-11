@@ -41,6 +41,7 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.XmlAttributesType;
 import io.ballerina.runtime.api.types.XmlType;
 import io.ballerina.runtime.internal.IteratorUtils;
@@ -86,7 +87,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
  *
  * @since 2.0.0
  */
-public class PredefinedTypes {
+public final class PredefinedTypes {
 
     private static final Module EMPTY_MODULE = new Module(null, null, null);
 
@@ -150,6 +151,10 @@ public class PredefinedTypes {
                                                                                   TYPE_TEXT)), EMPTY_MODULE);
 
     public static final Type TYPE_READONLY_XML = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_XML);
+    public static final Type TYPE_XML_ELEMENT_SEQUENCE = new BXmlType(PredefinedTypes.TYPE_ELEMENT, false);
+    public static final Type TYPE_XML_COMMENT_SEQUENCE = new BXmlType(PredefinedTypes.TYPE_COMMENT, false);
+    public static final Type TYPE_XML_PI_SEQUENCE = new BXmlType(PredefinedTypes.TYPE_PROCESSING_INSTRUCTION, false);
+    public static final Type TYPE_XML_TEXT_SEQUENCE = new BXmlType(PredefinedTypes.TYPE_TEXT, false);
 
     public static final AnyType TYPE_ANY = new BAnyType(TypeConstants.ANY_TNAME, EMPTY_MODULE, false);
     public static final AnyType TYPE_READONLY_ANY = new BAnyType(TypeConstants.READONLY_ANY_TNAME, EMPTY_MODULE, true);
@@ -165,6 +170,7 @@ public class PredefinedTypes {
     public static final HandleType TYPE_HANDLE = new BHandleType(TypeConstants.HANDLE_TNAME, EMPTY_MODULE);
     public static final StreamType TYPE_STREAM = new BStreamType(TypeConstants.STREAM_TNAME, TYPE_ANY, TYPE_NULL,
             EMPTY_MODULE);
+    public static final ArrayType TYPE_ANY_ARRAY = new BArrayType(TYPE_ANY);
 
     public static final JsonType TYPE_JSON;
     public static final JsonType TYPE_READONLY_JSON;
@@ -175,16 +181,18 @@ public class PredefinedTypes {
     public static final MapType TYPE_DETAIL;
     public static final Type TYPE_ERROR_DETAIL;
     public static final ErrorType TYPE_ERROR;
-    public static final BUnionType TYPE_CLONEABLE;
+    public static final UnionType TYPE_CLONEABLE;
 
-    public static final BUnionType TYPE_JSON_DECIMAL;
-    public static final BUnionType TYPE_JSON_FLOAT;
+    public static final UnionType TYPE_JSON_DECIMAL;
+    public static final UnionType TYPE_JSON_FLOAT;
 
     public static final RecordType STRING_ITR_NEXT_RETURN_TYPE =
             IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_STRING_CHAR);
 
     public static final Type ANY_AND_READONLY_TYPE = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_ANY);
     public static final Type ANY_AND_READONLY_OR_ERROR_TYPE;
+
+    private PredefinedTypes() {}
 
     // type anydata =  ()|boolean|int|float|decimal|string|xml|anydata[]|map<anydata>|table<map<anydata>>
     static {
@@ -199,9 +207,6 @@ public class PredefinedTypes {
         TYPE_ANYDATA = getAnydataType(members, TypeConstants.ANYDATA_TNAME, false);
         TYPE_READONLY_ANYDATA = getAnydataType(members, TypeConstants.READONLY_ANYDATA_TNAME, true);
         TYPE_ANYDATA_ARRAY = new BArrayType(TYPE_ANYDATA);
-    }
-
-    private PredefinedTypes() {
     }
 
     private static BAnydataType getAnydataType(List<Type> members, String typeName, boolean readonly) {
@@ -240,7 +245,7 @@ public class PredefinedTypes {
         ArrayList<Type> members = new ArrayList<>();
         members.add(TYPE_XML);
         members.add(TYPE_READONLY);
-        var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
+        Module valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
         BUnionType cloneable = new BUnionType(TypeConstants.CLONEABLE_TNAME, valueModule, members, false);
         cloneable.isCyclic = true;
         MapType internalCloneableMap = new BMapType(TypeConstants.MAP_TNAME, cloneable, valueModule);
@@ -261,7 +266,7 @@ public class PredefinedTypes {
         members.add(TYPE_BOOLEAN);
         members.add(TYPE_STRING);
         members.add(TYPE_DECIMAL);
-        var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
+        Module valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
         BUnionType jsonDecimal = new BUnionType(TypeConstants.JSON_DECIMAL_TNAME, valueModule, members, false);
         jsonDecimal.isCyclic = true;
         MapType internalJsonDecimalMap = new BMapType(TypeConstants.MAP_TNAME, jsonDecimal, valueModule);
@@ -277,7 +282,7 @@ public class PredefinedTypes {
         members.add(TYPE_BOOLEAN);
         members.add(TYPE_STRING);
         members.add(TYPE_FLOAT);
-        var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
+        Module valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
         BUnionType jsonFloat = new BUnionType(TypeConstants.JSON_FLOAT_TNAME, valueModule, members, false);
         jsonFloat.isCyclic = true;
         MapType internalJsonFloatMap = new BMapType(TypeConstants.MAP_TNAME, jsonFloat, valueModule);

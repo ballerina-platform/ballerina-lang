@@ -22,12 +22,15 @@ import testPackageWithModules.anotherutils;
 function testStrandDump() {
 
     worker w11 {
+        anotherutils:println("test w11");
         anotherutils:entryfunc();
     }
 
     worker w22 {
+        anotherutils:println("test w22");
         runtime:sleep(100);
     }
 
+    anotherutils:println("test main");
     foobar();
 }

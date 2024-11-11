@@ -1,0 +1,5 @@
+[package]
+org = "gayaldassanayake"
+name = "depB"
+version = "1.1.0"
+distribution = "2201.5.0"

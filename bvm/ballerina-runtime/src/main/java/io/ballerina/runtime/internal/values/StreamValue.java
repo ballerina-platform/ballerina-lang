@@ -42,11 +42,11 @@ import java.util.UUID;
 public class StreamValue implements RefValue, BStream {
 
     private BTypedesc typedesc;
-    private Type type;
-    private Type constraintType;
-    private Type completionType;
+    private final Type type;
+    private final Type constraintType;
+    private final Type completionType;
     private Type iteratorNextReturnType;
-    private BObject iteratorObj;
+    private final BObject iteratorObj;
 
 
     /**
@@ -75,6 +75,7 @@ public class StreamValue implements RefValue, BStream {
         return streamId;
     }
 
+    @Override
     public BObject getIteratorObj() {
         return iteratorObj;
     }
@@ -91,14 +92,16 @@ public class StreamValue implements RefValue, BStream {
      * {@inheritDoc}
      * @param parent The link to the parent node
      */
+    @Override
     public String stringValue(BLink parent) {
-        return "stream <" + getType().toString() + ">";
+        return getType().toString();
     }
 
     /**
      * {@inheritDoc}
      * @param parent The link to the parent node
      */
+    @Override
     public String expressionStringValue(BLink parent) {
         return stringValue(parent);
     }
@@ -116,6 +119,7 @@ public class StreamValue implements RefValue, BStream {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object frozenCopy(Map<Object, Object> refs) {
         throw new UnsupportedOperationException();
     }
@@ -128,10 +132,12 @@ public class StreamValue implements RefValue, BStream {
         return this.typedesc;
     }
 
+    @Override
     public Type getConstraintType() {
         return constraintType;
     }
 
+    @Override
     public Type getCompletionType() {
         return completionType;
     }

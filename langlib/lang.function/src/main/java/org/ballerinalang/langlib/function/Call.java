@@ -25,37 +25,41 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BTupleType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FUNCTION_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INCOMPATIBLE_ARGUMENTS;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INCOMPATIBLE_ARGUMENTS;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.function:call(function func, any|error... args).
  *
  * @since 2201.2.0
  */
-public class Call {
+public final class Call {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, FUNCTION_LANG_LIB,
                                                                       "1.0.0", "call");
 
+    private Call() {
+    }
+
     public static Object call(BFunctionPointer<Object, Object> func, Object... args) {
-        BFunctionType functionType = (BFunctionType) TypeUtils.getReferredType(func.getType());
+        BFunctionType functionType = (BFunctionType) TypeUtils.getImpliedType(func.getType());
         List<Type> paramTypes = new LinkedList<>();
         List<Type> argTypes = new LinkedList<>();
-        List<Object> argsList = new java.util.ArrayList<>();
+        List<Object> argsList = new ArrayList<>();
 
         if (checkIsValidPositionalArgs(args, argsList, functionType, paramTypes, argTypes) ||
                  checkIsValidRestArgs(args, argsList, functionType, paramTypes, argTypes)) {
@@ -63,7 +67,7 @@ public class Call {
                     functionType.restType != null ? ((BArrayType) functionType.restType).getElementType() : null;
             throw ErrorCreator.createError(
                         getModulePrefixedReason(FUNCTION_LANG_LIB, INCOMPATIBLE_ARGUMENTS),
-                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_ARGUMENTS,
+                        ErrorHelper.getErrorDetails(ErrorCodes.INCOMPATIBLE_ARGUMENTS,
                         removeBracketsFromStringFormatOfTuple(new BTupleType(argTypes)),
                         removeBracketsFromStringFormatOfTuple(new BTupleType(paramTypes, restType, 0, false))));
         }

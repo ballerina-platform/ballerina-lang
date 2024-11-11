@@ -42,8 +42,11 @@ public class ErrorTest {
     }
 
     @Test(description = "Test panic an error", expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: reason foo 1 \\{\"message\":\"int value\"\\}\n\tat errors:foo\\" +
-                    "(errors.bal:91\\)\n\t   errors:testPanic\\(errors.bal:20\\)")
+            expectedExceptionsMessageRegExp = """
+                    error: reason foo 1 \\{"message":"int value"\\}
+                    \tat errors:foo\\\
+                    (errors.bal:91\\)
+                    \t   errors:testPanic\\(errors.bal:20\\)""")
     public void testPanic() {
         BRunUtil.invoke(compileResult, "testPanic", new Object[]{0});
     }
@@ -76,7 +79,7 @@ public class ErrorTest {
         BRunUtil.invoke(compileResult, "testSelfReferencingError");
     }
 
-    @Test(description = "Test runtime out of memory error", expectedExceptions = java.lang.RuntimeException.class,
+    @Test(description = "Test runtime out of memory error", expectedExceptions = RuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina}OutOfMemoryError \\{\"message\":\"Java heap " +
                     "space\"}.*")
     public void testRuntimeOOMError() {

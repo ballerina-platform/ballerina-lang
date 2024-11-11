@@ -88,7 +88,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
 
     private int errorCount;
     private int warnCount;
-    private TreeSet<Diagnostic> diagnostics;
+    private final TreeSet<Diagnostic> diagnostics;
 
     public ModuleContextDataHolder moduleContextDataHolder;
 
@@ -274,7 +274,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     public boolean hasTestablePackage() {
-        return this.testablePkgs.size() > 0;
+        return !this.testablePkgs.isEmpty();
     }
 
     public void addClassDefinition(BLangClassDefinition classDefNode) {

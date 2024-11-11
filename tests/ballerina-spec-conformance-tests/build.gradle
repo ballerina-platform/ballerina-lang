@@ -14,9 +14,11 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 dependencies {
     implementation project(':ballerina-io-internal')
@@ -25,10 +27,10 @@ dependencies {
     testImplementation project(':ballerina-lang:annotations')
     testImplementation project(':testerina:testerina-core')
 
-    testCompile'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-api'
-    testCompile 'org.slf4j:slf4j-jdk14'
-    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testImplementation libs.testng
+    testImplementation libs.slf4j.api
+    testImplementation libs.slf4j.jdk14
+    testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 
     distributionBala project(path: ':ballerina-io-internal', configuration: 'distributionBala')
 }
@@ -49,6 +51,4 @@ test {
 
 configurations {
     testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testImplementation.exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
-    testImplementation.exclude group: 'org.codehaus.woodstox', module: 'stax2-api'
 }

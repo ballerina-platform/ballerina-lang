@@ -22,23 +22,25 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
 /**
  * An abstract implementation of any rename test.
  */
-public class RenameTestUtil {
+public final class RenameTestUtil {
+
+    private RenameTestUtil() {
+    }
 
     public static void alterExpectedUri(JsonObject expected, Path sourceRoot) throws IOException {
         if (expected == null) {
             return;
         }
-        if (expected.getAsJsonObject("changes").size() > 0) {
+        if (!expected.getAsJsonObject("changes").isEmpty()) {
             JsonObject newChanges = new JsonObject();
             for (Map.Entry<String, JsonElement> jEntry : expected.getAsJsonObject("changes").entrySet()) {
                 String[] uriComponents = jEntry.getKey().replace("\"", "").split("/");
-                Path expectedPath = Paths.get(sourceRoot.toUri());
+                Path expectedPath = Path.of(sourceRoot.toUri());
                 for (String uriComponent : uriComponents) {
                     expectedPath = expectedPath.resolve(uriComponent);
                 }
@@ -52,7 +54,7 @@ public class RenameTestUtil {
                 JsonObject object = new JsonObject();
                 String[] uriComponents = entry.getAsJsonObject().getAsJsonObject("textDocument").get("uri")
                         .getAsString().replace("\"", "").split("/");
-                Path expectedPath = Paths.get(sourceRoot.toUri());
+                Path expectedPath = Path.of(sourceRoot.toUri());
                 for (String uriComponent : uriComponents) {
                     expectedPath = expectedPath.resolve(uriComponent);
                 }
@@ -73,7 +75,7 @@ public class RenameTestUtil {
         if (actual == null) {
             return;
         }
-        if (actual.getAsJsonObject("changes").size() != 0) {
+        if (!actual.getAsJsonObject("changes").isEmpty()) {
             for (Map.Entry<String, JsonElement> jEntry : actual.getAsJsonObject("changes").entrySet()) {
                 String uri = jEntry.getKey().replace("\"", "");
                 String canonicalPath = new File(URI.create(uri)).getCanonicalPath();

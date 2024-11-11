@@ -23,7 +23,7 @@ package io.ballerina.runtime.internal.values;
  *
  * @since 2.0
  */
-public class CharIterator implements IteratorValue {
+public class CharIterator implements IteratorValue<String> {
 
     StringValue value;
     long cursor = 0;
@@ -37,7 +37,7 @@ public class CharIterator implements IteratorValue {
     }
 
     @Override
-    public Object next() {
+    public String next() {
         long currentIndex = this.cursor++;
         if (value.isNonBmp) {
             return getNonBmpCharWithSurrogates(currentIndex);
@@ -63,5 +63,4 @@ public class CharIterator implements IteratorValue {
     public boolean hasNext() {
         return cursor < length;
     }
-
 }

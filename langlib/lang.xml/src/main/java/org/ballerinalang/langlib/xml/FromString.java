@@ -33,7 +33,10 @@ import io.ballerina.runtime.internal.TypeConverter;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class FromString {
+public final class FromString {
+
+    private FromString() {
+    }
 
     public static Object fromString(BString string) {
         try {

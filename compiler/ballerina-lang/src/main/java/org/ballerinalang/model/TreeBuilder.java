@@ -17,7 +17,10 @@
  */
 package org.ballerinalang.model;
 
+import org.ballerinalang.model.clauses.CollectClauseNode;
 import org.ballerinalang.model.clauses.DoClauseNode;
+import org.ballerinalang.model.clauses.GroupByClauseNode;
+import org.ballerinalang.model.clauses.GroupingKeyNode;
 import org.ballerinalang.model.clauses.InputClauseNode;
 import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.LimitClauseNode;
@@ -69,6 +72,7 @@ import org.ballerinalang.model.tree.expressions.ArrowFunctionNode;
 import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.CheckPanickedExpressionNode;
 import org.ballerinalang.model.tree.expressions.CheckedExpressionNode;
+import org.ballerinalang.model.tree.expressions.CollectContextInvocationNode;
 import org.ballerinalang.model.tree.expressions.ElvisExpressionNode;
 import org.ballerinalang.model.tree.expressions.ErrorConstructorExpressionNode;
 import org.ballerinalang.model.tree.expressions.ErrorVariableReferenceNode;
@@ -121,6 +125,7 @@ import org.ballerinalang.model.tree.expressions.TypeInitNode;
 import org.ballerinalang.model.tree.expressions.TypeTestExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypedescExpressionNode;
 import org.ballerinalang.model.tree.expressions.UnaryExpressionNode;
+import org.ballerinalang.model.tree.expressions.WorkerSendExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLCommentLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLElementLiteralNode;
@@ -168,7 +173,6 @@ import org.ballerinalang.model.tree.statements.TupleDestructureNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.statements.WhileNode;
 import org.ballerinalang.model.tree.statements.WorkerReceiveNode;
-import org.ballerinalang.model.tree.statements.WorkerSendNode;
 import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -222,8 +226,11 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBinding
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -235,11 +242,13 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -263,6 +272,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -301,6 +311,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -352,7 +363,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -376,7 +386,10 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
  *
  * @since 0.94
  */
-public class TreeBuilder {
+public final class TreeBuilder {
+
+    private TreeBuilder() {
+    }
 
     public static CompilationUnitNode createCompilationUnit() {
         return new BLangCompilationUnit();
@@ -588,6 +601,10 @@ public class TreeBuilder {
     public static InvocationNode createInvocationNode() {
         return new BLangInvocation();
     }
+    
+    public static CollectContextInvocationNode createCollectContextInvocationNode() {
+        return new BLangCollectContextInvocation();
+    }
 
     public static InvocationNode createActionInvocation() {
         return new BLangInvocation.BLangActionInvocation();
@@ -598,7 +615,7 @@ public class TreeBuilder {
     }
 
     public static FieldBasedAccessNode createFieldBasedAccessWithPrefixNode() {
-        return new BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess();
+        return new BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess();
     }
 
     public static TableKeySpecifierNode createTableKeySpecifierNode() {
@@ -902,8 +919,16 @@ public class TreeBuilder {
         return new BLangWorkerReceive();
     }
 
-    public static WorkerSendNode createWorkerSendNode() {
-        return new BLangWorkerSend();
+    public static BLangAlternateWorkerReceive createAlternateWorkerReceiveNode() {
+        return new BLangAlternateWorkerReceive();
+    }
+
+    public static BLangMultipleWorkerReceive createMultipleWorkerReceiveNode() {
+        return new BLangMultipleWorkerReceive();
+    }
+
+    public static WorkerSendExpressionNode createWorkerSendNode() {
+        return new BLangWorkerAsyncSendExpr();
     }
 
     public static ForkJoinNode createForkJoinNode() {
@@ -942,8 +967,20 @@ public class TreeBuilder {
         return new BLangOrderByClause();
     }
 
+    public static GroupByClauseNode createGroupByClauseNode() {
+        return new BLangGroupByClause();
+    }
+
+    public static GroupingKeyNode createGroupingKeyNode() {
+        return new BLangGroupingKey();
+    }
+
     public static SelectClauseNode createSelectClauseNode() {
         return new BLangSelectClause();
+    }
+
+    public static CollectClauseNode createCollectClauseNode() {
+        return new BLangCollectClause();
     }
 
     public static OnConflictClauseNode createOnConflictClauseNode() {

@@ -1,0 +1,41 @@
+type AddressLine record {|
+    string houseNo;
+    string line1;
+    string line2;
+|};
+
+type Location record {|
+    Address address;
+    int postalCode;
+|};
+
+type Address record {|
+    AddressLine addressLine;
+    string city;
+    string country;
+|};
+
+type Employee record {|
+    string name;
+    string empId;
+    string email;
+    AddressLine addressLine;
+|};
+
+type Person record {|
+    string name;
+    string email;
+    Address address;
+|};
+
+type Admission record {
+    string empId;
+    string admissionDate;
+};
+
+function transform(Person person, Admission admission) returns Employee => {
+    name: person.name,
+    empId: admission.empId,
+    email: person.email,
+    addressLine: person.address.addressLine
+};

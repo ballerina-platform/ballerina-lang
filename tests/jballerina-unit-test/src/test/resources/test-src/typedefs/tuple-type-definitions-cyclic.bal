@@ -277,8 +277,8 @@ function testCastingToImmutableCyclicTuple() {
     assert(b is error, true);
     error err = <error> b;
     assert(err.message(), "{ballerina}TypeCastError");
-    assert(<string> checkpanic err.detail()["message"], "incompatible types: '[int,MyCyclicTuple[]]' " +
-    "cannot be cast to '[int,([int,MyCyclicTuple[]][] & readonly)] & readonly'");
+    assert(<string> checkpanic err.detail()["message"], "incompatible types: 'MyCyclicTuple' cannot be " +
+    "cast to '[int,(MyCyclicTuple[] & readonly)] & readonly'");
     MyCyclicTuple c = <[int, MyCyclicTuple[]] & readonly> [1, []];
     MyCyclicTuple & readonly d = <MyCyclicTuple & readonly> c;
     assert(d is [int, MyCyclicTuple[]] & readonly, true);
@@ -341,6 +341,26 @@ function testCloneOnRecursiveTuples() {
     List list_readonly = list.cloneReadOnly();
     test:assertTrue(list_readonly == list);
     test:assertFalse(list_readonly === list);
+}
+
+type Q1 [Q1];
+type Q2 [Q2, Q2];
+type Q3 [Q3, Q3...];
+type Q4 [Q4, Q4, Q4...];
+type Q5 [Q5]|[Q5, Q5]|[Q5...]|[Q5, Q5...]|[Q5, Q5, Q5...];
+type Q6 [Q1];
+type Q7 [Q1, Q2, Q3, Q4, Q5, Q6, Q7];
+type Q8 [Q1?];
+
+function testCyclicTuples() {
+    Q1? q1 = ();
+    Q2? q2 = ();
+    Q3? q3 = ();
+    Q4? q4 = ();
+    Q5? q5 = ();
+    Q6? q6 = ();
+    Q7? q7 = ();
+    Q8 q8 = [];
 }
 
 function assertTrue(anydata actual) {

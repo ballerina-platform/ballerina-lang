@@ -19,8 +19,8 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 
 /**
  * Get the type of a XML as a string. If the xml is singleton, type can be one of 
@@ -34,15 +34,18 @@ import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 //        returnType = {@ReturnType(type = TypeKind.STRING)},
 //        isPublic = true
 //)
-public class GetItemType {
+public final class GetItemType {
 
     private static final String OPERATION = "get xml item type";
+
+    private GetItemType() {
+    }
 
     public static Object getItemType(Strand strand, BXml xml) {
         try {
             return xml.getItemType();
         } catch (Throwable e) {
-            BLangExceptionHelper.handleXMLException(OPERATION, e);
+            ErrorHelper.handleXMLException(OPERATION, e);
         }
 
         return null;

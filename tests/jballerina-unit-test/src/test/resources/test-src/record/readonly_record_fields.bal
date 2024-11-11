@@ -918,6 +918,65 @@ function testDefaultValueFromCETBeingUsedWithReadOnlyFieldsInTheMappingConstruct
     assertFalse(f is record {|readonly string a; readonly string b; readonly string[] c;|});
 }
 
+type R1 record {|
+    never x?;
+|};
+
+type R2 record {
+    never x?;
+};
+
+type R3 record {|
+    never x?;
+    readonly int y;
+|};
+
+type R4 record {|
+    never x?;
+    string y;
+|};
+
+type R5 record {|
+   record {|
+       never a;
+   |} x?;
+|};
+
+type R6 record {|
+    never|never x?;
+|};
+
+function testRecordReadonlynessWithNeverFields() {
+    record {|
+        never x?;
+        never y?;
+    |} c = {};
+    readonly c1 = c;
+    assertTrue(c1 is record {|never x?; never y?;|} & readonly);
+
+    R1 e = {};
+    readonly e1 = e;
+    assertTrue(e1 is record {|never x?;|} & readonly);
+
+    R2 f = {};
+    assertFalse(f is record {|never x?; anydata...;|} & readonly);
+
+    R3 g = {y: 1};
+    readonly g1 = g;
+    assertTrue(g1 is record {|never x?; int y;|} & readonly);
+
+    R4 h = {y: "abc"};
+    assertFalse(h is record {|never x?; string y;|} & readonly);
+
+    R5 i = {};
+    readonly i1 = i;
+    assertTrue(i1 is record {|record {|never a;|} x?;|} & readonly);
+
+    R6 j = {};
+    readonly j1 = j;
+    assertTrue(j1 is record {|never|never x?;|} & readonly);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

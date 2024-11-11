@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,12 +41,12 @@ import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
  * @since 2.0.0
  */
 @CommandLine.Command(name = INIT_COMMAND, description = "This command is deprecated and will be removed in a future " +
-        "version. Use `bal new` instead")
+        "release. Use `bal new .` instead")
 public class InitCommand implements BLauncherCmd {
 
-    private Path userDir;
-    private PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final Path userDir;
+    private final PrintStream errStream;
+    private final boolean exitWhenFinish;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -56,7 +55,7 @@ public class InitCommand implements BLauncherCmd {
     private List<String> argList;
 
     public InitCommand() {
-        this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.userDir = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.errStream = System.err;
         this.exitWhenFinish = true;
         CommandUtil.initJarFs();
@@ -71,8 +70,8 @@ public class InitCommand implements BLauncherCmd {
 
     @Override
     public void execute() {
-        errStream.println("WARNING: This command is deprecated and will be removed in a future version. " +
-                "Use `bal new` instead");
+        errStream.println("WARNING: This command is deprecated and will be removed in a future release. " +
+                "Use `bal new .` instead");
         // If help flag is given print the help message.
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(INIT_COMMAND);
@@ -171,7 +170,7 @@ public class InitCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Initialize a Ballerina project in current directory");
+        out.append(BLauncherCmd.getCommandUsageInfo(INIT_COMMAND));
     }
 
     @Override

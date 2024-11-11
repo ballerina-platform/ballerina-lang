@@ -47,6 +47,7 @@ public class BallerinaDocumentServiceServerCapabilitySetter
         return Optional.of(capabilities);
     }
     
+    @Override
     public String getCapabilityName() {
         return Constants.CAPABILITY_NAME;
     }

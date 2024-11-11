@@ -1,0 +1,8 @@
+[package]
+org = "shammi"
+name = "packageA"
+version = "0.1.0"
+distribution = "2201.5.0-SNAPSHOT"
+
+[build-options]
+observabilityIncluded = true

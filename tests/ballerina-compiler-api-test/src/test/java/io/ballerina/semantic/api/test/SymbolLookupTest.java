@@ -41,13 +41,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.DiagnosticState.REDECLARED;
 import static io.ballerina.compiler.api.symbols.DiagnosticState.UNKNOWN_TYPE;
 import static io.ballerina.compiler.api.symbols.DiagnosticState.VALID;
+import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolNames;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolsInFile;
@@ -149,8 +150,8 @@ public class SymbolLookupTest {
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
 
         List<Symbol> symbolList = model.visibleSymbols(srcFile, LinePosition.from(24, 5)).stream()
-                .filter(s -> s.getModule().get().id().equals(moduleID)).collect(Collectors.toList());
-        List<String> symbolStringList = symbolList.stream().map(this::createSymbolString).collect(Collectors.toList());
+                .filter(s -> s.getModule().get().id().equals(moduleID)).toList();
+        List<String> symbolStringList = symbolList.stream().map(this::createSymbolString).toList();
 
         List<String> expectedNameList = asList("SimpleRecordTYPE_DEFINITION", "func1ANNOTATION", "func1FUNCTION");
 
@@ -393,11 +394,29 @@ public class SymbolLookupTest {
         };
     }
 
+    @Test
+    public void testSymbolLookupInModuleAlias() {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_module_alias_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+        List<Symbol> visibleSymbols = model.visibleSymbols(srcFile, LinePosition.from(23, 23));
+        List<String> expectedModuleSymbols = List.of("obj", "tbl", "regexp", "arr", "foo");
+        int moduleSymbolsCount = 0;
+        for (Symbol visibleSymbol : visibleSymbols) {
+            if (visibleSymbol.kind() == MODULE
+                    && visibleSymbol.getName().isPresent()
+                    && expectedModuleSymbols.contains(visibleSymbol.getName().get())) {
+                moduleSymbolsCount++;
+            }
+        }
+        assertEquals(moduleSymbolsCount, expectedModuleSymbols.size());
+    }
+
     private String createSymbolString(Symbol symbol) {
         return (symbol.getName().isPresent() ? symbol.getName().get() : "") + symbol.kind();
     }
 
     private List<String> concatSymbols(List<String> moduleSymbols, String... symbols) {
-        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).collect(Collectors.toList());
+        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).toList();
     }
 }

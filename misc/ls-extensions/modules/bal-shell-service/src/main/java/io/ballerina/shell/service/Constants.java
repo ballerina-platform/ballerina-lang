@@ -20,6 +20,10 @@ package io.ballerina.shell.service;
  *
  * @since 2201.1.1
  */
-public class Constants {
+public final class Constants {
+
     public static final String CAPABILITY_NAME = "balShell";
+
+    private Constants() {
+    }
 }

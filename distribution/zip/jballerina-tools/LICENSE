@@ -53,14 +53,14 @@ ballerina-time-1.0.0-java.jar                                                   
 ballerina-transactions-0.5.0-java.jar                                                               jar            apache2
 maven-resolver-2.0.0-Preview1.jar                                                                   jar            apache2
 ballerina-lang.value-1.0.0-java.jar                                                                 jar            apache2
-asm-analysis-7.1.jar                                                                                bundle         bsd
+asm-analysis-9.7.jar                                                                                bundle         bsd
 ballerina-lang.boolean-1.0.0.jar                                                                    jar            apache2
 ballerina-transactions-0.5.0.jar                                                                    jar            apache2
 ballerina-runtime-0.5.0-java.jar                                                                    jar            apache2
 ballerina-xmlutils-0.5.0.jar                                                                        jar            apache2
 ballerina-client-generator-2.0.0-Preview1.jar                                                       jar            apache2
 ballerina-lang-2.0.0-Preview1.jar                                                                   jar            apache2
-gson-2.7.jar                                                                                        bundle         apache2
+gson-2.10.1.jar                                                                                        bundle         apache2
 netty-buffer-4.1.39.Final.jar                                                                       bundle         apache2
 docker-extension-2.0.0-Preview1.jar                                                                 jar            apache2
 ballerina-time-1.0.0.jar                                                                            jar            apache2
@@ -81,7 +81,7 @@ ballerina-lang.annotations-1.0.0-java.jar                                       
 ballerina-logging-2.0.0-Preview1.jar                                                                jar            apache2
 jaxen-1.1.6.jar                                                                                     bundle         apache2
 ballerina-http-1.0.0.jar                                                                            jar            apache2
-asm-tree-7.1.jar                                                                                    bundle         bsd
+asm-tree-9.7.jar                                                                                    bundle         bsd
 ballerina-lang.typedesc-1.0.0.jar                                                                   jar            apache2
 commons-collections-3.2.2.jar                                                                       bundle         apache2
 ballerina-java.arrays-0.9.0.jar                                                                     jar            apache2
@@ -117,7 +117,7 @@ ballerina-rabbitmq-1.0.0.jar                                                    
 ballerina-cli-utils-2.0.0-Preview1.jar                                                              jar            apache2
 kafka-clients-2.3.1.jar                                                                             jar            apache2
 ballerina-encoding-1.0.0-java.jar                                                                   jar            apache2
-asm-7.1.jar                                                                                         bundle         bsd
+asm-9.7.jar                                                                                         bundle         bsd
 netty-resolver-4.1.39.Final.jar                                                                     bundle         apache2
 ballerina-lang.int-1.1.0-java.jar                                                                   jar            apache2
 ballerina-lang.stream-0.4.0.jar                                                                     jar            apache2
@@ -187,7 +187,7 @@ netty-transport-4.1.39.Final.jar                                                
 ballerina-stringutils-0.5.0.jar                                                                     jar            apache2
 axiom-impl-1.4.0.jar                                                                                bundle         apache2
 ballerina-file-0.5.0-java.jar                                                                       jar            apache2
-asm-util-7.1.jar                                                                                    bundle         bsd
+asm-util-9.7.jar                                                                                    bundle         bsd
 broker-common-0.970.0.jar                                                                           bundle         apache2
 ballerina-cli-module-2.0.0-Preview1.jar                                                             jar            apache2
 jackson-datatype-jsr310-2.9.5.jar                                                                   bundle         apache2

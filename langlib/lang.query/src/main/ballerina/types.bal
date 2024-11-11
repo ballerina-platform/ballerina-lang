@@ -22,6 +22,7 @@ import ballerina/lang.'xml as lang_xml;
 import ballerina/lang.'stream as lang_stream;
 import ballerina/lang.'table as lang_table;
 import ballerina/lang.'object as lang_object;
+import ballerina/lang.'function;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
@@ -114,6 +115,11 @@ class _StreamPipeline {
         IterHelper itrObj = new (self, self.constraintTd);
         var strm = internal:construct(self.constraintTd, self.completionTd, itrObj);
         return strm;
+    }
+    
+    public function getStreamForOnConflict() returns stream<Type, CompletionType> {
+        OnConflictIterHelper itrObj = new (self, self.constraintTd);
+        return internal:construct(self.constraintTd, self.completionTd, itrObj);
     }
 }
 
@@ -623,6 +629,139 @@ class _OrderByFunction {
     }
 }
 
+type RowGroupedData record {|
+    readonly anydata groupingKey;
+    _Frame[] frames;
+|};
+
+class _GroupByFunction {
+    *_StreamFunction;
+
+    string[] keys;
+    string[] nonGroupingKeys;
+    stream<_Frame>? groupedStream;
+    table<RowGroupedData> key(groupingKey) tbl;
+
+    function init(string[] keys, string[] nonGroupingKeys) {
+        self.keys = keys;
+        self.nonGroupingKeys = nonGroupingKeys;
+        self.groupedStream = ();
+        self.tbl = table [];
+        self.prevFunc = ();
+    }
+
+    public function process() returns _Frame|error? {
+        if (self.groupedStream is ()) {
+            _StreamFunction pf = <_StreamFunction>self.prevFunc;
+            _Frame? f = check pf.process();
+            while f is _Frame {
+                anydata & readonly key = (check self.getKey(f)).cloneReadOnly();
+                if self.tbl.hasKey(key) {
+                    self.tbl.get(key).frames.push(f);
+                } else {
+                    self.tbl.add({groupingKey: key, frames: [f]});
+                }
+                f = check pf.process();
+            }
+            self.groupedStream = self.convertToStream(self.tbl);
+        }
+
+        stream<_Frame> s = <stream<_Frame>>self.groupedStream;
+        record {|_Frame value;|}|error? next = s.next();
+        return next is record {|_Frame value;|} ? next.value : next;
+    }
+
+    public function reset() {
+        self.groupedStream = ();
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+
+    private function getKey(_Frame f) returns anydata|error {
+        anydata[] keys = [];
+        foreach var key in self.keys {
+            keys.push(<anydata> check f[key]);
+        }
+        return keys;
+    }
+
+    private function convertToStream(table<RowGroupedData> key(groupingKey) tbl) returns stream<_Frame> {
+        _Frame[] groupedFrames = [];
+
+        foreach var entry in tbl {
+            _Frame groupedFrame = {};
+            _Frame firstFrame = entry.frames[0];
+            foreach var key in self.keys {
+                groupedFrame[key] = firstFrame[key];
+            }
+            foreach var nonGroupingKey in self.nonGroupingKeys {
+                groupedFrame[nonGroupingKey] = [];
+            }
+            foreach var f in entry.frames {
+                foreach var nonGroupingKey in self.nonGroupingKeys {
+                    any|error sequenceValue = groupedFrame[nonGroupingKey];
+                    if sequenceValue is any {
+                        any|error val = f[nonGroupingKey];
+                        if val !is () {
+                            (<(any|error)[]> sequenceValue).push(val);
+                        }
+                    }
+                }
+            }
+            groupedFrames.push(groupedFrame);
+        }
+        return groupedFrames.toStream();
+    }
+}
+
+class _CollectFunction {
+    *_StreamFunction;
+
+    string[] nonGroupingKeys;
+    function (_Frame _frame) returns _Frame|error? collectFunc;
+
+    function init(string[] nonGroupingKeys, function (_Frame _frame) returns _Frame|error? collectFunc) {
+        self.nonGroupingKeys = nonGroupingKeys;
+        self.collectFunc = collectFunc;
+        self.prevFunc = ();
+    }
+
+    public function process() returns _Frame|error? {
+        _Frame groupedFrame = {};
+        foreach var nonGroupingKey in self.nonGroupingKeys {
+            groupedFrame[nonGroupingKey] = [];
+        }
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
+        _Frame? f = check pf.process();
+        while f is _Frame {
+            foreach var nonGroupingKey in self.nonGroupingKeys {
+                any|error sequenceValue = groupedFrame[nonGroupingKey];
+                if (sequenceValue is any) {
+                    any|error val = f[nonGroupingKey];
+                    if val !is () {
+                        (<(any|error)[]> sequenceValue).push(val);
+                    }
+                }
+            }
+            f = check pf.process();
+        }
+        _Frame|error? cFrame = self.collectFunc(groupedFrame);
+        if (cFrame is error) {
+            return prepareQueryBodyError(cFrame);
+        }
+        return cFrame;
+    }
+
+    public function reset() {
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+}
+
 class _SelectFunction {
     *_StreamFunction;
 
@@ -642,6 +781,40 @@ class _SelectFunction {
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
         function (_Frame _frame) returns _Frame|error? f = self.selectFunc;
+        _Frame|error? pFrame = pf.process();
+        if (pFrame is _Frame) {
+            _Frame|error? cFrame = f(pFrame);
+            if (cFrame is error) {
+                return prepareQueryBodyError(cFrame);
+            }
+            return cFrame;
+        }
+        return pFrame;
+    }
+
+    public function reset() {
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+}
+
+class _OnConflictFunction {
+    *_StreamFunction;
+    
+    # Desugared function to do;
+    # on conflict error("Duplicate key")
+    public function (_Frame _frame) returns _Frame|error? onConflictFunc;
+    
+    function init(function (_Frame _frame) returns _Frame|error? onConflictFunc) {
+        self.onConflictFunc = onConflictFunc;
+        self.prevFunc = ();
+    }
+    
+    public function process() returns _Frame|error? {
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
+        function (_Frame _frame) returns _Frame|error? f = self.onConflictFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
@@ -798,6 +971,28 @@ class IterHelper {
     }
 }
 
+class OnConflictIterHelper {
+    public _StreamPipeline pipeline;
+    public typedesc<Type> outputType;
+
+    function init(_StreamPipeline pipeline, typedesc<Type> outputType) {
+        self.pipeline = pipeline;
+        self.outputType = outputType;
+    }
+
+    public isolated function next() returns record {|Type value;|}|error? {
+        _StreamPipeline p = self.pipeline;
+        _Frame|error? f = p.next();
+        if (f is _Frame) {
+            Type v = <Type>f["$value$"];
+            error? err = <error?>f["$error$"];
+            record {|Type v; error? err;|} value = {v, err};
+            return internal:setNarrowType(self.outputType, {value: value});
+        }
+        return f;
+    }
+}
+
 class _OrderTreeNode {
     any? key = ();
     _Frame[]? frames = ();
@@ -859,39 +1054,14 @@ class _OrderTreeNode {
         return orderedFrames;
     }
 
-    # sorting is not supported for any[], therefore have to resolve runtime type and sort it.
+    # sorting is not supported for any[], thus use the `function:call` method call the sort operation.
     # + return - ordered array.
     function getSortedArray(any[] arr) returns any[] {
-        if (arr.length() > 0) {
-            int i = 0;
-            while (i < arr.length()) {
-                if (arr[i] is ()) {
-                    i += 1;
-                    continue;
-                } else if (arr[i] is boolean) {
-                    boolean?[] res = [];
-                    self.copyArray(arr, res);
-                    return res.sort(self.nodesDirection, (v) => v);
-                } else if (arr[i] is int) {
-                    int?[] res = [];
-                    self.copyArray(arr, res);
-                    return res.sort(self.nodesDirection, (v) => v);
-                } else if (arr[i] is float) {
-                    float?[] res = [];
-                    self.copyArray(arr, res);
-                    return res.sort(self.nodesDirection, (v) => v);
-                } else if (arr[i] is decimal) {
-                    decimal?[] res = [];
-                    self.copyArray(arr, res);
-                    return res.sort(self.nodesDirection, (v) => v);
-                } else if (arr[i] is string) {
-                    string?[] res = [];
-                    self.copyArray(arr, res);
-                    return res.sort(self.nodesDirection, (v) => v);
-                }
-            }
+        any|error res = function:call(lang_array:sort, arr, self.nodesDirection);
+        if res is any[] {
+            return res;
         }
-        return arr;
+        panic error(string `Error while sorting the arr: ${arr.toBalString()}`);
     }
 
     # copy every element of source array into empty target array.

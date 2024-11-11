@@ -88,6 +88,9 @@ public class SymbolsInQueryExprsTest {
                 {46, 22, CONSTANT, "LIMIT"},
                 {50, 75, FUNCTION, "toStream"},
                 {52, 74, VARIABLE, "st"},
+                {55, 23, VARIABLE, "name"},
+                {56, 25, VARIABLE, "age"},
+                {57, 20, VARIABLE, "age"},
         };
     }
 

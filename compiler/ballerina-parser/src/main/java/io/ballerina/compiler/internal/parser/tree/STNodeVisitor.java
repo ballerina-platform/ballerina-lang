@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -525,6 +525,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(selectClauseNode);
     }
 
+    public void visit(STCollectClauseNode collectClauseNode) {
+        visitSyntaxNode(collectClauseNode);
+    }
+
     public void visit(STQueryExpressionNode queryExpressionNode) {
         visitSyntaxNode(queryExpressionNode);
     }
@@ -617,6 +621,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(receiveFieldsNode);
     }
 
+    public void visit(STAlternateReceiveNode alternateReceiveNode) {
+        visitSyntaxNode(alternateReceiveNode);
+    }
+
     public void visit(STRestDescriptorNode restDescriptorNode) {
         visitSyntaxNode(restDescriptorNode);
     }
@@ -705,6 +713,14 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(xMLNamePatternChainingNode);
     }
 
+    public void visit(STXMLStepIndexedExtendNode xMLStepIndexedExtendNode) {
+        visitSyntaxNode(xMLStepIndexedExtendNode);
+    }
+
+    public void visit(STXMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
+        visitSyntaxNode(xMLStepMethodCallExtendNode);
+    }
+
     public void visit(STXMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
         visitSyntaxNode(xMLAtomicNamePatternNode);
     }
@@ -787,6 +803,14 @@ public abstract class STNodeVisitor {
 
     public void visit(STOrderKeyNode orderKeyNode) {
         visitSyntaxNode(orderKeyNode);
+    }
+
+    public void visit(STGroupByClauseNode groupByClauseNode) {
+        visitSyntaxNode(groupByClauseNode);
+    }
+
+    public void visit(STGroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        visitSyntaxNode(groupingKeyVarDeclarationNode);
     }
 
     public void visit(STOnFailClauseNode onFailClauseNode) {
@@ -920,9 +944,13 @@ public abstract class STNodeVisitor {
     public void visit(STReBracedQuantifierNode reBracedQuantifierNode) {
         visitSyntaxNode(reBracedQuantifierNode);
     }
-  
+
     public void visit(STMemberTypeDescriptorNode memberTypeDescriptorNode) {
         visitSyntaxNode(memberTypeDescriptorNode);
+    }
+
+    public void visit(STReceiveFieldNode receiveFieldNode) {
+        visitSyntaxNode(receiveFieldNode);
     }
 
     // STNodeList

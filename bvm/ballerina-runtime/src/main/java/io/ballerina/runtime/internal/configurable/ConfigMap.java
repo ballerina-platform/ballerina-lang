@@ -26,10 +26,11 @@ import java.util.Map;
  *
  * @since 2.0.0
  */
-public class ConfigMap {
+public final class ConfigMap {
+
     private static Map<VariableKey, ConfigValue> configurableMap = new HashMap<>();
 
-    private ConfigMap(){}
+    private ConfigMap() {}
 
     public static Object get(VariableKey key) {
         return configurableMap.get(key).getValue();

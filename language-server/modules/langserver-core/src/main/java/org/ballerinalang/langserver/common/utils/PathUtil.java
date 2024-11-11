@@ -40,7 +40,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -50,8 +49,11 @@ import java.util.Optional;
  *
  * @since 2201.1.1
  */
-public class PathUtil {
-    
+public final class PathUtil {
+
+    private PathUtil() {
+    }
+
     /**
      * Get the path from given string URI. Even if the given URI's scheme is expr or bala,
      * we convert it to file scheme and provide a valid Path.
@@ -68,7 +70,7 @@ public class PathUtil {
             }
             URI converted = new URI(scheme, uri.getUserInfo(), uri.getHost(), uri.getPort(),
                     uri.getPath(), uri.getQuery(), uri.getFragment());
-            return Optional.of(Paths.get(converted));
+            return Optional.of(Path.of(converted));
         } catch (URISyntaxException e) {
             return Optional.empty();
         }
@@ -83,7 +85,7 @@ public class PathUtil {
      */
     public static boolean isWriteProtectedPath(Path filePath) {
         Path homeReposPath = RepoUtils.createAndGetHomeReposPath();
-        Path ballerinaHome = CommonUtil.BALLERINA_HOME != null ? Paths.get(CommonUtil.BALLERINA_HOME) : null;
+        Path ballerinaHome = CommonUtil.BALLERINA_HOME != null ? Path.of(CommonUtil.BALLERINA_HOME) : null;
 
         return filePath.startsWith(homeReposPath) || ballerinaHome != null && filePath.startsWith(ballerinaHome);
     }

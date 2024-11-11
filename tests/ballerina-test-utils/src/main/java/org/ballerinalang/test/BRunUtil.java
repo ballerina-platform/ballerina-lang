@@ -25,11 +25,11 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -41,6 +41,7 @@ import io.ballerina.runtime.internal.values.NonBmpStringValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.XmlValue;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -61,6 +62,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
@@ -75,9 +77,9 @@ import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_MAJOR_VERSION;
  *
  * @since 2.0.0
  */
-public class BRunUtil {
+public final class BRunUtil {
 
-    private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
+    private static final Boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase(Locale.getDefault())
             .contains("win");
 
     /**
@@ -186,12 +188,12 @@ public class BRunUtil {
                     throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
                 } catch (InvocationTargetException e) {
                     Throwable t = e.getTargetException();
-                    if (t instanceof BLangRuntimeException) {
+                    if (t instanceof BLangTestException) {
                         throw ErrorCreator.createError(StringUtils.fromString(t.getMessage()));
                     }
-                    if (t instanceof io.ballerina.runtime.api.values.BError) {
+                    if (t instanceof BError bError) {
                         throw ErrorCreator.createError(StringUtils.fromString(
-                                "error: " + ((io.ballerina.runtime.api.values.BError) t).getPrintableStackTrace()));
+                                "error: " + bError.getPrintableStackTrace()));
                     }
                     if (t instanceof StackOverflowError) {
                         throw ErrorCreator.createError(StringUtils.fromString("error: " +
@@ -208,7 +210,7 @@ public class BRunUtil {
                     new StrandMetadata(ANON_ORG, DOT, DEFAULT_MAJOR_VERSION.value, functionName));
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
-                throw new BLangRuntimeException(futureValue.panic.getMessage(),
+                throw new BLangTestException(futureValue.panic.getMessage(),
                         futureValue.panic);
             }
             jvmResult = futureValue.result;
@@ -242,11 +244,21 @@ public class BRunUtil {
         if (!balFileName.endsWith(".bal")) {
             return balFileName;
         }
-
         return balFileName.substring(0, balFileName.length() - 4);
     }
 
     private static BIRNode.BIRFunction getInvokedFunction(CompileResult compileResult, String functionName) {
+        checkAndNotifyCompilationErrors(compileResult);
+        BIRNode.BIRPackage birPackage = compileResult.defaultModuleBIR();
+        for (BIRNode.BIRFunction function : birPackage.functions) {
+            if (functionName.equals(function.name.value)) {
+                return function;
+            }
+        }
+        throw new RuntimeException("Function '" + functionName + "' is not defined");
+    }
+
+    private static void checkAndNotifyCompilationErrors(CompileResult compileResult) {
         if (compileResult.getErrorCount() > 0) {
             StringJoiner stringJoiner = new StringJoiner("\n", "\n", "");
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
@@ -254,12 +266,6 @@ public class BRunUtil {
             }
             throw new IllegalStateException("There were compilation errors: " + stringJoiner);
         }
-
-        BIRNode.BIRPackage birPackage = compileResult.defaultModuleBIR();
-        return birPackage.functions.stream()
-                .filter(function -> functionName.equals(function.name.value))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Function '" + functionName + "' is not defined"));
     }
 
     /**
@@ -296,6 +302,7 @@ public class BRunUtil {
     }
 
     public static ExitDetails run(CompileResult compileResult, List<String> javaOpts, String... args) {
+        checkAndNotifyCompilationErrors(compileResult);
         PackageManifest packageManifest = compileResult.packageManifest();
         String initClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
                 packageManifest.name().toString(),
@@ -317,7 +324,8 @@ public class BRunUtil {
 
         String classPathString = System.getProperty("java.class.path") + classPath;
         // Create an argument file for Windows to mitigate the long classpath issue.
-        if (isWindows) {
+        if (IS_WINDOWS) {
+            classPathString = classPathString.replace(" ", "%20");
             String classPathArgs = "classPathArgs";
             try {
                 File classPathArgsFile = File.createTempFile(classPathArgs, ".txt");
@@ -364,32 +372,52 @@ public class BRunUtil {
 
         Class<?> initClazz = compileResult.getClassLoader().loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(false);
-        TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
+        ConfigDetails configurationDetails = LaunchUtils.getConfigurationDetails();
         directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit",
-                new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
+                new Class[]{Map.class, String[].class, Path[].class, String.class},
+                new Object[]{new HashMap<>(), new String[]{},
                         configurationDetails.paths, configurationDetails.configContent});
-        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
-        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleStart"), scheduler);
+        runOnSchedule(initClazz, "$moduleInit", scheduler);
+        runOnSchedule(initClazz, "$moduleStart", scheduler);
 //        if (temp) {
 //            scheduler.immortal = true;
 //            new Thread(scheduler::start).start();
 //        }
     }
 
-    private static void directRun(Class<?> initClazz, String functionName, Class[] paramTypes, Object[] args) {
+    private static void directRun(Class<?> initClazz, String functionName, Class<?>[] paramTypes, Object[] args) {
         String funcName = JvmCodeGenUtil.cleanupFunctionName(functionName);
         String errorMsg = "Failed to invoke the function '%s' due to %s";
         Object response;
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
             response = method.invoke(null, args);
-            if (response instanceof Throwable) {
-                throw new BLangRuntimeException(String.format(errorMsg, funcName, response),
-                        (Throwable) response);
+            if (response instanceof Throwable throwable) {
+                throw new BLangTestException(String.format(errorMsg, funcName, response), throwable);
             }
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new BLangRuntimeException(String.format(errorMsg, funcName, e.getMessage()), e);
+            throw new BLangTestException(String.format(errorMsg, funcName, e.getMessage()), e);
         }
+    }
+
+    public static void runOnSchedule(CompileResult compileResult, String functionName, Scheduler scheduler) {
+        BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
+        PackageManifest packageManifest = compileResult.packageManifest();
+        String funcClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
+                packageManifest.name().toString(),
+                packageManifest.version().toString(),
+                getClassName(function.pos.lineRange().fileName()));
+        Class<?> funcClass = null;
+        try {
+            funcClass = compileResult.getClassLoader().loadClass(funcClassName);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
+        }
+        runOnSchedule(funcClass, functionName, scheduler);
+    }
+
+    private static void runOnSchedule(Class<?> initClazz, String name, Scheduler scheduler) {
+        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, name), scheduler);
     }
 
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler) {
@@ -402,22 +430,23 @@ public class BRunUtil {
                     return method.invoke(null, objects[0]);
                 } catch (InvocationTargetException e) {
                     Throwable targetException = e.getTargetException();
-                    if (targetException instanceof RuntimeException) {
-                        throw (RuntimeException) targetException;
+                    if (targetException instanceof RuntimeException runtimeException) {
+                        throw runtimeException;
                     } else {
                         throw new RuntimeException(targetException);
                     }
                 } catch (IllegalAccessException e) {
-                    throw new BLangRuntimeException("Method has private access", e);
+                    throw new BLangTestException("Method has private access", e);
                 }
             };
             final FutureValue out = scheduler
                     .schedule(new Object[1], func, null, null, null, PredefinedTypes.TYPE_ANY, null, null);
+            Scheduler.setDaemonStrand(out.strand);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
-                if (t instanceof ErrorValue) {
-                    throw new BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
+                if (t instanceof ErrorValue errorValue) {
+                    throw new BLangTestException("error: " + errorValue.getPrintableStackTrace());
                 }
                 throw (RuntimeException) t;
             }

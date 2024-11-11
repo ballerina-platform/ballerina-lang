@@ -127,9 +127,9 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BJsonType.class);
 
         Assert.assertEquals((mapValue0).size(), 4);
-        Assert.assertEquals(((LinkedHashMap) mapValue0).get(StringUtils.fromString("school")).toString(),
+        Assert.assertEquals(((LinkedHashMap<?, ?>) mapValue0).get(StringUtils.fromString("school")).toString(),
                 "Hindu College");
-        Assert.assertEquals(getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("school"))).getClass(),
+        Assert.assertEquals(getType(((LinkedHashMap<?, ?>) mapValue0).get(StringUtils.fromString("school"))).getClass(),
                 BStringType.class);
     }
 
@@ -487,10 +487,10 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
                 ((BMap<String, BString>) ((BError) results).getDetails()).get(StringUtils.fromString("message"))
-                        .toString(),
-                "'Employee' value cannot be converted to 'Teacher': " +
-                        "\n\t\tmissing required field 'school' of type 'string' in record 'Teacher'" +
-                        "\n\t\tmissing required field 'age' of type 'int' in record 'Teacher'");
+                        .toString(), """
+                        'Employee' value cannot be converted to 'Teacher':\s
+                        \t\tmissing required field 'school' of type 'string' in record 'Teacher'
+                        \t\tmissing required field 'age' of type 'int' in record 'Teacher'""");
     }
 
     @Test

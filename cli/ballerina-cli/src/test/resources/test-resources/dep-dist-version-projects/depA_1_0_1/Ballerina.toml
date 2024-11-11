@@ -1,0 +1,5 @@
+[package]
+org = "gayaldassanayake"
+name = "depA"
+version = "1.0.1"
+distribution = "2201.5.0"

@@ -21,6 +21,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildTool;
+import io.ballerina.projects.BuildToolResolution;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -40,6 +42,7 @@ import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
+import io.ballerina.projects.internal.model.ToolDependency;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -48,7 +51,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -113,7 +115,8 @@ public class BuildProject extends Project {
      */
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath,
                                     BuildOptions buildOptions) {
-        PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath);
+        PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath,
+                buildOptions.disableSyntaxTree());
         BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath);
 
         BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions);
@@ -142,14 +145,14 @@ public class BuildProject extends Project {
         if (currentPackage().moduleIds().contains(moduleId)) {
             Optional<Path> generatedModulePath = Optional.of(sourceRoot.
                     resolve(ProjectConstants.GENERATED_MODULES_ROOT));
-            if (currentPackage().getDefaultModule().moduleId() == moduleId && generatedModulePath.isPresent() &&
-                    Files.isDirectory(generatedModulePath.get())) {
+            if (currentPackage().getDefaultModule().moduleId() == moduleId
+                    && Files.isDirectory(generatedModulePath.get())) {
                 return generatedModulePath;
             }
             String moduleName = currentPackage().module(moduleId).moduleName().moduleNamePart();
-            if (generatedModulePath.isPresent() && Files.isDirectory(generatedModulePath.get())) {
+            if (Files.isDirectory(generatedModulePath.get())) {
                 Optional<Path> generatedModuleDirPath = Optional.of(generatedModulePath.get().resolve(moduleName));
-                if (generatedModuleDirPath.isPresent() && Files.isDirectory(generatedModuleDirPath.get())) {
+                if (Files.isDirectory(generatedModuleDirPath.get())) {
                     return Optional.of(generatedModulePath.get().resolve(moduleName));
                 }
             }
@@ -250,7 +253,7 @@ public class BuildProject extends Project {
                 }
             }
         }
-        throw new ProjectException("provided path does not belong to the project");
+        throw new ProjectException("'" + file.toString() + "' does not belong to the current project");
     }
 
     private boolean isFilePathInProject(Path filepath) {
@@ -262,6 +265,7 @@ public class BuildProject extends Project {
         return true;
     }
 
+    @Override
     public void save() {
         Path buildFilePath = this.targetDir().resolve(BUILD_FILE);
         boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
@@ -308,12 +312,18 @@ public class BuildProject extends Project {
                 }
                 return o1.getOrg().compareTo(o2.getOrg());
             };
+            Comparator<ToolDependency> toolComparator = Comparator.comparing(ToolDependency::getId);
 
+            // Fetch and sort package dependencies
             List<Dependency> pkgDependencies = getPackageDependencies();
             pkgDependencies.sort(comparator);
 
+            // Fetch and sort tool dependencies
+            List<ToolDependency> toolDependencies = getToolDependencies();
+            toolDependencies.sort(toolComparator);
+
             Path dependenciesTomlFile = currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML);
-            String dependenciesContent = getDependenciesTomlContent(pkgDependencies);
+            String dependenciesContent = getDependenciesTomlContent(pkgDependencies, toolDependencies);
             if (!pkgDependencies.isEmpty()) {
                 // write content to Dependencies.toml file
                 createIfNotExists(dependenciesTomlFile);
@@ -415,6 +425,20 @@ public class BuildProject extends Project {
         return dependencies;
     }
 
+    private List<ToolDependency> getToolDependencies() {
+        List<ToolDependency> toolDependencies = new ArrayList<>();
+        BuildToolResolution buildToolResolution = this.currentPackage().getBuildToolResolution();
+        if (buildToolResolution != null) {
+            List<BuildTool> tools = buildToolResolution.getResolvedTools();
+            for (BuildTool tool : tools) {
+                ToolDependency toolDependency = new ToolDependency(
+                        tool.id().value(), tool.org().value(), tool.name().value(), tool.version().toString());
+                toolDependencies.add(toolDependency);
+            }
+        }
+        return toolDependencies;
+    }
+
     private List<Dependency> getTransitiveDependencies(DependencyGraph<ResolvedPackageDependency> dependencyGraph,
                                                        ResolvedPackageDependency directDependency) {
         List<Dependency> dependencyList = new ArrayList<>();
@@ -498,7 +522,20 @@ public class BuildProject extends Project {
         if (this.buildOptions().getTargetPath() == null) {
             return this.sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
         } else {
-            return Paths.get(this.buildOptions().getTargetPath());
+            return Path.of(this.buildOptions().getTargetPath());
         }
+    }
+
+    @Override
+    public Path generatedResourcesDir() {
+        Path generatedResourcesPath = targetDir().resolve(ProjectConstants.RESOURCE_DIR_NAME);
+        if (!Files.exists(generatedResourcesPath)) {
+            try {
+                Files.createDirectories(generatedResourcesPath);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return generatedResourcesPath;
     }
 }

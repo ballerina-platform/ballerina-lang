@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
  */
 public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
+    @Override
     @BeforeClass(alwaysRun = true)
     public void setup() throws BallerinaTestException {
         prepareForEvaluation();
@@ -53,7 +54,7 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
         debugTestRunner.assertExpression(context, "-5.0e34f", "-5.0E34", "float");
         debugTestRunner.assertExpression(context, "-30.0d", "-30.0", "decimal");
         debugTestRunner.assertExpression(context, "-40.0D", "-40.0", "decimal");
-        debugTestRunner.assertExpression(context, "-5.0e34d", "-5.0E+34", "decimal");
+        debugTestRunner.assertExpression(context, "-5.0e+34d", "-5.0E+34", "decimal");
         // Todo - add following tests after the implementation
         //  - hex float
         //  - string literal
@@ -62,13 +63,13 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
 
     @Override
     @Test(enabled = false)
-    public void listConstructorEvaluationTest() throws BallerinaTestException {
+    public void listConstructorEvaluationTest() {
         // Todo
     }
 
     @Override
     @Test(enabled = false)
-    public void mappingConstructorEvaluationTest() throws BallerinaTestException {
+    public void mappingConstructorEvaluationTest() {
         // Todo
     }
 
@@ -181,6 +182,8 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
         debugTestRunner.assertExpression(context, NEVER_VAR, "XMLSequence (size = 0)", "xml");
         // json variable test
         debugTestRunner.assertExpression(context, JSON_VAR, "json (size = 3)", "json");
+        // regex variable test
+        debugTestRunner.assertExpression(context, REGEX_VAR, "re `[a-zA-Z0-9]`", "regexp");
         // anonymous object variable test (AnonPerson object)
         debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_ /<>:@[`{~π_ƮέŞŢ", "object");
         // service object variable test
@@ -797,7 +800,7 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
 
     @Override
     @Test(enabled = false)
-    public void checkingExpressionEvaluationTest() throws BallerinaTestException {
+    public void checkingExpressionEvaluationTest() {
         // Todo
     }
 
@@ -918,6 +921,7 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
                 "168", "int");
     }
 
+    @Override
     @AfterClass(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

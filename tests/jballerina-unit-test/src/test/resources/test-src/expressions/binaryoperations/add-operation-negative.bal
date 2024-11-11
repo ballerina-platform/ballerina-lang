@@ -151,3 +151,55 @@ function testAdditiveExprWithUnionOperandBelongingToSingleBasicTypeNegative() {
     _ = f + a; // OK
     _ = f + e;
 }
+
+function testMissingBinaryOp() {
+    _ = "a""b";
+    _ = bar()();
+    _ = foo(("a""b") + 1);
+    _ = foo(("a""b") + "c");
+
+    int x = 2;
+    int y = 3;
+    _ = x y;
+    _ = 1.5"b";
+    _ = true y;
+    _ = "a"x;
+}
+
+function foo(string s) returns string {
+    return s;
+}
+
+function bar() {}
+
+function testXmlStringAdditionNegative() {
+    int i = 1;
+    xml x1 = xml `<a>a</a>`;
+    xml _ = x1 + i;
+
+    xml:Text x2 = xml `text`;
+    xml:Text _ = x2 + i;
+
+    string|int s1 = "string";
+    xml:Text _ = x2 + s1;
+
+    xml<xml:Element|xml:Text> x3 = xml `<a/>text`;
+    xml<xml:Element> _ = x3 + "a";
+
+    xml<xml:Element|xml:Comment|xml:ProcessingInstruction> x4 = xml `<a/><?data?><!--comment-->`;
+    xml<xml:Element|xml:Comment|xml:ProcessingInstruction> _ = x4 + "abc";
+
+    string s2 = "<a>abcd</a>";
+    xml<xml:Element> _ = xml `<a/>` + s2;
+
+    xml<xml:Element|xml:Comment> x5 = xml `<foo/>`;
+    "foo"|"bar" s3 = "foo";
+    xml<xml:Element|xml:Comment> _ = x5 + s3;
+
+    xml<never> x6 = xml ``;
+    xml<never> _ = x6 + s3;
+
+    xml<xml:Element|xml:Text> x7 = xml `<foo/>`;
+    ("foo"|"bar") s4 = "foo";
+    xml<xml:Element|xml:Comment> _ = x7 + s4;
+}

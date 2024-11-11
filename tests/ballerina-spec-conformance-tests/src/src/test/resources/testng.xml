@@ -17,11 +17,11 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-spec-conformance-test-suite">
     <!-- Ballerina Language Specification Test Cases. -->
-    <test name="ballerina-spec-conformance-test" preserve-order="true" parallel="false">
+    <test name="ballerina-spec-conformance-test" preserve-order="true">
         <classes>
             <!-- <class name="org.ballerinalang.test.spec.SpecConformanceTests"/> -->
         </classes>

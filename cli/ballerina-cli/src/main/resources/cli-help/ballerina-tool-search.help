@@ -1,0 +1,16 @@
+NAME
+       ballerina-tool-search - Search the Ballerina Central for tools
+
+SYNOPSIS
+       bal tool search [<tool-id>|<text>]
+
+OPTIONS
+       -h, --help
+           Print the usage details of tool search command.
+
+DESCRIPTION
+       Search the Ballerina Central for tools using a tool-id.
+
+EXAMPLES
+       Search by tool id.
+           $ bal tool search health

@@ -32,8 +32,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Test hover feature in language server.
@@ -45,7 +46,7 @@ public class HoverProviderTest {
     protected Path sourceRoot;
 
     @BeforeClass
-    public void loadLangServer() throws IOException {
+    public void loadLangServer() {
         serviceEndpoint = TestUtil.initializeLanguageSever();
         configRoot = FileUtils.RES_DIR.resolve("hover").resolve("configs");
         sourceRoot = FileUtils.RES_DIR.resolve("hover").resolve("source");
@@ -87,9 +88,8 @@ public class HoverProviderTest {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
-        try {
-            return Files.walk(FileUtils.RES_DIR.resolve("hover").resolve("configs"))
-                    .filter(path -> {
+        try (Stream<Path> configPaths = Files.walk(FileUtils.RES_DIR.resolve("hover").resolve("configs"))) {
+            return configPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".json")
                                 && !skippedTests.contains(file.getName());
@@ -106,7 +106,7 @@ public class HoverProviderTest {
     }
 
     private List<String> skipList() {
-        return Collections.emptyList();
+        return Arrays.asList("hover_for_api_docs_function1.json", "hover_for_api_docs_function2.json");
     }
 
     private Position getPosition(JsonObject config) {

@@ -52,8 +52,8 @@ import static io.ballerina.runtime.api.TypeTags.SERVICE_TAG;
 public class BObjectType extends BStructureType implements ObjectType {
 
     private MethodType[] methodTypes;
-    public MethodType initializer;
-    public MethodType generatedInitializer;
+    private MethodType initMethod;
+    public MethodType generatedInitMethod;
 
     private final boolean readonly;
     protected IntersectionType immutableType;
@@ -115,6 +115,15 @@ public class BObjectType extends BStructureType implements ObjectType {
     }
 
     @Override
+    public MethodType getInitMethod() {
+        return initMethod;
+    }
+
+    public MethodType getGeneratedInitMethod() {
+        return generatedInitMethod;
+    }
+
+    @Override
     public boolean isIsolated() {
         return SymbolFlags.isFlagOn(getFlags(), SymbolFlags.ISOLATED);
     }
@@ -136,16 +145,17 @@ public class BObjectType extends BStructureType implements ObjectType {
         throw ErrorCreator.createError(StringUtils.fromString("No such method: " + methodName));
     }
 
+    @Override
     public void setMethods(MethodType[] methodTypes) {
         this.methodTypes = methodTypes;
     }
 
-    public void setInitializer(BMethodType initializer) {
-        this.initializer = initializer;
+    public void setInitMethod(MethodType initMethod) {
+        this.initMethod = initMethod;
     }
 
-    public void setGeneratedInitializer(BMethodType generatedInitializer) {
-        this.generatedInitializer = generatedInitializer;
+    public void setGeneratedInitMethod(BMethodType generatedInitMethod) {
+        this.generatedInitMethod = generatedInitMethod;
     }
 
     public void computeStringRepresentation() {

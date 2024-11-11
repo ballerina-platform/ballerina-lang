@@ -18,11 +18,11 @@
  */
 package org.ballerinalang.test.expressions.checkpanicexpr;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,14 +41,14 @@ public class CheckPanicExpressionOperatorTest {
         negative = BCompileUtil.compile("test-src/expressions/checkpanicexpr/check_panic_expr_negative.bal");
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
+    @Test(expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: Generic Error.*")
     public void testSafeAssignmentBasics1() {
         Object[] arg = {(1)};
         Object returns = BRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
+    @Test(expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: Generic Error \\{\"fatal\":true," +
                     "\"message\":\"Something Went Wrong.*")
     public void testSafeAssignmentBasics2() {
@@ -56,7 +56,7 @@ public class CheckPanicExpressionOperatorTest {
         BRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
+    @Test(expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: Generic Error.*")
     public void testSafeAssignmentBasics3() {
         Object[] arg = {(3)};
@@ -70,7 +70,7 @@ public class CheckPanicExpressionOperatorTest {
         Assert.assertEquals(returns, 2.2);
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
+    @Test(expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
                     "\\{\"message\":\"array index out of range: index: 4, size: 2.*")
     public void testSafeAssignmentBasics5() {
@@ -78,7 +78,7 @@ public class CheckPanicExpressionOperatorTest {
         BRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
+    @Test(expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: My Error \\{\"code\":12.*")
     public void testSafeAssignmentBasics6() {
         Object[] arg = {(6)};

@@ -109,8 +109,8 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         TokenCounter plusOrAsteriskCounter = new TokenCounter(plusOrAsteriskTokenPredicate);
         TokenCounter minusOrSlashCounter = new TokenCounter(minusOrSlashTokenPredicate);
 
-        Assert.assertEquals(plusOrAsteriskCounter.transform(newRoot), new Integer(0));
-        Assert.assertEquals(minusOrSlashCounter.transform(newRoot), new Integer(4));
+        Assert.assertEquals(plusOrAsteriskCounter.transform(newRoot), Integer.valueOf(0));
+        Assert.assertEquals(minusOrSlashCounter.transform(newRoot), Integer.valueOf(4));
     }
 
     @Test
@@ -223,18 +223,13 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
 
             Token newOperator;
             Token oldOperator = binaryExprNode.operator();
-            switch (oldOperator.kind()) {
-                case PLUS_TOKEN:
-                    newOperator = NodeFactory.createToken(SyntaxKind.MINUS_TOKEN, oldOperator.leadingMinutiae(),
-                            oldOperator.trailingMinutiae());
-                    break;
-                case ASTERISK_TOKEN:
-                    newOperator = NodeFactory.createToken(SyntaxKind.SLASH_TOKEN, oldOperator.leadingMinutiae(),
-                            oldOperator.trailingMinutiae());
-                    break;
-                default:
-                    newOperator = oldOperator;
-            }
+            newOperator = switch (oldOperator.kind()) {
+                case PLUS_TOKEN -> NodeFactory.createToken(SyntaxKind.MINUS_TOKEN, oldOperator.leadingMinutiae(),
+                        oldOperator.trailingMinutiae());
+                case ASTERISK_TOKEN -> NodeFactory.createToken(SyntaxKind.SLASH_TOKEN, oldOperator.leadingMinutiae(),
+                        oldOperator.trailingMinutiae());
+                default -> oldOperator;
+            };
 
             return binaryExprNode.modify().withOperator(newOperator).withLhsExpr(newLHSExpr).withRhsExpr(newRHSExpr)
                     .apply();

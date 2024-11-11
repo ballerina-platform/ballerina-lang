@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -30,10 +31,11 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
+import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.types.BXmlType;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -45,6 +47,7 @@ import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_EMPTY_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.internal.TypeChecker.isEqual;
 
 /**
  * <p>
@@ -68,8 +71,12 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         this.type = PredefinedTypes.TYPE_XML_NEVER;
     }
 
-    public XmlSequence(List<BXml> children) {
-        this.children = children;
+    public XmlSequence(List<BXml> values) {
+        if (values.isEmpty()) {
+            this.children = values;
+            return;
+        }
+        setSequenceMembersConcatenatingAdjacentTextItems(values);
     }
 
     public XmlSequence(BXml child) {
@@ -79,6 +86,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         }
     }
 
+    @Override
     public List<BXml> getChildrenList() {
         return children;
     }
@@ -211,7 +219,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
      */
     @Override
     public XmlValue elements() {
-        List elementsSeq = new ArrayList<XmlValue>();
+        List<BXml> elementsSeq = new ArrayList<>();
         for (BXml child : children) {
             if (child.getNodeType() == XmlNodeType.ELEMENT) {
                 elementsSeq.add(child);
@@ -301,11 +309,8 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         // If sequence contains children of same type
         // the sequence type should be changed to that corresponding xml type
         boolean isSameType = true;
-        Type tempExprType = null;
 
-        if (!children.isEmpty()) {
-            tempExprType = children.get(0).getType();
-        }
+        Type tempExprType = children.get(0).getType();
 
         for (int i = 1; i < children.size(); i++) {
              if (tempExprType != children.get(i).getType()) {
@@ -317,7 +322,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             this.type = getSequenceType(tempExprType);
             return;
         }
-        this.type = PredefinedTypes.TYPE_XML;;
+        this.type = PredefinedTypes.TYPE_XML;
     }
 
     /**
@@ -416,6 +421,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         return new XmlSequence(descendants);
     }
 
+    @Override
     public XmlValue descendants() {
         List<BXml> descendants = new ArrayList<>();
         if (children.size() == 1) {
@@ -521,8 +527,8 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             }
             return (XmlValue) this.children.get(index);
         } catch (Exception e) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
-                                           StringUtils.fromString(e.getMessage()));
+            throw ErrorHelper.getRuntimeException(
+                    ErrorCodes.XML_SEQUENCE_INDEX_OUT_OF_RANGE, this.children.size(), index);
         }
     }
 
@@ -608,9 +614,9 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     }
 
     @Override
-    public IteratorValue getIterator() {
-        return new IteratorValue() {
-            Iterator<BXml> iterator = children.iterator();
+    public IteratorValue<BXml> getIterator() {
+        return new IteratorValue<>() {
+            final Iterator<BXml> iterator = children.iterator();
 
             @Override
             public boolean hasNext() {
@@ -618,24 +624,42 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             }
 
             @Override
-            public Object next() {
+            public BXml next() {
                 return iterator.next();
             }
         };
     }
 
-    private Type getSequenceType(Type tempExprType) {
-        switch (tempExprType.getTag()) {
-            case TypeTags.XML_ELEMENT_TAG:
-                return new BXmlType(PredefinedTypes.TYPE_ELEMENT, false);
-            case TypeTags.XML_COMMENT_TAG:
-                return new BXmlType(PredefinedTypes.TYPE_COMMENT, false);
-            case TypeTags.XML_PI_TAG:
-                return new BXmlType(PredefinedTypes.TYPE_PROCESSING_INSTRUCTION, false);
-            default:
-                // Since 'xml:Text is same as xml<'xml:Text>
-                return PredefinedTypes.TYPE_TEXT;
+    private void setSequenceMembersConcatenatingAdjacentTextItems(List<BXml> values) {
+        ArrayList<BXml> members = new ArrayList<>();
+        boolean isPreviousValueText = false;
+        StringBuilder text = new StringBuilder();
+        for (BXml value : values) {
+            if (value.getNodeType() == XmlNodeType.TEXT) {
+                isPreviousValueText = true;
+                text.append(value.getTextValue());
+                continue;
+            }
+            if (isPreviousValueText) {
+                members.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
+                isPreviousValueText = false;
+                text.setLength(0);
+            }
+            members.add(value);
         }
+        if (!text.isEmpty()) {
+            members.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
+        }
+        this.children = members;
+    }
+
+    private Type getSequenceType(Type tempExprType) {
+        return switch (tempExprType.getTag()) {
+            case TypeTags.XML_ELEMENT_TAG -> PredefinedTypes.TYPE_XML_ELEMENT_SEQUENCE;
+            case TypeTags.XML_COMMENT_TAG -> PredefinedTypes.TYPE_XML_COMMENT_SEQUENCE;
+            case TypeTags.XML_PI_TAG -> PredefinedTypes.TYPE_XML_PI_SEQUENCE;
+            default -> PredefinedTypes.TYPE_XML_TEXT_SEQUENCE;
+        };
     }
 
     private void initializeIteratorNextReturnType() {
@@ -644,8 +668,8 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             childrenType = children.get(0).getType();
         } else {
             Set<Type> types = new HashSet<>();
-            for (int i = 0; i < children.size(); i++) {
-                types.add(children.get(i).getType());
+            for (BXml child : children) {
+                types.add(child.getType());
             }
             childrenType = new BUnionType(new ArrayList<>(types));
         }
@@ -658,5 +682,35 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             initializeIteratorNextReturnType();
         }
         return iteratorNextReturnType;
+    }
+
+    /**
+     * Deep equality check for XML Sequence.
+     *
+     * @param o The XML Sequence to be compared
+     * @param visitedValues Visited values in previous recursive calls
+     * @return True if the XML Sequences are equal; False otherwise
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        if (o instanceof XmlSequence rhsXMLSequence) {
+            return isXMLSequenceChildrenEqual(this.getChildrenList(), rhsXMLSequence.getChildrenList());
+        }
+        if (this.isSingleton() && (o instanceof XmlValue)) {
+            return isEqual(this.getChildrenList().get(0), o);
+        }
+        return this.getChildrenList().isEmpty() && TypeUtils.getType(o) == PredefinedTypes.TYPE_XML_NEVER;
+    }
+
+    private static boolean isXMLSequenceChildrenEqual(List<BXml> lhsList, List<BXml> rhsList) {
+        if (lhsList.size() != rhsList.size()) {
+            return false;
+        }
+        for (int i = 0; i < lhsList.size(); i++) {
+            if (!isEqual(lhsList.get(i), rhsList.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 }

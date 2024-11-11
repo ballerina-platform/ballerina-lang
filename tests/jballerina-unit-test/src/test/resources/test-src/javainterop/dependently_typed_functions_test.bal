@@ -31,6 +31,28 @@ type Employee record {
 
 Person expPerson = {name: "John Doe", age: 20};
 
+type Foo int|float;
+
+type Foo2 Foo;
+
+type AnnotationRecord record {|
+    int minValue;
+    int maxValue;
+|};
+
+annotation AnnotationRecord BarAnnotation on type;
+
+@BarAnnotation {
+    minValue: 18,
+    maxValue: 36
+}
+type Foo3 int|float;
+
+@BarAnnotation {
+    minValue: 12,
+    maxValue: 24
+}
+type Foo4 Foo;
 
 // Test functions
 
@@ -49,6 +71,26 @@ function testSimpleTypes() {
 
     boolean b = getValue(boolean);
     assert(true, b);
+}
+
+function testReferredTypes() {
+    map<any> annotationMapValue = getAnnotationValue(Foo);
+    AnnotationRecord? 'annotation = <AnnotationRecord?> annotationMapValue["BarAnnotation"];
+    assert('annotation, ());
+
+    map<any> annotationMapValue2 = getAnnotationValue(Foo2);
+    AnnotationRecord? annotation2 = <AnnotationRecord?> annotationMapValue2["BarAnnotation"];
+    assert(annotation2, ());
+
+    map<any> annotationMapValue3 = getAnnotationValue(Foo3);
+    AnnotationRecord annotation3 = <AnnotationRecord> annotationMapValue3["BarAnnotation"];
+    assert(annotation3, {minValue: 18, maxValue: 36});
+    assertTrue(getAnnotationValue2(1, Foo3, "BarAnnotation", 18, 36) is anydata);
+
+    map<any> annotationMapValue4 = getAnnotationValue(Foo4);
+    AnnotationRecord annotation4 = <AnnotationRecord> annotationMapValue4["BarAnnotation"];
+    assert(annotation4, <AnnotationRecord> {minValue: 12, maxValue: 24});
+    assertTrue(getAnnotationValue2(1, Foo4, "BarAnnotation", 12, 24) is anydata);
 }
 
 function testRecordVarRef() {
@@ -241,6 +283,19 @@ function getValue(typedesc<int|float|decimal|string|boolean> td) returns td = @j
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
+function getAnnotationValue(typedesc<Foo|Foo2> y) returns map<any> =
+    @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getAnnotationValue"
+    } external;
+
+function getAnnotationValue2(anydata value, typedesc<anydata> td = <>, string annotationName = "",
+         int min = 0, int max = 0) returns td|error =
+    @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getAnnotationValue2"
+    } external;
+
 function getRecord(typedesc<anydata> td = Person) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getRecord",
@@ -266,6 +321,12 @@ function getVariedUnion(int x, typedesc<int|string> td1, typedesc<record{ string
 } external;
 
 function getArray(typedesc<anydata> td) returns td[] = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    name: "getArray",
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+} external;
+
+function getArrayInferred(typedesc<anydata> td = <>) returns td[] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getArray",
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
@@ -918,6 +979,11 @@ function testDependentlyTypedResourceMethods() {
     assert(0, checkpanic c);
 }
 
+function testDependentlyTypedFunctionWithTypeReferenceType() returns error? {
+    IntArray arr = check getArrayInferred();
+    assert(<int[]>[10, 20, 30], arr);
+}
+
 // Util functions
 function assert(anydata expected, anydata actual) {
     if (expected != actual) {
@@ -937,4 +1003,8 @@ function assertSame(any|error expected, any|error actual) {
                                 " of type [" + actT.toString() + "]";
         panic error("{AssertionError}", message = detail);
     }
+}
+
+function assertTrue(anydata actual) {
+    assert(actual, true);
 }

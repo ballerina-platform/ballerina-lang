@@ -240,7 +240,7 @@ public class BallerinaShell {
      *
      * @return Command attached handler.
      */
-    protected CommandHandler createCommandHandler() {
+    private CommandHandler createCommandHandler() {
         CommandHandler commandHandler = new CommandHandler();
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_EXIT), new ExitCommand(this));
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_HELP), new HelpCommand(this));
@@ -299,7 +299,7 @@ public class BallerinaShell {
             terminal.info(module);
         }
 
-        if (requiredModules.size() > 0) {
+        if (!requiredModules.isEmpty()) {
             terminal.info("\nFollowing undefined modules can be imported.");
             int moduleCount = 1;
             for (String module : requiredModules) {
@@ -323,7 +323,7 @@ public class BallerinaShell {
                     }
                 }
 
-                if (missingModules.size() > 0) {
+                if (!missingModules.isEmpty()) {
                     terminal.error("\nFound following missing module(s).");
                     for (String missingModule : missingModules) {
                         terminal.error(missingModule);
@@ -378,7 +378,7 @@ public class BallerinaShell {
     private void executeChanges(String source, Collection<Diagnostic> diagnostics) {
         ModuleImporter moduleImporter = new ModuleImporter();
         List<String> modules = moduleImporter.undefinedModules(diagnostics);
-        if (modules.size() > 0) {
+        if (!modules.isEmpty()) {
             importModules(moduleImporter, modules);
             try {
                 terminal.println("");

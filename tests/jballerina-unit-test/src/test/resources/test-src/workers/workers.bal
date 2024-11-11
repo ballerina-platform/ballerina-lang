@@ -652,6 +652,33 @@ function testWorkerInteractionsAfterCheck() {
     validateError(e, "Error");
 }
 
+public function testWorkerWithQuery() {
+    worker A {
+        int? i = 3;
+        i is int ? from var _ in [1, 2]
+                where i + 2 == 5
+                select 2 : [2] -> function;
+    }
+    int[] x = <- A;
+    int sum = 0;
+    foreach var item in x {
+        sum += item;
+    }
+    assertEquals(4, sum);
+}
+
+function testBindingPatternVariablesInWorker() {
+    record {|string name;|} rec = {name: "workerName"};
+    [string] [colon] = [";"];
+    var {name} = rec;
+
+    worker A returns string {
+        return name + colon;
+    }
+    string result = wait A;
+    assertEquals("workerName;", result);
+}
+
 public function sleep(int millis) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
@@ -664,4 +691,12 @@ function validateError(any|error value, string message) {
         panic error("Expected error message: " + message + ", found: " + value.message());
     }
     panic error("Expected error, found: " + (typeof value).toString());
+}
+
+function assertEquals(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error(string `expected [${expected.toString()}], found [${actual.toString()}]`);
 }

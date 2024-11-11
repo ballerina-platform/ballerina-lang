@@ -33,8 +33,9 @@ public class SingleFileRunInTerminalTest extends BaseTestCase {
     DebugTestRunner debugTestRunner;
     boolean didRunInIntegratedTerminal;
 
+    @Override
     @BeforeMethod(alwaysRun = true)
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         String testFolderName = "basic-project";
         String testSingleFileName = "hello_world.bal";
         debugTestRunner = new DebugTestRunner(testFolderName, testSingleFileName, false);
@@ -96,6 +97,7 @@ public class SingleFileRunInTerminalTest extends BaseTestCase {
         Assert.assertFalse(didRunInIntegratedTerminal);
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

@@ -1,0 +1,60 @@
+{
+  "range": {
+    "start": {
+      "line": 35,
+      "character": 20
+    },
+    "end": {
+      "line": 35,
+      "character": 22
+    }
+  },
+  "source": "extract_to_transform_function17.bal",
+  "description": "Extract to transform function for an optional field",
+  "expected": [
+    {
+      "title": "Extract to transform function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 36,
+              "character": 2
+            },
+            "end": {
+              "line": 36,
+              "character": 2
+            }
+          },
+          "newText": "\n\nfunction transform1(Address address) returns Location => {\n    country: \"\",\n    city: \"\"\n};\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 35,
+              "character": 14
+            },
+            "end": {
+              "line": 35,
+              "character": 28
+            }
+          },
+          "newText": "transform1(person.address)"
+        }
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_transform_function17.bal",
+          {
+            "line": 35,
+            "character": 14
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

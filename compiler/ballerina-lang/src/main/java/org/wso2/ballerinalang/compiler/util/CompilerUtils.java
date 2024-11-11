@@ -19,8 +19,20 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+
+import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 
@@ -29,10 +41,13 @@ import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
  *
  * @since 0.965.0
  */
-public class CompilerUtils {
+public final class CompilerUtils {
 
     private static final String DISTRIBUTED_TRANSACTIONS = "distributed.transactions";
-    
+
+    private CompilerUtils() {
+    }
+
     public static boolean isDistributedTransactionsEnabled() {
         boolean distributedTransactionEnabled = true; //TODO:Default will be true. Read from new VMOptions
         String distributedTxEnabledProp = System.getProperty(DISTRIBUTED_TRANSACTIONS);
@@ -69,4 +84,26 @@ public class CompilerUtils {
         return org + packageID.name + Names.VERSION_SEPARATOR.value + getMajorVersion(packageID.version.value);
     }
 
+    public static boolean isInParameterList(BSymbol symbol, List<BLangSimpleVariable> params) {
+        for (BLangSimpleVariable param : params) {
+            if (param.symbol == symbol) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isAssignmentToOptionalField(BLangAssignment assignNode) {
+        BLangNode varRef = assignNode.varRef;
+        if (varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            return false;
+        }
+        BLangFieldBasedAccess fieldAccessNode = (BLangFieldBasedAccess) varRef;
+        BType targetType = Types.getImpliedType(fieldAccessNode.expr.getBType());
+        if (targetType.tag != TypeTags.RECORD) {
+            return false;
+        }
+        BField field = ((BRecordType) targetType).fields.get(fieldAccessNode.field.value);
+        return field != null && Symbols.isOptional(field.symbol);
+    }
 }

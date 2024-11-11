@@ -7,30 +7,38 @@ Running Tests
 
 	invalid-data-provider-test3.bal
 
+	testInvalidTupleDataProvider:0 has failed.
+
+
 		[fail] testInvalidTupleDataProvider#0:
 
 		    [fail data provider for the function testInvalidTupleDataProvider]
-			error {ballerina/test:0}ExecutionError ("error("{ballerina/lang.function}IncompatibleArguments",message="arguments of incompatible types: argument list '(string,int)' cannot be passed to function expecting parameter list '(string,string)'")
+			 error {ballerina/test:0}ExecutionError ("error("{ballerina/lang.function}IncompatibleArguments",message="arguments of incompatible types: argument list '(string,int)' cannot be passed to function expecting parameter list '(string,string)'")
 				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
-				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 343
-				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 140
-				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 127
-				callableName: executeTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 87
-				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 62
-				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 46
-				callableName: __execute__  fileName: invalid-data-provider-test3.bal lineNumber: 35
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 129
+				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 114
+				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 105
+				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 63
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 28
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__  fileName: invalid-data-provider-test3.bal lineNumber: 36
 			",functionName="testInvalidTupleDataProvider")
-				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 353
-				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 140
-				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 127
-				callableName: executeTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 87
-				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 62
-				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 46
-				callableName: __execute__  fileName: invalid-data-provider-test3.bal lineNumber: 35
+				callableName: handleTestFuncOutput moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 326
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 130
+				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 114
+				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 105
+				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 63
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 28
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__  fileName: invalid-data-provider-test3.bal lineNumber: 36
 			
 
 
 		0 passing
 		1 failing
 		0 skipped
+
+		Test execution time :*****s
 error: there are test failures

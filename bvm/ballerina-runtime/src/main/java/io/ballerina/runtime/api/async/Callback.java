@@ -30,7 +30,7 @@ public interface Callback {
     /**
      * This should be called when you want to notify that your operation
      * is done successfully.
-     * @param result
+     * @param result the result to be reported when the operation succeeds
      */
     void notifySuccess(Object result);
 
@@ -38,7 +38,7 @@ public interface Callback {
      * This should be called to notify the listener that your operation
      * failed with a specific error.
      *
-     * @param error the error to be reported when the operation failed
+     * @param error the error to be reported when the operation fails
      */
     void notifyFailure(BError error);
 

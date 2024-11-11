@@ -22,9 +22,10 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
 /**
  * {@code TransactionLocalContext} stores the transaction related information.
@@ -33,22 +34,22 @@ import java.util.Stack;
  */
 public class TransactionLocalContext {
 
-    private String globalTransactionId;
-    private String url;
-    private String protocol;
+    private final String globalTransactionId;
+    private final String url;
+    private final String protocol;
 
     private int transactionLevel;
-    private Map<String, Integer> allowedTransactionRetryCounts;
-    private Map<String, Integer> currentTransactionRetryCounts;
+    private final Map<String, Integer> allowedTransactionRetryCounts;
+    private final Map<String, Integer> currentTransactionRetryCounts;
     private Map<String, BallerinaTransactionContext> transactionContextStore;
-    private Stack<String> transactionBlockIdStack;
-    private Stack<TransactionFailure> transactionFailure;
-    private static final TransactionResourceManager transactionResourceManager =
+    private final Deque<String> transactionBlockIdStack;
+    private final Deque<TransactionFailure> transactionFailure;
+    private static final TransactionResourceManager TRANSACTION_RESOURCE_MANAGER =
             TransactionResourceManager.getInstance();
     private boolean isResourceParticipant;
     private Object rollbackOnlyError;
     private Object transactionData;
-    private BArray transactionId;
+    private final BArray transactionId;
     private boolean isTransactional;
 
     private TransactionLocalContext(String globalTransactionId, String url, String protocol, Object infoRecord) {
@@ -59,13 +60,19 @@ public class TransactionLocalContext {
         this.allowedTransactionRetryCounts = new HashMap<>();
         this.currentTransactionRetryCounts = new HashMap<>();
         this.transactionContextStore = new HashMap<>();
-        this.transactionBlockIdStack = new Stack<>();
-        this.transactionFailure = new Stack<>();
+        this.transactionBlockIdStack = new ArrayDeque<>();
+        this.transactionFailure = new ArrayDeque<>();
         this.rollbackOnlyError = null;
         this.isTransactional = true;
         this.transactionId = ValueCreator.createArrayValue(globalTransactionId.getBytes());
-        transactionResourceManager.transactionInfoMap.put(ByteBuffer.wrap(transactionId.getBytes().clone()),
-                infoRecord);
+        validateAndPutTransactionInfo(ByteBuffer.wrap(transactionId.getBytes().clone()), infoRecord);
+    }
+
+    private void validateAndPutTransactionInfo(ByteBuffer transactionIdBytes, Object infoRecord) {
+        if (infoRecord == null) {
+            return;
+        }
+        TRANSACTION_RESOURCE_MANAGER.transactionInfoMap.put(transactionIdBytes, infoRecord);
     }
 
     public static TransactionLocalContext createTransactionParticipantLocalCtx(String globalTransactionId,
@@ -98,7 +105,7 @@ public class TransactionLocalContext {
     }
 
     public boolean hasTransactionBlock() {
-        return !transactionBlockIdStack.empty();
+        return !transactionBlockIdStack.isEmpty();
     }
 
     public String getURL() {
@@ -153,7 +160,8 @@ public class TransactionLocalContext {
 
     public void notifyAbortAndClearTransaction(String transactionBlockId) {
         transactionContextStore.clear();
-        transactionResourceManager.notifyAbort(globalTransactionId, transactionBlockId);
+        TRANSACTION_RESOURCE_MANAGER.endXATransaction(globalTransactionId, transactionBlockId, true);
+        TRANSACTION_RESOURCE_MANAGER.notifyAbort(globalTransactionId, transactionBlockId);
     }
 
     public void setRollbackOnlyError(Object error) {
@@ -173,12 +181,12 @@ public class TransactionLocalContext {
     }
 
     public void removeTransactionInfo() {
-        transactionResourceManager.transactionInfoMap.remove(ByteBuffer.wrap(transactionId.getBytes()));
+        TRANSACTION_RESOURCE_MANAGER.transactionInfoMap.remove(ByteBuffer.wrap(transactionId.getBytes()));
     }
 
     public void notifyLocalParticipantFailure() {
         String blockId = transactionBlockIdStack.peek();
-        transactionResourceManager.notifyLocalParticipantFailure(globalTransactionId, blockId);
+        TRANSACTION_RESOURCE_MANAGER.notifyLocalParticipantFailure(globalTransactionId, blockId);
     }
 
     public void notifyLocalRemoteParticipantFailure() {
@@ -204,7 +212,7 @@ public class TransactionLocalContext {
     }
 
     public TransactionFailure getAndClearFailure() {
-        if (transactionFailure.empty()) {
+        if (transactionFailure.isEmpty()) {
             return null;
         }
         TransactionFailure failure = transactionFailure.pop();
@@ -213,7 +221,7 @@ public class TransactionLocalContext {
     }
 
     public TransactionFailure getFailure() {
-        if (transactionFailure.empty()) {
+        if (transactionFailure.isEmpty()) {
             return null;
         }
         return transactionFailure.peek();
@@ -228,7 +236,7 @@ public class TransactionLocalContext {
     }
 
     public Object getInfoRecord() {
-        return transactionResourceManager.transactionInfoMap.get(ByteBuffer.wrap(transactionId.getBytes()));
+        return TRANSACTION_RESOURCE_MANAGER.getTransactionRecord(transactionId);
     }
 
     public boolean isTransactional() {

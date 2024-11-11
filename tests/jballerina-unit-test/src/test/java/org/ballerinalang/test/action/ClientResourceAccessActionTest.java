@@ -58,7 +58,8 @@ public class ClientResourceAccessActionTest {
                 {"testResourceAccessOfAnObjectConstructedViaObjectCons"},
                 {"testResourceAccessContainingSpecialChars"},
                 {"testClosuresFromPathParams"},
-                {"testAccessingResourceWithIncludedRecordParam"}
+                {"testAccessingResourceWithIncludedRecordParam"},
+                {"testAccessingResourceWithEscapedChars"}
         };
     }
 
@@ -73,4 +74,6 @@ public class ClientResourceAccessActionTest {
         
         BRunUtil.invoke(result, "testAccessingDeprecatedResource");
     }
+
+
 }

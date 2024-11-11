@@ -81,6 +81,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return types;
     }
 
+    @Override
     public Type getReturnParameterType() {
         return retType;
     }
@@ -114,14 +115,12 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof BFunctionType)) {
+        if (!(o instanceof BFunctionType that)) {
             return false;
         }
         if (!super.equals(o)) {
             return false;
         }
-
-        BFunctionType that = (BFunctionType) o;
 
         boolean isSourceAnyFunction = SymbolFlags.isFlagOn(this.flags, SymbolFlags.ANY_FUNCTION);
         boolean isTargetAnyFunction = SymbolFlags.isFlagOn(that.flags, SymbolFlags.ANY_FUNCTION);
@@ -179,9 +178,9 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
             if (parameters != null) {
                 addParamListToString(parameters, stringRep);
             }
-            if (restType instanceof BArrayType) {
+            if (restType instanceof BArrayType bArrayType) {
                 stringRep.append(",");
-                stringRep.append(((BArrayType) restType).getElementType().toString());
+                stringRep.append(bArrayType.getElementType().toString());
                 stringRep.append("...");
             }
             stringRep.append(")");
@@ -202,6 +201,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return true;
     }
 
+    @Override
     public Type getRestType() {
         return restType;
     }
@@ -211,10 +211,12 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return parameters;
     }
 
+    @Override
     public Type getReturnType() {
         return retType;
     }
 
+    @Override
     public long getFlags() {
         return flags;
     }

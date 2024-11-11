@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -59,6 +60,8 @@ public class OptionalFieldAccessTest {
                 "access", 58, 14);
         validateError(negativeResult, i++, "invalid operation: type 'map<string>?' does not support optional field " +
                 "access", 61, 19);
+        validateError(negativeResult, i++, "invalid operation: type '(map<xml>|map<json>)' does not support" +
+                " optional field access", 65, 20);
         validateError(negativeResult, i++, "incompatible types: expected 'json', found '(json|error)'", 71, 15);
         validateError(negativeResult, i++, "invalid operation: type 'Qux' does not support optional field access", 87
                 , 9);
@@ -107,7 +110,10 @@ public class OptionalFieldAccessTest {
                 { "testUnavailableFinalAccessInNestedAccess" },
                 { "testAvailableFinalAccessInNestedAccess" },
                 { "testUnavailableIntermediateAccessInNestedAccess" },
-                { "testNilValuedFinalAccessInNestedAccess" }
+                { "testNilValuedFinalAccessInNestedAccess" },
+                { "testSubtypeAssignment" },
+                { "testUnionAssignment" },
+                { "testNullableAssignment" }
         };
     }
 
@@ -164,8 +170,37 @@ public class OptionalFieldAccessTest {
         BRunUtil.invoke(result, "testOptionalFieldAccessOnMethodCall");
     }
 
+    @Test(dataProvider = "optionalFieldRemovalFunctions")
+    public void testOptionalFieldRemoval(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "optionalFieldRemovalFunctions")
+    public Object[][] optionalFieldRemovalFunctions() {
+        return new Object[][]{
+                {"testOptionalFieldRemovalBasicType"},
+                {"testOptionalFieldRemovalIndirect"},
+                {"testOptionalFieldRemovalComplex"}
+        };
+    }
+
     @Test
     public void testNestedOptionalFieldAccessOnIntersectionTypes() {
         BRunUtil.invoke(result, "testNestedOptionalFieldAccessOnIntersectionTypes");
+    }
+
+    @Test
+    public void testOptionalFieldAccessOnRecordsWithOnlyOptionalFields() {
+        Object return1 = BRunUtil.invoke(result, "getOptionalField1");
+        Assert.assertNull(return1);
+
+        Object return2 = BRunUtil.invoke(result, "getOptionalField2");
+        Assert.assertEquals(return2, 5L);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
     }
 }

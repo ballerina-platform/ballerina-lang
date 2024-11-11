@@ -60,9 +60,13 @@ public class ExistingProjectTests extends AbstractPackageResolutionTest {
                 // 14. package contains 2 dependencies one of which is in Ballerina toml file thats not local
                 {"suite-existing_project", "case-0014", true},
                 {"suite-existing_project", "case-0014", false},
-                // 15. package updates transitive dependency from the Ballerian toml file that is not local
+                // 15. package updates transitive dependency from the Ballerina toml file that is not local
                 {"suite-existing_project", "case-0015", true},
-                {"suite-existing_project", "case-0015", false}
+                {"suite-existing_project", "case-0015", false},
+                // 16. package name is hierarchical, there are new versions in the central,
+                // and the older version is specified in Ballerina.toml and Dependencies.toml
+                {"suite-existing_project", "case-0016", true},
+                {"suite-existing_project", "case-0016", false}
         };
     }
 }

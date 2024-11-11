@@ -16,11 +16,11 @@
  */
 package org.ballerinalang.test.types.stream;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -254,7 +254,7 @@ public class BStreamValueTest {
                 "of 'object { public isolated function next() returns record {| int value; |}?; }', but found " +
                 "'string'", 381, 31);
         BAssertUtil.validateError(negativeResult, i++, "type 'readonly' not allowed here; " +
-                        "expected an 'error' or a subtype of 'error'.", 387, 31);
+                        "expected an 'error' or a subtype of 'error'", 387, 31);
         BAssertUtil.validateError(negativeResult, i++, "no stream constructor provided. " +
                 "expected a subtype of 'object { public isolated function next() " +
                 "returns (record {| int value; |}|error); }'", 389, 28);
@@ -271,7 +271,7 @@ public class BStreamValueTest {
     }
 
     @Test(description = "Check if completion type is checked at runtime",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types: 'stream<Foo>' cannot be "
                             + "cast to 'stream<Foo,error>'.*")
@@ -280,7 +280,7 @@ public class BStreamValueTest {
     }
 
     @Test(description = "Check if stream without params contextually expected type",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina}TypeCastError " +
                             "\\{\"message\":\"incompatible types: 'stream<\\(any\\|error\\),error\\?>' cannot be cast" +

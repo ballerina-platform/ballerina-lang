@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.commons.DocumentSymbolContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
+import org.ballerinalang.langserver.commons.InlayHintContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
@@ -53,7 +54,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class ContextBuilder {
+public final class ContextBuilder {
 
     private ContextBuilder() {
     }
@@ -389,6 +390,17 @@ public class ContextBuilder {
                                                                    LanguageServerContext serverContext,
                                                                    CancelChecker cancelChecker) {
         return new SemanticTokensContextImpl.SemanticTokensContextBuilder(serverContext)
+                .withFileUri(uri)
+                .withWorkspaceManager(workspaceManager)
+                .withCancelChecker(cancelChecker)
+                .build();
+    }
+
+    public static InlayHintContext buildInlayHintContext(String uri,
+                                                         WorkspaceManager workspaceManager,
+                                                         LanguageServerContext serverContext,
+                                                         CancelChecker cancelChecker) {
+        return new InlayHintContextImpl.InlayHintContextBuilder(serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withCancelChecker(cancelChecker)

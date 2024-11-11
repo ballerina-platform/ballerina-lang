@@ -6,6 +6,12 @@ WARNING [tests/new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a'
 Running Tests with Coverage
 
 	dataproviders
+
+	intArrayDataProviderTest:0 has failed.
+
+
+	intArrayDataProviderTest:1 has failed.
+
 		[pass] intArrayDataProviderTest#2
 
 		[fail] intArrayDataProviderTest#0:
@@ -17,7 +23,7 @@ Running Tests with Coverage
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 				callableName: intArrayDataProviderTest moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 66
-				callableName: intArrayDataProviderTest$lambda5$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 8
+				callableName: intArrayDataProviderTest$lambda5$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 9
 			
 
 		[fail] intArrayDataProviderTest#1:
@@ -29,7 +35,7 @@ Running Tests with Coverage
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 				callableName: intArrayDataProviderTest moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 66
-				callableName: intArrayDataProviderTest$lambda5$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 8
+				callableName: intArrayDataProviderTest$lambda5$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 9
 			
 
 
@@ -37,10 +43,14 @@ Running Tests with Coverage
 		2 failing
 		0 skipped
 
+		Test execution time :*****s
+
 	dataproviders.module1
 
 
 		No tests found
+
+		Test execution time :*****s
 
 Generating Test Report
 	data-providers/target/report/test_results.json

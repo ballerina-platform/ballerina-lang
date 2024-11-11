@@ -97,3 +97,32 @@ function testCreateElement() {
     xml:Element r3 = 'xml:createElement("elem", attributes3, "<ele>hello</ele>");
     xml:Element r4 = 'xml:createElement(xml `<ele/>`, attributes3, children1);
 }
+
+function testLangLibCallsWithUnionsNegative() {
+    xml<xml:Comment>|xml<xml:Element>|int s1 = <xml<xml:Element>> xml `<foo/><bar>val</bar>`;
+    int _ = s1.length();
+    _ = xml:length(s1);
+
+    xml<xml:Comment>|xml<xml:ProcessingInstruction> s2 = <xml<xml:Comment>> xml `<!--foo--><!--bar-->`;
+    object {
+        public isolated function next() returns record {|
+            xml:Comment value;
+        |}?;
+    } _ = s2.iterator();
+
+    xml:Comment _ = s2.get(1);
+    xml:ProcessingInstruction _ = xml:get(s2, 1);
+
+    xml:Comment|xml:Element v = xml `<foo/>`;
+    xml:Comment _ = v.get(0);
+    xml:Element _ = xml:get(v, 0);
+
+    xml:Element|xml<never> v1 = xml `<baz/>`;
+    xml<never> _ = v1.get(0);
+
+    xml:Element|xml:Element v2 = xml `<books><book>Hamlet</book><book>Macbeth</book></books>`;
+    xml:Element _ = v2.getChildren();
+
+    xml<xml:Comment>|xml<xml:Comment> s3 = <xml<xml:Comment>> xml `<!--foo--><!--bar-->`;
+    xml:ProcessingInstruction _ = s3.get(0);
+}

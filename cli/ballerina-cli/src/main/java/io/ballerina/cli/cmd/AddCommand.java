@@ -28,7 +28,6 @@ import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Locale;
@@ -41,12 +40,13 @@ import static io.ballerina.projects.util.ProjectUtils.guessModuleName;
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = ADD_COMMAND, description = "Add a new module to Ballerina project")
+@CommandLine.Command(name = ADD_COMMAND, description = "Add a new Ballerina module to the current package")
 public class AddCommand implements BLauncherCmd {
 
-    private Path userDir;
-    private PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final Path userDir;
+    private final PrintStream errStream;
+    private final boolean exitWhenFinish;
+    private static final String TEST_FILE_SUFFIX = "_test" + ProjectConstants.BLANG_SOURCE_EXT;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -58,7 +58,7 @@ public class AddCommand implements BLauncherCmd {
     private String template = "lib";
 
     public AddCommand() {
-        this.userDir = Paths.get(System.getProperty("user.dir"));
+        this.userDir = Path.of(System.getProperty("user.dir"));
         this.errStream = System.err;
         this.exitWhenFinish = true;
         CommandUtil.initJarFs();
@@ -208,7 +208,7 @@ public class AddCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Add a new Ballerina module");
+        out.append(BLauncherCmd.getCommandUsageInfo(ADD_COMMAND));
     }
 
     @Override
@@ -229,8 +229,29 @@ public class AddCommand implements BLauncherCmd {
         // -- mymodule/
         // --- main.bal       <- Contains default main method.
         CommandUtil.applyTemplate(modulePath, template, false);
-        Path source = modulePath.resolve(template.toLowerCase(Locale.getDefault()) + ".bal");
-        Files.move(source, source.resolveSibling(guessModuleName(moduleName) + ".bal"),
+        modifyTestFileName(projectPath, moduleName, template);
+    }
+
+    /**
+     * Modify the file names to have the module name in them.
+     *
+     * @param projectPath project path
+     * @param moduleName  module name
+     * @param template   template
+     * @throws IOException if an error occurs
+     */
+    private void modifyTestFileName(Path projectPath, String moduleName, String template) throws IOException {
+        String validModuleName = guessModuleName(moduleName);
+        String templateLowerCase = template.toLowerCase(Locale.getDefault());
+        Path modulePath = projectPath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
+        Path source = modulePath.resolve(templateLowerCase + ProjectConstants.BLANG_SOURCE_EXT);
+        Files.move(source,
+                source.resolveSibling(validModuleName + ProjectConstants.BLANG_SOURCE_EXT),
+                StandardCopyOption.REPLACE_EXISTING);
+        Path testSource = modulePath.resolve(ProjectConstants.TEST_DIR_NAME)
+                .resolve(templateLowerCase + TEST_FILE_SUFFIX);
+        Files.move(testSource,
+                testSource.resolveSibling(validModuleName + TEST_FILE_SUFFIX),
                 StandardCopyOption.REPLACE_EXISTING);
     }
 }

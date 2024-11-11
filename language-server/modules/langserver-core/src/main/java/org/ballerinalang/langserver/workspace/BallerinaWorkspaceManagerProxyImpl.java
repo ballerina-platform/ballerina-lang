@@ -79,15 +79,14 @@ public class BallerinaWorkspaceManagerProxyImpl implements BallerinaWorkspaceMan
         if (path.isEmpty()) {
             return;
         }
-        if (this.isExprScheme(uri)) {
-            this.clonedWorkspaceManager.didChange(path.get(), params);
-            return;
+        if (!this.isExprScheme(uri)) {
+            this.baseWorkspaceManager.didChange(path.get(), params);
         }
-        this.baseWorkspaceManager.didChange(path.get(), params);
+        this.clonedWorkspaceManager.didChange(path.get(), params);
     }
 
     @Override
-    public void didClose(DidCloseTextDocumentParams params) throws WorkspaceDocumentException {
+    public void didClose(DidCloseTextDocumentParams params) {
         String uri = params.getTextDocument().getUri();
         Optional<Path> path = PathUtil.getPathFromURI(uri);
         if (path.isEmpty()) {
@@ -106,7 +105,7 @@ public class BallerinaWorkspaceManagerProxyImpl implements BallerinaWorkspaceMan
         }
 
         public void open(Project project) {
-            this.sourceRootToProject.put(project.sourceRoot(), ProjectPair.from(project.duplicate()));
+            this.sourceRootToProject.put(project.sourceRoot(), ProjectContext.from(project.duplicate()));
         }
 
         @Override

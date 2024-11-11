@@ -63,8 +63,7 @@ public class BMethodType extends BFunctionType implements MethodType {
 
     @Override
     public String getAnnotationKey() {
-        return Utils.decodeIdentifier(parentObjectType.getAnnotationKey()) + "." +
-                Utils.decodeIdentifier(funcName);
+        return Utils.decodeIdentifier(parentObjectType.getAnnotationKey()) + "." + Utils.decodeIdentifier(funcName);
     }
 
     @Override
@@ -72,6 +71,7 @@ public class BMethodType extends BFunctionType implements MethodType {
         return parentObjectType;
     }
 
+    @Override
     public FunctionType getType() {
         return type;
     }

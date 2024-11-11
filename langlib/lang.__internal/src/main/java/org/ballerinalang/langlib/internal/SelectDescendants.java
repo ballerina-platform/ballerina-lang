@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,25 +31,28 @@ import java.util.List;
  * 
  * @since 0.92
  */
-public class SelectDescendants {
+public final class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
+
+    private SelectDescendants() {
+    }
 
     public static BXml selectDescendants(BXml xml, BString[] qnames) {
         try {
             List<String> qnameList = new ArrayList<>();
             int size = qnames.length;
-            for (int i = 0; i < size; i++) {
-                String strQname = qnames[i].getValue();
+            for (BString qname : qnames) {
+                String strQname = qname.getValue();
                 // remove empty namespace in expanded form i.e `{}local => local`
                 if (strQname.lastIndexOf('}') == 1) {
                     strQname = strQname.substring(2);
                 }
                 qnameList.add(strQname);
             }
-            return (BXml) xml.descendants(qnameList);
+            return xml.descendants(qnameList);
         } catch (Throwable e) {
-            BLangExceptionHelper.handleXMLException(OPERATION, e);
+            ErrorHelper.handleXMLException(OPERATION, e);
         }
         return null;
     }

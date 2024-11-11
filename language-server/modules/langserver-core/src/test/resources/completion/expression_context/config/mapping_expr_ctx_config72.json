@@ -18,7 +18,7 @@
       "label": "...b",
       "kind": "Variable",
       "detail": "B",
-      "sortText": "AB",
+      "sortText": "AC",
       "filterText": "b",
       "insertText": "...b",
       "insertTextFormat": "Snippet"
@@ -35,7 +35,7 @@
       "label": "...a",
       "kind": "Variable",
       "detail": "A",
-      "sortText": "F",
+      "sortText": "AC",
       "filterText": "a",
       "insertText": "...a",
       "insertTextFormat": "Snippet"
@@ -44,7 +44,7 @@
       "label": "...getB(int field1, string field2, string field3)",
       "kind": "Function",
       "detail": "B",
-      "sortText": "AC",
+      "sortText": "AD",
       "filterText": "getB",
       "insertText": "...getB(${1})",
       "insertTextFormat": "Snippet"
@@ -53,7 +53,7 @@
       "label": "...getA(int field1, string field2)",
       "kind": "Function",
       "detail": "A",
-      "sortText": "G",
+      "sortText": "AD",
       "filterText": "getA",
       "insertText": "...getA(${1})",
       "insertTextFormat": "Snippet"

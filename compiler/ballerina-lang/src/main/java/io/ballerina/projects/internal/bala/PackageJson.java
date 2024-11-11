@@ -48,8 +48,10 @@ public class PackageJson {
 
     // Dependencies
     private List<Dependency> dependencies; //?
-    private String platform; // target of the bala ie. java11, any etc.
+    private String platform; // target of the bala ie. java17, any etc.
     private JsonArray platformDependencies; // platform dependencies
+
+    private Boolean graalvmCompatible; // GraalVM compatibility property for package
 
     // Templating support
     private boolean template; //?
@@ -203,6 +205,13 @@ public class PackageJson {
 
     public void setTemplate(boolean template) {
         this.template = template;
+    }
+    public Boolean getGraalvmCompatible() {
+        return graalvmCompatible;
+    }
+
+    public void setGraalvmCompatible(Boolean graalvmCompatible) {
+        this.graalvmCompatible = graalvmCompatible;
     }
 
     public String getTemplateVersion() {

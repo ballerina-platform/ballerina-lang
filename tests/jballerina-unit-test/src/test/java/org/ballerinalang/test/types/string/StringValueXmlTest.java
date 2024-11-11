@@ -40,7 +40,7 @@ public class StringValueXmlTest extends BStringTestCommons {
 
     @Test
     public void testXmlQName() {
-        testAndAssert("testXmlQName", 13);
+        testAndAssert("testXmlQName", 7);
     }
 
     @Test
@@ -73,6 +73,7 @@ public class StringValueXmlTest extends BStringTestCommons {
         testAndAssert("testXmlInterpolation", 249);
     }
 
+    @Override
     @AfterClass
     public void tearDown() {
         result = null;

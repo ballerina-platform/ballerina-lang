@@ -15,11 +15,12 @@
  */
 package io.ballerina.runtime.internal.regexp;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.RegExpAssertion;
 import io.ballerina.runtime.internal.values.RegExpAtom;
@@ -42,7 +43,8 @@ import io.ballerina.runtime.internal.values.RegExpValue;
  *
  * @since 2201.3.0
  */
-public class RegExpFactory {
+public final class RegExpFactory {
+
     private RegExpFactory() {
     }
 
@@ -110,9 +112,9 @@ public class RegExpFactory {
             TokenReader tokenReader = new TokenReader(new TreeTraverser(charReader));
             TreeBuilder treeBuilder = new TreeBuilder(tokenReader);
             return treeBuilder.parse();
-        } catch (BallerinaException e) {
-            throw ErrorCreator.createError(StringUtils.fromString("Failed to parse regular expression: " +
-                    e.getMessage()));
+        } catch (BError e) {
+            throw ErrorCreator.createError(StringUtils.fromString("Failed to parse regular expression: "
+                    + e.getMessage() + " in '" + regExpStr + "'"));
         }
     }
 
@@ -122,22 +124,22 @@ public class RegExpFactory {
             TokenReader tokenReader = new TokenReader(new TreeTraverser(charReader));
             TreeBuilder treeBuilder = new TreeBuilder(tokenReader);
             treeBuilder.parseInsertion();
-        } catch (BallerinaException e) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
-                    StringUtils.fromString("Invalid insertion in regular expression: " + e.getMessage()));
+        } catch (BError e) {
+            throw ErrorCreator.createError(ErrorReasons.REG_EXP_PARSING_ERROR,
+                    StringUtils.fromString(e.getMessage() + " in insertion substring '"
+                            + regExpStr.substring(3, regExpStr.length() - 1) + "'"));
         }
     }
 
     public static RegExpValue translateRegExpConstructs(RegExpValue regExpValue) {
         RegExpDisjunction disjunction = regExpValue.getRegExpDisjunction();
-        if (disjunction.stringValue(null).equals("")) {
+        if (disjunction.stringValue(null).isEmpty()) {
             disjunction = getNonCapturingGroupDisjunction();
         }
         for (Object s : disjunction.getRegExpSeqList()) {
-            if (!(s instanceof RegExpSequence)) {
+            if (!(s instanceof RegExpSequence seq)) {
                 continue;
             }
-            RegExpSequence seq = (RegExpSequence) s;
             translateRegExpTerms(seq.getRegExpTermsList());
         }
         return new RegExpValue(disjunction);
@@ -156,15 +158,14 @@ public class RegExpFactory {
 
     private static void translateRegExpTerms(RegExpTerm[] terms) {
         for (RegExpTerm t : terms) {
-            if (!(t instanceof RegExpAtomQuantifier)) {
+            if (!(t instanceof RegExpAtomQuantifier atomQuantifier)) {
                 continue;
             }
-            RegExpAtomQuantifier atomQuantifier = (RegExpAtomQuantifier) t;
             Object reAtom = atomQuantifier.getReAtom();
-            if (reAtom instanceof RegExpLiteralCharOrEscape) {
-                atomQuantifier.setReAtom(translateLiteralCharOrEscape((RegExpLiteralCharOrEscape) reAtom));
-            } else if (reAtom instanceof RegExpCharacterClass) {
-                atomQuantifier.setReAtom(translateCharacterClass((RegExpCharacterClass) reAtom));
+            if (reAtom instanceof RegExpLiteralCharOrEscape regExpLiteralCharOrEscape) {
+                atomQuantifier.setReAtom(translateLiteralCharOrEscape(regExpLiteralCharOrEscape));
+            } else if (reAtom instanceof RegExpCharacterClass regExpCharacterClass) {
+                atomQuantifier.setReAtom(translateCharacterClass(regExpCharacterClass));
             }
         }
     }
@@ -183,6 +184,9 @@ public class RegExpFactory {
         if ("&".equals(value)) {
             return createLiteralCharOrEscape("\\&");
         }
+        if (value.startsWith("\\u{") && value.endsWith("}")) {
+            return createLiteralCharOrEscape(Utils.unescapeBallerina(value));
+        }
         return charOrEscape;
     }
 
@@ -191,7 +195,7 @@ public class RegExpFactory {
     }
 
     private static RegExpCharacterClass createCharacterClass(String negation, Object[] charSet) {
-        return new RegExpCharacterClass("[", negation, new RegExpCharSet(charSet) , "]");
+        return new RegExpCharacterClass("[", negation, new RegExpCharSet(charSet), "]");
     }
 
     private static RegExpAtom translateCharacterClass(RegExpCharacterClass charClass) {
@@ -200,8 +204,7 @@ public class RegExpFactory {
         int c = charAtoms.length;
         for (int i = 0; i < c; i++) {
             Object charAtom = charAtoms[i];
-            if (charAtom instanceof RegExpCharSetRange) {
-                RegExpCharSetRange range = (RegExpCharSetRange) charAtom;
+            if (charAtom instanceof RegExpCharSetRange range) {
                 range.setLhsCharSetAtom(translateCharInCharacterClass(range.getLhsCharSetAtom()));
                 range.setRhsCharSetAom(translateCharInCharacterClass(range.getRhsCharSetAtom()));
                 continue;
@@ -214,10 +217,10 @@ public class RegExpFactory {
     }
 
     private static Object translateVisitor(Object node) {
-        if (node instanceof RegExpLiteralCharOrEscape) {
-            return translateLiteralCharOrEscape((RegExpLiteralCharOrEscape) node);
-        } else if (node instanceof String) {
-            return translateCharInCharacterClass((String) node);
+        if (node instanceof RegExpLiteralCharOrEscape regExpLiteralCharOrEscape) {
+            return translateLiteralCharOrEscape(regExpLiteralCharOrEscape);
+        } else if (node instanceof String s) {
+            return translateCharInCharacterClass(s);
         }
         return node;
     }
@@ -226,6 +229,10 @@ public class RegExpFactory {
         if ("&".equals(originalValue)) {
             return "\\&";
         }
+        if (originalValue.startsWith("\\u{") && originalValue.endsWith("}")) {
+            return Utils.unescapeBallerina(originalValue);
+        }
+
         return originalValue;
     }
 }

@@ -124,6 +124,7 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
         this.message = message;
     }
 
+    @Override
     public List<Diff> getChildDiffs() {
         return childDiffs;
     }

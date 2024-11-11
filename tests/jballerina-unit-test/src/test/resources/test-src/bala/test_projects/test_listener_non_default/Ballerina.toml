@@ -1,0 +1,5 @@
+[package]
+org = "listenerproject"
+name = "test_listener_external"
+version = "0.0.0"
+export = ["test_listener_external", "test_listener_external.ext"]

@@ -18,6 +18,9 @@
 
 package io.ballerina.shell.test.evaluator.base;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * One statement in a evaluator test case.
  *
@@ -29,6 +32,7 @@ public class TestCase {
     private String expr;
     private String stdout = "";
     private String error;
+    private List<String> stderr = new ArrayList<>();
 
     public String getDescription() {
         return description;
@@ -68,5 +72,13 @@ public class TestCase {
 
     public void setError(String error) {
         this.error = error;
+    }
+
+    public List<String> getStderr() {
+        return stderr;
+    }
+
+    public void setStderr(List<String> stderr) {
+        this.stderr = stderr;
     }
 }

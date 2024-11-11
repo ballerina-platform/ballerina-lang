@@ -18,7 +18,7 @@
       "label": "bar",
       "kind": "Field",
       "detail": "module1:AnnotationType.bar",
-      "sortText": "K",
+      "sortText": "AG",
       "insertText": "bar: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "foo",
       "kind": "Field",
       "detail": "module1:AnnotationType.foo",
-      "sortText": "K",
+      "sortText": "AG",
       "insertText": "foo: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },

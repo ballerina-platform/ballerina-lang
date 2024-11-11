@@ -6,24 +6,6 @@ type ErrorTypeB distinct error;
 
 const TYPE_B_ERROR_REASON = "TypeB_Error";
 
-function trxError()  returns error {
-    return error("TransactionError");
-}
-
-function testUnreachableAfterFail () returns string|error {
-     string str = "";
-     int count = 0;
-     retry (3) {
-           count = count+1;
-           str += (" attempt " + count.toString() + ":error,");
-           fail trxError();
-           str += (" attempt "+ count.toString() + ":result returned end.");
-     } on fail error e {
-           return error("Custom Error");
-     }
-     return str;
-}
-
 function testIncompatibleErrorTypeOnFail () returns string {
    string str = "";
    retry(3) {
@@ -31,52 +13,6 @@ function testIncompatibleErrorTypeOnFail () returns string {
      fail error ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
    } on fail ErrorTypeB e {
       str += "-> Error caught ! ";
-   }
-   str += "-> Execution continues...";
-   return str;
-}
-
-function testIgnoreReturnInOnFail () returns string {
-   string str = "";
-   retry(3) {
-     str += "Before failure throw";
-     fail error ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
-   }
-   on fail ErrorTypeA e {
-      str += "-> Error caught ! ";
-      return str;
-   }
-   str += "-> Execution continues...";
-   return str;
-}
-
-function testUnreachableInOnFail () returns string {
-   string str = "";
-   retry(3) {
-     str += "Before failure throw";
-     fail error ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
-   }
-   on fail ErrorTypeA e {
-      str += "-> Error caught ! ";
-      return str;
-      str += "-> After returning string";
-   }
-   str += "-> Execution continues...";
-   return str;
-}
-
-function testNestedRetryWithLessOnFails () returns string {
-   string str = "";
-   retry(3) {
-     str += "-> Before error 1 is thrown";
-      retry(2) {
-          str += " -> Before error 2 is thrown";
-          fail error ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
-      }
-      fail error ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
-   }
-   on fail error e1 {
-       str += " -> Error caught !";
    }
    str += "-> Execution continues...";
    return str;
@@ -103,4 +39,30 @@ function testOnFailWithUnion () returns string {
    }
    str += "-> Execution continues...";
    return str;
+}
+
+type SampleErrorData record {|
+    int code;
+    string reason;
+|};
+
+type SampleError error<SampleErrorData>;
+
+type SampleComplexErrorData record {|
+    int code;
+    int[2] pos;
+    record {string moreInfo;} infoDetails;
+|};
+
+type SampleComplexError error<SampleComplexErrorData>;
+
+function testOnFailWithMultipleErrors() {
+    boolean isPositiveState = false;
+    retry(3) {
+        if isPositiveState {
+            fail error SampleComplexError("Transaction Failure", code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
+        }
+        fail error SampleError("Transaction Failure", code = 50, reason = "deadlock condition");
+    } on fail var error(msg) {
+    }
 }

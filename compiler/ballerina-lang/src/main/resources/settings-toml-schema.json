@@ -13,7 +13,7 @@
           "type": "string"
         },
         "port": {
-          "type": "number"
+          "type": "integer"
         },
         "username": {
           "type": "string"
@@ -29,6 +29,48 @@
       "properties": {
         "accesstoken": {
           "type": "string"
+        },
+        "connectTimeout": {
+          "type": "integer"
+        },
+        "readTimeout": {
+          "type": "integer"
+        },
+        "writeTimeout": {
+          "type": "integer"
+        },
+        "callTimeout": {
+          "type": "integer"
+        },
+        "maxRetries": {
+          "type": "integer"
+        }
+      }
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "maven": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              },
+              "accesstoken": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     }

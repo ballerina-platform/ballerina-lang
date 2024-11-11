@@ -55,9 +55,14 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
             throw new AssertionError("ModuleName cannot be empty");
         }
 
-        List<LSPackageLoader.ModuleInfo> moduleList =
-                new ArrayList<>(LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx));
-        ArrayList<LSCompletionItem> completionItems = moduleNameContextCompletions(ctx, orgName, moduleList);
+        List<LSPackageLoader.ModuleInfo> packages;
+        if (orgName.equals("ballerinax")) {
+            packages = LSPackageLoader.getInstance(ctx.languageServercontext()).getCentralPackages();
+        } else {
+            packages = LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
+        }
+        ArrayList<LSCompletionItem> completionItems = moduleNameContextCompletions(ctx, orgName, packages);
+
         this.sort(ctx, node, completionItems);
 
         return completionItems;

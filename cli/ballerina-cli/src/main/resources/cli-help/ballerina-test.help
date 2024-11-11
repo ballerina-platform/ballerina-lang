@@ -73,7 +73,7 @@ OPTIONS
        --test-report
            Generate an HTML report containing the test results.
 
-       --native
+       --graalvm
            Execute test cases using the GraalVM native image. Native image testing
            is an experimental feature which supports only a limited set of
            functionality.
@@ -87,6 +87,41 @@ OPTIONS
             For the complete list of supported patterns,
             see https://ballerina.io/learn/test-ballerina-code/execute-tests/#generate-test-report-and-code-coverage.
 
+       --graalvm-build-options
+            Additional build options to be passed to the GraalVM native image.
+
+       --parallel
+            Enable parallel execution of tests. A test must satisfy the following
+            conditions to be executed in parallel:
+                - Test function must be isolated, either explicitly marked or inferred to be isolated.
+                - If a data provider is attached to a test function,
+                    - The data provider function must be isolated.
+                    - The types of the test function parameters must be subtypes of readonly.
+                - Corresponding set-up and tear-down functions of the test function must be isolated.
+            Parallel test execution is an experimental feature and therefore, supports only a limited
+            set of functionalities.
+
+       --show-dependency-diagnostics
+           Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console.
+
+       --cloud <provider>
+           Run the tests in a provided cloud environment. The supported cloud providers are:
+               - Docker
+                    - Requires Docker to be installed on the machine.
+                    - '--cloud=docker' can be used to run the tests in a Docker container.
+           If tests have resources, specify their paths in the Cloud.toml file.
+               - The paths to resources should be specified using the relative
+                 path to the package.
+               - Use [[container.copy.files]] to specify the paths to the resources.
+               - target value should be added as : "/home/ballerina/<resource-path>". <resource-path> should be the
+                 relative path to the package.
+
+       --optimize-dependency-compilation
+           [EXPERIMENTAL] Enables memory-efficient compilation of package dependencies
+           using separate processes. This can help prevent out-of-memory issues during
+           the initial compilation with a clean central cache.
+
 
 ARGUMENTS
        (-Ckey=value)...
@@ -98,7 +133,7 @@ EXAMPLES
            $ bal test
 
        Run all test cases using the GraalVM native image.
-           $ bal test --native
+           $ bal test --graalvm
 
        List all the test groups in the current package.
            $ bal test --list-groups
@@ -124,7 +159,7 @@ EXAMPLES
            $ bal test main_test.bal
 
        Run a standalone test file using the GraalVM native image.
-           $ bal test --native main_test.bal
+           $ bal test --graalvm main_test.bal
 
        Run the tests and generate a test report.
            $ bal test --test-report
@@ -150,3 +185,6 @@ EXAMPLES
 
        Run the test functions with values provided for configurable variables:
            $ bal test -Cval1=add -Cval2=10 -Cval3=5
+
+       Test the package with additional GraalVM native image options.
+           $ bal test --graalvm --graalvm-build-options="--static -H:Name=hello-world"

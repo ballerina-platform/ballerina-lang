@@ -19,11 +19,11 @@ package org.ballerinalang.test.worker;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -98,13 +98,13 @@ public class WorkerTest {
         BRunUtil.invoke(result, "syncSendReceiveWithCheck", new Object[0]);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*error: err \\{\"message\":\"err msg.*")
     public void receiveWithCheckpanic() {
         BRunUtil.invoke(result, "receiveWithCheckpanic");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*error: err \\{\"message\":\"sync send err msg.*")
     public void syncSendReceiveWithCheckpanic() {
         BRunUtil.invoke(result, "syncSendReceiveWithCheckpanic");
@@ -247,7 +247,7 @@ public class WorkerTest {
         Assert.assertEquals(returns, 88L);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.future\\}FutureAlreadyCancelled.*")
     public void workerWithFutureTest1() {
         Object returns = BRunUtil.invoke(result, "workerWithFutureTest1");
@@ -268,7 +268,7 @@ public class WorkerTest {
             Object returns = BRunUtil.invoke(result, "workerWithFutureTest3");
 
             Assert.assertEquals(returns, 18L);
-        } catch (BLangRuntimeException e) {
+        } catch (BLangTestException e) {
             Assert.assertTrue(e.getMessage().contains("error: {ballerina/lang.future}FutureAlreadyCancelled"));
         }
     }
@@ -278,7 +278,7 @@ public class WorkerTest {
         Object returns = BRunUtil.invoke(result, "testComplexType");
 
         Assert.assertEquals(getType(returns).getName(), "Rec");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("k")), 10L);
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("k")), 10L);
     }
 
     @Test
@@ -286,7 +286,7 @@ public class WorkerTest {
         try {
             BRunUtil.invoke(result, "panicFunc");
             Assert.fail("Worker did not panic");
-        } catch (BLangRuntimeException e) {
+        } catch (BLangTestException e) {
             Assert.assertTrue(e.getMessage().contains("worker w5 panic"));
         }
     }
@@ -296,7 +296,7 @@ public class WorkerTest {
         Object returns = BRunUtil.invoke(result, "waitInReturn");
 
         Assert.assertTrue(returns instanceof BMap);
-        BMap mapResult = (BMap) returns;
+        BMap<?, ?> mapResult = (BMap<?, ?>) returns;
         Assert.assertEquals(mapResult.get(StringUtils.fromString("w1")).toString(), "w1");
         Assert.assertEquals(mapResult.get(StringUtils.fromString("w2")).toString(), "w2");
     }
@@ -306,22 +306,22 @@ public class WorkerTest {
         BRunUtil.invoke(result, "testLambdaWithWorkerMessagePassing");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(expectedExceptions = BLangTestException.class)
     public void testFunctionWithWorkerInsideLock() {
         Object returns = BRunUtil.invoke(result, "testPanicWorkerInsideLock");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(expectedExceptions = BLangTestException.class)
     public void testFunctionWithWorkerInsideLockWithDepth3() {
         Object returns = BRunUtil.invoke(result, "testPanicWorkerInsideLockWithDepth3");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(expectedExceptions = BLangTestException.class)
     public void testFunctionWithStartInsideLock() {
         Object returns = BRunUtil.invoke(result, "testPanicStartInsideLock");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(expectedExceptions = BLangTestException.class)
     public void testFunctionWithStartInsideLockWithDepth3() {
         Object returns = BRunUtil.invoke(result, "testPanicStartInsideLockWithDepth3");
     }
@@ -346,8 +346,46 @@ public class WorkerTest {
     public void testMultipleReceiveAction() {
         // Multiple receive action is not yet supported. This is to test the error message.
         CompileResult result = BCompileUtil.compile("test-src/workers/multiple-receive-action.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "multiple receive action not yet supported", 23, 25);
+        Assert.assertEquals(result.getErrorCount(), 0);
+        BRunUtil.invoke(result, "testMultipleReceiveAction");
+    }
+
+    @Test(description = "Test multiple receive type checking")
+    public void testMultipleWorkerReceiveTypeChecking() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/workers/multiple-receive-type-checking.bal");
+        int index = 0;
+        BAssertUtil.validateError(negativeResult, index++, "invalid multiple receive: duplicate key 'a'", 27, 24);
+        BAssertUtil.validateError(negativeResult, index++, "invalid multiple receive: duplicate key 'a'", 38, 24);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in " +
+                "type 'int'", 55, 17);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in type" +
+                " 'record {| int c; int a; int b; |}'", 57, 45);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in type" +
+                " 'record {| |} & readonly'", 62, 25);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in type" +
+                " 'ABCRecord'", 67, 23);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in type" +
+                " '(string|record {| int a; int b; int c; anydata...; |}|int)'", 72, 54);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in type" +
+                " '(string|boolean|int)'", 73, 32);
+        BAssertUtil.validateError(negativeResult, index++, "ambiguous type '(map<int>|record {| int a; int b; anydata" +
+                "...; |})'", 74, 45);
+        BAssertUtil.validateError(negativeResult, index++, "ambiguous type '(map<int>|record {| int...; |})'", 75, 42);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in type" +
+                " '(int|record {| int a; int c; anydata...; |})'", 77, 40);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in type" +
+                " 'record {| readonly int a; readonly int c; |} & readonly'", 85, 49);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
+    }
+
+    @Test
+    public void testWorkerWithQuery() {
+        BRunUtil.invoke(result, "testWorkerWithQuery", new Object[0]);
+    }
+
+    @Test
+    public void testBindingPatternVariablesInWorker() {
+        BRunUtil.invoke(result, "testBindingPatternVariablesInWorker");
     }
 
     @AfterClass

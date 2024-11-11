@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BRecordType} represents a user defined record type in Ballerina.
+ * {@code RecordType} represents a user defined record type in Ballerina.
  *
  * @since 2.0.0
  */

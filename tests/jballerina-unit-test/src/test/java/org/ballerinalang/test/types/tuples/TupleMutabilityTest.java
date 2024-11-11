@@ -19,11 +19,11 @@
 package org.ballerinalang.test.types.tuples;
 
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -57,7 +57,7 @@ public class TupleMutabilityTest {
     }
 
     @Test(description = "Check if correct type is saved in covariant tuple with record type ",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types: 'Employee' cannot be " +
                             "cast to 'Intern'.*")
@@ -66,7 +66,7 @@ public class TupleMutabilityTest {
     }
 
     @Test(description = "Test mutation of record type using covariant tuple",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"incompatible types: " +
                             "expected 'Employee', found 'Person'.*")
@@ -75,7 +75,7 @@ public class TupleMutabilityTest {
     }
 
     @Test(description = "Test mutation of record type by assigning invalid record type",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"incompatible types: " +
                             "expected 'Employee', found 'Student'.*")
@@ -84,7 +84,7 @@ public class TupleMutabilityTest {
     }
 
     @Test(description = "Test mutation of int by inserting nil value to int? covariant tuple",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"incompatible types: " +
                             "expected 'int', found '\\(\\)'.*")
@@ -99,7 +99,7 @@ public class TupleMutabilityTest {
     }
 
     @Test(description = "Test mutation of tuple which include structural and simple values",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"incompatible types: " +
                             "expected '\\(boolean\\|float\\)', found 'Person'.*")

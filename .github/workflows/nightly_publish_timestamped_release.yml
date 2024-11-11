@@ -12,20 +12,20 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        branch: ['master', '2201.2.x', '2201.3.x', '2201.4.x']
+        branch: ['master', '2201.4.x', '2201.5.x', '2201.6.x']
     timeout-minutes: 240
     if: github.repository_owner == 'ballerina-platform'
     steps:
       -   name: Checkout Repository
-          uses: actions/checkout@v2
+          uses: actions/checkout@v4
           with:
             ref: ${{ matrix.branch }}
 
-      -   name: Set up JDK 11
-          uses: actions/setup-java@v2
+      -   name: Set up JDK 17
+          uses: actions/setup-java@v4
           with:
             distribution: 'temurin'
-            java-version: '11'
+            java-version: '17.0.7'
 
       -   name: Initialize Sub Modules
           run: git submodule update --init
@@ -45,7 +45,7 @@ jobs:
             publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
             publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
           run: |
-            ./gradlew clean build -x createJavadoc --scan --continue --rerun-tasks
+            ./gradlew clean build -x javadoc --scan --continue --rerun-tasks
             ./gradlew publish
             ./gradlew createCodeCoverageReport
             curl -X POST \
@@ -61,6 +61,6 @@ jobs:
             }"
 
       -   name: Generate Codecov Report
-          uses: codecov/codecov-action@v1
+          uses: codecov/codecov-action@v4
           with:
             files: ./.jacoco/reports/jacoco/report.xml

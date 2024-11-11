@@ -74,7 +74,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class RenameUtil {
+public final class RenameUtil {
 
     private RenameUtil() {
     }
@@ -109,7 +109,9 @@ public class RenameUtil {
         // Check if symbol at cursor is empty
         Optional<Symbol> symbolAtCursor = ReferencesUtil.getSymbolAtCursor(context);
         if (symbolAtCursor.isEmpty()
-                || symbolAtCursor.get().kind() == SymbolKind.RESOURCE_METHOD) {
+                || symbolAtCursor.get().kind() == SymbolKind.RESOURCE_METHOD
+                || symbolAtCursor.get().kind() == SymbolKind.PATH_PARAMETER
+                || symbolAtCursor.get().kind() == SymbolKind.PATH_NAME_SEGMENT) {
             return Optional.empty();
         }
         
@@ -266,8 +268,8 @@ public class RenameUtil {
         }
 
         FieldBindingPatternNode fieldBindingPatternNode = (FieldBindingPatternNode) node.parent();
-        if (fieldBindingPatternNode instanceof FieldBindingPatternVarnameNode) {
-            return Optional.of((FieldBindingPatternVarnameNode) fieldBindingPatternNode);
+        if (fieldBindingPatternNode instanceof FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+            return Optional.of(fieldBindingPatternVarnameNode);
         }
         return Optional.empty();
     }
@@ -462,10 +464,10 @@ public class RenameUtil {
         QUOTED_KEYWORD("Quoted Rename", "Rename to keyword with a quote", true, "quoted"),
         UNQUOTED_KEYWORD("Un-quoted Rename", "Rename to keyword without a quote", true, "unquoted");
 
-        private String id;
-        private String label;
-        private String description;
-        private Boolean needsConfirmation;
+        private final String id;
+        private final String label;
+        private final String description;
+        private final Boolean needsConfirmation;
 
         RenameChangeAnnotation(String label, String description, Boolean needsConfirmation, String id) {
             this.id = id;

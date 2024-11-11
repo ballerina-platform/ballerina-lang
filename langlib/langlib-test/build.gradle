@@ -17,19 +17,21 @@
  *
  */
 
-description = 'Lang Library Unit Test Module'
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+description = 'Lang Library Unit Test Module'
 
 dependencies {
     implementation project(':ballerina-lang')
 
-    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile project(path: ':ballerina-runtime')
-    testCompile 'org.testng:testng'
+    testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testImplementation project(path: ':ballerina-runtime')
+    testImplementation libs.testng
 
-    testRuntime 'org.slf4j:slf4j-jdk14'
+    testRuntimeOnly libs.slf4j.jdk14
 }
 
 test {
@@ -45,9 +47,9 @@ test {
 }
 
 configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
 configurations.all {

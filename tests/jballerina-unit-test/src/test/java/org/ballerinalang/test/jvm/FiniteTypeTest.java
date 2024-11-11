@@ -252,8 +252,8 @@ public class FiniteTypeTest {
     @Test
     public void testAssigningIntLiteralToByteFiniteType() {
         Object returns = BRunUtil.invoke(result, "testAssigningIntLiteralToByteFiniteType");
-        Assert.assertTrue(returns instanceof Integer, "Type mismatch");
-        Assert.assertEquals(returns, 5, "Value mismatch");
+        Assert.assertTrue(returns instanceof Long, "Type mismatch");
+        Assert.assertEquals(returns, 5L, "Value mismatch");
     }
 
     @Test

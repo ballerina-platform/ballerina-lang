@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.query;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -54,30 +54,12 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue((Boolean) returnValues);
     }
 
-    @Test(description = "Test query expr returning a stream", dataProvider = "SimpleQueryReturnStreamFunctionList")
-    public void testQueryReturnStream(String funcName) {
-        BRunUtil.invoke(result, funcName);
-    }
-
-    @DataProvider(name = "SimpleQueryReturnStreamFunctionList")
-    public Object[][] simpleQueryReturnStreamFunctionList() {
-        return new Object[][]{
-                {"testSimpleQueryReturnStream2"},
-                {"testSimpleQueryReturnStream3"}
-        };
-    }
-
     @Test(description = "Test query expr with stream in from clause returning a stream ")
     public void testStreamInFromClauseWithReturnStream() {
         Object returnValues = BRunUtil.invoke(result, "testStreamInFromClauseWithReturnStream");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
-    }
-
-    @Test(description = "Test query expr with stream in from clause returning a stream ")
-    public void testStreamInFromClauseWithReturnStream2() {
-        BRunUtil.invoke(result, "testStreamInFromClauseWithReturnStream2");
     }
 
     @Test(description = "Test query expr with multiple from, let and where clauses returning a stream ")
@@ -88,11 +70,6 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue((Boolean) returnValues);
     }
 
-    @Test(description = "Test query expr with multiple from, let and where clauses returning a stream ")
-    public void testMultipleFromWhereAndLetReturnStream2() {
-        BRunUtil.invoke(result, "testMultipleFromWhereAndLetReturnStream2");
-    }
-
     @Test(description = "Test query expr with inner join returning a stream ")
     public void testInnerJoinAndLimitReturnStream() {
         Object returnValues = BRunUtil.invoke(result, "testInnerJoinAndLimitReturnStream");
@@ -101,22 +78,12 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue((Boolean) returnValues);
     }
 
-    @Test(description = "Test query expr with inner join returning a stream ")
-    public void testInnerJoinAndLimitReturnStream2() {
-        BRunUtil.invoke(result, "testInnerJoinAndLimitReturnStream2");
-    }
-
     @Test(description = "Test query expr returning table")
     public void testSimpleQueryExprReturnTable() {
         Object returnValues = BRunUtil.invoke(result, "testSimpleQueryExprReturnTable");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
-    }
-
-    @Test(description = "Test query expr returning table")
-    public void testSimpleQueryExprReturnTable2() {
-        BRunUtil.invoke(result, "testSimpleQueryExprReturnTable2");
     }
 
     @Test(description = "Test query expr with table having duplicate keys")
@@ -164,14 +131,34 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue((Boolean) returnValues);
     }
 
-    @Test
-    public void testConstructTablesWithRecords() {
-        BRunUtil.invoke(result, "testConstructTablesWithRecords");
+    @Test(description = "Test map creating query with on conflict with variable reference")
+    public void testQueryConstructingMapWithOnConflictsWithVarRef() {
+        BRunUtil.invoke(result, "testQueryConstructingMapWithOnConflictsWithVarRef");
     }
 
-    @Test
-    public void testConstructMapsWithTuples() {
-        BRunUtil.invoke(result, "testConstructMapsWithTuples");
+    @Test(description = "Test table creating query with on conflict with variable reference")
+    public void testQueryConstructingTableWithOnConflictsWithVarRef() {
+        BRunUtil.invoke(result, "testQueryConstructingTableWithOnConflictsWithVarRef");
+    }
+
+    @Test(description = "Test table creating with on conflict error referred from a function param")
+    public void testTableConstructQueryWithNonConflictingKeys() {
+        BRunUtil.invoke(result, "testTableConstructQueryWithNonConflictingKeys");
+    }
+
+    @Test(description = "Test table creating with conflicting keys and onConflict error referred from function param")
+    public void testTableConstructQueryWithConflictingKeys() {
+        BRunUtil.invoke(result, "testTableConstructQueryWithConflictingKeys");
+    }
+
+    @Test(description = "Test table creating nested query with conflicting keys and onConflict error")
+    public void testMapConstructNestedQueryWithConflictingKeys() {
+        BRunUtil.invoke(result, "testMapConstructNestedQueryWithConflictingKeys");
+    }
+
+    @Test(description = "Test map creating query with group by clause having an onConflict error")
+    public void testMapConstructQueryWithConflictingKeys() {
+        BRunUtil.invoke(result, "testMapConstructQueryWithConflictingKeys");
     }
 
     @Test(description = "Test negative scenarios for query expr with query construct type")
@@ -238,11 +225,10 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible types: expected '(Type1 & readonly)', found '([int,int]|string|[int,int])'", 258, 51);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) " +
-                     "& readonly)> & readonly', found 'xml'",
-                263, 41);
+                "incompatible types: expected '(xml & readonly)', found " +
+                        "'xml'", 263, 41);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'int[2] & readonly', found 'int[2]'", 279, 69);
+                "incompatible types: expected '(int[2] & readonly)', found 'int[2]'", 279, 69);
         validateError(negativeResult, index++,
                 "incompatible types: expected '(Department & readonly)', found 'Department'", 283, 55);
         validateError(negativeResult, index++, "incompatible types: expected '[string,string]', " +
@@ -267,15 +253,15 @@ public class QueryExprWithQueryConstructTypeTest {
                 "incompatible types: expected '[string,(int|float)]', found '[FooBar4,(int|float)]'", 320, 66);
         validateError(negativeResult, index++,
                 "incompatible types: expected '[string,(int|float)]', found '[FooBar5,(int|float)]'", 323, 66);
-        validateError(negativeResult, index++, "incompatible types: expected 'map<(int[2] & readonly)> & readonly'," +
+        validateError(negativeResult, index++, "incompatible types: expected '(map<int[2]> & readonly)'," +
                 " found '((map<(int[2] & readonly)> & readonly)|error)'", 329, 34);
         validateError(negativeResult, index++, "incompatible types: expected '(Department & readonly)'," +
                 " found 'Department'", 334, 55);
         validateError(negativeResult, index++, "incompatible types: expected '[string,string]', " +
                 "found '([string,int]|[string,int]|[string,int]|[string,int])'", 337, 48);
         validateError(negativeResult, index++, "missing non-defaultable required record field 'noOfItems'", 347, 16);
-        validateError(negativeResult, index++, "incompatible types: expected 'table<(Customer & readonly)> & " + "" +
-                "readonly', found '((table<(Customer & readonly)> & readonly)|error)'", 356, 44);
+        validateError(negativeResult, index++, "incompatible types: expected '(CustomerTableKeyless " +
+                "& readonly)', found '((table<(Customer & readonly)> & readonly)|error)'", 356, 44);
         validateError(negativeResult, index++, "incompatible types: expected 'map<int>', found '(map<int>|error)'",
                 384, 21);
         validateError(negativeResult, index++, "incompatible types: expected 'table<ResultValue>', " + "" +
@@ -371,7 +357,7 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), index);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
                     "\\{\"message\":\"cannot update 'readonly' field 'id' in record of type 'record " +
                     "\\{\\| readonly int id; readonly string name; User user; \\|\\}'\".*")
@@ -379,7 +365,7 @@ public class QueryExprWithQueryConstructTypeTest {
         BRunUtil.invoke(result, "testQueryConstructingTableUpdateKeyPanic1");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
                     "\\{\"message\":\"cannot update 'readonly' field 'id' in record of type 'record " +
                     "\\{\\| readonly int id; readonly string name; User user; \\|\\}'\".*")
@@ -494,6 +480,55 @@ public class QueryExprWithQueryConstructTypeTest {
                 "testNestedQueryExprConstructingTableWithRegExp",
                 "testJoinedQueryExprConstructingMapWithRegExp"
         };
+    }
+
+    @Test(description = "Test query expr returning a stream", dataProvider = "SimpleQueryReturnStreamFunctionList")
+    public void testQueryReturnStream(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "SimpleQueryReturnStreamFunctionList")
+    public Object[][] simpleQueryReturnStreamFunctionList() {
+        return new Object[][]{
+                {"testSimpleQueryReturnStream2"},
+                {"testSimpleQueryReturnStream3"}
+        };
+    }
+
+    @Test(description = "Test query expr with stream in from clause returning a stream ")
+    public void testStreamInFromClauseWithReturnStream2() {
+        BRunUtil.invoke(result, "testStreamInFromClauseWithReturnStream2");
+    }
+
+    @Test(description = "Test query expr with multiple from, let and where clauses returning a stream ")
+    public void testMultipleFromWhereAndLetReturnStream2() {
+        BRunUtil.invoke(result, "testMultipleFromWhereAndLetReturnStream2");
+    }
+
+
+    @Test(description = "Test query expr with inner join returning a stream ")
+    public void testInnerJoinAndLimitReturnStream2() {
+        BRunUtil.invoke(result, "testInnerJoinAndLimitReturnStream2");
+    }
+
+    @Test(description = "Test query expr returning table")
+    public void testSimpleQueryExprReturnTable2() {
+        BRunUtil.invoke(result, "testSimpleQueryExprReturnTable2");
+    }
+
+    @Test
+    public void testConstructTablesWithRecords() {
+        BRunUtil.invoke(result, "testConstructTablesWithRecords");
+    }
+
+    @Test
+    public void testConstructMapsWithTuples() {
+        BRunUtil.invoke(result, "testConstructMapsWithTuples");
+    }
+
+    @Test
+    public void testInnerQueryConstructedWithCEP() {
+        BRunUtil.invoke(result, "testInnerQueryConstructedWithCEP");
     }
 
     @AfterClass

@@ -25,7 +25,6 @@ import io.ballerina.projects.ProjectKind;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 import static io.ballerina.identifier.Utils.decodeIdentifier;
@@ -75,7 +74,7 @@ public class ProjectSourceResolver extends SourceResolver {
                 if (!document.name().equals(location.sourcePath()) || !document.name().equals(location.sourceName())) {
                     return Optional.empty();
                 }
-                return Optional.of(Paths.get(projectRoot));
+                return Optional.of(Path.of(projectRoot));
             } else if (sourceProject.kind() == ProjectKind.BUILD_PROJECT) {
                 String projectOrg = getOrgName(sourceProject);
                 String defaultModuleName = getDefaultModuleName(sourceProject);
@@ -94,18 +93,29 @@ public class ProjectSourceResolver extends SourceResolver {
 
                 if (modulePart.isBlank()) {
                     // default module
-                    return Optional.of(Paths.get(projectRoot, locationName));
-                } else {
-                    // other modules
                     // 1. check and return if there's a user module source matching to the location information.
-                    File moduleFile = Paths.get(projectRoot, USER_MODULE_DIR, modulePart, locationName).toFile();
+                    File moduleFile = Path.of(projectRoot, locationName).toFile();
                     if (moduleFile.isFile()) {
                         return Optional.of(moduleFile.toPath().toAbsolutePath());
                     }
 
                     // 2. if not, check and return if there's a generated module source matching to the location
                     // information.
-                    File generatedFile = Paths.get(projectRoot, GEN_MODULE_DIR, modulePart, locationName).toFile();
+                    File generatedFile = Path.of(projectRoot, GEN_MODULE_DIR, locationName).toFile();
+                    if (generatedFile.isFile()) {
+                        return Optional.of(generatedFile.toPath().toAbsolutePath());
+                    }
+                } else {
+                    // other modules
+                    // 1. check and return if there's a user module source matching to the location information.
+                    File moduleFile = Path.of(projectRoot, USER_MODULE_DIR, modulePart, locationName).toFile();
+                    if (moduleFile.isFile()) {
+                        return Optional.of(moduleFile.toPath().toAbsolutePath());
+                    }
+
+                    // 2. if not, check and return if there's a generated module source matching to the location
+                    // information.
+                    File generatedFile = Path.of(projectRoot, GEN_MODULE_DIR, modulePart, locationName).toFile();
                     if (generatedFile.isFile()) {
                         return Optional.of(generatedFile.toPath().toAbsolutePath());
                     }

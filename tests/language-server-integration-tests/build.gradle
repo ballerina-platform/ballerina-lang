@@ -15,9 +15,10 @@
  *
  */
 
-
-apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProjectWithExtBala'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations.all {
     resolutionStrategy {
@@ -40,20 +41,20 @@ dependencies {
     implementation project(path: ':language-server:language-server-core', configuration: 'tests')
     implementation project(':ballerina-test-utils')
 
-    implementation "com.google.code.gson:gson"
+    implementation libs.gson
 
-    testCompile 'org.testng:testng'
-    testCompile 'org.mockito:mockito-all'
-    testImplementation 'org.powermock:powermock-mockito-release-full'
-    testImplementation 'org.powermock:powermock-module-testng-common'
+    testImplementation libs.testng
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.testng
 
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-codeactions')
+    compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-completion-providers')
 }
 
 description = 'Ballerina - Language Server Integration Tests'
 
 
-task copyCompilerPluginJars(type: Copy) {
+tasks.register('copyCompilerPluginJars', Copy) {
     from configurations.compilerPluginJar
     into "$buildDir/compiler-plugin-jars"
 }

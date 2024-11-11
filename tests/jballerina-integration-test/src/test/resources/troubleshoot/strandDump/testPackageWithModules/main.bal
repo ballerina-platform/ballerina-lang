@@ -14,17 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.runtime;
 import testPackageWithModules.utils;
 import testPackageWithModules.anotherutils;
-import ballerina/lang.runtime;
 
 boolean globalVar = false;
 
 public function main() {
-    future<()> futureResult1 = @strand{thread:"any"} start balfunc();
+    future<()> futureResult1 = @strand {thread: "any"} start balfunc();
     future<()> futureResult2 = start utils:entryfunc();
+    anotherutils:println("main main");
     error? unionResult = wait futureResult2;
-    future<()> futureResult3 = @strand{thread:"any"} start anotherutils:entryfunc();
+    future<()> futureResult3 = @strand {thread: "any"} start anotherutils:entryfunc();
     foobar();
 }
 
@@ -43,9 +44,11 @@ function bar() {
     }
 
     worker w2 {
+        anotherutils:println("bar w2");
         int x = <- w1;
     }
 
+    anotherutils:println("bar main");
     wait w2;
 }
 
@@ -54,6 +57,7 @@ function sleep_and_wait() {
 }
 
 function sleep_and_wait_nested() {
+    anotherutils:println("sleep_and_wait_nested main");
     runtime:sleep(100);
 }
 
@@ -61,6 +65,7 @@ function balfunc() {
 
     @strand {thread: "any"}
     worker w1 {
+        anotherutils:println("balfunc w1");
         lock {
             while (true) {
                 globalVar = !globalVar;
@@ -71,39 +76,47 @@ function balfunc() {
     @strand {thread: "any"}
     worker w2 {
         runtime:sleep(1);
+        anotherutils:println("balfunc w2");
         lock {
             globalVar = !globalVar;
         }
     }
 
     worker w3 {
+        anotherutils:println("balfunc w3");
         10 ->> w4;
     }
 
     worker w4 {
+        anotherutils:println("balfunc w4");
         runtime:sleep(100);
         int x = <- w3;
     }
 
     worker w5 {
         20 -> function;
+        anotherutils:println("balfunc w5");
         error? unionResult = flush;
     }
 
     worker w6 {
+        anotherutils:println("balfunc w6");
         runtime:sleep(100);
         30 -> w7;
     }
 
     worker w7 returns int {
+        anotherutils:println("balfunc w7");
         int x = <- w6;
         return x;
     }
 
     worker w8 {
+        anotherutils:println("balfunc w8");
         int intResult = wait w7;
     }
 
+    anotherutils:println("balfunc main");
     runtime:sleep(100);
     int y = <- w5;
 }

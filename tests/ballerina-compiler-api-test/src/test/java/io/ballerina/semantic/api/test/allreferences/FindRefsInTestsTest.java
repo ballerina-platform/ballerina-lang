@@ -38,6 +38,7 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getModule
 @Test
 public class FindRefsInTestsTest extends FindAllReferencesTest {
 
+    @Override
     @BeforeClass
     public void setup() {
         Project project = BCompileUtil.loadProject(getTestSourcePath());
@@ -47,6 +48,7 @@ public class FindRefsInTestsTest extends FindAllReferencesTest {
         srcFile = baz.document(id);
     }
 
+    @Override
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{

@@ -17,24 +17,29 @@
  */
 package io.ballerina.projects;
 
+import java.util.Objects;
+
 /**
  * Build options of a project.
  */
 public class BuildOptions {
 
-    private Boolean testReport;
-    private Boolean codeCoverage;
-    private Boolean dumpBuildTime;
-    private Boolean skipTests;
-    private CompilationOptions compilationOptions;
-    private String targetDir;
-    private Boolean enableCache;
-    private Boolean nativeImage;
-    private Boolean exportComponentModel;
+    private final Boolean showDependencyDiagnostics;
+    private final Boolean testReport;
+    private final Boolean codeCoverage;
+    private final Boolean dumpBuildTime;
+    private final Boolean skipTests;
+    private final CompilationOptions compilationOptions;
+    private final String targetDir;
+    private final Boolean enableCache;
+    private final Boolean nativeImage;
+    private final Boolean exportComponentModel;
+    private final String graalVMBuildOptions;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
-                 Boolean nativeImage, Boolean exportComponentModel) {
+                 Boolean nativeImage, Boolean exportComponentModel, String graalVMBuildOptions,
+                 Boolean showDependencyDiagnostics) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
@@ -44,6 +49,9 @@ public class BuildOptions {
         this.enableCache = enableCache;
         this.nativeImage = nativeImage;
         this.exportComponentModel = exportComponentModel;
+        this.graalVMBuildOptions = graalVMBuildOptions;
+        this.showDependencyDiagnostics = showDependencyDiagnostics;
+
     }
 
     public boolean testReport() {
@@ -71,6 +79,10 @@ public class BuildOptions {
         return this.compilationOptions.sticky();
     }
 
+    public boolean disableSyntaxTree() {
+        return this.compilationOptions.disableSyntaxTree();
+    }
+
     /**
      * Checks whether experimental compilation option is set.
      *
@@ -94,6 +106,10 @@ public class BuildOptions {
         return this.compilationOptions.getCloud();
     }
 
+    public boolean remoteManagement() {
+        return this.compilationOptions.remoteManagement();
+    }
+
     CompilationOptions compilationOptions() {
         return this.compilationOptions;
     }
@@ -112,6 +128,14 @@ public class BuildOptions {
 
     public boolean nativeImage() {
         return toBooleanDefaultIfNull(this.nativeImage);
+    }
+
+    public String graalVMBuildOptions() {
+        return Objects.requireNonNullElse(this.graalVMBuildOptions, "");
+    }
+
+    public boolean showDependencyDiagnostics() {
+        return toBooleanDefaultIfNull(this.showDependencyDiagnostics);
     }
 
     /**
@@ -162,6 +186,16 @@ public class BuildOptions {
         } else {
             buildOptionsBuilder.setExportComponentModel(this.exportComponentModel);
         }
+        if (theirOptions.graalVMBuildOptions != null) {
+            buildOptionsBuilder.setGraalVMBuildOptions(theirOptions.graalVMBuildOptions);
+        } else {
+            buildOptionsBuilder.setGraalVMBuildOptions(this.graalVMBuildOptions);
+        }
+        if (theirOptions.showDependencyDiagnostics != null) {
+            buildOptionsBuilder.setShowDependencyDiagnostics(theirOptions.showDependencyDiagnostics);
+        } else {
+            buildOptionsBuilder.setShowDependencyDiagnostics(this.showDependencyDiagnostics);
+        }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
         buildOptionsBuilder.setOffline(compilationOptions.offlineBuild);
@@ -177,6 +211,8 @@ public class BuildOptions {
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
+        buildOptionsBuilder.setRemoteManagement(compilationOptions.remoteManagement);
+        buildOptionsBuilder.setOptimizeDependencyCompilation(compilationOptions.optimizeDependencyCompilation);
 
         return buildOptionsBuilder.build();
     }
@@ -212,8 +248,11 @@ public class BuildOptions {
         CODE_COVERAGE("codeCoverage"),
         DUMP_BUILD_TIME("dumpBuildTime"),
         TARGET_DIR("targetDir"),
-        NATIVE_IMAGE("native"),
-        EXPORT_COMPONENT_MODEL("exportComponentModel");
+        NATIVE_IMAGE("graalvm"),
+        EXPORT_COMPONENT_MODEL("exportComponentModel"),
+        GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions"),
+        SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics"),
+        OPTIMIZE_DEPENDENCY_COMPILATION("optimizeDependencyCompilation");
 
         private final String name;
 
@@ -243,9 +282,16 @@ public class BuildOptions {
         private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
         private Boolean nativeImage;
         private Boolean exportComponentModel;
+        private String graalVMBuildOptions;
+        private Boolean showDependencyDiagnostics;
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
+        }
+
+        public BuildOptionsBuilder disableSyntaxTreeCaching(Boolean value) {
+            compilationOptionsBuilder.disableSyntaxTree(value);
+            return this;
         }
 
         public BuildOptionsBuilder setTestReport(Boolean value) {
@@ -280,6 +326,11 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setOffline(Boolean value) {
             compilationOptionsBuilder.setOffline(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setGraalVMBuildOptions(String value) {
+            graalVMBuildOptions = value;
             return this;
         }
 
@@ -356,10 +407,32 @@ public class BuildOptions {
             return this;
         }
 
+        public BuildOptionsBuilder setRemoteManagement(Boolean value) {
+            compilationOptionsBuilder.setRemoteManagement(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setShowDependencyDiagnostics(Boolean value) {
+            showDependencyDiagnostics = value;
+            return this;
+        }
+        
+        /**
+         * (Experimental) option to specify that the memory usage must be optimized.
+         * 
+         * @param value true or false (default)  
+         * @return BuildOptionsBuilder instance
+         */
+        public BuildOptionsBuilder setOptimizeDependencyCompilation(Boolean value) {
+            compilationOptionsBuilder.setOptimizeDependencyCompilation(value);
+            return this;
+        }
+
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
-            return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests,
-                    compilationOptions, targetPath, enableCache, nativeImage, exportComponentModel);
+            return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions,
+                    targetPath, enableCache, nativeImage, exportComponentModel, graalVMBuildOptions,
+                    showDependencyDiagnostics);
         }
     }
 }

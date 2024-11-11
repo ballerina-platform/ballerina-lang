@@ -22,11 +22,14 @@ import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,9 +40,16 @@ import java.util.List;
 public class LangLibFunctionBinder {
 
     private final Types types;
+    private final CompilerContext context;
 
-    public LangLibFunctionBinder(Types types) {
+    public LangLibFunctionBinder(Types types, CompilerContext context) {
         this.types = types;
+        this.context = context;
+    }
+
+    public LangLibFunctionBinder(CompilerContext context) {
+        this.types = Types.getInstance(context);
+        this.context = context;
     }
 
     /**
@@ -53,7 +63,7 @@ public class LangLibFunctionBinder {
      * @return The type param resolved lang lib function symbol
      */
     public BInvokableSymbol cloneAndBind(BInvokableSymbol original, BType type, BType boundType) {
-        if (boundType == null || original.params.size() == 0) {
+        if (boundType == null || original.params.isEmpty()) {
             return original;
         }
 
@@ -64,7 +74,7 @@ public class LangLibFunctionBinder {
             return original;
         }
 
-        TypeParamResolver resolver = new TypeParamResolver(typeParam);
+        TypeParamResolver resolver = new TypeParamResolver(typeParam, context);
         BInvokableSymbol duplicate = duplicateSymbol(original);
 
         for (BVarSymbol param : original.params) {
@@ -112,7 +122,15 @@ public class LangLibFunctionBinder {
 
     private BInvokableType duplicateType(BInvokableType original, List<BVarSymbol> newParams, BVarSymbol newRestParam,
                                          BType newRetType) {
-        BInvokableType duplicate = new BInvokableType(original.paramTypes, original.restType, original.retType, null);
+
+        List<BType> paramTypes = new ArrayList<>();
+        if (newParams.size() == original.paramTypes.size()) {
+            paramTypes.addAll(newParams.stream().map(BSymbol::getType).toList());
+        } else {
+            paramTypes.addAll(original.paramTypes);
+        }
+
+        BInvokableType duplicate = new BInvokableType(paramTypes, original.restType, original.retType, null);
         BInvokableTypeSymbol originalSym = (BInvokableTypeSymbol) original.tsymbol;
         BInvokableTypeSymbol duplicateTSym = new BInvokableTypeSymbol(original.tag, originalSym.flags,
                                                                       originalSym.pkgID, duplicate,

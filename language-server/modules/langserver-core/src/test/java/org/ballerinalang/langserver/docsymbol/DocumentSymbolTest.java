@@ -45,14 +45,12 @@ public class DocumentSymbolTest {
     
     private Endpoint serviceEndpoint;
 
-    private JsonParser parser = new JsonParser();
+    private final Path sourcesPath = new File(getClass().getClassLoader().getResource("docsymbol").getFile()).toPath();
 
-    private Path sourcesPath = new File(getClass().getClassLoader().getResource("docsymbol").getFile()).toPath();
-
-    private static final Logger log = LoggerFactory.getLogger(DocumentSymbolTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DocumentSymbolTest.class);
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
     
@@ -64,7 +62,7 @@ public class DocumentSymbolTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         String response = TestUtil.getDocumentSymbolResponse(this.serviceEndpoint, sourcePath.toString());
-        JsonObject jsonResponse = parser.parse(response).getAsJsonObject();
+        JsonObject jsonResponse = JsonParser.parseString(response).getAsJsonObject();
         JsonArray result = jsonResponse.getAsJsonArray("result");
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
         for (JsonElement element : result) {
@@ -78,7 +76,7 @@ public class DocumentSymbolTest {
 
     @DataProvider(name = "document-data-provider")
     public Object[][] documentSymbolDataProvider() {
-        log.info("Test textDocument/symbol");
+        LOG.info("Test textDocument/symbol");
         return new Object[][] {
                 {"documentSymbol.json", "docSymbol.bal"},
         };

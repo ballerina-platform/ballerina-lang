@@ -31,13 +31,23 @@ import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.identifier.Utils;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.Optional;
 
 /**
  * Common util methods related to symbols.
  */
-public class SymbolUtils {
+public final class SymbolUtils {
+
+    private SymbolUtils() {
+    }
 
     public static String unescapeUnicode(String value) {
         if (value.startsWith("'")) {
@@ -50,33 +60,45 @@ public class SymbolUtils {
         if (symbol == null) {
             return Optional.empty();
         }
-        switch (symbol.kind()) {
-            case TYPE_DEFINITION:
-                return Optional.ofNullable(((TypeDefinitionSymbol) symbol).typeDescriptor());
-            case VARIABLE:
-                return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor());
-            case PARAMETER:
-                return Optional.ofNullable(((ParameterSymbol) symbol).typeDescriptor());
-            case ANNOTATION:
-                return ((AnnotationSymbol) symbol).typeDescriptor();
-            case FUNCTION:
-            case METHOD:
-                return Optional.ofNullable(((FunctionSymbol) symbol).typeDescriptor());
-            case CONSTANT:
-            case ENUM_MEMBER:
-                return Optional.ofNullable(((ConstantSymbol) symbol).typeDescriptor());
-            case CLASS:
-                return Optional.of((ClassSymbol) symbol);
-            case RECORD_FIELD:
-                return Optional.ofNullable(((RecordFieldSymbol) symbol).typeDescriptor());
-            case OBJECT_FIELD:
-                return Optional.of(((ObjectFieldSymbol) symbol).typeDescriptor());
-            case CLASS_FIELD:
-                return Optional.of(((ClassFieldSymbol) symbol).typeDescriptor());
-            case TYPE:
-                return Optional.of((TypeSymbol) symbol);
-            default:
-                return Optional.empty();
-        }
+        return switch (symbol.kind()) {
+            case TYPE_DEFINITION -> Optional.ofNullable(((TypeDefinitionSymbol) symbol).typeDescriptor());
+            case VARIABLE -> Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor());
+            case PARAMETER -> Optional.ofNullable(((ParameterSymbol) symbol).typeDescriptor());
+            case ANNOTATION -> ((AnnotationSymbol) symbol).typeDescriptor();
+            case FUNCTION,
+                 METHOD -> Optional.ofNullable(((FunctionSymbol) symbol).typeDescriptor());
+            case CONSTANT,
+                 ENUM_MEMBER -> Optional.ofNullable(((ConstantSymbol) symbol).typeDescriptor());
+            case CLASS -> Optional.of((ClassSymbol) symbol);
+            case RECORD_FIELD -> Optional.ofNullable(((RecordFieldSymbol) symbol).typeDescriptor());
+            case OBJECT_FIELD -> Optional.of(((ObjectFieldSymbol) symbol).typeDescriptor());
+            case CLASS_FIELD -> Optional.of(((ClassFieldSymbol) symbol).typeDescriptor());
+            case TYPE -> Optional.of((TypeSymbol) symbol);
+            default -> Optional.empty();
+        };
+    }
+
+    /**
+     * Retrieves the type parameter's bound type based on the kind of the input BType.
+     *
+     * @param type The input BType for which the bound type is to be retrieved.
+     * @return The bound type based on the kind of the input BType. Returns null if the kind is not supported.
+     */
+     public static BType getTypeParamBoundType(BType type) {
+         return switch (type.getKind()) {
+             case MAP -> ((BMapType) type).constraint;
+             case ARRAY -> ((BArrayType) type).eType;
+             case TABLE -> ((BTableType) type).constraint;
+             case STREAM -> ((BStreamType) type).constraint;
+             case XML -> {
+                 if (type.tag == TypeTags.XML) {
+                     yield ((BXMLType) type).constraint;
+                 }
+                 yield type;
+             }
+             // The following explicitly mentioned type kinds should be supported, but they are not for the moment.
+             case ERROR -> null;
+             default -> null;
+         };
     }
 }

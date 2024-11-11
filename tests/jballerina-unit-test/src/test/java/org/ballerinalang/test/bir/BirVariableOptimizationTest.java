@@ -20,22 +20,22 @@ package org.ballerinalang.test.bir;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.bir.optimizer.LivenessAnalyzer;
+import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 /**
- * Test to confirm the functionality of the {@link LivenessAnalyzer}.
+ * Test to confirm the functionality of the {@link BIROptimizer}.
  */
 public class BirVariableOptimizationTest {
     private BIREmitter birEmitter;
@@ -65,8 +65,8 @@ public class BirVariableOptimizationTest {
         } catch (IOException e) {
             Assert.fail("Failed when reading file", e);
         }
-        if (!"".equals(expectedBir)) {
-            String funcBir = birEmitter.emitFunction(func, 0);
+        if (!expectedBir.isEmpty()) {
+            String funcBir = BIREmitter.emitFunction(func, 0);
             Assert.assertEquals(funcBir, expectedBir);
         }
     }
@@ -75,16 +75,21 @@ public class BirVariableOptimizationTest {
         // The files in the bir-dump folder are named with the function name and contain the expected bir dump for
         // the function
         name = name.replaceAll("<", "").replaceAll(">", "");
-        Path filePath = Paths.get("src", "test", "resources", "test-src", "bir", "bir-dump", name).toAbsolutePath();
+        Path filePath = Path.of("src", "test", "resources", "test-src", "bir", "bir-dump", name).toAbsolutePath();
         if (Files.exists(filePath)) {
             StringBuilder contentBuilder = new StringBuilder();
+            try (Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8)) {
+                stream.forEach(s -> contentBuilder.append(s).append("\n"));
 
-            Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8);
-            stream.forEach(s -> contentBuilder.append(s).append("\n"));
-
-            return contentBuilder.toString().trim();
+                return contentBuilder.toString().trim();
+            }
         }
         return "";
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }
 

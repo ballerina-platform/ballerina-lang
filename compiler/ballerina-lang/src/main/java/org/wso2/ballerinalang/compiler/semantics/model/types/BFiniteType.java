@@ -37,7 +37,7 @@ import java.util.StringJoiner;
  */
 public class BFiniteType extends BType implements FiniteType {
 
-    private Set<BLangExpression> valueSpace;
+    private final Set<BLangExpression> valueSpace;
     private boolean nullable = false;
     public Boolean isAnyData = null;
 

@@ -20,7 +20,7 @@ under the License.
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="json-to-record-converter-test-suite">
-    <test name="openapi-cli-test-suite" parallel="false">
+    <test name="openapi-cli-test-suite">
         <classes>
             <class name="io.ballerina.converters.JsonToRecordConverterTests"/>
         </classes>

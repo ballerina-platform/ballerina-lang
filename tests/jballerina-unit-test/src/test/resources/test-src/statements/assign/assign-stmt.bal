@@ -250,10 +250,10 @@ function testAssignVarInQueryExpression() {
     TestGenerator generator = new ();
     TestStream testStream = new (generator);
 
-    var x26 = from var _ in testStream select "A";
+    var x26 = stream from var _ in testStream select "A";
     assertTrue(x26 is stream<string, error?>);
 
-    var x27 = from var _ in testStream select 1;
+    var x27 = stream from var _ in testStream select 1;
     assertTrue(x27 is stream<int, error?>);
 
     var x28 = stream from var _ in testStream select "A";

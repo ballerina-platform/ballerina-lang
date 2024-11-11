@@ -40,6 +40,7 @@ public class DebugInstructionTest extends BaseTestCase {
 
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() {
     }
@@ -158,6 +159,7 @@ public class DebugInstructionTest extends BaseTestCase {
                 || debugHitInfo.getLeft().equals(new BallerinaTestDebugPoint(mainFilePath, 21)));
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

@@ -18,6 +18,7 @@ package org.ballerinalang.test.annotations;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ClassDefinition;
+import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
@@ -26,16 +27,22 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 
 import java.util.List;
 
@@ -58,8 +65,8 @@ public class DisplayAnnotationTest {
 
     @Test
     public void testDisplayAnnotOnFunction() {
-        BLangFunction fooFunction = (BLangFunction) ((List) ((BLangPackage) result.getAST()).functions).get(0);
-        BLangAnnotationAttachment annot = (BLangAnnotationAttachment) ((List) fooFunction.annAttachments).get(0);
+        BLangFunction fooFunction = (BLangFunction) ((List<?>) ((BLangPackage) result.getAST()).functions).get(0);
+        BLangAnnotationAttachment annot = (BLangAnnotationAttachment) ((List<?>) fooFunction.annAttachments).get(0);
         Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(annot.expr).toString(),
                 " {iconPath: <string?> fooIconPath.icon,label: Foo function}");
     }
@@ -90,7 +97,7 @@ public class DisplayAnnotationTest {
 
     @Test
     public void testDisplayAnnotOnRecord() {
-        TypeDefinition typeDefinition = result.getAST().getTypeDefinitions().get(23);
+        TypeDefinition typeDefinition = result.getAST().getTypeDefinitions().get(15);
         List<? extends AnnotationAttachmentNode> annot = typeDefinition.getAnnotationAttachments();
         Assert.assertEquals(annot.size(), 1);
         Assert.assertEquals(annot.get(0).getExpression().toString(),
@@ -103,7 +110,30 @@ public class DisplayAnnotationTest {
                 "clientSecret field,kind: <\"text\"|\"password\"|\"file\"?> password}");
     }
 
-    @Test void testDisplayAnnotationNegative() {
+    @Test
+    public void testDisplayAnnotOnWorker() {
+        BLangBlockFunctionBody bLangBlockFunctionBody =
+                ((BLangBlockFunctionBody) result.getAST().getFunctions().get(2).getBody());
+        BLangStatement bLangStatement = bLangBlockFunctionBody.getStatements().get(1);
+        FunctionNode workerExpression =
+                ((BLangLambdaFunction) ((BLangSimpleVariableDef) bLangStatement).getVariable()
+                        .getInitialExpression()).getFunctionNode();
+        BLangAnnotationAttachment annot =
+                (BLangAnnotationAttachment) workerExpression.getAnnotationAttachments().get(0);
+        Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(annot.expr).toString(),
+                " {label: worker annotation,type: <anydata> named,id: <anydata> hash}");
+    }
+
+    @Test
+    public void testDisplayAnnotOnExternalFunctionBody() {
+        BLangExternalFunctionBody body = (BLangExternalFunctionBody) result.getAST().getFunctions().get(3).getBody();
+        BLangAnnotationAttachment annot = (BLangAnnotationAttachment) ((List<?>) body.annAttachments).get(0);
+        Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(annot.expr).toString(),
+                " {label: external,id: <anydata> hash}");
+    }
+
+    @Test
+    void testDisplayAnnotationNegative() {
         BAssertUtil.validateError(negative, 0, "cannot specify more than one annotation value " +
                 "for annotation 'ballerina/lang.annotations:0.0.0:display'", 17, 1);
         BAssertUtil.validateError(negative, 1, "incompatible types: expected '\"text\"|\"password\"|\"file\"?'," +
@@ -122,5 +152,11 @@ public class DisplayAnnotationTest {
             return ((BLangInvocation) expression).expr;
         }
         return expression;
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negative = null;
     }
 }

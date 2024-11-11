@@ -32,7 +32,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
@@ -48,19 +47,20 @@ public class BuildNativeImageCommandTest extends BaseCommandTest {
     private Path testDistCacheDirectory;
     ProjectEnvironmentBuilder projectEnvironmentBuilder;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
         try {
             this.testResources = super.tmpDir.resolve("native-image-resources");
-            Path testBuildDirectory = Paths.get("build").toAbsolutePath();
+            Path testBuildDirectory = Path.of("build").toAbsolutePath();
             this.testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-            Path customUserHome = Paths.get("build", "user-home");
+            Path customUserHome = Path.of("build", "user-home");
             Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
             projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
             URI testResourcesURI = Objects.requireNonNull(
                     getClass().getClassLoader().getResource("test-resources")).toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI), new TestCommandTest.Copy(Paths.get(testResourcesURI),
+            Files.walkFileTree(Path.of(testResourcesURI), new TestCommandTest.Copy(Path.of(testResourcesURI),
                     this.testResources));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
@@ -71,12 +71,27 @@ public class BuildNativeImageCommandTest extends BaseCommandTest {
     public void testBuildProjectWithNativeImage() {
         Path projectPath = this.testResources.resolve("nativeimageProject");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                false, true, "");
         // non existing bal file
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery").toFile().exists());
+    }
+
+    // TODO: unable to get the build log.. need to fix
+    @Test(description = "Test valid ballerina project with graalvm additional args", enabled = false)
+    public void testBuildProjectWithAdditionalArgs() throws IOException {
+        Path projectPath = this.testResources.resolve("nativeimageProject");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                false, true, "-H:Name=hoo");
+        // non existing bal file
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Generating 'hoo' (executable)"));
     }
 
     @Test(description = "Test build valid ballerina file with native image", enabled = false)
@@ -91,12 +106,28 @@ public class BuildNativeImageCommandTest extends BaseCommandTest {
 
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         // set valid source root
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, false, true, "");
         // name of the file as argument
-        new CommandLine(buildCommand).parse(projectPath.toString());
+        new CommandLine(buildCommand).parseArgs(projectPath.toString());
         buildCommand.execute();
 
         Assert.assertTrue(projectPath.resolve("target").resolve("native").resolve("winery").toFile().exists());
     }
 
+    @Test(description = "Test valid ballerina file with graalvm additional args", enabled = false)
+    public void testBuildBalFileWithAdditionalArgs() throws IOException {
+        // Fails due to
+        // Error: Invalid classpath entry /var/folders/0_/8461jmg92gvfcy16rbv19mqh0000gn/T/b7a-cmd-test
+        // -17337270728504112456427046681678614/native-image-resources/valid-test-bal-file/main.jar
+        //Caused by: java.util.zip.ZipException: ZIP file can't be opened as a file system because entry
+        // "/resources/$anon/./0/openapi-spec.yaml" has a '.' or '..' element in its name
+        Path projectPath = this.testResources.resolve("nativeimageSingleFile").resolve("main.bal");
+        System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                false, true, "-H:Name=hoo");
+        new CommandLine(buildCommand).parseArgs(projectPath.toString());
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Generating 'hoo' (executable)"));
+    }
 }

@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 2.0.0
  */
-public class Sleep {
+public final class Sleep {
 
     private static final int CORE_THREAD_POOL_SIZE = 1;
     private static final BigDecimal LONG_MAX = new BigDecimal(Long.MAX_VALUE);

@@ -18,6 +18,7 @@ package org.ballerinalang.test.types.json;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -60,5 +61,10 @@ public class TableToJSONNegaiveTest {
         validateError(compileResult, indx++, "incompatible types: expected 'json', found " +
                 "'table<record {| |}>'", 73, 12);
         assertEquals(compileResult.getErrorCount(), indx);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

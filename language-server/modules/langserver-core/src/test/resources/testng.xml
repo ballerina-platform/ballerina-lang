@@ -17,10 +17,10 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="language-server-core-test-suite">
-    <test name="language-server-core-tests" preserve-order="true" parallel="false">
+    <test name="language-server-core-tests" preserve-order="true">
         <groups>
             <run>
                 <exclude name="broken"/>
@@ -54,6 +54,9 @@ under the License.
             <package name="org.ballerinalang.langserver.exprscheme.*"/>
             <package name="org.ballerinalang.langserver.eventsync.*"/>
             <package name="org.ballerinalang.langserver.lspackageloader.*"/>
+            <package name="org.ballerinalang.langserver.inlayhint.*"/>
+            <package name="org.ballerinalang.langserver.common.utils.*"/>
+            <package name="org.ballerinalang.langserver.memoryusagemonitor.*"/>
         </packages>
         <classes>
             <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeByRangeTest"/>

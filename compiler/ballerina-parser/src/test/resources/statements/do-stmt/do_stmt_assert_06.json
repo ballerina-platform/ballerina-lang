@@ -459,50 +459,62 @@
                       ]
                     },
                     {
-                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "kind": "TYPED_BINDING_PATTERN",
+                      "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "extra",
-                          "trailingMinutiae": [
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "extra",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "hasDiagnostics": true,
-                      "value": "e",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "hasDiagnostics": true,
-                            "children": [
-                              {
-                                "kind": "TYPEDESC_KEYWORD",
-                                "hasDiagnostics": true,
-                                "diagnostics": [
-                                  "ERROR_INVALID_TOKEN"
-                                ]
-                              }
-                            ]
-                          }
                         },
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "hasDiagnostics": true,
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "hasDiagnostics": true,
+                              "value": "e",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "INVALID_NODE_MINUTIAE",
+                                  "invalidNode": {
+                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "hasDiagnostics": true,
+                                    "children": [
+                                      {
+                                        "kind": "TYPEDESC_KEYWORD",
+                                        "hasDiagnostics": true,
+                                        "diagnostics": [
+                                          "ERROR_INVALID_TOKEN"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },

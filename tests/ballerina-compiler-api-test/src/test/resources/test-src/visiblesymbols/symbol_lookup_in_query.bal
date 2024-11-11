@@ -49,7 +49,13 @@ function test() {
                                    select k)
                 select i;
 
-    var res7 =  from int ii in (from int k in arr1
+    var res7 = from var {firstName, lastName} in personList
+                group by firstName select firstName;
+
+    var res8 = from var firstName in (from var {firstName, lastName} in personList
+                group by firstName select firstName) select firstName;
+
+    var res9 =  from int ii in (from int k in arr1
                                        select k)
                 join int jj in (from int m in arr2 select m) on
 }

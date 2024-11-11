@@ -455,6 +455,20 @@ function testDecimalConstsWithTypeReferenceTypeDescriptorsDefinedWithNumericLite
     1d _ = ONE;
 }
 
+// -----------------------------------------------------------
+const CONST1 = 200;
+const byte CONST2 = CONST1;
+const int CONST3 = 200;
+const byte CONST4 = CONST3;
+
+function testAssigningConstToByte() {
+    assertEquality(200, CONST2);
+    assertEquality(200, CONST4);
+
+    byte b = CONST1;
+    assertEquality(200, b);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

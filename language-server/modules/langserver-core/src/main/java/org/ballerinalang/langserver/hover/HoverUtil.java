@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.ModuleId;
@@ -43,13 +44,17 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.util.Optional;
 
 /**
  * Utility class for Hover functionality of language server.
  */
-public class HoverUtil {
+public final class HoverUtil {
+
+    private HoverUtil() {
+    }
 
     /**
      * Get the hover content.
@@ -70,7 +75,7 @@ public class HoverUtil {
         LinePosition linePosition = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
         // Check for the cancellation before the time-consuming operation
         context.checkCancelled();
-        Optional<? extends Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(), linePosition);
+        Optional<Symbol> symbolAtCursor = getSymbolAtCursor(context, semanticModel.get(), srcFile.get(), linePosition);
         // Check for the cancellation after the time-consuming operation
         context.checkCancelled();
 
@@ -107,8 +112,10 @@ public class HoverUtil {
             if (moduleID.isEmpty() || symbol.get().getName().isEmpty()) {
                 return hoverObj;
             }
-            String url = APIDocReference.from(moduleID.get().orgName(),
-                    moduleID.get().moduleName(), moduleID.get().version(), symbol.get().getName().get());
+            ModuleID modID = moduleID.get();
+            String version = CommonUtil.isLangLibOrLangTest(modID) ? RepoUtils.getBallerinaVersion() : modID.version();
+            String url = APIDocReference.from(modID.orgName(), modID.moduleName(), version,
+                    symbol.get().getName().get());
             markupContent.setValue((content.isEmpty() ? "" : content + MarkupUtils.getHorizontalSeparator())
                     + "[View API Docs](" + url + ")");
             hoverObj.setContents(markupContent);
@@ -117,12 +124,24 @@ public class HoverUtil {
         return hoverObj;
     }
 
+    private static Optional<Symbol> getSymbolAtCursor(HoverContext context, SemanticModel semanticModel,
+                                                      Document srcFile, LinePosition linePosition) {
+        NonTerminalNode cursor = context.getNodeAtCursor();
+        SyntaxKind kind = cursor.kind();
+        if (kind == SyntaxKind.LIST || kind == SyntaxKind.PARENTHESIZED_ARG_LIST
+                || kind == SyntaxKind.SIMPLE_NAME_REFERENCE
+                && cursor.parent().kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION) {
+            return semanticModel.symbol(cursor.parent());
+        }
+        return semanticModel.symbol(srcFile, linePosition);
+    }
+
     /**
      * returns the default hover object.
      *
      * @return {@link Hover} hover object.
      */
-    protected static Hover getHoverObject() {
+    static Hover getHoverObject() {
         return getHoverObject("");
     }
 
@@ -131,7 +150,7 @@ public class HoverUtil {
      *
      * @return {@link Hover} hover object.
      */
-    protected static Hover getHoverObject(String content) {
+    static Hover getHoverObject(String content) {
         Hover hover = new Hover();
         MarkupContent hoverMarkupContent = new MarkupContent();
         hoverMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
@@ -148,8 +167,8 @@ public class HoverUtil {
      * @param currentModule  Current Module.
      * @return {@link Boolean} Whether the symbol is visible in the current context.
      */
-    protected static Boolean withValidAccessModifiers(Symbol symbol, Package currentPackage,
-                                                      ModuleId currentModule, HoverContext context) {
+    static Boolean withValidAccessModifiers(Symbol symbol, Package currentPackage,
+                                            ModuleId currentModule, HoverContext context) {
         Optional<Project> project = context.workspace().project(context.filePath());
         Optional<ModuleSymbol> typeSymbolModule = symbol.getModule();
 
@@ -162,8 +181,7 @@ public class HoverUtil {
         boolean isPublic = false;
         boolean isRemote = false;
 
-        if (symbol instanceof Qualifiable) {
-            Qualifiable qSymbol = (Qualifiable) symbol;
+        if (symbol instanceof Qualifiable qSymbol) {
             isPrivate = qSymbol.qualifiers().contains(Qualifier.PRIVATE);
             isPublic = qSymbol.qualifiers().contains(Qualifier.PUBLIC);
             isResource = qSymbol.qualifiers().contains(Qualifier.RESOURCE);
@@ -185,11 +203,11 @@ public class HoverUtil {
      * @return {@link Hover}
      */
     public static Hover getDescriptionOnlyHoverObject(Symbol symbol) {
-        if (!(symbol instanceof Documentable) || ((Documentable) symbol).documentation().isEmpty()) {
+        if (!(symbol instanceof Documentable documentable) || documentable.documentation().isEmpty()) {
             return HoverUtil.getHoverObject("");
         }
 
-        return getDescriptionOnlyHoverObject(((Documentable) symbol).documentation().get());
+        return getDescriptionOnlyHoverObject(documentable.documentation().get());
     }
 
     /**

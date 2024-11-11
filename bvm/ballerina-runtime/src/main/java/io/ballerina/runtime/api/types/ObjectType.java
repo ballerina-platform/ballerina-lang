@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BObjectType} represents a user defined object type in Ballerina.
+ * {@code ObjectType} represents a user defined object type in Ballerina.
  *
  * @since 2.0.0
  */
@@ -27,6 +27,13 @@ public interface ObjectType extends StructureType, SelectivelyImmutableReference
     void setMethods(MethodType[] methodTypes);
 
     MethodType[] getMethods();
+
+    /**
+     * Get the type of the object init method.
+     *
+     * @return {@link MethodType} of the init method.
+     */
+    MethodType getInitMethod();
 
     /**
      * Provides given @{@link ObjectType} is isolated.

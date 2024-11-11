@@ -17,6 +17,8 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.List;
+
 /**
  * Represent documentation for an Error.
  */
@@ -26,8 +28,9 @@ public class Error extends Construct {
     @Expose
     public boolean isDistinct;
 
-    public Error(String name, String description, boolean isDeprecated, Type detailType) {
-        super(name, description, isDeprecated);
+    public Error(String name, String description, List<String> descriptionSections, boolean isDeprecated,
+                 Type detailType) {
+        super(name, description, descriptionSections, isDeprecated);
         this.detailType = detailType;
     }
 }

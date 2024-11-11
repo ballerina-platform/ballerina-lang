@@ -26,8 +26,12 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 1.0
  */
-public class ToString {
+public final class ToString {
+
+    private ToString() {
+    }
+
     public static BString toString(Object value) {
-        return StringUtils.fromString(StringUtils.getStringValue(value, null));
+        return StringUtils.fromString(StringUtils.getStringValue(value));
     }
 }

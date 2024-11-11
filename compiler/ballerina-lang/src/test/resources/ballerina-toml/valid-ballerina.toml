@@ -9,17 +9,21 @@ repository= "https://github.com/ballerina-platform/ballerina-lang"
 distribution= "slbeta2"
 visibility= "private"
 
-[[platform.java11.dependency]]
+[platform.java17]
+graalvmCompatible = true
+
+[[platform.java17.dependency]]
 path = "../dummy-jars/toml4j.txt"
 artifactId = "toml4j"
 version = "0.7.2"
 groupId = "com.moandjiezana.toml"
 
-[[platform.java11.dependency]]
+[[platform.java17.dependency]]
 path = "../dummy-jars/swagger.txt"
 artifactId = "swagger"
 version = "0.7.2"
 groupId = "swagger.io"
+graavmCompatible = true
 
 [build-options]
 observabilityIncluded = false

@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+import static org.ballerinalang.langlib.table.utils.Constants.TABLE_VERSION;
 
 /**
  * Native implementation of lang.table:filter(table&lt;Type&gt;, function).
@@ -45,14 +45,17 @@ import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 //        returnType = {@ReturnType(type = TypeKind.TABLE)},
 //        isPublic = true
 //)
-public class Filter {
+public final class Filter {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "filter");
 
-    public static BTable filter(BTable tbl, BFunctionPointer<Object, Boolean> func) {
-        TableType tableType = (TableType) TypeUtils.getReferredType(tbl.getType());
-        BTable newTable =
+    private Filter() {
+    }
+
+    public static BTable<Object, Object> filter(BTable<?, ?> tbl, BFunctionPointer<Object[], Boolean> func) {
+        TableType tableType = (TableType) TypeUtils.getImpliedType(tbl.getType());
+        BTable<Object, Object> newTable = (BTable<Object, Object>)
                 ValueCreator.createTableValue(TypeCreator.createTableType(tableType.getConstrainedType(),
                         tableType.getFieldNames(), false));
         int size = tbl.size();
@@ -69,5 +72,4 @@ public class Filter {
                 }, () -> newTable, Scheduler.getStrand().scheduler);
         return newTable;
     }
-
 }

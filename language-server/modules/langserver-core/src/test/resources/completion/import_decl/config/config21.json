@@ -4,6 +4,7 @@
     "character": 5
   },
   "source": "import_decl/source/lsproject/modules/module3/main8.bal",
+  "description": "",
   "items": [
     {
       "label": "xmlns",
@@ -400,11 +401,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -424,11 +425,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -448,11 +449,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -607,11 +608,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -631,11 +632,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -655,11 +656,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -679,11 +680,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -703,11 +704,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -727,11 +728,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -751,11 +752,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -775,11 +776,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -799,11 +800,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -832,11 +833,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -987,6 +988,353 @@
       "detail": "Typedesc",
       "sortText": "N",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "M",
+      "insertText": "module1:AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TargetType",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The types of data values that are expected by the `client` to return after the data binding operation."
+      },
+      "sortText": "N",
+      "insertText": "module1:TargetType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Client",
+      "kind": "Interface",
+      "detail": "Class",
+      "documentation": {
+        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
+      },
+      "sortText": "K",
+      "insertText": "module1:Client",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:GLOBAL_VAR",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "module1:GLOBAL_VAR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "\"ENUM1_FIELD1\"",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "H",
+      "insertText": "module1:ENUM1_FIELD1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "K",
+      "insertText": "module1:TestClass1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "N",
+      "insertText": "module1:TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "N",
+      "insertText": "module1:TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "K",
+      "insertText": "module1:TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:ErrorTwo",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "module1:ErrorTwo",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:ErrorOne",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "module1:ErrorOne",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:function4(int param1, int param2, string param3, float... param4)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
+        }
+      },
+      "sortText": "C",
+      "filterText": "module1_function4",
+      "insertText": "module1:function4(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "module1:function3(int param1, int param2, float... param3)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "module1_function3",
+      "insertText": "module1:function3(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "module1:function2()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "module1_function2",
+      "insertText": "module1:function2()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:function1()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "module1_function1",
+      "insertText": "module1:function1()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:RequestMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
+      },
+      "sortText": "I",
+      "insertText": "module1:RequestMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TEST_STRING_CONST1",
+      "kind": "Variable",
+      "detail": "\"HELLO WORLD\"",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "B",
+      "insertText": "module1:TEST_STRING_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TEST_INT_CONST1",
+      "kind": "Variable",
+      "detail": "1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "B",
+      "insertText": "module1:TEST_INT_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TargetType2",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The super type of all the types."
+      },
+      "sortText": "N",
+      "insertText": "module1:TargetType2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TEST_FUTURE_INT",
+      "kind": "Variable",
+      "detail": "future<int>",
+      "sortText": "B",
+      "insertText": "module1:TEST_FUTURE_INT",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:ResponseMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
+      },
+      "sortText": "I",
+      "insertText": "module1:ResponseMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:listener1",
+      "kind": "Variable",
+      "detail": "module1:Listener",
+      "sortText": "B",
+      "insertText": "module1:listener1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestEnum1",
+      "kind": "Enum",
+      "detail": "enum",
+      "sortText": "I",
+      "insertText": "module1:TestEnum1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Response",
+      "kind": "Interface",
+      "detail": "Class",
+      "documentation": {
+        "left": "Represents a response.\n"
+      },
+      "sortText": "K",
+      "insertText": "module1:Response",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "M",
+      "insertText": "module1:TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestRecord2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "M",
+      "insertText": "module1:TestRecord2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:ClientError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Defines the possible client error types."
+      },
+      "sortText": "L",
+      "insertText": "module1:ClientError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Listener",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "K",
+      "insertText": "module1:Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Error",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "I",
+      "insertText": "module1:Error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Error2",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "I",
+      "insertText": "module1:Error2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Error1",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "module1:Error1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:E1",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "module1:E1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:E3",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "module1:E3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:E2",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "module1:E2",
       "insertTextFormat": "Snippet"
     }
   ]

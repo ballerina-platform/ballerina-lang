@@ -23,8 +23,8 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.LENGTH_GREATER_THAT_2147483647_NOT_YET_SUPPORTED;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.LENGTH_GREATER_THAT_2147483647_NOT_YET_SUPPORTED;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Extern function ballerina.model.strings:PadZero.
@@ -32,7 +32,10 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  * @since 2201.1.0
  */
 
-public class PadZero {
+public final class PadZero {
+
+    private PadZero() {
+    }
 
     public static BString padZero(BString str, long len, BString padChar) {
         int strLength = str.length();

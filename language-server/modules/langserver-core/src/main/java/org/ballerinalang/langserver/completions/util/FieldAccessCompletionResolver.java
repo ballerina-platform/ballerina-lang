@@ -62,7 +62,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Symbol resolver for the field access expressions.
@@ -157,7 +156,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
             functionName = ((SimpleNameReferenceNode) nameRef).name().text();
             visibleEntries = context.visibleSymbols(context.getCursorPosition()).stream()
                     .filter(fSymbolPredicate.or(fPointerPredicate))
-                    .collect(Collectors.toList());
+                    .toList();
         } else {
             return Optional.empty();
         }
@@ -259,7 +258,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                 ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) rawType;
                 visibleEntries.addAll(objTypeDesc.fieldDescriptors().values().stream()
                         .filter(objectFieldSymbol -> withValidAccessModifiers(node, objectFieldSymbol, currentPkg.get(),
-                                currentModule.get().moduleId())).collect(Collectors.toList()));
+                                currentModule.get().moduleId())).toList());
                 boolean isClient = SymbolUtil.isClient(objTypeDesc);
                 boolean isService = SymbolUtil.getTypeDescForObjectSymbol(objTypeDesc)
                         .qualifiers().contains(Qualifier.SERVICE);
@@ -270,7 +269,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                                 && !methodSymbol.qualifiers().contains(Qualifier.RESOURCE)
                                 && withValidAccessModifiers(node, methodSymbol, currentPkg.get(),
                                 currentModule.get().moduleId()))
-                        .collect(Collectors.toList());
+                        .toList();
                 visibleEntries.addAll(methodSymbols);
                 break;
             case UNION:
@@ -280,7 +279,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                 }
                 List<TypeSymbol> members = ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
                         .map(CommonUtil::getRawType)
-                        .collect(Collectors.toList());
+                        .toList();
                 if (!members.stream().allMatch(
                         member -> member.typeKind() == TypeDescKind.NIL || member.typeKind() == TypeDescKind.RECORD)) {
                     break;
@@ -316,8 +315,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         boolean isPublic = false;
         boolean isResource = false;
 
-        if (symbol instanceof Qualifiable) {
-            Qualifiable qSymbol = (Qualifiable) symbol;
+        if (symbol instanceof Qualifiable qSymbol) {
             isPrivate = qSymbol.qualifiers().contains(Qualifier.PRIVATE);
             isPublic = qSymbol.qualifiers().contains(Qualifier.PUBLIC);
             isResource = qSymbol.qualifiers().contains(Qualifier.RESOURCE);

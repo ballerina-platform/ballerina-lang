@@ -53,9 +53,45 @@ public class Module extends ModuleMetaData {
     @Expose
     public List<BType> types = new ArrayList<>();
     @Expose
+    public List<BType> unionTypes = new ArrayList<>();
+    @Expose
+    public List<BType> simpleNameReferenceTypes = new ArrayList<>();
+    @Expose
+    public List<BType> tupleTypes = new ArrayList<>();
+    @Expose
+    public List<TableType> tableTypes = new ArrayList<>();
+    @Expose
+    public List<MapType> mapTypes = new ArrayList<>();
+    @Expose
+    public List<BType> intersectionTypes = new ArrayList<>();
+    @Expose
+    public List<BType> typeDescriptorTypes = new ArrayList<>();
+    @Expose
+    public List<BType> functionTypes = new ArrayList<>();
+    @Expose
+    public List<BType> streamTypes = new ArrayList<>();
+    @Expose
+    public List<BType> arrayTypes = new ArrayList<>();
+    @Expose
+    public List<BType> anyDataTypes = new ArrayList<>();
+    @Expose
+    public List<BType> anyTypes = new ArrayList<>();
+    @Expose
+    public List<BType> stringTypes = new ArrayList<>();
+    @Expose
+    public List<BType> integerTypes = new ArrayList<>();
+    @Expose
+    public List<BType> decimalTypes = new ArrayList<>();
+    @Expose
+    public List<BType> xmlTypes = new ArrayList<>();
+    @Expose
+    public List<BType> booleanTypes = new ArrayList<>();
+    @Expose
     public List<Enum> enums = new ArrayList<>();
     @Expose
     public List<DefaultableVariable> variables = new ArrayList<>();
-
+    @Expose
+    public List<DefaultableVariable> configurables = new ArrayList<>();
+    @Expose
     public List<Path> resources = new ArrayList<>();
 }

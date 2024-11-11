@@ -19,8 +19,8 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 
 /**
  * Check whether the XML sequence contains only a single element.
@@ -33,15 +33,18 @@ import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 //        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
 //        isPublic = true
 //)
-public class IsSingleton {
+public final class IsSingleton {
 
     private static final String OPERATION = "check xml is singleton";
+
+    private IsSingleton() {
+    }
 
     public static boolean isSingleton(Strand strand, BXml xml) {
         try {
             return xml.isSingleton();
         } catch (Throwable e) {
-            BLangExceptionHelper.handleXMLException(OPERATION, e);
+            ErrorHelper.handleXMLException(OPERATION, e);
         }
 
         return false;

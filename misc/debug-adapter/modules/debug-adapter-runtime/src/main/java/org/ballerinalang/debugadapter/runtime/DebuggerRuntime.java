@@ -40,12 +40,11 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
-import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
+import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.StringValue;
 import io.ballerina.runtime.internal.values.TypedescValue;
@@ -58,7 +57,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -86,7 +84,7 @@ import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
  * @since 2.0.0
  */
 @SuppressWarnings("unused")
-public class DebuggerRuntime {
+public final class DebuggerRuntime {
 
     private static final String EVALUATOR_STRAND_NAME = "evaluator-strand";
     private static final String XML_STEP_SEPARATOR = "/";
@@ -114,7 +112,7 @@ public class DebuggerRuntime {
             final Object[] finalResult = new Object[1];
             final Object[] paramValues = args[0] instanceof Strand ? Arrays.copyOfRange(args, 1, args.length) : args;
 
-            Function<?, ?> func = o -> bObject.call((Strand) (((Object[]) o)[0]), methodName, paramValues);
+            Function<Object[], ?> func = o -> bObject.call((Strand) ((o)[0]), methodName, paramValues);
             Object resultFuture = scheduler.schedule(new Object[1], func, null, new Callback() {
                 @Override
                 public void notifySuccess(Object result) {
@@ -133,7 +131,7 @@ public class DebuggerRuntime {
             latch.await();
             return finalResult[0];
         } catch (Exception e) {
-            throw new BallerinaException("invocation failed: " + e.getMessage());
+            throw ErrorCreator.createError(StringUtils.fromString("invocation failed: " + e.getMessage()));
         }
     }
 
@@ -159,7 +157,8 @@ public class DebuggerRuntime {
                 try {
                     return method.invoke(null, args);
                 } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new BallerinaException("'" + methodName + "' function invocation failed: " + e.getMessage());
+                    throw ErrorCreator.createError(StringUtils.fromString(
+                            "'" + methodName + "' function invocation failed: " + e.getMessage()));
                 }
             };
 
@@ -183,7 +182,8 @@ public class DebuggerRuntime {
             latch.await();
             return finalResult[0];
         } catch (Exception e) {
-            throw new BallerinaException("'" + methodName + "' function invocation failed: " + e.getMessage());
+            throw ErrorCreator.createError(StringUtils.fromString(
+                    "'" + methodName + "' function invocation failed: " + e.getMessage()));
         }
     }
 
@@ -261,8 +261,8 @@ public class DebuggerRuntime {
                     "found '" + typedescValue.toString() + "'."));
         }
         Type type = ((TypedescValue) typedescValue).getDescribingType();
-        if (type instanceof BAnnotatableType) {
-            return ((BAnnotatableType) type).getAnnotations().entrySet()
+        if (type instanceof BAnnotatableType bAnnotatableType) {
+            return bAnnotatableType.getAnnotations().entrySet()
                     .stream()
                     .filter(annotationEntry -> annotationEntry.getKey().getValue().endsWith(annotationName))
                     .findFirst()
@@ -294,8 +294,8 @@ public class DebuggerRuntime {
             return "int";
         } else if (value instanceof Float || value instanceof Double) {
             return "float";
-        } else if (value instanceof BValue) {
-            return ((BValue) value).getType().getName();
+        } else if (value instanceof BValue bValue) {
+            return bValue.getType().getName();
         } else {
             return "unknown";
         }
@@ -365,7 +365,7 @@ public class DebuggerRuntime {
 
     private static BString[] processXMLNamePattern(String xmlNamePattern) {
         // removes LT and GT tokens if presents.
-        xmlNamePattern = xmlNamePattern.replaceAll("<", "").replaceAll(">", "");
+        xmlNamePattern = xmlNamePattern.replace("<", "").replace(">", "");
 
         if (xmlNamePattern.contains(XML_STEP_SEPARATOR)) {
             String[] stepParts = xmlNamePattern.split(XML_ALL_CHILDREN_STEP);
@@ -394,7 +394,7 @@ public class DebuggerRuntime {
             functionArgs.add(null);
             functionArgs.addAll(Arrays.asList(userArgs));
 
-            URL pathUrl = Paths.get(executablePath).toUri().toURL();
+            URL pathUrl = Path.of(executablePath).toUri().toURL();
             URLClassLoader classLoader = AccessController.doPrivileged((PrivilegedAction<URLClassLoader>) () ->
                     new URLClassLoader(new URL[]{pathUrl}, ClassLoader.getSystemClassLoader()));
 
@@ -408,10 +408,11 @@ public class DebuggerRuntime {
             // Initialize a new scheduler
             Scheduler scheduler = new Scheduler(1, false);
             // Initialize configurations
-            TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
+            ConfigDetails configurationDetails = LaunchUtils.getConfigurationDetails();
             invokeMethodDirectly(classLoader, String.join(".", packageNameSpace, CONFIGURE_INIT_CLASS_NAME),
-                    CONFIGURE_INIT_METHOD_NAME, new Class[]{String[].class, Path[].class, String.class},
-                    new Object[]{new String[]{}, configurationDetails.paths, configurationDetails.configContent});
+                    CONFIGURE_INIT_METHOD_NAME, new Class[]{Map.class, String[].class, Path[].class, String.class},
+                    new Object[]{new HashMap<>(), new String[]{}, configurationDetails.paths,
+                            configurationDetails.configContent});
             // Initialize the module
             invokeFunction(classLoader, scheduler, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
                     MODULE_INIT_METHOD_NAME, new Object[1]);
@@ -437,8 +438,8 @@ public class DebuggerRuntime {
      * @param args        Arguments to provide.
      * @return The result of the invocation.
      */
-    protected static Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
-                                                 Class<?>[] argTypes, Object[] args) throws Exception {
+    private static Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
+                                               Class<?>[] argTypes, Object[] args) throws Exception {
         Class<?> clazz = classLoader.loadClass(className);
         Method method = clazz.getDeclaredMethod(methodName, argTypes);
         return method.invoke(null, args);

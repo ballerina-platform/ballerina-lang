@@ -7,6 +7,9 @@ WARNING [dependson-skip-test.bal:(34:5,34:18)] unused variable 'i'
 Running Tests
 
 	dependson-skip-test.bal
+
+	test2 has failed.
+
 		[pass] test1
 		[pass] test5
 
@@ -14,11 +17,13 @@ Running Tests
 
 		    error("{ballerina}DivisionByZero",message=" / by zero")
 				callableName: test2  fileName: dependson-skip-test.bal lineNumber: 34
-				callableName: test2$lambda2$  fileName: dependson-skip-test.bal lineNumber: 59
+				callableName: test2$lambda2$  fileName: dependson-skip-test.bal lineNumber: 60
 			
 
 
 		2 passing
 		1 failing
 		2 skipped
+
+		Test execution time :*****s
 error: there are test failures

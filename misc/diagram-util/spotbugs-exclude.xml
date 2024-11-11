@@ -8,9 +8,7 @@
         <Package name="org.ballerinalang.diagramutil.connector.*"/>
     </Match>
     <Match>
-        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
-    </Match>
-    <Match>
-        <Bug pattern="BC_UNCONFIRMED_CAST" />
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD,BC_UNCONFIRMED_CAST,EI_EXPOSE_REP,EI_EXPOSE_REP2,
+            DCN_NULLPOINTER_EXCEPTION"/>
     </Match>
 </FindBugsFilter>

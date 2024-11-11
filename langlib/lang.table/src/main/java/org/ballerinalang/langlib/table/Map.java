@@ -35,25 +35,28 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+import static org.ballerinalang.langlib.table.utils.Constants.TABLE_VERSION;
 
 /**
  * Native implementation of lang.table:map(table&lt;Type&gt;, function).
  *
  * @since 1.3.0
  */
-public class Map {
+public final class Map {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "map");
 
-    public static BTable map(BTable tbl, BFunctionPointer<Object, Object> func) {
-        Type newConstraintType = ((FunctionType) TypeUtils.getReferredType(func.getType())).getReturnType();
-        TableType tblType = (TableType) TypeUtils.getReferredType(tbl.getType());
+    private Map() {
+    }
+
+    public static BTable<?, ?> map(BTable<?, ?> tbl, BFunctionPointer<Object[], Object> func) {
+        Type newConstraintType = ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType();
+        TableType tblType = (TableType) TypeUtils.getImpliedType(tbl.getType());
         TableType newTableType =
                 TypeCreator.createTableType(newConstraintType, PredefinedTypes.TYPE_NEVER, tblType.isReadOnly());
 
-        BTable newTable = ValueCreator.createTableValue(newTableType);
+        BTable<Object, Object> newTable = (BTable<Object, Object>) ValueCreator.createTableValue(newTableType);
         int size = tbl.size();
         Object[] tableValues = tbl.values().toArray();
         AtomicInteger index = new AtomicInteger(-1);

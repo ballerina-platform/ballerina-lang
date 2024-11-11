@@ -1,0 +1,25 @@
+NAME
+       ballerina-tool-pull - Pull a tool from the Ballerina Central
+
+SYNOPSIS
+       bal tool pull <tool-id>[:<version>]
+
+OPTIONS
+       -h, --help
+           Print the usage details of tool pull command.
+
+       --repository
+           Pull a tool from local repository.
+
+DESCRIPTION
+       Fetch a given tool from the Ballerina Central and install it
+       as a Ballerina CLI command.
+
+       The specified tool version should be compatible with the current
+       distribution version. If the tool version is not specified,
+       the latest version compatible with the current distribution
+       will be fetched.
+
+EXAMPLES
+       Pull the '1.1.0' version of the 'eod' tool from local repository.
+           $ bal tool pull eod:1.1.0 --repository=local

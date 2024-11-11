@@ -32,8 +32,8 @@ import org.testng.annotations.Test;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
 import static io.ballerina.runtime.api.utils.TypeUtils.getType;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -114,7 +114,7 @@ public class LangLibIntTest {
         BError err = (BError) result.get(1);
         assertEquals(err.getErrorMessage().getValue(),
                 getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER).getValue());
-        assertEquals(err.getDetails().toString(), "{\"message\":\"For input string: \"12invalid34\"\"}");
+        assertEquals(err.getDetails().toString(), "{\"message\":\"For input string: \"12invalid34\" under radix 16\"}");
     }
 
     @DataProvider(name = "MaxNumList")

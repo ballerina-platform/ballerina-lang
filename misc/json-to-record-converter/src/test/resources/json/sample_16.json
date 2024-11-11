@@ -1,0 +1,33 @@
+{
+  "id": "123456",
+  "description": "FTTP Service",
+  "status": "active",
+  "productRef": [
+    {
+      "id": "45322",
+      "accessServiceTechnologyType": "FTTP"
+    },
+    {
+      "id": "16442",
+      "accessServiceTechnologyType": "FTTP",
+      "productRef": [
+        {
+          "id": "OUI000024532202",
+          "ouiType": "OUI-D"
+        }
+      ],
+      "productSpecification": {
+        "id": "OTD",
+        "specificationType": "Resource Specification"
+      },
+      "@type": "OTD",
+      "@baseType": "Product"
+    }
+  ],
+  "productSpecification": {
+    "id": "OPT000000000003",
+    "specificationType": "Product Specification"
+  },
+  "@type": "FTTP",
+  "@baseType": "Product"
+}

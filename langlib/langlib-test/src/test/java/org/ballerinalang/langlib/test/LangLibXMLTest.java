@@ -21,10 +21,10 @@ package org.ballerinalang.langlib.test;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -42,7 +42,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class LangLibXMLTest {
 
-    private CompileResult compileResult, negativeResult, constrainedTest, constraintNegative;
+    private CompileResult compileResult, negativeResult, constrainedTest;
 
     @BeforeClass
     public void setup() {
@@ -348,6 +348,31 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testIterableOperationsOnUnionType() {
+        BRunUtil.invoke(compileResult, "testIterableOperationsOnUnionType");
+    }
+
+    @Test
+    public void testXmlMapOnXmlElementSequence() {
+        BRunUtil.invoke(compileResult, "testXmlMapOnXmlElementSequence");
+    }
+
+    @Test
+    public void testErrorsOnNXmlMapResult() {
+        BRunUtil.invoke(compileResult, "testErrorsOnNXmlMapResult");
+    }
+
+    @Test
+    public void testXmlFilterValueAndErrorWithNonElementSingletonValues() {
+        BRunUtil.invoke(compileResult, "testXmlFilterValueAndErrorWithNonElementSingletonValues");
+    }
+
+    @Test
+    public void testLangLibCallsWithUnions() {
+        BRunUtil.invoke(compileResult, "testLangLibCallsWithUnions");
+    }
+
+    @Test
     public void testNegativeCases() {
         negativeResult = BCompileUtil.compile("test-src/xmllib_test_negative.bal");
         int i = 0;
@@ -372,6 +397,28 @@ public class LangLibXMLTest {
                 97, 62);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found 'xml:Element'",
                 98, 41);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml', " +
+                "found '(xml<xml:Comment>|xml<xml:Element>|int)'", 103, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml', " +
+                "found '(xml<xml:Comment>|xml<xml:Element>|int)'", 104, 20);
+        validateError(negativeResult, i++, "incompatible types: expected 'object { " +
+                "public isolated function next () returns (" +
+                "record {| xml:Comment value; |}?); }', found 'object { " +
+                "public isolated function next () returns (" +
+                "record {| (xml:Comment|xml:ProcessingInstruction) value; |}?); }'", 111, 11);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml:Comment', " +
+                "found '(xml:Comment|xml:ProcessingInstruction)'", 113, 21);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml:ProcessingInstruction', " +
+                "found '(xml:Comment|xml:ProcessingInstruction)'", 114, 35);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml:Comment', " +
+                "found '(xml:Comment|xml:Element)'", 117, 21);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', " +
+                "found '(xml:Comment|xml:Element)'", 118, 21);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml<never>', " +
+                "found '(xml:Element|never)'", 121, 20);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml'", 124, 21);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml:ProcessingInstruction', " +
+                "found 'xml:Comment'", 127, 35);
         assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -393,7 +440,7 @@ public class LangLibXMLTest {
         };
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: " +
                     "'xml\\<\\(lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction" +
                     "\\|lang\\.xml:Text\\)\\>' cannot be cast to 'xml\\<lang\\.xml:Comment\\>.*")
@@ -401,7 +448,7 @@ public class LangLibXMLTest {
         BRunUtil.invoke(constrainedTest, "xmlConstraintRuntimeCastInvalid");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: " +
                     "'xml\\<\\(lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction" +
                     "\\|lang\\.xml:Text\\)\\>' cannot be cast to 'xml\\<\\(lang\\.xml:Element\\|lang\\.xml:Text\\)" +
@@ -410,7 +457,7 @@ public class LangLibXMLTest {
         BRunUtil.invoke(constrainedTest, "xmlConstraintRuntimeCastUnionInvalid");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: " +
                     "'lang\\.xml:Comment' cannot be cast to 'xml\\<lang\\.xml:Element\\>'.*")
     public void xmlElementToConstraintClassInvalid() {
@@ -419,7 +466,7 @@ public class LangLibXMLTest {
 
     @Test
     public void testNegativeConstraint() {
-        constraintNegative = BCompileUtil.compile("test-src/xmllib_constrained_negative_test.bal");
+        CompileResult constraintNegative = BCompileUtil.compile("test-src/xmllib_constrained_negative_test.bal");
         int i = 0;
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Comment', found 'xml:Element'",
                 20, 23);
@@ -429,8 +476,8 @@ public class LangLibXMLTest {
                 25, 28);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:ProcessingInstruction>'," +
                 " found 'xml:Element'", 26, 42);
-        validateError(constraintNegative, i++, "incompatible types: expected 'xml:Comment', found 'xml<xml:Element>'",
-                29, 26);
+        validateError(constraintNegative, i++, "incompatible types: expected 'xml:Comment', " +
+                        "found '(xml:Element|xml<never>)'", 29, 26);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml:Comment'",
                 32, 41);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Comment>'," +

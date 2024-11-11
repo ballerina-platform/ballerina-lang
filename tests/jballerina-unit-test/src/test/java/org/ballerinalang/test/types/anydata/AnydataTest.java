@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -73,11 +74,11 @@ public class AnydataTest {
     public void testRecordAssignment() {
         BArray returns = (BArray) BRunUtil.invoke(result, "testRecordAssignment");
 
-        BMap foo = (BMap) returns.get(0);
+        BMap<?, ?> foo = (BMap<?, ?>) returns.get(0);
         assertEquals(getType(foo).getName(), "Foo");
         assertEquals((foo.get(StringUtils.fromString("a"))), 20L);
 
-        BMap closedFoo = (BMap) returns.get(1);
+        BMap<?, ?> closedFoo = (BMap<?, ?>) returns.get(1);
         assertEquals(getType(closedFoo).getName(), "ClosedFoo");
         assertEquals((closedFoo.get(StringUtils.fromString("ca"))), 35L);
     }
@@ -86,11 +87,12 @@ public class AnydataTest {
     public void testCyclicRecordAssignment() {
         Object returns = BRunUtil.invoke(result, "testCyclicRecordAssignment");
         Assert.assertTrue(returns instanceof BMap<?, ?>);
-        BMap bMap = (BMap) returns;
+        BMap<?, ?> bMap = (BMap<?, ?>) returns;
         Assert.assertEquals(bMap.get(StringUtils.fromString("name")).toString(), "Child");
         Assert.assertEquals(bMap.get(StringUtils.fromString("age")), 25L);
         Assert.assertEquals(
-                ((BMap) bMap.get(StringUtils.fromString("parent"))).get(StringUtils.fromString("name")).toString(),
+                ((BMap<?, ?>) bMap.get(StringUtils.fromString("parent")))
+                        .get(StringUtils.fromString("name")).toString(),
                 "Parent");
     }
 
@@ -276,5 +278,10 @@ public class AnydataTest {
                 "testArrayAssignment",
                 "testAnytoAnydataTypeCast"
         };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

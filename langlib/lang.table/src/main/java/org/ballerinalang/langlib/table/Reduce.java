@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+import static org.ballerinalang.langlib.table.utils.Constants.TABLE_VERSION;
 
 /**
  * Native implementation of lang.table:reduce(table&lt;Type&gt;, function).
@@ -43,12 +43,15 @@ import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 //        returnType = {@ReturnType(type = TypeKind.ANY)},
 //        isPublic = true
 //)
-public class Reduce {
+public final class Reduce {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "reduce");
 
-    public static Object reduce(BTable tbl, BFunctionPointer<Object, Object> func, Object initial) {
+    private Reduce() {
+    }
+
+    public static Object reduce(BTable<?, ?> tbl, BFunctionPointer<Object[], Object> func, Object initial) {
         int size = tbl.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);

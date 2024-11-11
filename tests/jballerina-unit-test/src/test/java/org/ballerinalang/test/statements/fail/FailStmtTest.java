@@ -60,7 +60,7 @@ public class FailStmtTest {
         int index = 0;
 
         validateError(negativeResult, index++,
-                "type '(error|int)' not allowed here; expected an 'error' or a subtype of 'error'.",
+                "type '(error|int)' not allowed here; expected an 'error' or a subtype of 'error'",
                 5, 10);
     }
 

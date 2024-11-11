@@ -17,10 +17,11 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
+
+import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 
 /**
  * <p>
@@ -58,10 +59,10 @@ public class RegExpAtomQuantifier extends RegExpCommonValue implements RegExpTer
     }
 
     private Object getValidReAtom(Object reAtom) {
-        // If reAtom is an instance of BString it's an insertion. Hence we need to parse it and check whether it's a
+        // If reAtom is an instance of BString it's an insertion. Hence, we need to parse it and check whether it's a
         // valid insertion.
-        if (reAtom instanceof BString) {
-            validateInsertion((BString) reAtom);
+        if (reAtom instanceof BString bString) {
+            validateInsertion(bString);
         }
         return reAtom;
     }
@@ -72,6 +73,6 @@ public class RegExpAtomQuantifier extends RegExpCommonValue implements RegExpTer
 
     @Override
     public String stringValue(BLink parent) {
-        return StringUtils.getStringValue(this.reAtom, parent) + this.reQuantifier.stringValue(parent);
+        return getStringVal(this.reAtom, parent) + this.reQuantifier.stringValue(parent);
     }
 }

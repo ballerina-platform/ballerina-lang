@@ -16,10 +16,10 @@
   ~ limitations under the License.
   -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-semantic-api-test-suite">
-    <test name="semantic-api-test" parallel="false">
+    <test name="semantic-api-test">
         <classes>
             <class name="io.ballerina.semantic.api.test.BindingPatternTest" />
             <class name="io.ballerina.semantic.api.test.DiagnosticsTest" />
@@ -124,6 +124,8 @@
             <class name="io.ballerina.semantic.api.test.expectedtype.RemoteActionNodeTest" />
             <class name="io.ballerina.semantic.api.test.expectedtype.QueryExpressionTest" />
             <class name="io.ballerina.semantic.api.test.expectedtype.FunctionCallExpressionTest" />
+            <class name="io.ballerina.semantic.api.test.expectedtype.ClientResourceAccessActionNodeTest" />
+            <class name="io.ballerina.semantic.api.test.expectedtype.AnnotationNodeTest" />
 
             <!--Expressions-->
             <class name="io.ballerina.semantic.api.test.expressions.QueryExpressionTest" />
@@ -169,9 +171,11 @@
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInObjectConstructorTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInOnFailClauseTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInQueryExprsTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.SymbolsInResourceMethodsTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInTupleTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInXMLNavigationExprsTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsWithinExprTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.TypeDefPackageIdTest" />
             <class name="io.ballerina.semantic.api.test.symbols.TypeDefSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.TypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.UnionTypeSymbolTest" />
@@ -197,6 +201,7 @@
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInWorkersTest" />
 
             <!--Type Of-->
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfConditionalExprTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfInCallStatementsTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfInResourceAccessActionTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfNegativeTest" />

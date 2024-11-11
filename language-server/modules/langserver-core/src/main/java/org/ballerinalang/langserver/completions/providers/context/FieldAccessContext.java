@@ -47,7 +47,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Generic Completion provider for field access providers.
@@ -114,6 +113,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      * @param node            Node for which completion is being provided
      * @param completionItems Completion items to be sorted
      */
+    @Override
     public abstract void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems);
 
     private boolean isMemberAccessAllowed(TypeSymbol typeSymbol, Node parentNode) {
@@ -153,7 +153,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
          */
         List<Symbol> xmlNamespaces = context.visibleSymbols(context.getCursorPosition()).stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.XMLNS)
-                .collect(Collectors.toList());
+                .toList();
         completionItems.addAll(this.getCompletionItemList(xmlNamespaces, context));
         completionItems.addAll(this.getModuleCompletionItems(context));
 

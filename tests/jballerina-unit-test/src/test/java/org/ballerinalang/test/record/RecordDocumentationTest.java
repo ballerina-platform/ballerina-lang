@@ -40,7 +40,7 @@ public class RecordDocumentationTest {
     public void setup() {
     }
 
-    @Test(description = "Test doc annotation.", groups = {"disableOnOldParser"})
+    @Test(description = "Test doc annotation.")
     public void testDocAnnotation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_annotation.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 3);
@@ -88,7 +88,7 @@ public class RecordDocumentationTest {
                 EMPTY_STRING), "struct `field c` documentation");
     }
 
-    @Test(description = "Test doc negative cases.", groups = {"disableOnOldParser"})
+    @Test(description = "Test doc negative cases.")
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_documentation_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0,

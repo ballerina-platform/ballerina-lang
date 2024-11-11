@@ -13,14 +13,16 @@
           "type": "string",
           "pattern": "^[a-zA-Z0-9_.]*$",
           "maxLength": 256,
+          "minLength": 1,
           "message": {
             "pattern": "invalid 'name' under [package]: 'name' can only contain alphanumerics, underscores and periods",
-            "maxLength": "invalid 'name' under [package]: maximum length of 'name' is 256 characters"
+            "maxLength": "invalid 'name' under [package]: maximum length of 'name' is 256 characters",
+            "minLength": "invalid 'name' under [package]: 'name' cannot be empty"
           },
           "allOf": [
             {
               "type": "string",
-              "pattern": "^(?!_).+",
+              "pattern": "^(?!_).*",
               "message": {
                 "pattern": "invalid 'name' under [package]: 'name' cannot have initial underscore characters"
               }
@@ -41,7 +43,7 @@
             },
             {
               "type": "string",
-              "pattern": "^(?![0-9]).+",
+              "pattern": "^(?![0-9]).*",
               "message": {
                 "pattern": "invalid 'name' under [package]: 'name' cannot have initial numeric characters"
               }
@@ -52,14 +54,16 @@
           "type": "string",
           "pattern": "^[a-zA-Z0-9_]*$",
           "maxLength": 256,
+          "minLength": 1,
           "message": {
             "pattern": "invalid 'org' under [package]: 'org' can only contain alphanumerics and underscores",
-            "maxLength": "invalid 'org' under [package]: maximum length of 'org' is 256 characters"
+            "maxLength": "invalid 'org' under [package]: maximum length of 'org' is 256 characters",
+            "minLength": "invalid 'org' under [package]: 'org' cannot be empty"
           },
           "allOf": [
             {
               "type": "string",
-              "pattern": "^(?!_).+",
+              "pattern": "^(?!_).*",
               "message": {
                 "pattern": "invalid 'org' under [package]: 'org' cannot have initial underscore characters"
               }
@@ -80,7 +84,7 @@
             },
             {
               "type": "string",
-              "pattern": "^(?![0-9]).+",
+              "pattern": "^(?![0-9]).*",
               "message": {
                 "pattern": "invalid 'org' under [package]: 'org' cannot have initial numeric characters"
               }
@@ -177,6 +181,9 @@
                   },
                   "scope": {
                     "type": "string"
+                  },
+                  "graalvmCompatible": {
+                    "type": "boolean"
                   }
                 }
               }
@@ -201,6 +208,9 @@
                   }
                 }
               }
+            },
+            "graalvmCompatible": {
+              "type": "boolean"
             }
           },
           "required": [
@@ -208,11 +218,70 @@
           "message": {
             "required": "cannot find '${property}' under 'platform.java11'"
           }
+        },
+        "java17": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dependency": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "artifactId": {
+                    "type": "string"
+                  },
+                  "groupId": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "scope": {
+                    "type": "string"
+                  },
+                  "graalvmCompatible": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "repository": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "graalvmCompatible": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+          ],
+          "message": {
+            "required": "cannot find '${property}' under 'platform.java17'"
+          }
         }
       },
-      "required": [
-        "java11"
-      ],
       "message": {
         "required": "cannot find '${property}' under 'platform'"
       }
@@ -249,11 +318,7 @@
             }
           },
           "repository": {
-            "type": "string",
-            "pattern": "^local$",
-            "message": {
-              "pattern": "invalid 'repository' under [dependency]: 'repository' can only have the value 'local'"
-            }
+            "type": "string"
           }
         },
         "required": [
@@ -290,6 +355,15 @@
         },
         "taintCheck": {
           "type": "boolean"
+        }
+      }
+    },
+    "format": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "configPath": {
+          "type": "string"
         }
       }
     }

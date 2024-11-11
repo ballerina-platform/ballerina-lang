@@ -21,12 +21,15 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
  * Class to test functionality of binary expressions.
  */
+@SuppressWarnings("ConstantValue")
 public class BinaryExprTest {
 
     CompileResult result;
@@ -140,5 +143,23 @@ public class BinaryExprTest {
         Assert.assertEquals(((Byte) returns.get(1)).longValue(), a & c);
         Assert.assertEquals(((Byte) returns.get(2)).intValue(), c & d);
         Assert.assertEquals(((Byte) returns.get(3)).longValue(), b & d);
+    }
+
+    @Test(description = "Test binary expression with query", dataProvider = "binaryExpressionWithQueryDataProvider")
+    public void binaryExpressionWithQuery(String fnName) {
+        BRunUtil.invoke(result, fnName, new Object[]{});
+    }
+
+    @DataProvider(name = "binaryExpressionWithQueryDataProvider")
+    public Object[] binaryExpressionWithQueryData() {
+        return new Object[] {
+                "binaryAndWithQuery",
+                "binaryOrWithQuery"
+        };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

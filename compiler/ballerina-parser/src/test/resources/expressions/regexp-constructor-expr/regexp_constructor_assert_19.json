@@ -694,6 +694,10 @@
                                               ]
                                             },
                                             {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
                                               "kind": "CLOSE_BRACE_TOKEN"
                                             }
                                           ]

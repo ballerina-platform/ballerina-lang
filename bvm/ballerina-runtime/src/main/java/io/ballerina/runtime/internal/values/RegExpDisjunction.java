@@ -17,10 +17,11 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 
 import java.util.StringJoiner;
+
+import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 
 /**
  * <p>
@@ -54,11 +55,11 @@ public class RegExpDisjunction extends RegExpCommonValue {
             if (t == null) {
                 break;
             }
-            if (t instanceof String) {
-                terms.add(((String) t));
+            if (t instanceof String s) {
+                terms.add(s);
                 continue;
             }
-            terms.add(StringUtils.getStringValue(t, parent));
+            terms.add(getStringVal(t, parent));
         }
         return terms.toString();
     }

@@ -46,7 +46,7 @@ public class TriggerServiceTest {
         CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGERS, request);
         BallerinaTriggerListResponse response = (BallerinaTriggerListResponse) result.get();
 
-        Assert.assertTrue(response.getCentralTriggers().size() > 0);
+        Assert.assertTrue(!response.getCentralTriggers().isEmpty());
     }
 
     @Test(description = "Test trigger endpoint of trigger service")

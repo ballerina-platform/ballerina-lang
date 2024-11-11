@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -71,7 +72,11 @@ public class TableKeyFieldValueTest {
                 "testGroupExprAsKeyValue",
                 "testKeyCollision",
                 "testRegExpAsKeyValue",
-                "testKeyCollisionWithStringAndRegExpAsKeyValues"
+                "testKeyCollisionWithStringAndRegExpAsKeyValues",
+                "testStringAsKeyValue",
+                "testStringAsCompositeKeyValue",
+                "testMapAsCompositeKeyValue",
+                "testArrayAsCompositeKeyValue"
         };
     }
 
@@ -97,5 +102,10 @@ public class TableKeyFieldValueTest {
         BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
                 77, 9);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

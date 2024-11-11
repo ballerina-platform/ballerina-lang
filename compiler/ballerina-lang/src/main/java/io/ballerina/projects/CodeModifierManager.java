@@ -102,21 +102,35 @@ class CodeModifierManager {
         return descriptorListMap;
     }
 
+    private List<SourceModifierTask> getInBuiltSourceModifierTask() {
+        List<SourceModifierTask> inBuiltSourceModifierTasks = new ArrayList<>();
+        for (Map.Entry<CodeModifierInfo, List<SourceModifierTask>> codeModifierListEntry :
+                codeModifierTasks.sourceModTaskMap.entrySet()) {
+            for (SourceModifierTask sourceModifierTask : codeModifierListEntry.getValue()) {
+                if (sourceModifierTask.compilerPluginInfo.kind().equals(CompilerPluginKind.BUILT_IN)) {
+                    inBuiltSourceModifierTasks.add(sourceModifierTask);
+                }
+            }
+
+        }
+        return inBuiltSourceModifierTasks;
+    }
+
     private void runSourceModifierTasks(CodeModifierTaskResultBuilder resultBuilder) {
+        runSourceModifierTask(getInBuiltSourceModifierTask(), resultBuilder);
         Map<PackageDescriptor, List<SourceModifierTask>> sourceModifierTaskByPackage = getSourceModifierTaskByPackage();
         for (Map.Entry<PackageDescriptor, List<SourceModifierTask>> packageDescriptorListEntry :
                 sourceModifierTaskByPackage.entrySet()) {
             Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> pkgSyntaxNodeAnalysisTaskMap =
                     populatePkgSyntaxNodeTaskMap(packageDescriptorListEntry.getKey());
-            runSourceModifierTask(packageDescriptorListEntry.getValue(), pkgSyntaxNodeAnalysisTaskMap, resultBuilder);
+            List<Diagnostic> analysisTaskDiagnostics = runSyntaxNodeAnalysisTasks(pkgSyntaxNodeAnalysisTaskMap);
+            resultBuilder.addDiagnostics(analysisTaskDiagnostics);
+            runSourceModifierTask(packageDescriptorListEntry.getValue(), resultBuilder);
         }
     }
 
     private void runSourceModifierTask(List<SourceModifierTask> sourceModifierTasks,
-                                       Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTasks,
                                        CodeModifierTaskResultBuilder resultBuilder) {
-        List<Diagnostic> analysisTaskDiagnostics = runSyntaxNodeAnalysisTasks(syntaxNodeAnalysisTasks);
-        resultBuilder.addDiagnostics(analysisTaskDiagnostics);
 
         for (SourceModifierTask sourceModifierTask : sourceModifierTasks) {
             SourceModifierContextImpl sourceModifyContext = new SourceModifierContextImpl(currentPackage, compilation);
@@ -567,7 +581,7 @@ class CodeModifierManager {
                                             Module.Modifier modifier, DocumentId documentId) {
             DocumentConfig documentConfig = DocumentConfig.from(documentId,
                     textDocument.toString(), newDocFilename);
-            DocumentContext documentContext = DocumentContext.from(documentConfig);
+            DocumentContext documentContext = DocumentContext.from(documentConfig, false);
             modifier.updateDocument(documentContext);
         }
     }

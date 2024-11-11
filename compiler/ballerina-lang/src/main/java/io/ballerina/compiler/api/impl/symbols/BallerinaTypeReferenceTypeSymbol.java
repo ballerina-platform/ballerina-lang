@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
@@ -55,7 +56,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private ModuleSymbol module;
     private Symbol definition;
     private boolean moduleEvaluated;
-    private boolean fromIntersectionType;
+    private final boolean fromIntersectionType;
     public BSymbol tSymbol;
     public BType referredType;
 
@@ -103,8 +104,8 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         if (referredType.tag == TypeTags.PARAMETERIZED_TYPE || bType.tag == TypeTags.PARAMETERIZED_TYPE) {
             this.definition = symbolFactory.getBCompiledSymbol(((BParameterizedType) this.tSymbol.type).paramSymbol,
                                                                this.name());
-        } else if (referredType.tag == TypeTags.INTERSECTION) {
-            this.definition = symbolFactory.getBCompiledSymbol(referredType.tsymbol,
+        } else if (referredType.tag == TypeTags.INTERSECTION || referredType.tsymbol.origin == SymbolOrigin.VIRTUAL) {
+            this.definition = symbolFactory.getBCompiledSymbol(bType.tsymbol,
                     referredType.tsymbol.getName().getValue());
         } else {
             Name name = Names.fromString(this.name());
@@ -198,6 +199,10 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     }
 
     private BType getReferredType(BType type) {
+        if (type == null) {
+            return null;
+        }
+
         if (type.tag == TypeTags.TYPEREFDESC) {
             return ((BTypeReferenceType) type).referredType;
         }

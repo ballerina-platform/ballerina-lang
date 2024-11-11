@@ -37,7 +37,10 @@ import java.util.HashSet;
  *
  * @since 2.0.0
  */
-public class ConditionResolver {
+public final class ConditionResolver {
+
+    private ConditionResolver() {
+    }
 
     static BType checkConstCondition(Types types, SymbolTable symTable, BLangExpression condition) {
         switch (condition.getKind()) {
@@ -119,7 +122,7 @@ public class ConditionResolver {
                 if (!types.isSingletonType(type)) {
                     return symTable.semanticError;
                 }
-                return checkConstCondition(types, symTable, ((BFiniteType) Types.getReferredType(type))
+                return checkConstCondition(types, symTable, ((BFiniteType) Types.getImpliedType(type))
                         .getValueSpace().iterator().next());
             default:
                 return symTable.semanticError;

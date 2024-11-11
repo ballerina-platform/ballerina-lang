@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BFutureType} represents a future value in Ballerina.
+ * {@code FutureType} represents a future value in Ballerina.
  *
  * @since 2.0.0
  */

@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BArrayType} represents a type of an arrays in Ballerina.
+ * {@code ArrayType} represents a type of an arrays in Ballerina.
  * <p>
  * Arrays are defined using the arrays constructor [] as follows:
  * TypeName[]
@@ -48,7 +48,7 @@ public interface ArrayType extends SelectivelyImmutableReferenceType {
         INFERRED((byte) 2),
         OPEN((byte) 3);
 
-        byte value;
+        final byte value;
 
         ArrayState(byte value) {
             this.value = value;

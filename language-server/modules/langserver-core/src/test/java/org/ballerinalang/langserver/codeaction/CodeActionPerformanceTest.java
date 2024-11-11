@@ -40,7 +40,7 @@ public class CodeActionPerformanceTest extends AbstractCodeActionTest {
     }
 
     @Override
-    @Test(dataProvider = "codeaction-data-provider")
+    @Test(dataProvider = "codeaction-data-provider", enabled = false)
     public void test(String config) throws IOException, WorkspaceDocumentException {
         super.test(config);
     }

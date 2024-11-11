@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 type Nil ();
 
 type Integer int;
@@ -48,7 +50,6 @@ type Object2 object {
 type Object3 object {
     public int c;
 };
-
 
 type One 1;
 
@@ -111,19 +112,19 @@ function testTypeRef() {
     FloatBooleanTuple c5 = [1.2, true];
     assertEqual(c5, [1.2, true]);
     a1 = [1.2, true];
-//   assertEqual(a1.cloneReadOnly() is FloatBooleanTuple, true); // Need to fix ballerina-lang/#34954
+    assertEqual(a1.cloneReadOnly() is FloatBooleanTuple, true);
     a1 = [1.2d, true];
-//   assertEqual(a1.cloneReadOnly() is FloatBooleanTuple, false); // Need to fix ballerina-lang/#34954
+    assertEqual(a1.cloneReadOnly() is FloatBooleanTuple, false);
 
-    FunctionType1 func1 = function (int x) returns decimal {
-            return <Decimal> x;
-        };
+    FunctionType1 func1 = function(int x) returns decimal {
+        return <Decimal>x;
+    };
     Decimal a2 = func1(3);
     assertEqual(a2, 3d);
 
-    var func2 = function ([float, boolean] x) returns Record {
-            return {a: x, b: ()};
-        };
+    var func2 = function([float, boolean] x) returns Record {
+        return {a: x, b: ()};
+    };
     FloatBooleanTuple a3 = [1.2, true];
     Record a4 = func2(a3);
     assertEqual(a4, {a: [1.2, true], b: ()});
@@ -258,7 +259,9 @@ function testTypeRef2() {
 }
 
 int i = 12;
+
 type Json json;
+
 type JsonMap map<json>;
 
 function testFieldAccessExp() {
@@ -266,8 +269,8 @@ function testFieldAccessExp() {
     Json|error res1 = jsonMap?.b?.a;
     assertTrue(res1 is Json && res1 == 1);
 
-    Json j1 = { a: { b: i } };
-    JsonMap j2 = { a: { b: i } };
+    Json j1 = {a: {b: i}};
+    JsonMap j2 = {a: {b: i}};
     assertTrue(testJsonFieldAccessPositive1(j1));
     assertTrue(testJsonFieldAccessPositive2(j2));
 
@@ -278,7 +281,7 @@ function testFieldAccessExp() {
 }
 
 function testJsonFieldAccessPositive1(Json j) returns boolean {
-    Json be = { b: i };
+    Json be = {b: i};
     Json|error a = j.a;
     return a is Json && a == be;
 }
@@ -311,7 +314,7 @@ function testJsonFieldAccessNegativeMissingKey3(Json j) returns boolean {
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
         var detailMessage = je.detail()["message"];
-        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+        string detailMessageString = detailMessage is error ? detailMessage.toString() : detailMessage.toString();
         return je.message() == "{ballerina}JSONOperationError" && detailMessageString == "JSON value is not a mapping";
     }
     return false;
@@ -320,7 +323,7 @@ function assertNonMappingJsonError(json|error je) returns boolean {
 function assertKeyNotFoundError(json|error je, string key) returns boolean {
     if (je is error) {
         var detailMessage = je.detail()["message"];
-        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+        string detailMessageString = detailMessage is error ? detailMessage.toString() : detailMessage.toString();
         return je.message() == "{ballerina/lang.map}KeyNotFound" &&
                                 detailMessageString == "key '" + key + "' not found in JSON mapping";
     }
@@ -378,6 +381,7 @@ public class NonReadOnlyStudent {
 }
 
 type StudentRef Student;
+
 type NonReadOnlyStudentRef NonReadOnlyStudent;
 
 type UnionRef StudentRef|NonReadOnlyStudentRef;
@@ -401,19 +405,58 @@ function testObjectTypeReferenceType() {
 
 type BTable table<map<int>>|BarTable;
 
-type BarTable table<Bar>key(a);
+type BarTable table<Bar> key(a);
 
 type Bar record {
     readonly string a;
 };
 
 function testTableTypeReferenceType() {
-    BTable tab1 = table key(a) [{a : "a"}];
+    BTable tab1 = table key(a) [{a: "a"}];
     assertTrue(tab1 is BarTable);
-    assertTrue(tab1 is table<Bar>key(a));
+    assertTrue(tab1 is table<Bar> key(a));
 
-    BarTable tab2 = table key(a) [{a : "a"}];
-    assertTrue(tab2 is table<Bar>key(a));
+    BarTable tab2 = table key(a) [{a: "a"}];
+    assertTrue(tab2 is table<Bar> key(a));
+}
+
+type Details record {|
+    string reason;
+    boolean fatal?;
+|};
+
+type E1 error<Details>;
+
+type E2 error<record {|string reason;|}>;
+
+type E1Ref E1;
+
+type E2Ref E2;
+
+function errorTypeReferenceTypeTest() {
+    E1 err1 = error("invalid username", reason = "contains spaces");
+    test:assertEquals(err1 is E2, true);
+
+    E1Ref err2 = error("invalid username", reason = "contains spaces");
+    test:assertEquals(err2 is E2, true);
+
+    E2 err3 = error("invalid username", reason = "contains spaces");
+    test:assertEquals(err3 is E1, true);
+
+    E2Ref err4 = error("invalid username", reason = "contains spaces");
+    test:assertEquals(err4 is E1Ref, true);
+
+    error err5 = <error<Details>>error("invalid username", reason = "contains spaces");
+    test:assertEquals(err5 is E1, true);
+    test:assertEquals(err5 is E1Ref, true);
+    test:assertEquals(err5 is E2, true);
+    test:assertEquals(err5 is E2Ref, true);
+
+    error err6 = <error<Details>>error("invalid username", reason = "contains spaces", fatal = true);
+    test:assertEquals(err6 is E1, true);
+    test:assertEquals(err6 is E1Ref, true);
+    test:assertEquals(err6 is E2, false);
+    test:assertEquals(err6 is E2Ref, false);
 }
 
 function assertTrue(anydata actual) {

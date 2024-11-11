@@ -187,4 +187,7 @@
             <Bug pattern="BC_UNCONFIRMED_CAST" />
         </OR>
     </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
+    </Match>
 </FindBugsFilter>

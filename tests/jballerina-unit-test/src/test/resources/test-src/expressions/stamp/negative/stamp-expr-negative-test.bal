@@ -107,3 +107,10 @@ function stampExtendedRecordToAnydata() returns anydata|error {
 
 type AnyMap map<any>;
 type JsonTypedesc typedesc<json>;
+type MapAny AnyMap;
+
+function stampAnydataArrayToXML() returns xml|error {
+    anydata[] anydataArray = [];
+    map<any>|error x = anydataArray.cloneWithType(MapAny);
+    map<any>|error y = anydataArray.cloneWithType(AnyMap);
+}

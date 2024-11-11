@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -56,11 +57,11 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns.get(1).toString(), "Error One");
         Assert.assertEquals(returns.get(2).toString(), "Error Two");
         Assert.assertEquals(returns.get(3).toString(), "Error Two");
-        Assert.assertEquals(((BMap) returns.get(4)).get(StringUtils.fromString("message")).toString(), "Msg One");
+        Assert.assertEquals(((BMap<?, ?>) returns.get(4)).get(StringUtils.fromString("message")).toString(), "Msg One");
         Assert.assertEquals(returns.get(5).toString(), "Msg One");
         Assert.assertEquals(returns.get(6).toString(), "Detail Msg");
-        Assert.assertEquals(((BMap) returns.get(7)).get(StringUtils.fromString("message")).toString(), "Msg Two");
-        Assert.assertTrue((Boolean) ((BMap) returns.get(7)).get(StringUtils.fromString("fatal")));
+        Assert.assertEquals(((BMap<?, ?>) returns.get(7)).get(StringUtils.fromString("message")).toString(), "Msg Two");
+        Assert.assertTrue((Boolean) ((BMap<?, ?>) returns.get(7)).get(StringUtils.fromString("fatal")));
         Assert.assertEquals(returns.get(8).toString(), "Msg Two");
         Assert.assertTrue((Boolean) returns.get(9));
     }
@@ -74,11 +75,13 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns.get(1).toString(), "Some Error One");
         Assert.assertEquals(returns.get(2).toString(), "Some Error Two");
         Assert.assertEquals(returns.get(3).toString(), "Some Error Two");
-        Assert.assertEquals(((BMap) returns.get(4)).get(StringUtils.fromString("message")).toString(), "Msg Three");
+        Assert.assertEquals(((BMap<?, ?>) returns.get(4)).get(StringUtils.fromString("message")).toString(),
+                "Msg Three");
         Assert.assertEquals(returns.get(5).toString(), "Msg Three");
         Assert.assertEquals(returns.get(6).toString(), "Detail Msg");
-        Assert.assertEquals(((BMap) returns.get(7)).get(StringUtils.fromString("message")).toString(), "Msg Four");
-        Assert.assertTrue((Boolean) ((BMap) returns.get(7)).get(StringUtils.fromString("fatal")));
+        Assert.assertEquals(((BMap<?, ?>) returns.get(7)).get(StringUtils.fromString("message")).toString(),
+                "Msg Four");
+        Assert.assertTrue((Boolean) ((BMap<?, ?>) returns.get(7)).get(StringUtils.fromString("fatal")));
         Assert.assertEquals(returns.get(8).toString(), "Msg Four");
         Assert.assertTrue((Boolean) returns.get(9));
         Assert.assertEquals(returns.get(10).toString(),
@@ -94,7 +97,7 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns.get(1).toString(), "Error One");
         Assert.assertEquals(returns.get(2).toString(), "Something Wrong");
         Assert.assertTrue((Boolean) returns.get(3));
-        Assert.assertEquals(((BMap) returns.get(4)).get(StringUtils.fromString("message")).toString(),
+        Assert.assertEquals(((BMap<?, ?>) returns.get(4)).get(StringUtils.fromString("message")).toString(),
                 "Something Wrong");
     }
 
@@ -158,7 +161,7 @@ public class ErrorVariableReferenceTest {
     @Test(description = "Test simple error var def inside tuple with destructuring error")
     public void testErrorWithRestParam() {
         Object returns = BRunUtil.invoke(result, "testErrorWithRestParam");
-        BMap<BString, Object> results = (BMap) returns;
+        BMap<BString, Object> results = (BMap<BString, Object>) returns;
         Assert.assertEquals(results.get(StringUtils.fromString("fatal")).toString(), "true");
         Assert.assertEquals(results.get(StringUtils.fromString("extra")).toString(), "extra");
     }
@@ -169,7 +172,7 @@ public class ErrorVariableReferenceTest {
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "Error");
-        BMap<BString, Object> results = (BMap) returns.get(1);
+        BMap<BString, Object> results = (BMap<BString, Object>) returns.get(1);
         Assert.assertEquals(results.get(StringUtils.fromString("message")).toString(), "Fatal");
         Assert.assertEquals(results.get(StringUtils.fromString("fatal")).toString(), "true");
     }
@@ -372,5 +375,10 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, i++, INVALID_WILDCARD_BP_BINDING_ERROR_CAUSE_ERROR, 95, 41);
         BAssertUtil.validateError(resultNegative, i++, INVALID_WILDCARD_BP_BINDING_ERROR_CAUSE_ERROR, 97, 46);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

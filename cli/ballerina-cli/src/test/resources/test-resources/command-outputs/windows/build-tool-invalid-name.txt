@@ -1,0 +1,9 @@
+
+Executing Build Tools
+ERROR [Ballerina.toml:(7:1,7:18)] Command name 'dummy_tool_invalid_name.proces__s' is invalid because command name should not contain consecutive underscores.
+WARNING: Execution of 'dummy_tool_invalid_name.proces__s:main_dummy' is skipped due to errors
+ERROR [Ballerina.toml:(13:2,13:20)] Command name 'dummy_tool_invalid_name._write' is invalid because command name should not start with an underscore.
+WARNING: Execution of 'dummy_tool_invalid_name._write:write_dummy' is skipped due to errors
+ERROR [Ballerina.toml:(19:2,19:19)] Command name 'dummy_tool_invalid_name.read_' is invalid because command name should not end with an underscore.
+WARNING: Execution of 'dummy_tool_invalid_name.read_:read_dummy' is skipped due to errors
+

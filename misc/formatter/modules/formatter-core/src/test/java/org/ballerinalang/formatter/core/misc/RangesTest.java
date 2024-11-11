@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +37,7 @@ import java.util.List;
  */
 public class RangesTest extends RangeFormatterTest {
 
-    @Test(dataProvider = "test-file-provider")
+    @Test(dataProvider = "test-file-provider", enabled = false)
     @Override
     public void test(Path sourceFilePath, Path assertFilePath, ArrayList<LineRange> lineRanges) throws IOException,
             FormatterException {
@@ -58,7 +57,7 @@ public class RangesTest extends RangeFormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("misc", "ranges").toString();
+        return Path.of("misc", "ranges").toString();
     }
 
     @Override

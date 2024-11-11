@@ -46,8 +46,8 @@ import java.util.HashSet;
  */
 public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
-    private HashSet<BType> visited;
-    private boolean isAnydata;
+    private final HashSet<BType> visited;
+    private final boolean isAnydata;
 
     public IsAnydataUniqueVisitor() {
         visited = new HashSet<>();
@@ -60,36 +60,32 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
     }
 
     private boolean isAnydata(BType type) {
-        switch (type.tag) {
-            case TypeTags.INT:
-            case TypeTags.BYTE:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.STRING:
-            case TypeTags.CHAR_STRING:
-            case TypeTags.BOOLEAN:
-            case TypeTags.JSON:
-            case TypeTags.XML:
-            case TypeTags.XML_TEXT:
-            case TypeTags.XML_ELEMENT:
-            case TypeTags.XML_COMMENT:
-            case TypeTags.XML_PI:
-            case TypeTags.NIL:
-            case TypeTags.NEVER:
-            case TypeTags.ANYDATA:
-            case TypeTags.SIGNED8_INT:
-            case TypeTags.SIGNED16_INT:
-            case TypeTags.SIGNED32_INT:
-            case TypeTags.UNSIGNED8_INT:
-            case TypeTags.UNSIGNED16_INT:
-            case TypeTags.UNSIGNED32_INT:
-            case TypeTags.REGEXP:
-                return true;
-            case TypeTags.TYPEREFDESC:
-                return isAnydata(((BTypeReferenceType) type).referredType);
-            default:
-                return false;
-        }
+        return switch (Types.getImpliedType(type).tag) {
+            case TypeTags.INT,
+                 TypeTags.BYTE,
+                 TypeTags.FLOAT,
+                 TypeTags.DECIMAL,
+                 TypeTags.STRING,
+                 TypeTags.CHAR_STRING,
+                 TypeTags.BOOLEAN,
+                 TypeTags.JSON,
+                 TypeTags.XML,
+                 TypeTags.XML_TEXT,
+                 TypeTags.XML_ELEMENT,
+                 TypeTags.XML_COMMENT,
+                 TypeTags.XML_PI,
+                 TypeTags.NIL,
+                 TypeTags.NEVER,
+                 TypeTags.ANYDATA,
+                 TypeTags.SIGNED8_INT,
+                 TypeTags.SIGNED16_INT,
+                 TypeTags.SIGNED32_INT,
+                 TypeTags.UNSIGNED8_INT,
+                 TypeTags.UNSIGNED16_INT,
+                 TypeTags.UNSIGNED32_INT,
+                 TypeTags.REGEXP -> true;
+            default -> false;
+        };
     }
 
     @Override
@@ -298,43 +294,30 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BType type) {
-        switch (type.tag) {
-            case TypeTags.TABLE:
-                return visit((BTableType) type);
-            case TypeTags.ANYDATA:
-                return visit((BAnydataType) type);
-            case TypeTags.RECORD:
-                return visit((BRecordType) type);
-            case TypeTags.ARRAY:
-                return visit((BArrayType) type);
-            case TypeTags.UNION:
-                return visit((BUnionType) type);
-            case TypeTags.TYPEDESC:
-                return visit((BTypedescType) type);
-            case TypeTags.MAP:
-                return visit((BMapType) type);
-            case TypeTags.FINITE:
-                return visit((BFiniteType) type);
-            case TypeTags.TUPLE:
-                return visit((BTupleType) type);
-            case TypeTags.INTERSECTION:
-                return visit((BIntersectionType) type);
-            case TypeTags.TYPEREFDESC:
-                return visit((BTypeReferenceType) type);
-            case TypeTags.SIGNED8_INT:
-            case TypeTags.SIGNED16_INT:
-            case TypeTags.SIGNED32_INT:
-            case TypeTags.UNSIGNED8_INT:
-            case TypeTags.UNSIGNED16_INT:
-            case TypeTags.UNSIGNED32_INT:
-                return visit((BIntSubType) type);
-            case TypeTags.XML_ELEMENT:
-            case TypeTags.XML_PI:
-            case TypeTags.XML_COMMENT:
-            case TypeTags.XML_TEXT:
-                return visit((BXMLSubType) type);
-        }
-        return isAnydata(type);
+        return switch (type.tag) {
+            case TypeTags.TABLE -> visit((BTableType) type);
+            case TypeTags.ANYDATA -> visit((BAnydataType) type);
+            case TypeTags.RECORD -> visit((BRecordType) type);
+            case TypeTags.ARRAY -> visit((BArrayType) type);
+            case TypeTags.UNION -> visit((BUnionType) type);
+            case TypeTags.TYPEDESC -> visit((BTypedescType) type);
+            case TypeTags.MAP -> visit((BMapType) type);
+            case TypeTags.FINITE -> visit((BFiniteType) type);
+            case TypeTags.TUPLE -> visit((BTupleType) type);
+            case TypeTags.INTERSECTION -> visit((BIntersectionType) type);
+            case TypeTags.TYPEREFDESC -> visit((BTypeReferenceType) type);
+            case TypeTags.SIGNED8_INT,
+                 TypeTags.SIGNED16_INT,
+                 TypeTags.SIGNED32_INT,
+                 TypeTags.UNSIGNED8_INT,
+                 TypeTags.UNSIGNED16_INT,
+                 TypeTags.UNSIGNED32_INT -> visit((BIntSubType) type);
+            case TypeTags.XML_ELEMENT,
+                 TypeTags.XML_PI,
+                 TypeTags.XML_COMMENT,
+                 TypeTags.XML_TEXT -> visit((BXMLSubType) type);
+            default -> isAnydata(type);
+        };
     }
 
     @Override

@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.internal.diagnostics;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
@@ -35,9 +35,9 @@ public class RuntimeDiagnostic extends Diagnostic {
 
     private final DiagnosticInfo diagnosticInfo;
 
-    private Object[] args;
+    private final Object[] args;
 
-    private RuntimeDiagnosticLocation location;
+    private final RuntimeDiagnosticLocation location;
 
     public RuntimeDiagnostic(DiagnosticInfo diagnosticInfo, String location, Object[] args) {
         this.diagnosticInfo = diagnosticInfo;
@@ -57,7 +57,7 @@ public class RuntimeDiagnostic extends Diagnostic {
 
     @Override
     public String message() {
-        return BLangExceptionHelper.getErrorMessage(diagnosticInfo.messageFormat(), args);
+        return ErrorHelper.getErrorMessage(diagnosticInfo.messageFormat(), args).getValue();
     }
 
     @Override

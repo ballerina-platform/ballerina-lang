@@ -139,3 +139,18 @@ public type Service distinct service object {
 public type FnTypeA function(int m, int n, float p) returns string;
 
 public type FnTypeB function(int m, function(int a, string... b) returns string fn2) returns string;
+
+//Test the pos of intersection type definition
+public type Address readonly & record {
+    int number;
+    string street;
+    string city;
+};
+
+public type InterceptorClient distinct isolated client object {
+    isolated remote function execute() returns anydata|error;
+};
+
+public type InterceptorService distinct isolated service object {
+    isolated remote function execute() returns anydata|error;
+};

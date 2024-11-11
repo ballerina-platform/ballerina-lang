@@ -25,6 +25,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -261,6 +262,11 @@ public class ElvisExpressionTest {
         BRunUtil.invoke(compileResult, "testElvisExprWithUnionWithFiniteTypeContainingNull");
     }
 
+    @Test
+    public void testElvisExprWithQuery() {
+        BRunUtil.invoke(compileResult, "testElvisExprWithQuery");
+    }
+
     @Test(description = "Negative test cases.")
     public void testElvisOperatorNegative() {
         int index = 0;
@@ -356,5 +362,11 @@ public class ElvisExpressionTest {
         BAssertUtil.validateError(negativeResult, index++, "using '?:' with an expression of a type that is a subtype" +
                 " of nil is not yet supported", 168, 13);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        negativeResult = null;
     }
 }

@@ -1,0 +1,12 @@
+<book>
+    <id>123456</id>
+    <title lang="en">The Great Gatsby</title>
+    <author>F. Scott Fitzgerald</author>
+    <genre>Fiction</genre>
+    <price currency="USD">10.99</price>
+    <publication_date>1925-04-10</publication_date>
+    <description>
+        A classic novel depicting the roaring twenties in America,
+        exploring themes of love, wealth, and the American Dream.
+    </description>
+</book>

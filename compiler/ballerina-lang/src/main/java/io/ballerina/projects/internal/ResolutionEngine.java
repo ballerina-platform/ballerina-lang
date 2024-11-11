@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Responsible for creating the dependency graph with automatic version updates.
@@ -163,7 +162,7 @@ public class ResolutionEngine {
 
     private void populateStaticDependencyGraph(Collection<DependencyNode> directDependencies) {
         List<DependencyNode> errorNodes = directDependencies.stream()
-                .filter(DependencyNode::errorNode).collect(Collectors.toList());
+                .filter(DependencyNode::errorNode).toList();
         for (DependencyNode errorNode : errorNodes) {
             graphBuilder.addErroneousDependency(
                     rootPkgDesc, errorNode.pkgDesc, errorNode.scope, errorNode.resolutionType);
@@ -233,10 +232,11 @@ public class ResolutionEngine {
                     lockingMode = PackageLockingMode.SOFT;
                 }
             } else {
-                // If the user has specified the dependency from the local repo,
+                // If the user has specified the dependency from the local repo/custom repo,
                 // we must resolve the exact version provided for the dependency
                 dependency = blendedManifest.userSpecifiedDependency(pkgDesc.org(), pkgDesc.name());
-                if (dependency.isPresent() && dependency.get().isFromLocalRepository()) {
+                if (dependency.isPresent() && (dependency.get().isFromLocalRepository() ||
+                        dependency.get().isFromCustomRepository())) {
                     lockingMode = PackageLockingMode.HARD;
                 }
             }

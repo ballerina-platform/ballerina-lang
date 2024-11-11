@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * @since 0.94
  */
-public class Flags {
+public final class Flags {
 
     public static final long PUBLIC = 1;                                        //  0
     public static final long NATIVE = PUBLIC << 1;                              //  1
@@ -81,6 +81,11 @@ public class Flags {
     public static final long INFER = ANY_FUNCTION << 1;                         //  40
     public static final long ENUM_MEMBER = INFER << 1;                          //  41
     public static final long QUERY_LAMBDA = ENUM_MEMBER << 1;                   //  42
+    public static final long EFFECTIVE_TYPE_DEF = QUERY_LAMBDA << 1;            //  43
+    public static final long SOURCE_ANNOTATION = EFFECTIVE_TYPE_DEF << 1;       //  44
+
+    private Flags() {
+    }
 
     public static long asMask(Set<Flag> flagSet) {
         long mask = 0;

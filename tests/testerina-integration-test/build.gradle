@@ -14,8 +14,11 @@
  * limitations under the License.
  *
  */
-apply plugin: 'base'
-apply from: "$rootDir/gradle/javaProject.gradle"
+
+plugins {
+    id 'base'
+    id 'javaProject'
+}
 
 description = 'Ballerina - Testerina Test'
 
@@ -23,29 +26,56 @@ def extractedDist = "$buildDir/extractedDistribution/jballerina-tools-${project.
 
 configurations {
     jballerinaTools
+    compilerPluginJar {
+        transitive false
+    }
 }
 
 dependencies {
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
-    testCompile 'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-jdk14'
-    implementation 'info.picocli:picocli'
+    testImplementation libs.testng
+    testImplementation libs.slf4j.jdk14
+    testImplementation libs.gson
+    implementation libs.picocli
 
     implementation project(path: ':ballerina-test-utils')
     implementation project(':ballerina-runtime')
+
+    implementation libs.jacoco.core
+    implementation libs.jacoco.report
+    implementation libs.ow2.asm
+    implementation libs.ow2.asm.commons
+    implementation libs.ow2.asm.tree
+    implementation libs.testng
+
+    implementation libs.java.diff.utils
+
+    compilerPluginJar project(':project-api-test-artifact:init-function-code-modify-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:remove-function-code-modify-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:add-remove-function-code-modify-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
 }
 
-task extractDistribution(type: Copy) {
+jacoco {
+    toolVersion = "${libs.versions.jacocoVersion.get()}"
+}
+
+tasks.register('copyCompilerPluginJars', Copy) {
+    from configurations.compilerPluginJar
+    into "$buildDir/compiler-plugin-jars"
+}
+
+tasks.register('extractDistribution', Copy) {
     dependsOn ':jballerina-tools:build'
     from zipTree(configurations.jballerinaTools.asPath)
     into "$buildDir/extractedDistribution"
 
 }
 
-task testUtilsJar(type: Jar) {
+tasks.register('testUtilsJar', Jar) {
     from sourceSets.test.runtimeClasspath
     include "org/ballerinalang/testerina/utils/**"
-    archiveName "interops.jar"
+    archiveFileName = "interops.jar"
 }
 
 // Integration tests for testerina
@@ -53,6 +83,7 @@ test {
     mustRunAfter ':jballerina-integration-test:test'
     dependsOn extractDistribution
     dependsOn testUtilsJar
+    dependsOn copyCompilerPluginJars
     systemProperty 'enableTesterinaTests', 'true'
 
     maxParallelForks = 1
@@ -65,4 +96,6 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+
+    jacoco.excludes = ["org.terasology.protobuf.*", "*MethodAccess", "*FieldAccess"]
 }

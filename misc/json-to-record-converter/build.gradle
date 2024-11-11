@@ -16,8 +16,10 @@
  *  under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations {
     compile.transitive = false
@@ -32,15 +34,13 @@ dependencies {
 
     implementation project(':ballerina-tools-api')
     implementation project(':identifier-util')
-    implementation "com.google.code.gson:gson:${project.gsonVersion}"
-    implementation "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
-    implementation "org.javatuples:javatuples:${project.javaTuples}"
+    implementation libs.gson
+    implementation libs.apache.commons.lang3
 
-    testCompile 'org.testng:testng'
-    testCompile project(':ballerina-lang')
-    testCompile project(':formatter:formatter-core')
-    testCompile project(':language-server:language-server-commons')
-    testCompile "org.javatuples:javatuples:${project.javaTuples}"
+    testImplementation libs.testng
+    testImplementation project(':ballerina-lang')
+    testImplementation project(':formatter:formatter-core')
+    testImplementation project(':language-server:language-server-commons')
 }
 
 test {
@@ -56,9 +56,14 @@ ext.moduleName = 'io.ballerina.jsonmapper'
 compileJava {
     inputs.property("moduleName", moduleName)
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
         classpath = files()
     }
 }

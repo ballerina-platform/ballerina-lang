@@ -18,6 +18,7 @@ package org.ballerinalang.test.statements.vardeclr;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -33,6 +34,12 @@ public class ModuleListenerDeclTest {
     public void testModuleListenerDeclaration() {
         CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/module_listener_decl.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
+    }
+
+    @Test
+    public void testImportedModuleListenersDeclarations() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/listener-project");
+        BRunUtil.invoke(result, "main");
     }
 
     @Test

@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.cli.utils.GraalVMCompatibilityUtils;
 import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -65,10 +66,15 @@ public class CreateBalaTask implements Task {
 
         try {
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-            jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+            jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
             long start = 0;
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
+            }
+            String warning = GraalVMCompatibilityUtils.getWarningForPackage(
+                    project.currentPackage(), jBallerinaBackend.targetPlatform().code());
+            if (warning != null) {
+                out.println("\n" + warning);
             }
             emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
             if (project.buildOptions().dumpBuildTime()) {
@@ -93,7 +99,7 @@ public class CreateBalaTask implements Task {
                 relativePathToExecutable.toString().contains("." + File.separator)) {
             this.out.println("\t" + emitResult.generatedArtifactPath().toString());
         } else {
-            this.out.println("\t" + relativePathToExecutable.toString());
+            this.out.println("\t" + relativePathToExecutable);
         }
     }
 

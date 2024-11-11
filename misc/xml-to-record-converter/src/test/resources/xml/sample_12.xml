@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<ROOT>
+    <ZASN_SDTX SEGMENT="1">
+        <TDID>ZCA8</TDID>
+        <TDSPRAS>E</TDSPRAS>
+        <ZASN_SDTXP SEGMENT="1">
+            <TDLINE>GS~012430880~925159POHC</TDLINE>
+        </ZASN_SDTXP>
+    </ZASN_SDTX>
+    <ZASN_SDTX SEGMENT="1">
+        <TDID>ZEDH</TDID>
+        <TDSPRAS>E</TDSPRAS>
+        <ZASN_SDTXP SEGMENT="1">
+            <TDFORMAT>/</TDFORMAT>
+            <TDLINE>X12-LIFNR-WE=ST~9~0124308800009</TDLINE>
+        </ZASN_SDTXP>
+        <ZASN_SDTXP SEGMENT="1">
+            <TDFORMAT>/</TDFORMAT>
+            <TDLINE>X12-LIFNR-ST=ST~9~0124308800009~8691 JESSIE B SMITH</TDLINE>
+        </ZASN_SDTXP>
+    </ZASN_SDTX>
+</ROOT>

@@ -25,6 +25,8 @@ import org.ballerinalang.docgen.generator.model.search.SearchJson;
  */
 public class ApiDocsJson {
     @Expose
+    public String apiDocsVersion = "";
+    @Expose
     public ModuleLibrary docsData;
     @Expose
     public SearchJson searchData;

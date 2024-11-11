@@ -47,9 +47,12 @@ import java.util.Set;
  *
  * @since 2201.1.0
  */
-public class Enums {
+public final class Enums {
 
     private static final Module enumModule = new Module("testorg", "values.enum", "1");
+
+    private Enums() {
+    }
 
     public static BArray createEnumArray(BString enumName) {
         List<Type> memberTypes = new ArrayList<>(2);
@@ -73,7 +76,7 @@ public class Enums {
         BError matchError = ErrorCreator.createError(
                 StringUtils.fromString("type name does not match given names"));
 
-        Type describingType = TypeUtils.getReferredType(t.getDescribingType());
+        Type describingType = TypeUtils.getImpliedType(t.getDescribingType());
         if (describingType.getTag() == TypeTags.UNION_TAG) {
             UnionType unionType = (UnionType) describingType;
             for (Type memberType : unionType.getMemberTypes()) {

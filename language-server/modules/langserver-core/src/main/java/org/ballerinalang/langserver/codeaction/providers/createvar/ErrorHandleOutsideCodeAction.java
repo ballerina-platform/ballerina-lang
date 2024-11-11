@@ -15,9 +15,15 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.createvar;
 
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Qualifiable;
+import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.projects.Module;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
@@ -34,6 +40,8 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
+import java.net.URI;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -79,35 +87,56 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
         Optional<TypeSymbol> typeSymbol = getExpectedTypeSymbol(positionDetails);
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.UNION
-                || isUnionCompErrorTyped((UnionTypeSymbol) typeSymbol.get())) {
+                || isCompilationErrorTyped((UnionTypeSymbol) typeSymbol.get())) {
             return Collections.emptyList();
         }
         UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) typeSymbol.get();
-        boolean hasErrorMemberType = unionTypeDesc.memberTypeDescriptors().stream()
-                .anyMatch(member -> CommonUtil.getRawType(member).typeKind() == TypeDescKind.ERROR);
+        List<TypeSymbol> errorMemberTypes = CommonUtil.extractErrorTypesFromUnion(unionTypeDesc);
+        Path path = Path.of(URI.create(uri.replace("expr:///", "file:///")));
+        Optional<Module> module = context.workspace().module(path);
+        if (module.isPresent() &&
+                containsModuleLevelPrivateTypes(module.get().moduleName().toString(), errorMemberTypes)) {
+            return Collections.emptyList();
+        }
         long nonErrorNonNilMemberCount = unionTypeDesc.memberTypeDescriptors().stream()
                 .filter(member -> CommonUtil.getRawType(member).typeKind() != TypeDescKind.ERROR
                         && member.typeKind() != TypeDescKind.NIL)
                 .count();
-        if (!hasErrorMemberType || nonErrorNonNilMemberCount == 0) {
+        if (errorMemberTypes.isEmpty() || nonErrorNonNilMemberCount == 0) {
             return Collections.emptyList();
         }
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-        List<TextEdit> edits = new ArrayList<>();
-        CreateVariableOut modifiedTextEdits = getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, positionDetails,
-                typeSymbol.get(), context, importsAcceptor);
-        edits.addAll(modifiedTextEdits.edits);
-        edits.addAll(CodeActionUtil.getAddCheckTextEdits(
+        CreateVariableOut modifiedTextEdits = getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, 
+                positionDetails, typeSymbol.get(), context, importsAcceptor);
+        List<TextEdit> edits = new ArrayList<>(modifiedTextEdits.edits);
+        List<TextEdit> addCheckTextEdits = CodeActionUtil.getAddCheckTextEdits(
                 PositionUtil.toRange(diagnostic.location().lineRange()).getStart(),
-                positionDetails.matchedNode(), context));
+                positionDetails.matchedNode(), context, errorMemberTypes, importsAcceptor);
+        edits.addAll(addCheckTextEdits);
         edits.addAll(importsAcceptor.getNewImportTextEdits());
 
-        int renamePosition = modifiedTextEdits.renamePositions.get(0);
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.CREATE_VAR_ADD_CHECK_TITLE,
                 edits, uri, CodeActionKind.QuickFix);
-        addRenamePopup(context, edits, modifiedTextEdits.edits.get(0), codeAction, renamePosition,
-                modifiedTextEdits.varRenamePosition.get(0), modifiedTextEdits.imports.size());
+        addRenamePopup(context, codeAction, modifiedTextEdits.varRenamePosition.get(0),
+                modifiedTextEdits.imports.size());
         return Collections.singletonList(codeAction);
+    }
+    
+    private static boolean containsModuleLevelPrivateTypes(String currentModule, List<TypeSymbol> errorMemberTypes) {
+        for (TypeSymbol errorMemType : errorMemberTypes) {
+            if (errorMemType.typeKind() != TypeDescKind.TYPE_REFERENCE) {
+                continue;
+            }
+            Optional<ModuleSymbol> module = errorMemType.getModule();
+            if (module.isEmpty() || currentModule.equals(module.get().id().moduleName())) {
+                continue;
+            }
+            Symbol typeDef = ((TypeReferenceTypeSymbol) errorMemType).definition();
+            if (typeDef instanceof Qualifiable qualifiable && !qualifiable.qualifiers().contains(Qualifier.PUBLIC)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

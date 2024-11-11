@@ -23,23 +23,23 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
+
 
 /**
  * Class to test functionality of futures.
  */
 public class AsyncFunctionsTest extends BaseTest {
 
-    private static final String testFileLocation = Paths.get("src", "test", "resources", "async")
-            .toAbsolutePath().toString();
+    private static final String testFileLocation = Path.of("src/test/resources/async").toAbsolutePath().toString();
     private BMainInstance bMainInstance;
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
         // Build and push config Lib project.
-        LogLeecher buildLeecher = new LogLeecher("target/bala/testOrg-functionsLib-java11-0.1.0.bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/testOrg-functionsLib-java11-0.1.0" +
+        LogLeecher buildLeecher = new LogLeecher("target/bala/testOrg-functionsLib-java17-0.1.0.bala");
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/testOrg-functionsLib-java17-0.1.0" +
                 ".bala to 'local' repository.");
         LogLeecher runLeecher = new LogLeecher("Run the library package to fix code coverage");
         bMainInstance.runMain(testFileLocation + "/", "functionsLib", null, new String[]{}, null, null,

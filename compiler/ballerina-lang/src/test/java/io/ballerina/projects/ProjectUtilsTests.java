@@ -20,6 +20,7 @@ package io.ballerina.projects;
 
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.internal.model.BuildJson;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
@@ -30,8 +31,9 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Test {@code ProjectUtils}.
@@ -40,7 +42,7 @@ import java.util.Collections;
  */
 public class ProjectUtilsTests {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources");
     private static final Path PROJECT_UTILS_RESOURCES = RESOURCE_DIRECTORY.resolve("project-utils");
     private static Path tempDirectory;
     private static BuildJson buildJson;
@@ -68,16 +70,29 @@ public class ProjectUtilsTests {
     @Test()
     public void testReadBuildJsonForNonExistingBuildFile() {
         Path buildFilePath = PROJECT_UTILS_RESOURCES.resolve("xyz").resolve(ProjectConstants.BUILD_FILE);
-        Assert.assertThrows(IOException.class, () -> {
-            ProjectUtils.readBuildJson(buildFilePath);
-        });
+        Assert.assertThrows(IOException.class, () -> ProjectUtils.readBuildJson(buildFilePath));
     }
 
     @Test()
     public void testReadBuildJsonForInvalidBuildFile() {
         Path buildFilePath = PROJECT_UTILS_RESOURCES.resolve("invalid-build");
-        Assert.assertThrows(JsonSyntaxException.class, () -> {
-            ProjectUtils.readBuildJson(buildFilePath);
-        });
+        Assert.assertThrows(JsonSyntaxException.class, () -> ProjectUtils.readBuildJson(buildFilePath));
+    }
+
+    @Test()
+    public void testDeleteSelectedFilesInDirectory() throws IOException {
+        Path fromDir = PROJECT_UTILS_RESOURCES.resolve("delete-files");
+        Path tempPackageDir = tempDirectory.resolve("delete-files");
+        Files.createDirectory(tempPackageDir);
+        List<Path> filesToKeep = new ArrayList<>();
+        filesToKeep.add(tempPackageDir.resolve("test.txt"));
+        filesToKeep.add(tempPackageDir.resolve("examples"));
+        Files.walkFileTree(fromDir, new FileUtils.Copy(fromDir, tempPackageDir));
+        ProjectUtils.deleteSelectedFilesInDirectory(tempPackageDir, filesToKeep);
+        Assert.assertFalse(Files.exists(tempPackageDir.resolve("Ballerina.toml")));
+        Assert.assertFalse(Files.exists(tempPackageDir.resolve("main.bal")));
+        Assert.assertFalse(Files.exists(tempPackageDir.resolve("tests").resolve("main-test.bal")));
+        Assert.assertTrue(Files.exists(tempPackageDir.resolve("test.txt")));
+        Assert.assertTrue(Files.exists(tempPackageDir.resolve("examples").resolve("example.txt")));
     }
 }

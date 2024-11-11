@@ -18,6 +18,8 @@ package org.ballerinalang.test.worker;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -35,11 +37,16 @@ import java.util.Arrays;
 public class BasicWorkerTest {
 
     private CompileResult result;
+    private CompileResult asyncSendResult;
 
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/basic-worker-actions.bal");
         Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
+
+        this.asyncSendResult =
+                BCompileUtil.compile("test-src/workers/worker_async_send_as_expression.bal");
+        Assert.assertEquals(asyncSendResult.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
     }
 
     @Test
@@ -81,7 +88,7 @@ public class BasicWorkerTest {
     @Test
     public void workerSameThreadSchedulingTest() {
         Object vals = BRunUtil.invoke(result, "workerSameThreadTest", new Object[0]);
-        BMap result = (BMap) vals;
+        BMap<BString, Object> result = (BMap<BString, Object>) vals;
         Assert.assertEquals(result.get(StringUtils.fromString("w")), result.get(StringUtils.fromString("w1")));
         Assert.assertEquals(result.get(StringUtils.fromString("w")), result.get(StringUtils.fromString("w2")));
     }
@@ -125,8 +132,40 @@ public class BasicWorkerTest {
     public Object[] workerMessagePassingFunctions() {
         return new Object[]{
                 "testWorkerMessagePassingRepeatedly",
-                "testPanicWithMessagePassing"
+                "testPanicWithMessagePassing",
+                "testEarlyReturnWithMessagePassing"
         };
+    }
+
+    @Test(dataProvider = "asyncSendAsExpressionFunctions")
+    public void testAsyncSendAsExpression(String funcName) {
+        BRunUtil.invoke(asyncSendResult, funcName);
+    }
+
+    @DataProvider(name = "asyncSendAsExpressionFunctions")
+    public Object[] asyncSendAsExpressionFunctions() {
+        return new Object[]{
+                "testAsyncSendAsExpressionReturnType",
+                "testAsyncSendAsExpressionWithPanic",
+                "testAsyncSendAsExpressionWithTrapAndCheckExpr",
+                "testAsyncSendAsExpressionWithTypeCastExpr",
+                "testAsyncSendAsExpressionWithReturnStmt",
+                "testAsyncSendAsExpressionWithWildCardBindingPattern",
+                "testAsyncSendAsExpressionWithMatchStmt"
+        };
+    }
+
+    @Test
+    public void testAsyncSendNegative() {
+        CompileResult asyncSendNegativeResult =
+                BCompileUtil.compile("test-src/workers/worker_async_send_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(asyncSendNegativeResult, i++, "incompatible types: '()' is not an " +
+                "iterable collection", 19, 26);
+        BAssertUtil.validateError(asyncSendNegativeResult, i++, "compound assignment not allowed with " +
+                "nullable operands", 34, 9);
+        BAssertUtil.validateError(asyncSendNegativeResult, i++, "operator '+' not defined for 'int' and '()'", 34, 9);
+        Assert.assertEquals(i, asyncSendNegativeResult.getErrorCount());
     }
 
     @AfterClass

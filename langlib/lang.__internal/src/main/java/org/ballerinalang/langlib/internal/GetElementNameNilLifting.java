@@ -21,19 +21,22 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BXml;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.XML_OPERATION_ERROR;
 
 /**
  * Return name of the element if `x` is a element or nil if element name is not set, else error.
  *
  * @since 1.2.0
  */
-public class GetElementNameNilLifting {
+public final class GetElementNameNilLifting {
+
+    private GetElementNameNilLifting() {
+    }
 
     public static Object getElementNameNilLifting(BXml xmlVal) {
         if (IsElement.isElement(xmlVal)) {
             String elementName = xmlVal.getElementName();
-            if (elementName.equals("")) {
+            if (elementName.isEmpty()) {
                 return null;
             }
             return elementName;

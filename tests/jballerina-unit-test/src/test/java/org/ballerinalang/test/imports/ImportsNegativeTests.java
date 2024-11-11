@@ -40,8 +40,8 @@ public class ImportsNegativeTests {
         validateError(result, index++, "cannot resolve module 'unknown/module'", 1, 1);
         validateError(result, index++, "undefined module 'module'", 4, 5);
         validateError(result, index++, "unknown type 'foo'", 4, 5);
-        validateError(result, index++, "incompatible types: expected 'testorg/invalidimport:1.0.0:R', found 'int'",
-                8, 24);
+        validateError(result, index++, "incompatible types: expected '(testorg/invalidimport:1.0.0:R & readonly)'," +
+                        " found 'int'", 8, 24);
         assertEquals(result.getErrorCount(), index);
     }
 

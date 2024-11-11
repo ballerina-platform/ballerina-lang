@@ -32,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.util.MarkupUtils;
 import org.eclipse.lsp4j.MarkupContent;
@@ -48,7 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A utility for building a SignatureInformation.
@@ -181,14 +182,13 @@ public class SignatureInfoModelBuilder {
             return;
         }
 
-        List<Parameter> parameters = parameterSymbols
-                .subList(skipFirstParam() ? 1 : 0, parameterSymbols.size())
-                .stream()
-                .map(param -> new Parameter(param, false, false, context))
-                .collect(Collectors.toList());
-
         Optional<ParameterSymbol> restParam = functionTypeSymbol.flatMap(FunctionTypeSymbol::restParam);
-        restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true, context)));
+        List<Parameter> parameters = Stream.concat(
+                parameterSymbols.subList(skipFirstParam() ? 1 : 0, parameterSymbols.size())
+                    .stream()
+                    .map(param -> new Parameter(param, false, false, context)),
+                restParam.stream().map(parameter -> new Parameter(parameter, false, true, context))
+        ).toList();
 
         // Create a list of param info models
         for (Parameter param : parameters) {
@@ -199,7 +199,7 @@ public class SignatureInfoModelBuilder {
 
         includedRecordParams = this.parameterModels.stream()
                 .filter(ParameterInfoModel::isIncludedRecordParam)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -267,13 +267,16 @@ public class SignatureInfoModelBuilder {
             }
             int labelOffset = startOffset + paramLabelBuilder.length();
             ParameterInformation paramInfo = new ParameterInformation();
-            String typeSignature = fieldType.signature();
             Optional<String> fieldName = recordFieldSymbol.getName();
-            recordFieldSymbol.typeDescriptor().signature();
             String paramDocs = parameterDocumentation
                     .getOrDefault(fieldName.orElse(""), recordFieldSymbol.signature());
-            getParameterDocumentation(typeSignature, fieldName.orElse(""), paramDocs);
-            paramLabelBuilder.append(recordFieldSymbol.typeDescriptor().signature());
+            
+            String typeSignature = fieldType.signature();
+            MarkupContent parameterDocs = getParameterDocumentation(typeSignature, fieldName.orElse(""), 
+                    paramDocs);
+            paramInfo.setDocumentation(parameterDocs);
+            typeSignature = FunctionGenerator.processModuleIDsInText(typeSignature);
+            paramLabelBuilder.append(typeSignature);
             int paramStart = labelOffset;
             int paramEnd = labelOffset + typeSignature.length();
             if (fieldName.isPresent()) {

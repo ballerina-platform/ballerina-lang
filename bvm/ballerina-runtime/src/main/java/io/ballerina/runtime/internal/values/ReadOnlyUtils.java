@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.Field;
@@ -31,7 +32,9 @@ import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BIntersectionType;
@@ -43,8 +46,6 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BLangFreezeException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,16 +57,16 @@ import java.util.Set;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static io.ballerina.runtime.api.constants.TypeConstants.READONLY_XML_TNAME;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Util class for readonly-typed value related operations.
  *
  * @since 1.3.0
  */
-public class ReadOnlyUtils {
+public final class ReadOnlyUtils {
 
     /**
      * Method to handle an update to a value, that is invalid due to the value being immutable.
@@ -73,8 +74,8 @@ public class ReadOnlyUtils {
      * @param moduleName the name of the langlib module for whose values the error occurred
      */
     static void handleInvalidUpdate(String moduleName) {
-        throw new BLangFreezeException(getModulePrefixedReason(moduleName, INVALID_UPDATE_ERROR_IDENTIFIER).getValue(),
-                                       BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE).getValue());
+        throw ErrorCreator.createError(getModulePrefixedReason(moduleName, INVALID_UPDATE_ERROR_IDENTIFIER),
+                                       ErrorHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
     }
 
     public static Type getReadOnlyType(Type type) {
@@ -223,8 +224,8 @@ public class ReadOnlyUtils {
                 for (Map.Entry<String, Field> entry : originalFields.entrySet()) {
                     Field originalField = entry.getValue();
                     fields.put(entry.getKey(),
-                               new BField(getImmutableType(originalField.getFieldType(), unresolvedTypes),
-                                          originalField.getFieldName(), originalField.getFlags()));
+                            new BField(getImmutableType(originalField.getFieldType(), unresolvedTypes),
+                                    originalField.getFieldName(), originalField.getFlags() | SymbolFlags.READONLY));
                 }
 
                 BRecordType immutableRecordType = new BRecordType(
@@ -233,6 +234,10 @@ public class ReadOnlyUtils {
                         origRecordType.flags |= SymbolFlags.READONLY, fields,
                         null, origRecordType.sealed,
                         origRecordType.typeFlags);
+                for (Map.Entry<String, BFunctionPointer<Object, ?>> field : origRecordType.getDefaultValues()
+                        .entrySet()) {
+                    immutableRecordType.setDefaultValue(field.getKey(), field.getValue());
+                }
                 BIntersectionType intersectionType = createAndSetImmutableIntersectionType(origRecordType,
                                                                                            immutableRecordType);
 
@@ -268,8 +273,8 @@ public class ReadOnlyUtils {
                         Utils.decodeIdentifier(origObjectType.getName().concat(" & readonly")),
                         origObjectType.getPackage(), origObjectType.flags |= SymbolFlags.READONLY);
                 immutableObjectType.setFields(immutableObjectFields);
-                immutableObjectType.generatedInitializer = origObjectType.generatedInitializer;
-                immutableObjectType.initializer = origObjectType.initializer;
+                immutableObjectType.generatedInitMethod = origObjectType.getGeneratedInitMethod();
+                immutableObjectType.setInitMethod(origObjectType.getInitMethod());
                 immutableObjectType.setMethods(origObjectType.getMethods());
 
                 BIntersectionType objectIntersectionType = createAndSetImmutableIntersectionType(origObjectType,
@@ -362,8 +367,8 @@ public class ReadOnlyUtils {
      */
     public static Type getMutableType(BIntersectionType intersectionType) {
         for (Type type : intersectionType.getConstituentTypes()) {
-            Type referredType = TypeUtils.getReferredType(type);
-            if (intersectionType.getEffectiveType().getTag() == referredType.getTag()) {
+            Type referredType = TypeUtils.getImpliedType(type);
+            if (TypeUtils.getImpliedType(intersectionType.getEffectiveType()).getTag() == referredType.getTag()) {
                 return referredType;
             }
         }

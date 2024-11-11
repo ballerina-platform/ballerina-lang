@@ -1,0 +1,25 @@
+{
+  "range": {
+    "start": {
+      "line": 3,
+      "character": 19
+    },
+    "end": {
+      "line": 3,
+      "character": 21
+    }
+  },
+  "source": "source/project/inlayhint2.bal",
+  "result": [
+    {
+      "position": {
+        "line": 3,
+        "character": 19
+      },
+      "label": {
+        "left": "age: "
+      }
+    }
+  ],
+  "description": "inlay hints for functions defined in another module"
+}

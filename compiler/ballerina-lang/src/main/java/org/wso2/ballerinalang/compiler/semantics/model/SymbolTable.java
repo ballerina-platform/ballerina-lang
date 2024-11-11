@@ -129,6 +129,7 @@ public class SymbolTable {
 
     public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BArrayType arrayType = new BArrayType(anyType);
+    public final BArrayType byteArrayType = new BArrayType(byteType);
     public final BArrayType arrayStringType = new BArrayType(stringType);
     BVarSymbol varSymbol = new BVarSymbol(0, null, null,
             noType, null, null, SymbolOrigin.VIRTUAL);
@@ -148,6 +149,7 @@ public class SymbolTable {
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
     public final BType invokableType = new BInvokableType(null, null, null, null);
+    public final BType empty = new BType(TypeTags.EMPTY, null);
 
     public BConstructorSymbol errorConstructor;
     public BUnionType anyOrErrorType;
@@ -221,8 +223,8 @@ public class SymbolTable {
 
     public BPackageSymbol langRegexpModuleSymbol;
 
-    private Names names;
-    private Types types;
+    private final Names names;
+    private final Types types;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
     public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
     public Map<String, Map<SelectivelyImmutableReferenceType, BIntersectionType>> immutableTypeMaps = new HashMap<>();
@@ -297,7 +299,7 @@ public class SymbolTable {
         defineCyclicUnionBasedInternalTypes();
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
-                                                                names.fromString("$anonType$TRUE"),
+                                                                Names.fromString("$anonType$TRUE"),
                                                                 rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
                                                                 this.builtinPos, VIRTUAL);
         this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<>() {{
@@ -305,7 +307,7 @@ public class SymbolTable {
         }});
 
         BTypeSymbol falseFiniteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
-                names.fromString("$anonType$FALSE"), rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
+                Names.fromString("$anonType$FALSE"), rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
                 this.builtinPos, VIRTUAL);
         this.falseType = new BFiniteType(falseFiniteTypeSymbol, new HashSet<>() {{
             add(falseLiteral);
@@ -333,91 +335,54 @@ public class SymbolTable {
     }
 
     public BType getTypeFromTag(int tag) {
-        switch (tag) {
-            case TypeTags.INT:
-                return intType;
-            case TypeTags.BYTE:
-                return byteType;
-            case TypeTags.FLOAT:
-                return floatType;
-            case TypeTags.DECIMAL:
-                return decimalType;
-            case TypeTags.STRING:
-                return stringType;
-            case TypeTags.BOOLEAN:
-                return booleanType;
-            case TypeTags.JSON:
-                return jsonType;
-            case TypeTags.XML:
-                return xmlType;
-            case TypeTags.XML_COMMENT:
-                return xmlCommentType;
-            case TypeTags.XML_PI:
-                return xmlPIType;
-            case TypeTags.XML_ELEMENT:
-                return xmlElementType;
-            case TypeTags.XML_TEXT:
-                return xmlTextType;
-            case TypeTags.STREAM:
-                return streamType;
-            case TypeTags.TABLE:
-                return tableType;
-            case TypeTags.NIL:
-                return nilType;
-            case TypeTags.NEVER:
-                return neverType;
-            case TypeTags.ERROR:
-                return errorType;
-            case TypeTags.SIGNED32_INT:
-                return signed32IntType;
-            case TypeTags.SIGNED16_INT:
-                return signed16IntType;
-            case TypeTags.SIGNED8_INT:
-                return signed8IntType;
-            case TypeTags.UNSIGNED32_INT:
-                return unsigned32IntType;
-            case TypeTags.UNSIGNED16_INT:
-                return unsigned16IntType;
-            case TypeTags.UNSIGNED8_INT:
-                return unsigned8IntType;
-            case TypeTags.CHAR_STRING:
-                return charStringType;
-            case TypeTags.REGEXP:
-                return regExpType;
-            default:
-                return semanticError;
-        }
+        return switch (tag) {
+            case TypeTags.INT -> intType;
+            case TypeTags.BYTE -> byteType;
+            case TypeTags.FLOAT -> floatType;
+            case TypeTags.DECIMAL -> decimalType;
+            case TypeTags.STRING -> stringType;
+            case TypeTags.BOOLEAN -> booleanType;
+            case TypeTags.JSON -> jsonType;
+            case TypeTags.XML -> xmlType;
+            case TypeTags.XML_COMMENT -> xmlCommentType;
+            case TypeTags.XML_PI -> xmlPIType;
+            case TypeTags.XML_ELEMENT -> xmlElementType;
+            case TypeTags.XML_TEXT -> xmlTextType;
+            case TypeTags.STREAM -> streamType;
+            case TypeTags.TABLE -> tableType;
+            case TypeTags.NIL -> nilType;
+            case TypeTags.NEVER -> neverType;
+            case TypeTags.ERROR -> errorType;
+            case TypeTags.SIGNED32_INT -> signed32IntType;
+            case TypeTags.SIGNED16_INT -> signed16IntType;
+            case TypeTags.SIGNED8_INT -> signed8IntType;
+            case TypeTags.UNSIGNED32_INT -> unsigned32IntType;
+            case TypeTags.UNSIGNED16_INT -> unsigned16IntType;
+            case TypeTags.UNSIGNED8_INT -> unsigned8IntType;
+            case TypeTags.CHAR_STRING -> charStringType;
+            case TypeTags.REGEXP -> regExpType;
+            case TypeTags.BYTE_ARRAY -> byteArrayType;
+            default -> semanticError;
+        };
     }
 
     public BType getLangLibSubType(String name) {
         // Assuming subtype names are unique across LangLib
-        switch (name) {
-            case Names.STRING_SIGNED32:
-                return this.signed32IntType;
-            case Names.STRING_SIGNED16:
-                return this.signed16IntType;
-            case Names.STRING_SIGNED8:
-                return this.signed8IntType;
-            case Names.STRING_UNSIGNED32:
-                return this.unsigned32IntType;
-            case Names.STRING_UNSIGNED16:
-                return this.unsigned16IntType;
-            case Names.STRING_UNSIGNED8:
-                return this.unsigned8IntType;
-            case Names.STRING_CHAR:
-                return this.charStringType;
-            case Names.STRING_XML_ELEMENT:
-                return this.xmlElementType;
-            case Names.STRING_XML_PI:
-                return this.xmlPIType;
-            case Names.STRING_XML_COMMENT:
-                return this.xmlCommentType;
-            case Names.STRING_XML_TEXT:
-                return this.xmlTextType;
-            case Names.STRING_REGEXP:
-                return this.regExpType;
-        }
-        throw new IllegalStateException("LangLib Subtype not found: " + name);
+        return switch (name) {
+            case Names.STRING_SIGNED32 -> this.signed32IntType;
+            case Names.STRING_SIGNED16 -> this.signed16IntType;
+            case Names.STRING_SIGNED8 -> this.signed8IntType;
+            case Names.STRING_UNSIGNED32 -> this.unsigned32IntType;
+            case Names.STRING_UNSIGNED16 -> this.unsigned16IntType;
+            case Names.STRING_UNSIGNED8 -> this.unsigned8IntType;
+            case Names.STRING_CHAR -> this.charStringType;
+            case Names.STRING_XML_ELEMENT -> this.xmlElementType;
+            case Names.STRING_XML_PI -> this.xmlPIType;
+            case Names.STRING_XML_COMMENT -> this.xmlCommentType;
+            case Names.STRING_XML_TEXT -> this.xmlTextType;
+            case Names.STRING_REGEXP -> this.regExpType;
+            default -> throw new IllegalStateException("LangLib Subtype not found: " + name);
+        };
     }
 
     public void loadPredeclaredModules() {
@@ -440,7 +405,7 @@ public class SymbolTable {
     }
 
     public void initializeType(BType type, String name, SymbolOrigin origin) {
-        initializeType(type, names.fromString(name), origin);
+        initializeType(type, Names.fromString(name), origin);
     }
 
     private void initializeType(BType type, Name name, SymbolOrigin origin) {
@@ -1125,14 +1090,14 @@ public class SymbolTable {
                                      BType retType) {
 
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
-        defineOperator(names.fromString(kind.value()), paramTypes, retType);
+        defineOperator(Names.fromString(kind.value()), paramTypes, retType);
     }
 
     private void defineUnaryOperator(OperatorKind kind,
                                      BType type,
                                      BType retType) {
         List<BType> paramTypes = Lists.of(type);
-        defineOperator(names.fromString(kind.value()), paramTypes, retType);
+        defineOperator(Names.fromString(kind.value()), paramTypes, retType);
     }
 
     private void defineOperator(Name name,

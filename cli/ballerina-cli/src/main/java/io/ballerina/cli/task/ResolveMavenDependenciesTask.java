@@ -45,19 +45,22 @@ public class ResolveMavenDependenciesTask implements Task {
 
     @Override
     public void execute(Project project) {
-        PackageManifest.Platform platform = project.currentPackage().manifest().platform(JvmTarget.JAVA_11.code());
-
-        if (platform == null) {
+        List<Map<String, Object>> platformLibraries = new ArrayList<>();
+        List<Map<String, Object>> platformRepositories = new ArrayList<>();
+        PackageManifest.Platform platform = null;
+        for (JvmTarget jvmTarget : JvmTarget.values()) {
+            platform = project.currentPackage().manifest().platform(jvmTarget.code());
+            if (platform != null) {
+                platformLibraries.addAll(platform.dependencies());
+                platformRepositories.addAll(platform.repositories());
+            }
+        }
+        if (platformLibraries.isEmpty()) {
             return;
         }
 
-        List<Map<String, Object>> platformLibraries = platform.dependencies();
-        List<Map<String, Object>> platformRepositories = platform.repositories();
         List<Map<String, Object>> mavenCustomRepos = new ArrayList<>();
         List<Map<String, Object>> mavenDependencies = new ArrayList<>();
-        if (platformLibraries == null) {
-            return;
-        }
 
         String targetRepo = project.sourceRoot().resolve("target").resolve("platform-libs").toAbsolutePath().toString();
         MavenResolver resolver = new MavenResolver(targetRepo);
@@ -70,7 +73,7 @@ public class ResolveMavenDependenciesTask implements Task {
             mavenCustomRepos.add(repository);
         }
 
-        if (mavenCustomRepos.size() > 0) {
+        if (!mavenCustomRepos.isEmpty()) {
             for (Map<String, Object> repository : mavenCustomRepos) {
                 if (repository.get("id") != null && repository.get("url") != null &&
                         repository.get("username") != null && repository.get("password") != null) {
@@ -93,7 +96,7 @@ public class ResolveMavenDependenciesTask implements Task {
             }
         }
 
-        if (mavenDependencies.size() > 0) {
+        if (!mavenDependencies.isEmpty()) {
             out.println("Resolving Maven dependencies\n\tDownloading dependencies into " + targetRepo);
             for (Map<String, Object> library : mavenDependencies) {
                 try {

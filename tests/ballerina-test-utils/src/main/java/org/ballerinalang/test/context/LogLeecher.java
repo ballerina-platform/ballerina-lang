@@ -22,13 +22,11 @@ package org.ballerinalang.test.context;
  */
 public class LogLeecher {
 
-    private LeecherType leecherType = LeecherType.INFO;
-
     public String text;
-
+    private LeecherType leecherType = LeecherType.INFO;
     private boolean textFound = false;
-
     private boolean forcedExit = false;
+    private boolean isRegExp = false;
 
     /**
      * Initializes the Leecher with expected log.
@@ -42,11 +40,24 @@ public class LogLeecher {
     /**
      * Initializes the Leecher with expected log.
      *
-     * @param text The log line expected
-     * @param leecherType type of the log leecher
+     * @param text          The log line expected
+     * @param leecherType   type of the log leecher
      */
     public LogLeecher(String text, LeecherType leecherType) {
         this.text = text;
+        this.leecherType = leecherType;
+    }
+
+    /**
+     * Initializes the Leecher with expected log which is given by a regular expression.
+     *
+     * @param text          The log line expected
+     * @param isRegExp      whether the provided text is a regular expression
+     * @param leecherType   type of the log leecher
+     */
+    public LogLeecher(String text, boolean isRegExp, LeecherType leecherType) {
+        this.text = text;
+        this.isRegExp = isRegExp;
         this.leecherType = leecherType;
     }
 
@@ -56,18 +67,23 @@ public class LogLeecher {
     public boolean isTextFound() {
         return textFound;
     }
+
     /**
      * Feed a log line to check if it matches the expected text.
      *
      * @param logLine The log line which was read
      */
     void feedLine(String logLine) {
-        if (logLine.contains(text)) {
+        if (isTextFound(logLine)) {
             textFound = true;
             synchronized (this) {
                 this.notifyAll();
             }
         }
+    }
+
+    private boolean isTextFound(String logLine) {
+        return isRegExp ? logLine.matches(text) : logLine.contains(text);
     }
 
     /**

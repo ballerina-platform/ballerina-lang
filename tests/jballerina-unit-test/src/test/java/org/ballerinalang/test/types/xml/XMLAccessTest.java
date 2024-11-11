@@ -23,7 +23,9 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -53,9 +55,9 @@ public class XMLAccessTest {
     @Test
     public void testXMLElementAccessOnSingleElementXML() {
         BArray returns = (BArray) BRunUtil.invoke(elementAccess, "testXMLElementAccessOnSingleElementXML");
-        Assert.assertEquals(returns.get(0).toString(), "<ns:root xmlns:ns=\"foo\"></ns:root>");
-        Assert.assertEquals(returns.get(1).toString(), "<ns:root xmlns:ns=\"foo\"></ns:root>");
-        Assert.assertEquals(returns.get(2).toString(), "<ns:root xmlns:ns=\"foo\"></ns:root>");
+        Assert.assertEquals(returns.get(0).toString(), "<ns:root xmlns:ns=\"foo\"/>");
+        Assert.assertEquals(returns.get(1).toString(), "<ns:root xmlns:ns=\"foo\"/>");
+        Assert.assertEquals(returns.get(2).toString(), "<ns:root xmlns:ns=\"foo\"/>");
         Assert.assertEquals(returns.get(3).toString(), "");
         Assert.assertEquals(returns.get(4).toString(), "");
         Assert.assertEquals(returns.get(5).toString(), "");
@@ -65,80 +67,80 @@ public class XMLAccessTest {
     public void testXMLElementAccessOnXMLSequence() {
         BArray returns = (BArray) BRunUtil.invoke(elementAccess, "testXMLElementAccessOnXMLSequence");
         Assert.assertEquals(returns.get(0).toString(),
-                "<ns:root xmlns:ns=\"foo\"></ns:root>" +
-                        "<k:root xmlns:k=\"bar\"></k:root>" +
-                        "<k:item xmlns:k=\"bar\"></k:item>");
-        Assert.assertEquals(returns.get(1).toString(), "<ns:root xmlns:ns=\"foo\"></ns:root>");
-        Assert.assertEquals(returns.get(2).toString(), "<ns:root xmlns:ns=\"foo\"></ns:root>");
+                "<ns:root xmlns:ns=\"foo\"/>" +
+                        "<k:root xmlns:k=\"bar\"/>" +
+                        "<k:item xmlns:k=\"bar\"/>");
+        Assert.assertEquals(returns.get(1).toString(), "<ns:root xmlns:ns=\"foo\"/>");
+        Assert.assertEquals(returns.get(2).toString(), "<ns:root xmlns:ns=\"foo\"/>");
         Assert.assertEquals(returns.get(3).toString(), "");
         Assert.assertEquals(returns.get(4).toString(), "");
         Assert.assertEquals(returns.get(5).toString(),
-                "<k:root xmlns:k=\"bar\"></k:root><k:item xmlns:k=\"bar\"></k:item>");
+                "<k:root xmlns:k=\"bar\"/><k:item xmlns:k=\"bar\"/>");
     }
 
     @Test
     public void testXMLElementAccessMultipleFilters() {
         BArray returns = (BArray) BRunUtil.invoke(elementAccess, "testXMLElementAccessMultipleFilters");
         Assert.assertEquals(returns.get(0).toString(),
-                "<ns:root xmlns:ns=\"foo\"></ns:root>" +
-                        "<k:root xmlns:k=\"bar\"></k:root>" +
-                        "<k:item xmlns:k=\"bar\"></k:item>");
+                "<ns:root xmlns:ns=\"foo\"/>" +
+                        "<k:root xmlns:k=\"bar\"/>" +
+                        "<k:item xmlns:k=\"bar\"/>");
 
         Assert.assertEquals(returns.get(1).toString(),
-                "<ns:root xmlns:ns=\"foo\"></ns:root>" +
-                        "<k:root xmlns:k=\"bar\"></k:root>" +
-                        "<k:item xmlns:k=\"bar\"></k:item>");
+                "<ns:root xmlns:ns=\"foo\"/>" +
+                        "<k:root xmlns:k=\"bar\"/>" +
+                        "<k:item xmlns:k=\"bar\"/>");
 
         Assert.assertEquals(returns.get(2).toString(),
-                "<ns:root xmlns:ns=\"foo\"></ns:root>" +
-                        "<k:root xmlns:k=\"bar\"></k:root>");
+                "<ns:root xmlns:ns=\"foo\"/>" +
+                        "<k:root xmlns:k=\"bar\"/>");
 
         Assert.assertEquals(returns.get(3).toString(),
-                "<k:item xmlns:k=\"bar\"></k:item>");
+                "<k:item xmlns:k=\"bar\"/>");
     }
 
     @Test
     public void testXMLNavigationOnSingleElement() {
         BArray returns = (BArray) BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElement");
-        Assert.assertEquals(returns.get(0).toString(), "<child attr=\"attr-val\"></child>");
-        Assert.assertEquals(returns.get(1).toString(), "<child attr=\"attr-val\"></child>");
-        Assert.assertEquals(returns.get(2).toString(), "<child attr=\"attr-val\"></child>");
-        Assert.assertEquals(returns.get(3).toString(), "<child attr=\"attr-val\"></child>");
-        Assert.assertEquals(returns.get(4).toString(), "<child attr=\"attr-val\"></child>");
+        Assert.assertEquals(returns.get(0).toString(), "<child attr=\"attr-val\"/>");
+        Assert.assertEquals(returns.get(1).toString(), "<child attr=\"attr-val\"/>");
+        Assert.assertEquals(returns.get(2).toString(), "<child attr=\"attr-val\"/>");
+        Assert.assertEquals(returns.get(3).toString(), "<child attr=\"attr-val\"/>");
+        Assert.assertEquals(returns.get(4).toString(), "<child attr=\"attr-val\"/>");
     }
 
     @Test
     public void testXMLNavigationOnSingleElementWithNamespaces() {
         BArray returns = (BArray) BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElementWithNamespaces");
-        Assert.assertEquals(returns.get(0).toString(), "<ns:child xmlns:ns=\"foo\"></ns:child>");
-        Assert.assertEquals(returns.get(1).toString(), "<ns:child xmlns:ns=\"foo\"></ns:child>");
-        Assert.assertEquals(returns.get(2).toString(), "<ns:child xmlns:ns=\"foo\"></ns:child>");
-        Assert.assertEquals(returns.get(3).toString(), "<ns:child xmlns:ns=\"foo\"></ns:child>");
-        Assert.assertEquals(returns.get(4).toString(), "<ns:child xmlns:ns=\"foo\"></ns:child>");
+        Assert.assertEquals(returns.get(0).toString(), "<ns:child xmlns:ns=\"foo\"/>");
+        Assert.assertEquals(returns.get(1).toString(), "<ns:child xmlns:ns=\"foo\"/>");
+        Assert.assertEquals(returns.get(2).toString(), "<ns:child xmlns:ns=\"foo\"/>");
+        Assert.assertEquals(returns.get(3).toString(), "<ns:child xmlns:ns=\"foo\"/>");
+        Assert.assertEquals(returns.get(4).toString(), "<ns:child xmlns:ns=\"foo\"/>");
     }
 
     @Test
     public void testXMLNavigationOnSingleElementReferToDefaultNS() {
         BArray returns = (BArray) BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElementReferToDefaultNS");
-        Assert.assertEquals(returns.get(0).toString(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns.get(1).toString(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns.get(2).toString(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns.get(3).toString(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns.get(4).toString(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns.get(5).toString(), "<child xmlns=\"foo\"></child>");
+        Assert.assertEquals(returns.get(0).toString(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns.get(1).toString(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns.get(2).toString(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns.get(3).toString(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns.get(4).toString(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns.get(5).toString(), "<child xmlns=\"foo\"/>");
         Assert.assertEquals(returns.get(6).toString(), "0");
-        Assert.assertEquals(returns.get(7).toString(), "<child xmlns=\"foo\"></child>");
+        Assert.assertEquals(returns.get(7).toString(), "<child xmlns=\"foo\"/>");
     }
 
     @Test
     public void testXMLNavigationOnSingleElementReferToDefaultNSViaPrefix() {
         BArray returns =
                 (BArray) BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElementReferToDefaultNSViaPrefix");
-        Assert.assertEquals(returns.get(0).toString(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns.get(1).toString(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns.get(2).toString(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns.get(3).toString(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns.get(4).toString(), "<child xmlns=\"foo\"></child>");
+        Assert.assertEquals(returns.get(0).toString(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns.get(1).toString(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns.get(2).toString(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns.get(3).toString(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns.get(4).toString(), "<child xmlns=\"foo\"/>");
     }
 
     @Test
@@ -162,9 +164,8 @@ public class XMLAccessTest {
                 "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child><k:child xmlns=\"foo\" " +
                         "xmlns:k=\"bar\">C</k:child><it-child xmlns=\"foo\">D</it-child>TEXT");
         Assert.assertEquals(returns.get(2).toString(),
-                "<child xmlns=\"foo\">A</child>" +
-                        "<child xmlns=\"foo\" xmlns:ns=\"foo\">B</child>" +
-                        "<it-child xmlns=\"foo\">D</it-child>");
+                "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child><k:child xmlns=\"foo\" " +
+                        "xmlns:k=\"bar\">C</k:child><it-child xmlns=\"foo\">D</it-child>");
         Assert.assertEquals(returns.get(3).toString(),
                 "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child>");
         Assert.assertEquals(returns.get(4).toString(),
@@ -179,8 +180,8 @@ public class XMLAccessTest {
                 "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child>" +
                         "<child2 xmlns=\"foo\">D</child2>");
         Assert.assertEquals(returns.get(2).toString(),
-                "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child>" +
-                        "<child2 xmlns=\"foo\">D</child2>");
+                "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child><k:child xmlns=\"foo\" " +
+                        "xmlns:k=\"bar\">C</k:child><child2 xmlns=\"foo\">D</child2>");
         Assert.assertEquals(returns.get(3).toString(),
                 "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child><k:child xmlns=\"foo\" " +
                         "xmlns:k=\"bar\">C</k:child><child2 xmlns=\"foo\">D</child2>");
@@ -224,6 +225,11 @@ public class XMLAccessTest {
     }
 
     @Test
+    public void testXMLNavigationWithEscapeCharacter() {
+        BRunUtil.invoke(navigation, "testXMLNavigationWithEscapeCharacter");
+    }
+
+    @Test
     public void testInvalidXMLAccessWithIndex() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "invalid expr in assignment lhs", 4, 5);
@@ -254,22 +260,84 @@ public class XMLAccessTest {
     }
 
     @Test
-    public void testXMLNavExpressionNegative() {
-        String methodInvocMessage = "method invocations are not yet supported within XML navigation expressions, " +
-                "use a grouping expression (parenthesis) " +
-                "if you intend to invoke the method on the result of the navigation expression.";
+    public void testInvalidXMLUnionAccessWithNegativeIndex() {
+        BRunUtil.invoke(result, "testInvalidXMLUnionAccessWithNegativeIndex");
+    }
 
-        String navIndexingMessage = "member access operations are not yet supported within XML navigation " +
-                "expressions, use a grouping expression (parenthesis) " +
-                "if you intend to member-access the result of the navigation expression.";
+    @Test
+    public void testInvalidXMLAccessWithNegativeIndex() {
+        BRunUtil.invoke(result, "testInvalidXMLAccessWithNegativeIndex");
+    }
+
+    @Test
+    public void testXmlAccessWithLargerIndex() {
+        BRunUtil.invoke(result, "testXmlAccessWithLargerIndex");
+    }
+
+    @Test
+    public void testXmlIndexedAccessWithUnionType() {
+        BRunUtil.invoke(result, "testXmlIndexedAccessWithUnionType");
+    }
+
+    @Test(enabled = false) // disabling until providing semantic support for step extension
+    public void testXmlNavigationWithUnionType() {
+        BRunUtil.invoke(navigation, "testXmlNavigationWithUnionType");
+    }
+
+    @Test
+    public void testXmlNavigationWithDefaultNamespaceDefinedAfter() {
+        BRunUtil.invoke(navigation, "testXmlNavigationWithDefaultNamespaceDefinedAfter");
+    }
+
+    @Test(dataProvider = "xmlStepExtension")
+    public void testXmlStepExtension(String function) {
+        BRunUtil.invoke(navigation, function);
+    }
+
+    @DataProvider
+    private Object[] xmlStepExtension() {
+        return new Object[]{
+                "testXmlIndexedStepExtend",
+                "testXmlFilterStepExtend",
+                "testXmlIndexedAndFilterStepExtend",
+                "testXmlMethodCallStepExtend",
+                "testXmlMethodCallIndexedAndFilterStepExtend"
+        };
+    }
+
+    @Test
+    public void testXMLNavExpressionNegative() {
         int i = 0;
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 3, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 4, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 5, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 6, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 7, 13);
-        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 8, 13);
-        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 9, 13);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'j'", 4, 14);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 5, 14);
+        BAssertUtil.validateError(navigationNegative, i++, "cannot find the prefix 'ns'", 6, 15);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'x2'", 7, 9);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'x2'", 8, 9);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'j'", 8, 18);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 17,
+                18);
+        BAssertUtil.validateError(navigationNegative, i++, "too many arguments in call to 'get()'", 18, 13);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 19,
+                18);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined function 'foo' in type 'xml'", 21, 14);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'xml', found 'int'", 22, 13);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 23,
+                23);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'xml', found 'int'", 25, 22);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'r'", 29, 23);
+        BAssertUtil.validateError(navigationNegative, i++,
+                "incompatible types: expected 'boolean', found 'xml:Element'", 31, 31);
+        BAssertUtil.validateError(navigationNegative, i++,
+                "incompatible types: expected 'xml:ProcessingInstruction', found 'xml:Element'", 33, 60);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'xml', found '()'", 34, 18);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'r'", 36, 26);
+        BAssertUtil.validateError(navigationNegative, i++,
+                "incompatible types: expected 'boolean', found 'xml:Element'", 38, 34);
+        BAssertUtil.validateError(navigationNegative, i++,
+                "incompatible types: expected 'function (ballerina/lang.xml:0.0.0:ItemType) returns (boolean)', found" +
+                        " 'function (xml) returns ()'",
+                39, 29);
+
         Assert.assertEquals(navigationNegative.getErrorCount(), i);
     }
 
@@ -294,7 +362,53 @@ public class XMLAccessTest {
         BAssertUtil.validateError(navigationFilterNegative, index++,
                 "incompatible types: expected 'xml', found 'int'", 8, 14);
         BAssertUtil.validateError(navigationFilterNegative, index++,
-                "cannot find xml namespace prefix 'foo'", 13, 16);
+                "cannot find the prefix 'foo'", 13, 16);
         Assert.assertEquals(navigationFilterNegative.getErrorCount(), index);
+    }
+
+    @Test
+    void testXmlStepExprWithUnionTypeNegative() {
+        CompileResult navigationStepExprNegative =
+                BCompileUtil.compile("test-src/types/xml/xml_step_expr_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml<xml:Element>|int)'", 23, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml<xml:Element>|int)'", 24, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml:Comment|string)'", 27, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml:Comment|string)'", 28, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml:Element|xml:ProcessingInstruction|record {| xml x; " +
+                        "|})'", 31, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml:Element|xml:ProcessingInstruction|record {| xml x; " +
+                        "|})'", 32, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml:Text|xml:ProcessingInstruction|boolean)'", 35, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml:Text|xml:ProcessingInstruction|boolean)'", 36, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found 'XCE'", 39, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found 'XCE'", 40, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '" +
+                        "(xml<xml:Element>|xml<xml:Comment>|xml<xml:ProcessingInstruction>|xml:Text|int)'", 43, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '" +
+                        "(xml<xml:Element>|xml<xml:Comment>|xml<xml:ProcessingInstruction>|xml:Text|int)'", 44, 9);
+        Assert.assertEquals(navigationStepExprNegative.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        elementAccess = null;
+        navigation = null;
+        negativeResult = null;
+        navigationNegative = null;
+        navigationFilterNegative = null;
     }
 }

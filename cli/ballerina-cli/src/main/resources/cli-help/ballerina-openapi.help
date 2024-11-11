@@ -12,7 +12,9 @@ SYNOPSIS
                    [--mode <mode-type>] [--tags <tag-names>]
                    [--operations <operation-names>] [-n | --nullable]
                    [--license] <license-file-path> [--with-tests]
-                   [--client-methods] <resource|remote>
+                   [--client-methods] <resource|remote> [--without-data-binding]
+                   [--status-code-binding] [--mock] [--with-service-contract]
+                   [--single-file] [--use-sanitized-oas]
        bal openapi [-i | --input] <ballerina-service-file-path> [--json]
                    [-s | --service] <current-service-name>
 
@@ -21,7 +23,7 @@ DESCRIPTION
        Generate a Ballerina source (either a mock service or a client stub) from
        the given OpenAPI definition file or export an OpenAPI definition from a
        Ballerina service.
-    
+
        The generated Ballerina sources will be written into the provided output
        location.
 
@@ -80,8 +82,34 @@ OPTIONS
             boiler-plate for all the remote functions of the generated client.
 
         --client-methods <resource|remote>
-            This option can be used in client generation to select the client method type, which can be `resource` or `remote`. (The default option is `remote`).
+            This option can be used in client generation to select the client
+            method type, which can be `resource` or `remote`.
+            The default option is `resource`.
 
+        --without-data-binding
+            This option can be used in the service generation to generate a
+            low-level service without any data-binding logic.
+
+        --status-code-binding
+            This option can be used in the client generation to generate the
+            client methods with status code response binding.
+
+        --mock
+            This option can be used in the client generation to generate a mock
+            client for the given OpenAPI contract.
+
+        --with-service-contract
+            This option can be used to generate the service contract type for the
+            given OpenAPI contract.
+
+        --single-file
+            This option can be used to generate the Ballerina service or client
+            with related types and utility functions in a single file.
+            
+        --use-sanitized-oas
+           This is an experimental feature. This option enables service/client code 
+           generation by modifying the given OAS to follow the Ballerina language 
+           best practices.
 EXAMPLES
        Generate a Ballerina mock service using a `hello.yaml` OpenAPI contract.
            $ bal openapi -i hello.yaml --mode service
@@ -106,6 +134,16 @@ EXAMPLES
        contract.
            $ bal openapi -i hello.yaml --mode service --operations operation_ID
 
+       Generate a Ballerina service without data binding using a `hello.yaml`
+       OpenAPI contract.
+           $ bal openapi -i hello.yaml --mode service --without-data-binding
+           $ bal openapi -i hello.yaml --without-data-binding
+
+       Generate a Ballerina client with status code response binding using a
+       `hello.yaml` OpenAPI contract.
+          $ bal openapi -i hello.yaml --mode client --status-code-binding
+          $ bal openapi -i hello.yaml --status-code-binding
+
        Generate all the record fields that are not specifically mentioned as
        `nullable:false` in the OpenAPI schema property as nullable.
            $ bal openapi -i hello.yaml --nullable
@@ -114,7 +152,8 @@ EXAMPLES
        license or copyright header.
            $ bal openapi -i hello.yaml --license license.txt
 
-       Generate a client with resource methods with respect to the `hello.yaml` OpenAPI contract.
+       Generate a client with resource methods with respect to the `hello.yaml`
+       OpenAPI contract.
            $ bal openapi -i hello.yaml --client-methods resource
            $ bal openapi -i hello.yaml --mode client --client-methods resource
 

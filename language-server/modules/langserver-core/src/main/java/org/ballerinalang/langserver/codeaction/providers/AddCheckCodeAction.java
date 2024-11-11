@@ -20,6 +20,8 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.WaitActionNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -28,6 +30,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
 import org.ballerinalang.langserver.codeaction.providers.changetype.TypeCastCodeAction;
+import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
@@ -55,9 +58,10 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
     public static final String NAME = "Add Check";
     private static final String DIAGNOSTIC_CODE_3998 = "BCE3998";
     private static final String DIAGNOSTIC_CODE_2068 = "BCE2068";
+    private static final String DIAGNOSTIC_CODE_2526 = "BCE2526";
     private static final String DIAGNOSTIC_CODE_2800 = "BCE2800";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2652", "BCE2066",
-            DIAGNOSTIC_CODE_2068, DIAGNOSTIC_CODE_2800, DIAGNOSTIC_CODE_3998);
+            DIAGNOSTIC_CODE_2068, DIAGNOSTIC_CODE_2526, DIAGNOSTIC_CODE_2800, DIAGNOSTIC_CODE_3998);
 
     public AddCheckCodeAction() {
         super();
@@ -73,30 +77,40 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
     @Override
     public List<CodeAction> getCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
-        //Check if there is a check expression already present.
-        MatchedExpressionNodeResolver expressionResolver =
-                new MatchedExpressionNodeResolver(positionDetails.matchedNode());
-        Optional<ExpressionNode> expressionNode = expressionResolver.findExpression(positionDetails.matchedNode());
-        if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.CHECK_EXPRESSION) {
-            return Collections.emptyList();
+        String diagnosticCode = diagnostic.diagnosticInfo().code();
+        NonTerminalNode matchedNode = positionDetails.matchedNode();
+        Optional<ExpressionNode> expressionNode;
+
+        if (diagnosticCode.equals(DIAGNOSTIC_CODE_2526)) {
+            if (matchedNode instanceof ExpressionStatementNode matchedExpressionStatementNode) {
+                expressionNode = Optional.of(matchedExpressionStatementNode.expression());
+            } else if (matchedNode instanceof ExpressionNode matchedExpressionNode) {
+                expressionNode = Optional.of(matchedExpressionNode);
+            } else {
+                return Collections.emptyList();
+            }
+        } else {
+            MatchedExpressionNodeResolver expressionResolver = new MatchedExpressionNodeResolver(matchedNode);
+            expressionNode = expressionResolver.findExpression(matchedNode);
+            if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.CHECK_EXPRESSION) {
+                return Collections.emptyList();
+            }
         }
 
-        Optional<TypeSymbol> foundType;
-        if (DIAGNOSTIC_CODE_2068.equals(diagnostic.diagnosticInfo().code())) {
-            foundType = positionDetails.diagnosticProperty(
+        Optional<TypeSymbol> foundType = switch (diagnosticCode) {
+            case DIAGNOSTIC_CODE_2068 -> positionDetails.diagnosticProperty(
                     CodeActionUtil.getDiagPropertyFilterFunction(
                             DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX));
-        } else if (DIAGNOSTIC_CODE_2800.equals(diagnostic.diagnosticInfo().code())) {
-            foundType = positionDetails.diagnosticProperty(
+            case DIAGNOSTIC_CODE_2526 -> positionDetails.diagnosticProperty(
+                    CodeActionUtil.getDiagPropertyFilterFunction(
+                            DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX));
+            case DIAGNOSTIC_CODE_2800 -> positionDetails.diagnosticProperty(
                     DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOR_ITERABLE_FOUND_SYMBOL_INDEX);
-        } else if (DIAGNOSTIC_CODE_3998.equals(diagnostic.diagnosticInfo().code())) {
-
-            foundType = context.currentSemanticModel()
+            case DIAGNOSTIC_CODE_3998 -> context.currentSemanticModel()
                     .flatMap(semanticModel -> semanticModel.typeOf(expressionNode.get()));
-        } else {
-            foundType = positionDetails.diagnosticProperty(
+            default -> positionDetails.diagnosticProperty(
                     DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
-        }
+        };
         if (foundType.isEmpty()) {
             return Collections.emptyList();
         }
@@ -113,15 +127,21 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
         if (expressionNode.get().kind() == SyntaxKind.BRACED_EXPRESSION) {
             BracedExpressionNode bracedExpressionNode = (BracedExpressionNode) expressionNode.get();
             pos = PositionUtil.toRange(bracedExpressionNode.expression().location().lineRange()).getStart();
-        } else if (DIAGNOSTIC_CODE_3998.equals(diagnostic.diagnosticInfo().code())) {
+        } else if (DIAGNOSTIC_CODE_3998.equals(diagnosticCode)) {
             // In the case of "BCE3998", we have to consider the position as the position of the initializer 
             // because the diagnostic range is provided for the variable declaration statement instead of the 
             // initializer expression
             pos = PositionUtil.toRange(expressionNode.get().location().lineRange()).getStart();
         }
 
+        List<TypeSymbol> errorTypeSymbols = ((UnionTypeSymbol) foundType.get()).memberTypeDescriptors().stream()
+                .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR)
+                .toList();
+
+        ImportsAcceptor acceptor = new ImportsAcceptor(context);
         List<TextEdit> edits = new ArrayList<>(CodeActionUtil.getAddCheckTextEdits(
-                pos, positionDetails.matchedNode(), context));
+                pos, matchedNode, context, errorTypeSymbols, acceptor));
+        edits.addAll(acceptor.getNewImportTextEdits());
         if (edits.isEmpty()) {
             return Collections.emptyList();
         }

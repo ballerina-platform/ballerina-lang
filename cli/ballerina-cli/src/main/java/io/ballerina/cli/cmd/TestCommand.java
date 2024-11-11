@@ -19,10 +19,13 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
+import io.ballerina.cli.task.CleanTargetBinTestsDirTask;
 import io.ballerina.cli.task.CleanTargetCacheDirTask;
 import io.ballerina.cli.task.CompileTask;
+import io.ballerina.cli.task.CreateTestExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.task.RunNativeImageTestTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.BuildTime;
@@ -34,12 +37,10 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,7 +56,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = TEST_COMMAND, description = "Test Ballerina modules")
+@CommandLine.Command(name = TEST_COMMAND, description = "Run package tests")
 public class TestCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
@@ -64,7 +65,7 @@ public class TestCommand implements BLauncherCmd {
     private final boolean exitWhenFinish;
 
     public TestCommand() {
-        this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;
@@ -72,6 +73,15 @@ public class TestCommand implements BLauncherCmd {
 
     TestCommand(Path projectPath, boolean exitWhenFinish) {
         this.projectPath = projectPath;
+        this.outStream = System.out;
+        this.errStream = System.err;
+        this.exitWhenFinish = exitWhenFinish;
+        this.offline = true;
+    }
+
+    TestCommand(Path projectPath, boolean exitWhenFinish, Boolean optimizeDependencyCompilation) {
+        this.projectPath = projectPath;
+        this.optimizeDependencyCompilation = optimizeDependencyCompilation;
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = exitWhenFinish;
@@ -87,7 +97,8 @@ public class TestCommand implements BLauncherCmd {
     }
 
     TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                       Boolean testReport, Boolean coverage, String coverageFormat) {
+                Boolean testReport, Boolean coverage, String coverageFormat,
+                Boolean optimizeDependencyCompilation) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -95,6 +106,7 @@ public class TestCommand implements BLauncherCmd {
         this.testReport = testReport;
         this.coverage = coverage;
         this.coverageFormat = coverageFormat;
+        this.optimizeDependencyCompilation = optimizeDependencyCompilation;
         this.offline = true;
     }
 
@@ -110,17 +122,17 @@ public class TestCommand implements BLauncherCmd {
     }
 
     TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                boolean nativeImage) {
+                boolean nativeImage, String graalVMBuildOptions) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.nativeImage = nativeImage;
         this.offline = true;
+        this.graalVMBuildOptions = graalVMBuildOptions;
     }
 
-    @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
-            "dependencies.")
+    @CommandLine.Option(names = {"--offline"}, description = "Run package tests")
     private Boolean offline;
 
     @CommandLine.Parameters(description = "Program arguments")
@@ -131,6 +143,10 @@ public class TestCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--debug", description = "start in remote debugging mode")
     private String debugPort;
+
+    @CommandLine.Option(names = "--parallel", description = "enable parallel execution of tests",
+            defaultValue = "false")
+    private boolean isParallelExecution;
 
     @CommandLine.Option(names = "--list-groups", description = "list the groups available in the tests")
     private boolean listGroups;
@@ -182,15 +198,35 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
-    @CommandLine.Option(names = "--native", description = "enable running test suite against native image")
+    @CommandLine.Option(names = "--graalvm", description = "enable running test suite against native image")
     private Boolean nativeImage;
 
     @CommandLine.Option(names = "--excludes", description = "option to exclude source files/folders from code coverage")
     private String excludes;
 
+    @CommandLine.Option(names = "--disable-syntax-tree-caching", hidden = true, description = "disable syntax tree " +
+            "caching for source files", defaultValue = "false")
+    private Boolean disableSyntaxTreeCaching;
+
+    @CommandLine.Option(names = "--graalvm-build-options", description = "additional build options for native image " +
+            "generation")
+    private String graalVMBuildOptions;
+
+    @CommandLine.Option(names = "--show-dependency-diagnostics", description = "Show the diagnostics " +
+            "generated by the dependencies")
+    private Boolean showDependencyDiagnostics;
+
+    @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
+    private String cloud;
+
+    @CommandLine.Option(names = "--optimize-dependency-compilation", hidden = true,
+            description = "experimental memory optimization for large projects")
+    private Boolean optimizeDependencyCompilation;
+
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
 
+    @Override
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -202,7 +238,7 @@ public class TestCommand implements BLauncherCmd {
         String[] cliArgs = new String[0];
         if (!argList.isEmpty()) {
             if (!argList.get(0).matches(ProjectConstants.CONFIG_ARGS_PATTERN)) {
-                this.projectPath = Paths.get(argList.get(0));
+                this.projectPath = Path.of(argList.get(0));
                 if (argList.size() > 1) {
                     cliArgs = argList.subList(1, argList.size()).toArray(new String[0]);
                 }
@@ -213,6 +249,9 @@ public class TestCommand implements BLauncherCmd {
 
         if (sticky == null) {
             sticky = false;
+        }
+        if (isParallelExecution) {
+            this.outStream.println("WARNING: Running tests in parallel is an experimental feature");
         }
 
         // load project
@@ -263,13 +302,6 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
-        // If project is empty
-        if (ProjectUtils.isProjectEmpty(project)) {
-            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
         if (this.debugPort != null) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
@@ -290,7 +322,7 @@ public class TestCommand implements BLauncherCmd {
                     return;
                 }
             }
-            if (excludes != null && excludes.equals("")) {
+            if (excludes != null && excludes.isEmpty()) {
                 this.outStream.println("warning: ignoring --excludes flag since given exclusion list is empty");
             }
         } else {
@@ -308,13 +340,39 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
-        if (project.buildOptions().nativeImage()) {
-            this.outStream.println("WARNING: Ballerina GraalVM Native Image test is an experimental feature");
-        }
-
         if (project.buildOptions().nativeImage() && project.buildOptions().codeCoverage()) {
             this.outStream.println("WARNING: Code coverage generation is not supported with Ballerina native test");
         }
+
+        if (!project.buildOptions().nativeImage() && !project.buildOptions().graalVMBuildOptions().isEmpty()) {
+            this.outStream.println("WARNING: Additional GraalVM build options are ignored since graalvm " +
+                    "flag is not set");
+        }
+
+        if (!project.buildOptions().cloud().isEmpty() && project.buildOptions().codeCoverage()) {
+            this.outStream.println("WARNING: Code coverage generation is not supported with Ballerina cloud test");
+        }
+
+        if (!project.buildOptions().cloud().isEmpty() && this.rerunTests) {
+            this.outStream.println("WARNING: Rerun failed tests is not supported with Ballerina cloud test");
+        }
+
+        if (!project.buildOptions().cloud().isEmpty() && project.buildOptions().testReport()) {
+            this.outStream.println("WARNING: Test report generation is not supported with Ballerina cloud test");
+        }
+
+
+        // Run pre-build tasks to have the project reloaded.
+        // In code coverage generation, the module map is duplicated.
+        // Therefore, the project needs to be reloaded beforehand to provide the latest project instance
+        // which has the newly generated code for code coverage calculation.
+        // Hence, below tasks are executed before extracting the module map from the project.
+        TaskExecutor preBuildTaskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
+                .addTask(new CleanTargetBinTestsDirTask(), (isSingleFile || project.buildOptions().cloud().isEmpty()))
+                .addTask(new RunBuildToolsTask(outStream), isSingleFile) // run build tools
+                .build();
+        preBuildTaskExecutor.executeTasks(project);
 
         Iterable<Module> originalModules = project.currentPackage().modules();
         Map<String, Module> moduleMap = new HashMap<>();
@@ -327,17 +385,22 @@ public class TestCommand implements BLauncherCmd {
         boolean isPackageModified = isProjectUpdated(project);
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
+                .addTask(new CompileTask(outStream, errStream, false, false,
+                        isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
-                .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList, testList,
-                        includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs),
-                        project.buildOptions().nativeImage())
+                .addTask(new CreateTestExecutableTask(outStream, groupList, disableGroupList, testList, listGroups,
+                                cliArgs, isParallelExecution),
+                        project.buildOptions().cloud().isEmpty())
+                .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
+                                testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs,
+                                isParallelExecution),
+                        (project.buildOptions().nativeImage() ||
+                        !project.buildOptions().cloud().isEmpty()))
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
-                        testList, includes, coverageFormat, moduleMap, listGroups),
-                        !project.buildOptions().nativeImage())
+                                testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution),
+                        (!project.buildOptions().nativeImage() || !project.buildOptions().cloud().isEmpty()))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
@@ -358,11 +421,15 @@ public class TestCommand implements BLauncherCmd {
                 .setObservabilityIncluded(observabilityIncluded)
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
+                .setCloud(cloud)
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setNativeImage(nativeImage)
-                .setEnableCache(enableCache);
-
+                .setEnableCache(enableCache)
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
+                .setGraalVMBuildOptions(graalVMBuildOptions)
+                .setShowDependencyDiagnostics(showDependencyDiagnostics)
+                .setOptimizeDependencyCompilation(optimizeDependencyCompilation);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
@@ -378,7 +445,7 @@ public class TestCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Test a Ballerina project or a standalone Ballerina file. \n");
+        out.append(BLauncherCmd.getCommandUsageInfo(TEST_COMMAND));
     }
 
     @Override

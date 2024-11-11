@@ -1,0 +1,34 @@
+{
+  "range": {
+    "start": {
+      "line": 8,
+      "character": 30
+    },
+    "end": {
+      "line": 8,
+      "character": 39
+    }
+  },
+  "source": "source/inlayhint6.bal",
+  "result": [
+    {
+      "position": {
+        "line": 8,
+        "character": 30
+      },
+      "label": {
+        "left": "x: "
+      }
+    },
+    {
+      "position": {
+        "line": 8,
+        "character": 32
+      },
+      "label": {
+        "left": "...y: "
+      }
+    }
+  ],
+  "description": "inlay hints for rest parameters"
+}

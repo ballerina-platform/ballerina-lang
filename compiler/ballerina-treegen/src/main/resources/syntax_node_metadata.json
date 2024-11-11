@@ -1,0 +1,154 @@
+{
+    "XMLStepMethodCallExtendNode": {
+        "createdYear": "2024",
+        "since": "2201.11.0"
+    },
+    "XMLStepIndexedExtendNode": {
+        "createdYear": "2024",
+        "since": "2201.11.0"
+    },
+    "AlternateReceiveNode": {
+        "createdYear": "2024",
+        "since": "2201.9.0"
+    },
+    "ReceiveFieldNode": {
+        "createdYear": "2024",
+        "since": "2201.9.0"
+    },
+    "ClientResourceActionNode": {
+        "createdYear": "2022",
+        "since": "2201.2.0"
+    },
+    "CollectClauseNode": {
+        "createdYear": "2023",
+        "since": "2201.7.0"
+    },
+    "ComputedResourceAccessSegmentNode": {
+        "createdYear": "2022",
+        "since": "2201.2.0"
+    },
+    "ClientResourceAccessActionNode": {
+        "createdYear": "2022",
+        "since": "2201.2.0"
+    },
+    "GroupByClauseNode": {
+        "createdYear": "2023",
+        "since": "2201.7.0"
+    },
+    "GroupingKeyVarDeclarationNode": {
+        "createdYear": "2023",
+        "since": "2201.7.0"
+    },
+    "MemberTypeDescriptorNode": {
+        "createdYear": "2022",
+        "since": "2201.4.0"
+    },
+    "ReAssertionNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReAtomCharOrEscapeNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReAtomQuantifierNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReBracedQuantifierNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReCapturingGroupsNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReCharacterClassNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReCharSetAtomNoDashWithReCharSetNoDashNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReCharSetAtomWithReCharSetNoDashNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReCharSetRangeNoDashNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReCharSetRangeNoDashWithReCharSetNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReCharSetRangeNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReCharSetRangeWithReCharSetNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "STReCharSetRangeNoDashNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReFlagExpressionNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReFlagsNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReFlagsOnOffNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReQuantifierNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReQuoteEscapeNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReSequenceNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReTermNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReSimpleCharClassEscapeNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ResourceAccessRestSegmentNode": {
+        "createdYear": "2022",
+        "since": "2201.2.0"
+    },
+    "ReUnicodeGeneralCategoryNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReUnicodePropertyEscapeNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReUnicodePropertyNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "ReUnicodeScriptNode": {
+        "createdYear": "2022",
+        "since": "2201.3.0"
+    },
+    "SpreadMemberNode": {
+        "createdYear": "2022",
+        "since": "2201.1.0"
+    }
+}

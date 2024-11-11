@@ -14,8 +14,10 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/javaProject.gradle"
+
+plugins {
+    id 'javaProject'
+}
 
 description = 'Compiler Plugin Tests - Event Logger'
 version = '1.0.0'
@@ -25,14 +27,3 @@ dependencies {
 }
 
 ext.moduleName = 'compiler.plugin.test.event.logger'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
-

@@ -27,36 +27,45 @@ import java.util.regex.Matcher;
 
 import static org.ballerinalang.langlib.regexp.RegexUtil.GROUPS_AS_SPAN_ARRAY_TYPE;
 import static org.ballerinalang.langlib.regexp.RegexUtil.checkIndexWithinRange;
+import static org.ballerinalang.langlib.regexp.RegexUtil.getSurrogateAdjustedStartIndex;
+import static org.ballerinalang.langlib.regexp.RegexUtil.getSurrogatePositions;
 
 /**
  * Native implementation of lang.regexp:find(string).
  *
  * @since 2201.3.0
  */
-public class Find {
+public final class Find {
+
+    private Find() {
+    }
 
     public static BArray find(BRegexpValue regExp, BString str, long startIndex) {
         checkIndexWithinRange(str, startIndex);
+        int[] surrogates = getSurrogatePositions(str);
+        int adjustedStartIndex = getSurrogateAdjustedStartIndex((int) startIndex, surrogates);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
-        if (matcher.find((int) startIndex)) {
-            return RegexUtil.getGroupZeroAsSpan(matcher);
+        if (matcher.find(adjustedStartIndex)) {
+            return RegexUtil.getGroupZeroAsSpan(str, matcher, surrogates);
         }
         return null;
     }
 
     public static BArray findGroups(BRegexpValue regExp, BString str, long startIndex) {
         checkIndexWithinRange(str, startIndex);
+        int[] surrogates = getSurrogatePositions(str);
+        int adjustedStartIndex = getSurrogateAdjustedStartIndex((int) startIndex, surrogates);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
-        matcher.region((int) startIndex, str.length());
+        matcher.region(adjustedStartIndex, str.getValue().length());
         if (matcher.find()) {
             if (matcher.groupCount() != 0) {
-                BArray spanArr = RegexUtil.getMatcherGroupsAsSpanArr(matcher);
+                BArray spanArr = RegexUtil.getMatcherGroupsAsSpanArr(str, matcher, surrogates);
                 for (int i = 0; i < spanArr.getLength(); i++) {
                     resultArray.append(spanArr.get(i));
                 }
             } else {
-                resultArray.append(RegexUtil.getGroupZeroAsSpan(matcher));
+                resultArray.append(RegexUtil.getGroupZeroAsSpan(str, matcher, surrogates));
             }
         }
         if (resultArray.getLength() == 0) {
@@ -68,10 +77,12 @@ public class Find {
     public static BArray findAll(BRegexpValue regExp, BString str, long startIndex) {
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
+        int[] surrogates = getSurrogatePositions(str);
+        int adjustedStartIndex = getSurrogateAdjustedStartIndex((int) startIndex, surrogates);
         BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
-        matcher.region((int) startIndex, str.length());
+        matcher.region(adjustedStartIndex, str.getValue().length());
         while (matcher.find()) {
-            resultArray.append(RegexUtil.getGroupZeroAsSpan(matcher));
+            resultArray.append(RegexUtil.getGroupZeroAsSpan(str, matcher, surrogates));
         }
         if (resultArray.getLength() == 0) {
             return null;
@@ -82,10 +93,12 @@ public class Find {
     public static BArray findAllGroups(BRegexpValue regExp, BString str, long startIndex) {
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
-        matcher.region((int) startIndex, str.length());
+        int[] surrogates = getSurrogatePositions(str);
+        int adjustedStartIndex = getSurrogateAdjustedStartIndex((int) startIndex, surrogates);
+        matcher.region(adjustedStartIndex, str.getValue().length());
         BArray groupArray = ValueCreator.createArrayValue(RegexUtil.GROUPS_ARRAY_TYPE);
         while (matcher.find()) {
-            BArray group = RegexUtil.getMatcherGroupsAsSpanArr(matcher);
+            BArray group = RegexUtil.getMatcherGroupsAsSpanArr(str, matcher, surrogates);
             if (group.getLength() != 0) {
                 groupArray.append(group);
             }

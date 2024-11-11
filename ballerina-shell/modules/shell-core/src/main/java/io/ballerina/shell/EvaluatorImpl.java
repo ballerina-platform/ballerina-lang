@@ -36,7 +36,7 @@ import io.ballerina.shell.utils.StringUtils;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
@@ -46,7 +46,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-class EvaluatorImpl extends Evaluator {
+public class EvaluatorImpl extends Evaluator {
     protected EvaluatorImpl(Preprocessor preprocessor, TreeParser treeParser,
                             SnippetFactory snippetFactory, ShellSnippetsInvoker invoker) {
         super(preprocessor, treeParser, snippetFactory, invoker);
@@ -80,6 +80,7 @@ class EvaluatorImpl extends Evaluator {
         }
     }
 
+    @Override
     public ShellCompilation getCompilation(String source) {
         PackageCompilation compilation;
         ExceptionStatus exceptionStatus;
@@ -165,7 +166,7 @@ class EvaluatorImpl extends Evaluator {
     @Override
     public void evaluateDeclarationFile(String filePath) throws BallerinaShellException {
         try {
-            String statements = Files.readString(Paths.get(filePath), Charset.defaultCharset());
+            String statements = Files.readString(Path.of(filePath), Charset.defaultCharset());
             Collection<Node> nodes = treeParser.parseDeclarations(statements);
             Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);
             getValue(Optional.ofNullable(invoker.getCompilation(snippets)));

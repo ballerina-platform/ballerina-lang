@@ -32,9 +32,9 @@ import static io.ballerina.cli.cmd.Constants.SHELL_COMMAND;
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = SHELL_COMMAND, description = "Run ballerina interactive REPL")
+@CommandLine.Command(name = SHELL_COMMAND, description = "Run Ballerina interactive REPL")
 public class ShellCommand implements BLauncherCmd {
-    private PrintStream errStream;
+    private final PrintStream errStream;
 
     @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
     private boolean helpFlag;
@@ -78,7 +78,7 @@ public class ShellCommand implements BLauncherCmd {
             BShellConfiguration configuration = builder.build();
             ReplShellApplication.execute(configuration);
         } catch (Exception e) {
-            errStream.println("something went wrong while executing REPL: " + e.toString());
+            errStream.println("something went wrong while executing REPL: " + e);
         }
     }
 
@@ -89,7 +89,7 @@ public class ShellCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Run ballerina interactive REPL");
+        out.append(BLauncherCmd.getCommandUsageInfo(SHELL_COMMAND));
     }
 
     @Override

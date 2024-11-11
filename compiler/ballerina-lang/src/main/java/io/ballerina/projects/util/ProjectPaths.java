@@ -33,7 +33,10 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
  *
  * @since 2.0.0
  */
-public class ProjectPaths {
+public final class ProjectPaths {
+
+    private ProjectPaths() {
+    }
 
     /**
      * Finds the root directory of a Ballerina package using the filepath provided.
@@ -45,7 +48,7 @@ public class ProjectPaths {
     public static Path packageRoot(Path filepath) throws ProjectException {
         // check if the file exists
         if (!Files.exists(filepath)) {
-            throw new ProjectException("provided path does not exist:" + filepath);
+            throw new ProjectException("'" + filepath + "'" + " does not exist");
         }
 
         if (Files.isDirectory(filepath)) {
@@ -62,7 +65,7 @@ public class ProjectPaths {
 
         // check if the file is a regular file
         if (!Files.isRegularFile(filepath)) {
-            throw new ProjectException("provided path is not a regular file: " + filepath);
+            throw new ProjectException("'" + filepath + "'" + " is not a regular file");
         }
 
         // Check if the file is inside a Ballerina package directory
@@ -79,7 +82,7 @@ public class ProjectPaths {
             }
 
             if (!isBalFile(filepath)) {
-                throw new ProjectException("provided path is not a valid Ballerina source file: " + filepath);
+                throw new ProjectException("'" + filepath + "' is not a valid Ballerina source file");
             }
 
             // check if the file is a source file in the default module
@@ -238,15 +241,13 @@ public class ProjectPaths {
      */
     private static boolean isBallerinaRelatedToml(Path filepath) {
         String fileName = Optional.of(filepath.getFileName()).get().toString();
-        switch (fileName) {
-            case ProjectConstants.BALLERINA_TOML:
-            case ProjectConstants.CLOUD_TOML:
-            case ProjectConstants.CONFIGURATION_TOML:
-            case ProjectConstants.DEPENDENCIES_TOML:
-                return true;
-            default:
-                return false;
-        }
+        return switch (fileName) {
+            case ProjectConstants.BALLERINA_TOML,
+                 ProjectConstants.CLOUD_TOML,
+                 ProjectConstants.CONFIGURATION_TOML,
+                 ProjectConstants.DEPENDENCIES_TOML -> true;
+            default -> false;
+        };
     }
 
     /**

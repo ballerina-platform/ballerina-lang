@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -38,10 +39,14 @@ public class PackageConfig {
     private final DocumentConfig dependenciesToml;
     private final DocumentConfig cloudToml;
     private final DocumentConfig compilerPluginToml;
+    private final DocumentConfig balToolToml;
     private final Path packagePath;
     private final DependencyGraph<PackageDescriptor> packageDescDependencyGraph;
     private final Collection<ModuleConfig> otherModules;
     private final DocumentConfig packageMd;
+    private final boolean disableSyntaxTree;
+    private final List<ResourceConfig> resources;
+    private final List<ResourceConfig> testResources;
 
     private PackageConfig(PackageId packageId,
                           Path packagePath,
@@ -51,9 +56,13 @@ public class PackageConfig {
                           DocumentConfig dependenciesToml,
                           DocumentConfig cloudToml,
                           DocumentConfig compilerPluginToml,
+                          DocumentConfig balToolToml,
                           Collection<ModuleConfig> moduleConfigs,
                           DependencyGraph<PackageDescriptor> packageDescDependencyGraph,
-                          DocumentConfig packageMd) {
+                          DocumentConfig packageMd,
+                          boolean disableSyntaxTree,
+                          List<ResourceConfig> resources,
+                          List<ResourceConfig> testResources) {
         this.packageId = packageId;
         this.packagePath = packagePath;
         this.packageManifest = packageManifest;
@@ -62,9 +71,13 @@ public class PackageConfig {
         this.dependenciesToml = dependenciesToml;
         this.cloudToml = cloudToml;
         this.compilerPluginToml = compilerPluginToml;
+        this.balToolToml = balToolToml;
         this.otherModules = moduleConfigs;
         this.packageDescDependencyGraph = packageDescDependencyGraph;
         this.packageMd = packageMd;
+        this.disableSyntaxTree = disableSyntaxTree;
+        this.resources = resources;
+        this.testResources = testResources;
     }
 
     public static PackageConfig from(PackageId packageId,
@@ -75,27 +88,49 @@ public class PackageConfig {
                                      DocumentConfig dependenciesToml,
                                      DocumentConfig cloudToml,
                                      DocumentConfig compilerPluginToml,
-                                     DocumentConfig packageMd,
-                                     Collection<ModuleConfig> moduleConfigs) {
-        return new PackageConfig(packageId, packagePath, packageManifest, dependencyManifest, ballerinaToml,
-                                 dependenciesToml, cloudToml, compilerPluginToml, moduleConfigs,
-                                 DependencyGraph.emptyGraph(), packageMd);
-    }
-
-    public static PackageConfig from(PackageId packageId,
-                                     Path packagePath,
-                                     PackageManifest packageManifest,
-                                     DependencyManifest dependencyManifest,
-                                     DocumentConfig ballerinaToml,
-                                     DocumentConfig dependenciesToml,
-                                     DocumentConfig cloudToml,
-                                     DocumentConfig compilerPluginToml,
+                                     DocumentConfig balToolToml,
                                      DocumentConfig packageMd,
                                      Collection<ModuleConfig> moduleConfigs,
-                                     DependencyGraph<PackageDescriptor> packageDescDependencyGraph) {
+                                     List<ResourceConfig> resources,
+                                     List<ResourceConfig> testResources) {
         return new PackageConfig(packageId, packagePath, packageManifest, dependencyManifest, ballerinaToml,
-                                 dependenciesToml, cloudToml, compilerPluginToml, moduleConfigs,
-                                 packageDescDependencyGraph, packageMd);
+                                 dependenciesToml, cloudToml, compilerPluginToml, balToolToml, moduleConfigs,
+                                 DependencyGraph.emptyGraph(), packageMd, false, resources,
+                                 testResources);
+    }
+
+    public static PackageConfig from(PackageId packageId,
+                                     Path packagePath,
+                                     PackageManifest packageManifest,
+                                     DependencyManifest dependencyManifest,
+                                     DocumentConfig ballerinaToml,
+                                     DocumentConfig dependenciesToml,
+                                     DocumentConfig cloudToml,
+                                     DocumentConfig compilerPluginToml,
+                                     DocumentConfig balToolToml,
+                                     DocumentConfig packageMd,
+                                     Collection<ModuleConfig> moduleConfigs,
+                                     DependencyGraph<PackageDescriptor> packageDescDependencyGraph,
+                                     List<ResourceConfig> resources,
+                                     List<ResourceConfig> testResources) {
+        return new PackageConfig(packageId, packagePath, packageManifest, dependencyManifest, ballerinaToml,
+                                 dependenciesToml, cloudToml, compilerPluginToml, balToolToml, moduleConfigs,
+                                 packageDescDependencyGraph, packageMd, false, resources,
+                                 testResources);
+    }
+
+    public static PackageConfig from(PackageId packageId, Path path, PackageManifest packageManifest,
+                                     DependencyManifest dependencyManifest, DocumentConfig ballerinaToml,
+                                     DocumentConfig dependenciesToml, DocumentConfig cloudToml,
+                                     DocumentConfig compilerPluginToml, DocumentConfig balToolToml,
+                                     DocumentConfig packageMd, List<ModuleConfig> moduleConfigs,
+                                     DependencyGraph<PackageDescriptor> packageDependencyGraph,
+                                     boolean disableSyntaxTree, List<ResourceConfig> resources,
+                                     List<ResourceConfig> testResources) {
+        return new PackageConfig(packageId, path, packageManifest, dependencyManifest, ballerinaToml,
+                dependenciesToml, cloudToml, compilerPluginToml, balToolToml, moduleConfigs,
+                packageDependencyGraph, packageMd, disableSyntaxTree, resources,
+                testResources);
     }
 
     public PackageId packageId() {
@@ -138,6 +173,10 @@ public class PackageConfig {
         return Optional.ofNullable(compilerPluginToml);
     }
 
+    public Optional<DocumentConfig> balToolToml() {
+        return Optional.ofNullable(balToolToml);
+    }
+
     public CompilationOptions compilationOptions() {
         return null;
     }
@@ -162,5 +201,17 @@ public class PackageConfig {
 
     public Optional<DocumentConfig> dependenciesToml() {
         return Optional.ofNullable(this.dependenciesToml);
+    }
+
+    boolean isSyntaxTreeDisabled() {
+        return disableSyntaxTree;
+    }
+
+    public List<ResourceConfig> resources() {
+        return resources;
+    }
+
+    public List<ResourceConfig> testResources() {
+        return testResources;
     }
 }

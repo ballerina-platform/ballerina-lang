@@ -20,6 +20,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -215,6 +216,7 @@ public class OperatorPrecedenceTest {
         Assert.assertEquals(actualResult, expectedResult, "The results of multiplication operation differ");
     }
 
+    @SuppressWarnings("ConstantValue")
     @Test(description = "Test if division takes precedence over addition and subtraction")
     public void testDivisionPrecedence() {
 
@@ -239,6 +241,7 @@ public class OperatorPrecedenceTest {
     }
 
 
+    @SuppressWarnings("ConstantValue")
     @Test(description = "Test if division and multiplication takes same precedence over addition and subtraction")
     public void testDivisionAndMultiplicationPrecedence() {
 
@@ -261,5 +264,10 @@ public class OperatorPrecedenceTest {
 
         Assert.assertEquals(actualResult, expectedResult, "The results of multiplication and " +
                 "division operation differ");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

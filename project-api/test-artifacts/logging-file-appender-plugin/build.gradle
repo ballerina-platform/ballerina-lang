@@ -14,8 +14,10 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/javaProject.gradle"
+
+plugins {
+    id 'javaProject'
+}
 
 description = 'Compiler Plugin Tests - Diagnostics File Appender'
 version = '1.0.0'
@@ -26,14 +28,3 @@ dependencies {
 }
 
 ext.moduleName = 'compiler.plugin.test.logger.appender.file'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
-

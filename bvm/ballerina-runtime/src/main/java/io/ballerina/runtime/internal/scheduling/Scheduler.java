@@ -26,8 +26,8 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.FutureValue;
 
@@ -54,7 +54,7 @@ import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
  */
 public class Scheduler {
 
-    private static final PrintStream err = System.err;
+    private static final PrintStream ERR = System.err;
 
     /**
      * Scheduler does not get killed if the immortal value is true. Specific to services.
@@ -66,13 +66,13 @@ public class Scheduler {
      */
     private final BlockingQueue<ItemGroup> runnableList = new LinkedBlockingDeque<>();
 
-    private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
-    private static final ConcurrentHashMap<Integer, Strand> currentStrands = new ConcurrentHashMap<>();
+    private static final ThreadLocal<StrandHolder> STRAND_HOLDER = ThreadLocal.withInitial(StrandHolder::new);
+    private static final ConcurrentHashMap<Integer, Strand> CURRENT_STRANDS = new ConcurrentHashMap<>();
     private final Strand previousStrand;
 
     private final AtomicInteger totalStrands = new AtomicInteger();
 
-    private static String poolSizeConf = System.getenv(RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
+    private static final String POOL_SIZE_CONF = System.getenv(RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
 
     /**
      * This can be changed by setting the BALLERINA_MAX_POOL_SIZE system variable.
@@ -84,7 +84,16 @@ public class Scheduler {
 
     private Semaphore mainBlockSem;
     private final RuntimeRegistry runtimeRegistry;
-    private AtomicReference<ItemGroup> objectGroup = new AtomicReference<>();
+    private final AtomicReference<ItemGroup> objectGroup = new AtomicReference<>();
+    private static Strand daemonStrand = null;
+
+    public static void setDaemonStrand(Strand strand) {
+        daemonStrand = strand;
+    }
+
+    public static Strand getDaemonStrand() {
+        return daemonStrand;
+    }
 
     public Scheduler(boolean immortal) {
         this(getPoolSize(), immortal);
@@ -94,13 +103,13 @@ public class Scheduler {
         this.numThreads = numThreads;
         this.immortal = immortal;
         this.runtimeRegistry = new RuntimeRegistry(this);
-        this.previousStrand = numThreads == 1 ? strandHolder.get().strand : null;
+        this.previousStrand = numThreads == 1 ? STRAND_HOLDER.get().strand : null;
         ItemGroup group = new ItemGroup();
         objectGroup.set(group);
     }
 
     public static Strand getStrand() {
-        Strand strand = strandHolder.get().strand;
+        Strand strand = STRAND_HOLDER.get().strand;
         if (strand == null) {
             throw new IllegalStateException("strand is not accessible from non-strand-worker threads");
         }
@@ -109,11 +118,11 @@ public class Scheduler {
 
     public static Strand getStrandNoException() {
         // issue #22871 is opened to fix this
-        return strandHolder.get().strand;
+        return STRAND_HOLDER.get().strand;
     }
 
     public static Map<Integer, Strand> getCurrentStrands() {
-        return new HashMap<>(currentStrands);
+        return new HashMap<>(CURRENT_STRANDS);
     }
 
     /**
@@ -127,9 +136,16 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return {@link FutureValue} reference to the given function pointer invocation.
      */
-    public FutureValue scheduleFunction(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
+    public FutureValue scheduleFunction(Object[] params,
+                                        BFunctionPointer<Object[], Object> fp, Strand parent, Type returnType,
                                         String strandName, StrandMetadata metadata) {
         return schedule(params, fp.getFunction(), parent, null, null, returnType, strandName, metadata);
+    }
+
+    public FutureValue scheduleFunction(Object[] params,
+                                        BFunctionPointer<Object[], Object> fp, Strand parent, Type returnType,
+                                        String strandName, StrandMetadata metadata , Callback callback) {
+        return schedule(params, fp.getFunction(), parent, callback, null, returnType, strandName, metadata);
     }
 
     /**
@@ -143,13 +159,14 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return {@link FutureValue} reference to the given function invocation.
      */
-    public FutureValue scheduleLocal(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
+    public FutureValue scheduleLocal(Object[] params, BFunctionPointer<Object[], ?> fp, Strand parent, Type returnType,
                                      String strandName, StrandMetadata metadata) {
         FutureValue future = createFuture(parent, null, null, returnType, strandName, metadata);
         return scheduleLocal(params, fp, parent, future);
     }
 
-    public FutureValue scheduleLocal(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, FutureValue future) {
+    public FutureValue scheduleLocal(Object[] params, BFunctionPointer<Object[], ?> fp,
+                                     Strand parent, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(fp.getFunction(), params, future);
         future.strand.schedulerItem = item;
@@ -159,14 +176,15 @@ public class Scheduler {
         return future;
     }
 
-    public FutureValue scheduleToObjectGroup(Object[] params, Function function, Strand parent,
+    public FutureValue scheduleToObjectGroup(Object[] params, Function<Object[], ?> function, Strand parent,
                                              Callback callback, Map<String, Object> properties, Type returnType,
                                              String strandName, StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
         return scheduleToObjectGroup(params, function, future);
     }
 
-    public FutureValue scheduleToObjectGroup(Object[] params, Function function, FutureValue future) {
+    public FutureValue scheduleToObjectGroup(Object[] params, Function<Object[], ?> function,
+                                             FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
@@ -190,7 +208,7 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return Reference to the scheduled task
      */
-    public FutureValue schedule(Object[] params, Function function, Strand parent, Callback callback,
+    public FutureValue schedule(Object[] params, Function<Object[], ?> function, Strand parent, Callback callback,
                                 Map<String, Object> properties, Type returnType, String strandName,
                                 StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
@@ -208,13 +226,13 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return Reference to the scheduled task
      */
-    public FutureValue schedule(Object[] params, Function function, Strand parent, Callback callback,
+    public FutureValue schedule(Object[] params, Function<Object[], ?> function, Strand parent, Callback callback,
                                 String strandName, StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, null, PredefinedTypes.TYPE_NULL, strandName, metadata);
         return schedule(params, function, future);
     }
 
-    public FutureValue schedule(Object[] params, Function function, FutureValue future) {
+    public FutureValue schedule(Object[] params, Function<Object[], ?> function, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
@@ -238,7 +256,7 @@ public class Scheduler {
      * @return Reference to the scheduled task
      */
     @Deprecated
-    public FutureValue schedule(Object[] params, Consumer consumer, Strand parent, Callback callback,
+    public FutureValue schedule(Object[] params, Consumer<Object[]> consumer, Strand parent, Callback callback,
                                 String strandName, StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, null, PredefinedTypes.TYPE_NULL, strandName, metadata);
         params[0] = future.strand;
@@ -302,7 +320,7 @@ public class Scheduler {
                 item = group.get();
 
                 try {
-                    strandHolder.get().strand = item.future.strand;
+                    STRAND_HOLDER.get().strand = item.future.strand;
                     result = item.execute();
                 } catch (Throwable e) {
                     panic = createError(e);
@@ -317,11 +335,11 @@ public class Scheduler {
                         RuntimeUtils.printCrashLog(panic);
                     }
                 } finally {
-                    strandHolder.get().strand = previousStrand;
+                    STRAND_HOLDER.get().strand = previousStrand;
                 }
                 postProcess(item, result, panic);
                 group.lock();
-                if ((isItemsEmpty = group.items.empty())) {
+                if ((isItemsEmpty = group.items.isEmpty())) {
                     group.scheduled.set(false);
                 }
                 group.unlock();
@@ -415,11 +433,11 @@ public class Scheduler {
 
     private Throwable createError(Throwable t) {
         if (t instanceof StackOverflowError) {
-            BError error = ErrorCreator.createError(BallerinaErrorReasons.STACK_OVERFLOW_ERROR);
+            BError error = ErrorCreator.createError(ErrorReasons.STACK_OVERFLOW_ERROR);
             error.setStackTrace(t.getStackTrace());
             return error;
         } else if (t instanceof OutOfMemoryError) {
-            BError error = ErrorCreator.createError(BallerinaErrorReasons.JAVA_OUT_OF_MEMORY_ERROR,
+            BError error = ErrorCreator.createError(ErrorReasons.JAVA_OUT_OF_MEMORY_ERROR,
                     StringUtils.fromString(t.getMessage()));
             error.setStackTrace(t.getStackTrace());
             return error;
@@ -441,11 +459,10 @@ public class Scheduler {
     }
 
     private void cleanUp(Strand justCompleted) {
-        justCompleted.scheduler = null;
         justCompleted.frames = null;
         justCompleted.waitingContexts = null;
 
-        currentStrands.remove(justCompleted.getId());
+        CURRENT_STRANDS.remove(justCompleted.getId());
         //TODO: more cleanup , eg channels
     }
 
@@ -494,7 +511,7 @@ public class Scheduler {
                                     Type constraint, String name, StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties, parent != null ?
                 parent.currentTrxContext : null);
-        currentStrands.put(newStrand.getId(), newStrand);
+        CURRENT_STRANDS.put(newStrand.getId(), newStrand);
         return createFuture(parent, callback, constraint, newStrand);
     }
 
@@ -527,12 +544,12 @@ public class Scheduler {
 
     private static int getPoolSize() {
         try {
-            if (poolSizeConf != null) {
-                poolSize = Integer.parseInt(poolSizeConf);
+            if (POOL_SIZE_CONF != null) {
+                poolSize = Integer.parseInt(POOL_SIZE_CONF);
             }
         } catch (Throwable t) {
             // Log and continue with default
-            err.println("ballerina: error occurred in scheduler while reading system variable:" +
+            ERR.println("ballerina: error occurred in scheduler while reading system variable:" +
                     RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
         }
         return poolSize;

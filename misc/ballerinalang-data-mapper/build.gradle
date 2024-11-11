@@ -1,6 +1,8 @@
-apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProjectWithExtBala'
+    id 'baseNativeStdLibProject'
+    id 'ballerinaLangLibLoad'
+}
 
 //apply plugin: 'jacoco'
 
@@ -22,19 +24,19 @@ dependencies {
     implementation project(':language-server:language-server-commons')
     implementation project(':language-server:language-server-core')
     implementation project(':language-server:language-server-cli')
-    implementation 'org.apache.commons:commons-lang3'
+    implementation libs.apache.commons.lang3
 
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-cli')
 
-    implementation(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
+    implementation libs.eclipse.lsp4j
 
-    compile 'com.fasterxml.jackson.core:jackson-databind:"${project.jacksonCoreVersion}"'
+    implementation libs.jackson.databind
 
-    testCompile 'org.testng:testng'
+    testImplementation libs.testng
 
-    compile group: 'org.eclipse.jetty', name: 'jetty-server', version: "${project.eclipseJettyServerVersion}"
-    compile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: "${project.eclipseJettyServletVersion}"
+    implementation libs.eclipse.jetty.server
+    implementation libs.eclipse.jetty.servlet
 }
 
 test {
@@ -52,12 +54,12 @@ CopySpec copyJarSpec = copySpec {
     into("lib")
 }
 
-task createZip(type: Zip) {
+tasks.register('createZip', Zip) {
     dependsOn createBalHome
     with copyJarSpec
 }
 
-task buildAndCopy(type: Copy) {
+tasks.register('buildAndCopy', Copy) {
     dependsOn build
     from 'build/libs/ballerinalang-data-mapper-' + project.version + '.jar'
     into  project(':jballerina-tools').projectDir.absolutePath +
@@ -67,12 +69,26 @@ task buildAndCopy(type: Copy) {
 
 jacocoTestReport {
     reports {
-        xml.enabled true // coveralls plugin depends on xml format report
-        html.enabled true
+        xml.required = true // coveralls plugin depends on xml format report
+        html.required = true
     }
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: '**/utils/**')
         }))
+    }
+}
+
+compileJava {
+    doFirst {
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
+        classpath = files()
     }
 }

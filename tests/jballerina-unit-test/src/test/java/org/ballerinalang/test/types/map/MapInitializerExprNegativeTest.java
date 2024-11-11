@@ -41,17 +41,17 @@ public class MapInitializerExprNegativeTest {
 
     @Test(description = "Test map initializer expression with duplicated keys")
     public void mapInitWithDuplicatedKeysTest() {
-        BAssertUtil.validateError(compileResult, 0, "invalid usage of map literal: duplicate key 'key'", 2, 40);
+        BAssertUtil.validateError(compileResult, 0, "invalid map constructor: duplicate key 'key'", 2, 40);
     }
 
     @Test(description = "Test map initializer expression with duplicated keys when one key is a string literal")
     public void mapInitWithDuplicatedKeysOneStringKeyTest() {
-        BAssertUtil.validateError(compileResult, 1, "invalid usage of map literal: duplicate key 'key'", 7, 40);
+        BAssertUtil.validateError(compileResult, 1, "invalid map constructor: duplicate key 'key'", 7, 40);
     }
 
     @Test(description = "Test map initializer expression with duplicated keys when both keys are string literals")
     public void mapInitWithDuplicatedKeysBothStringKeysTest() {
-        BAssertUtil.validateError(compileResult, 2, "invalid usage of map literal: duplicate key 'key'", 12, 42);
+        BAssertUtil.validateError(compileResult, 2, "invalid map constructor: duplicate key 'key'", 12, 42);
     }
 
     @AfterClass

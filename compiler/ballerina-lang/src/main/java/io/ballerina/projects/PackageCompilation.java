@@ -24,6 +24,7 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -40,6 +41,7 @@ import java.util.function.Function;
 import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
+import static org.ballerinalang.compiler.CompilerOptionName.REMOTE_MANAGEMENT;
 import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 
@@ -87,6 +89,7 @@ public class PackageCompilation {
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
         options.put(DUMP_BIR_FILE, Boolean.toString(compilationOptions.dumpBirFile()));
         options.put(CLOUD, compilationOptions.getCloud());
+        options.put(REMOTE_MANAGEMENT, Boolean.toString(compilationOptions.remoteManagement()));
     }
 
     static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
@@ -120,9 +123,9 @@ public class PackageCompilation {
         return compilation;
     }
 
-    List<Diagnostic> notifyCompilationCompletion(Path filePath) {
+    List<Diagnostic> notifyCompilationCompletion(Path filePath, BalCommand balCommand) {
         CompilerLifecycleManager manager = this.compilerPluginManager.getCompilerLifecycleListenerManager();
-        List<Diagnostic> diagnostics = manager.runCodeGeneratedTasks(filePath);
+        List<Diagnostic> diagnostics = manager.runCodeGeneratedTasks(filePath, balCommand);
         this.pluginDiagnostics.addAll(diagnostics);
         return diagnostics;
     }
@@ -141,11 +144,12 @@ public class PackageCompilation {
 
     public SemanticModel getSemanticModel(ModuleId moduleId) {
         ModuleContext moduleContext = this.rootPackageContext.moduleContext(moduleId);
-        // We check whether the particular module compilation state equal to the typecheck phase here. 
+        // We check whether the particular module compilation state equal to the COMPILED/LIBRARY_GENERATED phase here.
         // If the states do not match, then this is a illegal state exception.
-        if (moduleContext.compilationState() != ModuleCompilationState.COMPILED) {
+        ModuleCompilationState state = moduleContext.compilationState();
+        if (state != ModuleCompilationState.COMPILED && state != ModuleCompilationState.PLATFORM_LIBRARY_GENERATED) {
             throw new IllegalStateException("Semantic model cannot be retrieved when the module is in " +
-                    "compilation state '" + moduleContext.compilationState().name() + "'. " +
+                    "compilation state '" + state.name() + "'. " +
                     "This is an internal error which will be fixed in a later release.");
         }
 
@@ -154,6 +158,10 @@ public class PackageCompilation {
 
     public CodeActionManager getCodeActionManager() {
         return compilerPluginManager.getCodeActionManager();
+    }
+    
+    public CompletionManager getCompletionManager() {
+        return compilerPluginManager.getCompletionManager();
     }
 
     CompilerPluginManager compilerPluginManager() {
@@ -202,8 +210,11 @@ public class PackageCompilation {
             for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
                 moduleContext.compile(compilerContext);
                 for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
-                            moduleContext.project()));
+                    if (!ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) ||
+                            (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
+                        diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
+                                moduleContext.project()));
+                    }
                 }
             }
         }

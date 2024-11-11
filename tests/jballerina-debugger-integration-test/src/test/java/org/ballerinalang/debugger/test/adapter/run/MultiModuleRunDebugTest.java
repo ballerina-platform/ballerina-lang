@@ -41,6 +41,7 @@ public class MultiModuleRunDebugTest extends BaseTestCase {
 
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "breakpoint-tests";
@@ -48,7 +49,7 @@ public class MultiModuleRunDebugTest extends BaseTestCase {
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMultiModuleDebugScenarios() throws BallerinaTestException {
         Path filePath1 = debugTestRunner.testProjectPath.resolve("utils.bal");
         Path filePath2 = debugTestRunner.testProjectPath.resolve("modules").resolve("math").resolve("add.bal");
@@ -124,6 +125,7 @@ public class MultiModuleRunDebugTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(3));
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

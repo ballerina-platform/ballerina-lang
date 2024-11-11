@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,20 +29,26 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.PathMatcher;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_SOURCE_EXT;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_TOML;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.EMPTY_STRING;
+import static io.ballerina.projects.util.ProjectConstants.IMPORT_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
@@ -51,9 +58,13 @@ import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
  *
  * @since 2.0.0
  */
-public class FileUtils {
+public final class FileUtils {
 
     private static final String PNG_HEX_HEADER = "89504E470D0A1A0A";
+    private static final PathMatcher FILE_MATCHER = FileSystems.getDefault().getPathMatcher("glob:**/Ballerina.toml");
+
+    private FileUtils() {
+    }
 
     /**
      * Get the name of the without the extension.
@@ -62,7 +73,7 @@ public class FileUtils {
      * @return File name without extension.
      */
     public static String getFileNameWithoutExtension(String filePath) {
-        Path fileName = Paths.get(filePath).getFileName();
+        Path fileName = Path.of(filePath).getFileName();
         if (null != fileName) {
             int index = indexOfExtension(fileName.toString());
             return index == -1 ? fileName.toString() :
@@ -111,6 +122,9 @@ public class FileUtils {
      */
     public static String readFileAsString(String path) throws IOException {
         InputStream is = FileUtils.class.getClassLoader().getResourceAsStream(path);
+        if (is == null) {
+            throw new FileNotFoundException("Schema file not found: " + path);
+        }
         InputStreamReader inputStreamReader = null;
         BufferedReader br = null;
         StringBuilder sb = new StringBuilder();
@@ -157,8 +171,10 @@ public class FileUtils {
         }
 
         if (Files.isDirectory(path)) {
-            for (Path dir : Files.list(path).collect(Collectors.toList())) {
-                deletePath(dir);
+            try (Stream<Path> paths = Files.list(path)) {
+                for (Path dir : paths.toList()) {
+                    deletePath(dir);
+                }
             }
         }
 
@@ -285,23 +301,66 @@ public class FileUtils {
         }
     }
 
+    public static void replaceTemplateName(Path path, String templateName, String packageName) {
+        Optional<Path> fileName = Optional.ofNullable(path.getFileName());
+        if (fileName.isPresent() && fileName.get().toString().endsWith(BLANG_SOURCE_EXT)) {
+            try {
+                String content = Files.readString(path);
+                String oldImportStatementStart = IMPORT_PREFIX + templateName + DOT;
+                String newImportStatementStart = IMPORT_PREFIX + packageName + DOT;
+                if (content.contains(oldImportStatementStart)) {
+                    content = content.replaceAll(oldImportStatementStart, newImportStatementStart);
+                    Files.write(path, content.getBytes(StandardCharsets.UTF_8));
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(
+                        "Error while replacing template name in module import statements: " + path, e);
+            }
+        }
+    }
+
+    /**
+     * Get the list of files and directories in a directory.
+     *
+     * @param directoryPath directory path
+     * @return list of files
+     */
+    public static List<Path> getFilesInDirectory(Path directoryPath) {
+        List<Path> files = new ArrayList<>();
+        try (Stream<Path> paths = Files.list(directoryPath)) {
+            paths.forEach(files::add);
+        } catch (IOException e) {
+            // ignore
+        }
+        return files;
+    }
+
     /**
      * Copy files to the given destination.
      */
     public static class Copy extends SimpleFileVisitor<Path> {
-        private Path fromPath;
-        private Path toPath;
-        private StandardCopyOption copyOption;
+        private final Path fromPath;
+        private final Path toPath;
+        private final String templateName;
+        private final String packageName;
+        private final StandardCopyOption copyOption;
 
 
-        public Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
+        public Copy(Path fromPath, Path toPath, String templateName, String packageName,
+                    StandardCopyOption copyOption) {
             this.fromPath = fromPath;
             this.toPath = toPath;
+            this.templateName = templateName;
+            this.packageName = packageName;
             this.copyOption = copyOption;
         }
 
         public Copy(Path fromPath, Path toPath) {
-            this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
+            this(fromPath, toPath, EMPTY_STRING, EMPTY_STRING, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        public Copy(Path fromPath, Path toPath, String templateName, String packageName) {
+            this(fromPath, toPath, templateName, packageName, StandardCopyOption.REPLACE_EXISTING);
         }
 
         @Override
@@ -320,6 +379,60 @@ public class FileUtils {
                 throws IOException {
 
             Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);
+            if (!packageName.equals(EMPTY_STRING) && !templateName.equals(EMPTY_STRING) &&
+                    !packageName.equals(templateName)) {
+                replaceTemplateName(toPath.resolve(fromPath.relativize(file).toString()), templateName, packageName);
+            }
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
+    public static boolean checkBallerinaTomlInExistingDir(Path startingDir) {
+        BallerinaTomlChecker ballerinaTomlChecker = new BallerinaTomlChecker(startingDir);
+        try {
+           Files.walkFileTree(startingDir, ballerinaTomlChecker);
+        } catch (IOException e) {
+            // ignore
+        }
+        return ballerinaTomlChecker.isBallerinaTomlFound();
+    }
+
+    /**
+     * Look for existing Ballerina.toml file in the given directory up to 10 levels.
+     */
+    public static class BallerinaTomlChecker extends SimpleFileVisitor<Path> {
+        private final Path startingPath;
+        private boolean ballerinaTomlFound = false;
+
+        public boolean isBallerinaTomlFound() {
+            return ballerinaTomlFound;
+        }
+
+        public void setBallerinaTomlFound(boolean ballerinaTomlFound) {
+            this.ballerinaTomlFound = ballerinaTomlFound;
+        }
+
+        public BallerinaTomlChecker(Path startingPath) {
+            this.startingPath = startingPath;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+
+            int depth = dir.getNameCount() - startingPath.getNameCount();
+            if (depth >= 10) {
+                return FileVisitResult.SKIP_SUBTREE;
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+
+            if (FILE_MATCHER.matches(file)) {
+                setBallerinaTomlFound(true);
+                return FileVisitResult.TERMINATE;
+            }
             return FileVisitResult.CONTINUE;
         }
     }

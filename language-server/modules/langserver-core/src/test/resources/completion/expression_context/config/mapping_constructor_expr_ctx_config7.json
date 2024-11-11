@@ -1,0 +1,85 @@
+{
+  "position": {
+    "line": 16,
+    "character": 43
+  },
+  "source": "expression_context/source/mapping_constructor_expr_ctx_source7.bal",
+  "description": "Tests record fields completions when there are multiple fields with the same name",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Type1 Required Fields",
+      "kind": "Property",
+      "detail": "Type1",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "field1: {},\nfield2: {}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Type2 Required Fields",
+      "kind": "Property",
+      "detail": "Type2",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "field1: {},\nfield2: ${1:0.0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec1Field2",
+      "kind": "Field",
+      "detail": "module1:TestRecord1.rec1Field2",
+      "sortText": "K",
+      "insertText": "rec1Field2: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field1",
+      "kind": "Field",
+      "detail": "Type1.field1|Type2.field1",
+      "sortText": "AG",
+      "insertText": "field1: {}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field2",
+      "kind": "Field",
+      "detail": "Type1.field2",
+      "sortText": "AG",
+      "insertText": "field2: {}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "optionalInt",
+      "kind": "Field",
+      "detail": "module1:TestRecord1.optionalInt",
+      "sortText": "K",
+      "insertText": "optionalInt: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec1Field1",
+      "kind": "Field",
+      "detail": "module1:TestRecord1.rec1Field1",
+      "sortText": "K",
+      "insertText": "rec1Field1: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field2",
+      "kind": "Field",
+      "detail": "Type2.field2",
+      "sortText": "K",
+      "insertText": "field2: ${1:0.0}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

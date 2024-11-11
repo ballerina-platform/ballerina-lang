@@ -1,0 +1,31 @@
+[indent]
+indentSize = 4
+continuationIndentSize = 8
+
+[wrapping]
+maxLineLength = 120
+simpleBlocksInOneLine = true
+simpleFunctionsInOneLine = true
+
+[braces]
+classBraceStyle = "NewLine"
+functionBraceStyle = "NewLine"
+
+[functionDefinition]
+parametersWrap = "ChopDown"
+alignMultilineParameters = true
+newLineAfterLeftParen = false
+rightParenOnNewLine = false
+
+[functionCall]
+argumentsWrap = "Wrap"
+alignMultilineArguments = false
+newLineAfterLeftParen = false
+rightParenOnNewLine = false
+
+[ifStatement]
+elseOnNewLine = false
+
+[spacing]
+afterTypeCast = true
+aroundRecordBraces = true

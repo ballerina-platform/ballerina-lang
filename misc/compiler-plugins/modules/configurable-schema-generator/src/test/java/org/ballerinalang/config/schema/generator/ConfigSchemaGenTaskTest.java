@@ -36,7 +36,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static io.ballerina.projects.util.ProjectConstants.CONFIGURATION_TOML;
 
@@ -45,7 +44,7 @@ import static io.ballerina.projects.util.ProjectConstants.CONFIGURATION_TOML;
  */
 public class ConfigSchemaGenTaskTest {
 
-    private static final Path RESOURCES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+    private static final Path RESOURCES_DIR = Path.of("src/test/resources/").toAbsolutePath();
 
     @Test(dataProvider = "project-data-provider")
     public void testAgainstToml(String projectType, String projectName, boolean isSingleFileProject) {
@@ -93,7 +92,8 @@ public class ConfigSchemaGenTaskTest {
     @DataProvider(name = "project-data-provider-for-schema-validation")
     public Object[][] dpMethod2() {
         return new Object[][]{{"DefaultModuleProjects", "ComplexTypeConfigs2", false},
-                {"DefaultModuleProjects", "ComplexTypeConfigs3", false}};
+                {"DefaultModuleProjects", "ComplexTypeConfigs3", false},
+                {"MultiModuleProjects", "IndirectImports", false}};
     }
 
     static Project loadBuildProject(Path projectPath, boolean isSingleFileProject) {
@@ -115,7 +115,7 @@ public class ConfigSchemaGenTaskTest {
     private String readConfigJSONSchema(Path path, boolean isSingleFileProject) {
         Path targetPath;
         if (isSingleFileProject) {
-            targetPath = Paths.get(System.getProperty("user.dir"));
+            targetPath = Path.of(System.getProperty("user.dir"));
         } else {
             targetPath = path.resolve(ProjectConstants.TARGET_DIR_NAME).resolve(ProjectConstants.BIN_DIR_NAME);
         }

@@ -28,6 +28,7 @@ import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -160,16 +161,16 @@ public class StaticMethodTest {
         Assert.assertEquals(returns.toString(), "199.7");
     }
 
-    @Test(expectedExceptions = io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp = ".*Invalid update of record field: modification not allowed on readonly " +
                   "value.*")
     public void testCreateRawDetails() {
         BRunUtil.invoke(result, "testCreateRawDetails");
     }
 
-    @Test(expectedExceptions = io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Invalid update of record field: modification not allowed on readonly " +
-                  "value.*")
+    @Test(expectedExceptions = BLangTestException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InherentTypeViolation \\{\"message\":" +
+                    "\"cannot update 'readonly' field 'name' in record of type 'Details & readonly'\".*")
     public void testCreateDetails() {
         BRunUtil.invoke(result, "testCreateDetails");
     }
@@ -185,7 +186,7 @@ public class StaticMethodTest {
                 "testBalEnvFastAsync", "testReturnNullString", "testReturnNotNullString", "testStaticResolve",
                 "testStringCast", "testGetCurrentModule", "testGetDefaultValueWithBEnv", "testCreateStudentUsingType",
                 "testCreateStudent", "testDefaultDecimalArgs", "testDefaultDecimalArgsAddition",
-                "testJavaNullPointerException", "testBalEnvAcceptingMethodRetType"};
+                "testJavaNullPointerException", "testBalEnvAcceptingMethodRetType", "testBundleFuncArgsToBArray"};
     }
 
     @AfterClass

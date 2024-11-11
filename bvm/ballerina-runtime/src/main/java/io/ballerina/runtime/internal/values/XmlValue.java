@@ -17,8 +17,10 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -27,7 +29,6 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
 import io.ballerina.runtime.internal.IteratorUtils;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
 import java.util.List;
@@ -59,6 +60,7 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
 
     protected Type iteratorNextReturnType;
 
+    @Override
     public abstract int size();
 
     /**
@@ -67,6 +69,7 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
      * @param attributeName Qualified name of the attribute
      * @return Value of the attribute
      */
+    @Override
     public BString getAttribute(BXmlQName attributeName) {
         return getAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix());
     }
@@ -78,6 +81,7 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
      * @param attributeName Qualified name of the attribute
      * @param value Value of the attribute
      */
+    @Override
     @Deprecated
     public void setAttribute(BXmlQName attributeName, String value) {
         setAttributeOnInitialization(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(),
@@ -102,6 +106,7 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
      * 
      * @return Attributes as a {@link MapValueImpl}
      */
+    @Override
     public abstract MapValue<BString, BString> getAttributesMap();
 
     /**
@@ -109,6 +114,7 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
      * 
      * @param attributes Attributes to be set.
      */
+    @Override
     public abstract void setAttributes(BMap<BString, BString> attributes);
 
     /**
@@ -116,11 +122,13 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
      * 
      * @return Type of the XML
      */
+    @Override
     public abstract XmlNodeType getNodeType();
 
     /**
      * Builds itself.
      */
+    @Override
     public abstract void build();
 
     @Override
@@ -147,10 +155,10 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
         // Here local message of the cause is logged whenever possible, to avoid java class being logged
         // along with the error message.
         if (t.getCause() != null) {
-            throw new BallerinaException(message + t.getCause().getMessage());
+            throw ErrorCreator.createError(StringUtils.fromString(message + t.getCause().getMessage()));
         }
 
-        throw new BallerinaException(message + t.getMessage());
+        throw ErrorCreator.createError(StringUtils.fromString(message + t.getMessage()));
     }
 
     /**
@@ -212,8 +220,10 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
         setChildren((BXml) seq);
     }
 
+    @Override
     public abstract XmlValue children();
 
+    @Override
     public abstract XmlValue children(String qname);
 
     /**
@@ -228,13 +238,14 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
         return copy;
     }
 
+    @Override
     public abstract XmlValue getItem(int index);
 
     @Override
     public void serialize(OutputStream outputStream) {
         try {
-            if (outputStream instanceof BallerinaXmlSerializer) {
-                ((BallerinaXmlSerializer) outputStream).write(this);
+            if (outputStream instanceof BallerinaXmlSerializer xmlSerializer) {
+                xmlSerializer.write(this);
             } else {
                 BallerinaXmlSerializer xmlSerializer = new BallerinaXmlSerializer(outputStream);
                 xmlSerializer.write(this);

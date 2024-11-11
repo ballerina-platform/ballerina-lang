@@ -768,8 +768,8 @@ public class TypedescriptorTest {
 
         List<TypeSymbol> members = intrType.memberTypeDescriptors();
 
-        assertEquals(members.get(0).typeKind(), RECORD);
-        assertEquals(members.get(1).typeKind(), READONLY);
+        assertEquals(members.get(0).typeKind(), READONLY);
+        assertEquals(members.get(1).typeKind(), RECORD);
     }
 
     @Test
@@ -849,7 +849,7 @@ public class TypedescriptorTest {
         Symbol symbol = getSymbol(198, 18);
         assertEquals(symbol.kind(), TYPE);
         assertEquals(((TypeSymbol) symbol).typeKind(), TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) symbol).getName().get(), "CancelledError");
+        assertEquals(symbol.getName().get(), "CancelledError");
     }
 
     @Test(dataProvider = "ConstantPosProvider")
@@ -1040,9 +1040,7 @@ public class TypedescriptorTest {
         Collection<ModuleId> moduleIds = currentPackage.moduleIds();
         PackageCompilation packageCompilation = currentPackage.getCompilation();
         List<Symbol> symbolList = new ArrayList<>();
-        moduleIds.forEach(moduleId -> {
-            symbolList.addAll(packageCompilation.getSemanticModel(moduleId).moduleSymbols());
-        });
+        moduleIds.forEach(moduleId -> symbolList.addAll(packageCompilation.getSemanticModel(moduleId).moduleSymbols()));
 
         List<SymbolInfo> expectedSymbolList = createSymbolInfoList(getSymbolModuleInfo());
         assertList(symbolList, expectedSymbolList);
@@ -1082,8 +1080,8 @@ public class TypedescriptorTest {
         assertEquals(symbol.get().kind(), CONSTANT);
         BallerinaConstantSymbol constSymbol = (BallerinaConstantSymbol) symbol.get();
         assertEquals(constSymbol.getName().get(), "greeting");
-        assertEquals(constSymbol.typeDescriptor().typeKind(), SINGLETON);
-        assertEquals(constSymbol.typeDescriptor().signature(), "");
+        assertEquals(constSymbol.typeDescriptor().typeKind(), COMPILATION_ERROR);
+        assertEquals(constSymbol.typeDescriptor().signature(), "$CompilationError$");
     }
 
     @Test(dataProvider = "UnionTypeSymbolPos")
@@ -1188,11 +1186,9 @@ public class TypedescriptorTest {
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof SymbolInfo)) {
+            if (!(obj instanceof SymbolInfo that)) {
                 return false;
             }
-
-            SymbolInfo that = (SymbolInfo) obj;
 
             return line == that.line &&
                    column == that.column &&

@@ -18,13 +18,14 @@ package org.ballerinalang.test.expressions.binaryoperations;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -54,7 +55,7 @@ public class AddOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test two int add overflow expression", expectedExceptions = BLangRuntimeException.class,
+    @Test(description = "Test two int add overflow expression", expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowByAddition() {
@@ -176,6 +177,11 @@ public class AddOperationTest {
         };
     }
 
+    @Test
+    public void testXmlStringAddition() {
+        BRunUtil.invoke(result, "testXmlStringAddition");
+    }
+
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
         int i = 0;
@@ -260,6 +266,41 @@ public class AddOperationTest {
                 "'(1|2|int)' and '(xml:Element|xml:Text)'", 150, 9);
         BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
                 "'(xml:Element|xml:Text)' and '(1|2|int)'", 152, 9);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 156, 12);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 157, 14);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 158, 17);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 159, 17);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 163, 11);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 164, 12);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 165, 14);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 166, 12);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'xml' and 'int'", 178, 13);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'xml:Text' and 'int'", 181, 18);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'xml:Text' and '(string|int)'",
+                184, 18);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'xml<xml:Element>', found 'xml<(xml:Element|xml:Text)>'", 187,
+                26);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'xml<(xml:Element|xml:Comment|xml:ProcessingInstruction)>', found 'xml'",
+                190, 64);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'xml<xml:Element>', found 'xml<(xml:Element|xml:Text)>'", 193, 26);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'xml<(xml:Element|xml:Comment)>', found 'xml<" +
+                        "(xml:Element|xml:Comment|xml:Text)>'",
+                197, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'xml<never>', found 'xml<(never|xml:Text)>'", 200, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'xml<(xml:Element|xml:Comment)>', found 'xml<(xml:Element|xml:Text)>'",
+                204, 38);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
     }
 }

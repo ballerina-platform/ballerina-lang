@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.internal.treegen.targets.nodevisitor;
 
 import io.ballerinalang.compiler.internal.treegen.TreeGenConfig;
+import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNodeMetadata;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxTree;
 import io.ballerinalang.compiler.internal.treegen.model.template.TreeNodeClass;
 import io.ballerinalang.compiler.internal.treegen.model.template.TreeNodeVisitorClass;
@@ -26,8 +27,8 @@ import io.ballerinalang.compiler.internal.treegen.targets.Target;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The class {@code AbstractNodeVisitorTarget} represent a generic entity that converts a
@@ -53,23 +54,25 @@ public abstract class AbstractNodeVisitorTarget extends Target {
     }
 
     @Override
-    public List<SourceText> execute(SyntaxTree syntaxTree) {
-        TreeNodeVisitorClass treeNodeVisitorClass = generateNodeVisitorClass(syntaxTree);
+    public List<SourceText> execute(SyntaxTree syntaxTree, HashMap<String, SyntaxNodeMetadata> nodeMetadataMap) {
+        TreeNodeVisitorClass treeNodeVisitorClass = generateNodeVisitorClass(syntaxTree, nodeMetadataMap);
         return Collections.singletonList(
                 getSourceText(treeNodeVisitorClass, getOutputDir(), getClassName()));
     }
 
-    private TreeNodeVisitorClass generateNodeVisitorClass(SyntaxTree syntaxTree) {
+    private TreeNodeVisitorClass generateNodeVisitorClass(SyntaxTree syntaxTree,
+                                                          HashMap<String, SyntaxNodeMetadata> nodeMetadataMap) {
         return new TreeNodeVisitorClass(getPackageName(), getClassName(),
-                getSuperClassName(), getImportClasses(), generateNodeClasses(syntaxTree));
+                getSuperClassName(), getImportClasses(), generateNodeClasses(syntaxTree, nodeMetadataMap));
     }
 
-    private List<TreeNodeClass> generateNodeClasses(SyntaxTree syntaxTree) {
+    private List<TreeNodeClass> generateNodeClasses(SyntaxTree syntaxTree,
+                                                    HashMap<String, SyntaxNodeMetadata> nodeMetadataMap) {
         return syntaxTree.nodes()
                 .stream()
                 .map(syntaxNode -> convertToTreeNodeClass(syntaxNode,
-                        getPackageName(), new ArrayList<>()))
-                .collect(Collectors.toList());
+                        getPackageName(), new ArrayList<>(), nodeMetadataMap))
+                .toList();
     }
 
     protected abstract String getPackageName();

@@ -15,42 +15,45 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations {
     birJar
     bir
     birJarCompile { transitive false }
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
     distributionBala
 }
 
 dependencies {
     implementation project(':ballerina-runtime')
-    implementation 'me.tongfei:progressbar'
-    implementation 'com.google.code.gson:gson'
-    implementation 'com.google.code.findbugs:jsr305'
-    implementation 'com.github.zafarkhaja:java-semver'
-    implementation 'commons-io:commons-io'
-    implementation 'com.squareup.okhttp3:okhttp'
-    implementation 'com.squareup.okio:okio'
+    implementation libs.tongfei.progressbar
+    implementation libs.gson
+    implementation libs.findbugs.jsr305
+    implementation libs.zafarkhaja.jsemver
+    implementation libs.commons.io
+    implementation libs.squareup.okhttp
+    implementation libs.squareup.okio
 
-    testCompile 'org.testng:testng'
-    testCompile 'org.awaitility:awaitility'
-    testImplementation 'org.powermock:powermock-mockito-release-full'
-    testImplementation 'org.powermock:powermock-module-testng-common'
+    testImplementation libs.squareup.mock.webserver
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.testng
+    testImplementation libs.testng
+    testImplementation libs.awaitility
 }
 
-task createTestDistributionCache(type: Copy) {
+tasks.register('createTestDistributionCache', Copy) {
     dependsOn configurations.distributionBala
     from configurations.distributionBala
     into "$buildDir/repo"
 }
 
-task createBirCache {
+tasks.register('createBirCache') {
     dependsOn configurations.bir
 
     doLast {
@@ -87,9 +90,14 @@ ext.moduleName = 'ballerina.central.client'
 compileJava {
     inputs.property("moduleName", moduleName)
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
         classpath = files()
     }
 }

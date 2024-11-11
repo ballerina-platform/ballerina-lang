@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import org.ballerinalang.langserver.AbstractLSTest;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PathUtil;
@@ -52,17 +52,14 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Abstract test for code action related tests.
@@ -99,7 +96,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         Range finalRange = range;
         diags = diags.stream()
                 .filter(diag -> PositionUtil.isRangeWithinRange(finalRange, diag.getRange()))
-                .collect(Collectors.toList());
+                .toList();
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
         String res = getResponse(sourcePath, finalRange, codeActionContext);
@@ -161,9 +158,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                                 .getAsJsonArray().get(0).getAsJsonObject().get("edits");
                     }
 
-                    Type type = new TypeToken<List<TextEdit>>() {
-                    }.getType();
-                    List<TextEdit> actualEdit = gson.fromJson(editsElement, type);
+                    List<TextEdit> actualEdit = gson.fromJson(editsElement, new TypeToken<>() { });
                     List<TextEdit> expEdit = expected.edits;
                     actual.edits = actualEdit;
                     if (!expEdit.equals(actualEdit)) {
@@ -195,7 +190,25 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                                 sourcePath, actual.edits, testConfig)) {
                             misMatched = true;
                         }
-                        actual.command = actualCommand;
+                        if (actualCommand.get("command").getAsString().equals("ADD_DOC")) {
+                            JsonObject actualNodeRange = getNodeRange(actualArgs);
+                            JsonObject expNodeRange = getNodeRange(expArgs);
+                            assert actualNodeRange != null;
+                            if (!actualNodeRange.equals(expNodeRange)) {
+                                misMatched = true;
+                                JsonArray newArgs = getNodeRangeArgument(actualArgs);
+                                if (newArgs != null) {
+                                    JsonObject command = new JsonObject();
+                                    command.add("title", actualCommand.get("title"));
+                                    command.add("command", actualCommand.get("command"));
+                                    command.add("arguments", getNodeRangeArgument(actualArgs));
+                                    actual.command = command;
+                                }
+                            }
+                        }
+                        if (actual.command == null) {
+                            actual.command = actualCommand;
+                        }
                     }
                 }
 
@@ -230,6 +243,31 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         }
     }
 
+    private JsonArray getNodeRangeArgument(JsonArray arguments) {
+        for (JsonElement arg : arguments) {
+            JsonObject argObj = arg.getAsJsonObject();
+            if ("node.range".equals(argObj.get("key").getAsString())) {
+                JsonArray array = new JsonArray(1);
+                array.add(argObj);
+                return array;
+            }
+        }
+        return null;
+    }
+
+    private JsonObject getNodeRange(JsonArray args) {
+        if (args == null) {
+            return null;
+        }
+        for (JsonElement arg : args) {
+            JsonObject argObj = arg.getAsJsonObject();
+            if ("node.range".equals(argObj.get("key").getAsString())) {
+                return argObj.get("value").getAsJsonObject();
+            }
+        }
+        return null;
+    }
+
     public String getResponse(Path sourcePath, Range range, CodeActionContext codeActionContext) {
         return TestUtil.getCodeActionResponse(getServiceEndpoint(), sourcePath.toString(), range, codeActionContext);
     }
@@ -258,7 +296,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         Range finalRange = range;
         diags = diags.stream()
                 .filter(diag -> PositionUtil.isRangeWithinRange(finalRange, diag.getRange()))
-                .collect(Collectors.toList());
+                .toList();
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
         String res = TestUtil.getCodeActionResponse(endpoint, sourcePath.toString(), finalRange, codeActionContext);
@@ -324,7 +362,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
             return;
         }
         String[] uriComponents = data.getFileUri().replace("\"", "").split("/");
-        Path expectedPath = Paths.get(root.toUri());
+        Path expectedPath = Path.of(root.toUri());
         for (String uriComponent : uriComponents) {
             expectedPath = expectedPath.resolve(uriComponent);
         }
@@ -404,40 +442,6 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                                                  List<TextEdit> actualEdits,
                                                  TestConfig testConfig) {
         //Validate the args of rename command
-        if (CommandConstants.RENAME_COMMAND.equals(actualCommand.get("command").getAsString())) {
-            if (actualArgs.size() == 2) {
-                Optional<String> actualFilePath =
-                        PathUtil.getPathFromURI(actualArgs.get(0).getAsString())
-                                .map(path -> path.toUri().toString().replace(sourceRoot.toUri().toString(), ""));
-                int actualRenamePosition = actualArgs.get(1).getAsInt();
-                String expectedFilePath = expArgs.get(0).getAsString();
-                int expectedRenamePosition = expArgs.get(1).getAsInt();
-                if (actualFilePath.isPresent()) {
-                    String actualPath = actualFilePath.get();
-                    if (actualFilePath.get().startsWith("/") || actualFilePath.get().startsWith("\\")) {
-                        actualPath = actualFilePath.get().substring(1);
-                    }
-                    if (sourceRoot.resolve(actualPath).equals(sourceRoot.resolve(expectedFilePath)) &&
-                            actualRenamePosition == expectedRenamePosition) {
-                        return true;
-                    }
-                    JsonArray newArgs = new JsonArray();
-                    newArgs.add(actualArgs.get(0).getAsString());
-                    newArgs.add(actualRenamePosition);
-
-                    //Replace the args of the actual command to update the test config
-                    actualCommand.add("arguments", newArgs);
-                }
-            }
-            return false;
-        } else if ("ballerina.action.extract".equals(actualCommand.get("command").getAsString())) {
-            if (actualArgs.size() == 3 && validateExtractCmd(actualCommand, actualArgs, expArgs, sourceRoot)) {
-                return true;
-            }
-            return actualArgs.size() == 4 && validateExtractCmd(actualCommand, actualArgs, expArgs, sourceRoot)
-                    && actualArgs.get(3).getAsJsonObject().equals(expArgs.get(3).getAsJsonObject());
-        }
-
         if (CommandConstants.POSITIONAL_RENAME_COMMAND.equals(actualCommand.get("command").getAsString())) {
             if (actualArgs.size() == 2) {
                 Optional<String> actualFilePath =
@@ -465,6 +469,15 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 }
             }
             return false;
+        } else if ("ballerina.action.extract".equals(actualCommand.get("command").getAsString())) {
+            if (actualArgs.size() == 3 && validateExtractCmd(actualCommand, actualArgs, expArgs, sourceRoot)) {
+                return true;
+            }
+            return actualArgs.size() == 4 && validateExtractCmd(actualCommand, actualArgs, expArgs, sourceRoot)
+                    && actualArgs.get(3).getAsJsonObject().equals(expArgs.get(3).getAsJsonObject());
+        } else if (CommandConstants.CREATE_CONFIG_TOML_COMMAND.equals(actualCommand.get("command").getAsString())) {
+            return actualArgs.size() == 2
+                    && validateCreateConfigTomlCommand(actualCommand, actualArgs, expArgs, sourceRoot);
         }
 
         for (JsonElement actualArg : actualArgs) {
@@ -504,6 +517,30 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         newArgs.add(actualName);
         newArgs.add(actualFilePath);
         newArgs.add(actualTextEdits);
+        actualCommand.add("arguments", newArgs);
+        return false;
+    }
+
+    private boolean validateCreateConfigTomlCommand(JsonObject actualCommand, JsonArray actualArgs, JsonArray expArgs,
+                                                                                      Path sourceRoot) {
+        String actualTextEdit = actualArgs.get(1).getAsString();
+        String expectedTextEdit = expArgs.get(1).getAsString();
+        String expectedFilePath = expArgs.get(0).getAsString();
+        String actualFilePath = actualArgs.get(0).getAsString().replace(sourceRoot.toString(), "");
+        if (actualFilePath.startsWith("/")) {
+            actualFilePath = actualFilePath.substring(1);
+        } else if (actualFilePath.startsWith("\\")) {
+            actualFilePath = actualFilePath.substring(1);
+            actualFilePath = actualFilePath.replace("\\", "/");
+            actualTextEdit = actualTextEdit.replaceAll(System.lineSeparator(), "\n");
+        }
+        if (actualFilePath.equals(expectedFilePath) && actualTextEdit.equals(expectedTextEdit)) {
+            return true;
+        }
+
+        JsonArray newArgs = new JsonArray();
+        newArgs.add(actualFilePath);
+        newArgs.add(actualTextEdit);
         actualCommand.add("arguments", newArgs);
         return false;
     }

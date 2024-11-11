@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Initialize the function",
+    "code": "function name() returns int { int x = 3; x += 3 * 2; return x; }"
+  },
+  {
+    "description": "Execute the function with start as an expression",
+    "code": "start name()",
+    "expr": "future {isDone:true,result:9}"
+  },
+  {
+    "description": "Execute the function with start with a variable assignment",
+    "code": "future<int> futureResult = start name()"
+  },
+  {
+    "description": "Check the return value",
+    "code": "futureResult",
+    "expr": "future {isDone:true,result:9}"
+  }
+]

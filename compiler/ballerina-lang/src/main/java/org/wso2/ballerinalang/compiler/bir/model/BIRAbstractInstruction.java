@@ -41,4 +41,6 @@ public abstract class BIRAbstractInstruction extends BIRNode implements BIRInstr
     }
 
     public abstract BIROperand[] getRhsOperands();
+
+    public abstract void setRhsOperands(BIROperand[] operands);
 }

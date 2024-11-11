@@ -26,9 +26,9 @@ import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.internal.DecimalValueKind;
 import io.ballerina.runtime.internal.ErrorUtils;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -78,8 +78,8 @@ public class DecimalValue implements SimpleValue, BDecimal {
             String message = exception.getMessage();
             if ((message != null) && (message.equals("Too many nonzero exponent digits.") ||
                     message.equals("Exponent overflow."))) {
-                throw ErrorCreator.createError(BallerinaErrorReasons.LARGE_EXPONENT_ERROR,
-                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.LARGE_EXPONENTS_IN_DECIMAL, value));
+                throw ErrorCreator.createError(ErrorReasons.LARGE_EXPONENT_ERROR,
+                        ErrorHelper.getErrorDetails(ErrorCodes.LARGE_EXPONENTS_IN_DECIMAL, value));
             }
             throw exception;
         }
@@ -97,8 +97,8 @@ public class DecimalValue implements SimpleValue, BDecimal {
 
     private static BigDecimal getValidDecimalValue(BigDecimal bd) {
         if (bd.compareTo(DECIMAL_MAX) > 0 || bd.compareTo(DECIMAL_MIN) < 0) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW,
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.DECIMAL_VALUE_OUT_OF_RANGE));
+            throw ErrorCreator.createError(ErrorReasons.NUMBER_OVERFLOW,
+                    ErrorHelper.getErrorDetails(ErrorCodes.DECIMAL_VALUE_OUT_OF_RANGE));
         } else if (bd.abs(MathContext.DECIMAL128).compareTo(MIN_DECIMAL_MAGNITUDE) < 0 &&
                 bd.abs(MathContext.DECIMAL128).compareTo(BigDecimal.ZERO) > 0) {
             return BigDecimal.ZERO;
@@ -110,6 +110,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * Get value of the decimal.
      * @return the value
      */
+    @Override
     public BigDecimal decimalValue() {
         return this.value;
     }
@@ -119,6 +120,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * May result in a {@code ErrorValue}
      * @return the integer value
      */
+    @Override
     public long intValue() {
 
         if (!isDecimalWithinIntRange(this)) {
@@ -144,6 +146,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * May result in a {@code ErrorValue}
      * @return the byte value
      */
+    @Override
     public int byteValue() {
 
         int intVal = (int) Math.rint(this.value.doubleValue());
@@ -162,6 +165,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * Get the float value.
      * @return the double value
      */
+    @Override
     public double floatValue() {
         return value.doubleValue();
     }
@@ -170,6 +174,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * Check the given value represents true or false.
      * @return true if the value is non zero
      */
+    @Override
     public boolean booleanValue() {
         return value.compareTo(BigDecimal.ZERO) != 0;
     }
@@ -189,6 +194,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return string value
      * @param parent The link to the parent node
      */
+    @Override
     public String stringValue(BLink parent) {
         if (this.valueKind != DecimalValueKind.OTHER) {
             return this.valueKind.getValue();
@@ -201,6 +207,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return string value in expression style
      * @param parent The link to the parent node
      */
+    @Override
     public String expressionStringValue(BLink parent) {
         if (this.valueKind != DecimalValueKind.OTHER) {
             return this.valueKind.getValue() + "d";
@@ -212,6 +219,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * Get the  {@code BigDecimal} value.
      * @return the decimal value
      */
+    @Override
     public BigDecimal value() {
         return this.value;
     }
@@ -220,6 +228,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * Get the {@code BType} of the value.
      * @return the type
      */
+    @Override
     public Type getType() {
         return PredefinedTypes.TYPE_DECIMAL;
     }
@@ -262,8 +271,8 @@ public class DecimalValue implements SimpleValue, BDecimal {
     }
 
     /**
-     * Returns a decimal whose value is <tt>(this &times;
-     * multiplicand)</tt>.
+     * Returns a decimal whose value is {@code (this &times;
+     * multiplicand)}.
      * @param multiplicand value to be multiplied
      * @return value after multiplication
      */
@@ -321,6 +330,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * Returns a decimal whose value is {@code (-this)}.
      * @return {@code -this}
      */
+    @Override
     public DecimalValue negate() {
         if (this.valueKind == DecimalValueKind.OTHER) {
             return new DecimalValue(this.decimalValue().negate());
@@ -357,6 +367,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * Returns value kind of {@code (-this)}.
      * @return value kind
      */
+    @Override
     public DecimalValueKind getValueKind() {
         return valueKind;
     }

@@ -17,10 +17,8 @@
  */
 package io.ballerina.runtime.api.async;
 
-import io.ballerina.runtime.internal.scheduling.Strand;
-
 /**
- * Holds metadata of the @{@link Strand}.
+ * Holds metadata of a Ballerina strand.
  *
  * @since 2.0.0
  */
@@ -28,27 +26,27 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 public class StrandMetadata {
 
     /**
-     * Organization name of module @{@link Strand} was initiated.
+     * Organization name of module the strand was initiated.
      */
     private final String moduleOrg;
 
     /**
-     * Name of module @{@link Strand} was initiated.
+     * Name of module the strand was initiated.
      */
     private final String moduleName;
 
     /**
-     * Version of module @{@link Strand} was initiated.
+     * Version of module the strand was initiated.
      */
     private final String moduleVersion;
 
     /**
-     * Type name if @{@link Strand} was initiated inside type.
+     * Type name if the strand was initiated inside type.
      */
     private final String typeName;
 
     /**
-     * Parent function name where @{@link Strand} was initiated.
+     * Parent function name where the strand was initiated.
      */
     private final String parentFunctionName;
 
@@ -66,7 +64,7 @@ public class StrandMetadata {
     }
 
     /**
-     * Gets the organization name of module @{@link Strand} was initiated.
+     * Gets the organization name of module the strand was initiated.
      *
      * @return Strand module org name.
      */
@@ -75,7 +73,7 @@ public class StrandMetadata {
     }
 
     /**
-     * Gets the name of module @{@link Strand} was initiated.
+     * Gets the name of module the strand was initiated.
      *
      * @return Strand module name.
      */
@@ -84,7 +82,7 @@ public class StrandMetadata {
     }
 
     /**
-     * Gets the version of module @{@link Strand} was initiated.
+     * Gets the version of module the strand was initiated.
      *
      * @return Strand module version.
      */
@@ -93,7 +91,7 @@ public class StrandMetadata {
     }
 
     /**
-     * Gets the type name if @{@link Strand} was initiated inside type.
+     * Gets the type name if the strand was initiated inside type.
      *
      * @return Strand type name.
      */
@@ -102,7 +100,7 @@ public class StrandMetadata {
     }
 
     /**
-     * Gets the parent function name where @{@link Strand} was initiated.
+     * Gets the parent function name where the strand was initiated.
      *
      * @return Strand parent function name.
      */

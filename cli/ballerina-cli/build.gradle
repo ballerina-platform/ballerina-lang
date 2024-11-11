@@ -15,13 +15,18 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    compilerPluginJar {
+        transitive false
+    }
     distributionBala
     distributionBirJar
     balRt
@@ -35,9 +40,12 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tools-api')
     implementation project(':central-client')
-    implementation 'info.picocli:picocli'
-    implementation "org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}"
-    implementation "com.google.code.gson:gson:${project.gsonVersion}"
+    implementation libs.picocli
+    implementation(libs.apache.commons.compress) {
+        exclude group: 'commons-codec', module: 'commons-codec'
+        exclude group: 'org.apache.commons', module: 'commons-lang3'
+    }
+    implementation libs.gson
     implementation project(':docerina')
     implementation project(':testerina:testerina-core')
     implementation project(':testerina:testerina-runtime')
@@ -45,32 +53,60 @@ dependencies {
     implementation project(':ballerina-shell:shell-cli')
     implementation project(':toml-parser')
     implementation project(':identifier-util')
-    testCompile project(':ballerina-test-utils')
+    testImplementation project(':ballerina-test-utils')
+    implementation libs.ow2.asm
+    implementation libs.ow2.asm.commons
+    implementation libs.ow2.asm.tree
+    implementation libs.jacoco.core
+    implementation libs.jacoco.report
+    implementation libs.commons.io
 
-    testCompile 'org.testng:testng'
-    testCompile 'org.mockito:mockito-all'
-    testImplementation 'org.powermock:powermock-mockito-release-full'
-    testImplementation 'org.powermock:powermock-module-testng-common'
-    testImplementation 'commons-io:commons-io'
+    testImplementation libs.testng
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.testng
+    testImplementation libs.commons.io
+    testImplementation libs.commons.codec
+    testImplementation libs.jline
 
     distributionBala project(path: ':ballerina-langlib:test', configuration: 'distributionBala')
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
     distributionBirJar project(path: ':testerina:testerina-core', configuration: 'distributionBirJar')
 
-    testRuntime project(":ballerina-lang-test")
+    testRuntimeOnly project(":ballerina-lang-test")
     balRt project(':ballerina-rt')
+    testRt project(':ballerina-profiler')
     testRt project(':testerina:testerina-runtime')
     testCore project(':testerina:testerina-core')
-    testRuntime project(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
+    testRuntimeOnly project(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
+    testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-modifier')
+    testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-generator')
+    testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-analyzer')
+    testRuntimeOnly project(':project-api-test-artifact:sample-openapi-build-tool')
+
+    compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-modifier')
+    compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-generator')
+    compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-analyzer')
+    compilerPluginJar project(':project-api-test-artifact:init-function-code-modify-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
 }
 
-task createTestDistributionCache(type: Copy) {
+tasks.register('createTestDistributionCache', Copy) {
     dependsOn configurations.distributionBala
     from configurations.distributionBala
     into "$buildDir/repo"
 }
 
-task createTestBre(type: Copy) {
+tasks.register('copyCompilerPluginJars', Copy) {
+    from configurations.compilerPluginJar
+    into "$buildDir/compiler-plugin-jars"
+}
+
+tasks.register('copyProfilerResources', Copy) {
+    from project(':jballerina-tools').file('resources/profiler')
+    into "$buildDir/resources/profiler"
+}
+
+tasks.register('createTestBre', Copy) {
     from configurations.balRt
     from configurations.testRt
     from configurations.testCore
@@ -81,6 +117,8 @@ task createTestBre(type: Copy) {
 test {
     dependsOn createTestDistributionCache
     dependsOn createTestBre
+    dependsOn copyCompilerPluginJars
+    dependsOn copyProfilerResources
 
     systemProperty "ballerina.home", "$buildDir"
 
@@ -97,11 +135,21 @@ description = 'Ballerina - CLI'
 ext.moduleName = 'ballerina-cli'
 
 compileJava {
+    dependsOn ':testerina:testerina-core:copyInteropImports'
     inputs.property("moduleName", moduleName)
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
         classpath = files()
     }
 }
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
+        classpath = files()
+    }
+}
+
+
+tasks.compileJava.dependsOn(':testerina:testerina-core:copyInteropImports')
+tasks.javadoc.dependsOn(':testerina:testerina-core:copyInteropImports')

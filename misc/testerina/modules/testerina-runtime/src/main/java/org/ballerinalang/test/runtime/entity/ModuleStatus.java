@@ -31,7 +31,7 @@ public class ModuleStatus {
     private int passed;
     private int failed;
     private int skipped;
-    private List<Test> tests = new ArrayList<>();
+    private final List<Test> tests = new ArrayList<>();
 
     private static ModuleStatus instance = new ModuleStatus();
 
@@ -84,8 +84,8 @@ public class ModuleStatus {
      * Inner class for individual Test object.
      */
     private static class Test {
-        private String name;
-        private Status status;
+        private final String name;
+        private final Status status;
         private String failureMessage = "";
 
         public Test(String name, Status status, String failureMessage) {
@@ -112,7 +112,7 @@ public class ModuleStatus {
         FAILURE("failure"),
         SKIPPED("skipped");
 
-        private String value;
+        private final String value;
 
         Status(String value) {
             this.value = value;

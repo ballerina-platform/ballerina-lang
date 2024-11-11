@@ -39,13 +39,14 @@ import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.transaction.HeuristicMixedException;
@@ -59,9 +60,12 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.transactions.TransactionConstants.DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
+import static io.ballerina.runtime.transactions.TransactionConstants.DEFAULT_TRX_CLEANUP_TIMEOUT;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
+import static javax.transaction.xa.XAResource.TMFAIL;
 import static javax.transaction.xa.XAResource.TMNOFLAGS;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
 
@@ -73,7 +77,7 @@ import static javax.transaction.xa.XAResource.TMSUCCESS;
 public class TransactionResourceManager {
 
     private static TransactionResourceManager transactionResourceManager = null;
-    private  static UserTransactionManager userTransactionManager = null;
+    private static UserTransactionManager userTransactionManager = null;
 
     private static final StrandMetadata COMMIT_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
             TRANSACTION_PACKAGE_NAME,
@@ -84,29 +88,27 @@ public class TransactionResourceManager {
     private static final String ATOMIKOS_LOG_BASE_PROPERTY = "com.atomikos.icatch.log_base_dir";
     private static final String ATOMIKOS_LOG_NAME_PROPERTY = "com.atomikos.icatch.log_base_name";
     private static final String ATOMIKOS_REGISTERED_PROPERTY = "com.atomikos.icatch.registered";
+    public static final String TRANSACTION_AUTO_COMMIT_TIMEOUT_KEY = "transactionAutoCommitTimeout";
+    public static final String TRANSACTION_CLEANUP_TIMEOUT_KEY = "transactionCleanupTimeout";
 
-    private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
-    private Map<String, List<BallerinaTransactionContext>> resourceRegistry;
+    private static final Logger LOG = LoggerFactory.getLogger(TransactionResourceManager.class);
+    private final Map<String, List<BallerinaTransactionContext>> resourceRegistry = new HashMap<>();
     private Map<String, Transaction> trxRegistry;
     private Map<String, Xid> xidRegistry;
 
-    private Map<String, List<BFunctionPointer>> committedFuncRegistry;
-    private Map<String, List<BFunctionPointer>> abortedFuncRegistry;
+    private final Map<String, List<BFunctionPointer<?, ?>>> committedFuncRegistry = new HashMap<>();
+    private final Map<String, List<BFunctionPointer<?, ?>>> abortedFuncRegistry = new HashMap<>();
 
-    private ConcurrentSkipListSet<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
-    private ConcurrentSkipListSet<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
-    private ConcurrentHashMap<String, ConcurrentSkipListSet<String>> localParticipants = new ConcurrentHashMap<>();
+    private final Set<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
+    private final Set<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
+    private final ConcurrentMap<String, Set<String>> localParticipants = new ConcurrentHashMap<>();
 
-    private boolean transactionManagerEnabled;
-    private static final PrintStream stderr = System.err;
+    private final boolean transactionManagerEnabled;
+    private static final PrintStream STDERR = System.err;
 
-    Map<ByteBuffer, Object> transactionInfoMap;
+    final Map<ByteBuffer, Object> transactionInfoMap = new ConcurrentHashMap<>();
 
     private TransactionResourceManager() {
-        resourceRegistry = new HashMap<>();
-        committedFuncRegistry = new HashMap<>();
-        abortedFuncRegistry = new HashMap<>();
-        transactionInfoMap = new HashMap<>();
         transactionManagerEnabled = getTransactionManagerEnabled();
         if (transactionManagerEnabled) {
             trxRegistry = new HashMap<>();
@@ -133,28 +135,26 @@ public class TransactionResourceManager {
      *
      */
     private void setLogProperties() {
-        final Path projectRoot = Paths.get(RuntimeUtils.USER_DIR);
-        if (projectRoot != null) {
-            String logDir = getTransactionLogDirectory();
-            Path logDirPath = Paths.get(logDir);
-            Path transactionLogDirectory;
-            if (!logDirPath.isAbsolute()) {
-                logDir = projectRoot.toAbsolutePath().toString() + File.separatorChar + logDir;
-                transactionLogDirectory = Paths.get(logDir);
-            } else {
-                transactionLogDirectory = logDirPath;
-            }
-            if (!Files.exists(transactionLogDirectory)) {
-                try {
-                    Files.createDirectory(transactionLogDirectory);
-                } catch (IOException e) {
-                    stderr.println("error: failed to create transaction log directory in " + logDir);
-                }
-            }
-            System.setProperty(ATOMIKOS_LOG_BASE_PROPERTY, logDir);
-            System.setProperty(ATOMIKOS_LOG_NAME_PROPERTY, "transaction_recovery");
-            System.setProperty(ATOMIKOS_REGISTERED_PROPERTY, "not-registered");
+        final Path projectRoot = Path.of(RuntimeUtils.USER_DIR);
+        String logDir = getTransactionLogDirectory();
+        Path logDirPath = Path.of(logDir);
+        Path transactionLogDirectory;
+        if (!logDirPath.isAbsolute()) {
+            logDir = projectRoot.toAbsolutePath().toString() + File.separatorChar + logDir;
+            transactionLogDirectory = Path.of(logDir);
+        } else {
+            transactionLogDirectory = logDirPath;
         }
+        if (!Files.exists(transactionLogDirectory)) {
+            try {
+                Files.createDirectory(transactionLogDirectory);
+            } catch (IOException e) {
+                STDERR.println("error: failed to create transaction log directory in " + logDir);
+            }
+        }
+        System.setProperty(ATOMIKOS_LOG_BASE_PROPERTY, logDir);
+        System.setProperty(ATOMIKOS_LOG_NAME_PROPERTY, "transaction_recovery");
+        System.setProperty(ATOMIKOS_REGISTERED_PROPERTY, "not-registered");
     }
 
     /**
@@ -187,6 +187,56 @@ public class TransactionResourceManager {
     }
 
     /**
+     * This method gets the user specified config for the transaction auto commit timeout. Default is 120.
+     *
+     * @return int transaction auto commit timeout value
+     */
+    public static int getTransactionAutoCommitTimeout() {
+        VariableKey transactionAutoCommitTimeoutKey = new VariableKey(TRANSACTION_PACKAGE_ID,
+                TRANSACTION_AUTO_COMMIT_TIMEOUT_KEY, PredefinedTypes.TYPE_INT, false);
+        if (!ConfigMap.containsKey(transactionAutoCommitTimeoutKey)) {
+            return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
+        } else {
+            Object configValue = ConfigMap.get(transactionAutoCommitTimeoutKey);
+            if (configValue == null) {
+                return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
+            }
+            return parseTimeoutValue(configValue, DEFAULT_TRX_AUTO_COMMIT_TIMEOUT);
+        }
+    }
+
+    /**
+     * This method gets the user specified config for cleaning up dead transactions. Default is 600.
+     *
+     * @return int transaction cleanup after value
+     */
+    public static int getTransactionCleanupTimeout() {
+        VariableKey transactionCleanupTimeoutKey = new VariableKey(TRANSACTION_PACKAGE_ID,
+                TRANSACTION_CLEANUP_TIMEOUT_KEY,
+                PredefinedTypes.TYPE_INT, false);
+        if (!ConfigMap.containsKey(transactionCleanupTimeoutKey)) {
+            return DEFAULT_TRX_CLEANUP_TIMEOUT;
+        } else {
+            Object configValue = ConfigMap.get(transactionCleanupTimeoutKey);
+            if (configValue == null) {
+                return DEFAULT_TRX_CLEANUP_TIMEOUT;
+            }
+            return parseTimeoutValue(configValue, DEFAULT_TRX_CLEANUP_TIMEOUT);
+        }
+    }
+
+    private static int parseTimeoutValue(Object configValue, int defaultValue) {
+        if (!(configValue instanceof Number number)) {
+            return defaultValue;
+        }
+        int timeoutValue = number.intValue();
+        if (timeoutValue <= 0) {
+            return defaultValue;
+        }
+        return timeoutValue;
+    }
+
+    /**
      * This method will register connection resources with a particular transaction.
      *
      * @param transactionId      the global transaction id
@@ -204,7 +254,7 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param fpValue   the function pointer for the committed function
      */
-    public void registerCommittedFunction(String transactionBlockId, BFunctionPointer fpValue) {
+    public void registerCommittedFunction(String transactionBlockId, BFunctionPointer<?, ?> fpValue) {
         if (fpValue != null) {
             committedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new ArrayList<>()).add(fpValue);
         }
@@ -216,7 +266,7 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param fpValue   the function pointer for the aborted function
      */
-    public void registerAbortedFunction(String transactionBlockId, BFunctionPointer fpValue) {
+    public void registerAbortedFunction(String transactionBlockId, BFunctionPointer<?, ?> fpValue) {
         if (fpValue != null) {
             abortedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new ArrayList<>()).add(fpValue);
         }
@@ -245,7 +295,7 @@ public class TransactionResourceManager {
      */
     //TODO:Comment for now, might need it for distributed transactions.
     public boolean prepare(String transactionId, String transactionBlockId) {
-        endXATransaction(transactionId, transactionBlockId);
+        endXATransaction(transactionId, transactionBlockId, false);
         if (transactionManagerEnabled) {
             return true;
         }
@@ -260,7 +310,7 @@ public class TransactionResourceManager {
                         xaResource.prepare(xid);
                     }
                 } catch (XAException e) {
-                    log.error("error at transaction prepare phase in transaction " + transactionId
+                    LOG.error("error at transaction prepare phase in transaction " + transactionId
                             + ":" + e.getMessage(), e);
                     return false;
                 }
@@ -272,7 +322,7 @@ public class TransactionResourceManager {
             // resource participant reported failure.
             status = false;
         }
-        log.info(String.format("Transaction prepare (participants): %s", status ? "success" : "failed"));
+        LOG.info(String.format("Transaction prepare (participants): %s", status ? "success" : "failed"));
         return status;
     }
 
@@ -296,7 +346,7 @@ public class TransactionResourceManager {
                     }
                 } catch (SystemException | HeuristicMixedException | HeuristicRollbackException
                         | RollbackException e) {
-                    log.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
+                    LOG.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
                     commitSuccess = false;
                 }
             }
@@ -315,7 +365,7 @@ public class TransactionResourceManager {
                         }
                     }
                 } catch (XAException e) {
-                    log.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
+                    LOG.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
                     commitSuccess = false;
                 } finally {
                     ctx.close();
@@ -353,7 +403,7 @@ public class TransactionResourceManager {
                         trx.rollback();
                     }
                 } catch (SystemException e) {
-                    log.error("error when aborting transaction " + transactionId + ":" + e.getMessage(), e);
+                    LOG.error("error when aborting transaction " + transactionId + ":" + e.getMessage(), e);
                     abortSuccess = false;
                 }
             }
@@ -372,7 +422,7 @@ public class TransactionResourceManager {
                         }
                     }
                 } catch (XAException e) {
-                    log.error("error when aborting the transaction " + transactionId + ":" + e.getMessage(), e);
+                    LOG.error("error when aborting the transaction " + transactionId + ":" + e.getMessage(), e);
                     abortSuccess = false;
                 } finally {
                     ctx.close();
@@ -411,7 +461,7 @@ public class TransactionResourceManager {
                     trxRegistry.put(combinedId, trx);
                 }
             } catch (SystemException | NotSupportedException e) {
-                log.error("error in initiating transaction " + transactionId + ":" + e.getMessage(), e);
+                LOG.error("error in initiating transaction " + transactionId + ":" + e.getMessage(), e);
             }
         } else {
             Xid xid = xidRegistry.get(combinedId);
@@ -422,7 +472,7 @@ public class TransactionResourceManager {
             try {
                 xaResource.start(xid, TMNOFLAGS);
             } catch (XAException e) {
-                log.error("error in starting XA transaction " + transactionId + ":" + e.getMessage(), e);
+                LOG.error("error in starting XA transaction " + transactionId + ":" + e.getMessage(), e);
             }
         }
     }
@@ -477,7 +527,7 @@ public class TransactionResourceManager {
      * @return Array of rollback handlers
      */
     public BArray getRegisteredRollbackHandlerList() {
-        List<BFunctionPointer> abortFunctions =
+        List<BFunctionPointer<?, ?>> abortFunctions =
                 abortedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
         if (abortFunctions != null && !abortFunctions.isEmpty()) {
             Collections.reverse(abortFunctions);
@@ -493,7 +543,7 @@ public class TransactionResourceManager {
      * @return Array of commit handlers
      */
     public BArray getRegisteredCommitHandlerList() {
-        List<BFunctionPointer> commitFunctions =
+        List<BFunctionPointer<?, ?>> commitFunctions =
                 committedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
         if (commitFunctions != null && !commitFunctions.isEmpty()) {
             Collections.reverse(commitFunctions);
@@ -541,7 +591,7 @@ public class TransactionResourceManager {
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
      */
-    void endXATransaction(String transactionId, String transactionBlockId) {
+    void endXATransaction(String transactionId, String transactionBlockId, boolean abortOnly) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         if (transactionManagerEnabled) {
             Transaction trx = trxRegistry.get(combinedId);
@@ -555,7 +605,7 @@ public class TransactionResourceManager {
                                 trx.delistResource(xaResource, TMSUCCESS);
                             }
                         } catch (IllegalStateException | SystemException e) {
-                            log.error("error in ending the XA transaction " + transactionId
+                            LOG.error("error in ending the XA transaction " + transactionId
                                     + ":" + e.getMessage(), e);
                         }
                     }
@@ -569,10 +619,10 @@ public class TransactionResourceManager {
                     try {
                         XAResource xaResource = ctx.getXAResource();
                         if (xaResource != null) {
-                            ctx.getXAResource().end(xid, TMSUCCESS);
+                            xaResource.end(xid, abortOnly ? TMFAIL : TMSUCCESS);
                         }
                     } catch (XAException e) {
-                        log.error("error in ending XA transaction " + transactionId + ":" + e.getMessage(), e);
+                        LOG.error("error in ending XA transaction " + transactionId + ":" + e.getMessage(), e);
                     }
                 }
             }
@@ -589,23 +639,32 @@ public class TransactionResourceManager {
     }
 
     private String generateCombinedTransactionId(String transactionId, String transactionBlockId) {
+        if (transactionBlockId.contains("_")) {
+            // remove the strand id from the transaction block id
+            return transactionBlockId.split("_")[0];
+        }
         return transactionId + ":" + transactionBlockId;
     }
 
     public void notifyResourceFailure(String gTransactionId) {
         failedResourceParticipantSet.add(gTransactionId);
         // The resource excepted (uncaught).
-        log.info("Trx infected callable unit excepted id : " + gTransactionId);
+        LOG.info("Trx infected callable unit excepted id : " + gTransactionId);
     }
 
     public void notifyLocalParticipantFailure(String gTransactionId, String blockId) {
-        ConcurrentSkipListSet<String> participantBlockIds = localParticipants.get(gTransactionId);
+        Set<String> participantBlockIds = localParticipants.get(gTransactionId);
         if (participantBlockIds != null && participantBlockIds.contains(blockId)) {
             failedLocalParticipantSet.add(gTransactionId);
         }
     }
 
     public Object getTransactionRecord(BArray xid) {
-        return transactionInfoMap.get(ByteBuffer.wrap(xid.getBytes()));
+        synchronized (transactionInfoMap) {
+            if (transactionInfoMap.containsKey(ByteBuffer.wrap(xid.getBytes()))) {
+                return transactionInfoMap.get(ByteBuffer.wrap(xid.getBytes()));
+            }
+            return null;
+        }
     }
 }

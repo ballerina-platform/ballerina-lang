@@ -321,13 +321,13 @@ public class CodeActionUtils {
                     // Get codeactions for the diagnostic
                     return codeActionManager.codeActions(context).getCodeActions().stream();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 }
 ```
 
 This method accepts the source file path, cursor position and the project as arguments. You can get rid of the `project`
-agument and use `ProjectLoader.loadProject()` with the source file path as a parameter to load the project.
+argument and use `ProjectLoader.loadProject()` with the source file path as a parameter to load the project.
 
 Once you have the list of codeactions, you can simply check for the _title_ and _arguments_. Note that the
 `CodeActionInfo` object has another attribute named `providerName`. This is for internal usage and formed in the
@@ -387,7 +387,7 @@ public class CodeActionUtils {
         // JsonElements to objects via deserialization.
         List<CodeActionArgument> codeActionArguments = codeAction.getArguments().stream()
                 .map(arg -> CodeActionArgument.from(GSON.toJsonTree(arg)))
-                .collect(Collectors.toList());
+                .toList();
 
         CodeActionExecutionContext executionContext = CodeActionExecutionContextImpl.from(
                 filePath.toUri().toString(),

@@ -29,8 +29,11 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBinding
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -42,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -54,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicArgExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -72,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -109,6 +115,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -117,6 +124,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -163,7 +173,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -185,7 +194,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
  * The {@link BLangNodeTransformer} transforms each {@link BLangNode} objects to another object of type R.
  * <p>
  * If you are looking for a {@link BLangNode} visitor that returns void, see {@link BLangNodeAnalyzer}.
- * <p>
  *
  * @param <T> the type of data class that passed along with transform methods.
  * @param <R> the type of class that is returned by transform methods
@@ -413,7 +421,19 @@ public abstract class BLangNodeTransformer<T, R> {
         return transformNode(node, data);
     }
 
+    public R transform(BLangGroupByClause node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangGroupingKey node, T data) {
+        return transformNode(node, data);
+    }
+
     public R transform(BLangSelectClause node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangCollectClause node, T data) {
         return transformNode(node, data);
     }
 
@@ -479,7 +499,7 @@ public abstract class BLangNodeTransformer<T, R> {
         return transformNode(node, data);
     }
 
-    public R transform(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess node, T data) {
+    public R transform(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess node, T data) {
         return transformNode(node, data);
     }
 
@@ -807,6 +827,14 @@ public abstract class BLangNodeTransformer<T, R> {
         return transformNode(node, data);
     }
 
+    public R transform(BLangAlternateWorkerReceive node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangMultipleWorkerReceive node, T data) {
+        return transformNode(node, data);
+    }
+
     public R transform(BLangWorkerSyncSendExpr node, T data) {
         return transformNode(node, data);
     }
@@ -1027,7 +1055,7 @@ public abstract class BLangNodeTransformer<T, R> {
         return transformNode(node, data);
     }
 
-    public R transform(BLangWorkerSend node, T data) {
+    public R transform(BLangWorkerAsyncSendExpr node, T data) {
         return transformNode(node, data);
     }
 
@@ -1098,6 +1126,22 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangValueType node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangXMLIndexedStepExtend node, T data) { 
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangXMLFilterStepExtend node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangXMLMethodCallStepExtend node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangExtendedXMLNavigationAccess node, T data) {
         return transformNode(node, data);
     }
 }

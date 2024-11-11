@@ -1,0 +1,5 @@
+[tool]
+id = "tool_test"
+
+[[dependency]]
+path = "tool/libs/ballerina-io-1.4.0-java.jar"

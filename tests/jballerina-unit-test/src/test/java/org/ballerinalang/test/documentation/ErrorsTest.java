@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.documentation;
 
+import io.ballerina.projects.Project;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.ModuleDoc;
@@ -43,7 +44,7 @@ public class ErrorsTest {
     public void setup() throws IOException {
         String sourceRoot =
                 "test-src" + File.separator + "documentation" + File.separator + "errors_project";
-        io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);
+        Project project = BCompileUtil.loadProject(sourceRoot);
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
         List<Module> modulesList = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
                 .packageOrg().toString(), project.currentPackage().packageVersion().toString());
@@ -116,26 +117,26 @@ public class ErrorsTest {
 
     @Test(description = "Test type")
     public void testType() {
-        Assert.assertEquals(testModule.types.size(), 2, "Two types expected");
+        Assert.assertEquals(testModule.unionTypes.size(), 1, "One union type expected");
 
-        Assert.assertEquals(testModule.types.get(0).name, "LinktoYError", "The type should be " +
-                "LinktoYError. But Found:" + testModule.types.get(0).name);
-        Assert.assertEquals(testModule.types.get(1).name, "YErrorType", "The type should be " +
-                "YErrorType. But Found:" + testModule.types.get(1).name);
+        Assert.assertEquals(testModule.simpleNameReferenceTypes.get(0).name, "LinktoYError", "The type should be " +
+                "LinktoYError. But Found:" + testModule.simpleNameReferenceTypes.get(0).name);
+        Assert.assertEquals(testModule.unionTypes.get(0).name, "YErrorType", "The type should be " +
+                "YErrorType. But Found:" + testModule.unionTypes.get(0).name);
 
-        Assert.assertEquals(testModule.types.get(0).memberTypes.get(0).name, "YErrorType",
+        Assert.assertEquals(testModule.simpleNameReferenceTypes.get(0).memberTypes.get(0).name, "YErrorType",
                 "The name of first membertype, of LinktoYError should be YErrorType. But Found:" +
-                        testModule.types.get(0).memberTypes.get(0).name);
-        Assert.assertEquals(testModule.types.get(0).memberTypes.get(0).category, "types",
+                        testModule.simpleNameReferenceTypes.get(0).memberTypes.get(0).name);
+        Assert.assertEquals(testModule.simpleNameReferenceTypes.get(0).memberTypes.get(0).category, "types",
                 "The category of first membertype, of LinktoYError should be types. " +
-                        "But Found:" + testModule.types.get(0).memberTypes.get(0).category);
+                        "But Found:" + testModule.simpleNameReferenceTypes.get(0).memberTypes.get(0).category);
 
-        Assert.assertEquals(testModule.types.get(1).memberTypes.get(0).name, "error",
+        Assert.assertEquals(testModule.unionTypes.get(0).memberTypes.get(0).name, "error",
                 "The name of first membertype, of error detailtype, in YErrorType should be error. But Found:" +
-                        testModule.types.get(1).memberTypes.get(0).name);
-        Assert.assertEquals(testModule.types.get(1).memberTypes.get(0).category, "builtin",
+                        testModule.unionTypes.get(0).memberTypes.get(0).name);
+        Assert.assertEquals(testModule.unionTypes.get(0).memberTypes.get(0).category, "builtin",
                 "The category of first membertype, of error detailtype,in YErrorType should be builtin. " +
-                        "But Found:" + testModule.types.get(1).memberTypes.get(0).category);
+                        "But Found:" + testModule.unionTypes.get(0).memberTypes.get(0).category);
     }
 
 }

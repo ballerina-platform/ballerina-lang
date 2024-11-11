@@ -19,7 +19,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code {@link Parameter } represents the parameter of a function in ballerina.
+ * {@code Parameter} represents the parameter of a function in ballerina.
  *
  * @since 2.0
  */
@@ -42,11 +42,10 @@ public class Parameter {
             return true;
         }
 
-        if (!(o instanceof Parameter)) {
+        if (!(o instanceof Parameter that)) {
             return false;
         }
 
-        Parameter that = (Parameter) o;
         return this.name.equals(that.name) && this.type.equals(that.type) && this.isDefault == that.isDefault;
     }
 

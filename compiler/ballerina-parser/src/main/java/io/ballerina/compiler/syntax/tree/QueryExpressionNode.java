@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -41,7 +41,19 @@ public class QueryExpressionNode extends ExpressionNode {
         return childInBucket(1);
     }
 
+    /**
+     * @deprecated Use {@link #resultClause()} instead.
+     */
+    @Deprecated
     public SelectClauseNode selectClause() {
+        ClauseNode resultClause = resultClause();
+        if (resultClause.kind() != SyntaxKind.SELECT_CLAUSE) {
+            throw new IllegalStateException("select-clause not found");
+        }
+        return (SelectClauseNode) resultClause;
+    }
+
+    public ClauseNode resultClause() {
         return childInBucket(2);
     }
 
@@ -64,19 +76,19 @@ public class QueryExpressionNode extends ExpressionNode {
         return new String[]{
                 "queryConstructType",
                 "queryPipeline",
-                "selectClause",
+                "resultClause",
                 "onConflictClause"};
     }
 
     public QueryExpressionNode modify(
             QueryConstructTypeNode queryConstructType,
             QueryPipelineNode queryPipeline,
-            SelectClauseNode selectClause,
+            ClauseNode resultClause,
             OnConflictClauseNode onConflictClause) {
         if (checkForReferenceEquality(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                resultClause,
                 onConflictClause)) {
             return this;
         }
@@ -84,7 +96,7 @@ public class QueryExpressionNode extends ExpressionNode {
         return NodeFactory.createQueryExpressionNode(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                resultClause,
                 onConflictClause);
     }
 
@@ -101,14 +113,14 @@ public class QueryExpressionNode extends ExpressionNode {
         private final QueryExpressionNode oldNode;
         private QueryConstructTypeNode queryConstructType;
         private QueryPipelineNode queryPipeline;
-        private SelectClauseNode selectClause;
+        private ClauseNode resultClause;
         private OnConflictClauseNode onConflictClause;
 
         public QueryExpressionNodeModifier(QueryExpressionNode oldNode) {
             this.oldNode = oldNode;
             this.queryConstructType = oldNode.queryConstructType().orElse(null);
             this.queryPipeline = oldNode.queryPipeline();
-            this.selectClause = oldNode.selectClause();
+            this.resultClause = oldNode.resultClause();
             this.onConflictClause = oldNode.onConflictClause().orElse(null);
         }
 
@@ -125,10 +137,10 @@ public class QueryExpressionNode extends ExpressionNode {
             return this;
         }
 
-        public QueryExpressionNodeModifier withSelectClause(
-                SelectClauseNode selectClause) {
-            Objects.requireNonNull(selectClause, "selectClause must not be null");
-            this.selectClause = selectClause;
+        public QueryExpressionNodeModifier withResultClause(
+                ClauseNode resultClause) {
+            Objects.requireNonNull(resultClause, "resultClause must not be null");
+            this.resultClause = resultClause;
             return this;
         }
 
@@ -142,7 +154,7 @@ public class QueryExpressionNode extends ExpressionNode {
             return oldNode.modify(
                     queryConstructType,
                     queryPipeline,
-                    selectClause,
+                    resultClause,
                     onConflictClause);
         }
     }

@@ -31,30 +31,82 @@ import java.util.List;
 @Test
 public class FindRefsInResourceAccessActionTest extends FindAllReferencesTest {
 
+    @Override
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{
-                {40, 23, location(39, 7, 16),
-                        List.of(location(39, 7, 16),
-                                location(40, 23, 32),
-                                location(41, 14, 23),
-                                location(42, 17, 26))
+                {46, 4, location(45, 8, 17),
+                        List.of(location(45, 8, 17),
+                                location(46, 4, 13),
+                                location(47, 24, 33))
                 },
-
+                {46, 15, location(22, 22, 25),
+                        List.of(location(22, 22, 25),
+                                location(46, 15, 16))
+                },
+                {46, 16, location(22, 22, 25),
+                        List.of(location(22, 22, 25),
+                                location(46, 15, 16))
+                },
                 // Resource function invocation
                 // Note: The symbol location of the resource-function is set to function-name's location
-                {40, 34, location(22, 21, 24),
-                        List.of(location(22, 21, 24),
-                                location(40, 34, 48),
-                                location(46, 27, 42))
+                {25, 22, location(25, 22, 25),
+                        List.of(location(25, 22, 25),
+                                location(47, 35, 49),
+                                location(51, 25, 40))
                 },
-                {41, 25, location(29, 21, 24),
-                        List.of(location(29, 21, 24),
-                                location(41, 25, 35))
+                {47, 35, location(25, 22, 25),
+                        List.of(location(25, 22, 25),
+                                location(47, 35, 49),
+                                location(51, 25, 40))
                 },
-                {42, 28, location(33, 21, 25),
-                        List.of(location(33, 21, 25),
-                                location(42, 28, 38))
+                {52, 26, location(35, 22, 25),
+                        List.of(location(35, 22, 25),
+                                location(52, 26, 36))
+                },
+                {54, 29, location(39, 22, 26), List.of()
+                },
+                {54, 31, location(39, 27, 30),
+                        List.of(location(39, 27, 30),
+                                location(54, 30, 33))
+                },
+                // Resource path name segments
+                {47, 36, location(25, 26, 29),
+                        List.of(location(25, 26, 29),
+                                location(47, 36, 39),
+                                location(51, 26, 29))
+                },
+                {51, 26, location(25, 26, 29),
+                        List.of(location(25, 26, 29),
+                                location(47, 36, 39),
+                                location(51, 26, 29))
+                },
+                {25, 26, location(25, 26, 29),
+                        List.of(location(25, 26, 29),
+                                location(47, 36, 39),
+                                location(51, 26, 29))
+                },
+                {25, 30, location(25, 30, 33),
+                        List.of(location(25, 30, 33),
+                                location(47, 40, 43),
+                                location(51, 30, 33))
+                },
+                {25, 42, location(25, 42, 44),
+                        List.of(location(25, 42, 44),
+                                location(27, 42, 44))
+                },
+                {27, 42, location(25, 42, 44),
+                        List.of(location(25, 42, 44),
+                                location(27, 42, 44))
+                },
+                {47, 40, location(25, 30, 33),
+                        List.of(location(25, 30, 33),
+                                location(47, 40, 43),
+                                location(51, 30, 33))
+                },
+                {53, 26, location(32, 46, 49),
+                        List.of(location(32, 46, 49),
+                                location(53, 26, 29))
                 }
         };
     }

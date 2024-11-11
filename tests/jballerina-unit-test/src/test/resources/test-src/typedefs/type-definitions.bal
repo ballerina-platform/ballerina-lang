@@ -338,6 +338,29 @@ public function returnTupleWithSingletonType2() returns X2 {
     return ["x", 2, ()];
 }
 
+type Data record {|
+    string value;
+|};
+
+const annotation Data dataAnon on type;
+
+@dataAnon {
+    value: "T1"
+}
+type Person2 record {|
+    string name;
+|};
+
+function testAnnotWithRecordTypeDefinition() {
+    Person2 foo = {name: "James"};
+    typedesc<any> t = typeof foo;
+    Data? annon = t.@dataAnon;
+    assertEquality("{\"value\":\"T1\"}", annon.toString());
+
+    Data data = {value: "T2"};
+    assertEquality("{\"value\":\"T2\"}" , data.toString());
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

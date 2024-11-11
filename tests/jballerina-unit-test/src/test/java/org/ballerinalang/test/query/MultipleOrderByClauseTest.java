@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -93,5 +94,10 @@ public class MultipleOrderByClauseTest {
         Object returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleOrderByClausesReturnStream");
         Assert.assertNotNull(returnValues);
         Assert.assertTrue((Boolean) returnValues);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

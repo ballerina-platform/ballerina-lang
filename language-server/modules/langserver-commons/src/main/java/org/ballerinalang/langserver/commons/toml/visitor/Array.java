@@ -24,7 +24,7 @@ package org.ballerinalang.langserver.commons.toml.visitor;
  */
 public class Array extends KeyValuePair {
 
-    private String qName;
+    private final String qName;
 
     public Array(String name, String qName, ValueType valueType) {
         super(name, valueType);

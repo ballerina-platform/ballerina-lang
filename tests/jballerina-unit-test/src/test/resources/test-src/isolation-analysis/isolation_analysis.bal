@@ -504,6 +504,97 @@ isolated function testFinalReadOnlyRawTemplateAccessInIsolatedFunction() {
     assertEquality(<int[]>[10, 20], tmp3.insertions);
 }
 
+readonly class IsolatedFunctionWithReadOnlySelfAsCapturedVariable {
+    string[] words;
+    int length;
+
+    isolated function init(string[] & readonly words, int length) {
+        self.words = words;
+        self.length = length;
+    }
+
+    isolated function getCount() returns int =>
+        self.words.filter(
+            isolated function (string word) returns boolean => word.length() == self.length).length();
+}
+
+isolated class IsolatedFunctionWithIsolatedSelfAsCapturedVariable {
+    private string[] words;
+    private int min = 10;
+
+    isolated function init(string[] words) {
+        self.words = words.clone();
+    }
+
+    isolated function compare() returns boolean {
+        lock {
+            return self.words.some(isolated function (string s) returns boolean {
+                                       lock {
+                                           return s.length() > self.min;
+                                       }
+                                   });
+        }
+    }
+}
+
+function testIsolatedFunctionWithSelfAsCapturedVariable() {
+    string[] words = ["hello", "world", "this", "is", "a", "test"];
+
+    IsolatedFunctionWithReadOnlySelfAsCapturedVariable a = new (words.cloneReadOnly(), 4);
+    assertEquality(2, a.getCount());
+
+    IsolatedFunctionWithIsolatedSelfAsCapturedVariable b = new (words);
+    assertEquality(false, b.compare());
+}
+
+isolated function testIsolatedFPCallInIsolatedFunction() {
+    var f = isolatedFunctionWithOnlyLocalVars;
+    int r = f();
+    assertEquality(4, r);
+
+    isolated function () returns int g = isolatedFunctionWithOnlyLocalVars;
+    assertEquality(4, g());
+
+    BoundMethodTestClass h = new;
+    isolated function () returns int m = h.isolatedFn;
+    int v = m();
+    assertEquality(10, v);
+
+    FunctionFieldTestClass i = new;
+    var if1 = i.f1;
+    int w = if1();
+    assertEquality(123, w);
+
+    i.testFunctionFieldFPCall();
+}
+
+isolated class BoundMethodTestClass {
+    isolated function testBoundMethodFPCall() {
+        var f = self.isolatedFn;
+        int v = f();
+        assertEquality(10, v);
+    }
+
+    public function nonIsolatedFn() {
+    }
+
+    public isolated function isolatedFn() returns int => 10;
+}
+
+public class FunctionFieldTestClass {
+    public final isolated function () returns int f1 = () => 123;
+    private final isolated function () returns string f2 = () => "hello";
+
+    isolated function testFunctionFieldFPCall() {
+        isolated function () returns int f1 = self.f1;
+        assertEquality(123, f1());
+
+        var f2 = self.f2;
+        string r = f2();
+        assertEquality("hello", r);
+    }
+}
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

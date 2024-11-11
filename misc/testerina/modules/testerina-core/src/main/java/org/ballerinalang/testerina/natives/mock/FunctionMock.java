@@ -30,7 +30,10 @@ import static org.ballerinalang.testerina.natives.mock.MockConstants.ORIGINAL_FU
 /**
  * Class that contains inter-op function related to function mocking.
  */
-public class FunctionMock {
+public final class FunctionMock {
+
+    private FunctionMock() {
+    }
 
     public static BError thenReturn(BObject caseObj) {
         BObject mockFunctionObj = caseObj.getObjectValue(StringUtils.fromString("mockFuncObj"));
@@ -112,7 +115,7 @@ public class FunctionMock {
         if (Thread.currentThread().getStackTrace().length >= 5) {
             String classname = Thread.currentThread().getStackTrace()[4].getClassName();
             if (classname.contains("/")) {
-                classname = classname.replaceAll("/", ".");
+                classname = classname.replace("/", ".");
             }
             String[] projectInfo = classname.split(Pattern.quote("."));
             // Set project info

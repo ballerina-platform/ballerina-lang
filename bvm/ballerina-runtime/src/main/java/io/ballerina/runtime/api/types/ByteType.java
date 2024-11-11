@@ -19,7 +19,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BByteType} represents byte type in Ballerina.
+ * {@code ByteType} represents byte type in Ballerina.
  *
  * @since 2.0.0
  */

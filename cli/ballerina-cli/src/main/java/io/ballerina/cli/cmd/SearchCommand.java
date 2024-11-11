@@ -24,12 +24,13 @@ import io.ballerina.projects.Settings;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.PackageSearchResult;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.ballerina.cli.cmd.Constants.SEARCH_COMMAND;
 import static io.ballerina.cli.utils.PrintUtils.printPackages;
@@ -42,12 +43,12 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = SEARCH_COMMAND, description = "search for packages within Ballerina Central")
+@CommandLine.Command(name = SEARCH_COMMAND, description = "Search Ballerina Central for packages")
 public class SearchCommand implements BLauncherCmd {
 
-    private PrintStream outStream;
-    private PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final PrintStream outStream;
+    private final PrintStream errStream;
+    private final boolean exitWhenFinish;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -111,7 +112,7 @@ public class SearchCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("searches for packages within Ballerina Central \n");
+        out.append(BLauncherCmd.getCommandUsageInfo(SEARCH_COMMAND));
     }
 
     @Override
@@ -131,28 +132,35 @@ public class SearchCommand implements BLauncherCmd {
     private void searchInCentral(String query) {
         try {
             Settings settings;
-            try {
-                settings = RepoUtils.readSettings();
-                // Ignore Settings.toml diagnostics in the search command
-            } catch (SettingsTomlException e) {
-                // Ignore 'Settings.toml' parsing errors and return empty Settings object
-                settings = Settings.from();
-            }
+            settings = RepoUtils.readSettings();
+            // Ignore Settings.toml diagnostics in the search command
+
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                                                            initializeProxy(settings.getProxy()),
-                                                           getAccessTokenOfCLI(settings));
+                                                            settings.getProxy().username(),
+                                                            settings.getProxy().password(),
+                                                                getAccessTokenOfCLI(settings),
+                                                            settings.getCentral().getConnectTimeout(),
+                                                            settings.getCentral().getReadTimeout(),
+                                                            settings.getCentral().getWriteTimeout(),
+                                                            settings.getCentral().getCallTimeout(),
+                                                            settings.getCentral().getMaxRetries());
+            boolean foundSearch = false;
+            String supportedPlatform = Arrays.stream(JvmTarget.values())
+                    .map(target -> target.code())
+                    .collect(Collectors.joining(","));
             PackageSearchResult packageSearchResult = client.searchPackage(query,
-                                                                           JvmTarget.JAVA_11.code(),
-                                                                           RepoUtils.getBallerinaVersion());
-
+                    supportedPlatform, RepoUtils.getBallerinaVersion());
             if (packageSearchResult.getCount() > 0) {
                 printPackages(packageSearchResult.getPackages(), RepoUtils.getTerminalWidth());
-            } else {
+                foundSearch = true;
+            }
+            if (!foundSearch) {
                 outStream.println("no modules found");
             }
         } catch (CentralClientException e) {
             String errorMessage = e.getMessage();
-            if (null != errorMessage && !"".equals(errorMessage.trim())) {
+            if (null != errorMessage && !errorMessage.trim().isEmpty()) {
                 // removing the error stack
                 if (errorMessage.contains("\n\tat")) {
                     errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));

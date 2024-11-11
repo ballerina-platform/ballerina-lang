@@ -22,11 +22,9 @@ import io.ballerina.projects.internal.plugins.CompilerPlugins;
 import io.ballerina.projects.plugins.CompilerPlugin;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Responsible for loading and maintaining engaged compiler plugins.
@@ -42,6 +40,7 @@ class CompilerPluginManager {
     private CodeModifierManager codeModifierManager;
     private CompilerLifecycleManager compilerLifecycleListenerManager;
     private CodeActionManager codeActionManager;
+    private CompletionManager completionManager;
 
     private CompilerPluginManager(PackageCompilation compilation,
                                   List<CompilerPluginContextIml> compilerPluginContexts) {
@@ -50,6 +49,12 @@ class CompilerPluginManager {
     }
 
     static CompilerPluginManager from(PackageCompilation compilation) {
+        // Skip initialization if the compiler plugins are already initialized for the project
+        if (!compilation.packageContext().project().compilerPluginContexts().isEmpty()) {
+            List<CompilerPluginContextIml> compilerPluginContexts =
+                    compilation.packageContext().project().compilerPluginContexts();
+            return new CompilerPluginManager(compilation, compilerPluginContexts);
+        }
         // TODO We need to update the DependencyGraph API. Right now it is a mess
         PackageResolution packageResolution = compilation.getResolution();
         ResolvedPackageDependency rootPkgNode = new ResolvedPackageDependency(
@@ -59,7 +64,7 @@ class CompilerPluginManager {
         List<CompilerPluginInfo> compilerPlugins = loadEngagedCompilerPlugins(directDependencies);
         List<CompilerPluginInfo> inBuiltCompilerPlugins = loadInBuiltCompilerPlugins(rootPkgNode.packageInstance());
         compilerPlugins.addAll(inBuiltCompilerPlugins);
-        List<CompilerPluginContextIml> compilerPluginContexts = initializePlugins(compilerPlugins);
+        List<CompilerPluginContextIml> compilerPluginContexts = initializePlugins(compilerPlugins, compilation);
         return new CompilerPluginManager(compilation, compilerPluginContexts);
     }
 
@@ -123,6 +128,15 @@ class CompilerPluginManager {
         return codeActionManager;
     }
 
+    CompletionManager getCompletionManager() {
+        if (completionManager != null) {
+            return completionManager;
+        }
+
+        completionManager = CompletionManager.from(compilerPluginContexts);
+        return completionManager;
+    }
+
     int engagedCodeGeneratorCount() {
         int count = 0;
         for (CompilerPluginContextIml compilerPluginContext : compilerPluginContexts) {
@@ -154,8 +168,8 @@ class CompilerPluginManager {
         String pluginClassName = pluginDescriptor.plugin().getClassName();
         List<Path> jarLibraryPaths = pluginDescriptor.getCompilerPluginDependencies()
                 .stream()
-                .map(Paths::get)
-                .collect(Collectors.toList());
+                .map(Path::of)
+                .toList();
 
         CompilerPlugin compilerPlugin;
         try {
@@ -176,15 +190,22 @@ class CompilerPluginManager {
         return dependencyGraph.getDirectDependencies(rootPkgNode)
                 .stream()
                 .map(ResolvedPackageDependency::packageInstance)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    private static List<CompilerPluginContextIml> initializePlugins(List<CompilerPluginInfo> compilerPlugins) {
+    private static List<CompilerPluginContextIml> initializePlugins(List<CompilerPluginInfo> compilerPlugins,
+                                                                    PackageCompilation compilation) {
         List<CompilerPluginContextIml> compilerPluginContexts = new ArrayList<>(compilerPlugins.size());
         for (CompilerPluginInfo compilerPluginInfo : compilerPlugins) {
-            CompilerPluginContextIml pluginContext = new CompilerPluginContextIml(compilerPluginInfo);
+            CompilerPluginCache pluginCache =
+                    compilation.packageContext().project().projectEnvironmentContext().environment().getService(
+                            CompilerPluginCache.class);
+            CompilerPluginContextIml pluginContext = new CompilerPluginContextIml(compilerPluginInfo,
+                    pluginCache.getData(compilerPluginInfo.compilerPlugin().getClass().getCanonicalName()));
             initializePlugin(compilerPluginInfo, pluginContext);
             compilerPluginContexts.add(pluginContext);
+            // Add the plugin context to context list in project
+            compilation.packageContext().project().compilerPluginContexts().add(pluginContext);
         }
         return compilerPluginContexts;
     }

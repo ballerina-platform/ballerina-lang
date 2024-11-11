@@ -1,0 +1,5 @@
+Compiling source
+	gayaldassanayake/newPackage:0.1.0
+
+Generating executable
+	target\bin\newPackage.jar

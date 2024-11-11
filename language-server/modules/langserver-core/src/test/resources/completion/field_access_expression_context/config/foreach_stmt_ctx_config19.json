@@ -33,13 +33,13 @@
       ]
     },
     {
-      "label": "filter(function (stream:Type val) returns boolean func)",
+      "label": "filter(function (int val) returns boolean func)",
       "kind": "Function",
       "detail": "stream<int, stream:CompletionType>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nSelects the members from a stream for which a function returns true.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nscores.filter(score => score > 50).next() ⇒ {\"value\":60}\n```\n  \n**Params**  \n- `function (stream:Type val) returns boolean` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `stream<int, stream:CompletionType>`   \n- new stream only containing members of parameter `stm` for which parameter `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nSelects the members from a stream for which a function returns true.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nscores.filter(score => score > 50).next() ⇒ {\"value\":60}\n```\n  \n**Params**  \n- `function (int val) returns boolean` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `stream<int, stream:CompletionType>`   \n- new stream only containing members of parameter `stm` for which parameter `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "CD",
@@ -52,13 +52,13 @@
       }
     },
     {
-      "label": "reduce(function (stream:Type1 accum, stream:Type val) returns stream:Type1 func, stream:Type1 initial)",
+      "label": "reduce(function (int accum, int val) returns int func, int initial)",
       "kind": "Function",
-      "detail": "stream:Type1|stream:ErrorType",
+      "detail": "int|stream:ErrorType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nCombines the members of a stream using a combining function.\n\nThe combining function takes the combined value so far and a member of the stream,\nand returns a new combined value.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nscores.reduce(isolated function (int total, int score) returns int => total + score, 0) ⇒ 300\n```\n  \n**Params**  \n- `function (stream:Type1 accum, stream:Type val) returns stream:Type1` func: combining function  \n- `stream:Type1` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `stream:Type1|stream:ErrorType`   \n- result of combining the members of parameter `stm` using parameter `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nCombines the members of a stream using a combining function.\n\nThe combining function takes the combined value so far and a member of the stream,\nand returns a new combined value.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nscores.reduce(isolated function (int total, int score) returns int => total + score, 0) ⇒ 300\n```\n  \n**Params**  \n- `function (int accum, int val) returns int` func: combining function  \n- `int` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `int|stream:ErrorType`   \n- result of combining the members of parameter `stm` using parameter `func`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -71,13 +71,13 @@
       }
     },
     {
-      "label": "forEach(function (stream:Type val) returns () func)",
+      "label": "forEach(function (int val) returns () func)",
       "kind": "Function",
       "detail": "stream:CompletionType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream.\n\nThe parameter `func` is applied to each member of parameter `stm` stream in order.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nint total = 0;\nscores.forEach(function(int score) {\n    total += score;\n});\ntotal ⇒ 300\n```\n  \n**Params**  \n- `function (stream:Type val) returns ()` func: a function to apply to each member  \n  \n**Return** `stream:CompletionType`   \n- () if the close completed successfully, otherwise an error  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream.\n\nThe parameter `func` is applied to each member of parameter `stm` stream in order.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nint total = 0;\nscores.forEach(function(int score) {\n    total += score;\n});\ntotal ⇒ 300\n```\n  \n**Params**  \n- `function (int val) returns ()` func: a function to apply to each member  \n  \n**Return** `stream:CompletionType`   \n- () if the close completed successfully, otherwise an error  \n  \n"
         }
       },
       "sortText": "CD",
@@ -109,13 +109,13 @@
       }
     },
     {
-      "label": "'map(function (stream:Type val) returns stream:Type1 func)",
+      "label": "'map(function (int val) returns int func)",
       "kind": "Function",
-      "detail": "stream<stream:Type1, stream:CompletionType>",
+      "detail": "stream<int, stream:CompletionType>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream and returns a stream of the results.\n\n```ballerina\nstream<float> ms = [14.5f, 45.5f, 6.8f, 4f].toStream();\nstream<float> cms = ms.map(m => m * 100.0);\ncms.next() ⇒ {\"value\":1450.0}\n```\n  \n**Params**  \n- `function (stream:Type val) returns stream:Type1` func: a function to apply to each member  \n  \n**Return** `stream<stream:Type1, stream:CompletionType>`   \n- new stream containing result of applying parameter `func` to each member of parameter `stm` in order  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream and returns a stream of the results.\n\n```ballerina\nstream<float> ms = [14.5f, 45.5f, 6.8f, 4f].toStream();\nstream<float> cms = ms.map(m => m * 100.0);\ncms.next() ⇒ {\"value\":1450.0}\n```\n  \n**Params**  \n- `function (int val) returns int` func: a function to apply to each member  \n  \n**Return** `stream<int, stream:CompletionType>`   \n- new stream containing result of applying parameter `func` to each member of parameter `stm` in order  \n  \n"
         }
       },
       "sortText": "CD",
@@ -130,11 +130,11 @@
     {
       "label": "next()",
       "kind": "Function",
-      "detail": "record {|int value;|}|stream:CompletionType",
+      "detail": "record {|int value; int...;|}|stream:CompletionType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns the next element in the stream wrapped in a record or () if the stream ends.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nscores.next() ⇒ {\"value\":45}\n```\n  \n  \n  \n**Return** `record {|int value;|}|stream:CompletionType`   \n- If the stream has elements, return the element wrapped in a record with single field called `value`,  \notherwise returns ()  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns the next element in the stream wrapped in a record or () if the stream ends.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nscores.next() ⇒ {\"value\":45}\n```\n  \n  \n  \n**Return** `record {|int value; int...;|}|stream:CompletionType`   \n- If the stream has elements, return the element wrapped in a record with single field called `value`,  \notherwise returns ()  \n  \n"
         }
       },
       "sortText": "CD",
@@ -145,11 +145,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {|int value;|}|stream:CompletionType;}",
+      "detail": "object {public isolated function next() returns record {|int value; int...;|}|stream:CompletionType;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns an iterator over a stream.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nobject {\n    public isolated function next() returns record {|int value;|}?;\n} iterator = scores.iterator();\niterator.next() ⇒ {\"value\":45}\n```\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|int value;|}|stream:CompletionType;}`   \n- a new iterator object that will iterate over the members of parameter `stm`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns an iterator over a stream.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nobject {\n    public isolated function next() returns record {|int value;|}?;\n} iterator = scores.iterator();\niterator.next() ⇒ {\"value\":45}\n```\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|int value; int...;|}|stream:CompletionType;}`   \n- a new iterator object that will iterate over the members of parameter `stm`.  \n  \n"
         }
       },
       "sortText": "CD",

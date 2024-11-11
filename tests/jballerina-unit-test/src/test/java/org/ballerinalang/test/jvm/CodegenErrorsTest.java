@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 /**
@@ -31,6 +32,10 @@ import org.testng.annotations.Test;
  */
 @Test
 public class CodegenErrorsTest {
+
+    private CompileResult testLargeMethodsResult = null;
+    private CompileResult testLargeMethods2Result = null;
+    private CompileResult testLargeMethods3Result = null;
 
     @Test
     public void testTooLargeMethod() {
@@ -68,10 +73,38 @@ public class CodegenErrorsTest {
         BRunUtil.invoke(result, "main");
     }
 
-    @Test
+    @BeforeGroups("TestLargeMethods")
+    public void beforeTestLargeMethods() {
+        testLargeMethodsResult = BCompileUtil.compile("test-src/jvm/largeMethods");
+    }
+
+    @Test(groups = {"TestLargeMethods"})
     public void testLargeMethods() {
-        CompileResult result = BCompileUtil.compile("test-src/jvm/largeMethods");
-        BRunUtil.invoke(result, "main");
+        BRunUtil.invoke(testLargeMethodsResult, "main");
+    }
+
+    @BeforeGroups("TestLargeMethods2")
+    public void beforeTestLargeMethods2() {
+        testLargeMethods2Result = BCompileUtil.compile("test-src/jvm/largeMethods2");
+    }
+
+    @Test(groups = {"TestLargeMethods2"})
+    public void testLargeMethods2() {
+        BRunUtil.invoke(testLargeMethods2Result, "main");
+    }
+
+    @BeforeGroups("TestLargeMethods3")
+    public void beforeTestLargeMethods3() {
+        testLargeMethods3Result = BCompileUtil.compile("test-src/jvm/largeMethods3");
+    }
+
+    @Test(groups = {"TestLargeMethods3"})
+    public void testLargeMethods3() {
+        BRunUtil.runMain(testLargeMethods3Result);
+    }
+
+    public void testLargeMethods4() {
+        BCompileUtil.compile("test-src/jvm/largeMethods4");
     }
 
     @Test
@@ -99,6 +132,12 @@ public class CodegenErrorsTest {
     @Test
     public void testTooLargeStringConstantClass() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/tooLargeStringConstantClass");
+        BRunUtil.invoke(result, "main");
+    }
+
+    @Test
+    public void testTooLargeFiles() {
+        CompileResult result = BCompileUtil.compile("test-src/jvm/tooLargeFileTest");
         BRunUtil.invoke(result, "main");
     }
 }

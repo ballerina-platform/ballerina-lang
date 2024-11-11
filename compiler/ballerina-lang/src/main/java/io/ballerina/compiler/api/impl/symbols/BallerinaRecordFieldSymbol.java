@@ -55,7 +55,7 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
     private List<io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol> annotAttachments;
     private List<Qualifier> qualifiers;
     private String signature;
-    private boolean deprecated;
+    private final boolean deprecated;
 
     public BallerinaRecordFieldSymbol(CompilerContext context, BField bField) {
         super(bField.symbol.getOriginalName().value, SymbolKind.RECORD_FIELD, bField.symbol, context);
