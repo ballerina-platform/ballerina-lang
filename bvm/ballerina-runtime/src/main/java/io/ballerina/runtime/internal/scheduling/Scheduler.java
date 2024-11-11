@@ -374,6 +374,9 @@ public class Scheduler {
             return new Object[]{};
         }
         int length = functionType.getRestType() == null ? parameters.length : parameters.length + 1;
+        if (length < args.length) {
+            length = args.length;
+        }
         Object[] argsWithDefaultValues = new Object[length];
         System.arraycopy(args, 0, argsWithDefaultValues, 0, args.length);
         for (int i = 0; i < parameters.length; i++) {
