@@ -37,7 +37,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OrderedNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -131,7 +130,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -160,7 +158,6 @@ import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -237,7 +234,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private List<BLangNode> unresolvedTypes;
     private Set<BLangNode> unresolvedRecordDueToFields;
     private boolean resolveRecordsUnresolvedDueToFields;
-    private List<BLangClassDefinition> unresolvedClasses;
     private final HashSet<LocationData> unknownTypeRefs;
     private final List<PackageID> importedPackages;
     private int typePrecedence;
@@ -246,7 +242,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final BLangMissingNodesHelper missingNodesHelper;
     private final PackageCache packageCache;
     private final List<BLangNode> intersectionTypes;
-    private Map<BType, BLangTypeDefinition> typeToTypeDef;
 
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
@@ -497,33 +492,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeResolver.clearUnknowTypeRefs();
     }
 
-    private void defineDependentFields(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
-        for (BLangNode typeDef : typeDefNodes) {
-            if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
-                BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
-                if (isObjectCtor(classDefinition)) {
-                    continue;
-                }
-                defineReferencedFieldsOfClassDef(classDefinition, pkgEnv);
-            } else if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
-                defineReferencedFieldsOfRecordTypeDef((BLangTypeDefinition) typeDef);
-            }
-        }
-    }
-
     public void defineReferencedFieldsOfClassDef(BLangClassDefinition classDefinition, SymbolEnv pkgEnv) {
         SymbolEnv typeDefEnv = classDefinition.typeDefEnv;
         BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) classDefinition.symbol;
         BObjectType objType = (BObjectType) tSymbol.type;
 
         defineReferencedClassFields(classDefinition, typeDefEnv, objType, false);
-    }
-
-    private void defineIntersectionTypes(SymbolEnv env) {
-        for (BLangNode typeDescriptor : this.intersectionTypes) {
-            defineNode(typeDescriptor, env);
-        }
-        this.intersectionTypes.clear();
     }
 
     private void defineErrorType(Location pos, BErrorType errorType, SymbolEnv env) {
@@ -534,18 +508,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (symResolver.checkForUniqueSymbol(pos, pkgEnv, errorTSymbol)) {
             pkgEnv.scope.define(errorTSymbol.name, errorTSymbol);
         }
-
-        SymbolEnv prevEnv = this.env;
-        this.env = pkgEnv;
-        this.env = prevEnv;
-    }
-
-    private boolean isObjectCtor(BLangNode node) {
-        if (node.getKind() == NodeKind.CLASS_DEFN) {
-            BLangClassDefinition classDefinition = (BLangClassDefinition) node;
-            return isObjectCtor(classDefinition);
-        }
-        return false;
     }
 
     public boolean isObjectCtor(BLangClassDefinition classDefinition) {
@@ -1237,83 +1199,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         defineNode(xmlnsStmtNode.xmlnsDecl, env);
-    }
-
-    private void defineTypeNodes(List<BLangNode> typeDefs, SymbolEnv env) {
-        if (typeDefs.isEmpty()) {
-            return;
-        }
-
-        this.unresolvedTypes = new ArrayList<>(typeDefs.size());
-        this.unresolvedRecordDueToFields = new HashSet<>(typeDefs.size());
-        this.resolveRecordsUnresolvedDueToFields = false;
-        for (BLangNode typeDef : typeDefs) {
-            if (isErrorIntersectionTypeCreatingNewType(typeDef, env)) {
-                populateUndefinedErrorIntersection((BLangTypeDefinition) typeDef, env);
-                continue;
-            }
-//            if (isObjectCtor(typeDef)) {
-//                continue;
-//            }
-
-            defineNode(typeDef, env);
-        }
-
-        if (typeDefs.size() <= unresolvedTypes.size()) {
-
-            this.resolveRecordsUnresolvedDueToFields = true;
-            unresolvedTypes.removeAll(unresolvedRecordDueToFields);
-            for (BLangNode unresolvedType : unresolvedRecordDueToFields) {
-                defineNode(unresolvedType, env);
-            }
-            this.resolveRecordsUnresolvedDueToFields = false;
-
-            // This situation can occur due to either a cyclic dependency or at least one of member types in type
-            // definition node cannot be resolved. So we iterate through each node recursively looking for cyclic
-            // dependencies or undefined types in type node.
-
-            for (BLangNode unresolvedType : unresolvedTypes) {
-                Deque<String> references = new ArrayDeque<>();
-                NodeKind unresolvedKind = unresolvedType.getKind();
-                if (unresolvedKind == NodeKind.TYPE_DEFINITION || unresolvedKind == NodeKind.CONSTANT) {
-                    TypeDefinition def = (TypeDefinition) unresolvedType;
-                    // We need to keep track of all visited types to print cyclic dependency.
-                    references.push(def.getName().getValue());
-                    checkErrors(env, unresolvedType, (BLangNode) def.getTypeNode(), references, false);
-                } else if (unresolvedType.getKind() == NodeKind.CLASS_DEFN) {
-                    BLangClassDefinition classDefinition = (BLangClassDefinition) unresolvedType;
-                    references.push(classDefinition.getName().getValue());
-                    checkErrors(env, unresolvedType, classDefinition, references, true);
-                }
-            }
-            defineAllUnresolvedCyclicTypesInScope(env);
-
-            Set<String> alreadyDefinedTypeDefNames = new HashSet<>();
-            int unresolvedTypeCount = unresolvedTypes.size();
-            for (int i = 0; i < unresolvedTypeCount; i++) {
-                for (BLangNode node : this.unresolvedTypes) {
-                    String name = getTypeOrClassName(node);
-                    boolean symbolNotFound = false;
-                    boolean isTypeOrClassDefinition =
-                            node.getKind() == NodeKind.TYPE_DEFINITION || node.getKind() == NodeKind.CLASS_DEFN;
-                    // Skip the type resolving in the first iteration (i == 0)
-                    // as we want to define the type before trying to resolve it.
-                    if (isTypeOrClassDefinition && i != 0) { // Do not skip the first iteration
-                        BSymbol bSymbol = symResolver.lookupSymbolInMainSpace(env, Names.fromString(name));
-                        symbolNotFound = (bSymbol == symTable.notFoundSymbol);
-                    }
-
-                    boolean notFoundInList = alreadyDefinedTypeDefNames.add(name);
-
-                    // Prevent defining already defined type names.
-                    if (notFoundInList || symbolNotFound) {
-                        defineNode(node, env);
-                    }
-                }
-            }
-            return;
-        }
-        defineTypeNodes(unresolvedTypes, env);
     }
 
     private void populateUndefinedErrorIntersection(BLangTypeDefinition typeDef, SymbolEnv env) {
@@ -3821,20 +3706,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .orElse(symTable.detailType);
     }
 
-    public void defineFields(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
-        for (BLangNode typeDef : typeDefNodes) {
-            if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
-                BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
-                if (isObjectCtor(classDefinition)) {
-                    continue;
-                }
-                defineFieldsOfClassDef(classDefinition, pkgEnv);
-            } else if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
-                defineFields((BLangTypeDefinition) typeDef, pkgEnv);
-            }
-        }
-    }
-
     public void defineFieldsOfClassDef(BLangClassDefinition classDefinition, SymbolEnv env) {
         SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
         BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) classDefinition.symbol;
@@ -4661,13 +4532,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineShadowedSymbol(location, varSymbol, targetEnv);
     }
 
-    private void defineSymbolWithCurrentEnvOwner(Location pos, BSymbol symbol) {
-        symbol.scope = new Scope(env.scope.owner);
-        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
-            env.scope.define(symbol.name, symbol);
-        }
-    }
-
     public BVarSymbol defineVarSymbol(Location pos, Set<Flag> flagSet, BType varType, Name varName,
                                       SymbolEnv env, boolean isInternal) {
         return defineVarSymbol(pos, flagSet, varType, varName, varName, env, isInternal);
@@ -4911,39 +4775,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private StatementNode createAssignmentStmt(BLangSimpleVariable variable, BVarSymbol varSym, BSymbol fieldVar) {
-        //Create LHS reference variable
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        varRef.pos = variable.pos;
-        varRef.variableName = (BLangIdentifier) createIdentifier(fieldVar.name.getValue());
-        varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        varRef.symbol = fieldVar;
-        varRef.setBType(fieldVar.type);
-
-        //Create RHS variable reference
-        BLangSimpleVarRef exprVar = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        exprVar.pos = variable.pos;
-        exprVar.variableName = (BLangIdentifier) createIdentifier(varSym.name.getValue());
-        exprVar.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        exprVar.symbol = varSym;
-        exprVar.setBType(varSym.type);
-
-        //Create assignment statement
-        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
-        assignmentStmt.expr = exprVar;
-        assignmentStmt.pos = variable.pos;
-        assignmentStmt.setVariable(varRef);
-        return assignmentStmt;
-    }
-
-    private IdentifierNode createIdentifier(String value) {
-        IdentifierNode node = TreeBuilder.createIdentifierNode();
-        if (value != null) {
-            node.setValue(value);
-        }
-        return node;
-    }
-
     private boolean validateFuncReceiver(BLangFunction funcNode) {
         if (funcNode.receiver == null) {
             return true;
@@ -4978,11 +4809,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private Name getFuncSymbolOriginalName(BLangFunction funcNode) {
         return names.originalNameFromIdNode(funcNode.name);
-    }
-
-    private Name getFieldSymbolName(BLangSimpleVariable receiver, BLangSimpleVariable variable) {
-        return Names.fromString(Symbols.getAttachedFuncSymbolName(
-                receiver.getBType().tsymbol.name.value, variable.name.value));
     }
 
     public MarkdownDocAttachment getMarkdownDocAttachment(BLangMarkdownDocumentation docNode) {
