@@ -174,8 +174,7 @@ public final class VariableUtils {
      */
     public static String getStringValue(SuspendedContext context, Value jvmObject) {
         try {
-            Value result = invokeRemoteVMMethod(context, jvmObject, METHOD_STRINGVALUE,
-                    Collections.singletonList(null));
+            Value result = invokeRemoteVMMethod(context, jvmObject, METHOD_STR_VALUE, Collections.singletonList(null));
             return getStringFrom(result);
         } catch (DebugVariableException e) {
             return UNKNOWN_VALUE;
