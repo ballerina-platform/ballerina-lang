@@ -35,8 +35,6 @@ import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypePair;
 import io.ballerina.types.SemTypes;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.definition.ObjectDefinition;
-import io.ballerina.types.definition.ObjectQualifiers;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.subtypedata.IntSubtype;
@@ -145,6 +143,8 @@ import java.util.Set;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static io.ballerina.types.BasicTypeCode.BT_OBJECT;
 import static io.ballerina.types.Core.combineRanges;
+import static io.ballerina.types.Core.createIsolatedObject;
+import static io.ballerina.types.Core.createServiceObject;
 import static io.ballerina.types.Core.isSubtypeSimple;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -3730,10 +3730,8 @@ public class Types {
     }
 
     public boolean isSubTypeOfReadOnlyOrIsolatedObjectUnion(BType bType) {
-        ObjectQualifiers quals = new ObjectQualifiers(true, false, ObjectQualifiers.NetworkQualifier.None);
-        SemType isolatedObjTy = new ObjectDefinition().define(typeEnv(), quals, new ArrayList<>(0));
         return SemTypes.isSubtype(semTypeCtx, bType.semType(),
-                SemTypes.union(PredefinedType.VAL_READONLY, isolatedObjTy));
+                SemTypes.union(PredefinedType.VAL_READONLY, createIsolatedObject(semTypeCtx)));
     }
 
     private boolean isImmutable(BType type) {
@@ -4017,9 +4015,7 @@ public class Types {
         }
 
         private boolean isServiceObject(BType bType) {
-            ObjectQualifiers quals = new ObjectQualifiers(false, false, ObjectQualifiers.NetworkQualifier.Service);
-            SemType serviceObjTy = new ObjectDefinition().define(typeEnv(), quals, new ArrayList<>(0));
-            return types.isSubtype(bType, serviceObjTy);
+            return types.isSubtype(bType, createServiceObject(semTypeCtx));
         }
     }
 

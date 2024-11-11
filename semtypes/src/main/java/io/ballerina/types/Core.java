@@ -19,6 +19,8 @@ package io.ballerina.types;
 
 import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.definition.MappingDefinition;
+import io.ballerina.types.definition.ObjectDefinition;
+import io.ballerina.types.definition.ObjectQualifiers;
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
@@ -36,6 +38,7 @@ import io.ballerina.types.typeops.SubtypePairs;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -909,6 +912,30 @@ public final class Core {
         mapDef.defineMappingTypeWrapped(env, new ArrayList<>(), ad);
         context.cloneableMemo = ad;
         return ad;
+    }
+
+    public static SemType createIsolatedObject(Context context) {
+        SemType memo = context.isolatedObjectMemo;
+        if (memo != null) {
+            return memo;
+        }
+
+        ObjectQualifiers quals = new ObjectQualifiers(true, false, ObjectQualifiers.NetworkQualifier.None);
+        SemType isolatedObj = new ObjectDefinition().define(context.env, quals, Collections.emptyList());
+        context.isolatedObjectMemo = isolatedObj;
+        return isolatedObj;
+    }
+
+    public static SemType createServiceObject(Context context) {
+        SemType memo = context.serviceObjectMemo;
+        if (memo != null) {
+            return memo;
+        }
+
+        ObjectQualifiers quals = new ObjectQualifiers(false, false, ObjectQualifiers.NetworkQualifier.Service);
+        SemType serviceObj = new ObjectDefinition().define(context.env, quals, Collections.emptyList());
+        context.serviceObjectMemo = serviceObj;
+        return serviceObj;
     }
 
     public static SemType createBasicSemType(BasicTypeCode typeCode, SubtypeData subtypeData) {

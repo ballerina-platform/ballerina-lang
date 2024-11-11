@@ -43,6 +43,8 @@ public final class Context {
     SemType anydataMemo;
     SemType jsonMemo;
     SemType cloneableMemo;
+    SemType isolatedObjectMemo;
+    SemType serviceObjectMemo;
 
     private Context(Env env) {
         this.env = env;

@@ -2275,7 +2275,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private boolean hasNonErrorType(BType returnType) {
-        return !Core.isEmpty(types.typeCtx(), Core.diff(returnType.semType(), PredefinedType.ERROR));
+        return !Core.isSubtypeSimple(returnType.semType(), PredefinedType.ERROR);
     }
 
     @Override
@@ -3320,7 +3320,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         BType checkedExprType = checkedExpr.expr.getBType();
         SemType errorType = types.getErrorIntersection(checkedExprType.semType());
 
-        if (PredefinedType.NEVER.equals(errorType)) {
+        if (Core.isNever(errorType)) {
             return;
         }
 
