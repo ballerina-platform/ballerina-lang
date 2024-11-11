@@ -491,7 +491,7 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
     }
 
     public InvocationData getCurrentInvocationData() {
-        return isTestablePkgAnalysis? currentInvocationData.testablePkgInvocationData : currentInvocationData;
+        return isTestablePkgAnalysis ? currentInvocationData.testablePkgInvocationData : currentInvocationData;
     }
 
     public static class InvocationData {
