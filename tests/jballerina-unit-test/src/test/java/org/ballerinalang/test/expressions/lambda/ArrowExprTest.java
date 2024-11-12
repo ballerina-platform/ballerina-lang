@@ -104,8 +104,8 @@ public class ArrowExprTest {
     @Test(description = "Test arrow expression with input parameter and return type record")
     public void testRecordTypeWithArrowExpr() {
         Object returns = BRunUtil.invoke(basic, "testRecordTypeWithArrowExpr");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("name")).toString(), "John");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("age")).toString(), "12");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("name")).toString(), "John");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("age")).toString(), "12");
     }
 
     @Test(description = "Test arrow expression that takes one nillable input parameter")

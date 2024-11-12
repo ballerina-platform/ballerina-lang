@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.function;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
@@ -33,6 +34,7 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,13 +47,16 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 2201.2.0
  */
-public class Call {
+public final class Call {
 
-    public static Object call(BFunctionPointer func, Object... args) {
+    private Call() {
+    }
+
+    public static Object call(Environment env, BFunctionPointer func, Object... args) {
         BFunctionType functionType = (BFunctionType) TypeUtils.getImpliedType(func.getType());
         List<Type> paramTypes = new LinkedList<>();
         List<Type> argTypes = new LinkedList<>();
-        List<Object> argsList = new java.util.ArrayList<>();
+        List<Object> argsList = new ArrayList<>();
 
         if (checkIsValidPositionalArgs(args, argsList, functionType, paramTypes, argTypes) ||
                  checkIsValidRestArgs(args, argsList, functionType, argTypes)) {
@@ -64,7 +69,7 @@ public class Call {
                         removeBracketsFromStringFormatOfTuple(new BTupleType(paramTypes, restType, 0, false))));
         }
 
-        return func.call(argsList.toArray());
+        return func.call(env.getRuntime(), argsList.toArray());
     }
 
     private static boolean checkIsValidPositionalArgs(Object[] args, List<Object> argsList, BFunctionType functionType,

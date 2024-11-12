@@ -26,11 +26,14 @@ import java.io.PrintStream;
  * @since 1.0.1
  */
 
-public class CompatibilityChecker {
+public final class CompatibilityChecker {
 
     private static final String JAVA_VERSION = "java.version";
     private static final String VERSION_ZERO = "0";
     private static final PrintStream stderr = System.err;
+
+    private CompatibilityChecker() {
+    }
 
     /**
      * Check for the compatibility of a given java version against the current java runtime version.
@@ -59,7 +62,7 @@ public class CompatibilityChecker {
         }
 
         // if both have only major versions, then stop checking further.
-        if (compiledVersionParts.length == 1 && compiledVersionParts.length == 1) {
+        if (compiledVersionParts.length == 1 && runtimeVersionParts.length == 1) {
             return;
         }
 

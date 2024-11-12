@@ -45,6 +45,7 @@ public class VariableVisibilityTest extends BaseTestCase {
     Map<String, Variable> localVariables = new HashMap<>();
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "variable-tests";
@@ -518,21 +519,37 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 31));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
-
-        // variable visibility test for workers outside fork (workers are visible outside fork() as futures).
-        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        debugTestRunner.assertVariable(localVariables, "w1", "future<()>", "future");
-
-        // variable visibility test inside worker (only worker's variables should be visible).
-        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        debugTestRunner.assertVariable(localVariables, "x", "10", "int");
-
-        // variables outside worker should not be visible
-        Assert.assertFalse(localVariables.containsKey("a"));
+        if (debugHitInfo.getKey().getLine() == 23) {
+            // variable visibility test inside worker (only worker's variables should be visible)
+            localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(),
+                    DebugTestRunner.VariableScope.LOCAL);
+            debugTestRunner.assertVariable(localVariables, "x", "10", "int");
+            // variables outside worker should not be visible
+            Assert.assertFalse(localVariables.containsKey("a"));
+            // variable visibility test for workers outside fork (workers are visible outside fork() as futures).
+            debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+            debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+            localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(),
+                    DebugTestRunner.VariableScope.LOCAL);
+            debugTestRunner.assertVariable(localVariables, "w1", "future<()>", "future");
+            Assert.assertTrue(localVariables.containsKey("a"));
+        } else {
+            // variable visibility test for workers outside fork (workers are visible outside fork() as futures).
+            localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(),
+                    DebugTestRunner.VariableScope.LOCAL);
+            debugTestRunner.assertVariable(localVariables, "w1", "future<()>", "future");
+            Assert.assertTrue(localVariables.containsKey("a"));
+            debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+            debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+            localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(),
+                    DebugTestRunner.VariableScope.LOCAL);
+            debugTestRunner.assertVariable(localVariables, "x", "10", "int");
+            // variables outside worker should not be visible
+            Assert.assertFalse(localVariables.containsKey("a"));
+        }
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

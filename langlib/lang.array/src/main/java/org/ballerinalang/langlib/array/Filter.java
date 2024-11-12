@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -34,9 +35,9 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
  *
  * @since 1.0
  */
-public class Filter {
+public final class Filter {
 
-    public static BArray filter(BArray arr, BFunctionPointer func) {
+    public static BArray filter(Environment env, BArray arr, BFunctionPointer func) {
         BArray newArr;
         Type arrType = TypeUtils.getImpliedType(arr.getType());
         newArr = switch (arrType.getTag()) {
@@ -48,7 +49,7 @@ public class Filter {
         int index = 0;
         for (int i = 0; i < size; i++) {
             Object value = arr.get(i);
-            boolean isFiltered = (boolean) func.call(value);
+            boolean isFiltered = (boolean) func.call(env.getRuntime(), value);
              if (isFiltered) {
                  newArr.add(index++, value);
              }

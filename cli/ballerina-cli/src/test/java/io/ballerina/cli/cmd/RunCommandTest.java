@@ -2,7 +2,6 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.cli.launcher.RuntimePanicException;
-import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
@@ -20,14 +19,15 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,8 +45,7 @@ public class RunCommandTest extends BaseCommandTest {
     private Path testResources;
     private Path testDistCacheDirectory;
     private ProjectEnvironmentBuilder projectEnvironmentBuilder;
-    static Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-            "log_creator_combined_plugin/compiler-plugin.txt");
+    static Path logFile = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
 
     @BeforeSuite
     public void setupSuite() throws IOException {
@@ -54,19 +53,20 @@ public class RunCommandTest extends BaseCommandTest {
         Files.writeString(logFile, "");
     }
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
         try {
             this.testResources = super.tmpDir.resolve("build-test-resources");
-            Path testBuildDirectory = Paths.get("build").toAbsolutePath();
+            Path testBuildDirectory = Path.of("build").toAbsolutePath();
             this.testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-            Path customUserHome = Paths.get("build", "user-home");
+            Path customUserHome = Path.of("build", "user-home");
             Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
             this.projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
             URI testResourcesURI = Objects.requireNonNull(
                     getClass().getClassLoader().getResource("test-resources")).toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI), new BuildCommandTest.Copy(Paths.get(testResourcesURI),
+            Files.walkFileTree(Path.of(testResourcesURI), new BuildCommandTest.Copy(Path.of(testResourcesURI),
                     this.testResources));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
@@ -75,10 +75,10 @@ public class RunCommandTest extends BaseCommandTest {
 
     @Test(description = "Run a valid ballerina file", dataProvider = "optimizeDependencyCompilation")
     public void testRunValidBalFile(Boolean optimizeDependencyCompilation) throws IOException {
-        Path validBalFilePath = this.testResources.resolve("valid-run-bal-file").resolve("file_create.bal");
+        Path validBalFilePath = this.testResources.resolve("valid-run-bal-file/file_create.bal");
 
         System.setProperty("user.dir", this.testResources.resolve("valid-run-bal-file").toString());
-        Path tempFile = this.testResources.resolve("valid-run-bal-file").resolve("temp.txt");
+        Path tempFile = this.testResources.resolve("valid-run-bal-file/temp.txt");
         // set valid source root
         RunCommand runCommand = new RunCommand(validBalFilePath, printStream, false, optimizeDependencyCompilation);
         // name of the file as argument
@@ -99,7 +99,7 @@ public class RunCommandTest extends BaseCommandTest {
     @Test(description = "Run non existing bal file")
     public void testRunNonExistingBalFile() throws IOException {
         // valid source root path
-        Path validBalFilePath = this.testResources.resolve("valid-run-bal-file").resolve("xyz.bal");
+        Path validBalFilePath = this.testResources.resolve("valid-run-bal-file/xyz.bal");
         RunCommand runCommand = new RunCommand(validBalFilePath, printStream, false);
         new CommandLine(runCommand).parseArgs(validBalFilePath.toString());
         runCommand.execute();
@@ -111,7 +111,7 @@ public class RunCommandTest extends BaseCommandTest {
     @Test(description = "Run bal file containing syntax error")
     public void testRunBalFileWithSyntaxError() {
         // valid source root path
-        Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error").resolve("hello_world.bal");
+        Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error/hello_world.bal");
         RunCommand runCommand = new RunCommand(balFilePath, printStream, false);
         new CommandLine(runCommand).parseArgs(balFilePath.toString());
         try {
@@ -240,7 +240,7 @@ public class RunCommandTest extends BaseCommandTest {
         // Run build command to generate jar file
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         buildCommand.execute();
-        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("foo.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target/bin/foo.jar").toFile().exists());
 
         // Try to run the har file
         Path tempFile = projectPath.resolve("foo.jar");
@@ -283,14 +283,10 @@ public class RunCommandTest extends BaseCommandTest {
         RunCommand runCommand = new RunCommand(projectPath, printStream, false, customTargetDir);
         runCommand.execute();
         Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
-        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache").resolve("wso2").resolve("foo").resolve("0.1" +
-                ".0")));
-        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache").resolve("wso2").resolve("foo").resolve("0.1" +
-                ".0")));
-        if (!(Files.exists(customTargetDir.resolve("cache").resolve("wso2").resolve("foo").resolve("0.1.0")
-                .resolve(JvmTarget.JAVA_21.code()).resolve("wso2-foo-0.1.0.jar"))
-                || Files.exists(customTargetDir.resolve("cache").resolve("wso2").resolve("foo").resolve("0.1.0")
-                .resolve("any").resolve("wso2-foo-0.1.0.jar")))) {
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache/wso2/foo/0.1.0")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache/wso2/foo/0.1.0")));
+        if (!(Files.exists(customTargetDir.resolve("cache/wso2/foo/0.1.0/java21/wso2-foo-0.1.0.jar")) ||
+                Files.exists(customTargetDir.resolve("cache/wso2/foo/0.1.0/any/wso2-foo-0.1.0.jar")))) {
             Assert.fail("Run command with custom target dir failed");
         }
     }
@@ -298,11 +294,10 @@ public class RunCommandTest extends BaseCommandTest {
     @Test(description = "Run a ballerina project with the engagement of all type of compiler plugins",
             dataProvider = "optimizeDependencyCompilation")
     public void testRunBalProjectWithAllCompilerPlugins(Boolean optimizeDependencyCompilation) throws IOException {
-        Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-                "log_creator_combined_plugin/compiler-plugin.txt");
+        Path logFile = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
         Files.createDirectories(logFile.getParent());
         Files.writeString(logFile, "");
-        Path compilerPluginPath = Paths.get("./src/test/resources/test-resources").resolve("compiler-plugins");
+        Path compilerPluginPath = Path.of("./src/test/resources/test-resources/compiler-plugins");
         BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_analyzer_im"),
                 testDistCacheDirectory, projectEnvironmentBuilder);
         BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_generator_im"),
@@ -310,7 +305,7 @@ public class RunCommandTest extends BaseCommandTest {
         BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_modifier_im"),
                 testDistCacheDirectory, projectEnvironmentBuilder);
 
-        Path projectPath = this.testResources.resolve("compiler-plugins").resolve("log_creator_combined_plugin");
+        Path projectPath = this.testResources.resolve("compiler-plugins/log_creator_combined_plugin");
         System.setProperty("user.dir", projectPath.toString());
         RunCommand runCommand = new RunCommand(projectPath, printStream, false, optimizeDependencyCompilation);
         new CommandLine(runCommand).parseArgs();
@@ -363,8 +358,8 @@ public class RunCommandTest extends BaseCommandTest {
         Path projectPath = dumpGraphResourcePath.resolve("package_a");
         System.setProperty("user.dir", projectPath.toString());
 
-        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-        System.setOut(new java.io.PrintStream(out));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(out));
 
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
         new CommandLine(runCommand).parseArgs("--dump-graph");
@@ -372,9 +367,8 @@ public class RunCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true).replaceAll("\r", "").strip();
 
         Assert.assertEquals(buildLog, getOutput("run-project-with-dump-graph.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
-                .resolve("foo-package_a-0.1.0.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target/cache/foo/package_a/0.1.0/java21/foo-package_a-0.1.0.jar")
+                .toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
@@ -396,10 +390,8 @@ public class RunCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true).replaceAll("\r", "").strip();
 
         Assert.assertEquals(buildLog, getOutput("run-project-with-dump-raw-graphs.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
-                .resolve("foo-package_a-0.1.0.jar").toFile().exists());
-
+        Assert.assertTrue(projectPath.resolve("target/cache/foo/package_a/0.1.0/java21/foo-package_a-0.1.0.jar")
+                .toFile().exists());
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 
@@ -421,8 +413,9 @@ public class RunCommandTest extends BaseCommandTest {
 
     @Test(description = "Run an empty package with code generator build tools")
     public void testRunEmptyProjectWithBuildTools() throws IOException {
-        BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
-                .resolve("ballerina-generate-file").toString(), testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(
+                testResources.resolve("buildToolResources/tools/ballerina-generate-file").toString(),
+                testDistCacheDirectory, projectEnvironmentBuilder);
         Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());

@@ -22,7 +22,7 @@ package io.ballerina.compiler.internal.parser;
  *
  * @since 1.2.0
  */
-public class LexerTerminals {
+public final class LexerTerminals {
 
     // Keywords
     public static final String PUBLIC = "public";
@@ -173,4 +173,7 @@ public class LexerTerminals {
     public static final char FORM_FEED = 0xC;
 
     public static final String RE = "re";
+
+    private LexerTerminals() {
+    }
 }

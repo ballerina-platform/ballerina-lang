@@ -33,6 +33,9 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  */
 public class Abs {
 
+    private Abs() {
+    }
+
     public static long abs(long n) {
         if (n <= Long.MIN_VALUE) {
             throw ErrorCreator.createError(getModulePrefixedReason(INT_LANG_LIB,

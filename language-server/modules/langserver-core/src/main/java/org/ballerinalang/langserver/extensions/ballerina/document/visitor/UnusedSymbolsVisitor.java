@@ -46,12 +46,12 @@ import java.util.Optional;
  */
 public class UnusedSymbolsVisitor extends NodeVisitor {
 
-    private Map<String, ImportDeclarationNode> unusedImports = new HashMap<>();
-    private Map<String, ImportDeclarationNode> usedImports = new HashMap<>();
-    private Map<LineRange, ASTModification> deleteRanges;
-    private Map<LineRange, ASTModification> toBeDeletedRanges = new HashMap<>();
-    private SemanticModel semanticModel;
-    private Document srcFile;
+    private final Map<String, ImportDeclarationNode> unusedImports = new HashMap<>();
+    private final Map<String, ImportDeclarationNode> usedImports = new HashMap<>();
+    private final Map<LineRange, ASTModification> deleteRanges;
+    private final Map<LineRange, ASTModification> toBeDeletedRanges = new HashMap<>();
+    private final SemanticModel semanticModel;
+    private final Document srcFile;
 
     public UnusedSymbolsVisitor(Document srcFile, SemanticModel semanticModel,
                                 Map<LineRange, ASTModification> deleteRanges) {

@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BMethodType;
@@ -39,7 +40,10 @@ import io.ballerina.runtime.internal.values.MapValue;
  *
  * @since 0.995.0
  */
-public class AnnotationUtils {
+public final class AnnotationUtils {
+
+    private AnnotationUtils() {
+    }
 
     /**
      * Method to retrieve annotations of the type from the global annotation map and set it to the type.
@@ -47,12 +51,10 @@ public class AnnotationUtils {
      * @param globalAnnotMap The global annotation map
      * @param bType          The type for which annotations need to be set
      */
-    public static void processAnnotations(MapValue globalAnnotMap, Type bType) {
-        if (!(bType instanceof BAnnotatableType)) {
+    public static void processAnnotations(MapValue<BString, Object> globalAnnotMap, Type bType) {
+        if (!(bType instanceof BAnnotatableType type)) {
             return;
         }
-
-        BAnnotatableType type = (BAnnotatableType) bType;
 
         BString annotationKey = StringUtils.fromString(type.getAnnotationKey());
         if (globalAnnotMap.containsKey(annotationKey)) {
@@ -93,34 +95,34 @@ public class AnnotationUtils {
         }
     }
 
-    public static void processObjectCtorAnnotations(BObjectType bType, MapValue globalAnnotMap, Strand strand) {
+    public static void processObjectCtorAnnotations(BObjectType bType,
+                                                    MapValue<BString, Object> globalAnnotMap, Strand strand) {
         BString annotationKey = StringUtils.fromString(bType.getAnnotationKey());
 
         if (globalAnnotMap.containsKey(annotationKey)) {
             Object annot = globalAnnotMap.get(annotationKey);
             // If annotations are already set via desugard service-decl, skip.
-            Object annotValue = ((FPValue) annot).call();
+            Object annotValue = ((FPValue) annot).call(Scheduler.getStrand().scheduler.runtime);
             bType.setAnnotations((MapValue<BString, Object>) annotValue);
         }
         for (MethodType attachedFunction : bType.getMethods()) {
             processObjectMethodLambdaAnnotation(globalAnnotMap, strand, attachedFunction);
         }
-        if (bType instanceof BServiceType) {
-            var serviceType = (BServiceType) bType;
-            for (var resourceFunction : serviceType.getResourceMethods()) {
+        if (bType instanceof BServiceType serviceType) {
+            for (ResourceMethodType resourceFunction : serviceType.getResourceMethods()) {
                 processObjectMethodLambdaAnnotation(globalAnnotMap, strand, resourceFunction);
             }
         }
     }
 
-    private static void processObjectMethodLambdaAnnotation(MapValue globalAnnotMap, Strand strand,
+    private static void processObjectMethodLambdaAnnotation(MapValue<BString, Object> globalAnnotMap, Strand strand,
                                                             MethodType attachedFunction) {
         BString annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
 
         if (globalAnnotMap.containsKey(annotationKey)) {
             ((BMethodType) attachedFunction)
                     .setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(annotationKey))
-                            .call());
+                            .call(Scheduler.getStrand().scheduler.runtime));
         }
     }
 
@@ -131,12 +133,12 @@ public class AnnotationUtils {
      * @param globalAnnotMap The global annotation map
      * @param name           The function name that acts as the annotation key
      */
-    public static void processFPValueAnnotations(FPValue fpValue, MapValue globalAnnotMap, String name) {
+    public static void processFPValueAnnotations(FPValue fpValue, MapValue<BString, Object> globalAnnotMap,
+                                                 String name) {
         BAnnotatableType type = (BAnnotatableType) fpValue.getType();
         BString nameKey = StringUtils.fromString(name);
         if (globalAnnotMap.containsKey(nameKey)) {
             type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(nameKey));
         }
     }
-
 }

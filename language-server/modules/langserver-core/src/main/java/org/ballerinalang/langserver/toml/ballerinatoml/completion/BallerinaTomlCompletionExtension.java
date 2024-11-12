@@ -27,7 +27,6 @@ import org.eclipse.lsp4j.CompletionParams;
 
 import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -41,7 +40,7 @@ public class BallerinaTomlCompletionExtension implements TomlCompletionExtension
     @Override
     public boolean validate(CompletionParams inputParams) {
         String uri = inputParams.getTextDocument().getUri();
-        Path fileNamePath = Paths.get(URI.create(uri)).getFileName();
+        Path fileNamePath = Path.of(URI.create(uri)).getFileName();
         if (fileNamePath == null) {
             return false;
         }
@@ -52,7 +51,7 @@ public class BallerinaTomlCompletionExtension implements TomlCompletionExtension
     @Override
     public List<CompletionItem> execute(CompletionParams completionParams,
                                         CompletionContext completionContext,
-                                        LanguageServerContext languageServerContext) throws Throwable {
+                                        LanguageServerContext languageServerContext) {
         BallerinaTomlCompletionContext ballerinaTomlCompletionContext =
                 new BallerinaTomlCompletionContext(completionContext, languageServerContext);
         return BallerinaTomlCompletionUtil.getCompletionItems(ballerinaTomlCompletionContext, languageServerContext);

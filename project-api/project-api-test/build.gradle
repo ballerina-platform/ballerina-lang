@@ -16,9 +16,11 @@
  */
 import org.apache.tools.ant.taskdefs.condition.Os
 
-apply plugin: 'base'
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'base'
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations {
     testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
@@ -35,12 +37,12 @@ configurations {
 }
 
 dependencies {
-    testImplementation 'org.testng:testng'
-    testImplementation 'org.slf4j:slf4j-jdk14'
-    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
-    testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
-    testImplementation 'commons-io:commons-io'
-    testImplementation 'com.google.code.gson:gson'
+    testImplementation libs.testng
+    testImplementation libs.slf4j.jdk14
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.testng
+    testImplementation libs.commons.io
+    testImplementation libs.gson
     testImplementation project(':ballerina-test-utils')
     testImplementation project(':ballerina-lang')
     testImplementation project(':ballerina-tools-api')

@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 
 /**
@@ -31,18 +31,22 @@ import io.ballerina.runtime.api.values.BTable;
  *
  * @since 1.3.0
  */
-public class Filter {
+public final class Filter {
 
-    public static BTable<?, ?> filter(BTable<BString, ?> tbl, BFunctionPointer func) {
+    private Filter() {
+    }
+
+    public static BTable<Object, Object> filter(Environment env, BTable<?, ?> tbl, BFunctionPointer func) {
         TableType tableType = (TableType) TypeUtils.getImpliedType(tbl.getType());
-        BTable newTable = ValueCreator.createTableValue(TypeCreator
-                        .createTableType(tableType.getConstrainedType(), tableType.getFieldNames(), false));
+        BTable<Object, Object> newTable = (BTable<Object, Object>)
+                ValueCreator.createTableValue(TypeCreator.createTableType(tableType.getConstrainedType(),
+                        tableType.getFieldNames(), false));
         int size = tbl.size();
         Object[] keys = tbl.getKeys();
         for (int i = 0; i < size; i++) {
             Object key = keys[i];
             Object value = tbl.get(key);
-            boolean isFiltered = (boolean) func.call(value);
+            boolean isFiltered = (boolean) func.call(env.getRuntime(), value);
             if (isFiltered) {
                 newTable.put(key, value);
             }

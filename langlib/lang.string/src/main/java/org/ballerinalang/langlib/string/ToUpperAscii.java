@@ -30,7 +30,10 @@ import static org.ballerinalang.langlib.string.utils.StringUtils.createNullRefer
  *
  * @since 0.8.0
  */
-public class ToUpperAscii {
+public final class ToUpperAscii {
+
+    private ToUpperAscii() {
+    }
 
     public static BString toUpperAscii(BString str) {
         if (str == null) {

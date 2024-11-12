@@ -54,4 +54,14 @@ Running Tests
 		0 skipped
 
 		Test execution time :*****s
+
+	foo.annot
+		[pass] testFunc
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+		Test execution time :*****s
 error: there are test failures

@@ -25,6 +25,10 @@ package org.ballerinalang.langlib.floatingpoint;
  */
 public class Sqrt {
 
+
+    private Sqrt() {
+    }
+
     public static double sqrt(double x) {
         return Math.sqrt(x);
     }

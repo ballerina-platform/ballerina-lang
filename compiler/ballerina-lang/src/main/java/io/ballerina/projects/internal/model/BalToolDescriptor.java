@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -50,8 +49,8 @@ public class BalToolDescriptor {
     private static final String DEPENDENCY = "dependency";
     public static final String PATH = "path";
 
-    private BalToolDescriptor.Tool tool;
-    private List<BalToolDescriptor.Dependency> dependencies;
+    private final BalToolDescriptor.Tool tool;
+    private final List<BalToolDescriptor.Dependency> dependencies;
 
     private BalToolDescriptor(BalToolDescriptor.Tool tool, List<BalToolDescriptor.Dependency> dependencies) {
         this.tool = tool;
@@ -201,7 +200,7 @@ public class BalToolDescriptor {
 
         return getToolJarsMatchingPattern(pattern, parentPath.get()).stream()
                 .map(path1 -> new BalToolDescriptor.Dependency(path1.toString()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static List<Path> getToolJarsMatchingPattern(String pattern, Path parentPath) {

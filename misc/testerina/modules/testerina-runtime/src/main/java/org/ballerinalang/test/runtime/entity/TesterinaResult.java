@@ -22,10 +22,10 @@ package org.ballerinalang.test.runtime.entity;
  * {@link TesterinaResult} represents the result of the Testerina test.
  */
 public class TesterinaResult {
-    private String testFunctionName;
-    private boolean isPassed;
-    private boolean isSkipped;
-    private String assertFailureMessage;
+    private final String testFunctionName;
+    private final boolean isPassed;
+    private final boolean isSkipped;
+    private final String assertFailureMessage;
 
     public TesterinaResult(String testFunctionName, boolean isPassed, boolean isSkipped, String assertFailureMessage) {
         this.testFunctionName = testFunctionName;

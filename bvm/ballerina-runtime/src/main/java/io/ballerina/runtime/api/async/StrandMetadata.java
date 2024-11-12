@@ -17,94 +17,14 @@
  */
 package io.ballerina.runtime.api.async;
 
+import java.util.Map;
+
 /**
  * Holds metadata of a Ballerina strand.
  *
+ * @param isConcurrentSafe indicates if the strand is safely executed with concurrent access
+ * @param properties a map containing additional properties or metadata for the strand
  * @since 2.0.0
  */
-
-public class StrandMetadata {
-
-    /**
-     * Organization name of module the strand was initiated.
-     */
-    private final String moduleOrg;
-
-    /**
-     * Name of module the strand was initiated.
-     */
-    private final String moduleName;
-
-    /**
-     * Version of module the strand was initiated.
-     */
-    private final String moduleVersion;
-
-    /**
-     * Type name if the strand was initiated inside type.
-     */
-    private final String typeName;
-
-    /**
-     * Parent function name where the strand was initiated.
-     */
-    private final String parentFunctionName;
-
-    public StrandMetadata(String moduleOrg, String moduleName, String moduleVersion, String typeName,
-                          String parentFunctionName) {
-        this.moduleOrg = moduleOrg;
-        this.moduleName = moduleName;
-        this.moduleVersion = moduleVersion;
-        this.typeName = typeName;
-        this.parentFunctionName = parentFunctionName;
-    }
-
-    public StrandMetadata(String moduleOrg, String moduleName, String moduleVersion, String parentFunctionName) {
-        this(moduleOrg, moduleName, moduleVersion, null, parentFunctionName);
-    }
-
-    /**
-     * Gets the organization name of module the strand was initiated.
-     *
-     * @return Strand module org name.
-     */
-    public String getModuleOrg() {
-        return moduleOrg;
-    }
-
-    /**
-     * Gets the name of module the strand was initiated.
-     *
-     * @return Strand module name.
-     */
-    public String getModuleName() {
-        return moduleName;
-    }
-
-    /**
-     * Gets the version of module the strand was initiated.
-     *
-     * @return Strand module version.
-     */
-    public String getModuleVersion() {
-        return moduleVersion;
-    }
-
-    /**
-     * Gets the type name if the strand was initiated inside type.
-     *
-     * @return Strand type name.
-     */
-    public String getTypeName() {
-        return typeName;
-    }
-
-    /**
-     * Gets the parent function name where the strand was initiated.
-     *
-     * @return Strand parent function name.
-     */
-    public String getParentFunctionName() {
-        return parentFunctionName;
-    }
+public record StrandMetadata(boolean isConcurrentSafe, Map<String, Object> properties) {
 }

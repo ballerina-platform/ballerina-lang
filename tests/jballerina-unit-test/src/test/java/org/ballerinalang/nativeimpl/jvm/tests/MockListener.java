@@ -25,9 +25,12 @@ import io.ballerina.runtime.api.values.BString;
 /**
  * A mock listener for testing services. It can be used to invoke a resource in the service.
  */
-public class MockListener {
+public final class MockListener {
 
     private static BObject service;
+
+    private MockListener() {
+    }
 
     public static Object attach(BObject servObj) {
         service = servObj;
@@ -37,7 +40,7 @@ public class MockListener {
     public static Object invokeResource(Environment env, BString name) {
         if (service != null) {
             Runtime runtime = env.getRuntime();
-            return runtime.call(service, name.getValue());
+            return runtime.callMethod(service, name.getValue(), null);
         }
         return null;
     }

@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Testing pushing, pulling, searching a module from central and installing module to home repository.
@@ -46,7 +45,7 @@ public class ListDependencyTestCase extends BaseTest {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
         // Copy sources
         String projectPath = (new File("src/test/resources/list")).getAbsolutePath();
-        FileUtils.copyDirectory(Paths.get(projectPath).toFile(), tempProjectDirectory.toFile());
+        FileUtils.copyDirectory(Path.of(projectPath).toFile(), tempProjectDirectory.toFile());
         // Create .ballerina
         Files.createDirectories(tempProjectDirectory.resolve(".ballerina"));
     }

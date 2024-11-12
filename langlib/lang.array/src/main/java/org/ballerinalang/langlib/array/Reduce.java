@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -30,14 +31,17 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessF
  *
  * @since 1.0
  */
-public class Reduce {
+public final class Reduce {
 
-    public static Object reduce(BArray arr, BFunctionPointer func, Object initial) {
+    private Reduce() {
+    }
+
+    public static Object reduce(Environment env, BArray arr, BFunctionPointer func, Object initial) {
         Type arrType = arr.getType();
         int size = arr.size();
         GetFunction getFn = getElementAccessFunction(arrType, "reduce()");
         for (int i = 0; i < size; i++) {
-            initial = func.call(initial, getFn.get(arr, i));
+            initial = func.call(env.getRuntime(), initial, getFn.get(arr, i));
         }
         return initial;
     }

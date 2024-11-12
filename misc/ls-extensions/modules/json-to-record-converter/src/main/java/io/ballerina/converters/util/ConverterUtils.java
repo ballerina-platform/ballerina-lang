@@ -26,7 +26,11 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class ConverterUtils {
+public final class ConverterUtils {
+
+    private ConverterUtils() {
+    }
+
     /**
      * Method for mapping openApi type to ballerina type.
      *
@@ -34,41 +38,24 @@ public class ConverterUtils {
      * @return {@link String} Ballerina type
      */
     public static String convertOpenAPITypeToBallerina(String type) {
-        String convertedType;
 
-        //In the case where type is not specified return anydata by default
+        //In the case where type is not specified return json by default
         if (type == null || type.isEmpty()) {
-            return "anydata";
+            return "json";
         }
 
-        switch (type) {
-            case Constants.INTEGER:
-                convertedType = "int";
-                break;
-            case Constants.STRING:
-                convertedType = "string";
-                break;
-            case Constants.BOOLEAN:
-                convertedType = "boolean";
-                break;
-            case Constants.ARRAY:
-                convertedType = "[]";
-                break;
-            case Constants.OBJECT:
-                convertedType = "record";
-                break;
-            case Constants.DECIMAL:
-            case Constants.NUMBER:
-            case Constants.DOUBLE:
-                convertedType = "decimal";
-                break;
-            case Constants.FLOAT:
-                convertedType = "float";
-                break;
-            default:
-                convertedType = "anydata";
-        }
-        return convertedType;
+        return switch (type) {
+            case Constants.INTEGER -> "int";
+            case Constants.STRING -> "string";
+            case Constants.BOOLEAN -> "boolean";
+            case Constants.ARRAY -> "[]";
+            case Constants.OBJECT -> "record";
+            case Constants.DECIMAL,
+                 Constants.NUMBER,
+                 Constants.DOUBLE -> "decimal";
+            case Constants.FLOAT -> "float";
+            default -> "json";
+        };
     }
 
     /**

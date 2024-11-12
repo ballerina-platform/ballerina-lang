@@ -27,7 +27,6 @@ import java.net.URISyntaxException;
 import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,12 +64,13 @@ public class ClasspathPackageRepository extends GeneralFSPackageRepository {
                 pathUri = URI.create("file:" + classPath + basePath);
             }
             initFS(pathUri);
-            return Paths.get(pathUri);
+            return Path.of(pathUri);
         } catch (URISyntaxException | IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
+
+    @SuppressWarnings("resource")
     private static void initFS(URI uri) throws IOException {
         if (JAR_URI_SCHEME.equals(uri.getScheme())) {
             Map<String, String> env = new HashMap<>(); 

@@ -72,7 +72,17 @@ public class ExtractToConstantTest extends AbstractCodeActionTest {
                 {"extractNumericLiteralInUnaryExprToConstant2.json"},
                 {"extractExprToConstant1.json"},
                 {"extractExprToConstant2.json"},
-                {"extractTwoLinesToConstant.json"}
+                {"extractTwoLinesToConstant.json"},
+                {"extractToConstantWithAmbiguousType1.json"},
+                {"extractToConstantWithAmbiguousType2.json"},
+                {"extractToConstantWithAmbiguousType3.json"},
+                {"extractToConstantWithAmbiguousType4.json"},
+                {"extractToConstantWithAmbiguousType5.json"},
+                {"extractToConstantWithAmbiguousType6.json"},
+                {"extractToConstantWithAmbiguousType7.json"},
+                {"extractToConstantWithAmbiguousType8.json"},
+                {"extractToConstantWithAmbiguousType9.json"},
+                {"extractToConstantWithAmbiguousType10.json"},
         };
     }
 

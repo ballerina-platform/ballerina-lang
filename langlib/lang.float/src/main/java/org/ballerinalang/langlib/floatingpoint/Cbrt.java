@@ -25,6 +25,10 @@ package org.ballerinalang.langlib.floatingpoint;
  */
 public class Cbrt {
 
+
+    private Cbrt() {
+    }
+
     public static double cbrt(double x) {
         return Math.cbrt(x);
     }

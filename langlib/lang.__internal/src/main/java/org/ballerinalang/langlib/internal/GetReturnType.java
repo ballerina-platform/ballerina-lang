@@ -29,7 +29,10 @@ import io.ballerina.runtime.api.values.BTypedesc;
  *
  * @since 1.2.0
  */
-public class GetReturnType {
+public final class GetReturnType {
+
+    private GetReturnType() {
+    }
 
     public static BTypedesc getReturnType(Object obj) {
         BFunctionPointer bFunctionPointer = (BFunctionPointer) obj;

@@ -13,7 +13,7 @@ Isolated Workers:
 
 Non Isolated Workers:
 
-\tStrand #\d* \"\d*\" :
+\tStrand #\d* \"\w*\" :
 \t\tat       testOrg.testPackageWithModules.0.main.bar\(main.bal:\d*\)
 \t\t         testOrg.testPackageWithModules.0.main.foo\(main.bal:\d*\)
 \t\t         testOrg.testPackageWithModules.0.main.foobar\(main.bal:\d*\)
@@ -29,29 +29,29 @@ Non Isolated Workers:
 \t\t         testOrg.testPackageWithModules\$test.0.\$_init.\$moduleExecute\(testPackageWithModules\)
 \t\t         testOrg.testPackageWithModules\$test.0.\$_init.\$lambda\$\$moduleExecute\$\(testPackageWithModules\)
 
-\tStrand #\d* \"\d*\" :
+\tStrand #\d* \"\w*\" :
 \t\tat       ballerina.lang&0046runtime.0.runtime.sleep\(runtime.bal:\d*\)
 \t\t         testOrg.testPackageWithModules.0.main.sleep_and_wait_nested\(main.bal:\d*\)
 \t\t         testOrg.testPackageWithModules.0.main.sleep_and_wait\(main.bal:\d*\)
 \t\t         testOrg.testPackageWithModules.0.main.\$lambda\$_0\(main.bal:\d*\)
 \t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.\$lambda\$_0\$lambda3\$\(main.bal:\d*\)
 
-\tStrand #\d* \"\d*\" :
+\tStrand #\d* \"\w*\" :
 \t\tat       testOrg.testPackageWithModules.0.main.\$lambda\$_1\(main.bal:\d*\)
 \t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.\$lambda\$_1\$lambda4\$\(main.bal:\d*\)
 
-\tStrand #\d* \"\d*\" :
+\tStrand #\d* \"\w*\" :
 \t\tat       ballerina.lang&0046runtime.0.runtime.sleep\(runtime.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.sleep_and_wait_nested\(anotherutils.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.sleep_and_wait\(anotherutils.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.\$lambda\$_0\(anotherutils.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046anotherutils.0.lambdas.\$_generated1anotherutils.\$lambda\$_0\$lambda0\$\(anotherutils.bal:\d*\)
 
-\tStrand #\d* \"\d*\" :
+\tStrand #\d* \"\w*\" :
 \t\tat       testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.\$lambda\$_1\(anotherutils.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046anotherutils.0.lambdas.\$_generated1anotherutils.\$lambda\$_1\$lambda1\$\(anotherutils.bal:\d*\)
 
-\tStrand #\d* \"\d*\" :
+\tStrand #\d* \"\w*\" :
 \t\tat       testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.func3\(anotherutils.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.func2\(anotherutils.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.func1\(anotherutils.bal:\d*\)
@@ -59,7 +59,7 @@ Non Isolated Workers:
 \t\t         testOrg.testPackageWithModules\$test.0.tests.main_test.\$lambda\$_10\(tests/main_test.bal:\d*\)
 \t\t         testOrg.testPackageWithModules\$test.0.lambdas.\$_generated2tests.main_test.\$lambda\$_10\$lambda0\$\(tests/main_test.bal:\d*\)
 
-\tStrand #\d* \"\d*\" :
+\tStrand #\d* \"\w*\" :
 \t\tat       ballerina.lang&0046runtime.0.runtime.sleep\(runtime.bal:\d*\)
 \t\t         testOrg.testPackageWithModules\$test.0.tests.main_test.\$lambda\$_11\(tests/main_test.bal:\d*\)
 \t\t         testOrg.testPackageWithModules\$test.0.lambdas.\$_generated2tests.main_test.\$lambda\$_11\$lambda1\$\(tests/main_test.bal:\d*\)

@@ -91,25 +91,25 @@ public class FunctionsWithDefaultableParametersTest {
         Assert.assertTrue(returns.get(2) instanceof BMap);
         Assert.assertTrue(returns.get(3) instanceof BMap);
 
-        BMap bMap = (BMap) returns.get(0);
+        BMap<?, ?> bMap = (BMap<?, ?>) returns.get(0);
         Assert.assertEquals(bMap.get(StringUtils.fromString("a")).toString(), "default");
         Assert.assertEquals(bMap.get(StringUtils.fromString("b")), 50L);
         Assert.assertFalse((Boolean) bMap.get(StringUtils.fromString("c")));
         Assert.assertEquals(bMap.get(StringUtils.fromString("d")), 11.1);
 
-        bMap = (BMap) returns.get(1);
+        bMap = (BMap<?, ?>) returns.get(1);
         Assert.assertEquals(bMap.get(StringUtils.fromString("a")).toString(), "f2");
         Assert.assertEquals(bMap.get(StringUtils.fromString("b")), 200L);
         Assert.assertFalse((Boolean) bMap.get(StringUtils.fromString("c")));
         Assert.assertEquals(bMap.get(StringUtils.fromString("d")), 44.4);
 
-        bMap = (BMap) returns.get(2);
+        bMap = (BMap<?, ?>) returns.get(2);
         Assert.assertEquals(bMap.get(StringUtils.fromString("a")).toString(), "f1");
         Assert.assertEquals(bMap.get(StringUtils.fromString("b")), 100L);
         Assert.assertTrue((Boolean) bMap.get(StringUtils.fromString("c")));
         Assert.assertEquals(bMap.get(StringUtils.fromString("d")), 22.2);
 
-        bMap = (BMap) returns.get(3);
+        bMap = (BMap<?, ?>) returns.get(3);
         Assert.assertEquals(bMap.get(StringUtils.fromString("a")).toString(), "default2");
         Assert.assertEquals(bMap.get(StringUtils.fromString("b")), 150L);
         Assert.assertTrue((Boolean) bMap.get(StringUtils.fromString("c")));

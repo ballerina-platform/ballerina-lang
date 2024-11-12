@@ -31,7 +31,10 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 2201.5.0
  */
-public class Environments {
+public final class Environments {
+
+    private Environments() {
+    }
 
     public static long callClientGetGreeting(Environment env, long p1, BString p2, boolean pn, BArray path, long t1,
                                              BString t2, boolean tn) {
@@ -76,5 +79,9 @@ public class Environments {
         String expectedFunctionNamePrefix = "$post$greeting$";
         return assertFunctionNameAndPathParams(functionName, pathParameters, expectedPathParams,
                 expectedFunctionNamePrefix, 2);
+    }
+
+    public static Environment getEnvironment(Environment env) {
+        return env;
     }
 }

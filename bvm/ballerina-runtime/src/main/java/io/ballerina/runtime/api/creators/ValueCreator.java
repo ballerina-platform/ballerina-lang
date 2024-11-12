@@ -82,7 +82,7 @@ import javax.xml.namespace.QName;
  *
  * @since 1.1.0
  */
-public class ValueCreator {
+public final class ValueCreator {
 
     /**
      * Creates a new array with given array type.
@@ -797,7 +797,7 @@ public class ValueCreator {
      * @param mappingValue mapping value
      * @return             spread field entry
      */
-    public static BMapInitialValueEntry createSpreadFieldEntry(BMap mappingValue) {
+    public static BMapInitialValueEntry createSpreadFieldEntry(BMap<?, ?> mappingValue) {
         return new MappingInitialValueEntry.SpreadFieldEntry(mappingValue);
     }
 
@@ -980,8 +980,8 @@ public class ValueCreator {
      * @param fieldNames table field names
      * @return           table value for given type
      */
-    public static BTable createTableValue(TableType tableType, BArray data, BArray fieldNames) {
-        return new TableValueImpl(tableType, (ArrayValue) data, (ArrayValue) fieldNames);
+    public static BTable<?, ?> createTableValue(TableType tableType, BArray data, BArray fieldNames) {
+        return new TableValueImpl<>(tableType, (ArrayValue) data, (ArrayValue) fieldNames);
     }
 
     private ValueCreator() {

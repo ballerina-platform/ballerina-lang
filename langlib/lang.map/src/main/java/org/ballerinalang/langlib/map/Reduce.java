@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 
@@ -26,13 +27,13 @@ import io.ballerina.runtime.api.values.BMap;
  *
  * @since 1.0
  */
-public class Reduce {
+public final class Reduce {
 
-    public static Object reduce(BMap<?, ?> m, BFunctionPointer func, Object initial) {
+    public static Object reduce(Environment env, BMap<?, ?> m, BFunctionPointer func, Object initial) {
         int size = m.values().size();
         Object[] keys = m.getKeys();
         for (int i = 0; i < size; i++) {
-            initial = func.call(initial, m.get(keys[i]));
+            initial = func.call(env.getRuntime(), initial, m.get(keys[i]));
         }
         return initial;
     }

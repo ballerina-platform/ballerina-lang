@@ -66,8 +66,7 @@ public class RuntimeAPITest {
     public void testRecordNoStrandDefaultValue() {
         CompileResult strandResult = BCompileUtil.compile("test-src/runtime/api/no_strand");
         Package currentPackage = strandResult.project().currentPackage();
-        Module module = new Module(currentPackage.packageOrg().value(), currentPackage.packageName().value(), "1");
-        final BalRuntime runtime = new BalRuntime(module);
+        final BalRuntime runtime = strandResult.getRuntime();
         AtomicReference<Throwable> exceptionRef = new AtomicReference<>();
         Thread thread1 = Thread.ofVirtual().unstarted(() -> {
             try {

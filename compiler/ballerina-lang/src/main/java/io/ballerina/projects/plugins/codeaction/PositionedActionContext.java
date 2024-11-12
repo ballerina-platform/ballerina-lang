@@ -39,7 +39,7 @@ public interface PositionedActionContext {
     /**
      * Get the file path.
      *
-     * @return {@link java.nio.file.Path} file path
+     * @return {@link Path} file path
      */
     Path filePath();
 

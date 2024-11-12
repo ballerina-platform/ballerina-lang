@@ -41,6 +41,7 @@ public class CallStackDebugTest extends BaseTestCase {
 
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "callstack-tests";
@@ -65,7 +66,7 @@ public class CallStackDebugTest extends BaseTestCase {
         debugTestRunner.assertCallStack(frames[2], "func2", 23, "main.bal");
         debugTestRunner.assertCallStack(frames[3], "func1", 19, "main.bal");
         debugTestRunner.assertCallStack(frames[4], "addition", 14, "main.bal");
-        debugTestRunner.assertCallStack(frames[5], "start:anonymous", 2, "main.bal");
+        debugTestRunner.assertCallStack(frames[5], "start:f1", 2, "main.bal");
 
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
@@ -83,7 +84,7 @@ public class CallStackDebugTest extends BaseTestCase {
         // Stack frame representation test for strand creation with 'start' keyword.
         // Results of the strand is not assigned to any variable. In this case frame name is assigned to 'anonymous'.
         debugTestRunner.assertCallStack(frames[0], "sayHello", 45, "main.bal");
-        debugTestRunner.assertCallStack(frames[1], "start:anonymous", 10, "main.bal");
+        debugTestRunner.assertCallStack(frames[1], "start:anon", 10, "main.bal");
     }
 
     @Test
@@ -123,6 +124,7 @@ public class CallStackDebugTest extends BaseTestCase {
         Assert.assertEquals(threads.length, 1);
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

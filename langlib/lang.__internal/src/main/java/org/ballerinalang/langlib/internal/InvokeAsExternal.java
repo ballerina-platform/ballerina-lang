@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.internal;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 
 /**
@@ -25,11 +26,14 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
  *
  * @since 2.0.0
  */
-public class InvokeAsExternal {
+public final class InvokeAsExternal {
 
-    public static Object invokeAsExternal(Object func, Object[] args) {
+    private InvokeAsExternal() {
 
+    }
+
+    public static Object invokeAsExternal(Environment env, Object func, Object[] args) {
         BFunctionPointer function = (BFunctionPointer) func;
-        return function.call(args);
+        return function.call(env.getRuntime(), args);
     }
 }

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -26,7 +27,6 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 
 /**
@@ -34,19 +34,22 @@ import io.ballerina.runtime.api.values.BTable;
  *
  * @since 1.3.0
  */
-public class Map {
+public final class Map {
 
-    public static BTable<BString, Object> map(BTable<?, ?> tbl, BFunctionPointer func) {
+    private Map() {
+    }
+
+    public static BTable<?, ?> map(Environment env, BTable<?, ?> tbl, BFunctionPointer func) {
         Type newConstraintType = ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType();
         TableType tblType = (TableType) TypeUtils.getImpliedType(tbl.getType());
         TableType newTableType = TypeCreator.createTableType(newConstraintType,
                 PredefinedTypes.TYPE_NEVER, tblType.isReadOnly());
 
-        BTable newTable = ValueCreator.createTableValue(newTableType);
+        BTable<Object, Object> newTable = (BTable<Object, Object>) ValueCreator.createTableValue(newTableType);
         int size = tbl.size();
         Object[] tableValues = tbl.values().toArray();
         for (int i = 0; i < size; i++) {
-            newTable.add(func.call(tableValues[i]));
+            newTable.add(func.call(env.getRuntime(), tableValues[i]));
         }
         return newTable;
     }

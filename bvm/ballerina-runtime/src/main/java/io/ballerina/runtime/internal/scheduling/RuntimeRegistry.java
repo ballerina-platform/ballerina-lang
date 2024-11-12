@@ -21,7 +21,6 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ObjectValue;
 
-import java.io.PrintStream;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.locks.ReentrantLock;
@@ -38,8 +37,6 @@ public class RuntimeRegistry {
     private final Deque<BFunctionPointer> stopHandlerQueue = new ArrayDeque<>();
     private final ReentrantLock listenerLock = new ReentrantLock();
     private final ReentrantLock stopHandlerLock = new ReentrantLock();
-
-    private static final PrintStream outStream = System.err;
 
     public RuntimeRegistry(Scheduler scheduler) {
         this.scheduler = scheduler;
@@ -78,7 +75,7 @@ public class RuntimeRegistry {
 
         }
         while (!stopHandlerQueue.isEmpty()) {
-            RuntimeUtils.handleErrorResult(stopHandlerQueue.pollFirst().call());
+            RuntimeUtils.handleErrorResult(stopHandlerQueue.pollFirst().call(scheduler.runtime));
         }
     }
 }

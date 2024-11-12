@@ -29,7 +29,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
  *
  * @since 1.2.0
  */
-public class JvmConstants {
+public final class JvmConstants {
 
     // jvm values public API classes
     public static final String B_XML_QNAME = "io/ballerina/runtime/api/values/BXmlQName";
@@ -235,7 +235,6 @@ public class JvmConstants {
     public static final String NUMBER = "java/lang/Number";
     public static final String HASH_MAP = "java/util/HashMap";
     public static final String PATH = "java/nio/file/Path";
-    public static final String REENTRANT_LOCK = "java/util/concurrent/locks/ReentrantLock";
     public static final String SYSTEM = "java/lang/System";
 
     // service objects, annotation processing related classes
@@ -287,7 +286,6 @@ public class JvmConstants {
     public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "constants/$_string_constants";
     public static final String MODULE_SURROGATES_CLASS_NAME = "constants/$_surrogate_methods";
     public static final String MODULE_CONSTANT_CLASS_NAME = "constants/$_module_constants";
-    public static final String MODULE_STRAND_METADATA_CLASS_NAME = "constants/$_strand_metadata";
     public static final String CONSTANTS_CLASS_NAME = "constants/$_constants";
     public static final String MODULE_TYPES_CLASS_NAME = "types/$_types";
     public static final String MODULE_RECORD_TYPES_CLASS_NAME = "types/$_record_types";
@@ -319,7 +317,7 @@ public class JvmConstants {
     public static final String MODULE_INIT_METHOD_PREFIX = "$module_init";
     public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
-    public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
+    public static final String CURRENT_MODULE_INIT_METHOD = "$currentModuleInit";
     public static final String CURRENT_MODULE_STOP_METHOD = "$currentModuleStop";
     public static final String MODULE_INIT_METHOD = "$moduleInit";
     public static final String MODULE_START_METHOD = "$moduleStart";
@@ -398,7 +396,6 @@ public class JvmConstants {
     public static final String CREATE_ERROR_VALUE = "createErrorValue";
     public static final String CALL_FUNCTION = "call";
     public static final String INSTANTIATE_FUNCTION = "instantiate";
-    public static final String DAEMON_STRAND_NAME = "daemonStrand";
 
     public static final String GET_ANON_TYPE_METHOD = "getAnonType";
     public static final String GET_FUNCTION_TYPE_METHOD = "getFunctionType";
@@ -412,7 +409,6 @@ public class JvmConstants {
     public static final String STRAND_VALUE_ANY = "any";
     public static final String STRAND_METADATA_VAR_PREFIX = "$strand_metadata$";
     public static final String MAIN_ARG_VAR_PREFIX = "%param";
-    public static final String GRACEFUL_EXIT_METHOD_NAME = "gracefulExit";
     public static final String WAIT_ON_LISTENERS_METHOD_NAME = "waitOnListeners";
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
     public static final String DEFAULT_STRAND_NAME = "anon";

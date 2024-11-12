@@ -28,9 +28,12 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  * 
  * @since 0.982.0
  */
-public class AppendChildren {
+public final class AppendChildren {
 
     private static final String OPERATION = "add children to xml element";
+
+    private AppendChildren() {
+    }
 
     @Deprecated
     public static void appendChildren(Strand strand, BXml xml, BXml children) {

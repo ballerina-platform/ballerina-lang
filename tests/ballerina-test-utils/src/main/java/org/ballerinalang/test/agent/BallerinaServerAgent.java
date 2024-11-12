@@ -19,9 +19,11 @@ package org.ballerinalang.test.agent;
 
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.CtConstructor;
 import javassist.CtField;
-import javassist.CtMethod;
 import org.ballerinalang.test.agent.server.WebServer;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 
 import java.io.PrintStream;
 import java.lang.instrument.ClassFileTransformer;
@@ -32,12 +34,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class hold the server information and manage the a server instance.
+ * This class hold the server information and manage the server instance.
  *
  * @since 0.982.0
  */
-public class BallerinaServerAgent {
-    private static PrintStream outStream = System.err;
+public final class BallerinaServerAgent {
+
+    private static final PrintStream OUT_STREAM = System.err;
 
     /**
      * Argument name for exist status.
@@ -77,6 +80,9 @@ public class BallerinaServerAgent {
     private static String agentHost = DEFAULT_AGENT_HOST;
     private static int agentPort = DEFAULT_AGENT_PORT;
 
+    private BallerinaServerAgent() {
+    }
+
     /**
      * This method will be called before invoking ballerina Main method.
      *
@@ -84,9 +90,9 @@ public class BallerinaServerAgent {
      * @param instrumentation   instance for any instrumentation purposes
      */
     public static void premain(String args, Instrumentation instrumentation) {
-        outStream.println("*******************************************************");
-        outStream.println("Initializing Ballerina server agent with arguments - " + args);
-        outStream.println("*******************************************************");
+        OUT_STREAM.println("*******************************************************");
+        OUT_STREAM.println("Initializing Ballerina server agent with arguments - " + args);
+        OUT_STREAM.println("*******************************************************");
 
         Map<String, String> inputArgs = decodeAgentArgs(args);
 
@@ -96,25 +102,23 @@ public class BallerinaServerAgent {
         agentHost = getValue(AGENT_HOST, DEFAULT_AGENT_HOST, inputArgs);
         agentPort = (int) getValue(AGENT_PORT, DEFAULT_AGENT_PORT, inputArgs);
 
-        outStream.println("timeout - " + timeout + " exitStatus - " + exitStatus
+        OUT_STREAM.println("timeout - " + timeout + " exitStatus - " + exitStatus
                 + " killStatus - " + killStatus + " host - " + agentHost + " port - " + agentPort);
 
         if (agentPort == -1) {
             throw new RuntimeException("Invalid agent port - " + agentPort);
         }
-
         ClassFileTransformer transformer = new ClassFileTransformer() {
             @Override
             public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                                     ProtectionDomain protectionDomain, byte[] classfileBuffer) {
-                if ("io/ballerina/runtime/internal/scheduling/Scheduler".equals(className)) {
+                if (JvmConstants.BAL_RUNTIME.equals(className)) {
                     try {
                         ClassPool cp = ClassPool.getDefault();
-                        CtClass cc = cp.get("io.ballerina.runtime.internal.scheduling.Scheduler");
+                        CtClass cc = cp.get("io.ballerina.runtime.internal.BalRuntime");
                         cc.addField(CtField.make("boolean agentStarted;", cc));
-
-                        CtMethod m = cc.getDeclaredMethod("start");
-                        m.insertBefore("if (!agentStarted) {" +
+                        CtConstructor constructor = cc.getConstructor(JvmSignatures.INIT_RUNTIME);
+                        constructor.insertBeforeBody("if (!agentStarted) {" +
                                 "org.ballerinalang.test.agent.BallerinaServerAgent.startAgentServer();" +
                                 "agentStarted = true;" +
                                 " }");
@@ -122,7 +126,7 @@ public class BallerinaServerAgent {
                         cc.detach();
                         return byteCode;
                     } catch (Throwable ex) {
-                        outStream.println("Error injecting the start agent code to the server, error - "
+                        OUT_STREAM.println("Error injecting the start agent code to the server, error - "
                                 + ex.getMessage());
                     }
                 }
@@ -138,15 +142,15 @@ public class BallerinaServerAgent {
      * Start the agent server for managing the server.
      */
     public static void startAgentServer() {
-        outStream.println("Starting Ballerina agent on host - " + agentHost + ", port - " + agentPort);
+        OUT_STREAM.println("Starting Ballerina agent on host - " + agentHost + ", port - " + agentPort);
         Thread.startVirtualThread(() -> {
             try {
                 WebServer ws = new WebServer(agentHost, agentPort);
 
                 // Post endpoint to check the status TODO we may be able to remove this
-                ws.post("/status", () -> outStream.println("status check"));
+                ws.post("/status", () -> OUT_STREAM.println("status check"));
 
-                // Post endpoint to shutdown the server
+                // Post endpoint to shut down the server
                 ws.post("/shutdown", BallerinaServerAgent::shutdownServer);
 
                 // Post endpoint to kill the server
@@ -155,14 +159,14 @@ public class BallerinaServerAgent {
                 // Start the server
                 ws.start();
             } catch (Throwable e) {
-                outStream.println("Error initializing agent server, error - " + e.getMessage());
+                OUT_STREAM.println("Error initializing agent server, error - " + e.getMessage());
             }
         });
-        outStream.println("Ballerina agent started on host - " + agentHost + ", port - " + agentPort);
+        OUT_STREAM.println("Ballerina agent started on host - " + agentHost + ", port - " + agentPort);
     }
 
     private static void shutdownServer() {
-        outStream.println("Shutting down Ballerina server with agent port - " + agentPort);
+        OUT_STREAM.println("Shutting down Ballerina server with agent port - " + agentPort);
         Thread.startVirtualThread(() -> Runtime.getRuntime().exit(exitStatus));
 
         if (timeout <= 0) {
@@ -186,7 +190,7 @@ public class BallerinaServerAgent {
     }
 
     private static void killServer() {
-        outStream.println("Killing Ballerina server with agent port - " + agentPort);
+        OUT_STREAM.println("Killing Ballerina server with agent port - " + agentPort);
         Thread.startVirtualThread(() -> Runtime.getRuntime().halt(killStatus));
     }
 

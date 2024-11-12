@@ -31,8 +31,8 @@ import org.testng.annotations.Test;
 public class MatchStmtMappingMatchPatternNegativeTest {
 
     private CompileResult negativeResult, warningResult;
-    private String patternNotMatched = "pattern will not be matched";
-    private String unreachablePattern = "unreachable pattern";
+    private final String patternNotMatched = "pattern will not be matched";
+    private final String unreachablePattern = "unreachable pattern";
 
     @BeforeClass
     public void setup() {

@@ -18,13 +18,12 @@
 
 package io.ballerina.runtime.internal.scheduling;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,35 +37,24 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.CURRENT_TRANSA
 public class Strand {
 
     private final int id;
-    private final String name;
-    private final StrandMetadata metadata;
     private static final AtomicInteger nextStrandId = new AtomicInteger(0);
     private Map<String, Object> globalProps;
 
+    public final String name;
     public final boolean isIsolated;
+    public boolean cancelled;
     public Scheduler scheduler;
-    public Strand parent;
     public TransactionLocalContext currentTrxContext;
     public Stack<TransactionLocalContext> trxContexts;
     public WorkerChannelMap workerChannelMap;
-    public boolean cancel;
     public int acquiredLockCount;
 
-    public Strand() {
-        this.id = -1;
-        this.name = null;
-        this.metadata = null;
-        this.isIsolated = false;
-    }
-
-    public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent, boolean isIsolated,
+    public Strand(Scheduler scheduler, String strandName, Strand parent, boolean isIsolated,
                   Map<String, Object> properties, WorkerChannelMap workerChannelMap) {
         this.id = nextStrandId.incrementAndGet();
+        this.name = Objects.requireNonNullElse(strandName, "$anon");
         this.scheduler = scheduler;
-        this.name = name;
-        this.metadata = metadata;
         this.trxContexts = new Stack<>();
-        this.parent = parent;
         this.isIsolated = isIsolated;
         if (properties != null) {
             this.globalProps = properties;
@@ -76,10 +64,10 @@ public class Strand {
         this.workerChannelMap = workerChannelMap;
     }
 
-    public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent, boolean isIsolated,
+    public Strand(Scheduler scheduler, String strandName, Strand parent, boolean isIsolated,
                   Map<String, Object> properties, WorkerChannelMap workerChannelMap,
                   TransactionLocalContext currentTrxContext) {
-        this(name, metadata, scheduler, parent, isIsolated, properties, workerChannelMap);
+        this(scheduler, strandName, parent, isIsolated, properties, workerChannelMap);
         if (currentTrxContext != null) {
             this.trxContexts = parent.trxContexts;
             this.trxContexts.push(currentTrxContext);
@@ -96,23 +84,28 @@ public class Strand {
 
     public void resume() {
         checkStrandCancelled();
-        if (!isIsolated && !scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
-            scheduler.globalNonIsolatedLock.lock();
+        if (!this.isIsolated && !scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
+            this.scheduler.globalNonIsolatedLock.lock();
         }
     }
 
     public void yield() {
         checkStrandCancelled();
-        if (!isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
+        if (!this.isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
             scheduler.globalNonIsolatedLock.unlock();
         }
     }
 
     public void done() {
-        if (!isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
+        if (!this.isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
             scheduler.globalNonIsolatedLock.unlock();
         }
     }
+
+    public boolean isRunnable() {
+        return isIsolated || this.scheduler.globalNonIsolatedLock.isHeldByCurrentThread();
+    }
+
 
     private TransactionLocalContext createTrxContextBranch(TransactionLocalContext currentTrxContext,
                                                            int strandName) {
@@ -177,16 +170,8 @@ public class Strand {
         return id;
     }
 
-    public Optional<String> getName() {
-        return Optional.ofNullable(name);
-    }
-
-    public StrandMetadata getMetadata() {
-        return metadata;
-    }
-
     public void checkStrandCancelled() {
-        if (cancel) {
+        if (this.cancelled) {
             throw ErrorUtils.createCancelledFutureError();
         }
     }

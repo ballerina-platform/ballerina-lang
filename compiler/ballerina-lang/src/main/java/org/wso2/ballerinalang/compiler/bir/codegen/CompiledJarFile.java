@@ -27,7 +27,7 @@ import java.io.IOException;
  */
 public class CompiledJarFile {
 
-    public JarEntries jarEntries;
+    public final JarEntries jarEntries;
 
     public CompiledJarFile(String mainClassName) {
         this.jarEntries = new JarEntries(mainClassName);

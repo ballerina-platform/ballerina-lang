@@ -30,9 +30,9 @@ import java.util.Map;
 @Deprecated
 public class NativeElementRepository {
 
-    private Map<String, NativeFunctionDef> nativeFuncEntries = new HashMap<>();
+    private final Map<String, NativeFunctionDef> nativeFuncEntries = new HashMap<>();
     
-    private Map<String, NativeActionDef> nativeActionEntries = new HashMap<>();
+    private final Map<String, NativeActionDef> nativeActionEntries = new HashMap<>();
 
     private static final String ORG_NAME_SEPARATOR = "/";
 
@@ -69,19 +69,19 @@ public class NativeElementRepository {
      */
     public static class NativeFunctionDef {
 
-        private String orgName;
+        private final String orgName;
 
-        private String pkgName;
+        private final String pkgName;
 
-        private String version;
+        private final String version;
         
-        private String callableName;
+        private final String callableName;
         
-        private String className;
+        private final String className;
         
-        private TypeKind[] argTypes;
+        private final TypeKind[] argTypes;
         
-        private TypeKind[] retTypes;
+        private final TypeKind[] retTypes;
 
         public NativeFunctionDef(String orgName, String pkgName, String version, String callableName,
                                  TypeKind[] argTypes,
@@ -128,7 +128,7 @@ public class NativeElementRepository {
      */
     public static class NativeActionDef extends NativeFunctionDef {
 
-        private String connectorName;
+        private final String connectorName;
 
         public NativeActionDef(String orgName, String pkgName, String version, String connectorName, String actionDef,
                                TypeKind[] argTypes, TypeKind[] retTypes, String className) {

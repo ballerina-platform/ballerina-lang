@@ -22,7 +22,11 @@ package org.ballerinalang.langlib.value;
  *
  * @since 2201.6.0
  */
-public class Last {
+public final class Last {
+
+    private Last() {
+    }
+
     public static Object last(Object value, Object[] values) {
         int size = values.length;
         return size == 0 ? value : values[size - 1];

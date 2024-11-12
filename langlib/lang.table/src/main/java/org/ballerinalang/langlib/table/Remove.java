@@ -26,9 +26,12 @@ import io.ballerina.runtime.api.values.BTable;
  *
  * @since 1.3.0
  */
-public class Remove {
+public final class Remove {
 
-    public static BMap remove(BTable tbl, Object key) {
-        return (BMap) tbl.removeOrThrow(key);
+    private Remove() {
+    }
+
+    public static BMap<?, ?> remove(BTable<?, ?> tbl, Object key) {
+        return (BMap<?, ?>) tbl.removeOrThrow(key);
     }
 }

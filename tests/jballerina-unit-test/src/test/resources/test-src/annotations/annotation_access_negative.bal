@@ -47,8 +47,8 @@ function testRecordTypeAnnotationReadonlyValueEdit()  {
     assertEquality(true, res is error);
 
     error resError = <error> res;
-    assertEquality("{ballerina/lang.map}InvalidUpdate", resError.message());
-    assertEquality("Invalid update of record field: modification not allowed on readonly value",
+    assertEquality("{ballerina/lang.map}InherentTypeViolation", resError.message());
+    assertEquality("cannot update 'readonly' field 'foo' in record of type 'Annot & readonly'",
                        resError.detail()["message"]);
 }
 
@@ -73,8 +73,8 @@ function testAnnotationOnObjectTypeReadonlyValueEdit() {
     assertEquality(true, res is error);
 
     error resError = <error> res;
-    assertEquality("{ballerina/lang.map}InvalidUpdate", resError.message());
-    assertEquality("Invalid update of record field: modification not allowed on readonly value",
+    assertEquality("{ballerina/lang.map}InherentTypeViolation", resError.message());
+    assertEquality("cannot update 'readonly' field 'foo' in record of type 'Annot & readonly'",
                        resError.detail()["message"]);
 }
 
@@ -97,8 +97,8 @@ function testAnnotationOnFunctionTypeReadonlyValueEdit() {
     assertTrue(res is error);
 
     error resError = <error> res;
-    assertEquality("{ballerina/lang.map}InvalidUpdate", resError.message());
-    assertEquality("Invalid update of record field: modification not allowed on readonly value",
+    assertEquality("{ballerina/lang.map}InherentTypeViolation", resError.message());
+    assertEquality("cannot update 'readonly' field 'foo' in record of type 'Annot & readonly'",
                    resError.detail()["message"]);
 }
 

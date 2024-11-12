@@ -17,15 +17,13 @@
  */
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.internal.errors.ErrorCodes;
-import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.BalRuntime;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -53,12 +51,9 @@ public class FPValue implements BFunctionPointer, RefValue {
     }
 
     @Override
-    public Object call(Object... t) {
-        Strand strand = Scheduler.getStrand();
-        if (strand == null) {
-            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION_BEFORE_MODULE_INIT, this.name);
-        }
-        return strand.scheduler.call(this, strand, t);
+    public Object call(Runtime runtime, Object... t) {
+        BalRuntime balRuntime = (BalRuntime) runtime;
+        return balRuntime.scheduler.callFP(this, null, t);
     }
 
     @Override

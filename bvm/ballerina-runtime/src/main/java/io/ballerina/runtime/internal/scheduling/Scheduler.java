@@ -31,7 +31,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BNever;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.BalRuntime;
@@ -57,8 +56,6 @@ public class Scheduler {
 
     public final ReentrantLock globalNonIsolatedLock = new ReentrantLock();
 
-    public static Strand daemonStrand;
-
     private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
 
     public  final BalRuntime runtime;
@@ -68,96 +65,76 @@ public class Scheduler {
     }
 
     public static Strand getStrand() {
-        Strand strand = strandHolder.get().strand;
-        if (strand != null) {
-            return strand;
+        return strandHolder.get().strand;
+    }
+    public Object callFunction(Module module, String functionName, StrandMetadata metadata, Object... args) {
+        Strand parentStrand = Scheduler.getStrand();
+        if (parentStrand != null) {
+            boolean runnable = parentStrand.isRunnable();
+            if (!runnable) {
+                parentStrand.resume();
+            }
+            ValueCreatorAndFunctionType functionType = getGetValueCreatorAndFunctionType(module, functionName);
+            Object[] argsWithDefaultValues = getArgsWithDefaultValues(functionType.valueCreator(),
+                    functionType.functionType(), parentStrand, args);
+            Object result = functionType.valueCreator().call(parentStrand, functionName, argsWithDefaultValues);
+            if (!runnable) {
+                parentStrand.yield();
+            }
+            return result;
         }
-        return daemonStrand;
-    }
-    public Object call(Module module, String functionName, Strand parentStrand, Object... args) {
-        parentStrand.resume();
-        ValueCreatorAndFunctionType result = getGetValueCreatorAndFunctionType(module, functionName);
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(result.valueCreator(), result.functionType(),
-                parentStrand, args);
-        return result.valueCreator().call(parentStrand, functionName, argsWithDefaultValues);
-    }
-
-    public Object call(BObject object, String methodName, Strand parentStrand, Object... args) {
-        parentStrand.resume();
-        ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
-        MethodType methodType = getObjectMethodType(methodName, objectType);
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, parentStrand, args);
-        return ((ObjectValue) object).call(parentStrand, methodName, argsWithDefaultValues);
-    }
-
-    public Object call(FPValue fp, Strand parentStrand, Object... args) {
-        parentStrand.resume();
-        FunctionType functionType = (FunctionType) TypeUtils.getImpliedType(TypeUtils.getType(fp));
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(parentStrand, args, functionType);
-        Object[] argsWithStrand = getArgsWithStrand(parentStrand, argsWithDefaultValues);
-        return fp.function.apply(argsWithStrand);
-    }
-
-    public FutureValue startIsolatedWorker(String functionName, Module module, Strand parentStrand, String strandName,
-                                           StrandMetadata metadata, Map<String, Object> properties, Object... args) {
-        strandName = getStrandName(functionName, strandName);
-        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
-                module.getName(), module.getMajorVersion(), module.isTestPkg()));
-        FunctionType functionType = valueCreator.getFunctionType(functionName);
-        FutureValue future = createFuture(parentStrand, true, properties, functionType.getReturnType(), strandName,
-                metadata, null);
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(valueCreator, functionType, parentStrand, args);
-        Thread.startVirtualThread(() -> {
-            try {
-                strandHolder.get().strand = future.strand;
-                Object result = valueCreator.call(future.strand, functionName, argsWithDefaultValues);
-                future.completableFuture.complete(result);
-            } catch (Throwable t) {
-                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
-            }
-        }).setName(strandName);
-        return future;
-    }
-
-    public FutureValue startIsolatedWorker(BObject object, String methodName, Strand parentStrand, String strandName,
-                                           StrandMetadata metadata, Map<String, Object> properties, Object... args) {
-        strandName = getStrandName(object, methodName, strandName);
-        ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
-        MethodType methodType = getObjectMethodType(methodName, objectType);
-        if (methodType == null) {
-            throw ErrorCreator.createError(StringUtils.fromString("No such method: " + methodName));
+        if (metadata != null && metadata.isConcurrentSafe()) {
+            return AsyncUtils.getFutureResult(
+                    startIsolatedFunction(module, functionName, metadata, args).completableFuture);
         }
-        FutureValue future = createFuture(parentStrand, true, properties, methodType.getReturnType(), strandName,
-                metadata, null);
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, parentStrand,       args);
-        Thread.startVirtualThread(() -> {
-            try {
-                strandHolder.get().strand = future.strand;
-                Object result = ((ObjectValue) object).call(future.strand, methodName, argsWithDefaultValues);
-                future.completableFuture.complete(result);
-            } catch (Throwable t) {
-                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
-            }
-        }).setName(strandName);
-        return future;
+        return AsyncUtils.getFutureResult(startNonIsolatedFunction(module, functionName, metadata, args)
+                .completableFuture);
     }
 
-    public BFuture startIsolatedWorker(FPValue fp, String strandName, Strand parentStrand, StrandMetadata metadata,
-                                       Map<String, Object> properties, Object... args) {
-        BFunctionType functionType = (BFunctionType) fp.getType();
-        FutureValue future = createFuture(parentStrand, true, properties, functionType.getReturnType(), strandName,
-                metadata, null);
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(parentStrand, args, functionType);
-        Thread.startVirtualThread(() -> {
-            try {
-                strandHolder.get().strand = future.strand;
-                Object result = fp.function.apply(argsWithDefaultValues);
-                future.completableFuture.complete(result);
-            } catch (Throwable t) {
-                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
+    public Object callMethod(BObject object, String methodName, StrandMetadata metadata, Object... args) {
+        Strand parentStrand = Scheduler.getStrand();
+        if (parentStrand != null) {
+            boolean runnable = parentStrand.isRunnable();
+            if (!runnable) {
+                parentStrand.resume();
             }
-        }).setName(strandName);
-        return future;
+            ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
+            MethodType methodType = getObjectMethodType(methodName, objectType);
+            Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, parentStrand, args);
+            Object result = ((ObjectValue) object).call(parentStrand, methodName, argsWithDefaultValues);
+            if (!runnable) {
+                parentStrand.yield();
+            }
+            return result;
+        }
+        if (metadata != null && metadata.isConcurrentSafe()) {
+            return AsyncUtils.getFutureResult(startIsolatedMethod(object, methodName, metadata, args)
+                    .completableFuture);
+        }
+        return AsyncUtils.getFutureResult(startNonIsolatedMethod(object, methodName, metadata, args)
+                .completableFuture);
+    }
+
+    public Object callFP(FPValue fp, StrandMetadata metadata, Object... args) {
+        Strand parentStrand = Scheduler.getStrand();
+        if (parentStrand != null) {
+            boolean runnable = parentStrand.isRunnable();
+            if (!runnable) {
+                parentStrand.resume();
+            }
+            FunctionType functionType = (FunctionType) TypeUtils.getImpliedType(TypeUtils.getType(fp));
+            Object[] argsWithDefaultValues = getArgsWithDefaultValues(parentStrand, args, functionType);
+            Object[] argsWithStrand = getArgsWithStrand(parentStrand, argsWithDefaultValues);
+            Object result = fp.function.apply(argsWithStrand);
+            if (!runnable) {
+                parentStrand.yield();
+            }
+            return result;
+        }
+        if (metadata != null && metadata.isConcurrentSafe()) {
+            return AsyncUtils.getFutureResult(startIsolatedFP(fp, metadata, args).completableFuture);
+        }
+        return AsyncUtils.getFutureResult(startNonIsolatedFP(fp, metadata, args).completableFuture);
     }
 
     @SuppressWarnings("unused")
@@ -165,11 +142,10 @@ public class Scheduler {
      * Used for codegen isolated function pointer start call
      */
     public FutureValue startIsolatedWorker(FPValue fp, Strand parentStrand, Type returnType, String strandName,
-                                           StrandMetadata metadata, WorkerChannelMap workerChannelMap, Object[] args) {
-        FutureValue future = createFuture(parentStrand, true, null, returnType, strandName, metadata,
-                workerChannelMap);
+                                           WorkerChannelMap workerChannelMap, Object[] args) {
+        FutureValue future = createFuture(parentStrand, strandName, true, returnType,
+                null, workerChannelMap);
         args[0] = future.strand;
-        strandName = getStrandName(strandName, String.valueOf(future.strand.getId()));
         Thread.startVirtualThread(() -> {
             try {
                 strandHolder.get().strand = future.strand;
@@ -178,20 +154,100 @@ public class Scheduler {
             } catch (Throwable t) {
                 future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
             }
-        }).setName(strandName);
+        }).setName(future.strand.name);
+        return future;
+    }
+
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen non isolated function pointer start call
+     */
+    public FutureValue startNonIsolatedWorker(FPValue fp, Strand parentStrand, Type returnType, String strandName,
+                                              WorkerChannelMap workerChannelMap, Object[] args) {
+        FutureValue future = createFuture(parentStrand, strandName, false, returnType, null, workerChannelMap);
+        args[0] = future.strand;
+        Thread.startVirtualThread(() -> {
+            try {
+                future.strand.resume();
+                strandHolder.get().strand = future.strand;
+                Object result = fp.function.apply(args);
+                future.completableFuture.complete(result);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
+            } finally {
+                future.strand.done();
+            }
+        }).setName(future.strand.name);
+        return future;
+    }
+
+    public FutureValue startIsolatedFunction(Module module, String functionName, StrandMetadata metadata,
+                                             Object... args) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
+                module.getName(), module.getMajorVersion(), module.isTestPkg()));
+        FunctionType functionType = valueCreator.getFunctionType(functionName);
+        FutureValue future = createFutureWithMetadata(null, functionName, true, functionType.getReturnType(),
+                metadata, null);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(valueCreator, functionType, future.strand, args);
+        Thread.startVirtualThread(() -> {
+            try {
+                strandHolder.get().strand = future.strand;
+                Object result = valueCreator.call(future.strand, functionName, argsWithDefaultValues);
+                future.completableFuture.complete(result);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
+            }
+        }).setName(future.strand.name);
+        return future;
+    }
+
+    private FutureValue startIsolatedMethod(BObject object, String methodName, StrandMetadata metadata,
+                                            Object... args) {
+        String strandName = getStrandName(object, methodName);
+        ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
+        MethodType methodType = getObjectMethodType(methodName, objectType);
+        FutureValue future = createFutureWithMetadata(null, strandName, true, methodType.getReturnType(), metadata,
+                null);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, future.strand, args);
+        Thread.startVirtualThread(() -> {
+            try {
+                strandHolder.get().strand = future.strand;
+                Object result = ((ObjectValue) object).call(future.strand, methodName, argsWithDefaultValues);
+                future.completableFuture.complete(result);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
+            }
+        }).setName(future.strand.name);
+        return future;
+    }
+
+    private FutureValue startIsolatedFP(FPValue fp, StrandMetadata metadata, Object... args) {
+        BFunctionType functionType = (BFunctionType) fp.getType();
+        FutureValue future = createFutureWithMetadata(null, fp.getName(), true, functionType.getReturnType(),
+                metadata, null);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(future.strand, args, functionType);
+        Object[] argsWithStrand = getArgsWithStrand(future.strand, argsWithDefaultValues);
+        Thread.startVirtualThread(() -> {
+            try {
+                strandHolder.get().strand = future.strand;
+                Object result = fp.function.apply(argsWithStrand);
+                future.completableFuture.complete(result);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
+            }
+        }).setName(future.strand.name);
         return future;
     }
 
 
-    public FutureValue startNonIsolatedWorker(String functionName, Module module, Strand parentStrand,
-                                              String strandName, StrandMetadata metadata,
-                                              Map<String, Object> properties, Object... args) {
-        strandName = getStrandName(functionName, strandName);
+
+    private FutureValue startNonIsolatedFunction(Module module, String functionName, StrandMetadata metadata,
+                                                 Object... args) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
         FunctionType functionType = valueCreator.getFunctionType(functionName);
-        FutureValue future = createFuture(parentStrand, false, properties, functionType.getReturnType(), strandName,
-                metadata, null);
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(valueCreator, functionType, parentStrand, args);
+        FutureValue future =
+                createFutureWithMetadata(null, functionName, false, functionType.getReturnType(), metadata, null);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(valueCreator, functionType, future.strand, args);
         Thread.startVirtualThread(() -> {
             try {
                 future.strand.resume();
@@ -203,21 +259,18 @@ public class Scheduler {
             } finally {
                future.strand.done();
             }
-        }).setName(strandName);
+        }).setName(future.strand.name);
         return future;
     }
 
-    public FutureValue startNonIsolatedWorker(BObject object, String methodName, Strand parentStrand, String strandName,
-                                              StrandMetadata metadata, Map<String, Object> properties, Object... args) {
-        strandName = getStrandName(object, methodName, strandName);
+    private FutureValue startNonIsolatedMethod(BObject object, String methodName, StrandMetadata metadata,
+                                              Object... args) {
+        String strandName = getStrandName(object, methodName);
         ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
         MethodType methodType = getObjectMethodType(methodName, objectType);
-        if (methodType == null) {
-            throw ErrorCreator.createError(StringUtils.fromString("No such method: " + methodName));
-        }
-        FutureValue future = createFuture(parentStrand, false, properties, methodType.getReturnType(),  strandName,
-                metadata, null);
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, parentStrand, args);
+        FutureValue future = createFutureWithMetadata(null, strandName, false, methodType.getReturnType(), metadata,
+                null);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, future.strand, args);
         Thread.startVirtualThread(() -> {
             try {
                 future.strand.resume();
@@ -229,29 +282,29 @@ public class Scheduler {
             } finally {
                future.strand.done();
             }
-        }).setName(strandName);
+        }).setName(future.strand.name);
         return future;
     }
 
-    public BFuture startNonIsolatedWorker(FPValue fp, String strandName, Strand parentStrand, StrandMetadata metadata,
-                                          Map<String, Object> properties, Object... args) {
+    private FutureValue startNonIsolatedFP(FPValue fp, StrandMetadata metadata, Object... args) {
         BFunctionType functionType = (BFunctionType) fp.getType();
-        strandName = getStrandName(strandName, fp.getName());
-        FutureValue future = createFuture(parentStrand, false, properties, functionType.getReturnType(), strandName,
-                metadata, null);
-        Object[] argsWithDefaultValues = getArgsWithDefaultValues(parentStrand, args, functionType);
+        String strandName = getStrandName("$anon", fp.getName());
+        FutureValue future = createFutureWithMetadata(null, strandName, true, functionType.getReturnType(), metadata,
+                null);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(future.strand, args, functionType);
+        Object[] argsWithStrand = getArgsWithStrand(future.strand, argsWithDefaultValues);
         Thread.startVirtualThread(() -> {
             try {
                 future.strand.resume();
                 strandHolder.get().strand = future.strand;
-                Object result = fp.function.apply(argsWithDefaultValues);
+                Object result = fp.function.apply(argsWithStrand);
                 future.completableFuture.complete(result);
             } catch (Throwable t) {
                 future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
             } finally {
                future.strand.done();
             }
-        }).setName(strandName);
+        }).setName(future.strand.name);
         return future;
     }
 
@@ -264,38 +317,12 @@ public class Scheduler {
         return getArgsWithDefaultValues(valueCreator, functionType, parentStrand, args);
     }
 
-    @SuppressWarnings("unused")
-    /*
-     * Used for codegen non isolated function pointer start call
-     */
-    public FutureValue startNonIsolatedWorker(FPValue fp, Strand parentStrand, Type returnType, String strandName,
-                                              StrandMetadata metadata, WorkerChannelMap workerChannelMap,
-                                              Object[] args) {
-        FutureValue future = createFuture(parentStrand, false, null, returnType, strandName, metadata,
-                workerChannelMap);
-        args[0] = future.strand;
-        strandName = getStrandName(strandName, String.valueOf(future.strand.getId()));
-        Thread.startVirtualThread(() -> {
-            try {
-                future.strand.resume();
-                strandHolder.get().strand = future.strand;
-                Object result = fp.function.apply(args);
-                future.completableFuture.complete(result);
-            } catch (Throwable t) {
-                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
-            } finally {
-               future.strand.done();
-            }
-        }).setName(strandName);
-        return future;
-    }
-
     /*
         Only use for tests
     */
     public FutureValue startNonIsolatedWorker(Function<Object[], Object> function, Strand parentStrand, Type returnType,
                                               String strandName, StrandMetadata metadata, Object[] args) {
-        FutureValue future = createFuture(parentStrand, false, null, returnType, strandName, metadata, null);
+        FutureValue future = createFutureWithMetadata(parentStrand, strandName, false, returnType, metadata, null);
         Object[] argsWithStrand = getArgsWithStrand(future.strand, args);
         Thread.startVirtualThread(() -> {
             try {
@@ -347,6 +374,9 @@ public class Scheduler {
             return new Object[]{};
         }
         int length = functionType.getRestType() == null ? parameters.length : parameters.length + 1;
+        if (length < args.length) {
+            length = args.length;
+        }
         Object[] argsWithDefaultValues = new Object[length];
         System.arraycopy(args, 0, argsWithDefaultValues, 0, args.length);
         for (int i = 0; i < parameters.length; i++) {
@@ -376,19 +406,31 @@ public class Scheduler {
         for (MethodType methodType : objectTypeMethods) {
             methodTypesMap.put(methodType.getName(), methodType);
         }
-        return methodTypesMap.get(methodName);
+        MethodType methodType = methodTypesMap.get(methodName);
+        if (methodType != null) {
+            return methodType;
+        }
+        throw ErrorCreator.createError(StringUtils.fromString("No such method: " + methodName));
     }
 
-    public FutureValue createFuture(Strand parentStrand, boolean isIsolated, Map<String, Object> properties,
-                                    Type constraint, String name, StrandMetadata metadata,
-                                    WorkerChannelMap workerChannelMap) {
-        Strand newStrand = createStrand(parentStrand, isIsolated, properties, name, metadata, workerChannelMap);
-        return createFuture(constraint, newStrand);
+    public FutureValue createFutureWithMetadata(Strand parentStrand, String strandName, boolean isIsolated,
+                                                Type constraint,  StrandMetadata metadata,
+                                                WorkerChannelMap workerChannelMap) {
+        if (metadata != null) {
+            return createFuture(parentStrand, strandName, isIsolated, constraint, metadata.properties(),
+                    workerChannelMap);
+        }
+        return createFuture(parentStrand, strandName, isIsolated, constraint, null, workerChannelMap);
+    }
+    public FutureValue createFuture(Strand parentStrand, String strandName, boolean isIsolated, Type constraint,
+                                    Map<String, Object> properties, WorkerChannelMap workerChannelMap) {
+        return createFuture(constraint, createStrand(parentStrand, strandName, isIsolated, properties,
+                workerChannelMap));
     }
 
-    private Strand createStrand(Strand parentStrand, boolean isIsolated, Map<String, Object> properties, String name,
-                                StrandMetadata metadata, WorkerChannelMap workerChannelMap) {
-        return new Strand(name, metadata, this, parentStrand, isIsolated, properties, workerChannelMap,
+    private Strand createStrand(Strand parentStrand, String strandName, boolean isIsolated,
+                                Map<String, Object> properties, WorkerChannelMap workerChannelMap) {
+        return new Strand(this, strandName, parentStrand, isIsolated, properties, workerChannelMap,
                 parentStrand != null ? parentStrand.currentTrxContext : null);
     }
 
@@ -403,11 +445,8 @@ public class Scheduler {
         return strandName;
     }
 
-    private static String getStrandName(BObject bObject, String methodName, String strandName) {
-        if (strandName == null) {
-            strandName = bObject.getOriginalType().getName() + ":" + methodName;
-        }
-        return strandName;
+    private static String getStrandName(BObject bObject, String methodName) {
+        return bObject.getOriginalType().getName() + ":" + methodName;
     }
 
     private static Object[] getArgsWithStrand(Strand parentStrand, Object[] args) {

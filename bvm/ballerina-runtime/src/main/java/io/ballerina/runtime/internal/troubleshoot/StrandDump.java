@@ -40,7 +40,7 @@ import javax.management.MBeanServer;
  *
  * @since 2201.2.0
  */
-public class StrandDump {
+public final class StrandDump {
     private static final String HOT_SPOT_BEAN_NAME = "com.sun.management:type=HotSpotDiagnostic";
     private static final String WORKING_DIR = System.getProperty("user.dir") + "/";
     private static final String FILENAME = "threadDump" + LocalDateTime.now();

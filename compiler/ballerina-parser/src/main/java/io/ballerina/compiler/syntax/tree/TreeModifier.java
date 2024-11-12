@@ -20,6 +20,7 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 /**
@@ -2796,9 +2797,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(xMLStepExpressionNode.expression());
         Node xmlStepStart =
                 modifyNode(xMLStepExpressionNode.xmlStepStart());
+        NodeList<Node> xmlStepExtend =
+                modifyNodeList(xMLStepExpressionNode.xmlStepExtend());
         return xMLStepExpressionNode.modify(
                 expression,
-                xmlStepStart);
+                xmlStepStart,
+                xmlStepExtend);
     }
 
     @Override
@@ -2814,6 +2818,36 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 startToken,
                 xmlNamePattern,
                 gtToken);
+    }
+
+    @Override
+    public XMLStepIndexedExtendNode transform(
+            XMLStepIndexedExtendNode xMLStepIndexedExtendNode) {
+        Token openBracket =
+                modifyToken(xMLStepIndexedExtendNode.openBracket());
+        ExpressionNode expression =
+                modifyNode(xMLStepIndexedExtendNode.expression());
+        Token closeBracket =
+                modifyToken(xMLStepIndexedExtendNode.closeBracket());
+        return xMLStepIndexedExtendNode.modify(
+                openBracket,
+                expression,
+                closeBracket);
+    }
+
+    @Override
+    public XMLStepMethodCallExtendNode transform(
+            XMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
+        Token dotToken =
+                modifyToken(xMLStepMethodCallExtendNode.dotToken());
+        SimpleNameReferenceNode methodName =
+                modifyNode(xMLStepMethodCallExtendNode.methodName());
+        ParenthesizedArgList parenthesizedArgList =
+                modifyNode(xMLStepMethodCallExtendNode.parenthesizedArgList());
+        return xMLStepMethodCallExtendNode.modify(
+                dotToken,
+                methodName,
+                parenthesizedArgList);
     }
 
     @Override
@@ -3724,7 +3758,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     protected <T extends Node> SeparatedNodeList<T> modifySeparatedNodeList(SeparatedNodeList<T> nodeList) {
-        Function<NonTerminalNode, SeparatedNodeList> nodeListCreator = SeparatedNodeList::new;
+        Function<NonTerminalNode, SeparatedNodeList<T>> nodeListCreator = SeparatedNodeList::new;
         if (nodeList.isEmpty()) {
             return nodeList;
         }
@@ -3758,7 +3792,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             return nodeList;
         }
 
-        STNode stNodeList = STNodeFactory.createNodeList(java.util.Arrays.asList(newSTNodes));
+        STNode stNodeList = STNodeFactory.createNodeList(Arrays.asList(newSTNodes));
         return nodeListCreator.apply(stNodeList.createUnlinkedFacade());
     }
 
@@ -3784,7 +3818,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             return nodeList;
         }
 
-        STNode stNodeList = STNodeFactory.createNodeList(java.util.Arrays.asList(newSTNodes));
+        STNode stNodeList = STNodeFactory.createNodeList(Arrays.asList(newSTNodes));
         return nodeListCreator.apply(stNodeList.createUnlinkedFacade());
     }
 

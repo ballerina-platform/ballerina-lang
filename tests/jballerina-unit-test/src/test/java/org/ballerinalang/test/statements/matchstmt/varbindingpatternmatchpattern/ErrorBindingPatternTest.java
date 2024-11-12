@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
  */
 public class ErrorBindingPatternTest {
     private CompileResult result, restPatternResult, resultNegative;
-    private String patternNotMatched = "pattern will not be matched";
+    private final String patternNotMatched = "pattern will not be matched";
 
     @BeforeClass
     public void setup() {

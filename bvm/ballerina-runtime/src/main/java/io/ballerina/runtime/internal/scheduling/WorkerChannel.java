@@ -35,29 +35,31 @@ public class WorkerChannel {
     private final AtomicInteger doneCount;
     private final CompletableFuture<Object> resultFuture;
     private final CompletableFuture<Object> receiveFuture;
-    private Object result;
+    private boolean cancel;
 
     public WorkerChannel(String name) {
         this.name = name;
         this.resultFuture = new CompletableFuture<>();
         this.receiveFuture = new CompletableFuture<>();
         this.doneCount = new AtomicInteger(2);
+        this.cancel = false;
     }
 
     public Object read() {
+        if (cancel) {
+            throw ErrorUtils.createCancelledFutureError();
+        }
         try {
-            result = AsyncUtils.getFutureResult(resultFuture);
-            return result;
+            return AsyncUtils.getFutureResult(resultFuture);
         } finally {
             receiveFuture.complete(null);
         }
     }
 
-    public Object getResult() {
-        return result;
-    }
-
     public void write(Object result) {
+        if (cancel) {
+            throw ErrorUtils.createCancelledFutureError();
+        }
         resultFuture.complete(result);
     }
 
@@ -111,6 +113,10 @@ public class WorkerChannel {
 
     public boolean done() {
         return doneCount.incrementAndGet() == 0;
+    }
+
+    public void cancel() {
+        this.cancel = true;
     }
 
     public String getName() {

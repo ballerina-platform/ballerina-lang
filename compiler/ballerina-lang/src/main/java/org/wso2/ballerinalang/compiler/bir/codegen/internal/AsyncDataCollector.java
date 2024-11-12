@@ -38,7 +38,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_LA
 public class AsyncDataCollector {
 
     private final Map<String, LambdaClass> lambdas;
-    private final Map<String, ScheduleFunctionInfo> strandMetaDataMap;
     private final PackageID packageID;
     private String currentSourceFileWithoutExt = null;
     private String currentSourceFileName = null;
@@ -47,7 +46,6 @@ public class AsyncDataCollector {
 
     public AsyncDataCollector(BIRNode.BIRPackage module) {
         this.lambdas = new HashMap<>();
-        this.strandMetaDataMap = new HashMap<>();
         this.packageID = module.packageID;
     }
 
@@ -86,9 +84,5 @@ public class AsyncDataCollector {
 
     public void setCurrentSourceFileWithoutExt(String currentSourceFileWithoutExt) {
         this.currentSourceFileWithoutExt = currentSourceFileWithoutExt;
-    }
-
-    public Map<String, ScheduleFunctionInfo> getStrandMetadata() {
-        return strandMetaDataMap;
     }
 }

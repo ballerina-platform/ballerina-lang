@@ -1,4 +1,4 @@
- /*
+/*
   *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   *
   *  WSO2 Inc. licenses this file to you under the Apache License,
@@ -41,7 +41,7 @@
   * @since 2201.11.0
   */
 
- public class WorkerUtils {
+ public final class WorkerUtils {
 
      /*
       * Used to codegen worker async send.
@@ -78,7 +78,10 @@
          if (strand.isIsolated) {
              AsyncUtils.waitForAllFutureResult(futures);
          } else {
-             AsyncUtils.handleNonIsolatedStrand(strand, () -> isAllFuturesCompleted(futures), () -> null);
+             AsyncUtils.handleNonIsolatedStrand(strand, () -> {
+                 AsyncUtils.waitForAllFutureResult(futures);
+                 return null;
+             });
          }
 
          for (WorkerChannel channel : channels) {
@@ -95,7 +98,7 @@
          if (strand.isIsolated) {
              return channel.read();
          }
-         return AsyncUtils.handleNonIsolatedStrand(strand, channel.getResultFuture()::isDone, channel::read);
+         return AsyncUtils.handleNonIsolatedStrand(strand, channel::read);
      }
 
      /*
@@ -135,8 +138,11 @@
              AsyncUtils.waitForAllFutureResult(futures);
              return getMultipleReceiveResult(workerChannelMap, channelFieldNameMap, targetType, channels);
          }
-         return (BMap<BString, Object>) AsyncUtils.handleNonIsolatedStrand(strand, () -> isAllFuturesCompleted(futures),
-                 () -> getMultipleReceiveResult(workerChannelMap, channelFieldNameMap, targetType, channels));
+         return (BMap<BString, Object>) AsyncUtils.handleNonIsolatedStrand(strand,
+                 () -> {
+                     AsyncUtils.waitForAllFutureResult(futures);
+                     return getMultipleReceiveResult(workerChannelMap, channelFieldNameMap, targetType, channels);
+                 });
      }
 
      /*
@@ -207,18 +213,6 @@
          return result;
      }
 
-     private static Boolean isAllFuturesCompleted(CompletableFuture<?>[] futures) {
-         for (CompletableFuture<?> future : futures) {
-             if (future.isCompletedExceptionally()) {
-                 AsyncUtils.getFutureResult(future);
-             }
-             if (!future.isDone()) {
-                 return false;
-             }
-         }
-         return true;
-     }
-
      private static BMap<BString, Object> getMultipleReceiveResult(WorkerChannelMap workerChannelMap,
                                                                    Map<String, String> channelFieldNameMap,
                                                                    Type targetType, WorkerChannel[] channels) {
@@ -234,4 +228,7 @@
          }
          return ValueCreator.createMapValue((MapType) targetType, initialValueEntries);
      }
- }
+
+    private WorkerUtils() {}
+}
+

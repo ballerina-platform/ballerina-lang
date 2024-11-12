@@ -104,19 +104,13 @@ public class XMLIterationTest {
                 "incompatible types: '(xml<xml:Element>|xml<xml:Text>)' is not an iterable collection",
                 68, 44);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', " +
-                        "found 'record {| ballerina/lang.xml:0.0.0:ItemType value; |}?'",
-                72, 68);
+                "incompatible types: expected 'record {| xml:Element value; |}?', found " +
+                        "'record {| (xml:Element|xml:Text) value; |}?'",
+                72, 58);
         BAssertUtil.validateError(negative, index++,
-                "xml langlib functions does not support union types as their arguments",
-                72, 68);
-        BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', " +
-                        "found 'record {| ballerina/lang.xml:0.0.0:ItemType value; |}?'",
-                73, 68);
-        BAssertUtil.validateError(negative, index++,
-                "xml langlib functions does not support union types as their arguments",
-                73, 68);
+                "incompatible types: expected 'record {| xml:Text value; |}?', found " +
+                        "'record {| (xml:Element|xml:Text) value; |}?'",
+                73, 55);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: 'xml' cannot be constrained with 'xml:Element[]'",
                 77, 5);

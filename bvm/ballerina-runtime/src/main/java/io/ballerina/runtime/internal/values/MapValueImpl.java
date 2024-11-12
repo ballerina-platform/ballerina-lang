@@ -42,6 +42,7 @@ import io.ballerina.runtime.internal.MapUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
@@ -129,8 +130,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public Long getIntValue(BString key) {
         Object value = get(key);
-        if (value instanceof Integer) { // field is an int subtype
-            return ((Integer) value).longValue();
+        if (value instanceof Integer i) { // field is an int subtype
+            return i.longValue();
         }
         return (Long) value;
     }
@@ -220,7 +221,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         // The type should be a record or map for filling read.
         if (this.referredType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             BRecordType recordType = (BRecordType) this.referredType;
-            Map fields = recordType.getFields();
+            Map<?, ?> fields = recordType.getFields();
             if (fields.containsKey(key.toString())) {
                 expectedType = ((BField) fields.get(key.toString())).getFieldType();
             } else {
@@ -247,7 +248,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public Object merge(BMap v2, boolean checkMergeability) {
+    public Object merge(BMap<?, ?> v2, boolean checkMergeability) {
         if (checkMergeability) {
             BError errorIfUnmergeable = JsonInternalUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
             if (errorIfUnmergeable != null) {
@@ -292,18 +293,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             return putValue(key, value);
         }
 
-        String errMessage = "";
-        switch (getImpliedType(getType()).getTag()) {
-            case TypeTags.RECORD_TYPE_TAG:
-                errMessage = "Invalid update of record field: ";
-                break;
-            case TypeTags.MAP_TAG:
-                errMessage = "Invalid map insertion: ";
-                break;
-        }
+        String errMessage = switch (getImpliedType(getType()).getTag()) {
+            case TypeTags.RECORD_TYPE_TAG -> "Invalid update of record field: ";
+            case TypeTags.MAP_TAG -> "Invalid map insertion: ";
+            default -> "";
+        };
         throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                       StringUtils
-                                                .fromString(errMessage).concat(ErrorHelper.getErrorMessage(
+                                       StringUtils.fromString(errMessage).concat(ErrorHelper.getErrorMessage(
                                                   INVALID_READONLY_VALUE_UPDATE)));
     }
 
@@ -343,8 +339,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
         for (Map.Entry<String, BFunctionPointer> entry : defaultValues.entrySet()) {
             String key = entry.getKey();
-            BFunctionPointer value = entry.getValue();
-            populateInitialValue((K) new BmpStringValue(key), (V) value.call(new Object[]{}));
+            populateInitialValue((K) new BmpStringValue(key),
+                    (V) entry.getValue().call(Scheduler.getStrand().scheduler.runtime, new Object[]{}));
         }
     }
 
@@ -589,8 +585,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         this.referredType = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.referredType);
 
         this.values().forEach(val -> {
-            if (val instanceof BRefValue) {
-                ((BRefValue) val).freezeDirect();
+            if (val instanceof BRefValue bRefValue) {
+                bRefValue.freezeDirect();
             }
         });
         this.typedesc = null;
@@ -609,7 +605,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<Object> getIterator() {
         return new MapIterator<>(new LinkedHashSet<>(this.entrySet()).iterator());
     }
 
@@ -621,7 +617,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      *
      * @since 0.995.0
      */
-    static class MapIterator<K, V> implements IteratorValue {
+    static class MapIterator<K, V> implements IteratorValue<Object> {
 
         Iterator<Map.Entry<K, V>> iterator;
 

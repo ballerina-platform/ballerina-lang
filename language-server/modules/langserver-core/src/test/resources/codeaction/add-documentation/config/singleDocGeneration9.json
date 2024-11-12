@@ -25,7 +25,8 @@
             }
           }
         ]
-      }
+      },
+      "resolvable": false
     }
   ]
 }

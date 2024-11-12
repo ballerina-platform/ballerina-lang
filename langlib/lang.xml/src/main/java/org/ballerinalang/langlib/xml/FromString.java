@@ -26,7 +26,10 @@ import io.ballerina.runtime.internal.TypeConverter;
  *
  * @since 0.90
  */
-public class FromString {
+public final class FromString {
+
+    private FromString() {
+    }
 
     public static Object fromString(BString string) {
         try {

@@ -32,6 +32,9 @@ public class GetItemType {
 
     private static final String OPERATION = "get xml item type";
 
+    private GetItemType() {
+    }
+
     public static Object getItemType(Strand strand, BXml xml) {
         try {
             return xml.getItemType();

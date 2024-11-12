@@ -276,28 +276,24 @@ public class BUnionType extends BType implements UnionType {
             return;
         }
 
-        if (type instanceof BArrayType) {
-            BArrayType arrayType = (BArrayType) type;
+        if (type instanceof BArrayType arrayType) {
             if (arrayType.eType == this) {
                 isCyclic = true;
             }
         }
 
-        if (type instanceof BMapType) {
-            BMapType mapType = (BMapType) type;
+        if (type instanceof BMapType mapType) {
             if (mapType.constraint == this) {
                 isCyclic = true;
             }
         }
 
-        if (type instanceof BTableType) {
-            BTableType tableType = (BTableType) type;
+        if (type instanceof BTableType tableType) {
             if (tableType.constraint == this) {
                 isCyclic = true;
             }
 
-            if (tableType.constraint instanceof BMapType) {
-                BMapType mapType = (BMapType) tableType.constraint;
+            if (tableType.constraint instanceof BMapType mapType) {
                 if (mapType.constraint == this) {
                     isCyclic = true;
                 }
@@ -353,30 +349,26 @@ public class BUnionType extends BType implements UnionType {
         }
         this.isCyclic = true;
         for (BType member : unionType.getMemberTypes()) {
-            if (member instanceof BArrayType) {
-                BArrayType arrayType = (BArrayType) member;
+            if (member instanceof BArrayType arrayType) {
                 if (getImpliedType(arrayType.eType) == unionType) {
                     BArrayType newArrayType = new BArrayType(this, arrayType.tsymbol, arrayType.size,
                             arrayType.state, arrayType.flags);
                     this.add(newArrayType);
                     continue;
                 }
-            } else if (member instanceof BMapType) {
-                BMapType mapType = (BMapType) member;
+            } else if (member instanceof BMapType mapType) {
                 if (getImpliedType(mapType.constraint) == unionType) {
                     BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
                     this.add(newMapType);
                     continue;
                 }
-            } else if (member instanceof BTableType) {
-                BTableType tableType = (BTableType) member;
+            } else if (member instanceof BTableType tableType) {
                 if (getImpliedType(tableType.constraint) == unionType) {
                     BTableType newTableType = new BTableType(tableType.tag, this, tableType.tsymbol,
                             tableType.flags);
                     this.add(newTableType);
                     continue;
-                } else if (tableType.constraint instanceof BMapType) {
-                    BMapType mapType = (BMapType) tableType.constraint;
+                } else if (tableType.constraint instanceof BMapType mapType) {
                     if (getImpliedType(mapType.constraint) == unionType) {
                         BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
                         BTableType newTableType = new BTableType(tableType.tag, newMapType, tableType.tsymbol,

@@ -30,7 +30,10 @@ import java.util.ArrayList;
  *
  * @since 1.2
  */
-public class Children {
+public final class Children {
+
+    private Children() {
+    }
 
     public static BXml children(BXml xmlVal) {
         if (xmlVal.getNodeType() == XmlNodeType.ELEMENT) {

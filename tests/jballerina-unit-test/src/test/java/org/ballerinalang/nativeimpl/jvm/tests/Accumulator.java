@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.internal.values.ObjectValue;
 
 /**
@@ -31,7 +30,10 @@ import io.ballerina.runtime.internal.values.ObjectValue;
  *
  * @since 1.0.0
  */
-public class Accumulator {
+public final class Accumulator {
+
+    private Accumulator() {
+    }
 
     public static long accumulate(Environment env, ObjectValue intFunction, long from, long to) {
         Runtime runtime = env.getRuntime();
@@ -39,13 +41,11 @@ public class Accumulator {
     }
 
     private static long accumulateI(ObjectValue intFunction, long i, long to, Runtime runtime, long[] relay) {
-        BFuture bFuture = runtime.startIsolatedWorker(intFunction, "invoke", null, null, null, i);
-        relay[0] += (long) bFuture.get();
+        relay[0] += (long) runtime.callMethod(intFunction, "invoke", null, i);
         if (i == to) {
             return relay[0];
         } else {
             return accumulateI(intFunction, i + 1, to, runtime, relay);
         }
     }
-
 }

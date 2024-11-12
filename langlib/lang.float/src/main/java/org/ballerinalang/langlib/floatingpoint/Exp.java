@@ -25,6 +25,9 @@ package org.ballerinalang.langlib.floatingpoint;
  */
 public class Exp {
 
+    private Exp() {
+    }
+
     public static double exp(double x) {
         return Math.exp(x);
     }

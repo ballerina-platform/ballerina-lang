@@ -41,6 +41,10 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
  */
 public class Enumerate {
 
+
+    private Enumerate() {
+    }
+
     public static BArray enumerate(BArray arr) {
         Type arrType = TypeUtils.getImpliedType(arr.getType());
         int size = arr.size();

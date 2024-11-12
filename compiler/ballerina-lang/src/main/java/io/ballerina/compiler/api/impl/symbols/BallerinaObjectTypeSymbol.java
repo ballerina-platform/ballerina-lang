@@ -111,8 +111,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         Map<String, MethodSymbol> methods = new LinkedHashMap<>();
 
         for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) this.getBType().tsymbol).attachedFuncs) {
-            if (attachedFunc instanceof BResourceFunction) {
-                BResourceFunction resFn = (BResourceFunction) attachedFunc;
+            if (attachedFunc instanceof BResourceFunction resFn) {
                 String resPath = resFn.pathSegmentSymbols.stream()
                         .map(p -> p.name.value).collect(Collectors.joining("/"));
                 methods.put(resFn.accessor.value + " " + resPath,

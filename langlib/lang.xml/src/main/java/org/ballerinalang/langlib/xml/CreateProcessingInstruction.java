@@ -26,7 +26,10 @@ import io.ballerina.runtime.internal.XmlFactory;
  *
  * @since 1.0
  */
-public class CreateProcessingInstruction {
+public final class CreateProcessingInstruction {
+
+    private CreateProcessingInstruction() {
+    }
 
     public static BXml createProcessingInstruction(BString target, BString content) {
         return XmlFactory.createXMLProcessingInstruction(target, content);

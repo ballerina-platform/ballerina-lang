@@ -27,13 +27,16 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  *
  * @since 1.3.0
  */
-public class Add {
+public final class Add {
 
-    public static void add(BTable tbl, BMap val) {
+    private Add() {
+    }
+
+    public static void add(BTable<?, Object> tbl, BMap<?, ?> val) {
         tbl.add(val);
     }
 
-    public static void add_bstring(Strand strand, BTable tbl, BMap val) {
+    public static void add_bstring(Strand strand, BTable<?, Object> tbl, BMap<?, ?> val) {
         add(tbl, val);
     }
 }

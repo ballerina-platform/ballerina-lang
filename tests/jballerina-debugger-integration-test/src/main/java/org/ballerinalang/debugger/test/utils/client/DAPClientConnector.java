@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -237,10 +236,10 @@ public class DAPClientConnector {
         if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
             processArgs.add("cmd.exe");
             processArgs.add("/c");
-            processArgs.add(Paths.get(balHome, "bin", Constant.BALLERINA_SERVER_SCRIPT_NAME + ".bat").toString());
+            processArgs.add(Path.of(balHome, "bin", Constant.BALLERINA_SERVER_SCRIPT_NAME + ".bat").toString());
         } else {
             processArgs.add("bash");
-            processArgs.add(Paths.get(balHome, "bin", Constant.BALLERINA_SERVER_SCRIPT_NAME).toString());
+            processArgs.add(Path.of(balHome, "bin", Constant.BALLERINA_SERVER_SCRIPT_NAME).toString());
         }
 
         processArgs.add(DebugUtils.JBAL_DEBUG_CMD_NAME);

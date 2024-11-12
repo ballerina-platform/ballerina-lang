@@ -29,15 +29,20 @@ import java.io.PrintStream;
  *
  * @since 2.0.0
  */
-public class Utils {
+public final class Utils {
+
+    private Utils() {
+    }
 
     public static void sleep(Environment env, long delayMillis) {
-        try {
-            env.markAsync();
-            Thread.sleep(delayMillis);
-        } catch (InterruptedException e) {
-            throw ErrorCreator.createError(e);
-        }
+        env.yieldAndRun(() -> {
+            try {
+                Thread.sleep(delayMillis);
+                return null;
+            } catch (InterruptedException e) {
+                throw ErrorCreator.createError(e);
+            }
+        });
     }
 
     public static boolean isIsolated() {
