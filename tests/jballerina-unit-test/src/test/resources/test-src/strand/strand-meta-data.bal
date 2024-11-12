@@ -103,7 +103,7 @@ function assertStrandMetadataResult(string assertString) {
     var module = getCurrentModule(env);
     string org = <string>java:toString(getOrg(module));
     string modName = <string>java:toString(getName(module));
-    string modVersion = <string>java:toString(getVersion(module));
+    string modVersion = <string>java:toString(getMajorVersion(module));
     assertEquality(assertString, org +"/" + modName + ":" + modVersion + "." + strandName);
     assertTrue(id > 0);
 }
@@ -132,7 +132,7 @@ function getName(handle module) returns handle = @java:Method {
     'class: "io.ballerina.runtime.api.Module"
 } external;
 
-function getVersion(handle module) returns handle = @java:Method {
+function getMajorVersion(handle module) returns handle = @java:Method {
     'class: "io.ballerina.runtime.api.Module"
 } external;
 
