@@ -85,8 +85,6 @@ dependencies {
 
     // Third party jars
     // config
-    dist "org.slf4j:slf4j-jdk14:${project.slf4jJdk14Version}"
-    dist "org.slf4j:slf4j-api:${project.slf4jApiVersion}"
     dist "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
     dist "org.apache.commons:commons-text:${project.apacheCommonsTextVersion}"
     dist "com.moandjiezana.toml:toml4j:${project.moandjiezanaToml4jVersion}"
