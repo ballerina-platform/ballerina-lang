@@ -170,10 +170,10 @@ public class Types {
 
     private static final CompilerContext.Key<Types> TYPES_KEY =
             new CompilerContext.Key<>();
-    private SymbolTable symTable;
-    private SymbolResolver symResolver;
-    private BLangDiagnosticLog dlog;
-    private Names names;
+    private final SymbolTable symTable;
+    private final SymbolResolver symResolver;
+    private final BLangDiagnosticLog dlog;
+    private final Names names;
     private int finiteTypeCount = 0;
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private SymbolEnv env;
@@ -3031,7 +3031,7 @@ public class Types {
             return matchingFunction;
         }
 
-        if ((lhsFuncIsResource && !matchingFuncIsResource) || (matchingFuncIsResource && !lhsFuncIsResource)) {
+        if (!lhsFuncIsResource || !matchingFuncIsResource) {
             return Optional.empty();
         }
 
@@ -4268,14 +4268,14 @@ public class Types {
             BType elementIntersection = getIntersection(intersectionContext, ((BArrayType) referredLhsType).eType, env,
                                                         type, visitedTypes);
             if (elementIntersection == null) {
-                return elementIntersection;
+                return null;
             }
             return new BArrayType(typeEnv(), elementIntersection);
         } else if (referredType.tag == TypeTags.ARRAY && isAnydataOrJson(referredLhsType)) {
             BType elementIntersection = getIntersection(intersectionContext, lhsType, env,
                     ((BArrayType) referredType).eType, visitedTypes);
             if (elementIntersection == null) {
-                return elementIntersection;
+                return null;
             }
             return new BArrayType(typeEnv(), elementIntersection);
         } else if (referredType.tag == TypeTags.NULL_SET) {

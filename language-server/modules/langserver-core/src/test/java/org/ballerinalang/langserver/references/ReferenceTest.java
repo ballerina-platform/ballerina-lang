@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test suit for testing find all references.
@@ -49,7 +48,7 @@ public class ReferenceTest {
     protected Endpoint serviceEndpoint;
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         this.configRoot = FileUtils.RES_DIR.resolve("reference").resolve("expected");
         this.sourceRoot = FileUtils.RES_DIR.resolve("reference").resolve("sources");
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
@@ -76,14 +75,14 @@ public class ReferenceTest {
 
 
     @DataProvider
-    public Object[][] testDataProvider() throws IOException {
+    public Object[][] testDataProvider() {
         return new Object[][]{
                 {"refFunction1.json", "function"}
         };
     }
 
     @AfterClass
-    public void shutDownLanguageServer() throws IOException {
+    public void shutDownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
@@ -91,7 +90,7 @@ public class ReferenceTest {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
-            Path expectedPath = Paths.get(this.sourceRoot.toUri());
+            Path expectedPath = Path.of(this.sourceRoot.toUri());
             for (String uriComponent : uriComponents) {
                 expectedPath = expectedPath.resolve(uriComponent);
             }

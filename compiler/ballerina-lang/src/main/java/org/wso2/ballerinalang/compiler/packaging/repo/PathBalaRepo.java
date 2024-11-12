@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -43,17 +42,17 @@ import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
  * Resolve a bala using the path given in the Ballerina.toml.
  */
 public class PathBalaRepo implements Repo<Path> {
-    private static final Pattern semVerPattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
+    private static final Pattern SEM_VER_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
     
     private final Manifest manifest;
-    private Map<PackageID, Manifest> dependencyManifests;
-    private ZipConverter zipConverter;
+    private final Map<PackageID, Manifest> dependencyManifests;
+    private final ZipConverter zipConverter;
     
     public PathBalaRepo(Manifest manifest, Map<PackageID, Manifest> dependencyManifests) {
         this.manifest = manifest;
         this.dependencyManifests = dependencyManifests;
         // path value for zip converter does'nt matter
-        this.zipConverter = new ZipConverter(Paths.get(""));
+        this.zipConverter = new ZipConverter(Path.of(""));
     }
     
     @Override
@@ -92,7 +91,7 @@ public class PathBalaRepo implements Repo<Path> {
         
         // update version of the dependency from the current(root) project
         if (moduleID.version.value.isEmpty() && null != dep.getMetadata().getVersion()) {
-            Matcher semverMatcher = semVerPattern.matcher(dep.getMetadata().getVersion());
+            Matcher semverMatcher = SEM_VER_PATTERN.matcher(dep.getMetadata().getVersion());
             if (semverMatcher.matches()) {
                 moduleID.version = new Name(dep.getMetadata().getVersion());
             }

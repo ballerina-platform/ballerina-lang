@@ -56,7 +56,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
     private String singleModuleTestRoot;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         balClient = new BMainInstance(balServer);
         singleModuleTestRoot = "single-module-codecov";
         multiModuleTestRoot = "test-report-tests";

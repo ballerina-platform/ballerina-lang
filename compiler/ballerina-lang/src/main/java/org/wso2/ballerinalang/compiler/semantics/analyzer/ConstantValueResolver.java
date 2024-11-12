@@ -99,19 +99,19 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private BConstantSymbol currentConstSymbol;
     private BLangConstantValue result;
-    private BLangDiagnosticLog dlog;
+    private final BLangDiagnosticLog dlog;
     private Location currentPos;
-    private BLangAnonymousModelHelper anonymousModelHelper;
+    private final BLangAnonymousModelHelper anonymousModelHelper;
     private SymbolEnv symEnv;
-    private Names names;
-    private SymbolTable symTable;
-    private Types types;
+    private final Names names;
+    private final SymbolTable symTable;
+    private final Types types;
     private PackageID pkgID;
-    private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
-    private Map<String, BLangConstantValue> constantMap = new HashMap<>();
-    private ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
-    private HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
-    private HashMap<BSymbol, BLangTypeDefinition> createdTypeDefinitions = new HashMap<>();
+    private final Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
+    private final Map<String, BLangConstantValue> constantMap = new HashMap<>();
+    private final ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
+    private final HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
+    private final HashMap<BSymbol, BLangTypeDefinition> createdTypeDefinitions = new HashMap<>();
     private Deque<String> anonTypeNameSuffixes = new ArrayDeque<>();
 
     private ConstantValueResolver(CompilerContext context) {
@@ -584,7 +584,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         constantSymbol.value = value;
 
         if (value == null) {
-            return value;
+            return null;
         }
 
         this.anonTypeNameSuffixes = anonTypeNameSuffixes;

@@ -57,7 +57,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     private final Path sourceDirPath;
     private List<String> packageNames;
     protected boolean scanned = false;
-    private static PrintStream outStream = System.out;
+    private static final PrintStream OUT_STREAM = System.out;
 
     public FileSystemProjectDirectory(Path projectDirPath) {
         super(projectDirPath);
@@ -132,7 +132,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     public Path saveCompiledProgram(InputStream source, String fileName) {
         Path targetFilePath = ensureAndGetTargetDirPath().resolve(fileName);
         try {
-            outStream.println("    ./target/" + fileName);
+            OUT_STREAM.println("    ./target/" + fileName);
             Files.copy(source, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
             return targetFilePath;
         } catch (DirectoryNotEmptyException e) {

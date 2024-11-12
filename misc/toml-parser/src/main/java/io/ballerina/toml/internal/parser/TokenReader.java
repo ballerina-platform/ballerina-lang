@@ -29,8 +29,8 @@ public class TokenReader extends AbstractTokenReader {
 
     private static final int BUFFER_SIZE = 20;
 
-    private AbstractLexer lexer;
-    private TokenBuffer tokensAhead = new TokenBuffer(BUFFER_SIZE);
+    private final AbstractLexer lexer;
+    private final TokenBuffer tokensAhead = new TokenBuffer(BUFFER_SIZE);
     private STToken currentToken = null;
 
     TokenReader(AbstractLexer lexer) {

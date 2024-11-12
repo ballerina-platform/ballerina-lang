@@ -57,7 +57,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -395,7 +394,7 @@ public final class DebuggerRuntime {
             functionArgs.add(null);
             functionArgs.addAll(Arrays.asList(userArgs));
 
-            URL pathUrl = Paths.get(executablePath).toUri().toURL();
+            URL pathUrl = Path.of(executablePath).toUri().toURL();
             URLClassLoader classLoader = AccessController.doPrivileged((PrivilegedAction<URLClassLoader>) () ->
                     new URLClassLoader(new URL[]{pathUrl}, ClassLoader.getSystemClassLoader()));
 

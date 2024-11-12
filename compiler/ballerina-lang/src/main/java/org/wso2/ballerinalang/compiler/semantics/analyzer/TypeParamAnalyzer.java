@@ -101,11 +101,11 @@ public class TypeParamAnalyzer {
     private static final CompilerContext.Key<TypeParamAnalyzer> TYPE_PARAM_ANALYZER_KEY =
             new CompilerContext.Key<>();
 
-    private SymbolTable symTable;
-    private Types types;
-    private Names names;
-    private BLangDiagnosticLog dlog;
-    private BLangAnonymousModelHelper anonymousModelHelper;
+    private final SymbolTable symTable;
+    private final Types types;
+    private final Names names;
+    private final BLangDiagnosticLog dlog;
+    private final BLangAnonymousModelHelper anonymousModelHelper;
 
     public static TypeParamAnalyzer getInstance(CompilerContext context) {
 
@@ -389,10 +389,7 @@ public class TypeParamAnalyzer {
         // Bound type is a structure. Visit recursively to find bound type.
         switch (expType.tag) {
             case TypeTags.XML:
-                if (!TypeTags.isXMLTypeTag(Types.getImpliedType(actualType).tag)) {
-                    if (Types.getImpliedType(actualType).tag == TypeTags.UNION) {
-                        dlog.error(loc, DiagnosticErrorCode.XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE, actualType);
-                    }
+                if (!types.isAssignable(actualType, symTable.xmlType)) {
                     return;
                 }
                 switch (actualType.tag) {
@@ -654,6 +651,7 @@ public class TypeParamAnalyzer {
             if (TypeTags.isXMLTypeTag(referredType.tag)) {
                 if (referredType.tag == TypeTags.XML) {
                     members.add(((BXMLType) referredType).constraint);
+                    continue;
                 }
                 members.add(type);
             }

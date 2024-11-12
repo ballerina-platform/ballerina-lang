@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 description = 'Compiler Plugin Tests - Plugin with resource addition'
 version = '1.0.0'

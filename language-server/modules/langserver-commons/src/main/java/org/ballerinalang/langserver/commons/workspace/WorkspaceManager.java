@@ -208,9 +208,8 @@ public interface WorkspaceManager {
      *
      * @param filePath {@link Path} of the document
      * @param params   {@link DidCloseTextDocumentParams}
-     * @throws WorkspaceDocumentException project not found
      */
-    void didClose(Path filePath, DidCloseTextDocumentParams params) throws WorkspaceDocumentException;
+    void didClose(Path filePath, DidCloseTextDocumentParams params);
 
     /**
      * The file change notification is sent from the client to the server to signal changes to watched files.

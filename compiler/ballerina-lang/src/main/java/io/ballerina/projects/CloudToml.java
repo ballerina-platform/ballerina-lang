@@ -27,8 +27,8 @@ import io.ballerina.toml.semantic.ast.TomlTableNode;
  * @since 2.0.0
  */
 public class CloudToml {
-    private TomlDocumentContext cloudTomlContext;
-    private Package packageInstance;
+    private final TomlDocumentContext cloudTomlContext;
+    private final Package packageInstance;
 
     private CloudToml(Package aPackage, TomlDocumentContext cloudTomlContext) {
         this.packageInstance = aPackage;
@@ -74,7 +74,7 @@ public class CloudToml {
      */
     public static class Modifier {
         private TomlDocument tomlDocument;
-        private Package oldPackage;
+        private final Package oldPackage;
 
         private Modifier(CloudToml oldDocument) {
             this.tomlDocument = oldDocument.tomlDocument();

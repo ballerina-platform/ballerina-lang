@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,9 +51,9 @@ import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
  * @since 2.0.0
  */
 public class BaseTest {
-    static final Path USER_HOME = Paths.get("build").resolve("user-home");
+    static final Path USER_HOME = Path.of("build").resolve("user-home");
     static final PrintStream OUT = System.out;
-    static final Path CUSTOM_USER_HOME = Paths.get("build", "userHome");
+    static final Path CUSTOM_USER_HOME = Path.of("build", "userHome");
     static final Path CENTRAL_CACHE = CUSTOM_USER_HOME.resolve("repositories/central.ballerina.io");
 
     @BeforeSuite
@@ -160,7 +159,7 @@ public class BaseTest {
 
     protected Path getBalaPath(String org, String pkgName, String version) {
         String ballerinaHome = System.getProperty("ballerina.home");
-        Path balaRepoPath = Paths.get(ballerinaHome).resolve("repo").resolve("bala");
+        Path balaRepoPath = Path.of(ballerinaHome).resolve("repo").resolve("bala");
         return balaRepoPath.resolve(org).resolve(pkgName).resolve(version).resolve("any");
     }
 

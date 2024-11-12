@@ -50,7 +50,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -398,9 +397,9 @@ public final class BalaFiles {
                 try {
                     Files.createDirectories(libPath.getParent());
                     // TODO: Need to refactor this fix
-                    Path libPathInZip = Paths.get(dependencyPath);
+                    Path libPathInZip = Path.of(dependencyPath);
                     if (!dependencyPath.contains(COMPILER_PLUGIN_DIR)) {
-                        libPathInZip = Paths.get(COMPILER_PLUGIN_DIR, String.valueOf(libPathInZip));
+                        libPathInZip = Path.of(COMPILER_PLUGIN_DIR, String.valueOf(libPathInZip));
                     }
                     Files.copy(zipFileSystem.getPath(String.valueOf(libPathInZip)), libPath);
                 } catch (IOException e) {
@@ -424,9 +423,9 @@ public final class BalaFiles {
             if (!Files.exists(libPath)) {
                 try {
                     Files.createDirectories(libPath.getParent());
-                    Path libPathInZip = Paths.get(dependencyPath);
+                    Path libPathInZip = Path.of(dependencyPath);
                     if (!dependencyPath.contains(TOOL_DIR)) {
-                        libPathInZip = Paths.get(TOOL_DIR, String.valueOf(libPathInZip));
+                        libPathInZip = Path.of(TOOL_DIR, String.valueOf(libPathInZip));
                     }
                     Files.copy(zipFileSystem.getPath(String.valueOf(libPathInZip)), libPath);
                 } catch (IOException e) {

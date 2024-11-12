@@ -39,6 +39,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.writeConstValue;
 
@@ -99,7 +100,7 @@ public class BIRBinaryWriter {
 
     // private methods
 
-    private void writeImportModuleDecls(ByteBuf buf, List<BIRNode.BIRImportModule> birImpModList) {
+    private void writeImportModuleDecls(ByteBuf buf, Set<BIRNode.BIRImportModule> birImpModList) {
         buf.writeInt(birImpModList.size());
         birImpModList.forEach(impMod -> {
             PackageID packageID =  impMod.packageID;

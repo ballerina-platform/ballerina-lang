@@ -94,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -1714,9 +1715,9 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        nsPrefixedFieldBasedAccess.expr = rewrite(nsPrefixedFieldBasedAccess.expr);
-        result = nsPrefixedFieldBasedAccess;
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
+        prefixedFieldBasedAccess.expr = rewrite(prefixedFieldBasedAccess.expr);
+        result = prefixedFieldBasedAccess;
     }
 
     @Override
@@ -1995,7 +1996,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     }
                 }
                 identifiers.put(identifier, symbol);
-            } else if (identifiers.containsKey(identifier) && (withinLambdaOrArrowFunc || withinQuery)) {
+            } else if (identifiers.containsKey(identifier)) {
                 symbol = identifiers.get(identifier);
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
@@ -2453,8 +2454,13 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         xmlNavigation.expr = rewrite(xmlNavigation.expr);
-        xmlNavigation.childIndex = rewrite(xmlNavigation.childIndex);
         result = xmlNavigation;
+    }
+
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess) {
+        extendedXmlNavigationAccess.stepExpr = rewrite(extendedXmlNavigationAccess.stepExpr);
+        result = extendedXmlNavigationAccess;
     }
 
     //statements

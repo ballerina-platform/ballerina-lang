@@ -142,7 +142,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     private final TypeChecker typeChecker;
     private final TypeResolver typeResolver;
     private final ConstantTypeChecker.FillMembers fillMembers;
-    private BLangAnonymousModelHelper anonymousModelHelper;
+    private final BLangAnonymousModelHelper anonymousModelHelper;
 
     public ConstantTypeChecker(CompilerContext context) {
         context.put(CONSTANT_TYPE_CHECKER_KEY, this);

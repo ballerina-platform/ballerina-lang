@@ -36,16 +36,13 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
-
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -92,11 +89,7 @@ public class MavenPackageRepository extends AbstractPackageRepository {
         }
 
         Settings settings;
-        try {
-            settings = RepoUtils.readSettings();
-        } catch (SettingsTomlException e) {
-            settings = Settings.from();
-        }
+        settings = RepoUtils.readSettings();
         Proxy proxy = settings.getProxy();
         mvnClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
 
@@ -190,7 +183,7 @@ public class MavenPackageRepository extends AbstractPackageRepository {
             try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
                 JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
                 String platform = resultObj.get(PLATFORM).getAsString();
-                Path actualBalaPath = Paths.get(this.repoLocation).resolve(org).resolve(name)
+                Path actualBalaPath = Path.of(this.repoLocation).resolve(org).resolve(name)
                         .resolve(version).resolve(platform);
                 FileUtils.copyDirectory(temporaryExtractionPath.toFile(),
                         actualBalaPath.toFile());

@@ -39,7 +39,6 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 
 /**
@@ -55,13 +54,13 @@ public final class SyntaxTreeJSONGenerator {
      */
 
     private static final PrintStream STANDARD_OUT = System.out;
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/");
 
     private SyntaxTreeJSONGenerator() {
     }
 
     public static void main(String[] args) throws IOException {
-        Path syntax = RESOURCE_DIRECTORY.resolve(Paths.get("syntax"));
+        Path syntax = RESOURCE_DIRECTORY.resolve(Path.of("syntax"));
 
         File[] resourceContents = syntax.toFile().listFiles();
         if (resourceContents != null) {
@@ -73,7 +72,7 @@ public final class SyntaxTreeJSONGenerator {
 
         // Using a file source as input
 //        String path = "syntax/key-value/values.toml";
-//        String jsonString = generateJSON(Paths.get(path));
+//        String jsonString = generateJSON(Path.of(path));
 //        STANDARD_OUT.println(jsonString);
     }
 
@@ -98,7 +97,7 @@ public final class SyntaxTreeJSONGenerator {
         content = content + System.lineSeparator();
         String tomlPath = file.getAbsolutePath();
         String jsonPath = tomlPath.replace(".toml", ".json");
-        Path jsonFile = Paths.get(jsonPath);
+        Path jsonFile = Path.of(jsonPath);
         Files.writeString(jsonFile, content, StandardCharsets.UTF_8);
 
     }

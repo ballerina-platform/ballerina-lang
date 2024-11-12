@@ -89,7 +89,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
 
     private int errorCount;
     private int warnCount;
-    private TreeSet<Diagnostic> diagnostics;
+    private final TreeSet<Diagnostic> diagnostics;
 
     public ModuleContextDataHolder moduleContextDataHolder;
 

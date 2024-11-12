@@ -46,7 +46,7 @@ public class HoverProviderTest {
     protected Path sourceRoot;
 
     @BeforeClass
-    public void loadLangServer() throws IOException {
+    public void loadLangServer() {
         serviceEndpoint = TestUtil.initializeLanguageSever();
         configRoot = FileUtils.RES_DIR.resolve("hover").resolve("configs");
         sourceRoot = FileUtils.RES_DIR.resolve("hover").resolve("source");

@@ -55,7 +55,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -363,7 +362,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
             return;
         }
         String[] uriComponents = data.getFileUri().replace("\"", "").split("/");
-        Path expectedPath = Paths.get(root.toUri());
+        Path expectedPath = Path.of(root.toUri());
         for (String uriComponent : uriComponents) {
             expectedPath = expectedPath.resolve(uriComponent);
         }

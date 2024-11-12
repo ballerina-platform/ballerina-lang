@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public class CompositePackageRepository extends HierarchicalPackageRepository {
     
-    private PackageRepository myRepo;
+    private final PackageRepository myRepo;
 
     public CompositePackageRepository(PackageRepository systemRepo,
                                       PackageRepository parentRepo, PackageRepository myRepo) {

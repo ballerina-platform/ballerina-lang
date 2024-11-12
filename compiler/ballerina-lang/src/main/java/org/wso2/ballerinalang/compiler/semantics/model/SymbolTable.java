@@ -223,7 +223,7 @@ public class SymbolTable {
 
     public BPackageSymbol langRegexpModuleSymbol;
 
-    private Names names;
+    private final Names names;
     private final Types types;
 
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();

@@ -62,7 +62,7 @@ public class StatisticConfig {
      * @see Builder#percentiles(double...)
      */
     public double[] getPercentiles() {
-        return percentiles != null ? Arrays.copyOf(percentiles, percentiles.length) : percentiles;
+        return percentiles != null ? Arrays.copyOf(percentiles, percentiles.length) : null;
     }
 
     /**
@@ -103,7 +103,7 @@ public class StatisticConfig {
      */
     public static class Builder {
 
-        private StatisticConfig config = new StatisticConfig();
+        private final StatisticConfig config = new StatisticConfig();
 
         /**
          * Percentiles to compute and publish. Percentile is in the domain [0,1].

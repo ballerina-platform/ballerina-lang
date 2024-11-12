@@ -47,8 +47,8 @@ import java.util.Map;
  */
 public class TableJsonDataSource implements JsonDataSource {
 
-    private BTable<?, ?> tableValue;
-    private JSONObjectGenerator objGen;
+    private final BTable<?, ?> tableValue;
+    private final JSONObjectGenerator objGen;
 
     public TableJsonDataSource(BTable<?, ?> tableValue) {
         this(tableValue, new DefaultJSONObjectGenerator());
@@ -86,11 +86,7 @@ public class TableJsonDataSource implements JsonDataSource {
             TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
             //Retrieve table value from key-value tuple
             BMap<?, ?> record = ((BMap<?, ?>) tupleValue.get(1));
-            try {
-                values.append(this.objGen.transform(record));
-            } catch (IOException e) {
-                throw ErrorCreator.createError(e);
-            }
+            values.append(this.objGen.transform(record));
         }
         return values;
     }
@@ -192,9 +188,8 @@ public class TableJsonDataSource implements JsonDataSource {
          *
          * @param record The record that should be used in the current position
          * @return The generated JSON object
-         * @throws IOException for JSON reading/serializing errors
          */
-        Object transform(BMap<?, ?> record) throws IOException;
+        Object transform(BMap<?, ?> record);
 
     }
 }

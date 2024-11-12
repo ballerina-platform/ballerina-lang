@@ -52,7 +52,6 @@ import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
@@ -71,9 +70,9 @@ public final class XmlItem extends XmlValue implements BXmlItem {
 
     private QName name;
     private XmlSequence children;
-    private AttributeMapValueImpl attributes;
+    private final AttributeMapValueImpl attributes;
     // Keep track of probable parents of xml element to detect probable cycles in xml.
-    private List<WeakReference<XmlItem>> probableParents;
+    private final List<WeakReference<XmlItem>> probableParents;
 
     public XmlItem(QName name, XmlSequence children, boolean readonly) {
         this.name = name;
@@ -447,7 +446,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
             return omElement;
         } catch (BError e) {
             throw e;
-        } catch (OMException | XMLStreamException e) {
+        } catch (OMException e) {
             Throwable cause = e.getCause() == null ? e : e.getCause();
             throw ErrorCreator.createError(StringUtils.fromString((cause.getMessage())));
         } catch (Throwable e) {

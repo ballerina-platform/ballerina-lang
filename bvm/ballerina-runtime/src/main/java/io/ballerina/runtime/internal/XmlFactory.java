@@ -478,9 +478,8 @@ public final class XmlFactory {
      *
      * @param xmlFragment the well-formed XML fragment
      * @return The OMElement created out of the string XML fragment.
-     * @throws XMLStreamException when unexpected processing error occur while parsing.
      */
-    public static OMElement stringToOM(String xmlFragment) throws XMLStreamException {
+    public static OMElement stringToOM(String xmlFragment) {
         return stringToOM(OMAbstractFactory.getOMFactory(), xmlFragment);
     }
 
@@ -491,9 +490,8 @@ public final class XmlFactory {
      * @param omFactory the factory used to build the object model
      * @param xmlFragment the well-formed XML fragment
      * @return The OMElement created out of the string XML fragment.
-     * @throws XMLStreamException when unexpected processing error occur while parsing.
      */
-    private static OMElement stringToOM(OMFactory omFactory, String xmlFragment) throws XMLStreamException {
+    private static OMElement stringToOM(OMFactory omFactory, String xmlFragment) {
         return xmlFragment != null
                 ? OMXMLBuilderFactory
                     .createOMBuilder(omFactory, STAX_PARSER_CONFIGURATION, new StringReader(xmlFragment))

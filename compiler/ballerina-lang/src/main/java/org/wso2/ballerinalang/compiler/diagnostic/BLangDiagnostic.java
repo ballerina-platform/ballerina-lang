@@ -35,11 +35,11 @@ import java.util.List;
  */
 public class BLangDiagnostic extends Diagnostic {
 
-    private Location location;
-    private String msg;
-    private DiagnosticInfo diagnosticInfo;
-    private DiagnosticCode diagnosticCode;
-    private List<DiagnosticProperty<?>> properties;
+    private final Location location;
+    private final String msg;
+    private final DiagnosticInfo diagnosticInfo;
+    private final DiagnosticCode diagnosticCode;
+    private final List<DiagnosticProperty<?>> properties;
 
     public BLangDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo,
                            DiagnosticCode diagnosticCode) {

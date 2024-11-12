@@ -23,7 +23,6 @@ import io.ballerina.runtime.profiler.runtime.ProfilerRuntimeException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public final class FileUtils {
 
@@ -34,7 +33,7 @@ public final class FileUtils {
     }
 
     static String readFileAsString(String file) throws IOException {
-        Path path = Paths.get(file);
+        Path path = Path.of(file);
         int count = 0;
         while (!Files.exists(path)) {
             if (count++ > MAX_WAIT_TIME_FOR_FILE) {

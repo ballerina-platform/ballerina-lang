@@ -329,7 +329,7 @@ public final class TypeDefBuilderHelper {
                 invokableSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
                 invokableSymbol.restParam = tsymbol.restParam;
                 invokableSymbol.retType = tsymbol.returnType;
-                invokableSymbol.flags = tsymbol.flags;
+                invokableSymbol.flags = invokableSymbol.flags | tsymbol.flags;
             } else if (fieldType == symTable.semanticError) {
                 // Can only happen for records.
                 fieldSymbol = new BVarSymbol(origField.symbol.flags | flag | Flags.OPTIONAL,

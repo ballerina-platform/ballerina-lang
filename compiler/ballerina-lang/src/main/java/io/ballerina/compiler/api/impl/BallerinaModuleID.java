@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class BallerinaModuleID implements ModuleID {
 
     private static final String ANON_ORG = "$anon";
-    private PackageID moduleID;
+    private final PackageID moduleID;
     private Name prefix;
 
     public BallerinaModuleID(PackageID moduleID) {

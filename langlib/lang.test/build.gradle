@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/ballerinaStdLibBuildInternal.gradle"
+plugins {
+    id 'ballerinaStdLibBuildInternal'
+}
 
 
 dependencies {
@@ -23,7 +25,7 @@ dependencies {
     implementation project(':ballerina-lang')
 
 
-    implementation 'org.slf4j:slf4j-api'
+    implementation libs.slf4j.api
 }
 
 tasks.register('updateVersion') {

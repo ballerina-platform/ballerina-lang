@@ -26,7 +26,6 @@ import io.ballerina.compiler.syntax.tree.WaitFieldsListNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
@@ -52,8 +51,7 @@ public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFi
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, WaitFieldsListNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, WaitFieldsListNode node) {
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();

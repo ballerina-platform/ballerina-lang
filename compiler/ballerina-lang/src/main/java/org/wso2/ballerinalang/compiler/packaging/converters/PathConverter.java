@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -46,8 +45,8 @@ import java.util.stream.Stream;
 public class PathConverter implements Converter<Path> {
 
     private final Path root;
-    private PathMatcher isResourceFile;
-    private PathMatcher isTestResourceFile;
+    private final PathMatcher isResourceFile;
+    private final PathMatcher isTestResourceFile;
 
     public PathConverter(Path root) {
         this.root = root;
@@ -120,8 +119,8 @@ public class PathConverter implements Converter<Path> {
         if (Files.isDirectory(path)) {
             try {
                 List<Path> excludePaths = new ArrayList<>();
-                excludePaths.add(Paths.get(ProjectDirConstants.TEST_DIR_NAME));
-                excludePaths.add(Paths.get(ProjectDirConstants.RESOURCE_DIR_NAME));
+                excludePaths.add(Path.of(ProjectDirConstants.TEST_DIR_NAME));
+                excludePaths.add(Path.of(ProjectDirConstants.RESOURCE_DIR_NAME));
                 FilterSearch<Object> filterSearch = new FilterSearch<>(excludePaths);
                 Files.walkFileTree(path, filterSearch);
                 return filterSearch.getPathList().stream().sorted();

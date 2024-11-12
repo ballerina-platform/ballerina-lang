@@ -268,11 +268,11 @@ public class GeneralFSPackageRepository implements PackageRepository {
          */
         public class FSCompilerInput implements CompilerInput {
 
-            private String name;
+            private final String name;
 
-            private byte[] code;
+            private final byte[] code;
 
-            private SyntaxTree tree;
+            private final SyntaxTree tree;
 
             public FSCompilerInput(String name) {
                 this.name = name;

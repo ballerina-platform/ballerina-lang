@@ -384,16 +384,14 @@ public final class ProjectFiles {
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
         if (null != projectRoot) {
             Path absFilePath = filePath.toAbsolutePath();
-            if (projectRoot.equals(Optional.of(absFilePath.getParent()).get())) {
+            if (projectRoot.equals(absFilePath.getParent())) {
                 throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
             }
             // Check if it is inside a module
             Path modulesRoot = projectRoot.resolve(ProjectConstants.MODULES_ROOT);
             Path parent = absFilePath.getParent();
-            if (parent != null) {
-                if (modulesRoot.equals(Optional.of(parent.getParent()).get())) {
-                    throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
-                }
+            if (parent != null && modulesRoot.equals(parent.getParent())) {
+                throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
             }
         }
         checkReadPermission(filePath);

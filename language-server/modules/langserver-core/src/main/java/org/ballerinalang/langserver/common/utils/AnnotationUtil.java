@@ -189,20 +189,20 @@ public final class AnnotationUtil {
         }
         if (annotationSymbol.typeDescriptor().isPresent()) {
             annotationStart.append(annotationSymbol.getName().get());
-            Optional<TypeSymbol> attachedType
-                    = Optional.ofNullable(CommonUtil.getRawType(annotationSymbol.typeDescriptor().get()));
-            Optional<TypeSymbol> resultType;
-            if (attachedType.isPresent() && attachedType.get().typeKind() == TypeDescKind.ARRAY) {
-                resultType = Optional.of(((ArrayTypeSymbol) attachedType.get()).memberTypeDescriptor());
+            TypeSymbol attachedType
+                    = CommonUtil.getRawType(annotationSymbol.typeDescriptor().get());
+            TypeSymbol resultType;
+            if (attachedType.typeKind() == TypeDescKind.ARRAY) {
+                resultType = ((ArrayTypeSymbol) attachedType).memberTypeDescriptor();
             } else {
                 resultType = attachedType;
             }
-            if (resultType.isPresent() && (resultType.get().typeKind() == TypeDescKind.RECORD
-                    || resultType.get().typeKind() == TypeDescKind.MAP)) {
+            if ((resultType.typeKind() == TypeDescKind.RECORD
+                    || resultType.typeKind() == TypeDescKind.MAP)) {
                 List<RecordFieldSymbol> requiredFields = new ArrayList<>();
-                if (resultType.get().typeKind() == TypeDescKind.RECORD) {
+                if (resultType.typeKind() == TypeDescKind.RECORD) {
                     requiredFields.addAll(RecordUtil.getMandatoryRecordFields((RecordTypeSymbol) 
-                            resultType.get()));
+                            resultType));
                 }
                 if (!requiredFields.isEmpty()) {
                     annotationStart.append(" ").append(OPEN_BRACE_KEY).append(LINE_SEPARATOR);

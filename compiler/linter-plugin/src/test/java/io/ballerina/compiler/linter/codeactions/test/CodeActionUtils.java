@@ -36,7 +36,6 @@ import io.ballerina.tools.text.LineRange;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -46,7 +45,7 @@ import java.util.List;
  */
 public final class CodeActionUtils {
 
-    public static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+    public static final Path RES_DIR = Path.of("src/test/resources/").toAbsolutePath();
     public static final String NEW = ".new";
 
     private CodeActionUtils() {
@@ -130,10 +129,10 @@ public final class CodeActionUtils {
      */
     public static Path getProjectPath(String sourceFilePath) {
 
-        Path sourcePath = Paths.get(sourceFilePath);
+        Path sourcePath = Path.of(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = RES_DIR.resolve(sourcePath.getParent());
-        return Paths.get(sourceRoot.toString(), sourceFileName);
+        return Path.of(sourceRoot.toString(), sourceFileName);
     }
 
     /**

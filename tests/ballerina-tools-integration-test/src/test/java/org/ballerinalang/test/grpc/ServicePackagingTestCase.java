@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,8 +56,8 @@ public class ServicePackagingTestCase extends BaseTest {
         ballerinaBuildServer.runMain("init", args, getEnvVariables(), options, new LogLeecher[]{},
                 projectPath.toString());
         
-        Files.copy(Paths.get(getClass().getClassLoader().getResource("grpc/nested_type_service.bal").getPath()), 
-            Paths.get(projectPath.resolve("foo").toString(), "nested_type_service.bal"));
+        Files.copy(Path.of(getClass().getClassLoader().getResource("grpc/nested_type_service.bal").getPath()),
+            Path.of(projectPath.resolve("foo").toString(), "nested_type_service.bal"));
         Files.deleteIfExists(projectPath.resolve("foo").resolve("hello_service.bal"));
 
         // perform bal build and generate balx file.
@@ -72,7 +71,7 @@ public class ServicePackagingTestCase extends BaseTest {
 
         try {
             // run gRPC client to connect with the service.
-            Path balFilePath = Paths.get("src", "test", "resources", "grpc", "nested_type_client.bal");
+            Path balFilePath = Path.of("src", "test", "resources", "grpc", "nested_type_client.bal");
             BMainInstance ballerinaClientServer = new BMainInstance(balServer);
             String balFile = balFilePath.toAbsolutePath().toString();
             LogLeecher logLeecher1 = new LogLeecher("testInputNestedStruct output: Submitted name: Danesh");

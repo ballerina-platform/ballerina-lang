@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 dependencies {
     // NOTE: This module intended to be used by extension providers with minimum peer dependencies
@@ -24,8 +26,8 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
     implementation project(':toml-parser')
-    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j'
-    testImplementation 'org.testng:testng'
+    implementation libs.eclipse.lsp4j
+    testImplementation libs.testng
 }
 
 description = 'Ballerina - Language server - Commons'
