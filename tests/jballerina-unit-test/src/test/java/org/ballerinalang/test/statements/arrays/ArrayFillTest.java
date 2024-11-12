@@ -18,10 +18,10 @@
 
 package org.ballerinalang.test.statements.arrays;
 
-import io.ballerina.runtime.api.types.PredefinedTypes;
-import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
@@ -38,11 +38,11 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.utils.TypeUtils.getType;
-import static java.math.BigDecimal.ZERO;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
+import static java.math.BigDecimal.ZERO;
 
 /**
  * Test cases for filling the elements of the array with its type's implicit initial value.
