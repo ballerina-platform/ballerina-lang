@@ -21,6 +21,7 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -33,7 +34,7 @@ import org.wso2.ballerinalang.util.Flags;
  *
  * @since 0.961.0
  */
-public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
+public class BXMLType extends BType implements SelectivelyImmutableReferenceType {
     public BType constraint;
     public BXMLType mutableType;
 
@@ -64,6 +65,11 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
+    }
+
+    @Override
+    public TypeKind getKind() {
+        return TypeKind.XML;
     }
 
     @Override

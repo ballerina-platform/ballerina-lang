@@ -35,7 +35,7 @@ import static io.ballerina.types.PredefinedType.VAL_READONLY;
 /**
  * @since 0.94
  */
-public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
+public class BAnyType extends BType implements SelectivelyImmutableReferenceType {
 
     private boolean nullable = true;
 

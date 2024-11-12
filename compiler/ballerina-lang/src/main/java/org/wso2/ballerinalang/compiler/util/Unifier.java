@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -122,11 +121,6 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BType originalType, BType expType) {
-        return originalType;
-    }
-
-    @Override
-    public BType visit(BBuiltInRefType originalType, BType expType) {
         return originalType;
     }
 

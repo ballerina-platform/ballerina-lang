@@ -21,6 +21,7 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.ConstrainedType;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -30,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  *
  * @since 0.965.0
  */
-public class BFutureType extends BBuiltInRefType implements ConstrainedType {
+public class BFutureType extends BType implements ConstrainedType {
 
     public BType constraint;
     public boolean workerDerivative;
@@ -56,7 +57,12 @@ public class BFutureType extends BBuiltInRefType implements ConstrainedType {
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
     }
-    
+
+    @Override
+    public TypeKind getKind() {
+        return TypeKind.FUTURE;
+    }
+
     @Override
     public String toString() {
         if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.SEMANTIC_ERROR

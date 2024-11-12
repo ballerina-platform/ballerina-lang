@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -111,11 +110,6 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return boundType;
         }
 
-        return typeInSymbol;
-    }
-
-    @Override
-    public BType visit(BBuiltInRefType typeInSymbol, BType boundType) {
         return typeInSymbol;
     }
 

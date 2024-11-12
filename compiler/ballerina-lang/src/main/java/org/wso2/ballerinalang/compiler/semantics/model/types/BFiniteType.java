@@ -27,7 +27,6 @@ import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
-import org.ballerinalang.model.types.ReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -51,7 +50,7 @@ import static io.ballerina.types.BasicTypeCode.BT_STRING;
  * {@code BFiniteType} represents the finite type in Ballerina.
  *
  */
-public class BFiniteType extends BType implements ReferenceType {
+public class BFiniteType extends BType {
 
     public SemNamedType[] valueSpace;
 

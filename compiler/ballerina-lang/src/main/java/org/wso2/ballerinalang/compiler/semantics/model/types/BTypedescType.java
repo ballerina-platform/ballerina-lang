@@ -22,6 +22,7 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.ConstrainedType;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -30,7 +31,7 @@ import org.wso2.ballerinalang.util.Flags;
 /**
  * @since 0.94
  */
-public class BTypedescType extends BBuiltInRefType implements ConstrainedType {
+public class BTypedescType extends BType implements ConstrainedType {
 
     public BType constraint;
     public final Env env;
@@ -51,6 +52,11 @@ public class BTypedescType extends BBuiltInRefType implements ConstrainedType {
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
 
         return visitor.visit(this, t);
+    }
+
+    @Override
+    public TypeKind getKind() {
+        return TypeKind.TYPEDESC;
     }
 
     @Override

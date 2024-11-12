@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -205,7 +204,7 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
     }
 
     @Override
-    public Integer visit(BBuiltInRefType type) {
+    public Integer visit(BReadonlyType type) {
         if (isVisited(type)) {
             return visited.get(type);
         }

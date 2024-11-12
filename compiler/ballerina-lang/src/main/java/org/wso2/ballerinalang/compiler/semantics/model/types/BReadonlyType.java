@@ -33,7 +33,7 @@ import static io.ballerina.types.PredefinedType.VAL_READONLY;
  * 
  * @since 1.3.0
  */
-public class BReadonlyType extends BBuiltInRefType {
+public class BReadonlyType extends BType {
 
     private boolean nullable = true;
 

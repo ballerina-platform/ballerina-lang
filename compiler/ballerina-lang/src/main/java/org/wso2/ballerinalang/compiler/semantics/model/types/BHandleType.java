@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.util.Flags;
  *
  * @since 1.0.0
  */
-public class BHandleType extends BBuiltInRefType {
+public class BHandleType extends BType {
 
     public BHandleType() {
         super(TypeTags.HANDLE, null, Flags.READONLY, PredefinedType.HANDLE);
