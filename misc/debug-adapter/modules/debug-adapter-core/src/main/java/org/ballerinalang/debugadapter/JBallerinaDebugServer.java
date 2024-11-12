@@ -145,7 +145,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private ClientConfigHolder clientConfigHolder;
     private DebugExecutionManager executionManager;
     private JDIEventProcessor eventProcessor;
-    private DebugExpressionEvaluator evaluator;
     private final ExecutionContext context;
     private ThreadReferenceProxyImpl activeThread;
     private SuspendedContext suspendedContext;
@@ -157,7 +156,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private final Map<Integer, Integer> scopeIdToFrameIds = new HashMap<>();
     private final Map<Integer, Integer> variableToStackFrames = new ConcurrentHashMap<>();
     private final Map<Integer, BCompoundVariable> loadedCompoundVariables = new ConcurrentHashMap<>();
-    private final ExecutorService variableExecutor = Executors.newCachedThreadPool();
+    // Multi-threading is avoided here due to observed intermittent VM crashes, likely related to JDI limitations.
+    private final ExecutorService variableExecutor = Executors.newSingleThreadExecutor();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private static final String SCOPE_NAME_LOCAL = "Local";
@@ -926,7 +926,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         EventRequestManager erm = context.getEventManager();
         ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
         classPrepareRequest.enable();
-        eventProcessor.startListening();
+        eventProcessor.listenAsync();
     }
 
     /**

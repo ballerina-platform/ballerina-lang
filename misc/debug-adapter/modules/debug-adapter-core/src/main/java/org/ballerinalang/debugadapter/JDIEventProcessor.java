@@ -74,7 +74,7 @@ public class JDIEventProcessor {
     /**
      * Asynchronously listens and processes the incoming JDI events.
      */
-    void startListening() {
+    void listenAsync() {
         CompletableFuture.runAsync(() -> {
             isRemoteVmAttached = true;
             while (isRemoteVmAttached) {
