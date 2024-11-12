@@ -47,7 +47,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static org.ballerinalang.debugadapter.BreakpointProcessor.DynamicBreakpointMode;
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
@@ -109,7 +108,7 @@ public class JDIEventProcessor {
 
     private void processEvent(EventSet eventSet, Event event) {
         if (event instanceof ClassPrepareEvent evt) {
-            if (context.getLastInstruction() != DebugInstruction.STEP_OVER) {
+            if (context.getPrevInstruction() != DebugInstruction.STEP_OVER) {
                 breakpointProcessor.activateUserBreakPoints(evt.referenceType(), true);
             }
             eventSet.resume();
@@ -154,9 +153,7 @@ public class JDIEventProcessor {
     }
 
     void sendStepRequest(int threadId, int stepType) {
-        if (stepType == StepRequest.STEP_OVER) {
-            breakpointProcessor.activateDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT);
-        } else if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
+        if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
             createStepRequest(threadId, stepType);
         }
         context.getDebuggeeVM().resume();
