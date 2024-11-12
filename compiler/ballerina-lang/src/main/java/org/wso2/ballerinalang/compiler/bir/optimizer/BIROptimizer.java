@@ -562,6 +562,7 @@ public class BIROptimizer {
             if (birNewArray.typedescOp != null) {
                 birNewArray.typedescOp.accept(this);
             }
+            this.optimizeNode(birNewArray.elementTypedescOp, this.env);
         }
 
         @Override

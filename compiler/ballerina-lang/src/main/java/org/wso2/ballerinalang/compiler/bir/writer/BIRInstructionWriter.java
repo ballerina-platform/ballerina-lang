@@ -443,6 +443,12 @@ public class BIRInstructionWriter extends BIRVisitor {
         } else {
             buf.writeByte(0);
         }
+        if (birNewArray.elementTypedescOp != null) {
+            buf.writeByte(1);
+            birNewArray.elementTypedescOp.accept(this);
+        } else {
+            buf.writeByte(0);
+        }
         birNewArray.sizeOp.accept(this);
         buf.writeInt(birNewArray.values.size());
         for (BIRNode.BIRListConstructorEntry listValueEntry : birNewArray.values) {
