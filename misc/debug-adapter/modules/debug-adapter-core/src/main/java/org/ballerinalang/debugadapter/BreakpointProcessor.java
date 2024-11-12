@@ -234,7 +234,9 @@ public class BreakpointProcessor {
                 Location currentLocation = validFrames.get(0).getJStackFrame().location();
                 Optional<Location> prevLocation = context.getPrevLocation();
                 if (!validate || prevLocation.isEmpty() || !isWithinSameSource(currentLocation, prevLocation.get())) {
-                    doActivateDynamicBreakPoints(currentLocation);
+                    context.getEventManager().deleteAllBreakpoints();
+                    configureBreakpointsForMethod(currentLocation);
+                    context.setPrevLocation(currentLocation);
                 }
                 context.setPrevLocation(currentLocation);
             }
@@ -243,7 +245,11 @@ public class BreakpointProcessor {
             // temporary breakpoint on the location of its invocation. This is supposed to handle the situations where
             // the user wants to step over on an exit point of the current function.
             if (mode == DynamicBreakpointMode.CALLER && validFrames.size() > 1) {
-                doActivateDynamicBreakPoints(validFrames.get(1).getJStackFrame().location());
+                context.getEventManager().deleteAllBreakpoints();
+                for (int frameIndex = 1; frameIndex < validFrames.size(); frameIndex++) {
+                    configureBreakpointsForMethod(validFrames.get(frameIndex).getJStackFrame().location());
+                }
+                context.setPrevLocation(validFrames.get(0).getJStackFrame().location());
             }
         } catch (JdiProxyException e) {
             LOGGER.error(e.getMessage());
@@ -252,12 +258,6 @@ public class BreakpointProcessor {
                 jdiEventProcessor.sendStepRequest(threadId, stepType);
             }
         }
-    }
-
-    private void doActivateDynamicBreakPoints(Location location) {
-        context.getEventManager().deleteAllBreakpoints();
-        configureBreakpointsForMethod(location);
-        context.setPrevLocation(location);
     }
 
     /**
