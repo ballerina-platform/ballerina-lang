@@ -122,7 +122,7 @@ public class SymbolTable {
     public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY, PredefinedType.STRING);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY, PredefinedType.BOOLEAN);
 
-    public final BType anyType = new BAnyType(null);
+    public final BType anyType = new BAnyType();
     public final BMapType mapType;
     public final BMapType mapStringType;
 

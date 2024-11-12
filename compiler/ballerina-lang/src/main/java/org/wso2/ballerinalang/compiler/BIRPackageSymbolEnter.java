@@ -96,6 +96,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -1451,11 +1452,7 @@ public class BIRPackageSymbolEnter {
                     return setTSymbolForInvokableType(bInvokableType, bInvokableType.retType);
                 // All the above types are branded types
                 case TypeTags.ANY:
-                    BType anyNominalType = typeParamAnalyzer.getNominalType(symTable.anyType, name, flags);
-                    return isImmutable(flags) ? getEffectiveImmutableType(anyNominalType,
-                            symTable.anyType.tsymbol.pkgID,
-                            symTable.anyType.tsymbol.owner) :
-                            anyNominalType;
+                    return isImmutable(flags) ? BAnyType.newImmutableBAnyType() : new BAnyType(name, flags);
                 case TypeTags.HANDLE:
                     return symTable.handleType;
                 case TypeTags.READONLY:

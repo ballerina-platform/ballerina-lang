@@ -278,7 +278,7 @@ public class TypeParamAnalyzer {
                  TypeTags.DECIMAL,
                  TypeTags.STRING,
                  TypeTags.BOOLEAN -> new BType(tag, null, name, flags);
-            case TypeTags.ANY -> new BAnyType(null, name, flags);
+            case TypeTags.ANY -> new BAnyType(name, flags);
             case TypeTags.ANYDATA -> createAnydataType((BUnionType) referredType, name, flags);
             case TypeTags.READONLY -> new BReadonlyType(null, name, flags);
             // For others, we will use TSymbol.
@@ -298,7 +298,7 @@ public class TypeParamAnalyzer {
             case TypeTags.BOOLEAN:
                 return new BType(type.tag, null, name, flags);
             case TypeTags.ANY:
-                return new BAnyType(null, name, flags);
+                return new BAnyType(name, flags);
             case TypeTags.ANYDATA:
                 return createAnydataType((BUnionType) type, name, flags);
             case TypeTags.READONLY:

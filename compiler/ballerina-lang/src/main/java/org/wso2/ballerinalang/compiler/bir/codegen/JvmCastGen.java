@@ -633,7 +633,7 @@ public class JvmCastGen {
                     mv.visitTypeInsn(INSTANCEOF, SIMPLE_VALUE);
                     mv.visitJumpInsn(IFNE, afterHandle);
                 }
-                if (isNillable(targetType)) {
+                if (targetType.isNullable()) {
                     mv.visitInsn(DUP);
                     mv.visitJumpInsn(IFNULL, afterHandle);
                 }
@@ -652,15 +652,6 @@ public class JvmCastGen {
                     DECIMAL_TO_HANDLE, false);
             default -> throw new BLangCompilerException("Casting is not supported from '" + sourceType + "' to 'any'");
         }
-    }
-
-    private static boolean isNillable(BType targetType) {
-        return switch (targetType.tag) {
-            case TypeTags.NIL, TypeTags.NEVER, TypeTags.JSON, TypeTags.ANY, TypeTags.ANYDATA, TypeTags.READONLY -> true;
-            case TypeTags.UNION, TypeTags.INTERSECTION, TypeTags.FINITE -> targetType.isNullable();
-            case TypeTags.TYPEREFDESC -> isNillable(JvmCodeGenUtil.getImpliedType(targetType));
-            default -> false;
-        };
     }
 
     private void generateCheckCastJToBJSON(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, JType sourceType) {
