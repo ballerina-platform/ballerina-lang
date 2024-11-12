@@ -28,7 +28,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static io.ballerina.runtime.profiler.util.Constants.BALLERINA_HOME;
 import static io.ballerina.runtime.profiler.util.Constants.HTML_TEMPLATE_FILE;
@@ -52,7 +51,7 @@ public class FrontEnd {
     }
 
     public String readFileAsString() throws IOException {
-        Path resourceFilePath = Paths.get(System.getenv(BALLERINA_HOME)).resolve("resources")
+        Path resourceFilePath = Path.of(System.getenv(BALLERINA_HOME)).resolve("resources")
                 .resolve("profiler").resolve(HTML_TEMPLATE_FILE);
         if (!Files.exists(resourceFilePath)) {
             throw new ProfilerRuntimeException("resource file not found: " + HTML_TEMPLATE_FILE);

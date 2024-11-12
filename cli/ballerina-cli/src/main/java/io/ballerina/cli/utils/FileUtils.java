@@ -36,7 +36,11 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class FileUtils {
+public final class FileUtils {
+
+    private FileUtils() {
+    }
+
     /**
      * Get the name of the without the extension.
      *

@@ -34,7 +34,6 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -59,10 +58,13 @@ import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
  *
  * @since 2.0.0
  */
-public class FileUtils {
+public final class FileUtils {
 
     private static final String PNG_HEX_HEADER = "89504E470D0A1A0A";
     private static final PathMatcher FILE_MATCHER = FileSystems.getDefault().getPathMatcher("glob:**/Ballerina.toml");
+
+    private FileUtils() {
+    }
 
     /**
      * Get the name of the without the extension.
@@ -71,7 +73,7 @@ public class FileUtils {
      * @return File name without extension.
      */
     public static String getFileNameWithoutExtension(String filePath) {
-        Path fileName = Paths.get(filePath).getFileName();
+        Path fileName = Path.of(filePath).getFileName();
         if (null != fileName) {
             int index = indexOfExtension(fileName.toString());
             return index == -1 ? fileName.toString() :
@@ -169,8 +171,10 @@ public class FileUtils {
         }
 
         if (Files.isDirectory(path)) {
-            for (Path dir : Files.list(path).toList()) {
-                deletePath(dir);
+            try (Stream<Path> paths = Files.list(path)) {
+                for (Path dir : paths.toList()) {
+                    deletePath(dir);
+                }
             }
         }
 
@@ -309,7 +313,8 @@ public class FileUtils {
                     Files.write(path, content.getBytes(StandardCharsets.UTF_8));
                 }
             } catch (IOException e) {
-                throw new RuntimeException("Error while replacing template name in module import statements: " + path, e);
+                throw new RuntimeException(
+                        "Error while replacing template name in module import statements: " + path, e);
             }
         }
     }
@@ -334,11 +339,11 @@ public class FileUtils {
      * Copy files to the given destination.
      */
     public static class Copy extends SimpleFileVisitor<Path> {
-        private Path fromPath;
-        private Path toPath;
-        private String templateName;
-        private String packageName;
-        private StandardCopyOption copyOption;
+        private final Path fromPath;
+        private final Path toPath;
+        private final String templateName;
+        private final String packageName;
+        private final StandardCopyOption copyOption;
 
 
         public Copy(Path fromPath, Path toPath, String templateName, String packageName,
@@ -396,7 +401,7 @@ public class FileUtils {
      * Look for existing Ballerina.toml file in the given directory up to 10 levels.
      */
     public static class BallerinaTomlChecker extends SimpleFileVisitor<Path> {
-        private Path startingPath;
+        private final Path startingPath;
         private boolean ballerinaTomlFound = false;
 
         public boolean isBallerinaTomlFound() {
@@ -412,8 +417,7 @@ public class FileUtils {
         }
 
         @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                throws IOException {
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
 
             int depth = dir.getNameCount() - startingPath.getNameCount();
             if (depth >= 10) {
@@ -423,8 +427,7 @@ public class FileUtils {
         }
 
         @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                throws IOException {
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 
             if (FILE_MATCHER.matches(file)) {
                 setBallerinaTomlFound(true);

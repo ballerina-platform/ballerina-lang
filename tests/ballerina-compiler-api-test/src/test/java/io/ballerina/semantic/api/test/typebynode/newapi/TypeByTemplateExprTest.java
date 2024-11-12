@@ -56,26 +56,18 @@ public class TypeByTemplateExprTest extends TypeByNodeTest {
 
             @Override
             public void visit(TemplateExpressionNode templateExpressionNode) {
-                TypeDescKind expTypeKind;
-                switch (templateExpressionNode.kind()) {
-                    case STRING_TEMPLATE_EXPRESSION:
-                        expTypeKind = STRING;
-                        break;
-                    case XML_TEMPLATE_EXPRESSION:
-                        expTypeKind = TYPE_REFERENCE;
-                        break;
-                    case RAW_TEMPLATE_EXPRESSION:
-                        expTypeKind = TYPE_REFERENCE;
-                        break;
-                    default:
-                        throw new IllegalStateException();
-                }
+                TypeDescKind expTypeKind = switch (templateExpressionNode.kind()) {
+                    case STRING_TEMPLATE_EXPRESSION -> STRING;
+                    case XML_TEMPLATE_EXPRESSION, RAW_TEMPLATE_EXPRESSION -> TYPE_REFERENCE;
+                    default -> throw new IllegalStateException();
+                };
 
                 assertType(templateExpressionNode, model, expTypeKind, templateExpressionNode.kind());
             }
         };
     }
 
+    @Override
     void verifyAssertCount() {
         assertEquals(getAssertCount(), 3);
     }

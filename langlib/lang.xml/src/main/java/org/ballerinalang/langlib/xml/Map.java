@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.xml;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BXml;
@@ -30,16 +31,19 @@ import java.util.List;
  *
  * @since 1.0
  */
-public class Map {
+public final class Map {
 
-    public static BXml map(BXml x, BFunctionPointer func) {
+    private Map() {
+    }
+
+    public static BXml map(Environment env, BXml x, BFunctionPointer func) {
         if (x.isSingleton()) {
-            return (BXml) func.call(x);
+            return (BXml) func.call(env.getRuntime(), x);
         }
         List<BXml> elements = new ArrayList<>();
         int size = x.size();
         for (int i = 0; i < size; i++) {
-            elements.add((BXml) func.call(x.getItem(i)));
+            elements.add((BXml) func.call(env.getRuntime(), x.getItem(i)));
         }
         return ValueCreator.createXmlSequence(elements);
     }

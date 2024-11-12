@@ -21,11 +21,10 @@ package io.ballerina.runtime.internal;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.Repository;
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
-import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * When {@link Environment} is used as the first argument of an interop method, Ballerina will inject an instance
@@ -36,27 +35,19 @@ import java.util.Optional;
 public class BalEnvironment extends Environment {
 
     private final Strand strand;
-    private Module currentModule;
-    private String funcName;
-    private Parameter[] funcPathParams;
-    private Repository repository;
-
-    public BalEnvironment(Strand strand) {
-        this.strand = strand;
-    }
-
-    public BalEnvironment(Strand strand, Module currentModule) {
-        this.strand = strand;
-        this.currentModule = currentModule;
-        this.repository = new RepositoryImpl();
-    }
+    private final Module currentModule;
+    private final String funcName;
+    private final Parameter[] funcPathParams;
+    private final Repository repository;
 
     public BalEnvironment(Strand strand, Module currentModule, String funcName, Parameter[] funcPathParams) {
-        this(strand, currentModule);
+        this.strand = strand;
+        this.currentModule = currentModule;
         this.funcName = funcName;
         this.funcPathParams = funcPathParams;
         this.repository = new RepositoryImpl();
     }
+
 
     @Override
     public String getFunctionName() {
@@ -69,10 +60,10 @@ public class BalEnvironment extends Environment {
     }
 
     @Override
-    public void yieldAndRun(Runnable runnable) {
+    public <T> T yieldAndRun(Supplier<T> supplier) {
         try {
             strand.yield();
-            runnable.run();
+            return supplier.get();
         } finally {
             strand.resume();
         }
@@ -94,15 +85,9 @@ public class BalEnvironment extends Environment {
     }
 
     @Override
-    public Optional<String> getStrandName() {
-        return strand.getName();
+    public String getStrandName() {
+        return strand.name;
     }
-
-    @Override
-    public StrandMetadata getStrandMetadata() {
-        return strand.getMetadata();
-    }
-
 
     @Override
     public void setStrandLocal(String key, Object value) {

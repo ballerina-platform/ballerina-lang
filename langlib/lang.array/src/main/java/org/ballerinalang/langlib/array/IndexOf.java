@@ -30,7 +30,10 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessF
  *
  * @since 1.0
  */
-public class IndexOf {
+public final class IndexOf {
+
+    private IndexOf() {
+    }
 
     public static Object indexOf(BArray arr, Object val, long startIndex) {
         Type arrType = arr.getType();

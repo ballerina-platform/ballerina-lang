@@ -31,7 +31,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Map;
 
 /**
@@ -42,7 +43,7 @@ import java.util.Map;
 public class SchemaVisitorTest {
 
     @Test(dataProvider = "testDataProvider")
-    public void test(String configFileName) throws IOException {
+    public void test(String configFileName) {
         String configPath = FileUtils.RES_DIR.resolve("toml").resolve("completion")
                 .resolve("schema_visitor").resolve("config").resolve(configFileName).toString();
         JsonObject configJson =
@@ -53,9 +54,7 @@ public class SchemaVisitorTest {
                 .resolve("schema_visitor").resolve("schema").resolve(schemaFile).toString());
 
         Gson gson = new Gson();
-        Type collectionType = new TypeToken<Map<String, Map<String, CompletionItem>>>() {
-        }.getType();
-        Map<String, Map<String, CompletionItem>> expectedMap = gson.fromJson(expected, collectionType);
+        Map<String, Map<String, CompletionItem>> expectedMap = gson.fromJson(expected, new TypeToken<>() { });
 
         Schema validationSchema = Schema.from(schemaString);
         TomlSchemaVisitor visitor = new TomlSchemaVisitor();
@@ -101,7 +100,6 @@ public class SchemaVisitorTest {
         obj.add("source", configJsonObject.get("source"));
         obj.add("expected", JsonParser.parseString(json));
         String objStr = obj.toString().concat(System.lineSeparator());
-        java.nio.file.Files.write(FileUtils.RES_DIR.resolve(configJsonPath),
-                objStr.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        Files.write(FileUtils.RES_DIR.resolve(configJsonPath), objStr.getBytes(StandardCharsets.UTF_8));
     }
 }

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 
 /**
@@ -27,13 +27,17 @@ import io.ballerina.runtime.api.values.BTable;
  *
  * @since 1.3.0
  */
-public class Reduce {
+public final class Reduce {
 
-    public static Object reduce(BTable<BString, Object> tbl, BFunctionPointer func, Object initial) {
+
+    private Reduce() {
+    }
+
+    public static Object reduce(Environment env, BTable<?, ?> tbl, BFunctionPointer func, Object initial) {
         int size = tbl.values().size();
         Object[] values = tbl.values().toArray();
         for (int i = 0; i < size; i++) {
-            initial = func.call(initial, values[i]);
+            initial = func.call(env.getRuntime(), initial, values[i]);
         }
         return initial;
     }

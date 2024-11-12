@@ -30,7 +30,7 @@ import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Collections;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -41,10 +41,10 @@ import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
  *
  * @since 1.2.0
  */
-public class TokenUpdater {
+public final class TokenUpdater {
 
-    private static PrintStream errStream = System.err;
-    private static PrintStream outStream = System.out;
+    private static final PrintStream ERR_STREAM = System.err;
+    private static final PrintStream OUT_STREAM = System.out;
 
     private TokenUpdater() {
     }
@@ -79,7 +79,7 @@ public class TokenUpdater {
         public void handle(HttpExchange httpExchange) {
             String token = getToken(httpExchange.getRequestURI().getPath());
             String currentUsersHomeDir = System.getProperty("user.home");
-            String settingsTomlPath = String.valueOf(Paths.get(currentUsersHomeDir, ".ballerina", SETTINGS_FILE_NAME));
+            String settingsTomlPath = String.valueOf(Path.of(currentUsersHomeDir, ".ballerina", SETTINGS_FILE_NAME));
             FileOutputStream outputStream = null;
             try {
                 outputStream = new FileOutputStream(settingsTomlPath);
@@ -96,10 +96,10 @@ public class TokenUpdater {
                         outputStream.close();
                     }
                 } catch (IOException e) {
-                    errStream.println("error occurred while closing the output stream: " + e.getMessage());
+                    ERR_STREAM.println("error occurred while closing the output stream: " + e.getMessage());
                 }
             }
-            outStream.println("token updated");
+            OUT_STREAM.println("token updated");
 
             OutputStream os = null;
             try {
@@ -117,7 +117,7 @@ public class TokenUpdater {
                         os.close();
                     }
                 } catch (IOException e) {
-                    errStream.println("error occurred while closing the output stream: " + e.getMessage());
+                    ERR_STREAM.println("error occurred while closing the output stream: " + e.getMessage());
                 }
             }
         }

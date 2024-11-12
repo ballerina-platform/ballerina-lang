@@ -357,15 +357,15 @@ public class SymbolBIRTest {
 
     private List<SymbolInfo> createSymbolInfoList(Object[][] infoArr) {
         List<SymbolInfo> symInfo = new ArrayList<>();
-        for (int i = 0; i < infoArr.length; i++) {
-            symInfo.add(new SymbolInfo((String) infoArr[i][0], (SymbolKind) infoArr[i][1]));
+        for (Object[] objects : infoArr) {
+            symInfo.add(new SymbolInfo((String) objects[0], (SymbolKind) objects[1]));
         }
         return symInfo;
     }
 
     static class SymbolInfo {
-        private String name;
-        private SymbolKind kind;
+        private final String name;
+        private final SymbolKind kind;
 
         SymbolInfo(String name, SymbolKind kind) {
             this.name = name;
@@ -378,11 +378,10 @@ public class SymbolBIRTest {
                 return true;
             }
 
-            if (!(obj instanceof SymbolInfo)) {
+            if (!(obj instanceof SymbolInfo info)) {
                 return false;
             }
 
-            SymbolInfo info = (SymbolInfo) obj;
             return this.name.equals(info.name) && this.kind == info.kind;
         }
 

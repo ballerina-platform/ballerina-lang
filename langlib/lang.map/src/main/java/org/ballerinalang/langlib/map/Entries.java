@@ -37,7 +37,10 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.getFieldType;
  *
  * @since 1.0
  */
-public class Entries {
+public final class Entries {
+
+    private Entries() {
+    }
 
     public static BMap<?, ?> entries(BMap<?, ?> m) {
         Type newFieldType = getFieldType(m.getType(), "entries()");

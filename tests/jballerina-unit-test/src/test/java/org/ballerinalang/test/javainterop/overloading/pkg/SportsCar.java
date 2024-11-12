@@ -33,6 +33,7 @@ public class SportsCar extends Car {
         return prefix + " seat count: " + seatCount;
     }
 
+    @Override
     public long getSeatCount() {
         return seatCount;
     }

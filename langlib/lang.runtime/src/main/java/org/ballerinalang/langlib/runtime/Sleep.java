@@ -30,7 +30,7 @@ import java.math.BigDecimal;
  *
  * @since 2.0.0
  */
-public class Sleep {
+public final class Sleep {
 
     private static final BigDecimal LONG_MAX = new BigDecimal(Long.MAX_VALUE);
 
@@ -49,6 +49,7 @@ public class Sleep {
         env.yieldAndRun(() -> {
             try {
                 Thread.sleep(delay);
+                return null;
             } catch (InterruptedException e) {
                 throw ErrorCreator.createError(StringUtils.fromString("error occurred during sleep"), e);
             }

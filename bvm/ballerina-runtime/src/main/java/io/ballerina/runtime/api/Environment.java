@@ -17,10 +17,9 @@
  */
 package io.ballerina.runtime.api;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.types.Parameter;
 
-import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * When this class is used as the first argument of an interop method, Ballerina will inject an instance of
@@ -47,9 +46,11 @@ public abstract class Environment {
     /**
      * Yield the current execution and run some operation so other non isolated functions can run in asynchronously.
      *
-     * @param runnable operation to be executed.
+     * @param supplier operation to be executed.
+     * @param <T>      supplier type.
+     * @return results supplied by this supplier.
      */
-    public abstract void yieldAndRun(Runnable runnable);
+    public abstract <T> T yieldAndRun(Supplier<T> supplier);
 
     /**
      * Gets an instance of Ballerina runtime.
@@ -78,25 +79,18 @@ public abstract class Environment {
      *
      * @return Optional strand name.
      */
-    public abstract Optional<String> getStrandName();
-
-    /**
-     * Gets {@link StrandMetadata}.
-     *
-     * @return metadata of the strand.
-     */
-    public abstract StrandMetadata getStrandMetadata();
+    public abstract String getStrandName();
 
     /**
      * Sets given local key value pair in strand.
      *
      * @param key   string key
-     * @param value value to be store in the strand
+     * @param value value to be stored in the strand
      */
     public abstract void setStrandLocal(String key, Object value);
 
     /**
-     * Gets the value stored in the strand on given key.
+     * Gets the value stored in the strand on a given key.
      *
      * @param key key
      * @return value stored in the strand.

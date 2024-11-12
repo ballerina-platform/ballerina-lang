@@ -25,7 +25,8 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
+
 
 /**
  * Tests intersection of the same construct via multiple modules.
@@ -34,8 +35,7 @@ import java.nio.file.Paths;
  */
 public class ReadOnlyIntersectionViaMultipleModulesTest extends BaseTest {
 
-    private static final String testFileLocation =
-            Paths.get("src", "test", "resources", "packaging", "readonly", "one")
+    private static final String testFileLocation = Path.of("src/test/resources/packaging/readonly/one")
             .toAbsolutePath().toString();
     private BMainInstance bMainInstance;
 
@@ -43,11 +43,11 @@ public class ReadOnlyIntersectionViaMultipleModulesTest extends BaseTest {
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
         // Build and push down stream packages.
-        compilePackageAndPushToLocal(Paths.get(testFileLocation, "test_project_immutable_foo").toString(),
+        compilePackageAndPushToLocal(Path.of(testFileLocation, "test_project_immutable_foo").toString(),
                                      "testorg-selectively_immutable_foo-any-1.0.0");
-        compilePackageAndPushToLocal(Paths.get(testFileLocation, "test_project_immutable_bar").toString(),
+        compilePackageAndPushToLocal(Path.of(testFileLocation, "test_project_immutable_bar").toString(),
                                      "testorg-selectively_immutable_bar-any-1.0.0");
-        compilePackageAndPushToLocal(Paths.get(testFileLocation, "test_project_immutable_baz").toString(),
+        compilePackageAndPushToLocal(Path.of(testFileLocation, "test_project_immutable_baz").toString(),
                                      "testorg-selectively_immutable_baz-any-1.0.0");
     }
 
@@ -73,7 +73,7 @@ public class ReadOnlyIntersectionViaMultipleModulesTest extends BaseTest {
     private void buildQux() throws BallerinaTestException {
         LogLeecher buildLeecher = new LogLeecher("target/bala/testorg-selectively_immutable_qux-any-1.0.0.bala");
         bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
-                              Paths.get(testFileLocation, "test_project_immutable_qux").toString());
+                              Path.of(testFileLocation, "test_project_immutable_qux").toString());
         buildLeecher.waitForText(5000);
     }
 }

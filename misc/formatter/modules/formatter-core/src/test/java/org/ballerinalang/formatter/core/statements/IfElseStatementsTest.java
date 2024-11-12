@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +31,7 @@ import java.util.List;
  */
 public class IfElseStatementsTest extends FormatterTest {
 
+    @Override
     @Test(dataProvider = "test-file-provider")
     public void test(String source, String sourcePath) throws IOException {
         super.test(source, sourcePath);
@@ -44,9 +45,10 @@ public class IfElseStatementsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("statements", "if-else").toString();
+        return Path.of("statements", "if-else").toString();
     }
 
+    @Override
     public List<String> skipList() {
         ArrayList<String> skip = new ArrayList<>();
         skip.add("if_else_statement_6.bal");

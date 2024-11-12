@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
@@ -74,7 +73,7 @@ public class SingleBalBuildTestCase extends BaseTest {
     @Test(description = "Test building a bal file by giving the path from the current directory")
     public void testBuildingSourceWithCurrentDir() throws Exception {
         // Test bal build
-        String[] clientArgs = {Paths.get("sourcePkg", "main.bal").toString()};
+        String[] clientArgs = {Path.of("sourcePkg", "main.bal").toString()};
         balClient.runMain("build", clientArgs, envVariables, new String[]{},
                 new LogLeecher[]{}, tempProjectDirectory.toString());
         Path generatedBalx = tempProjectDirectory.resolve("main.balx");

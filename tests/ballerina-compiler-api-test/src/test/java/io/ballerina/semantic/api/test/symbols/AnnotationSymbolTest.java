@@ -51,6 +51,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBasicsAndGetSymbol;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleTestSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static java.util.List.of;
 import static org.testng.Assert.assertEquals;
@@ -66,11 +67,17 @@ public class AnnotationSymbolTest {
     private SemanticModel model;
     private Document srcFile;
 
+    private SemanticModel testProjectModel;
+    private Document testFile;
     @BeforeClass
     public void setup() {
         Project project = BCompileUtil.loadProject("test-src/symbols/annotation_symbol_test.bal");
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
+
+        Project testProject = BCompileUtil.loadProject("test-src/annotations_in_tests_project/");
+        testProjectModel = getDefaultModulesSemanticModel(testProject);
+        testFile = getDocumentForSingleTestSource(testProject);
     }
 
     @Test(dataProvider = "PosProvider")
@@ -154,4 +161,59 @@ public class AnnotationSymbolTest {
                 {85, 8, RECORD_FIELD}
         };
     }
+
+    @Test(dataProvider = "TestPosProvider")
+    public void testInTestDir(int line, int col, SymbolKind kind, List<String> annots) {
+        Optional<Symbol> symbol = testProjectModel.symbol(testFile, from(line, col));
+        assertEquals(symbol.get().kind(), kind);
+
+        List<AnnotationSymbol> annotSymbols = ((Annotatable) symbol.get()).annotations();
+
+        assertEquals(annotSymbols.size(), annots.size());
+        for (int i = 0; i < annotSymbols.size(); i++) {
+            assertEquals(annotSymbols.get(i).getName().get(), annots.get(i));
+        }
+    }
+
+    @DataProvider(name = "TestPosProvider")
+    public Object[][] getPosTests() {
+        return new Object[][]{
+                {37, 11, RECORD_FIELD, of("Meta")},
+                {44, 6, CONSTANT, of("v1")},
+                {50, 12, TYPE_DEFINITION, of("v1")},
+                {51, 15, RECORD_FIELD, of("v5")},
+                {60, 6, CLASS, of("v2", "v2")},
+                {61, 15, CLASS_FIELD, of("v5")},
+                {66, 20, METHOD, of("v3")},
+                {66, 69, PARAMETER, of("v4")},
+                {76, 16, FUNCTION, of("v3")},
+                {84, 11, WORKER, of("v1")},
+        };
+    }
+
+    @Test(dataProvider = "AnnotRefTestsPosProvider")
+    public void testAnnotInTestTypes(int line, int col, String annotName, String typeName) {
+        AnnotationSymbol symbol =
+                (AnnotationSymbol) assertBasicsAndGetSymbol(testProjectModel, testFile, line, col, annotName,
+                        ANNOTATION);
+
+        Optional<TypeSymbol> typeSymbol = symbol.typeDescriptor();
+
+        if (typeName != null) {
+            assertTrue(typeSymbol.isPresent());
+            assertEquals(typeSymbol.get().typeKind(), TYPE_REFERENCE);
+            assertEquals(typeSymbol.get().getName().get(), typeName);
+        } else {
+            assertTrue(typeSymbol.isEmpty());
+        }
+    }
+
+    @DataProvider(name = "AnnotRefTestsPosProvider")
+    public Object[][] getTestsAnnotRefPos() {
+        return new Object[][]{
+                {46, 1, "v1", "Annot"},
+                {66, 29, "v4", "Annot"},
+        };
+    }
+
 }

@@ -26,8 +26,12 @@ import io.ballerina.runtime.api.values.BTable;
  *
  * @since 1.3.0
  */
-public class GetIterator {
-    public static BIterator iterator(BTable tbl) {
+public final class GetIterator {
+
+    private GetIterator() {
+    }
+
+    public static BIterator<?> iterator(BTable<?, ?> tbl) {
         return tbl.getIterator();
     }
 }

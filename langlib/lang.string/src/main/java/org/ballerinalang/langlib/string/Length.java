@@ -26,7 +26,10 @@ import org.ballerinalang.langlib.string.utils.StringUtils;
  *
  * @since 0.8.0
  */
-public class Length {
+public final class Length {
+
+    private Length() {
+    }
 
     public static long length(BString value) {
         if (value == null) {

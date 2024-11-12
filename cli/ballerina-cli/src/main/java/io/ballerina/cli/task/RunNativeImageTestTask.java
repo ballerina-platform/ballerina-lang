@@ -52,7 +52,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +64,6 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TESTS_CACHE_DIR_NAME;
-import static io.ballerina.projects.util.ProjectUtils.getResourcesPath;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.CACHE_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTERINA_TEST_SUITE;
@@ -254,40 +252,38 @@ public class RunNativeImageTestTask implements Task {
             //Write the testsuite to the disk
             TestUtils.writeToTestSuiteJson(testSuiteMap, testsCachePath);
 
-            if (hasTests) {
-                int testResult = 1;
-                try {
-                    String warnings = GraalVMCompatibilityUtils.getAllWarnings(
-                            project.currentPackage(), jBallerinaBackend.targetPlatform().code(), true);
-                    if (!warnings.isEmpty()) {
-                        out.println(warnings);
-                    }
-                    testResult = runTestSuiteWithNativeImage(project.currentPackage(), target, testSuiteMap);
-                    if (testResult != 0) {
-                        accumulatedTestResult = testResult;
-                    }
-                    if (report) {
-                        for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
-                            String moduleName = testSuiteEntry.getKey();
-                            ModuleStatus moduleStatus = TestUtils.loadModuleStatusFromFile(
-                                    testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
-                            if (moduleStatus == null) {
-                                continue;
-                            }
-
-                            if (!moduleName.equals(project.currentPackage().packageName().toString())) {
-                                moduleName = ModuleName.from(project.currentPackage().packageName(),
-                                        moduleName).toString();
-                            }
-                            testReport.addModuleStatus(moduleName, moduleStatus);
-                        }
-                    }
-                } catch (IOException e) {
-                    TestUtils.cleanTempCache(project, cachesRoot);
-                    throw createLauncherException("error occurred while running tests: ", e);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+            int testResult;
+            try {
+                String warnings = GraalVMCompatibilityUtils.getAllWarnings(
+                        project.currentPackage(), jBallerinaBackend.targetPlatform().code(), true);
+                if (!warnings.isEmpty()) {
+                    out.println(warnings);
                 }
+                testResult = runTestSuiteWithNativeImage(project.currentPackage(), target, testSuiteMap);
+                if (testResult != 0) {
+                    accumulatedTestResult = testResult;
+                }
+                if (report) {
+                    for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
+                        String moduleName = testSuiteEntry.getKey();
+                        ModuleStatus moduleStatus = TestUtils.loadModuleStatusFromFile(
+                                testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
+                        if (moduleStatus == null) {
+                            continue;
+                        }
+
+                        if (!moduleName.equals(project.currentPackage().packageName().toString())) {
+                            moduleName = ModuleName.from(project.currentPackage().packageName(),
+                                    moduleName).toString();
+                        }
+                        testReport.addModuleStatus(moduleName, moduleStatus);
+                    }
+                }
+            } catch (IOException e) {
+                TestUtils.cleanTempCache(project, cachesRoot);
+                    throw createLauncherException("error occurred while running tests: ", e);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
         if (report && hasTests) {
@@ -330,7 +326,7 @@ public class RunNativeImageTestTask implements Task {
             nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
                     + (NativeUtils.OS.contains("win") ? "native-image.cmd" : "native-image");
 
-            File commandExecutable = Paths.get(nativeImageCommand).toFile();
+            File commandExecutable = Path.of(nativeImageCommand).toFile();
             if (!commandExecutable.exists()) {
                 throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME/bin "
                         + "directory. Install it using: gu install native-image");
@@ -367,9 +363,6 @@ public class RunNativeImageTestTask implements Task {
         // set name and path
         nativeArgs.add("-o " + NativeUtils.convertWinPathToUnixFormat(NativeUtils
                 .addQuotationMarkToString(nativeTargetPath.toString() + "/" + packageName)));
-
-        // Add resources
-        nativeArgs.add("-H:IncludeResources=" + getResourcesPath());
 
         // native-image configs
         nativeArgs.add("-H:ReflectionConfigurationFiles=" + NativeUtils

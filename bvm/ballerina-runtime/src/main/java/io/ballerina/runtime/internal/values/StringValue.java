@@ -55,7 +55,7 @@ public abstract class StringValue implements BString, SimpleValue {
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<String> getIterator() {
         return new CharIterator(this);
     }
 
@@ -94,8 +94,8 @@ public abstract class StringValue implements BString, SimpleValue {
         if (str == this) {
             return true;
         }
-        if (str instanceof BString) {
-            return ((BString) str).getValue().equals(value);
+        if (str instanceof BString bString) {
+            return bString.getValue().equals(value);
         }
         return false;
     }

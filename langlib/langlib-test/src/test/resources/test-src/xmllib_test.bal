@@ -646,7 +646,7 @@ function testXMLIteratorInvocation() {
         public isolated function next() returns record {| 'xml:Text value; |}?;
     } iter3 = seq3.iterator();
 
-    assertEquals((iter3.next()).toString(), "{\"value\":`bit of text1`}");
+    assertEquals((iter3.next()).toString(), "{\"value\":`bit of text1 bit of text2`}");
 
     xml d = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
     xml<'xml:ProcessingInstruction> seq4 = <xml<'xml:ProcessingInstruction>> d.concat(xml `<?pi-node type="cont"?>`);
@@ -721,24 +721,25 @@ function getDescendantsSimpleElement() {
     xml:Element e2 = xml `<TITLE>Empire Burlesque</TITLE>`;
     xml:Text e3 = <xml:Text>xml `Empire Burlesque`;
     xml:Element e4 = xml `<ARTIST>Bob Dylan</ARTIST>`;
-    xml:Text e5 = <xml:Text>xml `Bob Dylan`;
+    xml:Text e5 = <xml:Text>xml `Bob Dylan
+                           `;
     xml:Element e6 = xml `<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>`;
     xml:Element e7 = xml `<TITLE>Hide your heart</TITLE>`;
     xml:Text e8 = <xml:Text>xml `Hide your heart`;
     xml:Element e9 = xml `<ARTIST>Bonnie Tyler</ARTIST>`;
     xml:Text e10 = <xml:Text>xml `Bonnie Tyler`;
 
-    assertEquals(descendantSeq.length(), 11);
+    assertEquals(descendantSeq.length(), 10);
     assertEquals(descendantSeq[0], e1);
     assertEquals(descendantSeq[1], e2);
     assertEquals(descendantSeq[2], e3);
     assertEquals(descendantSeq[3], e4);
     assertEquals(descendantSeq[4], e5);
-    assertEquals(descendantSeq[6], e6);
-    assertEquals(descendantSeq[7], e7);
-    assertEquals(descendantSeq[8], e8);
-    assertEquals(descendantSeq[9], e9);
-    assertEquals(descendantSeq[10], e10);
+    assertEquals(descendantSeq[5], e6);
+    assertEquals(descendantSeq[6], e7);
+    assertEquals(descendantSeq[7], e8);
+    assertEquals(descendantSeq[8], e9);
+    assertEquals(descendantSeq[9], e10);
 }
 
 function getDescendantsWithNS() {
@@ -1248,6 +1249,56 @@ function testXmlFilterValueAndErrorWithNonElementSingletonValues() {
     assertError(trap xml:filter(xml:filter(x3, v => true), y => xml:getChildren(<xml:Element>y).length() == 0),
             "{ballerina}TypeCastError",
             "incompatible types: 'lang.xml:Text' cannot be cast to 'lang.xml:Element'");
+}
+
+function testLangLibCallsWithUnions() {
+    xml<xml:Comment>|xml<xml:Element> s1 = <xml<xml:Element>> xml `<foo/><bar>val</bar>`;
+    int length = s1.length();
+    test:assertValueEqual(length, 2);
+    length = xml:length(s1);
+    test:assertValueEqual(length, 2);
+
+    xml<xml:Comment>|xml<xml:ProcessingInstruction> s2 = <xml<xml:Comment>> xml `<!--foo--><!--bar-->`;
+    object {
+        public isolated function next() returns record {|
+            xml:Comment|xml:ProcessingInstruction value;
+        |}?;
+    } iterator = s2.iterator();
+    test:assertValueEqual(iterator.next(), {value: xml `<!--foo-->`});
+    test:assertValueEqual(iterator.next(), {value: xml `<!--bar-->`});
+    test:assertValueEqual(iterator.next(), ());
+
+    xml:Comment|xml:Element get = s1.get(1);
+    test:assertValueEqual(get, xml `<bar>val</bar>`);
+    test:assertValueEqual(xml:get(s1, 1), xml `<bar>val</bar>`);
+
+    xml:Comment|xml:Element get2 = get.get(0);
+    test:assertValueEqual(get2, xml `<bar>val</bar>`);
+
+    get2 = xml:get(get, 0);
+    test:assertValueEqual(get2, xml `<bar>val</bar>`);
+
+    xml:Element|xml<never> v1 = xml `<baz/>`;
+    xml:Element get3 = v1.get(0);
+    test:assertValueEqual(get3, xml `<baz/>`);
+
+    var fn = function () {
+        xml:Element|xml<never> v = xml ``;
+        xml:Element _ = v.get(1);
+        panic error("expected the get call to panic");
+    };
+    error? fnRes = trap fn();
+    test:assertTrue(fnRes is error);
+    error err = <error> fnRes;
+    test:assertValueEqual(err.message(), "xml sequence index out of range. Length: '1' requested: '1'");
+
+    xml:Element|xml:Element v2 = xml `<books><book>Hamlet</book><book>Macbeth</book></books>`;
+    xml children = v2.getChildren();
+    test:assertValueEqual(children, xml `<book>Hamlet</book><book>Macbeth</book>`);
+
+    xml<xml:Comment>|xml<xml:Comment> s3 = <xml<xml:Comment>> xml `<!--foo--><!--bar-->`;
+    xml:Comment get4 = s3.get(0);
+    test:assertValueEqual(get4, xml `<!--foo-->`);
 }
 
 type Error error<record {string message;}>;

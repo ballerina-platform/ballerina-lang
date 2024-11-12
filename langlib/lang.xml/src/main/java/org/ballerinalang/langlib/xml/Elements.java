@@ -32,14 +32,17 @@ import java.util.List;
  * 
  * @since 0.88
  */
-public class Elements {
+public final class Elements {
 
     private static final String OPERATION = "get elements from xml";
 
+    private Elements() {
+    }
+
     public static BXml elements(BXml xml, Object name) {
         try {
-            if (name instanceof BString) {
-                return xml.elements(((BString) name).getValue());
+            if (name instanceof BString bString) {
+                return xml.elements(bString.getValue());
             }
             return xml.elements();
         } catch (Throwable e) {
@@ -51,7 +54,7 @@ public class Elements {
 
     private static BXml generateCodePointSequence(BXml value) {
         List<BXml> list = new ArrayList<>();
-        BIterator bIterator = value.getIterator();
+        BIterator<?> bIterator = value.getIterator();
         while (bIterator.hasNext()) {
             list.add((BXml) bIterator.next());
         }

@@ -22,7 +22,6 @@ import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
-import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -224,19 +223,27 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 breakpointsMap.put(bp.getLine(), bp);
             }
 
-            SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
+            SetBreakpointsResponse bpResponse = new SetBreakpointsResponse();
             String sourcePathUri = args.getSource().getPath();
             Optional<String> qualifiedClassName = getQualifiedClassName(context, sourcePathUri);
-            qualifiedClassName.ifPresent(className -> {
-                eventProcessor.enableBreakpoints(className, breakpointsMap);
-                BreakpointProcessor breakpointProcessor = eventProcessor.getBreakpointProcessor();
-                Breakpoint[] breakpoints = breakpointProcessor.getUserBreakpoints().get(qualifiedClassName.get())
-                        .values().stream()
-                        .map(BalBreakpoint::getAsDAPBreakpoint)
-                        .toArray(Breakpoint[]::new);
-                breakpointsResponse.setBreakpoints(breakpoints);
-            });
-            return breakpointsResponse;
+            if (qualifiedClassName.isEmpty()) {
+                LOGGER.warn("Failed to set breakpoints. Source path is not a valid Ballerina source: " + sourcePathUri);
+                return bpResponse;
+            }
+
+            eventProcessor.enableBreakpoints(qualifiedClassName.get(), breakpointsMap);
+            BreakpointProcessor bpProcessor = eventProcessor.getBreakpointProcessor();
+            Map<Integer, BalBreakpoint> userBpMap = bpProcessor.getUserBreakpoints().get(qualifiedClassName.get());
+            if (userBpMap == null) {
+                LOGGER.warn("Failed to set breakpoints for source: " + sourcePathUri);
+                return bpResponse;
+            }
+
+            Breakpoint[] breakpoints = userBpMap.values().stream()
+                    .map(BalBreakpoint::getAsDAPBreakpoint)
+                    .toArray(Breakpoint[]::new);
+            bpResponse.setBreakpoints(breakpoints);
+            return bpResponse;
         });
     }
 
@@ -492,10 +499,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 return CompletableFuture.completedFuture(response);
             } else if (variable instanceof BSimpleVariable) {
                 variable.getDapVariable().setVariablesReference(0);
-            } else if (variable instanceof BCompoundVariable) {
+            } else if (variable instanceof BCompoundVariable bCompoundVariable) {
                 int variableReference = nextVarReference.getAndIncrement();
                 variable.getDapVariable().setVariablesReference(variableReference);
-                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
+                loadedCompoundVariables.put(variableReference, bCompoundVariable);
                 updateVariableToStackFrameMap(args.getFrameId(), variableReference);
             }
             Variable dapVariable = variable.getDapVariable();
@@ -781,10 +788,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             }
             if (variable instanceof BSimpleVariable) {
                 variable.getDapVariable().setVariablesReference(0);
-            } else if (variable instanceof BCompoundVariable) {
+            } else if (variable instanceof BCompoundVariable bCompoundVariable) {
                 int variableReference = nextVarReference.getAndIncrement();
                 variable.getDapVariable().setVariablesReference(variableReference);
-                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
+                loadedCompoundVariables.put(variableReference, bCompoundVariable);
                 updateVariableToStackFrameMap(stackFrameReference, variableReference);
             }
             globalVars.add(variable.getDapVariable());
@@ -852,10 +859,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             return null;
         } else if (variable instanceof BSimpleVariable) {
             variable.getDapVariable().setVariablesReference(0);
-        } else if (variable instanceof BCompoundVariable) {
+        } else if (variable instanceof BCompoundVariable bCompoundVariable) {
             int variableReference = nextVarReference.getAndIncrement();
             variable.getDapVariable().setVariablesReference(variableReference);
-            loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
+            loadedCompoundVariables.put(variableReference, bCompoundVariable);
             updateVariableToStackFrameMap(stackFrameRef, variableReference);
         }
         return variable.getDapVariable();
@@ -868,12 +875,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             return new Variable[0];
         }
 
-        if (parentVar instanceof IndexedCompoundVariable) {
+        if (parentVar instanceof IndexedCompoundVariable indexedCompoundVariable) {
             // Handles indexed variables.
             int startIndex = (args.getStart() != null) ? args.getStart() : 0;
             int count = (args.getCount() != null) ? args.getCount() : 0;
 
-            Either<Map<String, Value>, List<Value>> childVars = ((IndexedCompoundVariable) parentVar)
+            Either<Map<String, Value>, List<Value>> childVars = indexedCompoundVariable
                     .getIndexedChildVariables(startIndex, count);
             if (childVars.isLeft()) {
                 // Handles map-type indexed variables.
@@ -883,9 +890,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 return createVariableArrayFrom(args, childVars.getRight());
             }
             return new Variable[0];
-        } else if (parentVar instanceof NamedCompoundVariable) {
+        } else if (parentVar instanceof NamedCompoundVariable namedCompoundVariable) {
             // Handles named variables.
-            Map<String, Value> childVars = ((NamedCompoundVariable) parentVar).getNamedChildVariables();
+            Map<String, Value> childVars = namedCompoundVariable.getNamedChildVariables();
             return createVariableArrayFrom(args, childVars);
         }
 
@@ -901,10 +908,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 return null;
             } else if (variable instanceof BSimpleVariable) {
                 variable.getDapVariable().setVariablesReference(0);
-            } else if (variable instanceof BCompoundVariable) {
+            } else if (variable instanceof BCompoundVariable bCompoundVariable) {
                 int variableReference = nextVarReference.getAndIncrement();
                 variable.getDapVariable().setVariablesReference(variableReference);
-                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
+                loadedCompoundVariables.put(variableReference, bCompoundVariable);
                 updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
             }
             return variable.getDapVariable();
@@ -922,10 +929,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 return null;
             } else if (variable instanceof BSimpleVariable) {
                 variable.getDapVariable().setVariablesReference(0);
-            } else if (variable instanceof BCompoundVariable) {
+            } else if (variable instanceof BCompoundVariable bCompoundVariable) {
                 int variableReference = nextVarReference.getAndIncrement();
                 variable.getDapVariable().setVariablesReference(variableReference);
-                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
+                loadedCompoundVariables.put(variableReference, bCompoundVariable);
                 updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
             }
             return variable.getDapVariable();
@@ -1079,8 +1086,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     outputLogger.sendProgramOutput(line);
                 }
             } catch (Exception e) {
-                String host = clientConfigHolder instanceof ClientAttachConfigHolder ?
-                        ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST) : LOCAL_HOST;
+                String host = clientConfigHolder instanceof ClientAttachConfigHolder clientAttachConfigHolder ?
+                        clientAttachConfigHolder.getHostName().orElse(LOCAL_HOST) : LOCAL_HOST;
                 String portName;
                 try {
                     portName = Integer.toString(clientConfigHolder.getDebuggePort());

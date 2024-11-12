@@ -27,6 +27,9 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class ToCodePointInt {
 
+    private ToCodePointInt() {
+    }
+
     public static long toCodePointInt(BString ch) {
         return ch.getCodePoint(0);
     }

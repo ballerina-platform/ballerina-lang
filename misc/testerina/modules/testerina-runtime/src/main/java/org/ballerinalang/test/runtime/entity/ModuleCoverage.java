@@ -34,7 +34,7 @@ public class ModuleCoverage {
     private int coveredLines;
     private int missedLines;
     private float coveragePercentage;
-    private List<SourceFile> sourceFiles = new ArrayList<>();
+    private final List<SourceFile> sourceFiles = new ArrayList<>();
 
     /**
      * Adds the code snippet from the source file highlighted with covered and missed lines.
@@ -211,9 +211,9 @@ public class ModuleCoverage {
      * Inner class for the SourceFile in Json.
      */
     private static class SourceFile {
-        private String name;
-        private List<Integer> coveredLines;
-        private List<Integer> missedLines;
+        private final String name;
+        private final List<Integer> coveredLines;
+        private final List<Integer> missedLines;
         private List<Integer> emptyLines;
         private float coveragePercentage;
         private String sourceCode;

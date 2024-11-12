@@ -15,12 +15,14 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 dependencies {
     implementation project(':ballerina-tools-api')
-    testImplementation 'org.testng:testng'
-    testImplementation 'com.google.code.gson:gson'
+    testImplementation libs.testng
+    testImplementation libs.gson
     testImplementation ("org.bitbucket.cowwoc:diff-match-patch") {
         because("We use this library to calculate the diff between two Ballerina source files")
     }

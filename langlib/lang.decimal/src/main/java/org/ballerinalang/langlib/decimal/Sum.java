@@ -28,11 +28,14 @@ import java.math.BigDecimal;
  */
 public class Sum {
 
+
+    private Sum() {
+    }
+
     public static BDecimal sum(BDecimal[] ns) {
         BDecimal sum = ValueCreator.createDecimalValue(BigDecimal.ZERO);
-        int size = ns.length;
-        for (int i = 0; i < size; i++) {
-            sum = sum.add(ns[i]);
+        for (BDecimal n : ns) {
+            sum = sum.add(n);
         }
         return sum;
     }

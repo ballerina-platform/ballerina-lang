@@ -46,10 +46,8 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
@@ -75,8 +73,9 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
  *
  * @since 1.2.0
  */
-public class CodeCoverageUtils {
-    private  static final String REPORT_ZIP_DIRECTORY = Paths.get(System.getProperty(BALLERINA_HOME))
+public final class CodeCoverageUtils {
+
+    private  static final String REPORT_ZIP_DIRECTORY = Path.of(System.getProperty(BALLERINA_HOME))
             .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.TOOLS_DIR_NAME)
             .resolve(TesterinaConstants.COVERAGE_DIR).resolve(REPORT_ZIP_NAME).toString()
             .replace(REPORT_ZIP_NAME, "");
@@ -168,7 +167,7 @@ public class CodeCoverageUtils {
     private static boolean isIncluded(String path, String includesInCoverage) {
         boolean isIncluded = false;
         if (includesInCoverage != null) {
-            List<String> includedPackages = Arrays.asList(includesInCoverage.split(":"));
+            String[] includedPackages = includesInCoverage.split(":");
             for (String packageName : includedPackages) {
                 packageName = packageName.replace(".", "/");
                 Pattern pattern = Pattern.compile(normalizeRegexPattern(packageName));

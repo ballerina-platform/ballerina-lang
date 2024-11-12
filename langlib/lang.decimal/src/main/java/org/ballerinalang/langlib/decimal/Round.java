@@ -32,6 +32,9 @@ import java.math.RoundingMode;
  */
 public class Round {
 
+    private Round() {
+    }
+
     public static BDecimal round(BDecimal x, long fractionDigits) {
 
         BigDecimal value = x.value();

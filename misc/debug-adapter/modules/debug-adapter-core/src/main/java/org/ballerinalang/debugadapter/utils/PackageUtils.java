@@ -37,7 +37,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +51,7 @@ import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encod
 /**
  * Package Utils.
  */
-public class PackageUtils {
+public final class PackageUtils {
 
     public static final String BAL_FILE_EXT = ".bal";
     public static final String BAL_TOML_FILE_NAME = "Ballerina.toml";
@@ -66,6 +65,9 @@ public class PackageUtils {
     private static final String URI_SCHEME_BALA = "bala";
 
     private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
+
+    private PackageUtils() {
+    }
 
     /**
      * Returns the corresponding debug source path based on the given stack frame location.
@@ -295,7 +297,7 @@ public class PackageUtils {
     private static Optional<Path> getPathFromURI(String fileUri) {
         try {
             if (isValidPath(fileUri)) {
-                return Optional.of(Paths.get(fileUri).normalize());
+                return Optional.of(Path.of(fileUri).normalize());
             }
 
             URI uri = URI.create(fileUri);
@@ -304,7 +306,7 @@ public class PackageUtils {
                 scheme = URI_SCHEME_FILE;
             }
             URI converted = new URI(scheme, uri.getHost(), uri.getPath(), uri.getFragment());
-            return Optional.of(Paths.get(converted).normalize());
+            return Optional.of(Path.of(converted).normalize());
         } catch (URISyntaxException e) {
             return Optional.empty();
         }
@@ -318,7 +320,7 @@ public class PackageUtils {
             return false;
         }
         try {
-            Paths.get(path);
+            Path.of(path);
         } catch (InvalidPathException ex) {
             return false;
         }

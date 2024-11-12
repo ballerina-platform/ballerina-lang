@@ -27,6 +27,9 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class HasKey {
 
+    private HasKey() {
+    }
+
     @Deprecated
     public static boolean hasKey(BMap<?, ?> m, BString k) {
         return m.containsKey(k);

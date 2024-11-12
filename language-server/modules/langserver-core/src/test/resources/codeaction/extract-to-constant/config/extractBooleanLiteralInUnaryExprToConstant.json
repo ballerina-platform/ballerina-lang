@@ -20,7 +20,7 @@
               "character": 0
             }
           },
-          "newText": "const boolean CONST = true;\n"
+          "newText": "const CONST = true;\n"
         },
         {
           "range": {

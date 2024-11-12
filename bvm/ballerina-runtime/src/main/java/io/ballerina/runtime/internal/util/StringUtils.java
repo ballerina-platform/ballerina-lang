@@ -47,7 +47,7 @@ import static io.ballerina.runtime.api.utils.StringUtils.fromString;
  *
  * @since 2201.6.0
  */
-public class StringUtils {
+public final class StringUtils {
 
     public static final String STR_CYCLE = "...";
     public static final String TO_STRING = "toString";
@@ -77,7 +77,7 @@ public class StringUtils {
             return STR_CYCLE;
         }
         if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            MapValueImpl mapValue = (MapValueImpl) value;
+            MapValueImpl<?, ?> mapValue = (MapValueImpl<?, ?>) value;
             return mapValue.stringValue(parent);
         }
         if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
@@ -136,7 +136,7 @@ public class StringUtils {
             return STR_CYCLE + "[" + node.getIndex() + "]";
         }
         if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            MapValueImpl mapValue = (MapValueImpl) value;
+            MapValueImpl<?, ?> mapValue = (MapValueImpl<?, ?>) value;
             return mapValue.expressionStringValue(parent);
         }
         if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {

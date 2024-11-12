@@ -37,11 +37,10 @@ public abstract class AbstractRenameTest {
     private Path configRoot;
     private Path sourceRoot;
     protected Gson gson = new Gson();
-    protected JsonParser parser = new JsonParser();
     protected Endpoint serviceEndpoint;
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         this.configRoot = FileUtils.RES_DIR.resolve("rename").resolve("expected").resolve(configRoot());
         this.sourceRoot = FileUtils.RES_DIR.resolve("rename").resolve("sources").resolve(sourceRoot());
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
@@ -60,13 +59,13 @@ public abstract class AbstractRenameTest {
         String prepareResponse = TestUtil.getPrepareRenameResponse(sourcePath.toString(), position, serviceEndpoint);
 
         // For invalid positions, response result=null, and is removed by GSON.
-        Assert.assertEquals(parser.parse(prepareResponse).getAsJsonObject().has("result"), isValidRename,
+        Assert.assertEquals(JsonParser.parseString(prepareResponse).getAsJsonObject().has("result"), isValidRename,
                 "Expected valid rename position: " + String.valueOf(isValidRename));
 
         String actualStr = TestUtil.getRenameResponse(sourcePath.toString(), position, varName, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
         JsonObject expected = resultJson.getAsJsonObject("result");
-        JsonObject actual = parser.parse(actualStr).getAsJsonObject().getAsJsonObject("result");
+        JsonObject actual = JsonParser.parseString(actualStr).getAsJsonObject().getAsJsonObject("result");
         if (actual == null) {
             actual = new JsonObject();
         } else {
@@ -78,7 +77,7 @@ public abstract class AbstractRenameTest {
     }
 
     @AfterClass
-    public void shutDownLanguageServer() throws IOException {
+    public void shutDownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 

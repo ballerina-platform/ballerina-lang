@@ -29,12 +29,16 @@ import java.io.PrintStream;
  *
  * @since 2.0.0
  */
-public class Utils {
+public final class Utils {
+
+    private Utils() {
+    }
 
     public static void sleep(Environment env, long delayMillis) {
         env.yieldAndRun(() -> {
             try {
                 Thread.sleep(delayMillis);
+                return null;
             } catch (InterruptedException e) {
                 throw ErrorCreator.createError(e);
             }

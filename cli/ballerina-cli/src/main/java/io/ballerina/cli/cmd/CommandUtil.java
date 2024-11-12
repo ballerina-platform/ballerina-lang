@@ -49,7 +49,6 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.FileInputStream;
@@ -65,7 +64,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
@@ -104,7 +102,8 @@ import static org.wso2.ballerinalang.util.RepoUtils.readSettings;
  *
  * @since 2.0.0
  */
-public class CommandUtil {
+public final class CommandUtil {
+
     public static final String ORG_NAME = "ORG_NAME";
     public static final String PKG_NAME = "PKG_NAME";
     public static final String DIST_VERSION = "DIST_VERSION";
@@ -125,6 +124,9 @@ public class CommandUtil {
     private static Path homeCache;
     private static boolean exitWhenFinish;
     private static String platform;
+
+    private CommandUtil() {
+    }
 
     static void setPrintStream(PrintStream errStream) {
         CommandUtil.errStream = errStream;
@@ -380,7 +382,7 @@ public class CommandUtil {
             String destinationDirName = moduleDirName.split(templatePkgName + ProjectConstants.DOT, 2)[1];
             Path includePathRelativeToModuleRoot = modulesDirPath.resolve(moduleRootPath)
                     .relativize(absoluteIncludePath);
-            return Paths.get(ProjectConstants.MODULES_ROOT).resolve(destinationDirName)
+            return Path.of(ProjectConstants.MODULES_ROOT).resolve(destinationDirName)
                     .resolve(includePathRelativeToModuleRoot);
         }
         return includePath;
@@ -453,13 +455,9 @@ public class CommandUtil {
                 .map(JvmTarget::code)
                 .collect(Collectors.joining(","));
             Settings settings;
-        try {
-            settings = readSettings();
-            // Ignore Settings.toml diagnostics in the pull command
-        } catch (SettingsTomlException e) {
-            // Ignore 'Settings.toml' parsing errors and return empty Settings object
-            settings = Settings.from();
-        }
+        settings = readSettings();
+        // Ignore Settings.toml diagnostics in the pull command
+
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
                 settings.getProxy().password(),
@@ -512,8 +510,8 @@ public class CommandUtil {
             JsonObject dependenciesObj = (JsonObject) dependencies;
             if (null == dependenciesObj.get("scope")) {
                 String libPath = dependenciesObj.get("path").getAsString();
-                Path libName = Optional.of(Paths.get(libPath).getFileName()).get();
-                Path libRelPath = Paths.get("libs", libName.toString());
+                Path libName = Optional.of(Path.of(libPath).getFileName()).get();
+                Path libRelPath = Path.of("libs", libName.toString());
                 Files.writeString(balTomlPath, "\npath = \"" + libRelPath + "\"", StandardOpenOption.APPEND);
             }
 
@@ -872,21 +870,22 @@ public class CommandUtil {
     public static List<String> getTemplates() {
         try {
             Path templateDir = getTemplatePath();
-            Stream<Path> walk = Files.walk(templateDir, 1);
+            try (Stream<Path> walk = Files.walk(templateDir, 1)) {
 
-            List<String> templates = walk.filter(Files::isDirectory)
+                List<String> templates = walk.filter(Files::isDirectory)
                     .filter(directory -> !templateDir.equals(directory))
                     .map(directory -> directory.getFileName())
                     .filter(Objects::nonNull)
                     .map(Path::toString)
-                    .collect(Collectors.toList());
+                    .toList();
 
-            if (null != jarFs) {
-                return templates.stream().map(t -> t
-                        .replace(jarFs.getSeparator(), ""))
-                        .collect(Collectors.toList());
-            } else {
-                return templates;
+                if (null != jarFs) {
+                    return templates.stream().map(t -> t
+                            .replace(jarFs.getSeparator(), ""))
+                        .toList();
+                } else {
+                    return templates;
+                }
             }
 
         } catch (IOException | URISyntaxException e) {
@@ -907,7 +906,7 @@ public class CommandUtil {
             final String[] array = uri.toString().split("!");
             return jarFs.getPath(array[1]);
         } else {
-            return Paths.get(uri);
+            return Path.of(uri);
         }
     }
 
@@ -1000,7 +999,7 @@ public class CommandUtil {
         Files.writeString(balToolToml, balToolManifest);
     }
 
-    protected static PackageVersion findLatest(List<PackageVersion> packageVersions) {
+    private static PackageVersion findLatest(List<PackageVersion> packageVersions) {
         if (packageVersions.isEmpty()) {
             return null;
         }
@@ -1011,7 +1010,7 @@ public class CommandUtil {
         return latestVersion;
     }
 
-    protected static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
+    private static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
         SemanticVersion semVer1 = v1.value();
         SemanticVersion semVer2 = v2.value();
         boolean isV1PreReleaseVersion = semVer1.isPreReleaseVersion();
@@ -1035,7 +1034,7 @@ public class CommandUtil {
         return pathToVersions(versions);
     }
 
-    protected static List<PackageVersion> pathToVersions(List<Path> versions) {
+    private static List<PackageVersion> pathToVersions(List<Path> versions) {
         List<PackageVersion> availableVersions = new ArrayList<>();
         versions.stream().map(path -> Optional.ofNullable(path)
                 .map(Path::getFileName)
@@ -1084,8 +1083,10 @@ public class CommandUtil {
     public static String checkTemplateFilesExists(String template, Path packagePath) throws URISyntaxException,
             IOException {
         Path templateDir = getTemplatePath().resolve(template);
-        Stream<Path> paths = Files.list(templateDir);
-        List<Path> templateFilePathList = paths.toList();
+        List<Path> templateFilePathList;
+        try (Stream<Path> paths = Files.list(templateDir)) {
+            templateFilePathList = paths.toList();
+        }
         StringBuilder existingFiles = new StringBuilder();
         for (Path path : templateFilePathList) {
             Optional<String> fileNameOptional = Optional.ofNullable(path.getFileName()).map(Path::toString);

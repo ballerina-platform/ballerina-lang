@@ -75,7 +75,7 @@ public class RuntimeRegistry {
 
         }
         while (!stopHandlerQueue.isEmpty()) {
-            RuntimeUtils.handleErrorResult(stopHandlerQueue.pollFirst().call());
+            RuntimeUtils.handleErrorResult(stopHandlerQueue.pollFirst().call(scheduler.runtime));
         }
     }
 }

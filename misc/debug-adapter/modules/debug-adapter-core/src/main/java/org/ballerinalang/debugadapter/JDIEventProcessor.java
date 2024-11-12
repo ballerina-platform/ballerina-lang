@@ -59,7 +59,7 @@ public class JDIEventProcessor {
     private final ExecutionContext context;
     private final BreakpointProcessor breakpointProcessor;
     private boolean isRemoteVmAttached = false;
-    private final List<EventRequest> stepRequests = new ArrayList<>();
+    private final List<EventRequest> stepRequests = new CopyOnWriteArrayList<>();
     private static final List<ThreadReference> virtualThreads = new CopyOnWriteArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JDIEventProcessor.class);
 
@@ -108,17 +108,14 @@ public class JDIEventProcessor {
     }
 
     private void processEvent(EventSet eventSet, Event event) {
-        if (event instanceof ClassPrepareEvent) {
+        if (event instanceof ClassPrepareEvent evt) {
             if (context.getLastInstruction() != DebugInstruction.STEP_OVER) {
-                ClassPrepareEvent evt = (ClassPrepareEvent) event;
                 breakpointProcessor.activateUserBreakPoints(evt.referenceType(), true);
             }
             eventSet.resume();
-        } else if (event instanceof BreakpointEvent) {
-            BreakpointEvent bpEvent = (BreakpointEvent) event;
+        } else if (event instanceof BreakpointEvent bpEvent) {
             breakpointProcessor.processBreakpointEvent(bpEvent);
-        } else if (event instanceof StepEvent) {
-            StepEvent stepEvent = (StepEvent) event;
+        } else if (event instanceof StepEvent stepEvent) {
             int threadId = (int) stepEvent.thread().uniqueID();
             if (isBallerinaSource(stepEvent.location())) {
                 notifyStopEvent(event);
@@ -236,10 +233,10 @@ public class JDIEventProcessor {
      * Notifies DAP client that the remote VM is stopped due to a breakpoint hit / step event.
      */
     void notifyStopEvent(Event event) {
-        if (event instanceof BreakpointEvent) {
-            notifyStopEvent(StoppedEventArgumentsReason.BREAKPOINT, ((BreakpointEvent) event).thread().uniqueID());
-        } else if (event instanceof StepEvent) {
-            notifyStopEvent(StoppedEventArgumentsReason.STEP, ((StepEvent) event).thread().uniqueID());
+        if (event instanceof BreakpointEvent breakpointEvent) {
+            notifyStopEvent(StoppedEventArgumentsReason.BREAKPOINT, breakpointEvent.thread().uniqueID());
+        } else if (event instanceof StepEvent stepEvent) {
+            notifyStopEvent(StoppedEventArgumentsReason.STEP, stepEvent.thread().uniqueID());
         }
     }
 

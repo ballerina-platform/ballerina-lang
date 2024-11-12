@@ -31,7 +31,10 @@ import java.util.List;
  *
  * @since 1.2.0
  */
-public class GetMapFunc {
+public final class GetMapFunc {
+
+    private GetMapFunc() {
+    }
 
     public static BFunctionPointer getMapFunc(Object obj) {
         BFunctionPointer functionPointer = (BFunctionPointer) obj;

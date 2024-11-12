@@ -31,7 +31,7 @@ import java.io.InputStream;
  *
  * @since 2201.5.0
  */
-public class ValueUtils {
+public final class ValueUtils {
 
     private ValueUtils() {}
 

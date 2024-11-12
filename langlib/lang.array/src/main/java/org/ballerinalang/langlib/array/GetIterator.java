@@ -28,7 +28,10 @@ import io.ballerina.runtime.api.values.BIterator;
  */
 public class GetIterator {
 
-    public static BIterator iterator(BArray arr) {
+    private GetIterator() {
+    }
+
+    public static BIterator<?> iterator(BArray arr) {
         return arr.getIterator();
     }
 }

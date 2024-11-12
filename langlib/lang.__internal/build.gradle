@@ -15,13 +15,14 @@
  *
  */
 
- 
-apply from: "$rootDir/gradle/ballerinaLangLibBuild.gradle"
+plugins {
+    id 'ballerinaLangLibBuild'
+}
 
 dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
-    implementation 'org.slf4j:slf4j-api'
+    implementation libs.slf4j.api
 
     distributionBala project(path: ':ballerina-lang:annotations', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')

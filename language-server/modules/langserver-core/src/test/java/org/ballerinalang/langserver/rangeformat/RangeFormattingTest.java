@@ -34,7 +34,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -62,7 +61,7 @@ public class RangeFormattingTest {
         Range range = new Range(start, end);
 
         TextDocumentIdentifier textDocumentIdentifier1 = new TextDocumentIdentifier();
-        textDocumentIdentifier1.setUri(Paths.get(inputFilePath.toString()).toUri().toString());
+        textDocumentIdentifier1.setUri(Path.of(inputFilePath.toString()).toUri().toString());
 
         FormattingOptions formattingOptions = new FormattingOptions();
         formattingOptions.setInsertSpaces(true);
@@ -77,14 +76,14 @@ public class RangeFormattingTest {
         String result = TestUtil.getRangeFormatResponse(params, this.serviceEndpoint);
         Gson gson = new Gson();
         ResponseMessage responseMessage = gson.fromJson(result, ResponseMessage.class);
-        String actual = (String) ((LinkedTreeMap) ((List) responseMessage.getResult()).get(0)).get("newText");
+        String actual = (String) ((LinkedTreeMap<?, ?>) ((List<?>) responseMessage.getResult()).get(0)).get("newText");
         actual = actual.replaceAll("\\r\\n", "\n");
         TestUtil.closeDocument(this.serviceEndpoint, inputFilePath);
         Assert.assertEquals(actual, expected);
     }
 
     @AfterClass
-    public void shutdownLanguageServer() throws IOException {
+    public void shutdownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 }

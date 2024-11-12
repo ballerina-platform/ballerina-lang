@@ -31,7 +31,10 @@ import io.ballerina.runtime.api.values.BXml;
  *
  * @since 1.0
  */
-public class Next {
+public final class Next {
+
+    private Next() {
+    }
     public static Object next(BObject m) {
         BIterator<?> xmlIterator = (BIterator<?>) m.getNativeData("&iterator&");
         BXml bXml = (BXml) m.get(StringUtils.fromString("m"));

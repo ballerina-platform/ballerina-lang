@@ -15,13 +15,15 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 description = 'Compiler Plugin - Testerina'
 version = '0.1.0'
 
 dependencies {
-    implementation "com.google.code.gson:gson:${project.gsonVersion}"
+    implementation libs.gson
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')

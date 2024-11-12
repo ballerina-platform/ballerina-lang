@@ -28,13 +28,15 @@ import java.util.StringJoiner;
  *
  * @since 1.0
  */
-public class Join {
+public final class Join {
+
+    private Join() {
+    }
 
     public static BString join(BString separator, Object... strs) {
         StringJoiner stringJoiner = new StringJoiner(separator.getValue());
-        int size = strs.length;
-        for (int i = 0; i < size; i++) {
-            String str = ((BString) strs[i]).getValue();
+        for (Object o : strs) {
+            String str = ((BString) o).getValue();
             stringJoiner.add(str);
         }
         return StringUtils.fromString(stringJoiner.toString());

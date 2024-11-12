@@ -181,28 +181,24 @@ public class BTupleType extends BType implements TupleType {
             return;
         }
 
-        if (type instanceof BArrayType) {
-            BArrayType arrayType = (BArrayType) type;
+        if (type instanceof BArrayType arrayType) {
             if (arrayType.eType == this) {
                 isCyclic = true;
             }
         }
 
-        if (type instanceof BMapType) {
-            BMapType mapType = (BMapType) type;
+        if (type instanceof BMapType mapType) {
             if (mapType.constraint == this) {
                 isCyclic = true;
             }
         }
 
-        if (type instanceof BTableType) {
-            BTableType tableType = (BTableType) type;
+        if (type instanceof BTableType tableType) {
             if (tableType.constraint == this) {
                 isCyclic = true;
             }
 
-            if (tableType.constraint instanceof BMapType) {
-                BMapType mapType = (BMapType) tableType.constraint;
+            if (tableType.constraint instanceof BMapType mapType) {
                 if (mapType.constraint == this) {
                     isCyclic = true;
                 }

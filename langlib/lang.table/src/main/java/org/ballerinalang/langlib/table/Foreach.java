@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 
 /**
@@ -27,13 +27,16 @@ import io.ballerina.runtime.api.values.BTable;
  *
  * @since 1.3.0
  */
-public class Foreach {
+public final class Foreach {
 
-    public static void forEach(BTable<BString, Object> tbl, BFunctionPointer func) {
+    private Foreach() {
+    }
+
+    public static void forEach(Environment env, BTable<?, ?> tbl, BFunctionPointer func) {
         int size = tbl.size();
         Object[] values = tbl.values().toArray();
         for (int i = 0; i < size; i++) {
-            func.call(values[i]);
+            func.call(env.getRuntime(), values[i]);
         }
     }
 }

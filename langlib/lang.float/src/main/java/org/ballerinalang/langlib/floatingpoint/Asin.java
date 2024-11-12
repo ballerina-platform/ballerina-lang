@@ -25,6 +25,10 @@ package org.ballerinalang.langlib.floatingpoint;
  */
 public class Asin {
 
+
+    private Asin() {
+    }
+
     public static double asin(double x) {
         return Math.asin(x);
     }

@@ -27,13 +27,16 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  *
  * @since 1.3.0
  */
-public class Put {
+public final class Put {
 
-    public static void put(BTable tbl, BMap val) {
+    private Put() {
+    }
+
+    public static void put(BTable<Object, Object> tbl, BMap<?, ?> val) {
         tbl.put(val);
     }
 
-    public static void put_bstring(Strand strand, BTable tbl, BMap val) {
+    public static void put_bstring(Strand strand, BTable<Object, Object> tbl, BMap<?, ?> val) {
         put(tbl, val);
     }
 }

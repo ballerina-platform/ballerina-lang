@@ -36,6 +36,10 @@
           "kind": "GT_TOKEN"
         }
       ]
+    },
+    {
+      "kind": "LIST",
+      "children": []
     }
   ]
 }

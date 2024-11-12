@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of sequence type descriptors.
@@ -29,6 +29,7 @@ import java.nio.file.Paths;
  */
 public class SequenceTypesTest extends FormatterTest {
 
+    @Override
     @Test(dataProvider = "test-file-provider")
     public void test(String config, String configPath) throws IOException {
         super.test(config, configPath);
@@ -42,6 +43,6 @@ public class SequenceTypesTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("types", "sequence").toString();
+        return Path.of("types", "sequence").toString();
     }
 }

@@ -222,9 +222,11 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -233,7 +235,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
@@ -267,7 +268,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     private final TypeNarrower typeNarrower;
     private final Types types;
     private final Unifier unifier;
-    private final Stack<String> anonTypeNameSuffixes;
+    private final Deque<String> anonTypeNameSuffixes;
     private final CompilerContext compilerContext;
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
@@ -295,7 +296,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
         this.anonModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.unifier = new Unifier();
-        this.anonTypeNameSuffixes = new Stack<>();
+        this.anonTypeNameSuffixes = new ArrayDeque<>();
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -321,6 +322,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         // Visit constants first.
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
+
+        // topLevelNodes are modified while iterating over them
+        // noinspection ForLoopReplaceableByForEach
         for (int i = 0; i < topLevelNodes.size(); i++) {
             TopLevelNode constant = topLevelNodes.get(i);
             if (constant.getKind() == NodeKind.CONSTANT) {
@@ -331,9 +335,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         validateEnumMemberMetadata(pkgNode.constants);
 
         // Then resolve user defined types without analyzing type definitions that get added while analyzing other nodes
-        for (int i = 0; i < copyOfOriginalTopLevelNodes.size(); i++)  {
-            if (copyOfOriginalTopLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION) {
-                analyzeNode((BLangNode) copyOfOriginalTopLevelNodes.get(i), data);
+        for (TopLevelNode copyOfOriginalTopLevelNode : copyOfOriginalTopLevelNodes) {
+            if (copyOfOriginalTopLevelNode.getKind() == NodeKind.TYPE_DEFINITION) {
+                analyzeNode((BLangNode) copyOfOriginalTopLevelNode, data);
             }
         }
 
@@ -3860,7 +3864,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // Create a new block environment for the on-fail node.
         SymbolEnv onFailEnv = SymbolEnv.createBlockEnv(onFailClause.body, data.env);
         VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
-        Stack<LinkedHashSet<BType>> onFailErrTypes = data.commonAnalyzerData.errorTypes;
+        Deque<LinkedHashSet<BType>> onFailErrTypes = data.commonAnalyzerData.errorTypes;
 
         if (onFailVarDefNode != null) {
             BLangVariable variableNode = (BLangVariable) onFailVarDefNode.getVariable();
@@ -3978,7 +3982,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         BLangExpression errorExpression = failNode.expr;
         BType errorExpressionType = typeChecker.checkExpr(errorExpression, data.env, data.prevEnvs,
                 data.commonAnalyzerData);
-        if (!data.commonAnalyzerData.errorTypes.empty()) {
+        if (!data.commonAnalyzerData.errorTypes.isEmpty()) {
             BType failExprType = failNode.expr.getBType();
             if (failExprType != symTable.semanticError) {
                 BType errorTypes = types.getErrorTypes(failExprType);
@@ -4107,7 +4111,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     private BTypeIdSet getTypeIds(BType type) {
         type = Types.getImpliedType(type);
         int tag = type.tag;
-        if (tag == TypeTags.SERVICE || tag == TypeTags.OBJECT) {
+        if (tag == TypeTags.OBJECT) {
             return ((BObjectType) type).typeIdSet;
         }
         return BTypeIdSet.emptySet();
@@ -4308,13 +4312,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzeNode(node, data);
     }
 
-    public void analyzeNode(BLangNode node, SymbolEnv env, Stack<SymbolEnv> prevEnvs) {
+    public void analyzeNode(BLangNode node, SymbolEnv env, Deque<SymbolEnv> prevEnvs) {
         AnalyzerData data = new AnalyzerData(env);
         data.prevEnvs = prevEnvs;
         analyzeNode(node, data);
     }
 
-    public void analyzeNode(BLangNode node, SymbolEnv env, Stack<SymbolEnv> prevEnvs,
+    public void analyzeNode(BLangNode node, SymbolEnv env, Deque<SymbolEnv> prevEnvs,
                             Types.CommonAnalyzerData commonAnalyzerData) {
         AnalyzerData data = new AnalyzerData(env);
         data.prevEnvs = prevEnvs;
@@ -4322,7 +4326,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzeNode(node, data);
     }
 
-    public void analyzeNode(BLangNode node, SymbolEnv env, Stack<SymbolEnv> prevEnvs,
+    public void analyzeNode(BLangNode node, SymbolEnv env, Deque<SymbolEnv> prevEnvs,
                             QueryTypeChecker queryTypeChecker, Types.CommonAnalyzerData commonAnalyzerData) {
         AnalyzerData data = new AnalyzerData(env);
         data.prevEnvs = prevEnvs;
@@ -5100,7 +5104,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         boolean notCompletedNormally;
         boolean breakFound;
         Types.CommonAnalyzerData commonAnalyzerData = new Types.CommonAnalyzerData();
-        Stack<SymbolEnv> prevEnvs = new Stack<>();
+        Deque<SymbolEnv> prevEnvs = new ArrayDeque<>();
         // The `typeChecker` field is used to set the correct typeChecker to call in query context.
         // TODO: Create new SemanticAnalyzer by extending current SemanticAnalyzer and use from QueryTypeChecker.
         TypeChecker typeChecker = TypeChecker.getInstance(compilerContext);

@@ -61,7 +61,6 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -122,7 +121,7 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
 
                 // Fetch local project connectors.
                 if (request.getTargetFile() != null) {
-                    Path filePath = Paths.get(request.getTargetFile());
+                    Path filePath = Path.of(request.getTargetFile());
                     List<Connector> localConnectors = fetchLocalConnectors(filePath, false, request.getQuery());
                     connectorList.setLocalConnectors(localConnectors);
                 }
@@ -227,7 +226,7 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
         try {
             if (request.getTargetFile() != null) {
                 // Generate local connector metadata.
-                filePath = Paths.get(request.getTargetFile());
+                filePath = Path.of(request.getTargetFile());
             } else {
                 // Generate connector metadata by connector FQN.
                 filePath = resolveBalaPath(request.getOrgName(), request.getModuleName(), request.getVersion());
@@ -295,9 +294,9 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
 
                 Gson gson = new Gson();
                 if (recordNode != null) {
-                    if (recordJson instanceof JsonObject) {
+                    if (recordJson instanceof JsonObject jsonObject) {
                         JsonElement recordsJson = gson.toJsonTree(recordDefJsonMap);
-                        ((JsonObject) recordJson).add("records", recordsJson);
+                        jsonObject.add("records", recordsJson);
                     }
                     recordCache.addRecordAST(request.getOrg(), request.getModule(),
                             request.getVersion(), request.getName(), recordJson);

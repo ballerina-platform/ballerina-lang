@@ -120,9 +120,9 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
 
     public abstract void literalEvaluationTest() throws BallerinaTestException;
 
-    public abstract void listConstructorEvaluationTest() throws BallerinaTestException;
+    public abstract void listConstructorEvaluationTest();
 
-    public abstract void mappingConstructorEvaluationTest() throws BallerinaTestException;
+    public abstract void mappingConstructorEvaluationTest();
 
     public abstract void stringTemplateEvaluationTest() throws BallerinaTestException;
 
@@ -178,7 +178,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
 
     public abstract void conditionalExpressionEvaluationTest() throws BallerinaTestException;
 
-    public abstract void checkingExpressionEvaluationTest() throws BallerinaTestException;
+    public abstract void checkingExpressionEvaluationTest();
 
     public abstract void trapExpressionEvaluationTest() throws BallerinaTestException;
 

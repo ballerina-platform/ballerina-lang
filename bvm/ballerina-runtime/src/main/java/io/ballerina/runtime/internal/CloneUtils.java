@@ -35,7 +35,7 @@ import static io.ballerina.runtime.internal.TypeConverter.MAX_CONVERSION_ERROR_C
  *
  * @since 1.0.0
  */
-public class CloneUtils {
+public final class CloneUtils {
 
     static final String NEWLINE_WITH_TABS = "\n\t\t";
     static final String TWO_SPACES = "  ";
@@ -54,11 +54,10 @@ public class CloneUtils {
             return null;
         }
 
-        if (!(value instanceof BRefValue)) {
+        if (!(value instanceof BRefValue refValue)) {
             return value;
         }
 
-        BRefValue refValue = (BRefValue) value;
         return refValue.copy(new HashMap<>());
     }
 
@@ -74,11 +73,10 @@ public class CloneUtils {
             return null;
         }
 
-        if (!(value instanceof BRefValue)) {
+        if (!(value instanceof BRefValue refValue)) {
             return value;
         }
 
-        BRefValue refValue = (BRefValue) value;
         return refValue.frozenCopy(new HashMap<>());
     }
 

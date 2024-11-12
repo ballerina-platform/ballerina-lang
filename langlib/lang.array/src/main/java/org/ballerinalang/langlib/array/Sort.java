@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -39,9 +40,12 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyO
  *
  * @since 1.0
  */
-public class Sort {
+public final class Sort {
 
-    public static BArray sort(BArray arr, Object direction, Object func) {
+    private Sort() {
+    }
+
+    public static BArray sort(Environment env, BArray arr, Object direction, Object func) {
         checkIsArrayOnlyOperation(TypeUtils.getImpliedType(arr.getType()), "sort()");
         BFunctionPointer function = (BFunctionPointer) func;
 
@@ -50,7 +54,7 @@ public class Sort {
 
         if (function != null) {
             for (int i = 0; i < arr.size(); i++) {
-                sortArr[i][0] = function.call(arr.get(i));
+                sortArr[i][0] = function.call(env.getRuntime(), arr.get(i));
                 sortArr[i][1] = arr.get(i);
             }
         } else {

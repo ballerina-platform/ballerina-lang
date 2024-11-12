@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -48,7 +49,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CL
  * @since 0.995.0
  */
 
-public class RuntimeUtils {
+public final class RuntimeUtils {
 
     private static final String CRASH_LOGGER = "b7a.log.crash";
     private static final PrintStream errStream = System.err;
@@ -72,7 +73,7 @@ public class RuntimeUtils {
      */
     public static void handleFutureAndExit(FutureValue future) {
         try {
-            Object result = future.get();
+            Object result = AsyncUtils.getFutureResult(future.completableFuture);
             if (result instanceof ErrorValue error) {
                 errStream.println("error: " + error.getPrintableError());
                 Runtime.getRuntime().exit(1);
@@ -83,14 +84,14 @@ public class RuntimeUtils {
         }
     }
 
+
     @SuppressWarnings("unused")
     /*
      * Used for codegen. This will handle future value in tests.
      */
     public static boolean handleFutureAndReturnIsPanic(FutureValue future) {
         try {
-            Object result =  future.get();
-            handleErrorResult(result);
+            handleErrorResult(AsyncUtils.getFutureResult(future.completableFuture));
         } catch (ErrorValue error) {
             printToConsole(error);
             return true;
@@ -104,7 +105,7 @@ public class RuntimeUtils {
      */
     public static void handleFuture(FutureValue future) {
         try {
-            handleErrorResult(future.get());
+            handleErrorResult(AsyncUtils.getFutureResult(future.completableFuture));
         } catch (ErrorValue error) {
             printToConsole(error);
         }

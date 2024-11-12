@@ -33,7 +33,10 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
  *
  * @since 2.0.0
  */
-public class ProjectPaths {
+public final class ProjectPaths {
+
+    private ProjectPaths() {
+    }
 
     /**
      * Finds the root directory of a Ballerina package using the filepath provided.
@@ -238,15 +241,13 @@ public class ProjectPaths {
      */
     private static boolean isBallerinaRelatedToml(Path filepath) {
         String fileName = Optional.of(filepath.getFileName()).get().toString();
-        switch (fileName) {
-            case ProjectConstants.BALLERINA_TOML:
-            case ProjectConstants.CLOUD_TOML:
-            case ProjectConstants.CONFIGURATION_TOML:
-            case ProjectConstants.DEPENDENCIES_TOML:
-                return true;
-            default:
-                return false;
-        }
+        return switch (fileName) {
+            case ProjectConstants.BALLERINA_TOML,
+                 ProjectConstants.CLOUD_TOML,
+                 ProjectConstants.CONFIGURATION_TOML,
+                 ProjectConstants.DEPENDENCIES_TOML -> true;
+            default -> false;
+        };
     }
 
     /**

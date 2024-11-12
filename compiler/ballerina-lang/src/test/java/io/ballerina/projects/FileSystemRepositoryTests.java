@@ -27,7 +27,6 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,7 +38,7 @@ import java.util.List;
  */
 public class FileSystemRepositoryTests {
 
-    class MockFileSystemRepository extends FileSystemRepository {
+   private static class MockFileSystemRepository extends FileSystemRepository {
 
         public MockFileSystemRepository(Environment environment, Path cacheDirectory) {
             super(environment, cacheDirectory);
@@ -51,7 +50,7 @@ public class FileSystemRepositoryTests {
         }
     }
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources");
     private static final Path TEST_REPO = RESOURCE_DIRECTORY.resolve("test-repo");
     private FileSystemRepository fileSystemRepository;
 

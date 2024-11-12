@@ -25,7 +25,6 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -36,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link IncludedRecordParameterNode} context.
@@ -50,8 +48,7 @@ public class IncludedRecordParameterNodeContext extends AbstractCompletionProvid
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, IncludedRecordParameterNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, IncludedRecordParameterNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION
@@ -68,7 +65,7 @@ public class IncludedRecordParameterNodeContext extends AbstractCompletionProvid
                     .filter(symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION
                             && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor())
                             .typeKind() == TypeDescKind.RECORD)
-                    .collect(Collectors.toList());
+                    .toList();
             // Add the keywords and snippets related to record type descriptor
             completionItems.addAll(Arrays.asList(
                     new SnippetCompletionItem(ctx, Snippet.KW_RECORD.get()),

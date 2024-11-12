@@ -43,7 +43,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test goto definition language server feature.
@@ -56,7 +55,7 @@ public class DefinitionTest {
     private static final Logger log = LoggerFactory.getLogger(DefinitionTest.class);
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         configRoot = FileUtils.RES_DIR.resolve("definition").resolve("expected");
         sourceRoot = FileUtils.RES_DIR.resolve("definition").resolve("sources");
         this.serviceEndpoint = getServiceEndpoint();
@@ -80,7 +79,7 @@ public class DefinitionTest {
 
     @Test(dataProvider = "testInterStdLibDataProvider")
     public void testInterStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
-        Path ballerinaHome = Paths.get(CommonUtil.BALLERINA_HOME);
+        Path ballerinaHome = Path.of(CommonUtil.BALLERINA_HOME);
         performStdLibDefinitionTest(ballerinaHome, configPath, configDir, true);
         performStdLibDefinitionTest(ballerinaHome, configPath, configDir, false);
     }
@@ -132,7 +131,7 @@ public class DefinitionTest {
     }
 
     @DataProvider
-    protected Object[][] testDataProvider() throws IOException {
+    protected Object[][] testDataProvider() {
         log.info("Test textDocument/definition for Basic Cases");
         return new Object[][]{
                 {"defProject1.json", "project"},
@@ -153,11 +152,17 @@ public class DefinitionTest {
                 {"def_typereference2.json", "project"},
                 {"def_typereference3.json", "project"},
                 {"defProject15.json", "project"},
+                {"defProject16.json", "project"},
+                {"defProject17.json", "project"},
+                {"defProject18.json", "project"},
+                {"defProject19.json", "project"},
+                {"defProject19.json", "project"},
+                {"defProject20.json", "project"}
         };
     }
 
     @DataProvider
-    protected Object[][] testStdLibDataProvider() throws IOException {
+    protected Object[][] testStdLibDataProvider() {
         log.info("Test textDocument/definition for Std Lib Cases");
         return new Object[][]{
                 {"defProject8.json", "project"},
@@ -169,7 +174,7 @@ public class DefinitionTest {
     }
 
     @DataProvider
-    protected Object[][] testInterStdLibDataProvider() throws IOException {
+    protected Object[][] testInterStdLibDataProvider() {
         log.info("Test textDocument/definition for Inter Std Lib Cases");
         return new Object[][]{
                 {"inter_stdlib_config1.json", "stdlib"},
@@ -178,7 +183,7 @@ public class DefinitionTest {
     }
 
     @AfterClass
-    public void shutDownLanguageServer() throws IOException {
+    public void shutDownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
@@ -192,7 +197,7 @@ public class DefinitionTest {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
-            Path expectedPath = Paths.get(root.toUri());
+            Path expectedPath = Path.of(root.toUri());
             for (String uriComponent : uriComponents) {
                 expectedPath = expectedPath.resolve(uriComponent);
             }
@@ -205,7 +210,7 @@ public class DefinitionTest {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
-            Path expectedPath = Paths.get("build").toAbsolutePath();
+            Path expectedPath = Path.of("build").toAbsolutePath();
             for (String uriComponent : uriComponents) {
                 expectedPath = expectedPath.resolve(uriComponent);
             }

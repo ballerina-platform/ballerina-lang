@@ -21,10 +21,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Stack;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 
@@ -36,18 +36,18 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
  */
 public class BLangAnonymousModelHelper {
 
-    private Map<PackageID, Integer> anonTypeCount;
-    private Map<PackageID, Integer> anonServiceCount;
-    private Map<PackageID, Integer> anonFunctionCount;
-    private Map<PackageID, Integer> anonForkCount;
-    private Map<PackageID, Integer> distinctTypeIdCount;
-    private Map<PackageID, Integer> rawTemplateTypeCount;
-    private Map<PackageID, Integer> tupleVarCount;
-    private Map<PackageID, Integer> recordVarCount;
-    private Map<PackageID, Integer> errorVarCount;
-    private Map<PackageID, Integer> intersectionRecordCount;
-    private Map<PackageID, Integer> intersectionErrorCount;
-    private Map<PackageID, Map<String, Integer>> anonTypesNamesPerPkg;
+    private final Map<PackageID, Integer> anonTypeCount;
+    private final Map<PackageID, Integer> anonServiceCount;
+    private final Map<PackageID, Integer> anonFunctionCount;
+    private final Map<PackageID, Integer> anonForkCount;
+    private final Map<PackageID, Integer> distinctTypeIdCount;
+    private final Map<PackageID, Integer> rawTemplateTypeCount;
+    private final Map<PackageID, Integer> tupleVarCount;
+    private final Map<PackageID, Integer> recordVarCount;
+    private final Map<PackageID, Integer> errorVarCount;
+    private final Map<PackageID, Integer> intersectionRecordCount;
+    private final Map<PackageID, Integer> intersectionErrorCount;
+    private final Map<PackageID, Map<String, Integer>> anonTypesNamesPerPkg;
 
     public static final String ANON_PREFIX = "$anon";
     private static final String ANON_TYPE = ANON_PREFIX + "Type$";
@@ -101,17 +101,17 @@ public class BLangAnonymousModelHelper {
         return ANON_TYPE + UNDERSCORE + nextValue;
     }
 
-    public String getNextAnonymousTypeKey(PackageID packageID, Stack<String> suffixes) {
+    public String getNextAnonymousTypeKey(PackageID packageID, Collection<String> suffixes) {
         if (suffixes.isEmpty()) {
             return getNextAnonymousTypeKey(packageID);
         }
         return createAnonTypeName(suffixes, packageID);
     }
 
-    private String createAnonTypeName(Stack<String> suffixes, PackageID pkgId) {
+    private String createAnonTypeName(Collection<String> suffixes, PackageID pkgId) {
         StringBuilder name = new StringBuilder(ANON_TYPE);
-        for (int i = suffixes.size() - 1; i >= 0; i--) {
-            name.append(suffixes.elementAt(i)).append(DOLLAR);
+        for (String suffix : suffixes) {
+            name.append(suffix).append(DOLLAR);
         }
         Map<String, Integer> anonTypesNames = anonTypesNamesPerPkg.computeIfAbsent(pkgId, key -> new HashMap<>());
         String nameStr = name.toString();

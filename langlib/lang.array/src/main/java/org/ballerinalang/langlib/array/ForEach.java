@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -32,12 +33,15 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessF
  */
 public class ForEach {
 
-    public static void forEach(BArray arr, BFunctionPointer func) {
+    private ForEach() {
+    }
+
+    public static void forEach(Environment env, BArray arr, BFunctionPointer func) {
+        int size = arr.size();
         Type arrType = arr.getType();
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
-        int size = arr.size();
         for (int i = 0; i < size; i++) {
-            func.call(getFn.get(arr, i));
+            func.call(env.getRuntime(), getFn.get(arr, i));
         }
     }
 }

@@ -31,8 +31,12 @@ import javax.xml.namespace.QName;
  *
  * @since 1.0
  */
-public class SetName {
+public final class SetName {
+
     private static final String OPERATION = "set element name in xml";
+
+    private SetName() {
+    }
 
 
     public static void setName(BXml xmlVal, BString newNameBStr) {

@@ -66,7 +66,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 1.3.0
  */
-public class ReadOnlyUtils {
+public final class ReadOnlyUtils {
 
     /**
      * Method to handle an update to a value, that is invalid due to the value being immutable.
@@ -224,8 +224,8 @@ public class ReadOnlyUtils {
                 for (Map.Entry<String, Field> entry : originalFields.entrySet()) {
                     Field originalField = entry.getValue();
                     fields.put(entry.getKey(),
-                               new BField(getImmutableType(originalField.getFieldType(), unresolvedTypes),
-                                          originalField.getFieldName(), originalField.getFlags()));
+                            new BField(getImmutableType(originalField.getFieldType(), unresolvedTypes),
+                                    originalField.getFieldName(), originalField.getFlags() | SymbolFlags.READONLY));
                 }
 
                 BRecordType immutableRecordType = new BRecordType(

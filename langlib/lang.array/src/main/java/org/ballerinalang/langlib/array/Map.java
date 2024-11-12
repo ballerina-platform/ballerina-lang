@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -36,9 +37,12 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
  *
  * @since 1.0
  */
-public class Map {
+public final class Map {
 
-    public static BArray map(BArray arr, BFunctionPointer func) {
+    private Map() {
+    }
+
+    public static BArray map(Environment env, BArray arr, BFunctionPointer func) {
         Type elemType = ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType();
         ArrayType retArrType = TypeCreator.createArrayType(elemType);
         BArray retArr = ValueCreator.createArrayValue(retArrType);
@@ -50,7 +54,7 @@ public class Map {
             default -> throw createOpNotSupportedError(arrType, "map()");
         };
         for (int i = 0; i < size; i++) {
-            retArr.add(i, func.call(getFn.get(arr, i)));
+            retArr.add(i, func.call(env.getRuntime(), getFn.get(arr, i)));
         }
         return retArr;
     }

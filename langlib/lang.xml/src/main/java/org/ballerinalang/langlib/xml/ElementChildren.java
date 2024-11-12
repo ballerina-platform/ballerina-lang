@@ -32,7 +32,10 @@ import java.util.List;
  *
  * @since 1.2
  */
-public class ElementChildren {
+public final class ElementChildren {
+
+    private ElementChildren() {
+    }
 
     public static BXml elementChildren(BXml xmlVal, Object nameObj) {
         boolean namedQuery = nameObj != null;

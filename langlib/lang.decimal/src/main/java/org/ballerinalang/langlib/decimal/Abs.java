@@ -28,6 +28,10 @@ import io.ballerina.runtime.api.values.BDecimal;
  */
 public class Abs {
 
+
+    private Abs() {
+    }
+
     public static BDecimal abs(BDecimal n) {
         return ValueCreator.createDecimalValue(n.value().abs());
     }

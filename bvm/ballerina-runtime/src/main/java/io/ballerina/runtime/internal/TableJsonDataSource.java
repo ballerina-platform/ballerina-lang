@@ -47,14 +47,14 @@ import java.util.Map;
  */
 public class TableJsonDataSource implements JsonDataSource {
 
-    private BTable tableValue;
-    private JSONObjectGenerator objGen;
+    private final BTable<?, ?> tableValue;
+    private final JSONObjectGenerator objGen;
 
-    public TableJsonDataSource(BTable tableValue) {
+    public TableJsonDataSource(BTable<?, ?> tableValue) {
         this(tableValue, new DefaultJSONObjectGenerator());
     }
 
-    private TableJsonDataSource(BTable tableValue, JSONObjectGenerator objGen) {
+    private TableJsonDataSource(BTable<?, ?> tableValue, JSONObjectGenerator objGen) {
         this.tableValue = tableValue;
         this.objGen = objGen;
     }
@@ -81,16 +81,12 @@ public class TableJsonDataSource implements JsonDataSource {
     @Override
     public Object build() {
         ArrayValue values = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
-        BIterator itr = this.tableValue.getIterator();
+        BIterator<?> itr = this.tableValue.getIterator();
         while (itr.hasNext()) {
             TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
             //Retrieve table value from key-value tuple
-            BMap record = ((BMap) tupleValue.get(1));
-            try {
-                values.append(this.objGen.transform(record));
-            } catch (IOException e) {
-                throw ErrorCreator.createError(e);
-            }
+            BMap<?, ?> record = ((BMap<?, ?>) tupleValue.get(1));
+            values.append(this.objGen.transform(record));
         }
         return values;
     }
@@ -104,7 +100,7 @@ public class TableJsonDataSource implements JsonDataSource {
         @Override
         public Object transform(BMap<?, ?> record) {
             MapValue<BString, Object> objNode = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
-            for (Map.Entry entry : record.entrySet()) {
+            for (Map.Entry<?, ?> entry : record.entrySet()) {
                 Type type = TypeChecker.getType(entry.getValue());
                 BString keyName = StringUtils.fromString(entry.getKey().toString());
                 constructJsonData(record, objNode, keyName, type);
@@ -152,7 +148,7 @@ public class TableJsonDataSource implements JsonDataSource {
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
                 MapValue<BString, Object> jsonData = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
-                for (Map.Entry entry : record.getMapValue(key).entrySet()) {
+                for (Map.Entry<?, ?> entry : record.getMapValue(key).entrySet()) {
                     Type internalType = TypeChecker.getType(entry.getValue());
                     BString internalKeyName = StringUtils.fromString(entry.getKey().toString());
                     constructJsonData(record.getMapValue(key), jsonData, internalKeyName, internalType);
@@ -192,9 +188,8 @@ public class TableJsonDataSource implements JsonDataSource {
          *
          * @param record The record that should be used in the current position
          * @return The generated JSON object
-         * @throws IOException for JSON reading/serializing errors
          */
-        Object transform(BMap<?, ?> record) throws IOException;
+        Object transform(BMap<?, ?> record);
 
     }
 }

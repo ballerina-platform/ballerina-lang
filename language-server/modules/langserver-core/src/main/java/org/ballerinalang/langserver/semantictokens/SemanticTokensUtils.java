@@ -33,14 +33,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Semantic tokens util class.
  *
  * @since 2.0.0
  */
-public class SemanticTokensUtils {
+public final class SemanticTokensUtils {
 
     private SemanticTokensUtils() {
     }
@@ -73,7 +72,7 @@ public class SemanticTokensUtils {
     public static List<String> getTokenTypes() {
         return Arrays.stream(SemanticTokensContext.TokenTypes.values())
                 .map(SemanticTokensContext.TokenTypes::getValue)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -84,7 +83,7 @@ public class SemanticTokensUtils {
     public static List<String> getTokenTypeModifiers() {
         return Arrays.stream(SemanticTokensContext.TokenTypeModifiers.values())
                 .map(SemanticTokensContext.TokenTypeModifiers::getValue)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

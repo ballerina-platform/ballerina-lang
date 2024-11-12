@@ -28,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.ComputedResourceAccessSegmentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -79,23 +80,15 @@ public class SymbolByClientResourceAccessActionTest extends SymbolByNodeTest {
 
             @Override
             public void visit(ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
-                List<String> expPathSignatures = List.of("path2", "[string id]", "path4");
-                ResourceMethodSymbol symbol =
-                        (ResourceMethodSymbol) assertSymbol(computedResourceAccessSegmentNode, model, RESOURCE_METHOD,
-                                "post");
-                symbol.resourcePath();
-                assertEquals(symbol.resourcePath().kind(), ResourcePath.Kind.PATH_SEGMENT_LIST);
-
-                PathSegmentList pathSegmentList = (PathSegmentList) symbol.resourcePath();
-                assertTrue(pathSegmentList.list().stream()
-                        .allMatch(pathSeg -> expPathSignatures.contains(pathSeg.signature())));
+                Optional<Symbol> symbol = model.symbol(computedResourceAccessSegmentNode);
+                Assert.assertTrue(symbol.isEmpty());
             }
         };
     }
 
     @Override
     void verifyAssertCount() {
-        assertEquals(getAssertCount(), 3);
+        assertEquals(getAssertCount(), 2);
     }
 
     private Symbol assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {

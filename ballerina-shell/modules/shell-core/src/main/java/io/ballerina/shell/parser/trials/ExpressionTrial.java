@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeParser;
+import io.ballerina.shell.parser.ParserConstants;
 import io.ballerina.shell.parser.TrialTreeParser;
 
 import java.util.ArrayList;
@@ -57,7 +58,16 @@ public class ExpressionTrial extends TreeParserTrial {
         if (expressionNode.hasDiagnostics()) {
             throw new ParserTrialFailedException("Error occurred during extracting expression from the statement");
         }
+        validateExpression(expressionNode.toSourceCode());
         nodes.add(expressionNode);
         return nodes;
+    }
+
+    private void validateExpression(String expression) {
+        String functionName = expression.replaceAll("\\s*\\(.*", "");
+        if (ParserConstants.isFunctionNameRestricted(functionName)) {
+            String message = String.format("Function name '%s' not allowed in Ballerina Shell.%n", functionName);
+            throw new InvalidMethodException(message);
+        }
     }
 }

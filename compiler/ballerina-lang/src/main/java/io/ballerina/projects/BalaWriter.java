@@ -49,7 +49,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -147,7 +146,7 @@ public abstract class BalaWriter {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String balaJson = gson.toJson(new BalaJson());
         try {
-            putZipEntry(balaOutputStream, Paths.get(BALA_JSON),
+            putZipEntry(balaOutputStream, Path.of(BALA_JSON),
                     new ByteArrayInputStream(balaJson.getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
             throw new ProjectException("Failed to write 'bala.json' file: " + e.getMessage(), e);
@@ -189,7 +188,7 @@ public abstract class BalaWriter {
                 .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
 
         try {
-            putZipEntry(balaOutputStream, Paths.get(PACKAGE_JSON),
+            putZipEntry(balaOutputStream, Path.of(PACKAGE_JSON),
                     new ByteArrayInputStream(gson.toJson(packageJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
             throw new ProjectException("Failed to write 'package.json' file: " + e.getMessage(), e);
@@ -260,7 +259,7 @@ public abstract class BalaWriter {
         final String moduleMdFileName = "Module.md";
 
         Path packageMd = packageSourceDir.resolve(packageMdFileName);
-        Path docsDirInBala = Paths.get(BALA_DOCS_DIR);
+        Path docsDirInBala = Path.of(BALA_DOCS_DIR);
 
         // If `Package.md` exists, create the docs directory & add `Package.md`
         if (packageMd.toFile().exists()) {
@@ -334,7 +333,7 @@ public abstract class BalaWriter {
             for (DocumentId docId : module.documentIds()) {
                 Document document = module.document(docId);
                 if (document.name().endsWith(BLANG_SOURCE_EXT)) {
-                    Path documentPath = Paths.get(MODULES_ROOT, module.moduleName().toString(), document.name());
+                    Path documentPath = Path.of(MODULES_ROOT, module.moduleName().toString(), document.name());
                     char[] documentContent = document.textDocument().toCharArray();
 
                     putZipEntry(balaOutputStream, documentPath,
@@ -350,7 +349,7 @@ public abstract class BalaWriter {
         // copy resources
         for (DocumentId documentId : packageContext.resourceIds()) {
             String resourceFile = packageContext.resourceContext(documentId).name();
-            Path resourcePath = Paths.get(RESOURCE_DIR_NAME).resolve(resourceFile);
+            Path resourcePath = Path.of(RESOURCE_DIR_NAME).resolve(resourceFile);
             if (resourceFiles.add(resourcePath.toString())) {
                 putZipEntry(balaOutputStream, resourcePath, new ByteArrayInputStream(
                         packageContext.resourceContext(documentId).content()));
@@ -371,7 +370,7 @@ public abstract class BalaWriter {
             }
 
             for (Map.Entry<String, byte[]> entry : cachedResources.entrySet()) {
-                putZipEntry(balaOutputStream, Paths.get(entry.getKey()), new ByteArrayInputStream(entry.getValue()));
+                putZipEntry(balaOutputStream, Path.of(entry.getKey()), new ByteArrayInputStream(entry.getValue()));
             }
         }
     }
@@ -412,7 +411,7 @@ public abstract class BalaWriter {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         try {
-            putZipEntry(balaOutputStream, Paths.get(DEPENDENCY_GRAPH_JSON),
+            putZipEntry(balaOutputStream, Path.of(DEPENDENCY_GRAPH_JSON),
                         new ByteArrayInputStream(gson.toJson(depGraphJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
             throw new ProjectException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
@@ -427,7 +426,7 @@ public abstract class BalaWriter {
             String packageName = this.packageContext.packageName().toString();
             Path modulePath = moduleRootPath.resolve(moduleRootPath.relativize(relativePath).subpath(0, 1));
             Path pathInsideModule = modulePath.relativize(relativePath);
-            String moduleName = Optional.ofNullable(modulePath.getFileName()).orElse(Paths.get("")).toString();
+            String moduleName = Optional.ofNullable(modulePath.getFileName()).orElse(Path.of("")).toString();
             String updatedModuleName = packageName + ProjectConstants.DOT + moduleName;
             Path updatedModulePath = moduleRootPath.resolve(updatedModuleName);
             return updatedModulePath.resolve(pathInsideModule);
@@ -495,7 +494,7 @@ public abstract class BalaWriter {
     }
 
     private Path getIconPath(String icon) {
-        Path iconPath = Paths.get(icon);
+        Path iconPath = Path.of(icon);
         if (!iconPath.isAbsolute()) {
             iconPath = this.packageContext.project().sourceRoot().resolve(iconPath);
         }
@@ -522,7 +521,7 @@ public abstract class BalaWriter {
                         putDirectoryToZipFile(sourceDir.resolve(file.getName()), pathInZipFile, out);
                     } else {
                         Path fileNameInBala =
-                                pathInZipFile.resolve(sourceDir.relativize(Paths.get(file.getPath())));
+                                pathInZipFile.resolve(sourceDir.relativize(Path.of(file.getPath())));
                         putZipEntry(out, fileNameInBala,
                                 new FileInputStream(sourceDir + File.separator + file.getName()));
                     }
@@ -547,7 +546,7 @@ public abstract class BalaWriter {
             if (File.separatorChar == '\\') {
                 String replaced;
                 // Following is to evade spotbug issue if file is null
-                replaced = Optional.ofNullable(file.getFileName()).orElse(Paths.get("")).toString();
+                replaced = Optional.ofNullable(file.getFileName()).orElse(Path.of("")).toString();
                 Path parent = file.getParent();
                 while (parent != null) {
                     replaced = parent.getFileName() + UNIX_FILE_SEPARATOR + replaced;

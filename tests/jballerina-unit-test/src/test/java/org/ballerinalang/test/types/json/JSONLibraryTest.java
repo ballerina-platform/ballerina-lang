@@ -106,7 +106,7 @@ public class JSONLibraryTest {
     }
 
     @Test
-    public void testJsonEscapeChars() throws IOException {
+    public void testJsonEscapeChars() {
         String json = "[{\"a\":\"abc\\\"\", \"x\":\"1\\b\\f\", \"c\":3.14, \"d\":true, \"e\":false, \"f\":null, \"g\":"
                 + "{\"1\\n2\":\"a\\r\", \"2\":\"b\"}, \"h\":[\"A\\tB\", 20, 30, \"D\\\\\"]}]";
         String expected =

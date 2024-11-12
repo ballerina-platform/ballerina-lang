@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.javainterop;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -84,7 +85,7 @@ public class RefTypeTests {
         Object returns = BRunUtil.invoke(result, "interopWithRefTypesAndMapReturn");
 
         Assert.assertTrue(returns instanceof BMap);
-        BMap bMap = (BMap) returns;
+        BMap<?, ?> bMap = (BMap<?, ?>) returns;
         Assert.assertEquals(bMap.toString(), "{\"a\":object Person,\"b\":[5,\"hello\",object Person]," +
                 "\"c\":{\"name\":\"sameera\"},\"e\":object Person,\"f\":83,\"g\":{\"name\":\"sample\"}}");
     }
@@ -305,7 +306,7 @@ public class RefTypeTests {
         Assert.assertTrue(returns instanceof HandleValue);
         HandleValue handle = (HandleValue) returns;
         Assert.assertTrue(handle.getValue() instanceof Map);
-        Map map = (Map) handle.getValue();
+        Map<?, ?> map = (Map<?, ?>) handle.getValue();
         Assert.assertEquals(map.size(), 1);
         Assert.assertEquals(map.get("name"), "John");
     }
@@ -359,7 +360,7 @@ public class RefTypeTests {
         return new XmlItem(new QName("hello"));
     }
 
-    public static io.ballerina.runtime.api.values.BString getStringFromXML(XmlValue x) {
+    public static BString getStringFromXML(XmlValue x) {
         return StringUtils.fromString(x.toString());
     }
 
@@ -391,15 +392,15 @@ public class RefTypeTests {
         return x;
     }
 
-    public static int useFunctionPointer(FPValue fp) {
-        return ((Long) fp.call(new Object[]{3, 4})).intValue();
+    public static int useFunctionPointer(Environment env, FPValue fp) {
+        return ((Long) fp.call(env.getRuntime(), new Object[]{3, 4})).intValue();
     }
 
     public static FPValue getFunctionPointer(Object fp) {
         return (FPValue) fp;
     }
 
-    public static io.ballerina.runtime.api.values.BString useTypeDesc(TypedescValue type) {
+    public static BString useTypeDesc(TypedescValue type) {
         return StringUtils.fromString(type.stringValue(null));
     }
 
@@ -421,7 +422,7 @@ public class RefTypeTests {
         return new HandleValue(m);
     }
 
-    public static io.ballerina.runtime.api.values.BString useHandle(HandleValue h) {
+    public static BString useHandle(HandleValue h) {
         Map<String, String> m = (Map<String, String>) h.getValue();
         return StringUtils.fromString(m.get("name"));
     }

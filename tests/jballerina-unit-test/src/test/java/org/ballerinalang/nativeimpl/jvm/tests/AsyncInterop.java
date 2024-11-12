@@ -27,7 +27,10 @@ import org.testng.Assert;
  *
  * @since 1.0.0
  */
-public class AsyncInterop {
+public final class AsyncInterop {
+
+    private AsyncInterop() {
+    }
 
     public static int countSlowly(Environment env) {
         Thread.startVirtualThread(AsyncInterop::sleep);

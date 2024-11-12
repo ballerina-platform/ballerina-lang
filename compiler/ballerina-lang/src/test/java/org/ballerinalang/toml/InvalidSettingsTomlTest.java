@@ -29,7 +29,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -42,7 +41,7 @@ public class InvalidSettingsTomlTest {
     public void testParseTomlContentFromFile() throws IOException, URISyntaxException {
         URI settingsTomlURI = Objects.requireNonNull(getClass().getClassLoader().getResource("invalid-settings.toml"))
                 .toURI();
-        Path settingsFilePath = Paths.get(settingsTomlURI);
+        Path settingsFilePath = Path.of(settingsTomlURI);
 
         TomlDocument settingsTomlDocument = TomlDocument
                 .from(String.valueOf(settingsFilePath.getFileName()), Files.readString(settingsFilePath));

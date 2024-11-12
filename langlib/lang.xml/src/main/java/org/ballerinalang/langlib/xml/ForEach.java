@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.xml;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BXml;
 
@@ -26,16 +27,19 @@ import io.ballerina.runtime.api.values.BXml;
  *
  * @since 1.0
  */
-public class ForEach {
+public final class ForEach {
 
-    public static void forEach(BXml x, BFunctionPointer func) {
+    private ForEach() {
+    }
+
+    public static void forEach(Environment env, BXml x, BFunctionPointer func) {
         if (x.isSingleton()) {
-            func.call(x);
+            func.call(env.getRuntime(), x);
             return;
         }
         int size = x.size();
         for (int i = 0; i < size; i++) {
-            func.call(x.getItem(i));
+            func.call(env.getRuntime(), x.getItem(i));
         }
     }
 }

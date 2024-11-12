@@ -27,6 +27,9 @@ import io.ballerina.runtime.api.values.BArray;
  */
 public class RemoveAll {
 
+    private RemoveAll() {
+    }
+
     public static void removeAll(BArray arr) {
         SetLength.setLength(arr, 0);
     }

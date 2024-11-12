@@ -25,9 +25,12 @@ import io.ballerina.runtime.api.values.BTable;
  *
  * @since 1.3.0
  */
-public class RemoveIfHasKey {
+public final class RemoveIfHasKey {
 
-    public static Object removeIfHasKey(BTable tbl, Object key) {
+    private RemoveIfHasKey() {
+    }
+
+    public static Object removeIfHasKey(BTable<?, ?> tbl, Object key) {
         return tbl.remove(key);
     }
 }

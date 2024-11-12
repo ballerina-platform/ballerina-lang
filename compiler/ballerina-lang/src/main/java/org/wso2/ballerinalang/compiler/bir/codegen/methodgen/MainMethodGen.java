@@ -27,9 +27,7 @@ import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -72,8 +70,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIG_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DAEMON_STRAND_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_AND_EXIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_AND_RETURN_IS_PANIC_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_THROWABLE_METHOD;
@@ -94,7 +90,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_VARIABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_ISOLATED_WORKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_NON_ISOLATED_WORKER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_ARGUMENTS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_CONFIG_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
@@ -109,8 +104,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_SCHEDULER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TEST_CONFIG_PATH;
@@ -119,7 +112,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_F
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CLI_SPEC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIG;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIGURABLES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIGURABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPERAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUNTIME;
@@ -144,19 +137,13 @@ public class MainMethodGen {
     private final SymbolTable symbolTable;
     private final BIRVarToJVMIndexMap indexMap;
     private final JvmTypeGen jvmTypeGen;
-    private final AsyncDataCollector asyncDataCollector;
-    private final String strandMetadataClass;
     private final boolean isRemoteMgtEnabled;
 
-    public MainMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen,
-                         AsyncDataCollector asyncDataCollector, boolean isRemoteMgtEnabled,
-                         String moduleInitClass) {
+    public MainMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen, boolean isRemoteMgtEnabled) {
         this.symbolTable = symbolTable;
         // add main string[] args param first
         indexMap = new BIRVarToJVMIndexMap(1);
         this.jvmTypeGen = jvmTypeGen;
-        this.asyncDataCollector = asyncDataCollector;
-        this.strandMetadataClass = jvmConstantsGen.getStrandMetadataConstantsClass();
         this.isRemoteMgtEnabled = isRemoteMgtEnabled;
     }
 
@@ -179,11 +166,10 @@ public class MainMethodGen {
         // check for java compatibility
         generateJavaCompatibilityCheck(mv);
         generateBallerinaRuntimeInformation(mv);
-        invokeConfigInit(mv, pkg.packageID);
+        genRuntimeAndGetScheduler(mv, initClass, runtimeVarIndex, schedulerVarIndex);
+        invokeConfigInit(mv, pkg.packageID, runtimeVarIndex);
         // TRAP signal handler
         genStartTrapSignalHandler(mv);
-
-        genRuntimeAndGetScheduler(mv, initClass, runtimeVarIndex, schedulerVarIndex);
         // register a shutdown hook to call package stop() method.
         if (!isTestable) {
             genShutdownHook(mv, initClass, runtimeVarIndex);
@@ -248,7 +234,7 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, initClass, CURRENT_MODULE_STOP_METHOD, CURRENT_MODULE_STOP, false);
     }
 
-    private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
+    private void invokeConfigInit(MethodVisitor mv, PackageID packageID, int runtimeVarIndex) {
         String configClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
         mv.visitTypeInsn(NEW, HASH_MAP);
         mv.visitInsn(DUP);
@@ -276,6 +262,7 @@ public class MainMethodGen {
         mv.visitFieldInsn(GETFIELD, CONFIG_DETAILS, "paths", GET_PATH);
         mv.visitVarInsn(ALOAD, configDetailsIndex);
         mv.visitFieldInsn(GETFIELD, CONFIG_DETAILS, "configContent", GET_STRING);
+        mv.visitVarInsn(ALOAD, runtimeVarIndex);
         mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, INIT_CONFIG, false);
         String moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
         mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
@@ -285,7 +272,7 @@ public class MainMethodGen {
         mv.visitFieldInsn(GETFIELD, CONFIG_DETAILS, "paths", GET_PATH);
         mv.visitVarInsn(ALOAD, configDetailsIndex);
         mv.visitFieldInsn(GETFIELD, CONFIG_DETAILS, "configContent", GET_STRING);
-        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "initConfigurableVariables", INIT_CONFIGURABLES, false);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "initConfigurableVariables", INIT_CONFIGURABLE, false);
     }
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {
@@ -455,9 +442,7 @@ public class MainMethodGen {
         mv.visitInsn(ACONST_NULL);
         BType anyType = symbolTable.anyType;
         jvmTypeGen.loadType(mv, anyType);
-        String metaDataVarName = JvmCodeGenUtil.setAndGetStrandMetadataVarName(MAIN_METHOD, asyncDataCollector);
         mv.visitLdcInsn(MAIN_METHOD);
-        mv.visitFieldInsn(GETSTATIC, strandMetadataClass, metaDataVarName, GET_STRAND_METADATA);
         mv.visitInsn(ACONST_NULL);
         if (userMainFunc != null) {
             loadCLIArgsForMain(mv, userMainFunc.parameters, userMainFunc.annotAttachments);
@@ -473,13 +458,6 @@ public class MainMethodGen {
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, START_NON_ISOLATED_WORKER, SCHEDULE_CALL, false);
         }
         mv.visitVarInsn(ASTORE, futureVarIndex);
-        setDaemonStrand(mv, futureVarIndex);
-    }
-
-    private void setDaemonStrand(MethodVisitor mv, int futureVarIndex) {
-        mv.visitVarInsn(ALOAD, futureVarIndex);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, STRAND, GET_STRAND);
-        mv.visitFieldInsn(PUTSTATIC, SCHEDULER, DAEMON_STRAND_NAME, GET_STRAND);
     }
 
     private void handleFutureValue(MethodVisitor mv, String initClass, boolean isTestable, int futureVarIndex) {
