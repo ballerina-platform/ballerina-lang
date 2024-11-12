@@ -361,9 +361,8 @@ public class RunNativeImageTestTask implements Task {
 
 
         // set name and path
-        nativeArgs.add("-H:Name=" + NativeUtils.addQuotationMarkToString(packageName));
-        nativeArgs.add("-H:Path=" + NativeUtils.convertWinPathToUnixFormat(NativeUtils
-                .addQuotationMarkToString(nativeTargetPath.toString())));
+        nativeArgs.add("-o " + NativeUtils.convertWinPathToUnixFormat(NativeUtils
+                .addQuotationMarkToString(nativeTargetPath.toString() + "/" + packageName)));
 
         // native-image configs
         nativeArgs.add("-H:ReflectionConfigurationFiles=" + NativeUtils
