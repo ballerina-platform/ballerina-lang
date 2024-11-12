@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 36,
+    "character": 24
+  },
+  "source": "fixReturnTypeForQueryExpr.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'stream<Person, error>'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 34,
+              "character": 38
+            },
+            "end": {
+              "line": 34,
+              "character": 38
+            }
+          },
+          "newText": " returns stream<Person, error>"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

@@ -65,6 +65,7 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 import io.ballerina.shell.exceptions.SnippetException;
+import io.ballerina.shell.parser.ParserConstants;
 import io.ballerina.shell.snippet.SnippetSubKind;
 import io.ballerina.shell.snippet.types.ExpressionSnippet;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
@@ -75,6 +76,7 @@ import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * A factory that will create snippets from given nodes.
@@ -124,8 +126,7 @@ public class BasicSnippetFactory extends SnippetFactory {
 
     @Override
     public ImportDeclarationSnippet createImportSnippet(Node node) {
-        if (node instanceof ImportDeclarationNode) {
-            ImportDeclarationNode importDeclarationNode = (ImportDeclarationNode) node;
+        if (node instanceof ImportDeclarationNode importDeclarationNode) {
             return new ImportDeclarationSnippet(importDeclarationNode);
         }
         return null;
@@ -141,10 +142,9 @@ public class BasicSnippetFactory extends SnippetFactory {
             return null;
         }
 
-        if (node instanceof ModuleVariableDeclarationNode) {
-            dclnNode = (ModuleVariableDeclarationNode) node;
-        } else if (node instanceof VariableDeclarationNode) {
-            VariableDeclarationNode varNode = (VariableDeclarationNode) node;
+        if (node instanceof ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
+            dclnNode = moduleVariableDeclarationNode;
+        } else if (node instanceof VariableDeclarationNode varNode) {
             VariableDeclarationNode newNode = null;
             NodeList<Token> qualifiers = NodeFactory.createEmptyNodeList();
             // Only final qualifier is transferred.
@@ -153,19 +153,38 @@ public class BasicSnippetFactory extends SnippetFactory {
                 qualifiers = NodeFactory.createNodeList(varNode.finalKeyword().get());
             }
 
-            if (((VariableDeclarationNode) node).initializer().get().kind() == SyntaxKind.QUERY_ACTION) {
+            Optional<ExpressionNode> optVarInitNode = varNode.initializer();
+            if (optVarInitNode.isEmpty()) {
+                assert false : "This line is unreachable as the error is captured before.";
+                addErrorDiagnostic("Variable declaration without an initializer is not allowed");
+                return null;
+            }
+
+            ExpressionNode varInitNode = optVarInitNode.get();
+            SyntaxKind nodeKind = varInitNode.kind();
+            if (isSupportedAction(nodeKind)) {
                 TypedBindingPatternNode typedBindingPatternNode = varNode.typedBindingPattern();
                 TypeDescriptorNode typeDescriptorNode = typedBindingPatternNode.typeDescriptor();
                 BindingPatternNode bindingPatternNode = typedBindingPatternNode.bindingPattern();
-                String functionPart = "function() returns ";
-                String functionBody = varNode.initializer().get().toString();
-                String functionString = "var " + "f_" + varFunctionCount + " = " + functionPart
-                        + typeDescriptorNode.toString() + "{" + typeDescriptorNode + bindingPatternNode.toString()
-                        + " = " + functionBody + ";" + "return " + bindingPatternNode + ";};";
-                varNode = (VariableDeclarationNode) NodeParser.parseStatement(functionString);
-                newNode = (VariableDeclarationNode) NodeParser
-                        .parseStatement(typeDescriptorNode + " " + bindingPatternNode
-                                         + " = f_" + varFunctionCount + "();");
+
+                // Check if the type descriptor of the variable is 'var' as it is not yet supported.
+                if (typeDescriptorNode.kind() == SyntaxKind.VAR_TYPE_DESC) {
+                    addErrorDiagnostic("'var' type is not yet supported for actions. Please specify the exact type.");
+                    return null;
+                }
+
+                boolean isCheckAction = nodeKind == SyntaxKind.CHECK_ACTION;
+                String initAction = varInitNode.toSourceCode();
+                String functionTypeDesc = (isCheckAction ? "function() returns error|" :
+                        "function() returns ") + typeDescriptorNode;
+                String functionName = ParserConstants.WRAPPER_PREFIX + varFunctionCount;
+                String functionVarDecl = String.format("%s %s = %s {%s %s = %s; return %s;};", functionTypeDesc,
+                        functionName, functionTypeDesc, typeDescriptorNode, bindingPatternNode, initAction,
+                        bindingPatternNode);
+                varNode = (VariableDeclarationNode) NodeParser.parseStatement(functionVarDecl);
+                newNode = (VariableDeclarationNode) NodeParser.parseStatement(
+                        String.format("%s %s = %s %s();", typeDescriptorNode, bindingPatternNode,
+                                (isCheckAction ? "check " : ""), functionName));
             }
 
             varFunctionCount += 1;
@@ -209,14 +228,14 @@ public class BasicSnippetFactory extends SnippetFactory {
             return null;
         }
 
-        if (node instanceof ModuleMemberDeclarationNode) {
+        if (node instanceof ModuleMemberDeclarationNode moduleMemberDeclarationNode) {
             assert MODULE_MEM_DCLNS.containsKey(node.getClass());
             SnippetSubKind subKind = MODULE_MEM_DCLNS.get(node.getClass());
             if (subKind.hasError()) {
                 addErrorDiagnostic(subKind.getError());
                 throw new SnippetException();
             } else if (subKind.isValid()) {
-                return new ModuleMemberDeclarationSnippet(subKind, (ModuleMemberDeclarationNode) node);
+                return new ModuleMemberDeclarationSnippet(subKind, moduleMemberDeclarationNode);
             }
         }
         return null;
@@ -243,8 +262,8 @@ public class BasicSnippetFactory extends SnippetFactory {
 
     @Override
     public ExpressionSnippet createExpressionSnippet(Node node) {
-        if (node instanceof ExpressionNode) {
-            return new ExpressionSnippet((ExpressionNode) node);
+        if (node instanceof ExpressionNode expressionNode) {
+            return new ExpressionSnippet(expressionNode);
         }
         return null;
     }
@@ -256,14 +275,33 @@ public class BasicSnippetFactory extends SnippetFactory {
      * @return node contains isolated keyword or not.
      */
     private boolean containsIsolated(Node node) {
-        if (node instanceof ModuleVariableDeclarationNode) {
-            NodeList<Token> nodeList = ((ModuleVariableDeclarationNode) node).qualifiers();
+        if (node instanceof ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
+            NodeList<Token> nodeList = moduleVariableDeclarationNode.qualifiers();
              return nodeList.stream().anyMatch(token -> token.kind() == SyntaxKind.ISOLATED_KEYWORD);
-        } else if (node instanceof FunctionDefinitionNode) {
-            NodeList<Token> nodeList = ((FunctionDefinitionNode) node).qualifierList();
+        } else if (node instanceof FunctionDefinitionNode functionDefinitionNode) {
+            NodeList<Token> nodeList = functionDefinitionNode.qualifierList();
             return nodeList.stream().anyMatch(token -> token.kind() == SyntaxKind.ISOLATED_KEYWORD);
         }
 
         return false;
+    }
+
+    private boolean isSupportedAction(SyntaxKind nodeKind) {
+        return switch (nodeKind) {
+            case REMOTE_METHOD_CALL_ACTION,
+                 BRACED_ACTION,
+                 CHECK_ACTION,
+                 START_ACTION,
+                 TRAP_ACTION,
+                 FLUSH_ACTION,
+                 ASYNC_SEND_ACTION,
+                 SYNC_SEND_ACTION,
+                 RECEIVE_ACTION,
+                 WAIT_ACTION,
+                 QUERY_ACTION,
+                 COMMIT_ACTION,
+                 CLIENT_RESOURCE_ACCESS_ACTION -> true;
+            default -> false;
+        };
     }
 }

@@ -1,0 +1,14 @@
+{
+  "organization": "ballerinax",
+  "name": "twitter",
+  "version": "1.0.0",
+  "export": [
+    "twitter"
+  ],
+  "ballerina_version": "2201.8.0-SNAPSHOT",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "2023R1",
+  "platform": "any",
+  "graalvmCompatible": true,
+  "template": false
+}

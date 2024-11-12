@@ -32,14 +32,16 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Finds Symbols within a document.
  *
  * @since 2.0.0
  */
-public class DocumentSymbolUtil {
+public final class DocumentSymbolUtil {
+
+    private DocumentSymbolUtil() {
+    }
 
     /**
      * get document symbols given the context.
@@ -81,9 +83,9 @@ public class DocumentSymbolUtil {
      * @return isDeprecated.
      */
     public static boolean isDeprecated(MetadataNode metadata) {
-        return metadata.annotations().stream().filter(annotation ->
+        return !metadata.annotations().stream().filter(annotation ->
                 annotation.annotReference().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
                         && ((SimpleNameReferenceNode) annotation.annotReference()).name().text()
-                        .equals("deprecated")).collect(Collectors.toList()).size() > 0;
+                        .equals("deprecated")).toList().isEmpty();
     }
 }

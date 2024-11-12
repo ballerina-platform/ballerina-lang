@@ -34,10 +34,14 @@ import java.util.Map;
 /**
  * This class can be used to send http request.
  */
-public class HttpClientRequest {
+public final class HttpClientRequest {
+
     private static final Logger LOG = LoggerFactory.getLogger(HttpClientRequest.class);
     private static final int DEFAULT_READ_TIMEOUT = 30000;
     private static final int DEFAULT_CONNECT_TIMEOUT = 15000;
+
+    private HttpClientRequest() {
+    }
 
     /**
      * Send an HTTP POST request to a service.
@@ -87,7 +91,7 @@ public class HttpClientRequest {
     }
 
     private static HttpResponse buildResponse(HttpURLConnection conn) throws IOException {
-        return buildResponse(conn, defaultResponseBuilder);
+        return buildResponse(conn, DEFAULT_RESPONSE_BUILDER);
     }
 
     private static HttpResponse buildResponse(HttpURLConnection conn,
@@ -125,7 +129,7 @@ public class HttpClientRequest {
         return httpResponse;
     }
 
-    private static CheckedFunction<BufferedReader, String> defaultResponseBuilder = ((bufferedReader) -> {
+    private static final CheckedFunction<BufferedReader, String> DEFAULT_RESPONSE_BUILDER = ((bufferedReader) -> {
         String line;
         StringBuilder sb = new StringBuilder();
         while ((line = bufferedReader.readLine()) != null) {

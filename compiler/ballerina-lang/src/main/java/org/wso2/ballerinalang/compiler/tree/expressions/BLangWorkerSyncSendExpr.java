@@ -17,14 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.WorkerSendSyncExpressionNode;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -34,17 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  *
  * @since 0.985
  */
-public class BLangWorkerSyncSendExpr extends BLangExpression implements WorkerSendSyncExpressionNode {
-
-    // BLangNodes
-    public BLangIdentifier workerIdentifier;
-    public BLangExpression expr;
-
-    // Semantic Data
-    public BLangWorkerReceive receive;
-    public BSymbol workerSymbol;
-    public SymbolEnv env;
-    public BType workerType;
+public class BLangWorkerSyncSendExpr extends BLangWorkerSendExpr {
 
     @Override
     public NodeKind getKind() {
@@ -64,21 +47,6 @@ public class BLangWorkerSyncSendExpr extends BLangExpression implements WorkerSe
     @Override
     public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
         return modifier.transform(this, props);
-    }
-
-    @Override
-    public ExpressionNode getExpression() {
-        return expr;
-    }
-
-    @Override
-    public IdentifierNode getWorkerName() {
-        return workerIdentifier;
-    }
-
-    @Override
-    public void setWorkerName(IdentifierNode identifierNode) {
-        this.workerIdentifier = (BLangIdentifier) identifierNode;
     }
 
     public String toActionString() {

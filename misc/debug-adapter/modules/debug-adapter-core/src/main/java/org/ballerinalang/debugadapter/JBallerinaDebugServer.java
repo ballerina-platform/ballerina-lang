@@ -30,6 +30,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.identifier.Utils;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
+import org.ballerinalang.debugadapter.BreakpointProcessor.DynamicBreakpointMode;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.completion.CompletionGenerator;
 import org.ballerinalang.debugadapter.completion.context.CompletionContext;
@@ -120,7 +121,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getInjectedExpressionNode;
@@ -216,6 +216,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<SetBreakpointsResponse> setBreakpoints(SetBreakpointsArguments args) {
         return CompletableFuture.supplyAsync(() -> {
+            SetBreakpointsResponse bpResponse = new SetBreakpointsResponse();
+            if (isNoDebugMode()) {
+                return bpResponse;
+            }
+
             BalBreakpoint[] balBreakpoints = Arrays.stream(args.getBreakpoints())
                     .map((SourceBreakpoint sourceBreakpoint) -> toBreakpoint(sourceBreakpoint, args.getSource()))
                     .toArray(BalBreakpoint[]::new);
@@ -225,19 +230,26 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 breakpointsMap.put(bp.getLine(), bp);
             }
 
-            SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
             String sourcePathUri = args.getSource().getPath();
             Optional<String> qualifiedClassName = getQualifiedClassName(context, sourcePathUri);
-            qualifiedClassName.ifPresent(className -> {
-                eventProcessor.enableBreakpoints(className, breakpointsMap);
-                BreakpointProcessor breakpointProcessor = eventProcessor.getBreakpointProcessor();
-                Breakpoint[] breakpoints = breakpointProcessor.getUserBreakpoints().get(qualifiedClassName.get())
-                        .values().stream()
-                        .map(BalBreakpoint::getAsDAPBreakpoint)
-                        .toArray(Breakpoint[]::new);
-                breakpointsResponse.setBreakpoints(breakpoints);
-            });
-            return breakpointsResponse;
+            if (qualifiedClassName.isEmpty()) {
+                LOGGER.warn("Failed to set breakpoints. Source path is not a valid Ballerina source: " + sourcePathUri);
+                return bpResponse;
+            }
+
+            eventProcessor.enableBreakpoints(qualifiedClassName.get(), breakpointsMap);
+            BreakpointProcessor bpProcessor = eventProcessor.getBreakpointProcessor();
+            Map<Integer, BalBreakpoint> userBpMap = bpProcessor.getUserBreakpoints().get(qualifiedClassName.get());
+            if (userBpMap == null) {
+                LOGGER.warn("Failed to set breakpoints for source: " + sourcePathUri);
+                return bpResponse;
+            }
+
+            Breakpoint[] breakpoints = userBpMap.values().stream()
+                    .map(BalBreakpoint::getAsDAPBreakpoint)
+                    .toArray(Breakpoint[]::new);
+            bpResponse.setBreakpoints(breakpoints);
+            return bpResponse;
         });
     }
 
@@ -312,7 +324,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             return CompletableFuture.completedFuture(threadsResponse);
         }
         Thread[] threads = new Thread[threadsMap.size()];
-        threadsMap.values().stream().map(this::toDapThread).collect(Collectors.toList()).toArray(threads);
+        threadsMap.values().stream().map(this::toDapThread).toList().toArray(threads);
         threadsResponse.setThreads(threads);
         return CompletableFuture.completedFuture(threadsResponse);
     }
@@ -418,7 +430,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<ContinueResponse> continue_(ContinueArguments args) {
-        prepareFor(DebugInstruction.CONTINUE);
+        prepareFor(DebugInstruction.CONTINUE, args.getThreadId());
         context.getDebuggeeVM().resume();
         ContinueResponse continueResponse = new ContinueResponse();
         continueResponse.setAllThreadsContinued(true);
@@ -427,27 +439,23 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> next(NextArguments args) {
-        prepareFor(DebugInstruction.STEP_OVER);
+        prepareFor(DebugInstruction.STEP_OVER, args.getThreadId());
         eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_OVER);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> stepIn(StepInArguments args) {
-        prepareFor(DebugInstruction.STEP_IN);
+        prepareFor(DebugInstruction.STEP_IN, args.getThreadId());
         eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> stepOut(StepOutArguments args) {
-        stepOut(args.getThreadId());
+        prepareFor(DebugInstruction.STEP_OUT, args.getThreadId());
+        eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_OUT);
         return CompletableFuture.completedFuture(null);
-    }
-
-    void stepOut(int threadId) {
-        prepareFor(DebugInstruction.STEP_OUT);
-        eventProcessor.sendStepRequest(threadId, StepRequest.STEP_OUT);
     }
 
     @Override
@@ -493,10 +501,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 return CompletableFuture.completedFuture(response);
             } else if (variable instanceof BSimpleVariable) {
                 variable.getDapVariable().setVariablesReference(0);
-            } else if (variable instanceof BCompoundVariable) {
+            } else if (variable instanceof BCompoundVariable bCompoundVariable) {
                 int variableReference = nextVarReference.getAndIncrement();
                 variable.getDapVariable().setVariablesReference(variableReference);
-                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
+                loadedCompoundVariables.put(variableReference, bCompoundVariable);
                 updateVariableToStackFrameMap(args.getFrameId(), variableReference);
             }
             Variable dapVariable = variable.getDapVariable();
@@ -782,10 +790,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             }
             if (variable instanceof BSimpleVariable) {
                 variable.getDapVariable().setVariablesReference(0);
-            } else if (variable instanceof BCompoundVariable) {
+            } else if (variable instanceof BCompoundVariable bCompoundVariable) {
                 int variableReference = nextVarReference.getAndIncrement();
                 variable.getDapVariable().setVariablesReference(variableReference);
-                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
+                loadedCompoundVariables.put(variableReference, bCompoundVariable);
                 updateVariableToStackFrameMap(stackFrameReference, variableReference);
             }
             globalVars.add(variable.getDapVariable());
@@ -853,10 +861,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             return null;
         } else if (variable instanceof BSimpleVariable) {
             variable.getDapVariable().setVariablesReference(0);
-        } else if (variable instanceof BCompoundVariable) {
+        } else if (variable instanceof BCompoundVariable bCompoundVariable) {
             int variableReference = nextVarReference.getAndIncrement();
             variable.getDapVariable().setVariablesReference(variableReference);
-            loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
+            loadedCompoundVariables.put(variableReference, bCompoundVariable);
             updateVariableToStackFrameMap(stackFrameRef, variableReference);
         }
         return variable.getDapVariable();
@@ -869,12 +877,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             return new Variable[0];
         }
 
-        if (parentVar instanceof IndexedCompoundVariable) {
+        if (parentVar instanceof IndexedCompoundVariable indexedCompoundVariable) {
             // Handles indexed variables.
             int startIndex = (args.getStart() != null) ? args.getStart() : 0;
             int count = (args.getCount() != null) ? args.getCount() : 0;
 
-            Either<Map<String, Value>, List<Value>> childVars = ((IndexedCompoundVariable) parentVar)
+            Either<Map<String, Value>, List<Value>> childVars = indexedCompoundVariable
                     .getIndexedChildVariables(startIndex, count);
             if (childVars.isLeft()) {
                 // Handles map-type indexed variables.
@@ -884,9 +892,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 return createVariableArrayFrom(args, childVars.getRight());
             }
             return new Variable[0];
-        } else if (parentVar instanceof NamedCompoundVariable) {
+        } else if (parentVar instanceof NamedCompoundVariable namedCompoundVariable) {
             // Handles named variables.
-            Map<String, Value> childVars = ((NamedCompoundVariable) parentVar).getNamedChildVariables();
+            Map<String, Value> childVars = namedCompoundVariable.getNamedChildVariables();
             return createVariableArrayFrom(args, childVars);
         }
 
@@ -902,10 +910,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 return null;
             } else if (variable instanceof BSimpleVariable) {
                 variable.getDapVariable().setVariablesReference(0);
-            } else if (variable instanceof BCompoundVariable) {
+            } else if (variable instanceof BCompoundVariable bCompoundVariable) {
                 int variableReference = nextVarReference.getAndIncrement();
                 variable.getDapVariable().setVariablesReference(variableReference);
-                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
+                loadedCompoundVariables.put(variableReference, bCompoundVariable);
                 updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
             }
             return variable.getDapVariable();
@@ -923,10 +931,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 return null;
             } else if (variable instanceof BSimpleVariable) {
                 variable.getDapVariable().setVariablesReference(0);
-            } else if (variable instanceof BCompoundVariable) {
+            } else if (variable instanceof BCompoundVariable bCompoundVariable) {
                 int variableReference = nextVarReference.getAndIncrement();
                 variable.getDapVariable().setVariablesReference(variableReference);
-                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
+                loadedCompoundVariables.put(variableReference, bCompoundVariable);
                 updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
             }
             return variable.getDapVariable();
@@ -1076,8 +1084,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     outputLogger.sendProgramOutput(line);
                 }
             } catch (Exception e) {
-                String host = clientConfigHolder instanceof ClientAttachConfigHolder ?
-                        ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST) : LOCAL_HOST;
+                String host = clientConfigHolder instanceof ClientAttachConfigHolder clientAttachConfigHolder ?
+                        clientAttachConfigHolder.getHostName().orElse(LOCAL_HOST) : LOCAL_HOST;
                 String portName;
                 try {
                     portName = Integer.toString(clientConfigHolder.getDebuggePort());
@@ -1112,10 +1120,23 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     /**
      * Clears previous state information and prepares for the given debug instruction type execution.
      */
-    private void prepareFor(DebugInstruction instruction) {
+    private void prepareFor(DebugInstruction instruction, int threadId) {
         clearState();
-        eventProcessor.getBreakpointProcessor().restoreUserBreakpoints(instruction);
-        context.setLastInstruction(instruction);
+        BreakpointProcessor bpProcessor = eventProcessor.getBreakpointProcessor();
+        DebugInstruction prevInstruction = context.getPrevInstruction();
+        if (prevInstruction == DebugInstruction.STEP_OVER && instruction == DebugInstruction.CONTINUE) {
+            bpProcessor.restoreUserBreakpoints();
+        } else if (prevInstruction == DebugInstruction.CONTINUE && instruction == DebugInstruction.STEP_OVER) {
+            bpProcessor.activateDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT, false);
+        } else if (instruction == DebugInstruction.STEP_OVER) {
+            bpProcessor.activateDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT, true);
+        }
+        context.setPrevInstruction(instruction);
+    }
+
+    private boolean isNoDebugMode() {
+        ClientConfigHolder confHolder = context.getAdapter().getClientConfigHolder();
+        return confHolder instanceof ClientLaunchConfigHolder launchConfigHolder && launchConfigHolder.isNoDebugMode();
     }
 
     /**

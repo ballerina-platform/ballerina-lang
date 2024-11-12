@@ -20,9 +20,11 @@ package org.ballerinalang.test.jvm;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -37,11 +39,11 @@ public class ForeachArrayTests {
 
     private CompileResult program;
 
-    private int[] iValues = {1, -3, 5, -30, 4, 11, 25, 10};
-    private double[] fValues = {1.123, -3.35244, 5.23, -30.45, 4.32, 11.56, 25.967, 10.345};
-    private String[] sValues = {"foo", "bar", "bax", "baz"};
-    private boolean[] bValues = {true, false, false, false, true, false};
-    private String[] tValues = {"name=bob,age=10", "name=tom,age=16"};
+    private final int[] iValues = {1, -3, 5, -30, 4, 11, 25, 10};
+    private final double[] fValues = {1.123, -3.35244, 5.23, -30.45, 4.32, 11.56, 25.967, 10.345};
+    private final String[] sValues = {"foo", "bar", "bax", "baz"};
+    private final boolean[] bValues = {true, false, false, false, true, false};
+    private final String[] tValues = {"name=bob,age=10", "name=tom,age=16"};
 
     @BeforeClass
     public void setup() {
@@ -218,9 +220,36 @@ public class ForeachArrayTests {
         Assert.assertEquals(returns.toString(), "0:d0 1: 2:d2 3: ");
     }
 
+    @Test(dataProvider = "listIterationTestFunctions")
+    public void testListIteration(String functionName) {
+        BRunUtil.invoke(program, functionName);
+    }
+
+    @DataProvider(name = "listIterationTestFunctions")
+    public Object[][] listIterationTestFunctions() {
+        return new Object[][]{
+                {"testQueryInsideLoop"},
+                {"testListConstructor"},
+                {"testTuple"},
+                {"testEmptyArray"},
+                {"testFunctionCall"},
+                {"testQueryExpressions"}
+        };
+    }
+
+    // These ensure observable behaviour of foreach statements are the same even when we optimize away the iterator
     @Test
-    public void testEmptyArray() {
-        BRunUtil.invoke(program, "testEmptyArray");
+    public void testMutatingArray() {
+        BRunUtil.invoke(program, "testMutatingArray");
+    }
+
+    @Test
+    public void testRemoveElementsWhileIterating() {
+        try {
+            BRunUtil.invoke(program, "testRemoveElementsWhileIterating");
+        } catch (BLangTestException ex) {
+            Assert.assertTrue(ex.getMessage().contains("array index out of range: index: 2, size: 1"));
+        }
     }
 
     @AfterClass

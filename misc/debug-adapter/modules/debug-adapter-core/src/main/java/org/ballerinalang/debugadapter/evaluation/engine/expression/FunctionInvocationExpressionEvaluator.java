@@ -35,7 +35,6 @@ import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
@@ -102,7 +101,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
             functionMatches = resolvedImports.get(modulePrefix.get()).getResolvedSymbol().functions().stream()
                     .filter(symbol -> symbol.getName().isPresent() &&
                             modifyName(symbol.getName().get()).equals(functionName))
-                    .collect(Collectors.toList());
+                    .toList();
 
             if (functionMatches.size() == 1 && !isPublicSymbol(functionMatches.get(0))) {
                 throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, functionName);
@@ -115,7 +114,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                     .filter(symbol -> symbol.kind() == FUNCTION && symbol.getName().isPresent()
                             && modifyName(symbol.getName().get()).equals(functionName))
                     .map(symbol -> (FunctionSymbol) symbol)
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         if (functionMatches.isEmpty()) {

@@ -234,8 +234,8 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                         .orElseThrow();
                 LinePosition fnPosition = request.getFnPosition();
                 Symbol fnSymbol = semanticModel.symbol(document, fnPosition).orElseThrow();
-                if (fnSymbol instanceof FunctionSymbol) {
-                    FunctionTypeSymbol fnTypeSymbol = ((FunctionSymbol) fnSymbol).typeDescriptor();
+                if (fnSymbol instanceof FunctionSymbol functionSymbol) {
+                    FunctionTypeSymbol fnTypeSymbol = functionSymbol.typeDescriptor();
 
                     Optional<ResolvedTypeForSymbol> returnType =
                             getTypeForReturnTypeDesc(fnTypeSymbol, request.getReturnTypeDescPosition());
@@ -373,8 +373,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                     typeSymbol = classTypeSymbol.get();
                 }
 
-                if (typeSymbol instanceof ClassSymbol) {
-                    ClassSymbol classSymbol = (ClassSymbol) typeSymbol;
+                if (typeSymbol instanceof ClassSymbol classSymbol) {
                     if (classSymbol.initMethod().isEmpty()) {
                         break;
                     }
@@ -397,8 +396,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
 
         List<SymbolDocumentation.ParameterInfo> symbolParams = new ArrayList<>();
 
-        if (symbolAtCursor instanceof FunctionSymbol) {
-            FunctionSymbol functionSymbol = (FunctionSymbol) symbolAtCursor;
+        if (symbolAtCursor instanceof FunctionSymbol functionSymbol) {
 
             if (functionSymbol.typeDescriptor().params().isPresent()) {
                 List<ParameterSymbol> parameterSymbolList = functionSymbol.typeDescriptor().params().get();
@@ -406,14 +404,11 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                 parameterSymbolList
                         .subList(skipFirstParam(symbolAtCursor, nodeAtCursor) ? 1 : 0, parameterSymbolList.size())
                         .stream().filter((parameterSymbol) -> parameterSymbol.getName().isPresent())
-                        .forEach(parameterSymbol -> {
-
-                            symbolParams.add(new SymbolDocumentation.ParameterInfo(
-                                    parameterSymbol.getName().get(),
-                                    documentation.get().parameterMap().get(parameterSymbol.getName().get()),
-                                    parameterSymbol.paramKind().name(),
-                                    NameUtil.getModifiedTypeName(context, parameterSymbol.typeDescriptor())));
-                        });
+                        .forEach(parameterSymbol -> symbolParams.add(new SymbolDocumentation.ParameterInfo(
+                                parameterSymbol.getName().get(),
+                                documentation.get().parameterMap().get(parameterSymbol.getName().get()),
+                                parameterSymbol.paramKind().name(),
+                                NameUtil.getModifiedTypeName(context, parameterSymbol.typeDescriptor()))));
             }
 
             Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
@@ -431,9 +426,8 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
         List<SymbolDocumentation.ParameterInfo> deprecatedParams = new ArrayList<>(
                 documentation.get().deprecatedParametersMap().size());
         Map<String, String> deprecatedParamMap = documentation.get().deprecatedParametersMap();
-        deprecatedParamMap.forEach((param, desc) -> {
-            deprecatedParams.add(new SymbolDocumentation.ParameterInfo(param, desc));
-        });
+        deprecatedParamMap.forEach((param, desc) ->
+            deprecatedParams.add(new SymbolDocumentation.ParameterInfo(param, desc)));
 
         SymbolDocumentation symbolDoc = new SymbolDocumentation(documentation.get(), symbolParams,
                 deprecatedParams);

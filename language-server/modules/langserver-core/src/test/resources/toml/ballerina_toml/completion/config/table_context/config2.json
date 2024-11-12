@@ -27,6 +27,27 @@
       "insertText": "[[platform.java17.repository]]"
     },
     {
+      "label": "platform.java11",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[platform.java11]"
+    },
+    {
+      "label": "platform.java11.dependency",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java11.dependency]]"
+    },
+    {
+      "label": "platform.java11.repository",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java11.repository]]"
+    },
+    {
       "label": "license",
       "kind": "Snippet",
       "detail": "Array",
@@ -92,6 +113,13 @@
       "detail": "Boolean",
       "sortText": "A",
       "insertText": "template=${1:false}"
+    },
+    {
+      "label": "format",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[format]"
     }
   ]
 }

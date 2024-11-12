@@ -96,10 +96,11 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
 
     @Test
     public void testFindTokenWithEndTextPosition() {
-        String text = "import ballerina/http;\n" +
-                "import ballerina/lang.'object as lang;\n" +
-                "\n" +
-                "http:";
+        String text = """
+                import ballerina/http;
+                import ballerina/lang.'object as lang;
+
+                http:""";
         int lastIndex = text.length();
 
         SyntaxTree syntaxTree = SyntaxTree.from(TextDocuments.from(text));
@@ -111,11 +112,12 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
 
     @Test
     public void testFindTokenInsideMinutiae() {
-        String text = "import ballerina/http;\n" +
-                "import ballerina/lang.'object as lang;\n" +
-                "\n" +
-                "@http:ServiceConfig\n" +
-                "import ballerina/log;";
+        String text = """
+                import ballerina/http;
+                import ballerina/lang.'object as lang;
+
+                @http:ServiceConfig
+                import ballerina/log;""";
         int position = text.indexOf(":ServiceConfig");
 
         SyntaxTree syntaxTree = SyntaxTree.from(TextDocuments.from(text));
@@ -137,13 +139,11 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
 
     @Test
     public void testFindTokenInsideMinutiaeSimple() {
-        String text = "import ballerina/http;\n" +
-                "import ballerina/lang.'object as lang;\n" +
-                "\n" +
-                "public % function foo() returns int {" +
-                "int a = 5;" +
-                "return a;" +
-                "}";
+        String text = """
+                import ballerina/http;
+                import ballerina/lang.'object as lang;
+
+                public % function foo() returns int {int a = 5;return a;}""";
         int position = text.indexOf("%");
 
         SyntaxTree syntaxTree = SyntaxTree.from(TextDocuments.from(text));
@@ -160,12 +160,13 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
 
     @Test
     public void testFindTokenInsideMinutiaeNamedWorkerDecl() {
-        String text = "function sar() {\n" +
-                "    int a = 12;\n" +
-                "    \n" +
-                "    worker myWorker r  {\n" +
-                "    }\n" +
-                "}";
+        String text = """
+                function sar() {
+                    int a = 12;
+                   \s
+                    worker myWorker r  {
+                    }
+                }""";
         int position = text.indexOf("r  {");
 
         SyntaxTree syntaxTree = SyntaxTree.from(TextDocuments.from(text));

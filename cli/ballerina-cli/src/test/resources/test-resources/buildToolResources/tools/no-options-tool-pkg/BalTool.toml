@@ -1,0 +1,5 @@
+[tool]
+id="no_options_tool"
+
+[[dependency]]
+path="./resources/sample-dummy-build-tool-1.4.0.jar"

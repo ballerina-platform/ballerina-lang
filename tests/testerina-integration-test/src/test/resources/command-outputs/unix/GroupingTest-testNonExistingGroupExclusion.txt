@@ -6,6 +6,12 @@ Compiling source
 Running Tests
 
 	groups-test.bal
+
+	testFunc4: has failed.
+
+
+	testFunc5: has failed.
+
 		[pass] testFunc1
 		[pass] testFunc2
 		[pass] testFunc3
@@ -17,7 +23,7 @@ Running Tests
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertFalse moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 82
 				callableName: testFunc4  fileName: groups-test.bal lineNumber: 48
-				callableName: testFunc4$lambda3$  fileName: groups-test.bal lineNumber: 66
+				callableName: testFunc4$lambda3$  fileName: groups-test.bal lineNumber: 67
 			
 
 		[fail] testFunc5:
@@ -26,11 +32,13 @@ Running Tests
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertFalse moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 82
 				callableName: testFunc5  fileName: groups-test.bal lineNumber: 55
-				callableName: testFunc5$lambda4$  fileName: groups-test.bal lineNumber: 67
+				callableName: testFunc5$lambda4$  fileName: groups-test.bal lineNumber: 68
 			
 
 
 		4 passing
 		2 failing
 		0 skipped
+
+		Test execution time :*****s
 error: there are test failures

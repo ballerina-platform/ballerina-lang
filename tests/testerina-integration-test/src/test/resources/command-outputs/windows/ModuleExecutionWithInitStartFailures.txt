@@ -1,0 +1,43 @@
+Compiling source
+	wso2/moduleExecutionInitStartFailure:0.0.0
+
+Running Tests
+
+	moduleExecutionInitStartFailure.moduleA
+error: Error from init of moduleA
+	at wso2.moduleExecutionInitStartFailure.moduleA.0.Listener:init(main.bal:23)
+
+	moduleExecutionInitStartFailure
+error: Error from init of moduleA
+	at wso2.moduleExecutionInitStartFailure.moduleA.0.Listener:init(main.bal:23)
+
+	moduleExecutionInitStartFailure.moduleC
+error: Error from start of moduleC
+	at wso2.moduleExecutionInitStartFailure.moduleC.0.Listener:start(main.bal:32)
+
+	moduleExecutionInitStartFailure.moduleB
+
+	test2: has failed.
+
+		[pass] test1
+		[pass] test3
+
+		[fail] test2:
+
+		    error {ballerina/test:0}TestError ("Assertion Failed!
+			 
+			expected: '3'
+			actual	: '-1'")
+				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
+				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
+				callableName: test2 moduleName: wso2.moduleExecutionInitStartFailure.moduleB$test.0.tests.test_moduleB fileName: tests/test_moduleB.bal lineNumber: 26
+				callableName: test2$lambda1$ moduleName: wso2.moduleExecutionInitStartFailure.moduleB$test.0.tests.test_execute-generated_*****lineNumber: 5
+			
+
+
+		2 passing
+		1 failing
+		0 skipped
+
+		Test execution time :*****s
+error: there are test failures

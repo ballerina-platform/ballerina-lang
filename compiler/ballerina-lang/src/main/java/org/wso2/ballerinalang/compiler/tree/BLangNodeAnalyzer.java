@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -58,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicArgExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -76,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -113,6 +116,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -121,6 +125,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -167,7 +174,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -191,7 +197,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
  * The {@link BLangNodeAnalyzer} is a {@link BLangNode} visitor.
  * <p>
  * If you are looking for a {@link BLangNode} visitor that returns object with a type, see {@link BLangNodeTransformer}.
- * <p>
  *
  * @param <T> the type of data class that passed along with visit methods.
  * @since 2.0.0
@@ -350,7 +355,7 @@ public abstract class BLangNodeAnalyzer<T> {
 
     public abstract void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef node, T data);
 
-    public abstract void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess node, T data);
+    public abstract void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess node, T data);
 
     public abstract void visit(BLangGroupExpr node, T data);
 
@@ -517,6 +522,10 @@ public abstract class BLangNodeAnalyzer<T> {
 
     public abstract void visit(BLangWorkerReceive node, T data);
 
+    public abstract void visit(BLangAlternateWorkerReceive node, T data);
+
+    public abstract void visit(BLangMultipleWorkerReceive node, T data);
+
     public abstract void visit(BLangWorkerSyncSendExpr node, T data);
 
     public abstract void visit(BLangXMLAttribute node, T data);
@@ -629,7 +638,7 @@ public abstract class BLangNodeAnalyzer<T> {
 
     public abstract void visit(BLangWhile node, T data);
 
-    public abstract void visit(BLangWorkerSend node, T data);
+    public abstract void visit(BLangWorkerAsyncSendExpr node, T data);
 
     public abstract void visit(BLangXMLNSStatement node, T data);
 
@@ -666,4 +675,12 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangUserDefinedType node, T data);
 
     public abstract void visit(BLangValueType node, T data);
+
+    public abstract void  visit(BLangXMLIndexedStepExtend node, T props);
+
+    public abstract void visit(BLangXMLFilterStepExtend node, T props);
+
+    public abstract void visit(BLangXMLMethodCallStepExtend node, T props);
+
+    public abstract void visit(BLangExtendedXMLNavigationAccess node, T props);
 }

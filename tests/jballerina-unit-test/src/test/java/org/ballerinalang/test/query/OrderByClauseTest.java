@@ -35,7 +35,7 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  *
  * @since Swan Lake
  */
-@Test(groups = {"disableOnOldParser"})
+@Test()
 public class OrderByClauseTest {
 
     private CompileResult result;
@@ -233,7 +233,6 @@ public class OrderByClauseTest {
 
     @Test(description = "Test negative scenarios for query expr with order by clause")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int index = 0;
 
         validateError(negativeResult, index++, "order by not supported for complex type fields, " +
@@ -241,9 +240,21 @@ public class OrderByClauseTest {
                 35, 18);
         validateError(negativeResult, index++, "undefined symbol 'address'",
                 35, 18);
-        validateError(negativeResult, index, "order by not supported for complex type fields, " +
-                        "order key should belong to a basic type",
+        validateError(negativeResult, index++,
+                "order by not supported for complex type fields, order key should belong to a basic type",
                 47, 18);
+        validateError(negativeResult, index++,
+                "order by not supported for complex type fields, order key should belong to a basic type",
+                55, 18);
+        validateError(negativeResult, index++,
+                "order by not supported for complex type fields, order key should belong to a basic type",
+                61, 18);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
+    }
+
+    @Test
+    public void testQueryExprWithOrderByClauseWithArrayKey() {
+        BRunUtil.invoke(result, "testQueryExprWithOrderByClauseWithArrayKey");
     }
 
     @AfterClass

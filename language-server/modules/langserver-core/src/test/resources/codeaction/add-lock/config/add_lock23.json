@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 7,
+    "character": 15
+  },
+  "source": "add_lock23.bal",
+  "description": "Wrap in a lock statement for a isolated variable within a match",
+  "expected": [
+    {
+      "title": "Surround with lock",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 14,
+              "character": 0
+            }
+          },
+          "newText": "    lock {\n\t    match val {\n\t        1 => {\n\t            return \"one\";\n\t        }\n\t        2 if arr[1] == 2 => {\n\t            return \"two\";\n\t        }\n\t        _ => {\n\t            return \"other\";\n\t        }\n\t    }\n    }\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

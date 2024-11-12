@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 0,
+    "character": 50
+  },
+  "source": "createUndefinedFunction18.bal",
+  "expected": [
+    {
+      "title": "Create function 'toUpperCase(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 64
+            },
+            "end": {
+              "line": 0,
+              "character": 64
+            }
+          },
+          "newText": "\n\nfunction toUpperCase(string letter) returns int {\n    return 0;\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunction18.bal",
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 44
+          },
+          "end": {
+            "line": 0,
+            "character": 63
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 0.0,
+              "character": 44.0
+            },
+            "end": {
+              "line": 0.0,
+              "character": 63.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

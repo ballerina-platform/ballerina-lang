@@ -4,6 +4,7 @@
     "character": 5
   },
   "source": "import_decl/source/lsproject/modules/module3/main8.bal",
+  "description": "",
   "items": [
     {
       "label": "xmlns",
@@ -400,11 +401,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -424,11 +425,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -448,11 +449,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -607,11 +608,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -631,11 +632,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -655,11 +656,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -679,11 +680,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -703,11 +704,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -727,11 +728,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -751,11 +752,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -775,11 +776,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -799,11 +800,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -832,11 +833,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 0
             }
           },
@@ -1100,7 +1101,7 @@
         }
       },
       "sortText": "C",
-      "filterText": "function4",
+      "filterText": "module1_function4",
       "insertText": "module1:function4(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -1119,7 +1120,7 @@
         }
       },
       "sortText": "C",
-      "filterText": "function3",
+      "filterText": "module1_function3",
       "insertText": "module1:function3(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -1138,7 +1139,7 @@
         }
       },
       "sortText": "C",
-      "filterText": "function2",
+      "filterText": "module1_function2",
       "insertText": "module1:function2()",
       "insertTextFormat": "Snippet"
     },
@@ -1153,7 +1154,7 @@
         }
       },
       "sortText": "C",
-      "filterText": "function1",
+      "filterText": "module1_function1",
       "insertText": "module1:function1()",
       "insertTextFormat": "Snippet"
     },
@@ -1286,6 +1287,54 @@
       "detail": "Class",
       "sortText": "K",
       "insertText": "module1:Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Error",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "I",
+      "insertText": "module1:Error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Error2",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "I",
+      "insertText": "module1:Error2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Error1",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "module1:Error1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:E1",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "module1:E1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:E3",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "module1:E3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:E2",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "module1:E2",
       "insertTextFormat": "Snippet"
     }
   ]

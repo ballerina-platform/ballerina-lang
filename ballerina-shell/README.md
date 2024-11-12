@@ -1,5 +1,8 @@
 # Ballerina Shell
 
+Note: This is an experimental feature, which supports only a limited
+set of functionality.
+
 A REPL program for the [ballerina language](https://github.com/ballerina-platform/ballerina-lang). Ballerina is an open source programming language and platform for cloud-era application programmers to easily write software that just works.
 
 The Ballerina-shell tool is an interactive tool for learning the Ballerina programming language and prototyping Ballerina code. Ballerina-shell is a Read-Evaluate-Print Loop (REPL), which evaluates declarations, statements, and expressions as they are entered and immediately shows the results. Currently, the tool is run via the command line. Using Ballerina-shell, you can enter program statements one at a time and immediately see the result.
@@ -13,12 +16,12 @@ The Ballerina-shell tool is an interactive tool for learning the Ballerina progr
 The project is implemented in three base modules.
 
 - **shell-rt** - Module including runtime dependencies for ballerina programs generated. You may find the source code for this
-  module [here](shell-rt).
+  module [here](modules/shell-rt).
 - **shell-core** - Module including all the base evaluation classes. This has all the base components to evaluate and run a
   string. All other components are built on top of this module. You may find the source code for this
-  module [here](shell-core).
+  module [here](modules/shell-core).
 - **shell-cli** - A command-line interface built on top of shell. Includes multi-line inputs, color-coded outputs,
-  keyword-based auto-completion, etc... You may find the source code for this module [here](shell-cli).
+  keyword-based auto-completion, etc... You may find the source code for this module [here](modules/shell-cli).
 
 ## Known Issues
 
@@ -100,7 +103,7 @@ The project is implemented in three base modules.
 
 ## Implementation
 
-For implementation details please refer [this](shell-core/README.md).
+For implementation details please refer [this](modules/shell-core/README.md).
 
 ## Building
 

@@ -217,6 +217,125 @@ function testResetTypeNarrowingWithBlockStmt() {
     }
 }
 
+function testSymbolsInIfElse1() {
+    int? x = ();
+    if x is () {
+        int a = 3;
+        int b = 12;
+        b += 1;
+        if b == 13 {
+            a += 1;
+            b = 1;
+        }
+    } else {
+        int a = 3;
+        int b = 12;
+    }
+}
+
+function testSymbolsInIfElse2() {
+    int? x = ();
+    if x is () {
+        int a = 2;
+        int b = 6;
+        b += 1;
+        if b == 7 {
+            a += 1;
+            b = 1;
+            if a == 3 {
+                a += 2;
+                b += 2;
+            }
+        }
+        int c = 10;
+        int d = 20;
+        if c == 7 {
+            a += 1;
+            b = 1;
+            if a == 6 {
+                a += 2;
+                b += 2;
+            }
+        }
+    } else {
+        int a = 5;
+        int b = 12;
+        if a == 4 {
+            int c = 2;
+            int d = 3;
+        } else {
+            int c = 2;
+            int d = 3;
+        }
+    }
+}
+
+function testSymbolsInIfElse3() {
+    int|string? x = ();
+    if x is () {
+        int a = 12;
+        int b = 12;
+        b += 1;
+        if b == 13 {
+            a += 1;
+            b = 1;
+        }
+        if a == 2 {
+            a += 2;
+            b += 2;
+        }
+    } else if x is string {
+        int a = 2022;
+        int b = 12;
+    } else {
+        int a = 10;
+        int b = 12;
+    }
+}
+
+function testSymbolsInIfElse4() {
+    int|string? x = ();
+    if x is () {
+        int? a = 12;
+        int? b = 12;
+        if b is int {
+            b += 1;
+            int? c = 1;
+            if c is int {
+                int|string? d = ();
+                if d is int {
+                    c = 2;
+                    a = 2;
+                }
+                if d is string {
+                    d = 2;
+                    b = 3;
+                }
+            } else {
+                int d = 2;
+                a = 2;
+                b = 3;
+                c = 10;
+            }
+        }
+        if a is int {
+            if a == 0 {
+                int d = 12;
+            }
+            int c = 10;
+        }
+    } else {
+        int a = 12;
+        int b = 10;
+        if a == 10 {
+            int c = 10;
+            if c == 10 {
+                int d = 12;
+            }
+        }
+    }
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

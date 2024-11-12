@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Pet record {
+public type Pet readonly & record {
     int id;
     string name;
     Type 'type;

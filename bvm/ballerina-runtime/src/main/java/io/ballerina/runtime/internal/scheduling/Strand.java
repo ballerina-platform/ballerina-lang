@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.ChannelDetails;
@@ -90,6 +91,16 @@ public class Strand {
     public Stack<TransactionLocalContext> trxContexts;
     private State state;
     private final ReentrantLock strandLock;
+    public BMap<BString, Object> workerReceiveMap = null;
+    public int channelCount = 0;
+
+    public Strand() {
+        this.id = -1;
+        this.strandLock = null;
+        this.name = null;
+        this.metadata = null;
+        this.state = RUNNABLE;
+    }
 
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
                   Map<String, Object> properties) {
@@ -126,7 +137,7 @@ public class Strand {
             Object currentContext = globalProps.get(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
             if (currentContext != null) {
                 TransactionLocalContext branchedContext =
-                        createTrxContextBranch((TransactionLocalContext) currentContext, name);
+                        createTrxContextBranch((TransactionLocalContext) currentContext, this.id);
                 setCurrentTransactionContext(branchedContext);
             }
         }
@@ -137,23 +148,26 @@ public class Strand {
     }
 
     private TransactionLocalContext createTrxContextBranch(TransactionLocalContext currentTrxContext,
-                                                           String strandName) {
+                                                           int strandName) {
         TransactionLocalContext trxCtx = TransactionLocalContext
                 .createTransactionParticipantLocalCtx(currentTrxContext.getGlobalTransactionId(),
                         currentTrxContext.getURL(), currentTrxContext.getProtocol(),
                         currentTrxContext.getInfoRecord());
         String currentTrxBlockId = currentTrxContext.getCurrentTransactionBlockId();
+        if (currentTrxBlockId.contains("_")) {
+            // remove the parent strand id from the transaction block id
+            currentTrxBlockId = currentTrxBlockId.split("_")[0];
+        }
         trxCtx.addCurrentTransactionBlockId(currentTrxBlockId + "_" + strandName);
         trxCtx.setTransactionContextStore(currentTrxContext.getTransactionContextStore());
         return trxCtx;
     }
 
     public void handleChannelError(ChannelDetails[] channels, ErrorValue error) {
-        for (int i = 0; i < channels.length; i++) {
-            ChannelDetails channelDetails = channels[i];
+        for (ChannelDetails channelDetails : channels) {
             WorkerDataChannel channel = getWorkerDataChannel(channelDetails);
 
-            if (channels[i].send) {
+            if (channelDetails.send) {
                 channel.setSendError(error);
             } else {
                 channel.setReceiveError(error);
@@ -161,19 +175,10 @@ public class Strand {
         }
     }
 
-    /**
-     * @deprecated use Environment#getStrandLocal()
-     */
-    @Deprecated
     public Object getProperty(String key) {
         return this.globalProps.get(key);
     }
 
-    /**
-     *
-     * @deprecated use Environment#setStrandLocal()
-     */
-    @Deprecated
     public void setProperty(String key, Object value) {
         this.globalProps.put(key, value);
     }
@@ -481,10 +486,10 @@ public class Strand {
         try {
             for (FunctionFrame frame : strandFrames) {
                 if (noPickedYieldStatus) {
-                    yieldStatus = frame.getYieldStatus();
+                    yieldStatus = frame.yieldStatus;
                     noPickedYieldStatus = false;
                 }
-                String yieldLocation = frame.getYieldLocation();
+                String yieldLocation = frame.yieldLocation;
                 frameStackTrace.append(stringPrefix).append(yieldLocation);
                 frameStackTrace.append("\n");
                 stringPrefix = "\t\t  \t";
@@ -495,8 +500,7 @@ public class Strand {
             strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
             return;
         }
-        if (!this.isYielded() || noPickedYieldStatus) {
-            // if frames have got empty, noPickedYieldStatus is true, then the state has changed to runnable
+        if (!this.isYielded()) {
             strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
             return;
         }

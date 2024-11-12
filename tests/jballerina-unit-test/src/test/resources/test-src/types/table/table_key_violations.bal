@@ -58,10 +58,13 @@ table<CustomerWithXmlId> key<xml> _ = table key(id) [
         }
     ];
 
-function createTable(string|int name, boolean invalid) {
+const string name = "A";
+const int val = 13;
+
+function createTable() {
     table<Customer> key<string> _ = table key(firstName) [
-        {id: 5005, firstName: <string> (name is string && !invalid ? (string `Hello ${name}!!!`) : "James"), lastName: "Gordon"},
-        {id: 5005, firstName: <string> (name is string && !invalid ? (string `Hello ${name}!!!`) : "James"), lastName: "Wayne"}
+        {id: 5005, firstName: <string> (val > 10 && !(val < 10) ? (string `Hello ${name}!!!`) : "James"), lastName: "Gordon"},
+        {id: 5005, firstName: <string> (val > 10 && !(val < 10) ? (string `Hello ${name}!!!`) : "James"), lastName: "Wayne"}
     ];
 }
 

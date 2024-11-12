@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -91,7 +90,7 @@ public class PackagingTestCase extends BaseTest {
         balClient.runMain("push", new String[]{moduleName, "--no-build"}, envVariables, new String[]{},
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(2000);
-        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, moduleName, "0.0.1");
+        Path dirPath = Path.of(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, moduleName, "0.0.1");
         Assert.assertTrue(Files.notExists(projectPath.resolve(dirPath)));
         Assert.assertTrue(Files.notExists(projectPath.resolve(dirPath).resolve(moduleName + ".zip")));
 
@@ -112,14 +111,14 @@ public class PackagingTestCase extends BaseTest {
         balClient.runMain("install", clientArgs, envVariables, new String[]{}, new LogLeecher[]{},
                 projectPath.toString());
 
-        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, moduleName, "0.0.1");
+        Path dirPath = Path.of(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, moduleName, "0.0.1");
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath)));
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath).resolve(moduleName + ".zip")));
     }
 
     @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush")
     public void testPull() {
-        Path dirPath = Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
+        Path dirPath = Path.of(ProjectDirConstants.CACHES_DIR_NAME,
                                  ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME,
                                  orgName, moduleName, "0.0.1");
 
@@ -193,7 +192,7 @@ public class PackagingTestCase extends BaseTest {
                           tempProjectDirectory.toString());
         clientLeecher.waitForText(2000);
 
-        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, moduleName, "0.0.1");
+        Path dirPath = Path.of(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, moduleName, "0.0.1");
         Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath).resolve(moduleName + ".zip")));
         Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath)));
     }
@@ -209,7 +208,7 @@ public class PackagingTestCase extends BaseTest {
                           tempProjectDirectory.toString());
         clientLeecher.waitForText(2000);
 
-        Path dirPath = Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
+        Path dirPath = Path.of(ProjectDirConstants.CACHES_DIR_NAME,
                                  ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, orgName, moduleName, "0.0.1");
         Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath).resolve(moduleName + ".zip")));
         Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath)));

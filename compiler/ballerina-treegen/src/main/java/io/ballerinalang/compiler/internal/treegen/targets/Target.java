@@ -23,6 +23,7 @@ import com.github.mustachejava.MustacheFactory;
 import io.ballerinalang.compiler.internal.treegen.TreeGenConfig;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNode;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNodeAttribute;
+import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNodeMetadata;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxTree;
 import io.ballerinalang.compiler.internal.treegen.model.template.Field;
 import io.ballerinalang.compiler.internal.treegen.model.template.TreeNodeClass;
@@ -30,8 +31,8 @@ import io.ballerinalang.compiler.internal.treegen.model.template.TreeNodeClass;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -55,16 +56,19 @@ public abstract class Target {
         this.config = config;
     }
 
-    public abstract List<SourceText> execute(SyntaxTree syntaxTree);
+    public abstract List<SourceText> execute(SyntaxTree syntaxTree, HashMap<String,
+            SyntaxNodeMetadata> nodeMetadataMap);
 
     protected abstract String getTemplateName();
 
     protected TreeNodeClass convertToTreeNodeClass(SyntaxNode syntaxNode,
                                                    String packageName,
-                                                   List<String> importClassNameList) {
+                                                   List<String> importClassNameList,
+                                                   HashMap<String, SyntaxNodeMetadata> nodeMetadataMap) {
+        SyntaxNodeMetadata nodeMetadata = nodeMetadataMap.get(syntaxNode.getName());
         TreeNodeClass nodeClass = new TreeNodeClass(packageName,
                 syntaxNode.getName(), syntaxNode.isAbstract(), syntaxNode.getBase(),
-                getFields(syntaxNode), syntaxNode.getKind());
+                getFields(syntaxNode), syntaxNode.getKind(), nodeMetadata);
 
         // TODO Can we pass this as part of the constructor
         nodeClass.addImports(importClassNameList);
@@ -86,7 +90,7 @@ public abstract class Target {
     }
 
     private Path getFilePath(String outputDir, String className) {
-        return Paths.get(outputDir, getClassFileName(className)).toAbsolutePath();
+        return Path.of(outputDir, getClassFileName(className)).toAbsolutePath();
     }
 
     protected String getClassFQN(String packageName, String className) {

@@ -47,11 +47,13 @@ public class ObjectTest {
 
     private CompileResult checkInInitializerResult;
     private CompileResult checkFunctionReferencesResult;
+    private CompileResult checkObjectWithDefaultValuesResult;
 
     @BeforeClass
     public void setUp() {
         checkInInitializerResult = BCompileUtil.compile("test-src/object/object_field_initializer_with_check.bal");
         checkFunctionReferencesResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
+        checkObjectWithDefaultValuesResult = BCompileUtil.compile("test-src/object/object-with-defaultable-field.bal");
     }
 
     @Test(description = "Test Basic object as struct")
@@ -127,8 +129,7 @@ public class ObjectTest {
 
     @Test(description = "Test object with defaultable field in init function")
     public void testObjectWithDefaultableField() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/object-with-defaultable-field.bal");
-        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectWithSimpleInit");
+        BArray returns = (BArray) BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testObjectWithSimpleInit");
 
         Assert.assertEquals(returns.size(), 4);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -906,8 +907,18 @@ public class ObjectTest {
                 " with the return type of the 'init' method: expected 'MyError?', found 'error'", 226, 51);
         BAssertUtil.validateWarning(result, i++, "unused variable 'a'", 233, 5);
         BAssertUtil.validateWarning(result, i++, "unused variable 'b'", 234, 5);
-        Assert.assertEquals(result.getErrorCount(), i - 3);
-        Assert.assertEquals(result.getWarnCount(), 3);
+        BAssertUtil.validateError(result, i++, "cannot use 'check' in an object field initializer of an object with " +
+                "no 'init' method", 242, 14);
+        BAssertUtil.validateWarning(result, i++, "invalid usage of the 'check' expression operator: no expression " +
+                "type is equivalent to error type", 242, 20);
+        BAssertUtil.validateError(result, i++, "cannot use 'check' in an object field initializer of an object with " +
+                "no 'init' method", 243, 14);
+        BAssertUtil.validateWarning(result, i++, "invalid usage of the 'check' expression operator: no expression " +
+                "type is equivalent to error type", 247, 20);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 248, 14);
+        Assert.assertEquals(result.getErrorCount(), i - 5);
+        Assert.assertEquals(result.getWarnCount(), 5);
     }
 
     @Test(dataProvider = "checkInObjectFieldInitializerTests")
@@ -939,6 +950,16 @@ public class ObjectTest {
     public void testNonPublicSymbolsWarningInServiceClass() {
         CompileResult result = BCompileUtil.compile("test-src/object/service_class_decl_with_non_public_symbols.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testClassWithModuleLevelVarAsDefaultValue() {
+        BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testClassWithModuleLevelVarAsDefaultValue");
+    }
+
+    @Test
+    public void testObjectConstructorWithModuleLevelVarAsDefaultValue() {
+        BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testObjectConstructorWithModuleLevelVarAsDefaultValue");
     }
 
     @AfterClass

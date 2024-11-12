@@ -1,0 +1,13 @@
+[indent]
+indentSize = 2
+
+[wrapping]
+maxLineLength = 80
+simpleBlocksInOneLine = true
+simpleFunctionsInOneLine = true
+
+[functionDefinition]
+alignMultilineParameters = true
+
+[ifStatement]
+elseOnNewLine = true

@@ -25,11 +25,11 @@ package org.ballerinalang.langserver.extensions.ballerina.connector;
  */
 public class BallerinaRecordRequest {
 
-    private String org;
-    private String module;
-    private String version = "";
-    private String name;
-    private Boolean beta;
+    private final String org;
+    private final String module;
+    private final String version;
+    private final String name;
+    private final Boolean beta;
 
     public BallerinaRecordRequest(String org, String module, String version, String name, Boolean beta) {
         this.org = org;

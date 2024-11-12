@@ -17,6 +17,8 @@ package org.ballerinalang.langserver.references;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.NodeLocation;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
@@ -24,6 +26,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
@@ -42,7 +45,8 @@ import java.util.Optional;
 /**
  * Utility class for go to definition functionality of language server.
  */
-public class ReferencesUtil {
+public final class ReferencesUtil {
+
     private ReferencesUtil() {
     }
     
@@ -58,7 +62,7 @@ public class ReferencesUtil {
             List<Location> docReferences = new LinkedList<>();
             // Find references in documentation
             locations.forEach(location -> {
-                List<Location> refs = findReferencesInDocumentation(location, module, context, symbol.get());
+                List<NodeLocation> refs = findReferencesInDocumentation(location, module, context, symbol.get());
                 if (refs != null && !refs.isEmpty()) {
                     docReferences.addAll(refs);
                 }
@@ -90,10 +94,10 @@ public class ReferencesUtil {
         return moduleLocationMap;
     }
     
-    private static List<Location> findReferencesInDocumentation(Location location, 
-                                                                Module module, 
-                                                                PositionedOperationContext context,
-                                                                Symbol symbol) {
+    private static List<NodeLocation> findReferencesInDocumentation(Location location,
+                                                                    Module module,
+                                                                    PositionedOperationContext context,
+                                                                    Symbol symbol) {
         Path filePath = PathUtil.getPathFromLocation(module, location);
         Range range = PositionUtil.getRangeFromLineRange(location.lineRange());
         Optional<NonTerminalNode> node = context.workspace().syntaxTree(filePath)
@@ -120,7 +124,22 @@ public class ReferencesUtil {
             return Optional.empty();
         }
 
+        Document document = srcFile.get();
         Position position = context.getCursorPosition();
+        TextRange range = TextRange.from(
+                document.textDocument().textPositionFrom(PositionUtil.getLinePosition(position)), 0);
+        NonTerminalNode nonTerminalNode = ((ModulePartNode) document.syntaxTree().rootNode()).findNode(range);
+        SyntaxKind parentKind = nonTerminalNode.parent().kind();
+
+        if (parentKind == SyntaxKind.TYPE_PARAMETER || parentKind == SyntaxKind.STREAM_TYPE_PARAMS) {
+            if (nonTerminalNode.lineRange().endLine().offset() == position.getCharacter()) {
+                // When there is a type parameter and cursor is at the end of the type parameter, semantic API does not
+                // provide the correct symbol. Therefore, here we search for the symbol at (col - 1).
+                return semanticModel.get().symbol(document,
+                        LinePosition.from(position.getLine(), position.getCharacter() - 1));
+            }
+        }
+
         Optional<Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(),
                 LinePosition.from(position.getLine(), position.getCharacter()));
 

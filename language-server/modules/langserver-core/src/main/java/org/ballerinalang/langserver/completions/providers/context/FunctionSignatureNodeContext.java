@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -33,6 +34,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link FunctionSignatureNode} context.
@@ -52,7 +54,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (withinReturnTypeDescContext(context, node)) {
-            var returnTypeDesc = node.returnTypeDesc();
+            Optional<ReturnTypeDescriptorNode> returnTypeDesc = node.returnTypeDesc();
             if (returnTypeDesc.isEmpty() || returnTypeDesc.get().returnsKeyword().isMissing()) {
                 /*
                 Covers the following cases.

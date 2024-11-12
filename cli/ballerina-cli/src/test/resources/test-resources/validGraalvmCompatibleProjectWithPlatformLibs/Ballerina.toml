@@ -1,0 +1,10 @@
+[package]
+org = "sameera"
+name = "myproject"
+version = "0.1.0"
+
+[platform.java11]
+graalvmCompatible = true
+
+[[platform.java11.dependency]]
+path = "./libs/one-1.0.0.jar"

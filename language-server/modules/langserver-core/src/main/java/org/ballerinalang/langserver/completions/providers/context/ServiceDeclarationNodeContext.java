@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -31,7 +30,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -45,7 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
 import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortTextForModule;
@@ -63,8 +60,7 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ServiceDeclarationNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ServiceDeclarationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         ServiceContext cursorContext;
 
@@ -110,8 +106,7 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
             (2) service typedesc on l<cursor>
             (3) service typedesc on mod:<cursor>
              */
-            Predicate<Symbol> predicate = symbol -> symbol instanceof VariableSymbol
-                    && ((VariableSymbol) symbol).qualifiers().contains(Qualifier.LISTENER);
+            Predicate<Symbol> predicate = symbol -> symbol instanceof VariableSymbol && SymbolUtil.isListener(symbol);
             NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
             if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 // Covers the use-case 3
@@ -122,7 +117,7 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
                 List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
                 List<Symbol> listeners = visibleSymbols.stream()
                         .filter(predicate)
-                        .collect(Collectors.toList());
+                        .toList();
                 completionItems.addAll(this.getCompletionItemList(listeners, context));
                 completionItems.addAll(this.getModuleCompletionItems(context));
                 completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
@@ -238,21 +233,30 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
             String sortText;
             CompletionItem cItem = lsItem.getCompletionItem();
             boolean isModuleCItem = SortingUtil.isModuleCompletionItem(lsItem);
-            if ((SortingUtil.isLangLibModuleCompletionItem(lsItem))
-                    || (!isModuleCItem && lsItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL)) {
+            if (isListenerSymbol(lsItem)) {
                 sortText = genSortText(1);
-            } else if (Snippet.KW_NEW.equals(lsItem)) {
-                // Prioritize the new keyword
-                sortText = genSortText(2);
             } else if (isModuleCItem) {
-                sortText = genSortText(3) + genSortTextForModule(context, lsItem);
+                sortText = genSortText(2) + genSortTextForModule(context, lsItem);
+            } else if (Snippet.KW_NEW.equals(lsItem)) {
+                sortText = genSortText(3);
+            } else if (SortingUtil.isLangLibModuleCompletionItem(lsItem) ||
+                    lsItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+                // Prioritize the new keyword
+                sortText = genSortText(4);
             } else {
                 // Should not come to this point.
-                sortText = genSortText(4);
+                sortText = genSortText(5);
             }
 
             cItem.setSortText(sortText);
         }
+    }
+    
+    private boolean isListenerSymbol(LSCompletionItem completionItem) {
+        if (completionItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL) {
+            return false;
+        }
+        return ((SymbolCompletionItem) completionItem).getSymbol().map(SymbolUtil::isListener).orElse(false);
     }
 
     private void sortMemberContextItems(BallerinaCompletionContext context, List<LSCompletionItem> completionItems) {

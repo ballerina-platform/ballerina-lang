@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitBasicBlockRef;
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitFlags;
@@ -49,30 +50,31 @@ public class BIREmitter {
 
     private static final CompilerContext.Key<BIREmitter> BIR_EMITTER = new CompilerContext.Key<>();
     private static final PrintStream console = System.out;
-    private boolean dumbBIR;
+    private final boolean dumpBIR;
 
     public static BIREmitter getInstance(CompilerContext context) {
-
         BIREmitter birEmitter = context.get(BIR_EMITTER);
         if (birEmitter == null) {
             birEmitter = new BIREmitter(context);
         }
-
         return birEmitter;
     }
 
     private BIREmitter(CompilerContext context) {
-
         context.put(BIR_EMITTER, this);
         CompilerOptions compilerOptions = CompilerOptions.getInstance(context);
-        this.dumbBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
+        this.dumpBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
     }
 
     public BLangPackage emit(BLangPackage bLangPackage) {
-        if (dumbBIR) {
-            console.println(emitModule(bLangPackage.symbol.bir));
-        }
+        emit(bLangPackage.symbol.bir);
         return bLangPackage;
+    }
+
+    public void emit(BIRNode.BIRPackage birPackage) {
+        if (dumpBIR) {
+            console.println(emitModule(birPackage));
+        }
     }
 
     public static String emitModule(BIRNode.BIRPackage mod) {
@@ -93,14 +95,14 @@ public class BIREmitter {
         modStr += emitLBreaks(2);
         modStr += emitGlobalVars(mod.globalVars);
         modStr += emitLBreaks(2);
-        modStr += emitFunctions(mod.functions, 0);
+        modStr += emitFunctions(mod.functions);
 
         modStr += emitLBreaks(1);
         modStr += "================ Emitting Module ================";
         return modStr;
     }
 
-    private static String emitImports(List<BIRNode.BIRImportModule> impMods) {
+    private static String emitImports(Set<BIRNode.BIRImportModule> impMods) {
 
         StringBuilder impStr = new StringBuilder();
         for (BIRNode.BIRImportModule mod : impMods) {
@@ -141,7 +143,7 @@ public class BIREmitter {
 
         StringBuilder tDefStr = new StringBuilder();
         tDefStr.append(emitFlags(tDef.flags));
-        if (!tDefStr.toString().equals("")) {
+        if (!tDefStr.toString().isEmpty()) {
             tDefStr.append(emitSpaces(1));
         }
         tDefStr.append(emitName(tDef.internalName));
@@ -177,7 +179,7 @@ public class BIREmitter {
 
         String globalVarStr = "";
         globalVarStr += emitFlags(globalVar.flags);
-        if (!globalVarStr.equals("")) {
+        if (!globalVarStr.isEmpty()) {
             globalVarStr += emitSpaces(1);
         }
         globalVarStr += emitName(globalVar.name);
@@ -187,10 +189,10 @@ public class BIREmitter {
         return globalVarStr;
     }
 
-    private static String emitFunctions(List<BIRNode.BIRFunction> funcs, int tabs) {
+    private static String emitFunctions(List<BIRNode.BIRFunction> funcs) {
         StringBuilder funcString = new StringBuilder();
         for (BIRNode.BIRFunction func : funcs) {
-            funcString.append(emitFunction(func, tabs));
+            funcString.append(emitFunction(func, 0));
             funcString.append(emitLBreaks(2));
         }
         return funcString.toString();
@@ -200,7 +202,7 @@ public class BIREmitter {
         String funcString = "";
         funcString += emitTabs(tabs);
         funcString += emitFlags(func.flags);
-        if (!funcString.equals("")) {
+        if (!funcString.isEmpty()) {
             funcString += emitSpaces(1);
         }
         funcString += emitName(func.name);

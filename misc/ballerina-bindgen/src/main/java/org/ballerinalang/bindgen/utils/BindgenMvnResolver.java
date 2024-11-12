@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -50,8 +49,8 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirs.isModuleExist;
  */
 public class BindgenMvnResolver {
 
-    private PrintStream outStream;
-    private BindgenEnv env;
+    private final PrintStream outStream;
+    private final BindgenEnv env;
 
     public BindgenMvnResolver(PrintStream outStream, BindgenEnv env) {
         this.outStream = outStream;
@@ -59,28 +58,29 @@ public class BindgenMvnResolver {
     }
 
     public void mavenResolver(String groupId, String artifactId, String version, Path projectRoot,
-                              boolean resolve) throws BindgenException {
+                              boolean resolve, JvmTarget parentJvmTarget) throws BindgenException {
         Path mvnRepository;
         if (projectRoot == null) {
             if (env.getOutputPath() != null) {
-                mvnRepository = Paths.get(env.getOutputPath(), TARGET_DIR, MVN_REPO);
+                mvnRepository = Path.of(env.getOutputPath(), TARGET_DIR, MVN_REPO);
             } else {
-                mvnRepository = Paths.get(System.getProperty(USER_DIR), TARGET_DIR, MVN_REPO);
+                mvnRepository = Path.of(System.getProperty(USER_DIR), TARGET_DIR, MVN_REPO);
             }
         } else {
-            mvnRepository = Paths.get(projectRoot.toString(), TARGET_DIR, MVN_REPO);
+            mvnRepository = Path.of(projectRoot.toString(), TARGET_DIR, MVN_REPO);
         }
         Dependency dependency = resolveDependency(groupId, artifactId, version, mvnRepository.toString());
-        handleDependency(groupId, artifactId, version, mvnRepository.toString(), projectRoot, null);
+        handleDependency(groupId, artifactId, version, mvnRepository.toString(), projectRoot, null, parentJvmTarget);
         if (resolve) {
-            dependencyTraversal(dependency, mvnRepository.toString(), projectRoot);
+            dependencyTraversal(dependency, mvnRepository.toString(), projectRoot, parentJvmTarget);
             if (projectRoot != null) {
                 outStream.println("\nUpdated the `Ballerina.toml` file with the new platform libraries.");
             }
         }
     }
 
-    private void dependencyTraversal(Dependency dependency, String mvnRepository, Path projectRoot)
+    private void dependencyTraversal(Dependency dependency, String mvnRepository, Path projectRoot,
+                                     JvmTarget parentJvmTarget)
             throws BindgenException {
         if (dependency.getDepedencies() == null) {
             return;
@@ -88,8 +88,8 @@ public class BindgenMvnResolver {
         String parent = dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion();
         for (Dependency transitive : dependency.getDepedencies()) {
             handleDependency(transitive.getGroupId(), transitive.getArtifactId(), transitive.getVersion(),
-                    mvnRepository, projectRoot, parent);
-            dependencyTraversal(transitive, mvnRepository, projectRoot);
+                    mvnRepository, projectRoot, parent, parentJvmTarget);
+            dependencyTraversal(transitive, mvnRepository, projectRoot, parentJvmTarget);
         }
     }
 
@@ -104,29 +104,34 @@ public class BindgenMvnResolver {
     }
 
     private void handleDependency(String groupId, String artifactId, String version, String mvnRepository,
-                                         Path projectRoot, String parent) throws BindgenException {
-        Path mvnPath = Paths.get(mvnRepository, getPathFromGroupId(groupId), artifactId, version);
+                                  Path projectRoot, String parent, JvmTarget parentJvmTarget) throws BindgenException {
+        Path mvnPath = Path.of(mvnRepository, getPathFromGroupId(groupId), artifactId, version);
         this.env.addClasspath(mvnPath.toString());
         if (projectRoot != null) {
-            File tomlFile = new File(Paths.get(projectRoot.toString(), ProjectConstants.BALLERINA_TOML).toString());
+            File tomlFile = new File(Path.of(projectRoot.toString(), ProjectConstants.BALLERINA_TOML).toString());
             if (tomlFile.exists() && !tomlFile.isDirectory()) {
-                populateBallerinaToml(groupId, artifactId, version, tomlFile, projectRoot, parent);
+                populateBallerinaToml(groupId, artifactId, version, tomlFile, projectRoot, parent, parentJvmTarget);
             }
         }
     }
 
-    private void populateBallerinaToml(String groupId, String artifactId, String version, File tomlFile,
-                                              Path projectRoot, String parent) throws BindgenException {
-        try (FileWriterWithEncoding fileWriter = new FileWriterWithEncoding(tomlFile, StandardCharsets.UTF_8, true)) {
+    private void populateBallerinaToml(String groupId, String artifactId, String version,
+                                       File tomlFile, Path projectRoot, String parent,
+                                       JvmTarget parentJvmTarget) throws BindgenException {
+        try (FileWriterWithEncoding fileWriter = FileWriterWithEncoding.builder()
+                .setFile(tomlFile).setCharset(StandardCharsets.UTF_8).setAppend(true).get()) {
             TomlDocument tomlDocument = env.getTomlDocument();
             if (tomlDocument == null) {
                 return;
             }
             // TODO: Syntax tree of the toml document could be used for the update.
-            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, projectRoot)
+            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, null, projectRoot)
                     .packageManifest();
-            if (packageManifest != null) {
-                PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_17.code());
+            if (packageManifest == null) {
+                return;
+            }
+            for (JvmTarget jvmTarget : JvmTarget.values()) {
+                PackageManifest.Platform platform = packageManifest.platform(jvmTarget.code());
                 if (platform != null && platform.dependencies() != null) {
                     for (Map<String, Object> library : platform.dependencies()) {
                         if (library.get("path") == null &&
@@ -137,22 +142,29 @@ public class BindgenMvnResolver {
                         }
                     }
                 }
-                fileWriter.write("\n");
-                if (parent != null) {
-                    fileWriter.write("# transitive dependency of " + parent + "\n");
-                }
-                fileWriter.write("[[platform.java17.dependency]]\n");
-                String moduleName = getModuleName(projectRoot, env.getOutputPath());
-                if (moduleName != null) {
-                    fileWriter.write("modules = [\"" + moduleName + "\"]\n");
-                }
-                fileWriter.write("groupId = \"" + groupId + "\"\n");
-                fileWriter.write("artifactId = \"" + artifactId + "\"\n");
-                fileWriter.write("version = \"" + version + "\"\n");
             }
+            writeDependencyToBallerinaToml(groupId, artifactId, version, projectRoot, parent, parentJvmTarget,
+                    fileWriter);
         } catch (IOException e) {
             throw new BindgenException("error: unable to update the Ballerina.toml file: " + e.getMessage(), e);
         }
+    }
+
+    private void writeDependencyToBallerinaToml(String groupId, String artifactId, String version, Path projectRoot,
+                                                String parent, JvmTarget parentJvmTarget,
+                                                FileWriterWithEncoding fileWriter) throws IOException {
+        fileWriter.write("\n");
+        if (parent != null) {
+            fileWriter.write("# transitive dependency of " + parent + "\n");
+        }
+        fileWriter.write("[[platform." + parentJvmTarget.code() + ".dependency]]\n");
+        String moduleName = getModuleName(projectRoot, env.getOutputPath());
+        if (moduleName != null) {
+            fileWriter.write("modules = [\"" + moduleName + "\"]\n");
+        }
+        fileWriter.write("groupId = \"" + groupId + "\"\n");
+        fileWriter.write("artifactId = \"" + artifactId + "\"\n");
+        fileWriter.write("version = \"" + version + "\"\n");
     }
 
     private static String getPathFromGroupId(String groupId) {
@@ -169,7 +181,7 @@ public class BindgenMvnResolver {
 
     private static String getModuleName(Path projectRoot, String outputPath) {
         if (outputPath == null) {
-            outputPath = Paths.get(System.getProperty(USER_DIR)).toString();
+            outputPath = Path.of(System.getProperty(USER_DIR)).toString();
         }
         String splitRegex = Pattern.quote(System.getProperty(FILE_SEPARATOR));
         String[] splittedPath = outputPath.split(splitRegex);

@@ -9,7 +9,7 @@ DESCRIPTION
        Run a REPL instance of Ballerina to enable users to execute small
        snippets of code. 
        
-       Note: This is an experimental feeature, which supports only a limited
+       Note: This is an experimental feature, which supports only a limited
        set of functionality.
 
        Debug messages can be enabled using the '-d' option.

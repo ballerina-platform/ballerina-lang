@@ -241,9 +241,8 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
             ifElseStatementNode.elseBody().ifPresent(elseBody -> elseBody.accept(returnFinder));
         }
         Node ifBodyNodeNextNode = ifBodyNode.getNextNode();
-        if ((ifBodyNodeNextNode instanceof IfStatementNode) && returnFinder.isHasReturn()
+        if ((ifBodyNodeNextNode instanceof IfStatementNode ifBodyNextNode) && returnFinder.isHasReturn()
                 && returnFinder.isHasNestedIfElse() && withinRange) {
-            IfStatementNode ifBodyNextNode = (IfStatementNode) ifBodyNodeNextNode;
             ReturningIfStatementNode returningIfStatementNode =
                     new ReturningIfStatementNode(ifBodyNextNode.getIfBody(), ifBodyNextNode.getElseBody(), true);
             ifStatementNode.setIfBody(returningIfStatementNode);
@@ -414,7 +413,7 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
 
         String actionName = remoteMethodCallActionNode.methodName().toString();
         String actionPath = null;
-        if (remoteMethodCallActionNode.arguments().size() > 0) {
+        if (!remoteMethodCallActionNode.arguments().isEmpty()) {
             SeparatedNodeList<FunctionArgumentNode> arguments = remoteMethodCallActionNode.arguments();
             FunctionArgumentNode functionArgumentNode = arguments.get(0);
             if (functionArgumentNode.kind() == SyntaxKind.POSITIONAL_ARG) {

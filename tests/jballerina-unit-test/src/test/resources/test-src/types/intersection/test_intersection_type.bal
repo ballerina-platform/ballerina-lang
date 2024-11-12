@@ -154,6 +154,49 @@ function testTypeCheckingAgainstEffectiveType2() {
     assertEquality(BAR, farr[2]);
     assertEquality("bar", farr[3]);
 }
+public type TableMetadata record {|
+    isolated function () returns string query;
+    isolated function (string) returns string queryOne;
+|};
+
+public isolated client class InMemoryClient {
+    private final (isolated function () returns string) & readonly query;
+    private final (isolated function (string) returns string) & readonly queryOne;
+
+    public isolated function init(TableMetadata & readonly metadata) {
+        self.query = metadata.query;
+        self.queryOne = metadata.queryOne;
+    }
+
+    public isolated function runReadQuery() returns string {
+        return self.query();
+    }
+
+    public isolated function runReadByKeyQuery(string key) returns string {
+        return self.queryOne(key);
+    }
+}
+
+function testIsolatedFunctionReadonlyIntersection() {
+// This test is to test isolated qualifier in intersection type flags
+    TableMetadata & readonly tableMetadata = {
+        query: isolated function () returns string => "query",
+        queryOne: isolated function (string key) returns string => key
+    };
+
+    InMemoryClient myClient = new InMemoryClient(tableMetadata);
+
+    assertEquality(myClient.runReadQuery(), "query");
+    assertEquality(myClient.runReadByKeyQuery("1"), "1");
+}
+
+function testIntersectionWithUnionEffectiveTypeAsAMemberOfAUnion() {
+    (readonly & ([string]|int))? a = ["Ballerina"];
+    assertEquality(<[string]>["Ballerina"], a);
+
+    (readonly & ([string]|[int])|int)? b = ["Ballerina"];
+    assertEquality(<[string]>["Ballerina"], b);
+}
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -219,6 +262,84 @@ function testRuntimeTypeNameOfIntersectionType() {
 }
 
 type Error error<record { string message; }>;
+
+type ReadonlyTypeDef1 readonly;
+type ReadonlyTypeDef2 readonly;
+
+type ObjectType object {
+    int atb1;
+    function call() returns int;
+};
+
+type ReadonlyRecordIntersectionType1 ReadonlyTypeDef1 & record {|
+    int a;
+|};
+
+type FooType record {|
+    int a;
+|};
+
+type BarType record {|
+    byte a;
+|};
+
+type ReadonlyRecordIntersectionType2 ReadonlyTypeDef1 & FooType;
+type ReadonlyRecordIntersectionType3 FooType & ReadonlyTypeDef1;
+type ReadonlyObjectIntersectionType1 ReadonlyTypeDef1 & ObjectType;
+type ReadonlyObjectIntersectionType2 ObjectType & ReadonlyTypeDef1;
+type IntersectionWithMultipleReadonlyType1 ReadonlyTypeDef1 & ReadonlyTypeDef2 & FooType;
+type IntersectionWithMultipleReadonlyType2 ReadonlyTypeDef1 & FooType & ReadonlyTypeDef2;
+type ReadonlyErrorIntersectionType ReadonlyTypeDef1 & error<FooType> & error<BarType>;
+
+function testReadonlyIntersection() {
+    ReadonlyRecordIntersectionType1 foo1 = {a: 1};
+    assertTrue(<any>foo1 is readonly);
+
+    ReadonlyRecordIntersectionType2 foo2 = {a: 1};
+    assertTrue(<any>foo2 is readonly);
+
+    ReadonlyRecordIntersectionType3 foo3 = {a: 1};
+    assertTrue(<any>foo3 is readonly);
+
+    ReadonlyObjectIntersectionType1 obj1 = object {
+        int atb1 = 1;
+        function call() returns int => 1;
+    };
+    assertTrue(<any>obj1 is readonly);
+
+    ReadonlyObjectIntersectionType2 obj2 = object {
+        int atb1 = 1;
+        function call() returns int => 1;
+    };
+    assertTrue(<any>obj2 is readonly);
+
+    IntersectionWithMultipleReadonlyType1 foo4 = {a: 1};
+    assertTrue(<any>foo4 is readonly);
+
+    IntersectionWithMultipleReadonlyType2 foo5 = {a: 1};
+    assertTrue(<any>foo5 is readonly);
+
+    ReadonlyErrorIntersectionType err = error("Error", a = 12);
+    assertTrue(<any|error>err is readonly);
+    assertTrue(<any>err.detail().a is byte);
+
+    ReadonlyTypeDef1 & string value1 = "abc";
+    assertTrue(<any>value1 is readonly);
+
+    ReadonlyTypeDef1 & string[] value2 = ["1", "2", "3"];
+    assertTrue(<any>value2 is readonly);
+    assertTrue(<any>value2 is ReadonlyTypeDef1 & string[]);
+
+    ReadonlyTypeDef1 & map<string> value3 = {"a": "1", "b": "2"};
+    assertTrue(<any>value3 is readonly);
+    assertTrue(<any>value3 is ReadonlyTypeDef1 & map<string>);
+
+    ReadonlyTypeDef1 & ReadonlyTypeDef2 & map<string> value4 = {"a": "1", "b": "2"};
+    assertTrue(<any>value4 is readonly);
+
+    string[] value5 = ["1", "2", "3"];
+    assertFalse(<any>value4 is ReadonlyTypeDef1 & string[]);
+}
 
 function assertError(any|error value, string errorMessage, string expDetailMessage) {
     if value is Error {

@@ -1,0 +1,72 @@
+{
+  "source": {
+    "file": "main.bal"
+  },
+  "position": {
+    "line": 16,
+    "character": 20
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "main.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 16,
+              "character": 20
+            },
+            "end": {
+              "line": 16,
+              "character": 25
+            }
+          },
+          "newText": "firstName"
+        }
+      ],
+      "modules/module2/module2.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 59,
+              "character": 31
+            },
+            "end": {
+              "line": 59,
+              "character": 36
+            }
+          },
+          "newText": "firstName"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 60,
+              "character": 11
+            },
+            "end": {
+              "line": 60,
+              "character": 16
+            }
+          },
+          "newText": "firstName"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 57,
+              "character": 4
+            },
+            "end": {
+              "line": 57,
+              "character": 9
+            }
+          },
+          "newText": "firstName"
+        }
+      ]
+    }
+  }
+}

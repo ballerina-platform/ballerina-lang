@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 3,
+    "character": 12
+  },
+  "source": "make_variable_immutable17.bal",
+  "description": "Make immutable of a map variable",
+  "expected": [
+    {
+      "title": "Add 'readonly' to the variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 17
+            }
+          },
+          "newText": " & readonly"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

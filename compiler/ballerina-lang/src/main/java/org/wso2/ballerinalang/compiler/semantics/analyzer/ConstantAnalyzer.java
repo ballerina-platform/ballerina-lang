@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -41,7 +42,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * Validate Given constant expressions.
@@ -57,8 +59,8 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
     private final Names names;
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
-    private BLangDiagnosticLog dlog;
-    private Stack<BLangExpression> expressions = new Stack<>();
+    private final BLangDiagnosticLog dlog;
+    private final Deque<BLangExpression> expressions = new ArrayDeque<>();
 
     private ConstantAnalyzer(CompilerContext context) {
 
@@ -139,6 +141,7 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
         analyzeExpr(binaryExpr.rhsExpr);
     }
 
+    @Override
     public void visit(BLangGroupExpr expr) {
         analyzeExpr(expr.expression);
     }
@@ -152,7 +155,21 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
             case NOT:
                 analyzeExpr(unaryExpr.expr);
                 return;
+            default:
+                dlog.error(unaryExpr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        for (BLangExpression expr : listConstructorExpr.exprs) {
+            analyzeExpr(expr);
+        }
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
+        analyzeExpr(spreadOpExpr.expr);
     }
 
     void analyzeExpr(BLangExpression expr) {
@@ -160,6 +177,8 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
             case LITERAL:
             case NUMERIC_LITERAL:
             case RECORD_LITERAL_EXPR:
+            case LIST_CONSTRUCTOR_EXPR:
+            case LIST_CONSTRUCTOR_SPREAD_OP:
             case SIMPLE_VARIABLE_REF:
             case BINARY_EXPR:
             case GROUP_EXPR:

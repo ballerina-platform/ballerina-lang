@@ -104,7 +104,7 @@ public class DiagnosticsTest {
                 {"too many arguments in call to 'map()'", 27, 18},
                 {"missing close parenthesis token", 27, 39},
 
-                {"invalid usage of receive expression, var not allowed", 37, 8},
+                {"receive action not supported wth 'var' type", 37, 8},
                 {"variable assignment is required", 37, 8},
                 {"missing identifier", 38, 0},
                 {"missing semicolon token", 38, 0},

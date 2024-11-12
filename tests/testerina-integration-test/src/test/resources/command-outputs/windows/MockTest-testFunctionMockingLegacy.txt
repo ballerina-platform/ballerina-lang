@@ -5,11 +5,14 @@ Running Tests with Coverage
 
 	function_mocking_legacy
 		[pass] testIntAdd
+		[pass] testIntMul
 
 
-		1 passing
+		2 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****s
 
 Generating Test Report
 	legacy-function-mocking-tests\target\report\test_results.json

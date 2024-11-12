@@ -30,6 +30,7 @@ import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_ERROR_PKG_ID;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FLOAT_LANG_LIB;
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.INCOMPATIBLE_CONVERT_OPERATION;
@@ -41,7 +42,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  * @since 2.0.0
  */
 
-public class ErrorUtils {
+public final class ErrorUtils {
 
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
     private static final BString ERROR_CAUSE_FIELD = StringUtils.fromString("cause");
@@ -77,14 +78,14 @@ public class ErrorUtils {
         } else {
             initialValues = new MappingInitialValueEntry[0];
         }
-        BMap<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
+        BMap<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
 
         return (ErrorValue) createError(StringUtils.fromString(e.getClass().getName()), detailMap);
     }
 
     public static Object handleResourceError(Object returnValue) {
-        if (returnValue instanceof BError) {
-            throw (BError) returnValue;
+        if (returnValue instanceof BError error) {
+            throw error;
         }
         return returnValue;
     }
@@ -186,5 +187,12 @@ public class ErrorUtils {
         throw createError(getModulePrefixedReason(FLOAT_LANG_LIB,
                 ErrorReasons.INVALID_FRACTION_DIGITS_ERROR),
                 ErrorHelper.getErrorDetails(ErrorCodes.INVALID_FRACTION_DIGITS));
+    }
+
+    public static BError createNoMessageError(String chnlName) {
+        String[] splitWorkers = chnlName.split(":")[0].split("->");
+        return createError(BALLERINA_LANG_ERROR_PKG_ID, "NoMessage", ErrorReasons.NO_MESSAGE_ERROR,
+                null, ErrorHelper.getErrorDetails(ErrorCodes.NO_MESSAGE_ERROR,
+                        StringUtils.fromString(splitWorkers[0]), StringUtils.fromString(splitWorkers[1])));
     }
 }

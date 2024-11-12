@@ -59,6 +59,18 @@ OPTIONS
        --graalvm-build-options
            Additional build options to be passed to the GraalVM native image.
 
+       --remote-management
+           Include the dependencies that are required to enable remote package
+           management service.
+
+       --show-dependency-diagnostics
+           Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console.
+
+       --optimize-dependency-compilation
+           [EXPERIMENTAL] Enables memory-efficient compilation of package dependencies
+           using separate processes. This can help prevent out-of-memory issues during
+           the initial compilation with a clean central cache.
 
 
 EXAMPLES

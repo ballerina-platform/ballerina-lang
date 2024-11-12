@@ -36,13 +36,17 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 1.0
  */
-public class ToBase16 {
+public final class ToBase16 {
 
     private static final char[] chars = "0123456789abcdef".toCharArray();
     private static final BString NOT_SUPPORTED_ERROR_DETAIL = StringUtils.fromString("toBase16() is only supported " +
                                                                                                "on 'byte[]'");
+
+    private ToBase16() {
+    }
+
     public static BString toBase16(BArray arr) {
-        Type arrType = TypeUtils.getReferredType(arr.getType());
+        Type arrType = TypeUtils.getImpliedType(arr.getType());
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
                 ((ArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
             throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,

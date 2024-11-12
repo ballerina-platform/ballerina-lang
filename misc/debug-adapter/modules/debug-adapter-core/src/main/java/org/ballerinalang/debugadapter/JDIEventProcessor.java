@@ -42,8 +42,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import static org.ballerinalang.debugadapter.BreakpointProcessor.DynamicBreakpointMode;
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
@@ -55,7 +55,7 @@ public class JDIEventProcessor {
     private final ExecutionContext context;
     private final BreakpointProcessor breakpointProcessor;
     private boolean isRemoteVmAttached = false;
-    private final List<EventRequest> stepRequests = new ArrayList<>();
+    private final List<EventRequest> stepRequests = new CopyOnWriteArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JDIEventProcessor.class);
 
     JDIEventProcessor(ExecutionContext context) {
@@ -99,17 +99,14 @@ public class JDIEventProcessor {
     }
 
     private void processEvent(EventSet eventSet, Event event) {
-        if (event instanceof ClassPrepareEvent) {
-            if (context.getLastInstruction() != DebugInstruction.STEP_OVER) {
-                ClassPrepareEvent evt = (ClassPrepareEvent) event;
+        if (event instanceof ClassPrepareEvent evt) {
+            if (context.getPrevInstruction() != DebugInstruction.STEP_OVER) {
                 breakpointProcessor.activateUserBreakPoints(evt.referenceType(), true);
             }
             eventSet.resume();
-        } else if (event instanceof BreakpointEvent) {
-            BreakpointEvent bpEvent = (BreakpointEvent) event;
+        } else if (event instanceof BreakpointEvent bpEvent) {
             breakpointProcessor.processBreakpointEvent(bpEvent);
-        } else if (event instanceof StepEvent) {
-            StepEvent stepEvent = (StepEvent) event;
+        } else if (event instanceof StepEvent stepEvent) {
             int threadId = (int) stepEvent.thread().uniqueID();
             if (isBallerinaSource(stepEvent.location())) {
                 notifyStopEvent(event);
@@ -138,9 +135,7 @@ public class JDIEventProcessor {
     }
 
     void sendStepRequest(int threadId, int stepType) {
-        if (stepType == StepRequest.STEP_OVER) {
-            breakpointProcessor.activateDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT);
-        } else if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
+        if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
             createStepRequest(threadId, stepType);
         }
         context.getDebuggeeVM().resume();
@@ -217,10 +212,10 @@ public class JDIEventProcessor {
      * Notifies DAP client that the remote VM is stopped due to a breakpoint hit / step event.
      */
     void notifyStopEvent(Event event) {
-        if (event instanceof BreakpointEvent) {
-            notifyStopEvent(StoppedEventArgumentsReason.BREAKPOINT, ((BreakpointEvent) event).thread().uniqueID());
-        } else if (event instanceof StepEvent) {
-            notifyStopEvent(StoppedEventArgumentsReason.STEP, ((StepEvent) event).thread().uniqueID());
+        if (event instanceof BreakpointEvent breakpointEvent) {
+            notifyStopEvent(StoppedEventArgumentsReason.BREAKPOINT, breakpointEvent.thread().uniqueID());
+        } else if (event instanceof StepEvent stepEvent) {
+            notifyStopEvent(StoppedEventArgumentsReason.STEP, stepEvent.thread().uniqueID());
         }
     }
 

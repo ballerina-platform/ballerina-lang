@@ -29,8 +29,8 @@ import io.ballerina.runtime.api.types.Type;
  */
 public class BParameterizedType extends BType implements ParameterizedType {
 
-    private Type paramValueType;
-    private int paramIndex;
+    private final Type paramValueType;
+    private final int paramIndex;
 
     public BParameterizedType(Type paramValueType, int paramIndex) {
         super(null, null, null);
@@ -40,7 +40,7 @@ public class BParameterizedType extends BType implements ParameterizedType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) paramValueType.getZeroValue();
+        return paramValueType.getZeroValue();
     }
 
     @Override
@@ -58,11 +58,9 @@ public class BParameterizedType extends BType implements ParameterizedType {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof BParameterizedType)) {
+        if (!(obj instanceof BParameterizedType otherParameterizedType)) {
             return false;
         }
-
-        BParameterizedType otherParameterizedType = (BParameterizedType) obj;
 
         return paramIndex == otherParameterizedType.paramIndex &&
                 paramValueType.equals(otherParameterizedType.getParamValueType());

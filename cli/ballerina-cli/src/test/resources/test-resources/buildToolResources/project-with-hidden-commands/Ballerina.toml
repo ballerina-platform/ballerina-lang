@@ -1,0 +1,28 @@
+[package]
+org = "foo"
+name = "winery"
+version = "0.1.0"
+
+[[tool.hidden_cmd_dummy_tool]]
+id = "main_dummy"
+filePath = "delivery.json"
+targetModule = "mod_main"
+options.mode = "client"
+
+[[tool.hidden_cmd_dummy_tool.write]]
+id = "write_dummy"
+filePath = "delivery.json"
+targetModule = "mod_write"
+options.writeValue = "Gayal Dassanayake"
+
+[[tool.hidden_cmd_dummy_tool.read]]
+id = "read_dummy"
+filePath = "delivery.json"
+targetModule = "mod_read"
+options.readValue = "Gayal Dassanayake"
+
+[[tool.hidden_cmd_dummy_tool.write.caps]]
+id = "write_dummy_caps"
+filePath = "delivery.json"
+targetModule = "mod_read_caps"
+options.writeValue = "Gayal Dassanayake"

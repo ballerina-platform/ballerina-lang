@@ -1,0 +1,22 @@
+{
+  "id": "1",
+  "characteristic": [
+    {
+      "name": "a",
+      "value": "text"
+    },
+    {
+      "name": "b",
+      "value": {
+        "id": "12",
+        "description": ""
+      }
+    },
+    {
+      "name": "c",
+      "value": {
+        "cid": "14"
+      }
+    }
+  ]
+}

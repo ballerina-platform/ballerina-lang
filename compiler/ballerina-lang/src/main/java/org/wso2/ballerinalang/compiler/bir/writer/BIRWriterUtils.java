@@ -28,8 +28,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -45,7 +43,10 @@ import java.util.Map;
  *
  * @since 2.0.0
  */
-public class BIRWriterUtils {
+public final class BIRWriterUtils {
+
+    private BIRWriterUtils() {
+    }
 
     public static void writePosition(Location pos, ByteBuf buf, ConstantPool cp) {
         int sLine = Integer.MIN_VALUE;
@@ -86,7 +87,7 @@ public class BIRWriterUtils {
     }
 
     public static void writeConstValue(ConstantPool cp, ByteBuf buf, Object value, BType type) {
-        switch (Types.getReferredType(type).tag) {
+        switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
             case TypeTags.SIGNED16_INT:
@@ -220,17 +221,14 @@ public class BIRWriterUtils {
     }
 
     public static BIRNode.ConstValue getBIRConstantVal(BLangConstantValue constValue) {
-        int tag = constValue.type.tag;
-        if (tag == TypeTags.INTERSECTION) {
-            constValue.type = ((BIntersectionType) constValue.type).effectiveType;
-            tag = constValue.type.tag;
-        }
+        BType type = constValue.type;
+        int tag = Types.getImpliedType(type).tag;
 
         if (tag == TypeTags.RECORD) {
             Map<String, BIRNode.ConstValue> mapConstVal = new HashMap<>();
             ((Map<String, BLangConstantValue>) constValue.value)
                     .forEach((key, value) -> mapConstVal.put(key, getBIRConstantVal(value)));
-            return new BIRNode.ConstValue(mapConstVal, ((BRecordType) constValue.type).getIntersectionType().get());
+            return new BIRNode.ConstValue(mapConstVal, type);
         }
 
         if (tag == TypeTags.TUPLE) {
@@ -239,7 +237,7 @@ public class BIRWriterUtils {
             for (int exprIndex = 0; exprIndex < constantValueList.size(); exprIndex++) {
                 tupleConstVal[exprIndex] = getBIRConstantVal(constantValueList.get(exprIndex));
             }
-            return new BIRNode.ConstValue(tupleConstVal, ((BTupleType) constValue.type).getIntersectionType().get());
+            return new BIRNode.ConstValue(tupleConstVal, type);
         }
 
         return new BIRNode.ConstValue(constValue.value, constValue.type);

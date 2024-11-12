@@ -189,7 +189,7 @@ public function main() {
         "course": "ballerina"
     };
 
-    Pet pet2 = {
+    Pet readonlyRecordVar = {
         id: 2,
         name: "Rova",
         'type: { 
@@ -245,6 +245,7 @@ public function main() {
     byte byteVar = 128;
     json jsonVar = {name: "apple", color: "red", price: 40};
     xml<never> neverVar = <xml<never>> 'xml:concat();
+    string:RegExp regexVar  = re `[a-zA-Z0-9]`;
 
     // quoted identifiers
     string '\ \/\:\@\[\`\{\~\u{03C0}_var = "IL with special characters in var";

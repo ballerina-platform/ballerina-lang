@@ -45,16 +45,19 @@ import java.util.Arrays;
 //        args = {@Argument(name = "children", type = TypeKind.UNION)},
 //        isPublic = true
 //)
-public class SetChildren {
+public final class SetChildren {
 
     private static final String OPERATION = "set children to xml element";
+
+    private SetChildren() {
+    }
 
     public static void setChildren(BXml xml, Object children) {
         if (!IsElement.isElement(xml)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.XML_FUNC_TYPE_ERROR, "setChildren", "element");
         }
 
-        Type childrenType = TypeUtils.getReferredType(TypeChecker.getType(children));
+        Type childrenType = TypeUtils.getImpliedType(TypeChecker.getType(children));
         if (childrenType.getTag() == TypeTags.STRING_TAG) {
             BXml xmlText = XmlFactory.createXMLText((BString) children);
             children = xmlText;

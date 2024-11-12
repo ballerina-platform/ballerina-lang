@@ -64,8 +64,8 @@ public class LocalRecordAnnotationTest {
         };
     }
 
-    public static BMap getLocalRecordAnnotations(TypedescValue typedescValue, BString annotName) {
-        return (BMap) TypeChecker.getAnnotValue(typedescValue, annotName);
+    public static BMap<?, ?> getLocalRecordAnnotations(TypedescValue typedescValue, BString annotName) {
+        return (BMap<?, ?>) TypeChecker.getAnnotValue(typedescValue, annotName);
     }
 
     @AfterClass

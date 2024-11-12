@@ -26,10 +26,17 @@ import java.nio.file.Path;
 /**
  * Generates Ballerina API docs for a given ballerina package.
  */
-public class DocerinaGen {
+public final class DocerinaGen {
 
     private static final PrintStream out = System.out;
 
+    private DocerinaGen() {
+    }
+
+    /**
+     * Main method to generate Ballerina API docs.
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         BallerinaDocGenerator.mergeApiDocs(Path.of(args[0]));
     }

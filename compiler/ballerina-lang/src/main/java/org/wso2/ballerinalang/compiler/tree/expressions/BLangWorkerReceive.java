@@ -20,8 +20,6 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.WorkerReceiveNode;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
@@ -33,16 +31,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  *
  * @since 0.94
  */
-public class BLangWorkerReceive extends BLangExpression implements WorkerReceiveNode {
-
-    // BLangNodes
-    public BLangIdentifier workerIdentifier;
+public class BLangWorkerReceive extends BLangWorkerSendReceiveExpr implements WorkerReceiveNode {
 
     // Semantic Data
-    public BLangExpression sendExpression; // TODO: #AST_CLEAN - No Transformer ?
-    public BSymbol workerSymbol;
-    public SymbolEnv env;
-    public BType workerType;
+    public BLangWorkerSendExpr send;
     public BType matchingSendsError;
 
     @Override

@@ -12,6 +12,8 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
+		Test execution time :*****s
+
 	mocking_coverage
 		[pass] testFloatAdd
 		[pass] testStringAdd
@@ -21,6 +23,8 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
+		Test execution time :*****s
+
 Generating Test Report
 	mocking-coverage-tests\target\report\test_results.json
-
+

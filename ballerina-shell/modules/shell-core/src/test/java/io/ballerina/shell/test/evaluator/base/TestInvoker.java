@@ -61,6 +61,7 @@ public class TestInvoker extends ClassLoadInvoker {
         return output.replace("\r\n", "\n");
     }
 
+    @Override
     public void reset() {
         this.stdOutBaOs.reset();
     }

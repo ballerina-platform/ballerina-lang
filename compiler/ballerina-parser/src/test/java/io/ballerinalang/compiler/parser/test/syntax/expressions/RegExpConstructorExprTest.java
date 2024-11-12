@@ -342,4 +342,12 @@ public class RegExpConstructorExprTest extends AbstractExpressionsTest {
         testFile("regexp-constructor-expr/regexp_constructor_source_53.bal",
                 "regexp-constructor-expr/regexp_constructor_assert_53.json");
     }
+
+    @Test
+    public void testInvalidRegExpWithGeneralCategory() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_54.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_54.json");
+        testFile("regexp-constructor-expr/regexp_constructor_source_55.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_55.json");
+    }
 }

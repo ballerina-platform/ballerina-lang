@@ -18,7 +18,6 @@ package org.ballerinalang.docgen.generator.model;
 import com.google.gson.annotations.Expose;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Represent documentation for a Listener.
@@ -28,9 +27,10 @@ public class Listener extends BClass {
     @Expose
     public List<Function> lifeCycleMethods;
 
-    public Listener(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
-            List<Function> methods, boolean isReadOnly, boolean isIsolated, boolean isService) {
-        super(name, description, isDeprecated, fields, methods, isReadOnly, isIsolated, isService);
+    public Listener(String name, String description, List<String> descriptionSections, boolean isDeprecated,
+                    List<DefaultableVariable> fields, List<Function> methods, boolean isReadOnly, boolean isIsolated,
+                    boolean isService) {
+        super(name, description, descriptionSections, isDeprecated, fields, methods, isReadOnly, isIsolated, isService);
         this.lifeCycleMethods = getLCMethods(methods);
         this.otherMethods = getOtherMethods(methods);
     }
@@ -40,14 +40,15 @@ public class Listener extends BClass {
                 .filter(function -> function.name.equals("attach")
                     || function.name.equals("start")
                     || function.name.equals("stop"))
-                .collect(Collectors.toList());
+                .toList();
     }
 
+    @Override
     public List<Function> getOtherMethods(List<Function> methods) {
         return super.getOtherMethods(methods).stream()
                 .filter(function -> !(function.name.equals("attach")
                         || function.name.equals("start")
                         || function.name.equals("stop")))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

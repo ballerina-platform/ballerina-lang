@@ -37,7 +37,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
@@ -47,18 +46,19 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  * Repo for bala_cache.
  */
 public class HomeBalaRepo implements Repo<Path> {
-    private Path repoLocation;
-    private ZipConverter zipConverter;
-    private List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
-    private Map<PackageID, Manifest> dependencyManifests;
+    private final Path repoLocation;
+    private final ZipConverter zipConverter;
+    private final List<String> supportedPlatforms = Stream.concat(
+            Arrays.stream(SUPPORTED_PLATFORMS), Stream.of("any")).toList();
+    private final Map<PackageID, Manifest> dependencyManifests;
     
     public HomeBalaRepo(Map<PackageID, Manifest> dependencyManifests) {
         this.repoLocation = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALA_CACHE_DIR_NAME);
         this.dependencyManifests = dependencyManifests;
         this.zipConverter = new ZipConverter(this.repoLocation);
-        supportedPlatforms.add("any");
     }
     
+    @Override
     public Patten calculate(PackageID moduleID) {
         try {
             // if path to bala is not given in the manifest file
@@ -155,13 +155,14 @@ public class HomeBalaRepo implements Repo<Path> {
         Path balaFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr);
         // try to find a compatible bala file
         if (Files.exists(balaFilePath)) {
-            Stream<Path> list = Files.list(balaFilePath);
-            PathMatcher pathMatcher = balaFilePath.getFileSystem()
-                    .getPathMatcher("glob:**/" + pkgName + "-*-" +
-                            platform + "-" + versionStr + ".bala");
-            for (Path file : (Iterable<Path>) list::iterator) {
-                if (pathMatcher.matches(file)) {
-                    return file;
+            try (Stream<Path> list = Files.list(balaFilePath)) {
+                PathMatcher pathMatcher = balaFilePath.getFileSystem()
+                        .getPathMatcher("glob:**/" + pkgName + "-*-" +
+                                platform + "-" + versionStr + ".bala");
+                for (Path file : (Iterable<Path>) list::iterator) {
+                    if (pathMatcher.matches(file)) {
+                        return file;
+                    }
                 }
             }
         }

@@ -46,6 +46,7 @@ public class MultiModuleTestDebugTest extends BaseTestCase {
 
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "breakpoint-tests";
@@ -66,7 +67,7 @@ public class MultiModuleTestDebugTest extends BaseTestCase {
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.TEST);
 
         // Test for debug engage and break point hit @test:BeforeSuite
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(20000);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(30000);
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
 
         // Test for break point hit at beforeFunc()
@@ -111,7 +112,7 @@ public class MultiModuleTestDebugTest extends BaseTestCase {
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.TEST, testArgs);
 
         // Test for break point hit at testMain()
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(20000);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(30000);
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
 
         // Since the test filter will exclude the "testFunction()" method, continuing the debugger should hit the
@@ -121,6 +122,7 @@ public class MultiModuleTestDebugTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(2));
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

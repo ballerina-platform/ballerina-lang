@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
+import org.testng.Assert;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,7 +32,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 1.0.0
  */
-public class AsyncInterop {
+public final class AsyncInterop {
+
+    private AsyncInterop() {
+    }
 
     public static int countSlowly() {
         CompletableFuture<Object> future = AsyncUtils.markAsync();
@@ -59,7 +63,7 @@ public class AsyncInterop {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
-            assert false;
+            Assert.fail(e.getMessage());
         }
     }
 }

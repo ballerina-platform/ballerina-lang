@@ -32,7 +32,7 @@ import java.util.StringJoiner;
  * @since 2201.3.0
  */
 public class RegExpSequence extends RegExpCommonValue {
-    private RegExpTerm[] termsList;
+    private final RegExpTerm[] termsList;
 
     public RegExpSequence(ArrayValue termsList) {
         this.termsList = getRegExpSeqList(termsList);

@@ -25,8 +25,11 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.toml.semantic.TomlType;
+import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
+import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.toml.validator.TomlValidator;
 import io.ballerina.toml.validator.schema.Schema;
@@ -46,10 +49,11 @@ import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTabl
  */
 public class BalToolsManifestBuilder {
     private final Optional<TomlDocument> balToolsToml;
-
     private final BalToolsManifest balToolsManifest;
+    private final Map<String, OldTool> oldTools;
 
     private BalToolsManifestBuilder(TomlDocument balToolsToml) {
+        oldTools = new HashMap<>();
         this.balToolsToml = Optional.ofNullable(balToolsToml);
         this.balToolsManifest = parseAsBalToolsManifest();
     }
@@ -66,9 +70,8 @@ public class BalToolsManifestBuilder {
         return balToolsManifest;
     }
 
-    public BalToolsManifestBuilder addTool(String id, String org, String name, String version) {
-        balToolsManifest.addTool(id, org, name, version);
-        return this;
+    public Map<String, OldTool> getOldTools() {
+        return oldTools;
     }
 
     public BalToolsManifestBuilder removeTool(String id) {
@@ -81,7 +84,7 @@ public class BalToolsManifestBuilder {
             return BalToolsManifest.from();
         }
         validateBalToolsTomlAgainstSchema();
-        Map<String, BalToolsManifest.Tool> tools = getTools();
+        Map<String, Map<String, Map<String, BalToolsManifest.Tool>>> tools = getTools();
         return BalToolsManifest.from(tools);
     }
 
@@ -99,7 +102,7 @@ public class BalToolsManifestBuilder {
         balToolsTomlValidator.validate(balToolsToml.get().toml());
     }
 
-    private Map<String, BalToolsManifest.Tool> getTools() {
+    private Map<String, Map<String, Map<String, BalToolsManifest.Tool>>> getTools() {
         if (balToolsToml.isEmpty()) {
             return new HashMap<>();
         }
@@ -115,7 +118,7 @@ public class BalToolsManifestBuilder {
             return new HashMap<>();
         }
 
-        Map<String, BalToolsManifest.Tool> tools = new HashMap<>();
+        Map<String, Map<String, Map<String, BalToolsManifest.Tool>>> tools = new HashMap<>();
         if (toolEntries.kind() == TomlType.TABLE_ARRAY) {
             TomlTableArrayNode toolTableArray = (TomlTableArrayNode) toolEntries;
 
@@ -124,20 +127,33 @@ public class BalToolsManifestBuilder {
                 String org = getStringValueFromToolNode(toolNode, "org");
                 String name = getStringValueFromToolNode(toolNode, "name");
                 String version = getStringValueFromToolNode(toolNode, "version");
+                Optional<Boolean> active = getBooleanFromToolNode(toolNode, "active");
+                String repository = getStringValueFromToolNode(toolNode, "repository");
 
                 // If id, org or name, one of the value is null, ignore tool record
                 if (id == null || org == null || name == null) {
                     continue;
                 }
 
-                if (version != null) {
-                    try {
-                        PackageVersion.from(version);
-                    } catch (ProjectException ignore) {
-                        continue;
-                    }
+                if (version == null || active.isEmpty()) {
+                    oldTools.put(id, new OldTool(id, org, name));
+                    continue;
                 }
-                tools.put(id, new BalToolsManifest.Tool(id, org, name, version));
+
+                try {
+                    PackageVersion.from(version);
+                } catch (ProjectException ignore) {
+                    continue;
+                }
+
+                if (!tools.containsKey(id)) {
+                    tools.put(id, new HashMap<>());
+                }
+                if (!tools.get(id).containsKey(version)) {
+                    tools.get(id).put(version, new HashMap<>());
+                }
+                tools.get(id).get(version).put(repository, new BalToolsManifest.Tool(id, org, name, version,
+                        active.get(), repository));
             }
         }
         return tools;
@@ -151,7 +167,36 @@ public class BalToolsManifestBuilder {
         return getStringFromTomlTableNode(topLevelNode);
     }
 
+    Optional<Boolean> getBooleanFromToolNode(TomlTableNode tableNode, String key) {
+        TopLevelNode topLevelNode = tableNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            return Optional.empty();
+        }
+
+        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
+            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
+            TomlValueNode value = keyValueNode.value();
+            if (value.kind() == TomlType.BOOLEAN) {
+                TomlBooleanValueNode tomlBooleanValueNode = (TomlBooleanValueNode) value;
+                return Optional.ofNullable(tomlBooleanValueNode.getValue());
+            }
+        }
+        return Optional.empty();
+    }
+
     public BalToolsManifest build() {
         return this.balToolsManifest;
+    }
+
+    /**
+     * Represents a tool saved in an older update 6 and 7 bal-tools.toml.
+     * The tool record in the older bal-tools.toml file does not contain the version and active fields.
+     * @param id   tool id
+     * @param org  tool org
+     * @param name tool name
+     *
+     * @since 2201.8.0
+     */
+    public record OldTool(String id, String org, String name) {
     }
 }

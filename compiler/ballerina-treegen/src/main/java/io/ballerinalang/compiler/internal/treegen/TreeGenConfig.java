@@ -49,11 +49,13 @@ public class TreeGenConfig {
 
     private static final String TREE_GEN_CONFIG_PROPERTIES = "treegen_config.properties";
 
+    public static final String SYNTAX_NODE_METADATA_KEY = "syntax.node.metadata";
+
     private final Properties props;
-    private static TreeGenConfig instance = new TreeGenConfig(loadConfig());
+    private static final TreeGenConfig INSTANCE = new TreeGenConfig(loadConfig());
 
     static TreeGenConfig getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     private TreeGenConfig(Properties props) {

@@ -74,17 +74,16 @@ public class ClientConfigHolder {
             return Optional.of(extendedClientCapabilities);
         }
         Object capabilitiesObj = clientRequestArgs.get(ARG_CAPABILITIES);
-        if (!(capabilitiesObj instanceof Map)) {
+        if (!(capabilitiesObj instanceof Map<?, ?> capabilities)) {
             return Optional.empty();
         }
 
-        Map<String, Object> capabilities = (Map<String, Object>) capabilitiesObj;
         extendedClientCapabilities = new ExtendedClientCapabilities();
         Object readOnlyEditorConfig = capabilities.get(ARG_SUPPORT_READONLY_EDITOR);
-        if (readOnlyEditorConfig instanceof Boolean) {
-            extendedClientCapabilities.setSupportsReadOnlyEditors((Boolean) readOnlyEditorConfig);
-        } else if (readOnlyEditorConfig instanceof String) {
-            extendedClientCapabilities.setSupportsReadOnlyEditors(Boolean.parseBoolean((String) readOnlyEditorConfig));
+        if (readOnlyEditorConfig instanceof Boolean b) {
+            extendedClientCapabilities.setSupportsReadOnlyEditors(b);
+        } else if (readOnlyEditorConfig instanceof String s) {
+            extendedClientCapabilities.setSupportsReadOnlyEditors(Boolean.parseBoolean(s));
         } else {
             extendedClientCapabilities.setSupportsReadOnlyEditors(false);
         }

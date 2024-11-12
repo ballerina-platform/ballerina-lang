@@ -34,7 +34,6 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
@@ -75,14 +74,17 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
                 Settings settings = RepoUtils.readSettings();
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                         initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                        settings.getProxy().password(), getAccessTokenOfCLI(settings));
+                        settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                        settings.getCentral().getConnectTimeout(),
+                        settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                        settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
                 JsonElement triggerSearchResult = client.getTriggers(request.getQueryMap(),
                         "any", RepoUtils.getBallerinaVersion());
                 CentralTriggerListResult centralTriggerListResult = new Gson().fromJson(
                         triggerSearchResult.getAsString(), CentralTriggerListResult.class);
                 triggersList.setCentralTriggers(centralTriggerListResult.getTriggers());
                 return triggersList;
-            } catch (CentralClientException | SettingsTomlException e) {
+            } catch (CentralClientException e) {
                 String msg = "Operation 'ballerinaTrigger/triggers' failed!";
                 this.languageClient.logMessage(new MessageParams(MessageType.Error, msg));
                 return triggersList;
@@ -105,12 +107,15 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
                     settings.getProxy().password(),
-                    getAccessTokenOfCLI(settings));
+                    getAccessTokenOfCLI(settings),
+                    settings.getCentral().getConnectTimeout(),
+                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                    settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
             if (request.getTriggerId() != null) {
                 trigger = client.getTrigger(request.getTriggerId(), "any", RepoUtils.getBallerinaVersion());
                 return Optional.of(trigger);
             }
-        } catch (CentralClientException | SettingsTomlException e) {
+        } catch (CentralClientException e) {
             String msg = "Operation 'ballerinaTrigger/trigger' failed!";
             this.languageClient.logMessage(new MessageParams(MessageType.Error, msg));
         }

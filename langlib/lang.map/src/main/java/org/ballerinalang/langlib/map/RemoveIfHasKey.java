@@ -35,12 +35,15 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFie
  *
  * @since 1.2.0
  */
-public class RemoveIfHasKey {
+public final class RemoveIfHasKey {
+
+    private RemoveIfHasKey() {
+    }
 
     public static Object removeIfHasKey(BMap<?, ?> m, BString k) {
         String op = "removeIfHasKey()";
 
-        checkIsMapOnlyOperation(TypeUtils.getReferredType(m.getType()), op);
+        checkIsMapOnlyOperation(TypeUtils.getImpliedType(m.getType()), op);
         validateRequiredFieldForRecord(m, k.getValue());
         try {
             return m.remove(k);

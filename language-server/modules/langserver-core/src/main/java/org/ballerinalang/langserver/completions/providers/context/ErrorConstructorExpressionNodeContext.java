@@ -51,7 +51,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ErrorConstructorExpressionNode} context.
@@ -134,7 +133,7 @@ public class ErrorConstructorExpressionNodeContext extends
         List<Symbol> errorTypes = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
                 .filter(SymbolUtil.isOfType(TypeDescKind.ERROR)
                         .and(symbol -> !symbol.getName().orElse("").equals(Names.ERROR.getValue())))
-                .collect(Collectors.toList());
+                .toList();
         List<LSCompletionItem> completionItems = this.getCompletionItemList(errorTypes, ctx);
         completionItems.addAll(this.getModuleCompletionItems(ctx));
 
@@ -259,7 +258,7 @@ public class ErrorConstructorExpressionNodeContext extends
             return completionItems;
         }
         List<String> existingNamedArgs = node.arguments().stream().filter(arg -> arg.kind() == SyntaxKind.NAMED_ARG)
-                .map(arg -> ((NamedArgumentNode) arg).argumentName().name().text()).collect(Collectors.toList());
+                .map(arg -> ((NamedArgumentNode) arg).argumentName().name().text()).toList();
 
         fields.entrySet().forEach(field -> {
             Optional<String> fieldName = field.getValue().getName();

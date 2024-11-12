@@ -14,16 +14,18 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/javaProject.gradle"
+
+plugins {
+    id 'javaProject'
+}
 
 dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
-    implementation 'org.hdrhistogram:HdrHistogram'
-    testImplementation "org.testng:testng:${project.testngVersion}"
-    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
-    testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
+    implementation libs.hdr.histogram
+    testImplementation libs.testng
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.testng
 }
 
 description = 'Ballerina - Metrics Extension'
@@ -44,9 +46,14 @@ ext.moduleName = 'io.ballerina.observe.metrics.extension.defaultimpl'
 compileJava {
     inputs.property("moduleName", moduleName)
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
         classpath = files()
     }
 }

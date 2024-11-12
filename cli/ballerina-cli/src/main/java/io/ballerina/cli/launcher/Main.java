@@ -19,36 +19,43 @@
 package io.ballerina.cli.launcher;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.launcher.util.BalToolsUtil;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import picocli.CommandLine;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
 
+import static io.ballerina.cli.cmd.Constants.HELP_COMMAND;
+import static io.ballerina.cli.cmd.Constants.HELP_OPTION;
+import static io.ballerina.cli.cmd.Constants.HELP_SHORT_OPTION;
 import static io.ballerina.cli.cmd.Constants.VERSION_COMMAND;
+import static io.ballerina.cli.launcher.LauncherUtils.prepareCompilerErrorMessage;
 
 /**
  * This class executes a Ballerina program.
  *
  * @since 0.8.0
  */
-public class Main {
+public final class Main {
+
     private static final String UNMATCHED_ARGUMENT_PREFIX = "Unmatched argument";
     private static final String MISSING_REQUIRED_PARAMETER_PREFIX = "Missing required parameter";
     private static final String COMPILATION_ERROR_MESSAGE = "compilation contains errors";
 
-    private static PrintStream errStream = System.err;
-    private static PrintStream outStream = System.out;
+    private static final PrintStream errStream = System.err;
+    private static final PrintStream outStream = System.out;
+
+    private Main() {
+    }
 
     public static void main(String... args) {
         try {
@@ -83,26 +90,7 @@ public class Main {
             cmdParser.setStopAtPositional(true);
 
             // loading additional commands via SPI
-            ServiceLoader<BLauncherCmd> bCmds;
-            if (null != args && args.length > 0 && LauncherUtils.isToolCommand(args[0])) {
-                List<File> jars = LauncherUtils.getToolCommandJarAndDependenciesPath(args[0]);
-                URL[] urls = jars.stream()
-                        .map(file -> {
-                            try {
-                                return file.toURI().toURL();
-                            } catch (MalformedURLException e) {
-                                throw LauncherUtils.createUsageExceptionWithHelp("invalid tool jar: " + file
-                                        .getAbsolutePath());
-                            }
-                        })
-                        .toArray(URL[]::new);
-                // Combine custom class loader with system class loader
-                ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-                ClassLoader combinedClassLoader = new URLClassLoader(urls, systemClassLoader);
-                bCmds = ServiceLoader.load(BLauncherCmd.class, combinedClassLoader);
-            } else {
-                bCmds = ServiceLoader.load(BLauncherCmd.class);
-            }
+            ServiceLoader<BLauncherCmd> bCmds = loadAdditionalCommands(args);
 
             for (BLauncherCmd bCmd : bCmds) {
                 cmdParser.addSubcommand(bCmd.getName(), bCmd);
@@ -140,12 +128,12 @@ public class Main {
 
             List<CommandLine> parsedCommands = cmdParser.parse(args);
 
-            if (defaultCmd.argList.size() > 0 && cmdParser.getSubcommands().get(defaultCmd.argList.get(0)) == null) {
+            if (!defaultCmd.argList.isEmpty() && cmdParser.getSubcommands().get(defaultCmd.argList.get(0)) == null) {
                 throw LauncherUtils.createUsageExceptionWithHelp("unknown command '"
                         + defaultCmd.argList.get(0) + "'");
             }
 
-            if (parsedCommands.size() < 1 || defaultCmd.helpFlag) {
+            if (parsedCommands.isEmpty() || defaultCmd.helpFlag) {
                 if (parsedCommands.size() > 1) {
                     defaultCmd.argList.add(parsedCommands.get(1).getCommandName());
                 }
@@ -174,6 +162,23 @@ public class Main {
             }
             throw LauncherUtils.createUsageExceptionWithHelp(LauncherUtils.makeFirstLetterLowerCase(msg));
         }
+    }
+
+    private static ServiceLoader<BLauncherCmd> loadAdditionalCommands(String ...args) {
+        BalToolsUtil.updateOldBalToolsToml();
+        if (null != args && args.length > 0 && BalToolsUtil.isToolCommand(args[0])) {
+            String commandName = args[0];
+            BalToolsUtil.addToolIfCommandIsABuiltInTool(commandName);
+            CustomToolClassLoader customToolClassLoader = BalToolsUtil.getCustomToolClassLoader(commandName);
+            Thread.currentThread().setContextClassLoader(customToolClassLoader);
+            return ServiceLoader.load(BLauncherCmd.class, customToolClassLoader);
+        } else if (null == args || args.length == 0
+                || Arrays.asList(HELP_COMMAND, HELP_OPTION, HELP_SHORT_OPTION).contains(args[0])) {
+            CustomToolClassLoader customToolClassLoader = BalToolsUtil.getCustomToolClassLoader(HELP_COMMAND);
+            Thread.currentThread().setContextClassLoader(customToolClassLoader);
+            return ServiceLoader.load(BLauncherCmd.class, customToolClassLoader);
+        }
+        return ServiceLoader.load(BLauncherCmd.class);
     }
 
     private static void printUsageInfo(String commandName) {
@@ -208,10 +213,6 @@ public class Main {
         }
     }
 
-    private static String prepareCompilerErrorMessage(String message) {
-        return "error: " + LauncherUtils.makeFirstLetterLowerCase(message);
-    }
-
     private static String getFirstUnknownArg(String errorMessage) {
         String optionsString = errorMessage.split(":")[1];
         return (optionsString.split(","))[0].trim();
@@ -230,11 +231,13 @@ public class Main {
 
         private CommandLine parentCmdParser;
 
+        @Override
         public void execute() {
+            Map<String, CommandLine> subCommands = parentCmdParser.getSubcommands();
             if (helpCommands == null) {
-                printUsageInfo(BallerinaCliCommands.HELP);
+                String generalHelp = LauncherUtils.generateGeneralHelp(subCommands);
+                outStream.println(generalHelp);
                 return;
-
             } else if (helpCommands.size() > 1) {
                 throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
             }
@@ -244,8 +247,8 @@ public class Main {
                 throw LauncherUtils.createUsageExceptionWithHelp("unknown help topic `" + userCommand + "`");
             }
 
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(userCommand);
-            errStream.println(commandUsageInfo);
+            String commandHelp = LauncherUtils.generateCommandHelp(userCommand, subCommands);
+            outStream.println(commandHelp);
         }
 
         @Override
@@ -285,6 +288,7 @@ public class Main {
 
         private CommandLine parentCmdParser;
 
+        @Override
         public void execute() {
             if (helpFlag) {
                 printUsageInfo(BallerinaCliCommands.VERSION);
@@ -333,6 +337,7 @@ public class Main {
 
         private CommandLine parentCmdParser;
 
+        @Override
         public void execute() {
             if (helpFlag) {
                 printUsageInfo(BallerinaCliCommands.HOME);
@@ -398,17 +403,21 @@ public class Main {
 
         @Override
         public void execute() {
+            Map<String, CommandLine> subCommands = parentCmdParser.getSubcommands();
+
             if (versionFlag) {
                 printVersionInfo();
                 return;
             }
 
             if (!argList.isEmpty()) {
-                printUsageInfo(argList.get(0));
+                String commandHelp = LauncherUtils.generateCommandHelp(argList.get(0), subCommands);
+                outStream.println(commandHelp);
                 return;
             }
 
-            printUsageInfo(BallerinaCliCommands.HELP);
+            String generalHelp = LauncherUtils.generateGeneralHelp(subCommands);
+            outStream.println(generalHelp);
         }
 
         @Override

@@ -22,8 +22,8 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.CatchIns;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JErrorEntry;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.CatchIns;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 
@@ -80,7 +80,8 @@ public class JvmErrorGen {
     }
 
     public void generateTryCatch(BIRNode.BIRFunction func, String funcName, BIRNode.BIRBasicBlock currentBB,
-                                 JvmTerminatorGen termGen, LabelGenerator labelGen, int invocationVarIndex) {
+                                 JvmTerminatorGen termGen, LabelGenerator labelGen, int invocationVarIndex,
+                                 int localVarOffset) {
 
         BIRNode.BIRErrorEntry currentEE = findErrorEntry(func.errorTable, currentBB);
         if (currentEE == null) {
@@ -93,8 +94,7 @@ public class JvmErrorGen {
 
         this.mv.visitLabel(endLabel);
         this.mv.visitJumpInsn(GOTO, jumpLabel);
-        if (currentEE instanceof JErrorEntry) {
-            JErrorEntry jCurrentEE = ((JErrorEntry) currentEE);
+        if (currentEE instanceof JErrorEntry jCurrentEE) {
             BIRNode.BIRVariableDcl retVarDcl = currentEE.errorOp.variableDcl;
             int retIndex = this.indexMap.addIfNotExists(retVarDcl.name.value, retVarDcl.type);
             boolean exeptionExist = false;
@@ -108,7 +108,7 @@ public class JvmErrorGen {
                 this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, CREATE_INTEROP_ERROR_METHOD,
                         CREATE_ERROR_FROM_THROWABLE, false);
                 jvmInstructionGen.generateVarStore(this.mv, retVarDcl, retIndex);
-                termGen.genReturnTerm(retIndex, func, invocationVarIndex);
+                termGen.genReturnTerm(retIndex, func, invocationVarIndex, localVarOffset);
                 this.mv.visitJumpInsn(GOTO, jumpLabel);
             }
             if (!exeptionExist) {

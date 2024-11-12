@@ -20,7 +20,6 @@ package io.ballerina.cli.utils;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.Settings;
 import org.ballerinalang.central.client.CentralAPIClient;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -38,7 +37,7 @@ import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_STAGE_CENTRAL;
  *
  * @since 2.0.0
  */
-public class CentralUtils {
+public final class CentralUtils {
 
     private static final String BALLERINA_CENTRAL_PRODUCTION_URL = "https://central.ballerina.io";
     private static final String BALLERINA_CENTRAL_STAGING_URL = "https://staging-central.ballerina.io";
@@ -51,7 +50,7 @@ public class CentralUtils {
      * Checks if the access token is available in Settings.toml or not.
      */
     public static void authenticate(PrintStream errStream, String ballerinaCentralCliTokenUrl,
-                                    Path settingsTomlFilePath, CentralAPIClient client) throws SettingsTomlException {
+                                    Path settingsTomlFilePath, CentralAPIClient client) {
         String accessToken = client.accessToken();
 
         if (accessToken.isEmpty()) {
@@ -120,11 +119,11 @@ public class CentralUtils {
 
     public static String getBallerinaCentralCliTokenUrl() {
         if (SET_BALLERINA_STAGE_CENTRAL) {
-            return "https://staging-central.ballerina.io/cli-token";
+            return "https://staging-central.ballerina.io/dashboard?tab=token";
         } else if (SET_BALLERINA_DEV_CENTRAL) {
-            return "https://dev-central.ballerina.io/cli-token";
+            return "https://dev-central.ballerina.io/dashboard?tab=token";
         } else {
-            return "https://central.ballerina.io/cli-token";
+            return "https://central.ballerina.io/dashboard?tab=token";
         }
     }
 

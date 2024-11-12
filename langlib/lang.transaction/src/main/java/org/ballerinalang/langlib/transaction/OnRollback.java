@@ -28,9 +28,12 @@ import io.ballerina.runtime.transactions.TransactionResourceManager;
  *
  * @since 2.0.0-preview1
  */
-public class OnRollback {
+public final class OnRollback {
 
-    public static void onRollback(BFunctionPointer bFunctionPointer) {
+    private OnRollback() {
+    }
+
+    public static void onRollback(BFunctionPointer<?, ?> bFunctionPointer) {
         TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerAbortedFunction(transactionLocalContext.getGlobalTransactionId(),

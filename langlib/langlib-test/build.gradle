@@ -17,19 +17,21 @@
  *
  */
 
-description = 'Lang Library Unit Test Module'
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+description = 'Lang Library Unit Test Module'
 
 dependencies {
     implementation project(':ballerina-lang')
 
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     testImplementation project(path: ':ballerina-runtime')
-    testImplementation 'org.testng:testng'
+    testImplementation libs.testng
 
-    testRuntimeOnly 'org.slf4j:slf4j-jdk14'
+    testRuntimeOnly libs.slf4j.jdk14
 }
 
 test {

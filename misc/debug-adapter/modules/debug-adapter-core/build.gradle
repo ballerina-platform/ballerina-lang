@@ -1,4 +1,6 @@
-apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
+plugins {
+    id 'javaProjectWithExtBala'
+}
 
 repositories {
     mavenCentral()
@@ -11,7 +13,7 @@ configurations {
     dependency {
         transitive false
     }
-    libs
+    lib
 }
 
 dependencies {
@@ -20,32 +22,47 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-runtime')
     implementation project(':identifier-util')
-    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.debug:0.12.0'
-    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.12.0'
-    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc.debug:0.12.0'
-    implementation 'com.github.zafarkhaja:java-semver:0.9.0'
-    implementation "commons-io:commons-io:${project.commonsIoVersion}"
-    implementation 'org.apache.commons:commons-lang3'
+    implementation libs.eclipse.lsp4j.debug
+    implementation libs.eclipse.lsp4j.jsonrpc
+    implementation libs.eclipse.lsp4j.jsonrpc.debug
+    implementation libs.zafarkhaja.jsemver
+    implementation libs.commons.io
+    implementation libs.apache.commons.lang3
 
-    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.debug:0.12.0'
-    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.12.0'
-    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc.debug:0.12.0'
-    dependency 'com.github.zafarkhaja:java-semver:0.9.0'
-    dependency 'commons-io:commons-io:2.7'
+    dependency libs.eclipse.lsp4j.debug
+    dependency libs.eclipse.lsp4j.jsonrpc
+    dependency libs.eclipse.lsp4j.jsonrpc.debug
+    dependency libs.zafarkhaja.jsemver
+    dependency libs.commons.io
 }
 
-task createZip(type: Zip) {
+tasks.register('createZip', Zip) {
     dependsOn createBalHome
 }
 
 artifacts {
     dist file: file(createZip.archiveFile), builtBy: createZip
-    libs configurations.dependency.files
+    lib configurations.dependency.files
 }
 
-createJavadoc {
-    // TODO: remove following, it fails at org.eclipse currently
-    exclude "**"
+compileJava {
+    doFirst {
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
+        classpath = files()
+    }
+}
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }
 
 description = 'Ballerina - Debug Adapter - Debug Adaptor Core'

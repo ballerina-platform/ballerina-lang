@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -55,7 +56,7 @@ public abstract class BIRNode {
      */
     public static class BIRPackage extends BIRNode {
         public final PackageID packageID;
-        public final List<BIRImportModule> importModules;
+        public final Set<BIRImportModule> importModules;
         public final List<BIRTypeDefinition> typeDefs;
         public final List<BIRGlobalVariableDcl> globalVars;
         public final Set<BIRGlobalVariableDcl> importedGlobalVarsDummyVarDcls;
@@ -74,7 +75,7 @@ public abstract class BIRNode {
                           String sourceRoot, boolean skipTest, boolean isTestPkg) {
             super(pos);
             packageID = new PackageID(org, pkgName, name, version, sourceFileName, sourceRoot, isTestPkg, skipTest);
-            this.importModules = new ArrayList<>();
+            this.importModules = new LinkedHashSet<>();
             this.typeDefs = new ArrayList<>();
             this.globalVars = new ArrayList<>();
             this.importedGlobalVarsDummyVarDcls = new HashSet<>();
@@ -106,6 +107,24 @@ public abstract class BIRNode {
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            return this.packageID.equals(((BIRImportModule) o).packageID);
+        }
+
+        @Override
+        public int hashCode() {
+            return this.packageID.hashCode();
         }
     }
 
@@ -163,11 +182,9 @@ public abstract class BIRNode {
                 return true;
             }
 
-            if (!(other instanceof BIRVariableDcl)) {
+            if (!(other instanceof BIRVariableDcl otherVarDecl)) {
                 return false;
             }
-
-            BIRVariableDcl otherVarDecl = (BIRVariableDcl) other;
 
             // Here we assume names are unique.
             return this.name.equals(otherVarDecl.name);
@@ -827,7 +844,7 @@ public abstract class BIRNode {
     public static class BIRLockDetailsHolder {
 
         //This is the list of recursive locks in the current scope.
-        private List<BIRTerminator.Lock> locks = new ArrayList<>();
+        private final List<BIRTerminator.Lock> locks = new ArrayList<>();
 
         public boolean isEmpty() {
             return locks.isEmpty();

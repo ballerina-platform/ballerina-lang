@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 4,
+    "character": 6
+  },
+  "source": "project3/file1.bal",
+  "expected": [
+    {
+      "title": "Add all to Config.toml",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "xmls = []\nbools = []\ndecimals = []\nstrs = []\ntuple = []\nmapArray = []\npeople = []\nuserTeams = []\nb = 0\nf = 0.0\nd = 0.0\ns = \"\"\nx = \"\"\nints = []\nbytes = []\nfloats = []\n\n[input]\nfood.b.cake = \"\"\nfood.b.bake = \"\"\nfood.name = \"\"\nfood.cal = 0\nage = 0\n\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

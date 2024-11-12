@@ -17,7 +17,11 @@
  */
 package org.ballerinalang.langserver.completion;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
 
 /**
  * Function Definition Context tests.
@@ -29,6 +33,12 @@ public class FunctionDefinitionTest extends CompletionTest {
     @Override
     public Object[][] dataProvider() {
         return this.getConfigsList();
+    }
+
+    @Override
+    @Test(dataProvider = "completion-data-provider")
+    public void test(String config, String configPath) throws IOException, WorkspaceDocumentException {
+        super.test(config, configPath);
     }
 
     @Override

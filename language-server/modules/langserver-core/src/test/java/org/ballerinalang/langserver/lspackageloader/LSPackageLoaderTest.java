@@ -16,8 +16,6 @@
 package org.ballerinalang.langserver.lspackageloader;
 
 import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.PackageRepository;
-import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import org.ballerinalang.langserver.AbstractLSTest;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
@@ -25,7 +23,6 @@ import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
 import org.ballerinalang.langserver.util.FileUtils;
@@ -43,10 +40,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
- * Tests {@link org.ballerinalang.langserver.LSPackageLoader}.
+ * Tests {@link LSPackageLoader}.
  *
  * @since 2201.2.1
  */
@@ -54,10 +50,10 @@ public class LSPackageLoaderTest extends AbstractLSTest {
 
     private final Path testRoot = FileUtils.RES_DIR.resolve("lspackageloader");
     private static final Map<String, String> REMOTE_PROJECTS = Map.of("project3", "main.bal");
-    private List<LSPackageLoader.ModuleInfo> remoteRepoPackages = new ArrayList<>(getRemotePackages());
+    private final List<LSPackageLoader.ModuleInfo> remoteRepoPackages = new ArrayList<>(getRemotePackages());
 
     @Test(dataProvider = "data-provider")
-    public void test(String source) throws IOException, EventSyncException, WorkspaceDocumentException {
+    public void test(String source) throws IOException, EventSyncException {
         //Open the source text document and load project
         Path sourcePath = testRoot.resolve("source").resolve(source);
         Endpoint endpoint = getServiceEndpoint();
@@ -87,12 +83,12 @@ public class LSPackageLoaderTest extends AbstractLSTest {
         LSPackageLoader lsPackageLoader = Mockito.mock(LSPackageLoader.class, Mockito.withSettings().stubOnly());
         setLsPackageLoader(lsPackageLoader);
         this.getLanguageServer().getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, getLSPackageLoader());
-        Mockito.when(lsPackageLoader.getRemoteRepoPackages(Mockito.any()))
-                .thenAnswer(invocation -> getRemoteRepoPackages());
-        Mockito.when(lsPackageLoader.getLocalRepoPackages(Mockito.any())).thenReturn(getLocalPackages());
-        Mockito.when(lsPackageLoader.getDistributionRepoPackages()).thenCallRealMethod();
+        Mockito.when(lsPackageLoader.getLocalRepoModules()).thenReturn(getLocalPackages());
+        Mockito.when(lsPackageLoader.getDistributionRepoModules()).thenReturn(getDistributionPackages());
+        Mockito.when(lsPackageLoader.getRemoteRepoModules()).thenReturn(this.remoteRepoPackages);
         Mockito.when(lsPackageLoader.getAllVisiblePackages(Mockito.any())).thenCallRealMethod();
         Mockito.when(lsPackageLoader.getPackagesFromBallerinaUserHome(Mockito.any())).thenCallRealMethod();
+        Mockito.doNothing().when(lsPackageLoader).loadModules(Mockito.any());
         Mockito.doAnswer(invocation -> {
             invocation.getArguments();
             Object[] arguments = invocation.getArguments();
@@ -101,7 +97,7 @@ public class LSPackageLoaderTest extends AbstractLSTest {
                 LSPackageLoader.ModuleInfo moduleInfo = getPackages(REMOTE_PROJECTS,
                         context.workspace(), context.languageServercontext()).stream()
                         .map(LSPackageLoader.ModuleInfo::new)
-                        .collect(Collectors.toList()).get(0);
+                        .toList().get(0);
                 this.remoteRepoPackages.add(moduleInfo);
                 return List.of(moduleInfo);
             }
@@ -114,10 +110,7 @@ public class LSPackageLoaderTest extends AbstractLSTest {
         if (project.isEmpty()) {
             return Collections.emptyList();
         }
-        BallerinaUserHome ballerinaUserHome = BallerinaUserHome
-                .from(project.get().projectEnvironmentContext().environment());
-        PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
-        return getLSPackageLoader().getRemoteRepoPackages(remoteRepository);
+        return getLSPackageLoader().getRemoteRepoModules();
     }
 
     @DataProvider(name = "data-provider")
@@ -130,9 +123,5 @@ public class LSPackageLoaderTest extends AbstractLSTest {
     @Override
     public boolean loadMockedPackages() {
         return true;
-    }
-
-    public List<LSPackageLoader.ModuleInfo> getRemoteRepoPackages() {
-        return remoteRepoPackages;
     }
 }

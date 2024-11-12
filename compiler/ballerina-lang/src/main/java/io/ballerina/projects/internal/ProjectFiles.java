@@ -18,6 +18,7 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.TomlDocument;
@@ -27,6 +28,7 @@ import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
@@ -41,6 +43,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.checkReadPermission;
 
@@ -49,11 +53,13 @@ import static io.ballerina.projects.util.ProjectUtils.checkReadPermission;
  *
  * @since 2.0.0
  */
-public class ProjectFiles {
+public final class ProjectFiles {
+
     public static final PathMatcher BAL_EXTENSION_MATCHER =
             FileSystems.getDefault().getPathMatcher("glob:**.bal");
     public static final PathMatcher BALA_EXTENSION_MATCHER =
             FileSystems.getDefault().getPathMatcher("glob:**.bala");
+    private static final PrintStream outStream = System.out;
 
     private ProjectFiles() {
     }
@@ -61,30 +67,39 @@ public class ProjectFiles {
     public static PackageData loadSingleFileProjectPackageData(Path filePath) {
         DocumentData documentData = loadDocument(filePath);
         ModuleData defaultModule = ModuleData
-                .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList(), null,
-                        Collections.emptyList(), Collections.emptyList());
+                .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList(), null);
         return PackageData.from(filePath, defaultModule, Collections.emptyList(),
-                null, null, null, null, null, null);
+                null, null, null, null,
+                null, null, Collections.emptyList(), Collections.emptyList());
     }
 
     public static PackageData loadBuildProjectPackageData(Path packageDirPath) {
         ModuleData defaultModule = loadModule(packageDirPath);
         List<ModuleData> otherModules = loadOtherModules(packageDirPath);
         List<ModuleData> newModules = loadNewGeneratedModules(packageDirPath);
-        if (otherModules.isEmpty()) {
-            otherModules = newModules;
-        } else {
-            otherModules.addAll(newModules);
-        }
+        otherModules = Stream.concat(otherModules.stream(), newModules.stream()).toList();
+
         DocumentData ballerinaToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
         DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML));
         DocumentData cloudToml = loadDocument(packageDirPath.resolve(ProjectConstants.CLOUD_TOML));
         DocumentData compilerPluginToml = loadDocument(packageDirPath.resolve(ProjectConstants.COMPILER_PLUGIN_TOML));
         DocumentData balToolToml = loadDocument(packageDirPath.resolve(ProjectConstants.BAL_TOOL_TOML));
         DocumentData packageMd = loadDocument(packageDirPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
-
+        List<Path> resources = loadResources(packageDirPath);
+        // load generated resources
+        List<Path> generatedResources = loadResources(packageDirPath.resolve(GENERATED_MODULES_ROOT));
+        if (!generatedResources.isEmpty()) {
+            resources.addAll(generatedResources);
+        }
+        List<Path> testResources = loadResources(packageDirPath.resolve(ProjectConstants.TEST_DIR_NAME));
+        // load generated test resources
+        List<Path> generatedTestResources = loadResources(packageDirPath.resolve(
+                GENERATED_MODULES_ROOT).resolve(TEST_DIR_NAME));
+        if (!generatedTestResources.isEmpty()) {
+            testResources.addAll(generatedTestResources);
+        }
         return PackageData.from(packageDirPath, defaultModule, otherModules, ballerinaToml, dependenciesToml,
-                cloudToml, compilerPluginToml, balToolToml, packageMd);
+                cloudToml, compilerPluginToml, balToolToml, packageMd, resources, testResources);
     }
 
     private static List<ModuleData> loadNewGeneratedModules(Path packageDirPath) {
@@ -108,7 +123,7 @@ public class ProjectFiles {
                             return true;
                         })
                         .map(ProjectFiles::loadModule)
-                        .collect(Collectors.toList());
+                        .toList();
             } catch (IOException e) {
                 throw new ProjectException(e);
             }
@@ -118,7 +133,7 @@ public class ProjectFiles {
 
     private static boolean isNewModule(Path packageDirPath, Path path) {
         String dirName = path.toFile().getName();
-        if (dirName.equals(TEST_DIR_NAME)) {
+        if (dirName.equals(TEST_DIR_NAME) || dirName.equals(RESOURCE_DIR_NAME)) {
             return false;
         }
         Path modulePath = packageDirPath.resolve(ProjectConstants.MODULES_ROOT).resolve(dirName);
@@ -156,22 +171,15 @@ public class ProjectFiles {
 
     private static ModuleData loadModule(Path moduleDirPath) {
         List<DocumentData> srcDocs = loadDocuments(moduleDirPath);
-        List<DocumentData> testSrcDocs;
         Path testDirPath = moduleDirPath.resolve("tests");
-        testSrcDocs = Files.isDirectory(testDirPath) ? loadTestDocuments(testDirPath) : new ArrayList<>();
+        List<DocumentData> testSrcDocs = Files.isDirectory(testDirPath) ? loadTestDocuments(testDirPath) :
+                new ArrayList<>();
 
         // If the module is not a newly generated module, explicitly load generated sources
         if (!ProjectConstants.GENERATED_MODULES_ROOT.equals(Optional.of(
                 moduleDirPath.toAbsolutePath().getParent()).get().toFile().getName())) {
-            // Generated sources root for default module
-            Path generatedSourcesRoot = moduleDirPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT);
-            if (ProjectConstants.MODULES_ROOT.equals(Optional.of(
-                    moduleDirPath.toAbsolutePath().getParent()).get().toFile().getName())) {
-                // generated sources root for non-default modules
-                generatedSourcesRoot = Optional.of(Optional.of(Optional.of(moduleDirPath.toAbsolutePath().getParent()).
-                                        get().getParent()).get().resolve(ProjectConstants.GENERATED_MODULES_ROOT))
-                        .get().resolve(Optional.of(moduleDirPath.toFile()).get().getName());
-            }
+            // Generated source root for default module
+            Path generatedSourcesRoot = getGeneratedSourcesRoot(moduleDirPath);
             if (Files.isDirectory(generatedSourcesRoot)) {
                 List<DocumentData> generatedDocs = loadDocuments(generatedSourcesRoot);
                 verifyDuplicateNames(srcDocs, generatedDocs, moduleDirPath.toFile().getName(), moduleDirPath, false);
@@ -186,11 +194,36 @@ public class ProjectFiles {
             }
         }
         DocumentData moduleMd = loadDocument(moduleDirPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
-        List<Path> resources = loadResources(moduleDirPath);
-        List<Path> testResources = loadResources(moduleDirPath.resolve(ProjectConstants.TEST_DIR_NAME));
+
+        // Warn if there are module level resources
+        Path parentPath = moduleDirPath.getParent();
+        if (parentPath != null && ProjectConstants.MODULES_ROOT.equals(
+                parentPath.toFile().getName())) {
+            List<Path> moduleResources = loadResources(moduleDirPath);
+            if (!moduleResources.isEmpty()) {
+                String diagnosticMsg = "WARNING: module-level resources are not supported. Relocate the module-level " +
+                        "resources detected in '" + moduleDirPath.toFile().getName() + "' to the package " +
+                        "resources path. Resource files:\n" +
+                        moduleResources.stream()
+                                .map(Path::toString)
+                                .collect(Collectors.joining("\n")) + "\n";
+                ProjectUtils.addProjectLoadingDiagnostic(diagnosticMsg);
+            }
+        }
         // TODO Read Module.md file. Do we need to? Bala creator may need to package Module.md
-        return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd,
-                resources, testResources);
+        return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd);
+    }
+
+    private static Path getGeneratedSourcesRoot(Path moduleDirPath) {
+        Path generatedSourcesRoot = moduleDirPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT);
+        if (ProjectConstants.MODULES_ROOT.equals(Optional.of(
+                moduleDirPath.toAbsolutePath().getParent()).get().toFile().getName())) {
+            // generated sources root for non-default modules
+            generatedSourcesRoot = Optional.of(Optional.of(Optional.of(moduleDirPath.toAbsolutePath().getParent()).
+                                    get().getParent()).get().resolve(ProjectConstants.GENERATED_MODULES_ROOT))
+                    .get().resolve(Optional.of(moduleDirPath.toFile()).get().getName());
+        }
+        return generatedSourcesRoot;
     }
 
     private static void verifyDuplicateNames(List<DocumentData> srcDocs, List<DocumentData> generatedDocs,
@@ -212,21 +245,20 @@ public class ProjectFiles {
         }
     }
 
-    public static List<Path> loadResources(Path modulePath) {
-        Path resourcesPath = modulePath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
+    public static List<Path> loadResources(Path packagePath) {
+        Path resourcesPath = packagePath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
         if (Files.notExists(resourcesPath)) {
             return Collections.emptyList();
         }
-
         try {
-            checkReadPermission(modulePath);
+            checkReadPermission(packagePath);
         } catch (UnsupportedOperationException ignore) {
             // ignore for zip entries
         }
         try (Stream<Path> pathStream = Files.walk(resourcesPath, 10)) {
             return pathStream
                     .filter(Files::isRegularFile)
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (IOException e) {
             throw new ProjectException(e);
         }
@@ -304,11 +336,13 @@ public class ProjectFiles {
                                                   Path projectDirPath) {
         // Todo figure out how to pass the build options without a performance hit
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML,
-                packageConfig.ballerinaToml().map(t -> t.content()).orElse(""));
+                packageConfig.ballerinaToml().map(DocumentConfig::content).orElse(""));
         TomlDocument pluginToml = TomlDocument.from(ProjectConstants.COMPILER_PLUGIN_TOML,
-                packageConfig.dependenciesToml().map(t -> t.content()).orElse(""));
+                packageConfig.dependenciesToml().map(DocumentConfig::content).orElse(""));
+        TomlDocument balToolToml = TomlDocument.from(ProjectConstants.BAL_TOOL_TOML,
+                packageConfig.balToolToml().map(DocumentConfig::content).orElse(""));
         ManifestBuilder manifestBuilder = ManifestBuilder
-                .from(ballerinaToml, pluginToml, projectDirPath);
+                .from(ballerinaToml, pluginToml, balToolToml, projectDirPath);
         BuildOptions defaultBuildOptions = manifestBuilder.buildOptions();
         if (defaultBuildOptions == null) {
             defaultBuildOptions = BuildOptions.builder().build();
@@ -331,7 +365,7 @@ public class ProjectFiles {
         }
 
         if (ProjectUtils.findProjectRoot(projectDirPath.toAbsolutePath().getParent()) != null) {
-            throw new ProjectException("Provided path is already within a Ballerina package: " + projectDirPath);
+            throw new ProjectException("'" + projectDirPath + "' is already within a Ballerina package");
         }
 
         checkReadPermission(projectDirPath);
@@ -350,16 +384,14 @@ public class ProjectFiles {
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
         if (null != projectRoot) {
             Path absFilePath = filePath.toAbsolutePath();
-            if (projectRoot.equals(Optional.of(absFilePath.getParent()).get())) {
+            if (projectRoot.equals(absFilePath.getParent())) {
                 throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
             }
             // Check if it is inside a module
             Path modulesRoot = projectRoot.resolve(ProjectConstants.MODULES_ROOT);
             Path parent = absFilePath.getParent();
-            if (parent != null) {
-                if (modulesRoot.equals(Optional.of(parent.getParent()).get())) {
-                    throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
-                }
+            if (parent != null && modulesRoot.equals(parent.getParent())) {
+                throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
             }
         }
         checkReadPermission(filePath);

@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodKind;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 

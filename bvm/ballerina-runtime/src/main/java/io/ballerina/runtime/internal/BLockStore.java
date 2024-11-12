@@ -34,7 +34,7 @@ public class BLockStore {
     /**
      * The map of locks inferred.
      */
-    private  Map<String, BLock> globalLockMap;
+    private final Map<String, BLock> globalLockMap;
 
     public BLockStore() {
         globalLockMap = new ConcurrentHashMap<>();
@@ -45,9 +45,7 @@ public class BLockStore {
     }
 
     public BLock getLockFromMap(String lockName) {
-        return globalLockMap.computeIfAbsent(lockName, (k) -> {
-            return new BLock();
-        });
+        return globalLockMap.computeIfAbsent(lockName, (k) -> new BLock());
     }
 
     public void panicIfInLock(Strand strand) {

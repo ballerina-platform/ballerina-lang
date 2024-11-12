@@ -43,12 +43,12 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion extension implementation for ballerina compiler plugins.
@@ -65,7 +65,7 @@ public class CompilerPluginCompletionExtension implements CompletionExtension {
 
     @Override
     public List<CompletionItem> execute(CompletionParams inputParams, CompletionContext context,
-                                        LanguageServerContext serverContext) throws Throwable {
+                                        LanguageServerContext serverContext) {
 
         return Collections.emptyList();
     }
@@ -74,7 +74,7 @@ public class CompilerPluginCompletionExtension implements CompletionExtension {
     public List<CompletionItem> execute(CompletionParams inputParams,
                                         CompletionContext context,
                                         LanguageServerContext serverContext,
-                                        CancelChecker cancelChecker) throws Throwable {
+                                        CancelChecker cancelChecker) {
         Optional<PackageCompilation> packageCompilation =
                 context.workspace().waitAndGetPackageCompilation(context.filePath());
         if (packageCompilation.isEmpty() || context.currentDocument().isEmpty() ||
@@ -112,14 +112,14 @@ public class CompilerPluginCompletionExtension implements CompletionExtension {
                             TextRange textRange = textEdit.range();
                             Range range = PositionUtil.toRange(textRange.startOffset(), textRange.endOffset(),
                                     context.currentDocument().get().textDocument());
-                            org.eclipse.lsp4j.TextEdit lsp4jTextEdit = new org.eclipse.lsp4j.TextEdit();
+                            TextEdit lsp4jTextEdit = new TextEdit();
                             lsp4jTextEdit.setNewText(textEdit.text());
                             lsp4jTextEdit.setRange(range);
                             return lsp4jTextEdit;
-                        }).collect(Collectors.toList()));
+                        }).toList());
             }
             return item;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     @Override

@@ -31,6 +31,49 @@ import io.ballerina.runtime.api.Module;
  */
 public interface Type {
 
+    // TODO: remove default implementations when standard library types are updated
+    /**
+     * Set the referred type for this type once it has been calculated. This must be called the first time this
+     * calculation is done for {@code Type#getReferredTypeCache()} to work properly. This is non-blocking and
+     * will eventually become consistent. Expect {@code TypeUtils#getReferredType(Type)} to be referentially
+     * transparent.
+     *
+     * @param type Type referred by this type. For non-reference types, this is the same type.
+     */
+    default void setCachedReferredType(Type type) {
+    }
+    /**
+     * Get the type referred by this type if it has been already calculated. If it has not been already calculated, it
+     * will return null. For non-reference types, this will return the same type. This is non-blocking and will
+     * eventually become consistent. Expect {@code TypeUtils#getReferredType(Type)} to be referentially transparent.
+     *
+     * @return Referred type of the type
+     */
+    default Type getCachedReferredType() {
+        return null;
+    }
+
+    /**
+     * Set the implied type for this type once it has been calculated. This must be called the first time this
+     * calculation is done for {@code Type#getImpliedTypeCache()} to work properly. This is non-blocking and
+     * will eventually become consistent. Expect {@code TypeUtils#getImpliedType(Type)} to be referentially transparent.
+     *
+     * @param type Type implied by this type. For non-intersection types, this is the same type.
+     */
+    default void setCachedImpliedType(Type type) {
+    }
+
+    /**
+     * Get the type implied by this type if it has been already calculated. If it has not been already calculated, it
+     * will return null. For non-intersection types, this will return the same type. This is non-blocking and will
+     * eventually become consistent. Expect {@code TypeUtils#getImpliedType(Type)} to be referentially transparent.
+     *
+     * @return Implied type of the type
+     */
+    default Type getCachedImpliedType() {
+        return null;
+    }
+
     /**
      * Get the default value of the type. This is the value of an uninitialized variable of this type.
      * For value types, this is same as the value get from {@code BType#getInitValue()}.
@@ -90,5 +133,10 @@ public interface Type {
     @Deprecated
     void setImmutableType(IntersectionType immutableType);
 
+    /*
+     * @deprecated use {@link Type#getPackage(Object, Type)} instead
+     */
+    // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/42113
+    @Deprecated
     Module getPkg();
 }

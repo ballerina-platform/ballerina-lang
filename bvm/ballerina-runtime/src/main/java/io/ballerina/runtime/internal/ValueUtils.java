@@ -23,7 +23,9 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -39,6 +41,10 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,7 +53,9 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class ValueUtils {
+public final class ValueUtils {
+
+    private static final PrintStream errStream = System.err;
 
     /**
      * Create a record value using the given package ID and record type name.
@@ -57,17 +65,107 @@ public class ValueUtils {
      * @return               value of the record.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName) {
+        return createRecordValue(packageId, recordTypeName, new HashSet<>());
+    }
+
+    public static BMap<BString, Object> createRecordValueWithDefaultValues(Module packageId, String recordTypeName,
+                                                          List<String> notProvidedFields) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(packageId, false));
         try {
-            return valueCreator.createRecordValue(recordTypeName);
+            return getPopulatedRecordValue(valueCreator, recordTypeName, notProvidedFields);
         } catch (BError e) {
             // If record type definition not found, get it from test module.
             String testLookupKey = ValueCreator.getLookupKey(packageId, true);
             if (ValueCreator.containsValueCreator(testLookupKey)) {
-                return ValueCreator.getValueCreator(testLookupKey).createRecordValue(recordTypeName);
+                return getPopulatedRecordValue(ValueCreator.getValueCreator(testLookupKey), recordTypeName,
+                        notProvidedFields);
             }
             throw e;
         }
+    }
+
+    public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
+                                                          Set<String> providedFields) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(packageId, false));
+        try {
+            return getPopulatedRecordValue(valueCreator, recordTypeName, providedFields);
+        } catch (BError e) {
+            // If record type definition not found, get it from test module.
+            String testLookupKey = ValueCreator.getLookupKey(packageId, true);
+            if (ValueCreator.containsValueCreator(testLookupKey)) {
+                return getPopulatedRecordValue(ValueCreator.getValueCreator(testLookupKey), recordTypeName,
+                        providedFields);
+            }
+            throw e;
+        }
+    }
+
+    private static BMap<BString, Object> getPopulatedRecordValue(ValueCreator valueCreator, String recordTypeName,
+                                                                 Set<String> providedFields) {
+        MapValue<BString, Object> recordValue = valueCreator.createRecordValue(recordTypeName);
+        BRecordType type = (BRecordType) TypeUtils.getImpliedType(recordValue.getType());
+        return populateDefaultValues(recordValue, type, providedFields);
+    }
+
+    private static BMap<BString, Object> getPopulatedRecordValue(ValueCreator valueCreator, String recordTypeName,
+                                                                 List<String> notProvidedFields) {
+        MapValue<BString, Object> recordValue = valueCreator.createRecordValue(recordTypeName);
+        BRecordType type = (BRecordType) TypeUtils.getImpliedType(recordValue.getType());
+        return populateDefaultValues(recordValue, type, notProvidedFields);
+    }
+
+    public static BMap<BString, Object> populateDefaultValues(BMap<BString, Object> recordValue, BRecordType type,
+                                                              Set<String> providedFields) {
+        Map<String, BFunctionPointer<Object, ?>> defaultValues = type.getDefaultValues();
+        if (defaultValues.isEmpty()) {
+            return recordValue;
+        }
+        defaultValues = getNonProvidedDefaultValues(defaultValues, providedFields);
+        return populateRecordDefaultValues(recordValue, defaultValues);
+    }
+
+    public static BMap<BString, Object> populateDefaultValues(BMap<BString, Object> recordValue, BRecordType type,
+                                                              List<String> notProvidedFieldNames) {
+        Map<String, BFunctionPointer<Object, ?>> defaultValues = type.getDefaultValues();
+        if (defaultValues.isEmpty()) {
+            return recordValue;
+        }
+        defaultValues = getNonProvidedDefaultValues(defaultValues, notProvidedFieldNames);
+        return populateRecordDefaultValues(recordValue, defaultValues);
+    }
+
+    private static BMap<BString, Object> populateRecordDefaultValues(
+            BMap<BString, Object> recordValue, Map<String, BFunctionPointer<Object, ?>> defaultValues) {
+        Strand strand = Scheduler.getStrandNoException();
+        if (strand == null) {
+            // Create a dummy strand only for keep frames.
+            strand = new Strand();
+        }
+        for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
+            recordValue.populateInitialValue(StringUtils.fromString(field.getKey()),
+                    field.getValue().call(new Object[]{strand}));
+        }
+        return recordValue;
+    }
+
+    private static Map<String, BFunctionPointer<Object, ?>> getNonProvidedDefaultValues(
+            Map<String, BFunctionPointer<Object, ?>> defaultValues, Set<String> providedFields) {
+        Map<String, BFunctionPointer<Object, ?>> result = new HashMap<>();
+        for (Map.Entry<String, BFunctionPointer<Object, ?>> entry : defaultValues.entrySet()) {
+            if (!providedFields.contains(entry.getKey())) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return result;
+    }
+
+    private static Map<String, BFunctionPointer<Object, ?>> getNonProvidedDefaultValues(
+            Map<String, BFunctionPointer<Object, ?>> defaultValues, List<String> notProvidedFieldNames) {
+        Map<String, BFunctionPointer<Object, ?>> result = new HashMap<>();
+        for (String notProvidedFieldName : notProvidedFieldNames) {
+            result.put(notProvidedFieldName, defaultValues.get(notProvidedFieldName));
+        }
+        return result;
     }
 
     /**
@@ -81,12 +179,12 @@ public class ValueUtils {
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           Map<String, Object> valueMap) {
-        BMap<BString, Object> recordValue = createRecordValue(packageId, recordTypeName);
+        BMap<BString, Object> recordValue = createRecordValue(packageId, recordTypeName, valueMap.keySet());
         for (Map.Entry<String, Object> fieldEntry : valueMap.entrySet()) {
             Object val = fieldEntry.getValue();
             // TODO: Remove the following String to BString conversion.
-            if (val instanceof String) {
-                val = StringUtils.fromString((String) val);
+            if (val instanceof String s) {
+                val = StringUtils.fromString(s);
             }
             recordValue.populateInitialValue(StringUtils.fromString(fieldEntry.getKey()), val);
         }
@@ -104,7 +202,11 @@ public class ValueUtils {
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           BMap<BString, Object> valueMap) {
-        BMap<BString, Object> recordValue = createRecordValue(packageId, recordTypeName);
+        Set<String> keySet = new HashSet<>();
+        for (BString key : valueMap.getKeys()) {
+            keySet.add(key.getValue());
+        }
+        BMap<BString, Object> recordValue = createRecordValue(packageId, recordTypeName, keySet);
         for (Map.Entry<BString, Object> fieldEntry : valueMap.entrySet()) {
             recordValue.populateInitialValue(fieldEntry.getKey(), fieldEntry.getValue());
         }
@@ -248,7 +350,7 @@ public class ValueUtils {
      * @param inherentType Inherent type of the value
      * @return     typedesc with the suitable type
      */
-    public static BTypedesc getTypedescValue(Boolean readOnly, BValue value, TypedescValueImpl inherentType) {
+    public static BTypedesc getTypedescValue(boolean readOnly, BValue value, TypedescValueImpl inherentType) {
         if (readOnly) {
             TypedescValueImpl typedesc = (TypedescValueImpl) createSingletonTypedesc(value);
             typedesc.annotations = inherentType.annotations;

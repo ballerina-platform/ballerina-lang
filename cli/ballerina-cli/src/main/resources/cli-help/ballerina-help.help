@@ -40,12 +40,16 @@ COMMANDS
         format          Format Ballerina source files
         grpc            Generate the Ballerina sources for a given Protocol
                         Buffer definition
-        graphql         Generate the Ballerina client sources for a GraphQL config file
-                        and generate the GraphQL schema for a Ballerina GraphQL service.
+        graphql         Generate the GraphQL schema for a Ballerina GraphQL service,
+                        generate the Ballerina GraphQL service for a GraphQL schema,
+                        and generate the Ballerina client sources for a GraphQL config
+                        file [Experimental]
         openapi         Generate the Ballerina sources for a given OpenAPI
                         definition and vice versa
         asyncapi        Generate the Ballerina sources for a given AsyncAPI definition
         persist         Manage data persistence
         bindgen         Generate the Ballerina bindings for Java APIs
-        shell           Run Ballerina interactive REPL
+        shell           Run Ballerina interactive REPL [Experimental]
+        tool            Manage Ballerina CLI tools
         version         Print the Ballerina version
+        profile         Start Ballerina Profiler [Experimental]

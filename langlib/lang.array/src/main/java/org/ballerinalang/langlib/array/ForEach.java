@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessFunction;
-import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+import static org.ballerinalang.langlib.array.utils.Constants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:forEach(Type[]).
@@ -43,12 +43,15 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 //        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
 //        isPublic = true
 //)
-public class ForEach {
+public final class ForEach {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
                                                                       ARRAY_VERSION, "forEach");
 
-    public static void forEach(BArray arr, BFunctionPointer<Object, Object> func) {
+    private ForEach() {
+    }
+
+    public static void forEach(BArray arr, BFunctionPointer<Object[], Object> func) {
         int size = arr.size();
         Type arrType = arr.getType();
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");

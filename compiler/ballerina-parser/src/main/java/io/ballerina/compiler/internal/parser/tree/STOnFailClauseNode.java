@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -33,21 +33,18 @@ import java.util.Collections;
 public class STOnFailClauseNode extends STClauseNode {
     public final STNode onKeyword;
     public final STNode failKeyword;
-    public final STNode typeDescriptor;
-    public final STNode failErrorName;
+    public final STNode typedBindingPattern;
     public final STNode blockStatement;
 
     STOnFailClauseNode(
             STNode onKeyword,
             STNode failKeyword,
-            STNode typeDescriptor,
-            STNode failErrorName,
+            STNode typedBindingPattern,
             STNode blockStatement) {
         this(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement,
                 Collections.emptyList());
     }
@@ -55,31 +52,28 @@ public class STOnFailClauseNode extends STClauseNode {
     STOnFailClauseNode(
             STNode onKeyword,
             STNode failKeyword,
-            STNode typeDescriptor,
-            STNode failErrorName,
+            STNode typedBindingPattern,
             STNode blockStatement,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.ON_FAIL_CLAUSE, diagnostics);
         this.onKeyword = onKeyword;
         this.failKeyword = failKeyword;
-        this.typeDescriptor = typeDescriptor;
-        this.failErrorName = failErrorName;
+        this.typedBindingPattern = typedBindingPattern;
         this.blockStatement = blockStatement;
 
         addChildren(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STOnFailClauseNode(
                 this.onKeyword,
                 this.failKeyword,
-                this.typeDescriptor,
-                this.failErrorName,
+                this.typedBindingPattern,
                 this.blockStatement,
                 diagnostics);
     }
@@ -87,14 +81,12 @@ public class STOnFailClauseNode extends STClauseNode {
     public STOnFailClauseNode modify(
             STNode onKeyword,
             STNode failKeyword,
-            STNode typeDescriptor,
-            STNode failErrorName,
+            STNode typedBindingPattern,
             STNode blockStatement) {
         if (checkForReferenceEquality(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement)) {
             return this;
         }
@@ -102,12 +94,12 @@ public class STOnFailClauseNode extends STClauseNode {
         return new STOnFailClauseNode(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement,
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new OnFailClauseNode(this, position, parent);
     }

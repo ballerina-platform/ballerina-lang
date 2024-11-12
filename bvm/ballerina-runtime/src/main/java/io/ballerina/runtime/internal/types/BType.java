@@ -42,6 +42,8 @@ public abstract class BType implements Type {
     protected Module pkg;
     protected Class<? extends Object> valueClass;
     private int hashCode;
+    private Type cachedReferredType = null;
+    private Type cachedImpliedType = null;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -64,6 +66,7 @@ public abstract class BType implements Type {
      * @param <V> Type of the value
      * @return Default value of the type
      */
+    @Override
     public abstract <V extends Object> V getZeroValue();
 
     /**
@@ -74,8 +77,10 @@ public abstract class BType implements Type {
      * @param <V> Type of the value
      * @return Init value of this type
      */
+    @Override
     public abstract <V extends Object> V getEmptyValue();
 
+    @Override
     public abstract int getTag();
 
     public String toString() {
@@ -88,8 +93,7 @@ public abstract class BType implements Type {
             return true;
         }
 
-        if (obj instanceof BType) {
-            BType other = (BType) obj;
+        if (obj instanceof BType other) {
 
             if (!this.typeName.equals(other.getName())) {
                 return false;
@@ -124,6 +128,7 @@ public abstract class BType implements Type {
         return false;
     }
 
+    @Override
     public boolean isNilable() {
         return false;
     }
@@ -132,10 +137,12 @@ public abstract class BType implements Type {
         return hashCode;
     }
 
+    @Override
     public String getName() {
         return typeName == null ? "" : typeName;
     }
 
+    @Override
     public final String getQualifiedName() {
         String name = getName();
         if (name.isEmpty()) {
@@ -145,30 +152,37 @@ public abstract class BType implements Type {
         return pkg == null ? name : pkg.toString() + ":" + name;
     }
 
+    @Override
     public Module getPackage() {
         return pkg;
     }
 
+    @Override
     public boolean isPublic() {
         return false;
     }
 
+    @Override
     public boolean isNative() {
         return false;
     }
 
+    @Override
     public boolean isAnydata() {
         return this.getTag() <= TypeTags.ANYDATA_TAG;
     }
 
+    @Override
     public boolean isPureType() {
         return this.getTag() == TypeTags.ERROR_TAG || this.isAnydata();
     }
 
+    @Override
     public boolean isReadOnly() {
         return false;
     }
 
+    @Override
     public Type getImmutableType() {
         if (TypeChecker.isInherentlyImmutableType(this)) {
             return this;
@@ -178,6 +192,7 @@ public abstract class BType implements Type {
         throw ErrorCreator.createError(StringUtils.fromString(this.typeName + " cannot be immutable"));
     }
 
+    @Override
     public void setImmutableType(IntersectionType immutableType) {
         // Do nothing since already set.
         // For types that immutable type may be set later, the relevant type overrides this method.
@@ -187,12 +202,33 @@ public abstract class BType implements Type {
         return module.getOrg() == null && module.getName() == null && module.getMajorVersion() == null;
     }
 
+    @Override
     public Module getPkg() {
         return pkg;
     }
 
+    @Override
     public long getFlags() {
         return 0;
     }
 
+    @Override
+    public void setCachedReferredType(Type type) {
+        this.cachedReferredType = type;
+    }
+
+    @Override
+    public Type getCachedReferredType() {
+        return this.cachedReferredType;
+    }
+
+    @Override
+    public void setCachedImpliedType(Type type) {
+        this.cachedImpliedType = type;
+    }
+
+    @Override
+    public Type getCachedImpliedType() {
+        return this.cachedImpliedType;
+    }
 }

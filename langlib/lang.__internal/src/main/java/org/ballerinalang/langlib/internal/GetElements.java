@@ -30,11 +30,14 @@ import java.util.ArrayList;
  *
  * @since 1.2.0
  */
-public class GetElements {
+public final class GetElements {
 
 
     public static final String EMPTY = "";
     public static final String STAR = "*";
+
+    private GetElements() {
+    }
 
     /**
      * Expected element name format.
@@ -76,9 +79,8 @@ public class GetElements {
 
     public static void destructureFilters(BString[] elemNames,
                                           ArrayList<String> nsList, ArrayList<String> localNameList) {
-        int filterCount = elemNames.length;
-        for (int i = 0; i < filterCount; i++) {
-            String fullName = elemNames[i].getValue();
+        for (BString elemName : elemNames) {
+            String fullName = elemName.getValue();
             int lastIndexOf = fullName.lastIndexOf('}');
             if (lastIndexOf < 0) {
                 nsList.add(EMPTY);

@@ -49,7 +49,8 @@ public class RegExpTypeTest {
                 "testAssignabilityWithRegExp",
                 "testSubtypingWithRegExp",
                 "testRegExpWithVar",
-                "testRegExpWithUserDefinedType"
+                "testRegExpWithUserDefinedType",
+                "testRegExpReadonlyLocalVars"
         };
     }
 

@@ -1,0 +1,26 @@
+Compiling source
+	gayaldassanayake/service:0.1.0
+
+Running executable
+
+
+Detected file changes. Re-running the project...
+Compiling source
+	gayaldassanayake/service:0.1.0
+
+Running executable
+
+
+Detected file changes. Re-running the project...
+Compiling source
+	gayaldassanayake/service:0.1.0
+
+Running executable
+
+
+Detected file changes. Re-running the project...
+Compiling source
+	gayaldassanayake/service:0.1.0
+
+Running executable
+

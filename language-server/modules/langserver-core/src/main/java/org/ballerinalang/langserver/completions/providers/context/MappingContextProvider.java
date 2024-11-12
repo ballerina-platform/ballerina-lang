@@ -32,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.langserver.common.RecordField;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.RawTypeSymbolWrapper;
@@ -40,8 +41,8 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.langserver.completions.builder.SpreadFieldCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.SpreadCompletionItem;
+import org.ballerinalang.langserver.completions.builder.SpreadCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -55,7 +56,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 
@@ -128,7 +128,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                             && recFields.get(symbolName.get()).typeDescriptor().typeKind()
                             == typeDescriptor.get().typeKind();
                 }))
-                .collect(Collectors.toList());
+                .toList();
 
         return this.getCompletionItemList(visibleSymbols, ctx);
     }
@@ -152,24 +152,40 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         if (!this.hasReadonlyKW(evalNode)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_READONLY.get()));
         }
-        List<RawTypeSymbolWrapper<RecordTypeSymbol>> recordTypeDesc = this.getRecordTypeDescs(context, node);
+
+        List<RawTypeSymbolWrapper<RecordTypeSymbol>> recordTypeDescriptors = this.getRecordTypeDescs(context, node);
         List<String> existingFields = getFields(node);
         List<RecordFieldSymbol> validFields = new ArrayList<>();
-        for (RawTypeSymbolWrapper<RecordTypeSymbol> wrapper : recordTypeDesc) {
-            Map<String, RecordFieldSymbol> fields = RecordUtil.getRecordFields(wrapper, existingFields);
-            validFields.addAll(fields.values());
 
-            completionItems.addAll(this.getSpreadFieldCompletionItemsForRecordFields(context, validFields));
-            completionItems.addAll(RecordUtil.getRecordFieldCompletionItems(context, fields, wrapper));
+        //To create a single completion item for record fields with the same name and same type
+        Map<RecordField.RecordFieldIdentifier, List<RecordField>> recordFieldMap = new HashMap<>();
+        for (RawTypeSymbolWrapper<RecordTypeSymbol> wrapper : recordTypeDescriptors) {
+            Map<String, RecordFieldSymbol> fields = RecordUtil.getRecordFields(wrapper, existingFields);
+            fields.forEach((key, value) -> {
+                RecordField recordField = new RecordField(key,
+                        value, wrapper);
+                RecordField.RecordFieldIdentifier identifier = new RecordField.RecordFieldIdentifier(key,
+                        recordField.getFieldSymbol().typeDescriptor());
+                if (!recordFieldMap.containsKey(identifier)) {
+                    recordFieldMap.put(identifier, new ArrayList<>(List.of(recordField)));
+                } else {
+                    recordFieldMap.get(identifier).add(recordField);
+                }
+            });
+
+            validFields.addAll(fields.values());
             if (!fields.values().isEmpty()) {
                 Optional<LSCompletionItem> fillAllStructFieldsItem =
                         RecordUtil.getFillAllRecordFieldCompletionItems(context, fields, wrapper);
                 fillAllStructFieldsItem.ifPresent(completionItems::add);
             }
+
+            completionItems.addAll(this.getSpreadFieldCompletionItemsForRecordFields(context, validFields));
             completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
         }
+        completionItems.addAll(RecordUtil.getRecordFieldCompletionItems(context, recordFieldMap));
 
-        if (recordTypeDesc.isEmpty() || validFields.isEmpty()) {
+        if (recordTypeDescriptors.isEmpty() || validFields.isEmpty()) {
             /*
             This means that we are within a mapping constructor for a map. Therefore, we suggest the variables
             Eg: 
@@ -187,7 +203,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                     .filter(this.getVariableFilter())
                     .filter(varSymbol -> varSymbol.getName().isPresent())
                     .filter(varSymbol -> !existingFields.contains(varSymbol.getName().get()))
-                    .collect(Collectors.toList());
+                    .toList();
             completionItems.addAll(this.getCompletionItemList(variables, context));
             //Spread field can only be used with in a mapping constructor and the fields should be empty
             if (existingFields.isEmpty() && evalNode.kind() == SyntaxKind.MAPPING_CONSTRUCTOR) {
@@ -232,9 +248,9 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                         return true;
                     }
                     // For nested maps, we have to treat specially
-                    return resolvedType.get().typeKind() == TypeDescKind.MAP 
+                    return resolvedType.get().typeKind() == TypeDescKind.MAP
                             && mapTypeSymbol.subtypeOf(resolvedType.get());
-                })).collect(Collectors.toList());
+                })).toList();
 
         return getSpreadFieldCompletionItemList(visibleSymbols, context);
     }
@@ -251,7 +267,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         Predicate<Symbol> symbolFilter = this.getVariableFilter().or(symbol -> (symbol.kind() == FUNCTION));
         List<Symbol> filteredSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
                 .filter(symbolFilter.and(symbol -> isSpreadable(symbol, validFields)))
-                .collect(Collectors.toList());
+                .toList();
         return this.getSpreadFieldCompletionItemList(filteredSymbols, context);
     }
 
@@ -320,8 +336,8 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             String typeName = (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() == null) ? "" :
                     NameUtil.getModifiedTypeName(ctx, typeDescriptor.get());
             CompletionItem cItem;
-            cItem = SpreadFieldCompletionItemBuilder.build(symbol, typeName, ctx);
-            completionItems.add(new SymbolCompletionItem(ctx, symbol, cItem));
+            cItem = SpreadCompletionItemBuilder.build(symbol, typeName, ctx);
+            completionItems.add(new SpreadCompletionItem(ctx, cItem, symbol));
             processedSymbols.add(symbol);
         });
         return completionItems;
@@ -356,11 +372,10 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             super.sort(context, node, completionItems);
             return;
         }
-        
+
         completionItems.forEach(lsCItem -> {
             String sortText = SortingUtil.genSortTextByAssignability(context, lsCItem, contextType.get());
             lsCItem.getCompletionItem().setSortText(sortText);
         });
     }
-
 }

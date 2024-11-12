@@ -57,13 +57,21 @@ function testConvertJSONToRecord() {
 }
 
 type numUnion1 int|decimal|float;
+
 type singleton1 1|"1"|true|"one";
+
 type singleton2 2|"2"|true|"two";
+
 type singletonunion singleton1|singleton2|false;
+
 type union1 string|byte;
+
 type union2 int|int:Signed16;
+
 type union3 singletonunion|union1|union2;
+
 type intArray int[];
+
 type stringMap map<string>;
 
 function testConvertJSON() {
@@ -99,9 +107,9 @@ function testConvertJSON() {
     jval_result = trap convertJSON(jval, json);
     test:assertEquals(jval_result, {"a": true});
 
-    jval = [12,-1,0,15];
+    jval = [12, -1, 0, 15];
     jval_result = trap convertJSON(jval, intArray);
-    test:assertEquals(jval_result, [12,-1,0,15]);
+    test:assertEquals(jval_result, [12, -1, 0, 15]);
 
     jval = {"a": "true"};
     jval_result = trap convertJSON(jval, stringMap);
@@ -110,6 +118,10 @@ function testConvertJSON() {
     jval = null;
     jval_result = trap convertJSON(jval, typeof ());
     test:assertEquals(jval_result, ());
+
+    handle val = java:fromString("apple");
+    jval_result = trap convertJSON(val, string);
+    test:assertEquals(jval_result, "apple");
 }
 
 function convertJSONToRecord(anydata v, typedesc<anydata> t) returns map<anydata> = @java:Method {
@@ -117,7 +129,7 @@ function convertJSONToRecord(anydata v, typedesc<anydata> t) returns map<anydata
     name: "testConvertJSONToRecord"
 } external;
 
-function convertJSON(anydata v, typedesc<anydata> t) returns anydata = @java:Method {
+function convertJSON(any v, typedesc<anydata> t) returns anydata = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.JsonValues",
     name: "testConvertJSON"
 } external;
@@ -149,9 +161,9 @@ public function validateStringAPI() {
     "\"map\":{\"value\":\"a\"b\\c\td\"},\"arr_map\":[\"foo\",{\"value\":\"a\"b\\c\td\"},87]}");
 
     anydata tab = table [
-            {a: 1, b: " 2"},
-            {c: "3", d: "4"}
-        ];
+        {a: 1, b: " 2"},
+        {c: "3", d: "4"}
+    ];
     string|error res = convertJSONToString(tab);
     test:assertTrue(res is string);
     test:assertEquals(res, "[{\"a\":1, \"b\":\" 2\"}, {\"c\":\"3\", \"d\":\"4\"}]");
@@ -180,3 +192,52 @@ function convertJSONToString(any|error v) returns string = @java:Method {
     name: "convertJSONToString"
 } external;
 
+public function validateJsonAPI() {
+    string s = "0e-18";
+    json j = convertStringToJson(s);
+    test:assertEquals(j, 0e-18d);
+
+    s = "{\"val\" : 0e-19}";
+    j = convertStringToJson(s);
+    test:assertEquals(j, {"val": 0e-19d});
+
+    s = "99.9E+6143";
+    j = convertStringToJson(s);
+    test:assertEquals(j, 9.99E+6144d);
+
+    s = "999E6142";
+    j = convertStringToJson(s);
+    test:assertEquals(j, 9.99E+6144d);
+
+    s = "4.9e-325";
+    j = convertStringToJson(s);
+    test:assertEquals(j, 4.9E-325d);
+
+    s = "{\r\n\"factMap\":{\r\n\"105!T\":{\r\n\"aggregates\":[\r\n{\r\n\"label\":\"USD 0.00\"," +
+    "\r\n\"value\":0e-18\r\n}\r\n]\r\n}\r\n}\r\n}";
+    j = convertStringToJson(s);
+    test:assertEquals(j, {"factMap": {"105!T": {"aggregates": [{"label": "USD 0.00", "value": 0e-18d}]}}});
+
+    s = "0x0.0p1";
+    json|error result = trap convertStringToJson(s);
+    test:assertTrue(result is error);
+    error e = <error>result;
+    test:assertEquals(e.message(), "unrecognized token '0x0.0p1' at line: 1 column: 9");
+
+    s = "999E6143";
+    result = trap convertStringToJson(s);
+    test:assertTrue(result is error);
+    e = <error>result;
+    test:assertEquals(e.message(), "{ballerina}NumberOverflow");
+
+    s = "99.9E+6144";
+    result = trap convertStringToJson(s);
+    test:assertTrue(result is error);
+    e = <error>result;
+    test:assertEquals(e.message(), "{ballerina}NumberOverflow");
+}
+
+function convertStringToJson(string v) returns json = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.JsonValues",
+    name: "convertStringToJson"
+} external;

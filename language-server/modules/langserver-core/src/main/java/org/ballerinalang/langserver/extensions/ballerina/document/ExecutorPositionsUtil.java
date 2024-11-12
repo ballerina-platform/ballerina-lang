@@ -40,27 +40,26 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Executor positions evaluation utilities.
  *
  * @since 2.0.0
  */
-public class ExecutorPositionsUtil {
+public final class ExecutorPositionsUtil {
 
-    protected static final String FILE_PATH = "filePath";
-    protected static final String KIND = "kind";
-    protected static final String FUNC_MAIN = "main";
-    protected static final String MODULES = "modules";
-    protected static final String GENERATED_MODULES = "generated";
-    protected static final String NAME = "name";
-    protected static final String RANGE = "range";
-    protected static final String SOURCE = "source";
-    protected static final String TEST = "test";
-    protected static final String TEST_CONFIG = "test:Config";
+    static final String FILE_PATH = "filePath";
+    static final String KIND = "kind";
+    static final String FUNC_MAIN = "main";
+    static final String MODULES = "modules";
+    static final String GENERATED_MODULES = "generated";
+    static final String NAME = "name";
+    static final String RANGE = "range";
+    static final String SOURCE = "source";
+    static final String TEST = "test";
+    static final String TEST_CONFIG = "test:Config";
 
-    protected static final Gson GSON = new Gson();
+    static final Gson GSON = new Gson();
 
     private ExecutorPositionsUtil() {
     }
@@ -99,7 +98,7 @@ public class ExecutorPositionsUtil {
                     }
                 })
                 .map(symbol -> (FunctionSymbol) symbol)
-                .collect(Collectors.toList());
+                .toList();
 
         if (defaultModuleFunctionList.size() == 1) {
             JsonObject mainFunctionObject = new JsonObject();
@@ -124,7 +123,7 @@ public class ExecutorPositionsUtil {
                     }
                 })
                 .map(symbol -> (ServiceDeclarationSymbol) symbol)
-                .collect(Collectors.toList())
+                .toList()
                 .forEach(serviceSymbol -> {
                     JsonObject serviceObject = new JsonObject();
                     serviceObject.addProperty(KIND, SOURCE);
@@ -172,9 +171,8 @@ public class ExecutorPositionsUtil {
                 module.moduleName().moduleNamePart();
         TestCaseVisitor testCaseVisitor = new TestCaseVisitor(execPositions, filePath);
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            module.documentIds().forEach(documentId -> {
-                testCaseVisitor.visitTestCases(module.document(documentId).syntaxTree().rootNode());
-            });
+            module.documentIds().forEach(documentId ->
+                testCaseVisitor.visitTestCases(module.document(documentId).syntaxTree().rootNode()));
 
         } else if (project.kind() == ProjectKind.BUILD_PROJECT) {
             module.testDocumentIds().forEach(testDocumentId -> {

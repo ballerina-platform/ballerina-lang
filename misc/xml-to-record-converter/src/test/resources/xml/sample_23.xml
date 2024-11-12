@@ -1,0 +1,9 @@
+<library xmlns:book="http://example.com/books" genre="genre">
+    <book:book>
+        <book:title lang="en" edition="1st">XML Developer's Guide</book:title>
+        <book:author gender="male" nationality="American">Gambardella, Matthew</book:author>
+        <book:publish_date>2000-10-01</book:publish_date>
+        <book:description>An in-depth look at creating applications with XML.</book:description>
+    </book:book>
+    <genre>Programming</genre>
+</library>

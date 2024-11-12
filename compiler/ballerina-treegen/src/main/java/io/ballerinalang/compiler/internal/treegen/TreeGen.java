@@ -18,6 +18,8 @@
 package io.ballerinalang.compiler.internal.treegen;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNodeMetadata;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxTree;
 import io.ballerinalang.compiler.internal.treegen.targets.SourceText;
 import io.ballerinalang.compiler.internal.treegen.targets.Target;
@@ -40,9 +42,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.SYNTAX_NODE_METADATA_KEY;
 import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.SYNTAX_TREE_DESCRIPTOR_KEY;
 
 /**
@@ -50,18 +54,23 @@ import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.SYNTAX_TR
  *
  * @since 1.3.0
  */
-public class TreeGen {
+public final class TreeGen {
+
+    private TreeGen() {
+    }
 
     public static void main(String[] args) {
         // 1) Load the configuration properties
         TreeGenConfig config = TreeGenConfig.getInstance();
         // 2) Get the syntax tree model by parsing the descriptor
         SyntaxTree syntaxTree = getSyntaxTree(config);
-        // 3) Initialize the registered source code generation targets
+        // 3) Get the syntax node metadata by parsing the metadata descriptor
+        HashMap<String, SyntaxNodeMetadata> nodeMetadataMap = getNodeMetadataMap(config);
+        // 4) Initialize the registered source code generation targets
         List<Target> targetList = populateAvailableTargets(config);
-        // 4) Run above targets and write the content to files
+        // 5) Run above targets and write the content to files
         targetList.stream()
-                .map(target -> target.execute(syntaxTree))
+                .map(target -> target.execute(syntaxTree, nodeMetadataMap))
                 .flatMap(Collection::stream)
                 .forEach(TreeGen::writeSourceTextFile);
     }
@@ -96,6 +105,24 @@ public class TreeGen {
             throw new TreeGenException("Syntax tree descriptor is not available. file-name: " + jsonFilePath);
         }
         return syntaxTreeStream;
+    }
+
+    private static HashMap<String, SyntaxNodeMetadata> getNodeMetadataMap(TreeGenConfig config) {
+        try (InputStreamReader reader =
+                     new InputStreamReader(getNodeMetadataMapStream(config), StandardCharsets.UTF_8)) {
+            return new Gson().fromJson(reader, new TypeToken<>() { });
+        } catch (Throwable e) {
+            throw new TreeGenException("Failed to parse syntax node metadata. Reason: " + e.getMessage(), e);
+        }
+    }
+
+    private static InputStream getNodeMetadataMapStream(TreeGenConfig config) {
+        String jsonFilePath = config.getOrThrow(SYNTAX_NODE_METADATA_KEY);
+        InputStream nodeMetadataMapStream = TreeGen.class.getClassLoader().getResourceAsStream(jsonFilePath);
+        if (Objects.isNull(nodeMetadataMapStream)) {
+            throw new TreeGenException("Syntax node metadata is not available. file-name: " + jsonFilePath);
+        }
+        return nodeMetadataMapStream;
     }
 
     private static void writeSourceTextFile(SourceText sourceText) {

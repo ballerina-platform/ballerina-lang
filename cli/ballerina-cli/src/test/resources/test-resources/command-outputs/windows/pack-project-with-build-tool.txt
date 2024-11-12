@@ -1,0 +1,9 @@
+
+Executing Build Tools
+	openapi(generate-delivery-client)
+
+Compiling source
+	foo/winery:0.1.0
+
+Creating bala
+	target/bala/foo-winery-any-0.1.0.bala

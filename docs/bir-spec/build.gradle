@@ -17,28 +17,20 @@
  *
  */
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        classpath("name.valery1707.kaitai:kaitai-gradle-plugin:${project.kaitaiGradlePluginVersion}")
-    }
+plugins {
+    alias libs.plugins.kaitai
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
 }
-
-apply plugin: 'name.valery1707.kaitai'
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 dependencies {
     implementation project(':ballerina-lang')
 
-    implementation "io.kaitai:kaitai-struct-runtime:${project.kaitaiStructRuntimeVersion}"
-    implementation "org.yaml:snakeyaml:${project.snakeyamlVersion}"
-    implementation 'com.github.jknack:handlebars'
+    implementation libs.kaitai.struct.runtime
+    implementation libs.snakeyaml
+    implementation libs.jknack.handlebars
 
-    testImplementation 'org.testng:testng'
+    testImplementation libs.testng
     testImplementation project(':ballerina-test-utils')
     testImplementation project(':ballerina-tools-api')
 }
@@ -47,19 +39,19 @@ kaitai {
     packageName = 'org.ballerinalang.build.kaitai'
     cacheDir = new File("${project.gradle.gradleUserHomeDir}/kaitai-cache")
     executionTimeout = 10_000
-    version = "${project.kaitaiStructCompilerVersion}"
+    version = "${libs.versions.kaitaiStructCompilerVersion.get()}"
     url = new URL("https://github.com/kaitai-io/kaitai_struct_compiler/releases/download/"+
-            "${project.kaitaiStructCompilerVersion}"+"/kaitai-struct-compiler-" +
-            "${project.kaitaiStructCompilerVersion}"+".zip")
+            "${libs.versions.kaitaiStructCompilerVersion.get()}"+"/kaitai-struct-compiler-" +
+            "${libs.versions.kaitaiStructCompilerVersion.get()}"+".zip")
 }
 
 sourceSets.main.java.srcDirs += 'build/generated/kaitai'
 checkstyleMain.exclude '**/kaitai/**'
 
-task genBirSpec(type: JavaExec) {
+tasks.register('genBirSpec', JavaExec) {
     dependsOn classes
     classpath += sourceSets.main.runtimeClasspath
-    main = 'org.ballerinalang.birspec.BIRSpecGenerator'
+    mainClass = 'org.ballerinalang.birspec.BIRSpecGenerator'
 
     inputs.dir('src/main/resources')
     outputs.files('../compiler/bir-spec.md')
@@ -73,9 +65,14 @@ build {
 compileJava {
     dependsOn 'kaitai'
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
+        classpath = files()
     }
 }
 
@@ -85,4 +82,11 @@ configurations {
     testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
-tasks.createJavadoc.dependsOn(':bir-spec:kaitai')
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
+
+tasks.javadoc.dependsOn(':bir-spec:kaitai')

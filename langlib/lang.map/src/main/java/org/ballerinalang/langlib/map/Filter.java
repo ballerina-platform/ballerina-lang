@@ -38,32 +38,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
-import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
+import static org.ballerinalang.langlib.map.util.Constants.MAP_VERSION;
 
 /**
  * Native implementation of lang.map:filter(map&lt;Type&gt;, function).
  *
  * @since 1.0
  */
-public class Filter {
+public final class Filter {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "filter");
 
-    public static BMap filter(BMap<?, ?> m, BFunctionPointer<Object, Boolean> func) {
-        Type mapType = TypeUtils.getReferredType(m.getType());
-        Type constraint;
-        switch (mapType.getTag()) {
-            case TypeTags.MAP_TAG:
+    private Filter() {
+    }
+
+    public static BMap<?, ?> filter(BMap<?, ?> m, BFunctionPointer<Object[], Boolean> func) {
+        Type mapType = TypeUtils.getImpliedType(m.getType());
+        Type constraint = switch (mapType.getTag()) {
+            case TypeTags.MAP_TAG -> {
                 MapType type = (MapType) mapType;
-                constraint = type.getConstrainedType();
-                break;
-            case TypeTags.RECORD_TYPE_TAG:
-                constraint = MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
-                break;
-            default:
-                throw createOpNotSupportedError(mapType, "filter()");
-        }
+                yield type.getConstrainedType();
+            }
+            case TypeTags.RECORD_TYPE_TAG -> MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
+            default -> throw createOpNotSupportedError(mapType, "filter()");
+        };
         BMap<BString, Object> newMap = ValueCreator.createMapValue(TypeCreator.createMapType(constraint));
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);

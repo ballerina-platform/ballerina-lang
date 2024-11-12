@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -46,8 +45,7 @@ public class PrintUtilsTest {
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private static final PrintStream originalOut = System.out;
     private static final PrintStream errStream = System.err;
-    private static final Path PRINT_UTILS_OUTPUT_DIR = Paths
-            .get("src", "test", "resources", "test-resources", "print-utils-output");
+    private static final Path PRINT_UTILS_OUTPUT_DIR = Path.of("src/test/resources/test-resources/print-utils-output");
 
     @DataProvider(name = "searchResultsWithTerminalWidth")
     public Object[][] provideSearchResultsWithTerminalWidth()
@@ -79,7 +77,7 @@ public class PrintUtilsTest {
         if (!(outContent.toString().contains(expectedOutput))) {
             errStream.println("expected output not contains in output stream");
             errStream.println("expected output:\n" + expectedOutput);
-            errStream.println("print stream:" + outContent.toString());
+            errStream.println("print stream:" + outContent);
             Assert.fail();
         }
     }

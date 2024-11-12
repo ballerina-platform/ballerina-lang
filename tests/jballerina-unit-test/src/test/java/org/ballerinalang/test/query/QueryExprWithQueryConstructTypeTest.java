@@ -131,6 +131,36 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue((Boolean) returnValues);
     }
 
+    @Test(description = "Test map creating query with on conflict with variable reference")
+    public void testQueryConstructingMapWithOnConflictsWithVarRef() {
+        BRunUtil.invoke(result, "testQueryConstructingMapWithOnConflictsWithVarRef");
+    }
+
+    @Test(description = "Test table creating query with on conflict with variable reference")
+    public void testQueryConstructingTableWithOnConflictsWithVarRef() {
+        BRunUtil.invoke(result, "testQueryConstructingTableWithOnConflictsWithVarRef");
+    }
+
+    @Test(description = "Test table creating with on conflict error referred from a function param")
+    public void testTableConstructQueryWithNonConflictingKeys() {
+        BRunUtil.invoke(result, "testTableConstructQueryWithNonConflictingKeys");
+    }
+
+    @Test(description = "Test table creating with conflicting keys and onConflict error referred from function param")
+    public void testTableConstructQueryWithConflictingKeys() {
+        BRunUtil.invoke(result, "testTableConstructQueryWithConflictingKeys");
+    }
+
+    @Test(description = "Test table creating nested query with conflicting keys and onConflict error")
+    public void testMapConstructNestedQueryWithConflictingKeys() {
+        BRunUtil.invoke(result, "testMapConstructNestedQueryWithConflictingKeys");
+    }
+
+    @Test(description = "Test map creating query with group by clause having an onConflict error")
+    public void testMapConstructQueryWithConflictingKeys() {
+        BRunUtil.invoke(result, "testMapConstructQueryWithConflictingKeys");
+    }
+
     @Test(description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
         int index = 0;
@@ -195,11 +225,10 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible types: expected '(Type1 & readonly)', found '([int,int]|string|[int,int])'", 258, 51);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) " +
-                     "& readonly)> & readonly', found 'xml'",
-                263, 41);
+                "incompatible types: expected '(xml & readonly)', found " +
+                        "'xml'", 263, 41);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'int[2] & readonly', found 'int[2]'", 279, 69);
+                "incompatible types: expected '(int[2] & readonly)', found 'int[2]'", 279, 69);
         validateError(negativeResult, index++,
                 "incompatible types: expected '(Department & readonly)', found 'Department'", 283, 55);
         validateError(negativeResult, index++, "incompatible types: expected '[string,string]', " +
@@ -224,15 +253,15 @@ public class QueryExprWithQueryConstructTypeTest {
                 "incompatible types: expected '[string,(int|float)]', found '[FooBar4,(int|float)]'", 320, 66);
         validateError(negativeResult, index++,
                 "incompatible types: expected '[string,(int|float)]', found '[FooBar5,(int|float)]'", 323, 66);
-        validateError(negativeResult, index++, "incompatible types: expected 'map<(int[2] & readonly)> & readonly'," +
+        validateError(negativeResult, index++, "incompatible types: expected '(map<int[2]> & readonly)'," +
                 " found '((map<(int[2] & readonly)> & readonly)|error)'", 329, 34);
         validateError(negativeResult, index++, "incompatible types: expected '(Department & readonly)'," +
                 " found 'Department'", 334, 55);
         validateError(negativeResult, index++, "incompatible types: expected '[string,string]', " +
                 "found '([string,int]|[string,int]|[string,int]|[string,int])'", 337, 48);
         validateError(negativeResult, index++, "missing non-defaultable required record field 'noOfItems'", 347, 16);
-        validateError(negativeResult, index++, "incompatible types: expected 'table<(Customer & readonly)> & " + "" +
-                "readonly', found '((table<(Customer & readonly)> & readonly)|error)'", 356, 44);
+        validateError(negativeResult, index++, "incompatible types: expected '(CustomerTableKeyless " +
+                "& readonly)', found '((table<(Customer & readonly)> & readonly)|error)'", 356, 44);
         validateError(negativeResult, index++, "incompatible types: expected 'map<int>', found '(map<int>|error)'",
                 384, 21);
         validateError(negativeResult, index++, "incompatible types: expected 'table<ResultValue>', " + "" +
@@ -271,6 +300,36 @@ public class QueryExprWithQueryConstructTypeTest {
                         "found 'table<record {| |}>'", 461, 19);
         validateError(negativeResult, index++, "incompatible types: expected 'string', " +
                         "found 'table<record {| int a; int b; |}>'", 462, 16);
+        validateError(negativeResult, index++, "incompatible types: 'string' cannot be constrained with 'int'",
+                473, 49);
+        validateError(negativeResult, index++, "incompatible types: 'string' cannot be constrained " +
+                "with '[int,int,int,int]'", 474, 49);
+        validateError(negativeResult, index++, "incompatible types: 'xml' cannot be constrained with 'string'",
+                478, 42);
+        validateError(negativeResult, index++, "incompatible types: 'xml' cannot be constrained with 'int'",
+                479, 42);
+        validateError(negativeResult, index++, "incompatible types: 'xml' cannot be constrained with " +
+                "'[int,int,int,int]'", 480, 42);
+        validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
+                "cannot be constrained with 'int'", 487, 41);
+        validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
+                "cannot be constrained with '[string,int]'", 488, 41);
+        validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
+                "cannot be constrained with 'table<Employee> key(name)'", 489, 41);
+        validateError(negativeResult, index++, "query expression that constructs a mapping must " +
+                "start with the map keyword", 493, 36);
+        validateError(negativeResult, index++, "query expression that constructs a mapping must " +
+                "start with the map keyword", 494, 36);
+        validateError(negativeResult, index++, "query expression that constructs a mapping must " +
+                "start with the map keyword", 495, 36);
+        validateError(negativeResult, index++, "incompatible type in select clause: expected " +
+                "[string,any|error], found 'int'", 496, 40);
+        validateError(negativeResult, index++, "incompatible type in select clause: expected " +
+                "[string,any|error], found 'record {| int A; |}'", 497, 40);
+        validateError(negativeResult, index++, "incompatible types: 'T1' " +
+                "cannot be constrained with 'int'", 504, 37);
+        validateError(negativeResult, index++, "incompatible types: 'T1' " +
+                "cannot be constrained with 'T1'", 505, 37);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
@@ -421,6 +480,55 @@ public class QueryExprWithQueryConstructTypeTest {
                 "testNestedQueryExprConstructingTableWithRegExp",
                 "testJoinedQueryExprConstructingMapWithRegExp"
         };
+    }
+
+    @Test(description = "Test query expr returning a stream", dataProvider = "SimpleQueryReturnStreamFunctionList")
+    public void testQueryReturnStream(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "SimpleQueryReturnStreamFunctionList")
+    public Object[][] simpleQueryReturnStreamFunctionList() {
+        return new Object[][]{
+                {"testSimpleQueryReturnStream2"},
+                {"testSimpleQueryReturnStream3"}
+        };
+    }
+
+    @Test(description = "Test query expr with stream in from clause returning a stream ")
+    public void testStreamInFromClauseWithReturnStream2() {
+        BRunUtil.invoke(result, "testStreamInFromClauseWithReturnStream2");
+    }
+
+    @Test(description = "Test query expr with multiple from, let and where clauses returning a stream ")
+    public void testMultipleFromWhereAndLetReturnStream2() {
+        BRunUtil.invoke(result, "testMultipleFromWhereAndLetReturnStream2");
+    }
+
+
+    @Test(description = "Test query expr with inner join returning a stream ")
+    public void testInnerJoinAndLimitReturnStream2() {
+        BRunUtil.invoke(result, "testInnerJoinAndLimitReturnStream2");
+    }
+
+    @Test(description = "Test query expr returning table")
+    public void testSimpleQueryExprReturnTable2() {
+        BRunUtil.invoke(result, "testSimpleQueryExprReturnTable2");
+    }
+
+    @Test
+    public void testConstructTablesWithRecords() {
+        BRunUtil.invoke(result, "testConstructTablesWithRecords");
+    }
+
+    @Test
+    public void testConstructMapsWithTuples() {
+        BRunUtil.invoke(result, "testConstructMapsWithTuples");
+    }
+
+    @Test
+    public void testInnerQueryConstructedWithCEP() {
+        BRunUtil.invoke(result, "testInnerQueryConstructedWithCEP");
     }
 
     @AfterClass

@@ -29,7 +29,10 @@ package org.ballerinalang.langlib.floatingpoint;
 //        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
 //        isPublic = true
 //)
-public class IsNaN {
+public final class IsNaN {
+
+    private IsNaN() {
+    }
 
     public static boolean isNaN(double x) {
         return Double.isNaN(x);

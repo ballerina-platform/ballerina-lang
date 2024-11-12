@@ -43,6 +43,7 @@ public class ControlFlowDebugTest extends BaseTestCase {
 
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "control-flow-tests";
@@ -181,6 +182,7 @@ public class ControlFlowDebugTest extends BaseTestCase {
         debugTestRunner.assertVariable(asyncChildVariables, "result", "90", "int");
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

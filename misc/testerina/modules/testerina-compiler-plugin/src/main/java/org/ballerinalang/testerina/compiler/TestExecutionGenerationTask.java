@@ -81,6 +81,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
         List<ModuleMemberDeclarationNode> functionsList = new ArrayList<>();
         List<StatementNode> statements = new ArrayList<>();
 
+        TesterinaCompilerPluginUtils.addExitCodeGlobalVariable(functionsList);
         TesterinaCompilerPluginUtils.addSetTestOptionsCall(statements);
 
         // Initialize variables for test registrars
@@ -175,17 +176,15 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
         for (ModuleId moduleId : pack.moduleIds()) {
             Module module = pack.module(moduleId);
             String moduleName = module.moduleName().toString();
+            List<String> mockedFunctionList = new ArrayList<>();
             for (DocumentId documentId : module.testDocumentIds()) {
                 Document document = module.document(documentId);
-                String documentName = moduleName + "/" + document.name().replace(BAL_EXTENSION, "")
-                        .replace("/", ".");
-                List<String> mockedFunctionList = new ArrayList<>();
                 Node rootNode = document.syntaxTree().rootNode();
                 TestFunctionVisitor testFunctionVisitor = new TestFunctionVisitor();
                 rootNode.accept(testFunctionVisitor);
                 for (FunctionDefinitionNode func : testFunctionVisitor.getTestStaticFunctions()) {
                     FunctionBodyNode functionBodyNode = func.functionBody();
-                    NodeList statements = ((FunctionBodyBlockNode) functionBodyNode).statements();
+                    NodeList<StatementNode> statements = ((FunctionBodyBlockNode) functionBodyNode).statements();
                     for (int i = 0; i < statements.size(); i++) {
                         StatementNode statementNode = (StatementNode) statements.get(i);
 
@@ -210,7 +209,21 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                         }
                     }
                 }
-                testFileMockedFunctionMapping.put(documentName, mockedFunctionList);
+            }
+            for (DocumentId documentId : module.testDocumentIds()) {
+                Document document = module.document(documentId);
+                String documentName = moduleName + "/" + document.name().replace(BAL_EXTENSION, "")
+                        .replace("/", ".");
+                Node rootNode = document.syntaxTree().rootNode();
+                TestFunctionVisitor testFunctionVisitor = new TestFunctionVisitor();
+                rootNode.accept(testFunctionVisitor);
+                testFileMockedFunctionMapping.put(documentName, new ArrayList<>());
+                for (FunctionDefinitionNode func : testFunctionVisitor.getNormalFunctions()) {
+                    if (!mockedFunctionList.contains(func.functionName().text())) {
+                        continue;
+                    }
+                    testFileMockedFunctionMapping.get(documentName).add(func.functionName().text());
+                }
             }
         }
         Path cachePath = pack.project().targetDir().resolve("cache").resolve("tests_cache")
@@ -235,7 +248,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
             if ("test".equals(modulePrefix) && "call".equals(methodName)
                     && "when".equals(identifier)) {
                 String mockedFunction = methodCallExpressionNode.arguments()
-                        .get(0).toString().replaceAll("\"", "");
+                        .get(0).toString().replace("\"", "");
                 mockedFunctionList.add(mockedFunction);
             }
         }

@@ -46,7 +46,7 @@ public class JsonGenerator implements Closeable {
 
     private static final int DEFAULT_DEPTH = 10;
 
-    private Writer writer;
+    private final Writer writer;
 
     private boolean[] levelInit = new boolean[DEFAULT_DEPTH];
 
@@ -54,15 +54,15 @@ public class JsonGenerator implements Closeable {
 
     private boolean fieldActive;
 
-    private static boolean[] escChars = new boolean[93];
+    private static final boolean[] ESC_CHARS = new boolean[93];
 
     static {
-        escChars['"'] = true;
-        escChars['\\'] = true;
-        escChars['\b'] = true;
-        escChars['\n'] = true;
-        escChars['\r'] = true;
-        escChars['\t'] = true;
+        ESC_CHARS['"'] = true;
+        ESC_CHARS['\\'] = true;
+        ESC_CHARS['\b'] = true;
+        ESC_CHARS['\n'] = true;
+        ESC_CHARS['\r'] = true;
+        ESC_CHARS['\t'] = true;
     }
 
     public JsonGenerator(OutputStream out) {
@@ -159,7 +159,7 @@ public class JsonGenerator implements Closeable {
         char[] chs = value.toCharArray();
         for (int i = 0; i < count; i++) {
             ch = chs[i];
-            if (ch < escChars.length && escChars[ch]) {
+            if (ch < ESC_CHARS.length && ESC_CHARS[ch]) {
                 escaped = true;
                 break;
             }
@@ -274,6 +274,7 @@ public class JsonGenerator implements Closeable {
         this.writer.flush();
     }
 
+    @Override
     public void close() throws IOException {
         this.writer.close();
     }
@@ -285,10 +286,10 @@ public class JsonGenerator implements Closeable {
             return;
         }
 
-        switch (TypeUtils.getReferredType(TypeChecker.getType(json)).getTag()) {
+        switch (TypeUtils.getImpliedType(TypeChecker.getType(json)).getTag()) {
             case TypeTags.ARRAY_TAG:
-                if (json instanceof StreamingJsonValue) {
-                    ((StreamingJsonValue) json).serialize(this);
+                if (json instanceof StreamingJsonValue streamingJsonValue) {
+                    streamingJsonValue.serialize(this);
                     break;
                 }
                 this.writeStartArray();

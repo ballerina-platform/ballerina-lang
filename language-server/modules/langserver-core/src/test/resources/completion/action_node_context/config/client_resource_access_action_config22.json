@@ -16,7 +16,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
         }
       },
-      "sortText": "C",
+      "sortText": "CA",
       "filterText": "get",
       "insertText": "/[${1:\"path\"}];",
       "insertTextFormat": "Snippet",
@@ -37,7 +37,7 @@
       ]
     },
     {
-      "label": "/<path>",
+      "label": "/<ids>",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -46,7 +46,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
         }
       },
-      "sortText": "C",
+      "sortText": "CB",
       "filterText": "get",
       "insertText": "/${1:path};",
       "insertTextFormat": "Snippet",
@@ -76,7 +76,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` id1  \n- `string` b  \n- `string[]` ids2"
         }
       },
-      "sortText": "C",
+      "sortText": "CC",
       "filterText": "alias|post",
       "insertText": "/[${1:0}]/alias.post(${2});",
       "insertTextFormat": "Snippet",

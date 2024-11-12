@@ -27,7 +27,6 @@ import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlText;
 
 import java.io.CharArrayWriter;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -98,7 +97,7 @@ public class BallerinaXmlSerializer extends OutputStream {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         try {
             xmlStreamWriter.close();
         } catch (XMLStreamException e) {
@@ -287,7 +286,7 @@ public class BallerinaXmlSerializer extends OutputStream {
     }
 
     private void writeAttributes(HashSet<String> curNSSet, Map<String, String> attributeMap) throws XMLStreamException {
-        String defaultNS = xmlStreamWriter.getNamespaceContext().getNamespaceURI(XMLNS);
+        String defaultNS = xmlStreamWriter.getNamespaceContext().getNamespaceURI("");
         for (Map.Entry<String, String> attributeEntry : attributeMap.entrySet()) {
             String key = attributeEntry.getKey();
             int closingCurlyPos = key.lastIndexOf('}');

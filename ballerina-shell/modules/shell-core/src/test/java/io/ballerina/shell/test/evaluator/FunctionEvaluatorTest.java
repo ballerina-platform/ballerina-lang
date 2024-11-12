@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -33,22 +32,22 @@ public class FunctionEvaluatorTest extends AbstractEvaluatorTest {
     private static final String POINTERS_EVALUATOR_TESTCASE = "testcases/evaluator/function.pointers.json";
 
     @Test
-    public void testEvaluateAnonFn() throws BallerinaShellException {
+    public void testEvaluateAnonFn() {
         testEvaluate(ANON_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateExprBody() throws BallerinaShellException {
+    public void testEvaluateExprBody() {
         testEvaluate(EXPR_BODY_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateIterations() throws BallerinaShellException {
+    public void testEvaluateIterations() {
         testEvaluate(ITERATION_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluatePointers() throws BallerinaShellException {
+    public void testEvaluatePointers() {
         testEvaluate(POINTERS_EVALUATOR_TESTCASE);
     }
 }

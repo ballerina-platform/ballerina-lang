@@ -26,7 +26,7 @@ function foo6() {
 
 function foo7() {
     <- {
-a:}
+        a:     }
     }
 
 function foo8() {

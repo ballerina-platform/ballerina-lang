@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * Contains the util functions for CLI parsing.
  */
-public class CliUtil {
+public final class CliUtil {
 
     private static final String INVALID_ARGUMENT_ERROR = "invalid argument '%s' for parameter '%s', expected %s value";
 
@@ -47,7 +47,7 @@ public class CliUtil {
     }
 
     static Object getBValueWithUnionValue(Type type, String value, String parameterName) {
-        if (type.getTag() == TypeTags.UNION_TAG) {
+        if (TypeUtils.getImpliedType(type).getTag() == TypeTags.UNION_TAG) {
             return getUnionValue(type, value, parameterName);
         }
         return getBValue(type, value, parameterName);
@@ -64,33 +64,26 @@ public class CliUtil {
     }
 
     static Object getBValue(Type type, String value, String parameterName) {
-        switch (type.getTag()) {
-            case TypeTags.STRING_TAG:
-                return StringUtils.fromString(value);
-            case TypeTags.CHAR_STRING_TAG:
-                return getCharValue(value, parameterName);
-            case TypeTags.INT_TAG:
-            case TypeTags.SIGNED32_INT_TAG:
-            case TypeTags.SIGNED16_INT_TAG:
-            case TypeTags.SIGNED8_INT_TAG:
-            case TypeTags.UNSIGNED32_INT_TAG:
-            case TypeTags.UNSIGNED16_INT_TAG:
-            case TypeTags.UNSIGNED8_INT_TAG:
-                return getIntegerValue(value, parameterName);
-            case TypeTags.BYTE_TAG:
-                return getByteValue(value, parameterName);
-            case TypeTags.FLOAT_TAG:
-                return getFloatValue(value, parameterName);
-            case TypeTags.DECIMAL_TAG:
-                return getDecimalValue(value, parameterName);
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getBValue(TypeUtils.getReferredType(type), value, parameterName);
-            case TypeTags.BOOLEAN_TAG:
-                throw ErrorCreator.createError(StringUtils.fromString("the option '" + parameterName + "' of type " +
-                                                                              "'boolean' is expected without a value"));
-            default:
-                throw getUnsupportedTypeException(type);
-        }
+        return switch (TypeUtils.getImpliedType(type).getTag()) {
+            case TypeTags.STRING_TAG -> StringUtils.fromString(value);
+            case TypeTags.CHAR_STRING_TAG -> getCharValue(value, parameterName);
+            case TypeTags.INT_TAG,
+                 TypeTags.SIGNED32_INT_TAG,
+                 TypeTags.SIGNED16_INT_TAG,
+                 TypeTags.SIGNED8_INT_TAG,
+                 TypeTags.UNSIGNED32_INT_TAG,
+                 TypeTags.UNSIGNED16_INT_TAG,
+                 TypeTags.UNSIGNED8_INT_TAG -> getIntegerValue(value, parameterName);
+            case TypeTags.BYTE_TAG -> getByteValue(value, parameterName);
+            case TypeTags.FLOAT_TAG -> getFloatValue(value, parameterName);
+            case TypeTags.DECIMAL_TAG -> getDecimalValue(value, parameterName);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG -> getBValue(TypeUtils.getImpliedType(type), value, parameterName);
+            case TypeTags.BOOLEAN_TAG ->
+                    throw ErrorCreator.createError(
+                            StringUtils.fromString("the option '" + parameterName + "' of type " +
+                                    "'boolean' is expected without a value"));
+            default -> throw getUnsupportedTypeException(type);
+        };
     }
 
     private static Object getCharValue(String argument, String parameterName) {
@@ -115,7 +108,7 @@ public class CliUtil {
     }
 
     static boolean isUnionWithNil(Type fieldType) {
-        if (fieldType.getTag() == TypeTags.UNION_TAG) {
+        if (TypeUtils.getImpliedType(fieldType).getTag() == TypeTags.UNION_TAG) {
             List<Type> unionMemberTypes = ((UnionType) fieldType).getMemberTypes();
             if (isUnionWithNil(unionMemberTypes)) {
                 return true;

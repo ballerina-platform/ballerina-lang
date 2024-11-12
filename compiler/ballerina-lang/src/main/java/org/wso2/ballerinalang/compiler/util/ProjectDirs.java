@@ -28,9 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 
@@ -39,19 +37,22 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOU
  *
  * @since 0.965.0
  */
-public class ProjectDirs {
+public final class ProjectDirs {
 
-    private static PathMatcher sourceFileMatcher = FileSystems.getDefault().getPathMatcher(
+    private static final PathMatcher SOURCE_FILE_MATCHER = FileSystems.getDefault().getPathMatcher(
             "glob:*" + BLANG_SOURCE_EXT);
 
-    private static PathMatcher testFileMatcher = FileSystems.getDefault().getPathMatcher(
+    private static final PathMatcher TEST_FILE_MATCHER = FileSystems.getDefault().getPathMatcher(
             "glob:../src/*/tests/**" + BLANG_SOURCE_EXT);
 
-    private static PathMatcher testResourceFileMatcher = FileSystems.getDefault().getPathMatcher(
+    private static final PathMatcher TEST_RESOURCE_FILE_MATCHER = FileSystems.getDefault().getPathMatcher(
             "glob:../src/*/tests/resources/**" + BLANG_SOURCE_EXT);
 
+    private ProjectDirs() {
+    }
+
     public static boolean isSourceFile(Path path) {
-        return !Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS) && sourceFileMatcher.matches(path);
+        return !Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS) && SOURCE_FILE_MATCHER.matches(path);
     }
 
     public static Path getLastComp(Path path) {
@@ -81,13 +82,13 @@ public class ProjectDirs {
      * @return true if source files exists else false
      */
     public static boolean containsSourceFiles(Path pkgPath) throws BLangCompilerException {
-        List<Path> sourceFiles = new ArrayList<>();
-        try {
-            sourceFiles = Files.find(pkgPath, Integer.MAX_VALUE, (path, attrs) ->
-                    path.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)).collect(Collectors.toList());
+        try (Stream<Path> paths = Files.find(pkgPath, Integer.MAX_VALUE, (path, attrs) ->
+                            path.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT))) {
+            return paths.findAny().isPresent();
         } catch (IOException ignored) {
             // Here we are trying to check if there are source files inside the package to be compiled. If an error
-            // occurs when trying to visit the files inside the package then we simply return the empty list created.
+            // occurs when trying to visit the files inside the package then we simply return false.
+            return false;
         } catch (UncheckedIOException e) {
             // Files#find returns an UncheckedIOException instead of an AccessDeniedException when there is a file to
             // which user doesn't have required permission.
@@ -98,7 +99,6 @@ public class ProjectDirs {
                 throw e;
             }
         }
-        return sourceFiles.size() > 0;
     }
 
     /**
@@ -124,7 +124,7 @@ public class ProjectDirs {
         Path pkgPath = sourceRoot.resolve(pkg);
         Path relativizePath = pkgPath.relativize(sourcePath);
         // Bal files should be inside tests directory but not in test resources
-        return testFileMatcher.matches(relativizePath) && !testResourceFileMatcher.matches(relativizePath);
+        return TEST_FILE_MATCHER.matches(relativizePath) && !TEST_RESOURCE_FILE_MATCHER.matches(relativizePath);
     }
 
     /**

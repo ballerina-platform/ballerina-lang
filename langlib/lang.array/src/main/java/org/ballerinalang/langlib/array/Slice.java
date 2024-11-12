@@ -40,7 +40,10 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
  *
  * @since 1.0
  */
-public class Slice {
+public final class Slice {
+
+    private Slice() {
+    }
 
     public static BArray slice(BArray arr, long startIndex, long endIndex) {
         int size = arr.size();
@@ -61,7 +64,7 @@ public class Slice {
                     .getRuntimeException(ErrorCodes.ARRAY_INDEX_OUT_OF_RANGE, sliceSize, size);
         }
 
-        Type arrType = TypeUtils.getReferredType(arr.getType());
+        Type arrType = TypeUtils.getImpliedType(arr.getType());
         BArray slicedArr;
 
         switch (arrType.getTag()) {

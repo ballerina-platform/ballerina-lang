@@ -28,6 +28,7 @@ import java.util.List;
  */
 public class ActionNodeContextTest extends CompletionTest {
 
+    @Override
     @Test(dataProvider = "completion-data-provider")
     public void test(String config, String configPath) throws IOException, WorkspaceDocumentException {
         super.test(config, configPath);

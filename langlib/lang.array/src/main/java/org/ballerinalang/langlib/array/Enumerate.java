@@ -45,10 +45,13 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
 //        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.TUPLE)},
 //        isPublic = true
 //)
-public class Enumerate {
+public final class Enumerate {
+
+    private Enumerate() {
+    }
 
     public static BArray enumerate(BArray arr) {
-        Type arrType = TypeUtils.getReferredType(arr.getType());
+        Type arrType = TypeUtils.getImpliedType(arr.getType());
         int size = arr.size();
         TupleType elemType;
         GetFunction getFn;

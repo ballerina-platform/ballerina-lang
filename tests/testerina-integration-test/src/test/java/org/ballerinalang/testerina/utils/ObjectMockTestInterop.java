@@ -27,7 +27,10 @@ import io.ballerina.runtime.internal.values.ObjectValue;
  *
  * @since 2.0.0
  */
-public class ObjectMockTestInterop {
+public final class ObjectMockTestInterop {
+
+    private ObjectMockTestInterop() {
+    }
 
     public static Object getValue(ObjectValue objectValue, BString param1, BTypedesc td) {
         BString newFname = objectValue.getStringValue(new BmpStringValue("fname"))

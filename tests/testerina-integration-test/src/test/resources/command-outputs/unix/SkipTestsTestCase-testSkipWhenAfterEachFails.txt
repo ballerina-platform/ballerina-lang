@@ -10,7 +10,7 @@ Running Tests
 	[fail] afterEach[after each test function for the test]:
 	    error("{ballerina}DivisionByZero",message=" / by zero")
 			callableName: afterEach  fileName: skip-when-afterEach-fails.bal lineNumber: 30
-			callableName: afterEach$lambda2$  fileName: skip-when-afterEach-fails.bal lineNumber: 54
+			callableName: afterEach$lambda2$  fileName: skip-when-afterEach-fails.bal lineNumber: 55
 		
 		[pass] test1
 
@@ -18,4 +18,6 @@ Running Tests
 		1 passing
 		0 failing
 		2 skipped
+
+		Test execution time :*****s
 error: there are test failures

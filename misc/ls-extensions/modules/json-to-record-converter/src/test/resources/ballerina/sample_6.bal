@@ -1,33 +1,38 @@
-type Author record {
+type Author record {|
 	string country;
 	string period;
 	string name;
-};
+	json...;
+|};
 
-type BooksItem record {
+type BooksItem record {|
 	Author author;
 	string name;
-};
+	json...;
+|};
 
-type State record {
+type State record {|
 	string code;
 	string name;
-};
+	json...;
+|};
 
-type Address record {
+type Address record {|
 	string number;
 	string city;
 	string street;
 	string neighborhood;
 	State state;
-};
+	json...;
+|};
 
-type SportsItem record {
+type SportsItem record {|
 	string position;
 	string sport;
-};
+	json...;
+|};
 
-type NewRecord record {
+type NewRecord record {|
 	BooksItem[] books;
 	Address address;
 	SportsItem[] sports;
@@ -36,5 +41,6 @@ type NewRecord record {
 	string name;
 	int age;
 	boolean honors;
-};
+	json...;
+|};
 

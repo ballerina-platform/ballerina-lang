@@ -53,6 +53,7 @@ public class BaseContextImpl extends AbstractDocumentServiceContext {
             super(lsOperation, serverContext);
         }
 
+        @Override
         public DocumentServiceContext build() {
             return new BaseContextImpl(this.operation, this.fileUri, this.wsManager, this.serverContext);
         }

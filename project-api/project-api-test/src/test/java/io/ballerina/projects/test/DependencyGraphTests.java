@@ -56,17 +56,17 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
 
@@ -76,7 +76,7 @@ import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfD
  * @since 2.0.0
  */
 public class DependencyGraphTests extends BaseTest {
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources").toAbsolutePath();
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources").toAbsolutePath();
     private static final ResolutionOptions resolutionOptions = ResolutionOptions.builder().setOffline(true).build();
     ProjectEnvironmentBuilder projectEnvironmentBuilder;
     private static Path tempResourceDir;
@@ -131,7 +131,7 @@ public class DependencyGraphTests extends BaseTest {
 
         ResolvedPackageDependency packageDep = dependencyGraphOld.getNodes().stream().filter(
                 resolvedPackageDependency -> resolvedPackageDependency.packageInstance().packageName().toString()
-                        .equals("package_dep")).collect(Collectors.toList()).get(0);
+                        .equals("package_dep")).toList().get(0);
         PackageID packageDepPkgID = new PackageID(new Name(packageDep.packageInstance().packageOrg().value()),
                 new Name(packageDep.packageInstance().getDefaultModule().moduleName().toString()),
                 new Name(packageDep.packageInstance().packageVersion().toString()));
@@ -142,17 +142,19 @@ public class DependencyGraphTests extends BaseTest {
 
         // 2) update version of the package_dep dependency in Dependencies.toml
         project.currentPackage().ballerinaToml().get().modify().withContent(
-                        "[package]\n" +
-                        "org = \"foo\"\n" +
-                        "name = \"test_dependencies_package\"\n" +
-                        "version = \"2.1.0\"\n" +
-                        "\n" +
-                        "[build-options]\n" +
-                        "observabilityIncluded = false\n\n" +
-                        "[[dependency]]\n" +
-                        "org = \"foo\"\n" +
-                        "name = \"package_dep\"\n" +
-                        "version = \"0.1.1\"").apply();
+                """
+                        [package]
+                        org = "foo"
+                        name = "test_dependencies_package"
+                        version = "2.1.0"
+
+                        [build-options]
+                        observabilityIncluded = false
+
+                        [[dependency]]
+                        org = "foo"
+                        name = "package_dep"
+                        version = "0.1.1\"""").apply();
 
         // 3) compare dependency graphs before and after edit
         DependencyGraph<ResolvedPackageDependency> dependencyGraphNew =
@@ -190,7 +192,7 @@ public class DependencyGraphTests extends BaseTest {
         project.currentPackage().getCompilation();
         ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
                 resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
-                .collect(Collectors.toList()).get(0);
+                .toList().get(0);
         PackageID packageCPkgID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
                 new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
                 new Name(packageC.packageInstance().packageVersion().toString()));
@@ -234,7 +236,7 @@ public class DependencyGraphTests extends BaseTest {
 
         ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
                 resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
-                .collect(Collectors.toList()).get(0);
+                .toList().get(0);
         PackageID packageCPkgID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
                 new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
                 new Name(packageC.packageInstance().packageVersion().toString()));
@@ -244,12 +246,13 @@ public class DependencyGraphTests extends BaseTest {
         Module modB2 = project.currentPackage().module(ModuleName.from(PackageName.from("package_b"), "mod_b2"));
         Document document = modB2.document(modB2.documentIds().stream().findFirst().get());
         document.modify().withContent(
-                "import samjs/package_c.mod_c1;\n" +
-                "import samjs/package_e as _;\n" +
-                "\n" +
-                "public function func2() {\n" +
-                "    mod_c1:func1();\n" +
-                "}"
+                """
+                        import samjs/package_c.mod_c1;
+                        import samjs/package_e as _;
+
+                        public function func2() {
+                            mod_c1:func1();
+                        }"""
         ).apply();
 
         // 3) compare dependency graphs before and after edit
@@ -284,7 +287,7 @@ public class DependencyGraphTests extends BaseTest {
         project.currentPackage().getCompilation();
         ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
                 resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
-                .collect(Collectors.toList()).get(0);
+                .toList().get(0);
         PackageID packageID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
                 new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
                 new Name(packageC.packageInstance().packageVersion().toString()));
@@ -293,8 +296,10 @@ public class DependencyGraphTests extends BaseTest {
         // 2) update the mod_b2/mod2.bal file to remove package_c dependency
         Module modB2 = project.currentPackage().module(ModuleName.from(PackageName.from("package_b"), "mod_b2"));
         Document document = modB2.document(modB2.documentIds().stream().findFirst().get());
-        document.modify().withContent("import samjs/package_e as _;\n" +
-                "public function func2() {\n" + "}").apply();
+        document.modify().withContent("""
+                import samjs/package_e as _;
+                public function func2() {
+                }""").apply();
 
         // 3) compare dependency graphs before and after edit
         DependencyGraph<ResolvedPackageDependency> dependencyGraphNew =
@@ -327,7 +332,7 @@ public class DependencyGraphTests extends BaseTest {
         project.currentPackage().getCompilation();
         ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
                 resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
-                .collect(Collectors.toList()).get(0);
+                .toList().get(0);
         PackageID packageCPkgID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
                 new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
                 new Name(packageC.packageInstance().packageVersion().toString()));
@@ -376,14 +381,16 @@ public class DependencyGraphTests extends BaseTest {
 
         // 1) update version of the package_c dependency in Ballerina.toml. 0.3.0 is unavailable
         project.currentPackage().ballerinaToml().get().modify().withContent(
-                "[package]\n" +
-                "org = \"samjs\"\n" +
-                "name = \"package_a\"\n" +
-                "version = \"0.1.0\"\n\n" +
-                "[[dependency]]\n" +
-                "org = \"samjs\"\n" +
-                "name = \"package_c\"\n" +
-                "version = \"0.3.0\"").apply();
+                """
+                        [package]
+                        org = "samjs"
+                        name = "package_a"
+                        version = "0.1.0"
+
+                        [[dependency]]
+                        org = "samjs"
+                        name = "package_c"
+                        version = "0.3.0\"""").apply();
 
         dependencyGraphOld = project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_b
@@ -391,7 +398,7 @@ public class DependencyGraphTests extends BaseTest {
 
         // The bir of the direct dependency should be removed since the compiler throws
         // an exception when compiling with the BIR
-        ProjectUtils.deleteDirectory(Paths.get("build/repo/cache/samjs/package_b/0.1.0"));
+        ProjectUtils.deleteDirectory(Path.of("build/repo/cache/samjs/package_b/0.1.0"));
 
         project.currentPackage().getCompilation();
         // verify that the compiler package cache contains package_b but not package_c
@@ -401,10 +408,12 @@ public class DependencyGraphTests extends BaseTest {
 
         // 2) Revert Ballerina.toml changes and update the content in the default module to import package_c
         project.currentPackage().ballerinaToml().get().modify().withContent(
-                "[package]\n" +
-                "org = \"samjs\"\n" +
-                "name = \"package_a\"\n" +
-                "version = \"0.1.0\"\n").apply();
+                """
+                        [package]
+                        org = "samjs"
+                        name = "package_a"
+                        version = "0.1.0"
+                        """).apply();
 
         // 3) check the new dependency graph. dependency graph should contain self package_b. package_c
         DependencyGraph<ResolvedPackageDependency> dependencyGraphNew =
@@ -626,6 +635,56 @@ public class DependencyGraphTests extends BaseTest {
         Assert.assertEquals(packageMetadataResponse.resolvedDescriptor().version().toString(), "1.5.0");
         Assert.assertEquals(packageMetadataResponse.resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.RESOLVED);
+    }
+
+    @Test
+    public void testGetAllDependents() {
+        // Create a sample DependencyGraph with String nodes
+        DependencyGraph<String> dependencyGraph = DependencyGraph.from(new LinkedHashMap<>() {{
+            put("A", new LinkedHashSet<>() {{
+                add("B");
+                add("C");
+            }});
+            put("B", new LinkedHashSet<>() {{
+                add("D");
+            }});
+            put("C", new LinkedHashSet<>());
+            put("D", new LinkedHashSet<>());
+            put("E", new LinkedHashSet<>() {{
+                add("F");
+            }});
+            put("F", new LinkedHashSet<>());
+        }});
+
+        Collection<String> allDependents = dependencyGraph.getAllDependents("D");
+        Set<String> expectedDependents = new HashSet<>(Arrays.asList("A", "B"));
+
+        Assert.assertEquals(expectedDependents, allDependents);
+    }
+
+    @Test
+    public void testGetAllDependencies() {
+        // Create a sample DependencyGraph with String nodes
+        DependencyGraph<String> dependencyGraph = DependencyGraph.from(new LinkedHashMap<>() {{
+            put("A", new LinkedHashSet<>() {{
+                add("B");
+                add("C");
+            }});
+            put("B", new LinkedHashSet<>() {{
+                add("D");
+            }});
+            put("C", new LinkedHashSet<>());
+            put("D", new LinkedHashSet<>());
+            put("E", new LinkedHashSet<>() {{
+                add("F");
+            }});
+            put("F", new LinkedHashSet<>());
+        }});
+
+        Collection<String> allDependencies = dependencyGraph.getAllDependencies("A");
+        Set<String> expectedDependencies = new HashSet<>(Arrays.asList("B", "C", "D"));
+
+        Assert.assertEquals(expectedDependencies, allDependencies);
     }
 
     @Test

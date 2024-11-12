@@ -38,7 +38,6 @@ import io.ballerina.semver.checker.exception.SemverToolException;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -46,6 +45,8 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -88,14 +89,18 @@ class BallerinaPackageResolver {
     SemanticVersion resolveClosestCompatibleCentralVersion(String orgName, String pkgName, SemanticVersion localVersion)
             throws SemverToolException {
         try {
-            List<String> publishedVersions = centralClient.getPackageVersions(orgName, pkgName,
-                    JvmTarget.JAVA_17.code(), RepoUtils.getBallerinaVersion());
-            if (publishedVersions == null || publishedVersions.isEmpty()) {
+            List<String> publishedVersions = new ArrayList<>();
+            String supportedPlatform = Arrays.stream(JvmTarget.values())
+                    .map(target -> target.code())
+                    .collect(Collectors.joining(","));
+                publishedVersions.addAll(centralClient.getPackageVersions(orgName, pkgName,
+                        supportedPlatform, RepoUtils.getBallerinaVersion()));
+            if (publishedVersions.isEmpty()) {
                 throw new SemverToolException(String.format("couldn't find any published packages in " +
                         "Ballerina central under the org '%s' with name '%s'", orgName, pkgName));
             }
             List<SemanticVersion> availableVersions = publishedVersions.stream().map(SemanticVersion::from)
-                    .collect(Collectors.toList());
+                    .toList();
 
             Optional<SemanticVersion> compatibleVersion = selectCompatibleVersion(availableVersions, localVersion);
             if (compatibleVersion.isEmpty()) {
@@ -169,16 +174,15 @@ class BallerinaPackageResolver {
 
     private void initializeCentralClient() {
         Settings settings;
-        try {
-            settings = RepoUtils.readSettings();
-            // Ignore Settings.toml diagnostics in the search command
-        } catch (SettingsTomlException e) {
-            // Ignore 'Settings.toml' parsing errors and return empty Settings object
-            settings = Settings.from();
-        }
+        settings = RepoUtils.readSettings();
+        // Ignore Settings.toml diagnostics in the search command
+
         this.centralClient = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                settings.getProxy().password(), getAccessTokenOfCLI(settings));
+                settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                settings.getCentral().getConnectTimeout(),
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
     }
 
     private Path resolveBalaPath(String org, String pkgName, String version) throws SemverToolException {

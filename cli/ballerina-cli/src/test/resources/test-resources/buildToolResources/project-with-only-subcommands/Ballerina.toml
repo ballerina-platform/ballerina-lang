@@ -1,0 +1,10 @@
+[package]
+org = "foo"
+name = "winery"
+version = "0.1.0"
+
+[[tool.dummy_tool.write]]
+id = "write_dummy"
+filePath = "delivery.json"
+targetModule = "mod_write"
+options.writeValue = "Gayal Dassanayake"

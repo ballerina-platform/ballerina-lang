@@ -33,8 +33,8 @@ import org.testng.annotations.Test;
 @Test
 public class MappingBindingPatternNegativeTest {
     private CompileResult warningResult, negativeResult;
-    private String patternNotMatched = "pattern will not be matched";
-    private String unreachablePattern = "unreachable pattern";
+    private final String patternNotMatched = "pattern will not be matched";
+    private final String unreachablePattern = "unreachable pattern";
 
     @BeforeClass
     public void setup() {
@@ -111,8 +111,8 @@ public class MappingBindingPatternNegativeTest {
                 "found 'record {| never i?; never...; |}'", 74, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', " +
                 "found 'record {| int i?; never...; |}'", 77, 24);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found " +
-                "'map<int> & readonly'", 89, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'B'",
+                89, 24);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

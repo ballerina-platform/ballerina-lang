@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.IMPORT_RESOLVING_ERROR;
@@ -62,7 +61,7 @@ public class EvaluationImportResolver extends NodeVisitor {
      *
      * @return a map of all the imports declared in the current debug source.
      */
-    public Map<String, BImport> getAllImports() throws EvaluationException {
+    public Map<String, BImport> getAllImports() {
         resolveVisibleImports();
         return Map.copyOf(visibleImports);
     }
@@ -140,7 +139,7 @@ public class EvaluationImportResolver extends NodeVisitor {
                 List<ModuleSymbol> matchingModuleSymbols = visibleModuleSymbols.stream()
                         .filter(moduleSymbol -> moduleSymbol.id().orgName().equals(bImport.orgName())
                                 && moduleSymbol.id().moduleName().equals(bImport.moduleName()))
-                        .collect(Collectors.toList());
+                        .toList();
 
                 if (matchingModuleSymbols.isEmpty()) {
                     capturedErrors.add(createEvaluationException(IMPORT_RESOLVING_ERROR, importAlias));
@@ -165,7 +164,7 @@ public class EvaluationImportResolver extends NodeVisitor {
                 .stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.MODULE)
                 .map(symbol -> ((ModuleSymbol) symbol))
-                .collect(Collectors.toList()));
+                .toList());
     }
 
     private Optional<String> resolveImportOrgName(ImportDeclarationNode importNode) {

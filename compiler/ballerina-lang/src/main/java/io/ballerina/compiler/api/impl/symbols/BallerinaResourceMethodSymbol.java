@@ -33,12 +33,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 /**
  * Represents an implementation of the resource method symbol.
@@ -50,6 +49,7 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
     private static final String DOT_RESOURCE_PATH = ".";
     private static final String PATH_PARAM = "^";
     private static final String PATH_REST_PARAM = "^^";
+    private static final String TYPE_ONLY_PATH_REST_PARAM = "$^^";
 
     private final CompilerContext context;
     private final BInvokableSymbol internalSymbol;
@@ -72,23 +72,27 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
 
         BObjectTypeSymbol classSymbol = (BObjectTypeSymbol) this.internalSymbol.owner;
         BResourceFunction resourceFn = getBResourceFunction(classSymbol.attachedFuncs, this.internalSymbol);
-        List<Name> internalResPath = resourceFn.pathSegmentSymbols.stream().map(s -> s.name)
-                                     .collect(Collectors.toList());
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = resourceFn.pathSegmentSymbols;
 
-        if (internalResPath.isEmpty()) {
+        if (pathSegmentSymbols.isEmpty()) {
             throw new IllegalStateException("Resource path is empty in resource function: " + resourceFn.toString());
         }
 
-        switch (internalResPath.get(0).value) {
+        BResourcePathSegmentSymbol firstPath = pathSegmentSymbols.get(0);
+        switch (firstPath.getName().getValue()) {
             case DOT_RESOURCE_PATH:
                 this.resourcePath = new BallerinaDotResourcePath();
                 break;
             case PATH_REST_PARAM:
-                this.resourcePath = new BallerinaPathRestParam(resourceFn.restPathParam, this.context);
+                this.resourcePath = new BallerinaPathRestParam(resourceFn.restPathParam.getName().getValue(),
+                        resourceFn.restPathParam, this.context);
+                break;
+            case TYPE_ONLY_PATH_REST_PARAM:
+                this.resourcePath = new BallerinaPathRestParam(TYPE_ONLY_PATH_REST_PARAM, firstPath, this.context);
                 break;
             default:
-                this.resourcePath = new BallerinaPathSegmentList(internalResPath, resourceFn.pathParams,
-                                        resourceFn.restPathParam, resourceFn.pathSegmentSymbols, this.context);
+                this.resourcePath = new BallerinaPathSegmentList(resourceFn.pathSegmentSymbols, resourceFn.pathParams,
+                                                                 resourceFn.restPathParam, this.context);
         }
 
         return this.resourcePath;
@@ -140,8 +144,8 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
 
     private BResourceFunction getBResourceFunction(List<BAttachedFunction> methods, BInvokableSymbol internalSymbol) {
         for (BAttachedFunction method : methods) {
-            if (internalSymbol == method.symbol && method instanceof BResourceFunction) {
-                return (BResourceFunction) method;
+            if (internalSymbol == method.symbol && method instanceof BResourceFunction bResourceFunction) {
+                return bResourceFunction;
             }
         }
 

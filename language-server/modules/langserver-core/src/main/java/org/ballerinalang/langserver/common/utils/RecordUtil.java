@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import org.ballerinalang.langserver.common.RecordField;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.SnippetContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -45,42 +46,56 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER
  *
  * @since 2201.1.1
  */
-public class RecordUtil {
+public final class RecordUtil {
+
+    private RecordUtil() {
+    }
 
     /**
      * Get completion items list for struct fields.
      *
-     * @param context Language server operation context
-     * @param fields  Map of field descriptors
-     * @param wrapper  Pair of Raw TypeSymbol and broader TypeSymbol
+     * @param context   Language server operation context
+     * @param fieldsMap Map of identifier to record fields.
      * @return {@link List} List of completion items for the struct fields
      */
     public static List<LSCompletionItem> getRecordFieldCompletionItems(BallerinaCompletionContext context,
-                                                                       Map<String, RecordFieldSymbol> fields,
-                                                                       RawTypeSymbolWrapper wrapper) {
+                                                               Map<RecordField.RecordFieldIdentifier,
+                                                               List<RecordField>> fieldsMap) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        fields.forEach((name, field) -> {
-            SnippetContext snippetContext = new SnippetContext();
-            String insertText = getRecordFieldCompletionInsertText(field, snippetContext);
-
-            String detail;
-            if (wrapper.getRawType().getName().isPresent()) {
-                detail = NameUtil.getModifiedTypeName(context, wrapper.getRawType()) + "." + name;
-            } else if (wrapper.getBroaderType().getName().isPresent()) {
-                detail = NameUtil.getModifiedTypeName(context, wrapper.getBroaderType()) + "." + name;
-            } else {
-                detail = "(" + wrapper.getRawType().signature() + ")." + name;
-            }
-            CompletionItem fieldItem = new CompletionItem();
-            fieldItem.setInsertText(insertText);
-            fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
-            fieldItem.setLabel(CommonUtil.escapeReservedKeyword(name));
-            fieldItem.setKind(CompletionItemKind.Field);
-            fieldItem.setSortText(Priority.PRIORITY120.toString());
-            completionItems.add(new RecordFieldCompletionItem(context, field, fieldItem, detail));
-        });
+        fieldsMap.forEach((recordFieldIdentifier, fields) ->
+            completionItems.add(getRecordFieldCompletionItem(context, recordFieldIdentifier, fields)));
 
         return completionItems;
+    }
+
+    private static LSCompletionItem getRecordFieldCompletionItem(BallerinaCompletionContext context,
+                                                 RecordField.RecordFieldIdentifier recordFieldIdentifier,
+                                                 List<RecordField> fields) {
+
+        //Assuming the record fields list is not empty at this level
+        RecordField recordField = fields.get(0);
+        String name = recordFieldIdentifier.getName();
+        SnippetContext snippetContext = new SnippetContext();
+        String insertText = getRecordFieldCompletionInsertText(recordField.getFieldSymbol(), snippetContext);
+
+        String detail = fields.stream().map(field -> {
+            RawTypeSymbolWrapper<RecordTypeSymbol> wrapper = field.getTypeSymbolWrapper();
+            if (wrapper.getBroaderType().getName().isPresent()) {
+                return NameUtil.getModifiedTypeName(context, wrapper.getBroaderType()) + "." + name;
+            } else {
+                return "(" + wrapper.getRawType().signature() + ")." + name;
+            }
+        }).collect(Collectors.joining("|"));
+
+        CompletionItem fieldItem = new CompletionItem();
+        fieldItem.setInsertText(insertText);
+        fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
+        fieldItem.setLabel(CommonUtil.escapeReservedKeyword(name));
+        fieldItem.setKind(CompletionItemKind.Field);
+        fieldItem.setSortText(Priority.PRIORITY120.toString());
+
+        //Use the RecordFieldSymbol of the first element to create the completion item. 
+        return new RecordFieldCompletionItem(context, recordField.getFieldSymbol(), fieldItem, detail);
     }
 
     /**
@@ -88,7 +103,7 @@ public class RecordUtil {
      *
      * @param context Language Server Operation Context
      * @param fields  A non empty map of fields
-     * @param wrapper  A wrapper containing record type symbol and broader type symbol
+     * @param wrapper A wrapper containing record type symbol and broader type symbol
      * @return {@link Optional}   Completion Item to fill all the options
      */
     public static Optional<LSCompletionItem> getFillAllRecordFieldCompletionItems(
@@ -173,7 +188,7 @@ public class RecordUtil {
     public static Map<String, RecordFieldSymbol> getRecordFields(RawTypeSymbolWrapper<RecordTypeSymbol> wrapper,
                                                                  List<String> existingFields) {
         return wrapper.getRawType().fieldDescriptors().entrySet().stream()
-                .filter(e -> !existingFields.contains(e.getKey()))
+                .filter(e -> !existingFields.contains(e.getValue().getName().get()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
@@ -186,7 +201,7 @@ public class RecordUtil {
     public static List<RecordFieldSymbol> getMandatoryRecordFields(RecordTypeSymbol recordType) {
         return recordType.fieldDescriptors().values().stream()
                 .filter(field -> !field.hasDefaultValue() && !field.isOptional())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -224,7 +239,7 @@ public class RecordUtil {
                     .map(tSymbol -> {
                         RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) CommonUtil.getRawType(tSymbol);
                         return RawTypeSymbolWrapper.from(tSymbol, recordTypeSymbol);
-                    }).collect(Collectors.toList());
+                    }).toList();
         }
 
         return Collections.emptyList();

@@ -60,20 +60,24 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
         this.isConcurrent = isConcurrent;
     }
 
+    @Override
     public R call(T t) {
         return this.function.apply(t);
     }
 
+    @Override
     public BFuture asyncCall(Object[] args, StrandMetadata metaData) {
         return this.asyncCall(args, o -> o, metaData);
     }
 
+    @Override
     public BFuture asyncCall(Object[] args, Function<Object, Object> resultHandleFunction,
-                                 StrandMetadata metaData) {
-        return AsyncUtils.invokeFunctionPointerAsync(this, this.strandName, metaData,
+                             StrandMetadata metaData) {
+        return AsyncUtils.invokeFunctionPointerAsync((BFunctionPointer<Object[], ?>) this, this.strandName, metaData,
                                                      args, resultHandleFunction, Scheduler.getStrand().scheduler);
     }
 
+    @Override
     public Function<T, R> getFunction() {
         return this.function;
     }
@@ -110,7 +114,6 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
 
     @Override
     public void freezeDirect() {
-        return;
     }
 
     @Override

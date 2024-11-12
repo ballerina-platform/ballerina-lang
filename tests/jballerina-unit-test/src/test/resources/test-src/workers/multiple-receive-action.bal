@@ -14,14 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function main() {
+import ballerina/test;
+
+public function testMultipleReceiveAction() {
     worker w1 {
         100 -> w2;
     }
 
-    worker w2 {
+    worker w2 returns map<int> {
         map<int> m = <- { w1 };
+        return m;
     }
 
-    wait w2;
+    map<int> m = wait w2;
+    test:assertEquals(m, { w1: 100 }, "Invalid map returned");
 }

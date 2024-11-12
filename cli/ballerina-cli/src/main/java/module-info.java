@@ -1,5 +1,9 @@
 module io.ballerina.cli {
+    uses io.ballerina.cli.BLauncherCmd;
+    uses io.ballerina.projects.buildtools.CodeGeneratorTool;
+    uses org.ballerinalang.compiler.plugins.CompilerPlugin;
     exports io.ballerina.cli;
+    exports io.ballerina.cli.task;
     exports io.ballerina.cli.launcher;
     exports io.ballerina.cli.utils;
     exports io.ballerina.cli.cmd;
@@ -21,4 +25,6 @@ module io.ballerina.cli {
     requires io.ballerina.toml;
     requires io.ballerina.identifier;
     requires org.objectweb.asm;
+    requires org.apache.commons.io;
+    requires maven.resolver;
 }

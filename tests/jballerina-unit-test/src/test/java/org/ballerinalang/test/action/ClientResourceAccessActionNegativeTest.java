@@ -82,7 +82,7 @@ public class ClientResourceAccessActionNegativeTest {
                 "missing required parameter 'name' in call to 'get()'",
                 78, 13);
         validateError(clientResourceAccessNegative, index++,
-                "undefined defaultable parameter 'b'",
+                "undefined parameter 'b'",
                 78, 38);
         validateError(clientResourceAccessNegative, index++,
                 "too many arguments in call to 'get()'", 79, 52);
@@ -784,7 +784,7 @@ public class ClientResourceAccessActionNegativeTest {
                 "incompatible types: expected 'CustomRecord', found '[int,int,int]'",
                 93, 58);
         validateError(clientResourceParamsNegative, index++,
-                "incompatible types: expected 'int', found '[int,int,int]'",
+                "incompatible types: expected 'CustomIntegerType', found '[int,int,int]'",
                 94, 66);
         Assert.assertEquals(clientResourceParamsNegative.getErrorCount(), index);
     }

@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class SyntaxNode {
     private String name;
-    private List<SyntaxNodeAttribute> attributes;
+    private final List<SyntaxNodeAttribute> attributes;
     private String kind;
     private String base;
     private String type;

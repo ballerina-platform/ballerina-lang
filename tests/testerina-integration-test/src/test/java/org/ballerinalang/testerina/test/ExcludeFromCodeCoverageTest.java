@@ -44,15 +44,15 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
     private JsonObject resultObj;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.resolve("code-cov-exclusion");
         resultsJsonPath = projectBasedTestsPath.resolve("code-cov-exclusion").resolve("target").resolve("report")
                 .resolve("test_results.json");
     }
 
-    @Test(description = "Exclude coverage with relative source paths and wildcards", enabled = false)
-    public void testExcludingBalFileCoverage() throws BallerinaTestException, IOException {
+    @Test(description = "Exclude coverage with relative source paths and wildcards")
+    public void testExcludingBalFileCoverage() throws BallerinaTestException {
         String [][] exclusionListOfList = {{"./main.bal", "./modules/util/util.bal", "./generated/util/util_gen.bal",
                 "./generated/util2/util2_gen.bal", "./generated/main_gen.bal"},
                 {"./*", "./modules/util/ut*.bal", "./generated**"},
@@ -85,7 +85,7 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
     }
 
     @Test(description = "Exclude a source file from coverage exclusion list", enabled = false)
-    public void testExcludesSrcFileFromExclusionList() throws BallerinaTestException, IOException {
+    public void testExcludesSrcFileFromExclusionList() throws BallerinaTestException {
         String [] exclusionList =  {"./*", "!./main.bal"};
         String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",
                 "--excludes=" + String.join(",", exclusionList)});
@@ -103,7 +103,7 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
     }
 
     @Test(description = "Exclude a folder from coverage exclusion list", enabled = false)
-    public void testExcludesSrcFolderFromExclusionList() throws BallerinaTestException, IOException {
+    public void testExcludesSrcFolderFromExclusionList() throws BallerinaTestException {
         String [] exclusionList = {"./generated", "!./generated/util"};
         String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",
                 "--excludes=" + String.join(",", exclusionList)});

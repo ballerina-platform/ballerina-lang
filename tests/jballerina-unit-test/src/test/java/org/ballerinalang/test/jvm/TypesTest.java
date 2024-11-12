@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.FunctionType;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -161,6 +160,11 @@ public class TypesTest {
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
         Assert.assertEquals(intValue, input, "Invalid integer value returned.");
+    }
+
+    @Test(description = "Test comparison between XML Sequence with one text member and xml:Text")
+    public void testXMLSequenceWithOneTextMemberToXMLTextCast() {
+        BRunUtil.invoke(compileResult, "testXMLSequenceWithOneTextMember");
     }
 
     @Test(description = "Test integer to byte cast")
@@ -593,7 +597,7 @@ public class TypesTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}JSONOperationError \\{\"message\":\"JSON value " +
                     "is not " +
                     "a mapping\"\\}\n" +
-                    "\tat types:testGetFromNull\\(types.bal:588\\)")
+                    "\tat types:testGetFromNull\\(types.bal:595\\)")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }
@@ -818,7 +822,7 @@ public class TypesTest {
         returnType = (UnionType) ((FunctionType) typedescValue.getDescribingType()).getReturnType();
         originalMemberTypes = returnType.getOriginalMemberTypes();
         Assert.assertEquals(originalMemberTypes.size(), 2);
-        memType1 = ((ReferenceType) originalMemberTypes.get(0)).getReferredType();
+        memType1 = TypeUtils.getImpliedType(originalMemberTypes.get(0));
         Assert.assertEquals(memType1.getTag(), TypeTags.UNION_TAG);
         memUnionType = (UnionType) memType1;
         Assert.assertFalse(SymbolFlags.isFlagOn(memUnionType.getFlags(), SymbolFlags.ENUM));

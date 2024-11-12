@@ -192,8 +192,8 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'age' with " +
                 "object type inclusion", 158, 5);
         BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'function " +
-                "foo(float ratio, int months) returns float', found 'public function " +
-                "foo(float ratio, int months) returns float'", 162, 5);
+                "foo(float, int) returns float', found 'public function " +
+                "foo(float, int) returns float'", 162, 5);
         BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'a' with " +
                 "object type inclusion", 175, 5);
         BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'b' with " +
@@ -210,11 +210,12 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'n' with " +
                 "object type inclusion", 197, 5);
         BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'public function " +
-                "foo(float ratio, int months) returns float', found 'private function foo(float ratio, int months) " +
-                "returns float'", 199, 5);
+                "foo(float, int) returns float', found 'private function foo(float, int) returns float'", 199, 5);
         BAssertUtil.validateError(negativeResult, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 209, 6);
         BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'q' with " +
                 "object type inclusion", 210, 5);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'service' " +
+                "qualifier(s) in the referencing object", 218, 6);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -323,35 +324,22 @@ public class ObjectTypeReferenceTest {
         CompileResult result = BCompileUtil.compile("test-src/object/object_func_reference_neg.bal");
         int index = 0;
         BAssertUtil.validateError(result, index++,
-                "mismatched function signatures: expected 'function test1(string aString, int " +
-                        "anInt) returns (string|error)', found 'function test1(string str, int " +
-                        "anInt)" +
-                        " returns (string|error)'", 53, 5);
+                "mismatched function signatures: expected 'public function test2(string)', " +
+                        "found 'function test2(string)'", 58, 5);
         BAssertUtil.validateError(result, index++,
-                "mismatched function signatures: expected 'public function test2(string aString)', " +
-                        "found 'function test2(string aString)'", 58, 5);
+                "mismatched function signatures: expected 'function test3(int, string, string, int)', " +
+                        "found 'function test3(string, int, string, int) returns string'", 61, 5);
         BAssertUtil.validateError(result, index++,
-                "mismatched function signatures: expected 'function test3(int anInt, string " +
-                        "aString, string defaultable, int def2)', found 'function test3(string " +
-                        "aString, int anInt, string defaultable, int def2) returns string'", 61, 5);
-        BAssertUtil.validateError(result, index++,
-                "mismatched function signatures: expected 'function test4(string aString, " +
-                        "int:Signed16 anInt, Bar... bars) returns string', found 'function test4" +
-                        "(string aString, int anInt, AnotherBar... bars) returns string'",
+                "mismatched function signatures: expected 'function test4(string, " +
+                        "int:Signed16, Bar...) returns string', found 'function test4" +
+                        "(string, int, AnotherBar...) returns string'",
                 66, 5);
         BAssertUtil.validateError(result, index++,
-                "mismatched function signatures: expected 'function test5(Status... status) returns Bar',"
-                        + " found 'function test5(Status... stat) returns Bar'", 71, 5);
-        BAssertUtil.validateError(result, index++,
-                "mismatched function signatures: expected 'function test6([string,Status]... tup)'," +
-                        " found 'function test6([string,Status]... tupl)'", 76, 5);
-        BAssertUtil.validateError(result, index++,
                 "mismatched function signatures: expected 'function test7() returns Status', found " +
-                        "'function test7(int x) returns Status'", 79, 5);
+                        "'function test7(int) returns Status'", 79, 5);
         BAssertUtil.validateError(result, index++,
-                "mismatched function signatures: expected 'function test8(int:Signed16 anInt, Bar.." +
-                        ". bars) returns int:Signed16', found 'function test8(int:Signed16 anInt, " +
-                        "Bar... bars) returns int'",
+                "mismatched function signatures: expected 'function test8(int:Signed16, Bar...) " +
+                        "returns int:Signed16', found 'function test8(int:Signed16, Bar...) returns int'",
                 84, 5);
         BAssertUtil.validateError(result, index++, "no implementation found for the method 'toString' of class " +
                 "'InvalidReadOnlyClassWithMissingImpl'", 93, 1);
@@ -359,6 +347,14 @@ public class ObjectTypeReferenceTest {
                 "'InvalidReadOnlyClassWithMissingImpls'", 101, 1);
         BAssertUtil.validateError(result, index++, "no implementation found for the method 'toString' of class " +
                 "'InvalidReadOnlyClassWithMissingImpls'", 101, 1);
+        BAssertUtil.validateError(result, index++, "mismatched function signatures: expected 'remote " +
+                "function execute(string, int)', found 'public function execute(string, int)'", 115, 5);
+        BAssertUtil.validateError(result, index++, "mismatched function signatures: expected 'public function pause" +
+                "(string, int)', found 'remote function pause(string, int)'", 118, 5);
+        BAssertUtil.validateError(result, index++, "mismatched function signatures: expected 'remote " +
+                "function execute(string, int)', found 'public function execute(string, int)'", 125, 5);
+        BAssertUtil.validateError(result, index++, "mismatched function signatures: expected 'public function pause" +
+                "(string, int)', found 'remote function pause(string, int)'", 127, 5);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 
@@ -397,5 +393,15 @@ public class ObjectTypeReferenceTest {
     @Test
     public void testOverridingIncludedFieldInObjectTypeDescWithReadOnlyIntersection() {
         BRunUtil.invoke(compileResult, "testOverridingIncludedFieldInObjectTypeDescWithReadOnlyIntersection");
+    }
+
+    @Test
+    public void testInclusionWithDifferentParamNames() {
+        BRunUtil.invoke(compileResult, "testInclusionWithDifferentParamNames");
+    }
+
+    @Test
+    public void testInclusionWithRemoteMethods() {
+        BRunUtil.invoke(compileResult, "testInclusionWithRemoteMethods");
     }
 }

@@ -32,3 +32,12 @@ public type Interceptor distinct service object {
 public type Foo readonly & object {
    public isolated function fooFunc() returns string;
 };
+
+public type Foo1 record {|
+    any[] x = [1, 2];
+|};
+
+public type Foo2 record {|
+    *Foo1;
+    any[] y = ["abc", "xyz"];
+|};

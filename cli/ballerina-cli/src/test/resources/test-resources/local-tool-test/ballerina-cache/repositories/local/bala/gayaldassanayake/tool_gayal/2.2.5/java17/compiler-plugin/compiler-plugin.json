@@ -1,0 +1,6 @@
+{
+  "plugin_class": "io.gayal.combined.CombinedCompilerPlugin",
+  "dependency_paths": [
+    "compiler-plugin/libs/a.jar"
+  ]
+}

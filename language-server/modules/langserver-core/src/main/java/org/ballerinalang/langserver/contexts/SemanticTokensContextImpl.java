@@ -46,6 +46,7 @@ public class SemanticTokensContextImpl extends AbstractDocumentServiceContext im
             super(LSContextOperation.TXT_SEMANTIC_TOKENS_FULL, serverContext);
         }
 
+        @Override
         public SemanticTokensContext build() {
             return new SemanticTokensContextImpl(this.operation,
                     this.fileUri,

@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 11,
+    "character": 81
+  },
+  "source": "fixReturnTypeForConditionalExpr.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'module1:TestRecord1|int'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 76
+            },
+            "end": {
+              "line": 9,
+              "character": 76
+            }
+          },
+          "newText": " returns module1:TestRecord1|int"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

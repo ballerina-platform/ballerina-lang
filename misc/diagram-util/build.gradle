@@ -14,8 +14,11 @@
  * limitations under the License.
  *
  */
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations {
     dist {
@@ -35,10 +38,10 @@ dependencies {
     implementation(project(':docerina'))
     implementation project(':central-client')
 
-    implementation 'org.apache.commons:commons-lang3'
-    implementation 'com.google.code.gson:gson'
+    implementation libs.apache.commons.lang3
+    implementation libs.gson
 
-    testImplementation 'org.testng:testng'
+    testImplementation libs.testng
 }
 
 description = 'Diagram utils for Syntax tree JSON generation'

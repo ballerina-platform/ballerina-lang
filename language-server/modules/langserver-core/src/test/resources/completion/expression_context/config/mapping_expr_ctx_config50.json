@@ -4,7 +4,6 @@
     "character": 12
   },
   "source": "expression_context/source/mapping_expr_ctx_source50.bal",
-  "description": "",
   "items": [
     {
       "label": "readonly",
@@ -35,7 +34,7 @@
       "label": "...map1",
       "kind": "Variable",
       "detail": "map<RecordName>",
-      "sortText": "AB",
+      "sortText": "AC",
       "filterText": "map1",
       "insertText": "...map1",
       "insertTextFormat": "Snippet"

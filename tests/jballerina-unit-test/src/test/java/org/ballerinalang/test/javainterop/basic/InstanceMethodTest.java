@@ -59,7 +59,7 @@ public class InstanceMethodTest {
         Object returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnNothing", args);
 
         Assert.assertNull(returns);
-        Assert.assertEquals(testIns.getCounter(), new Integer(1));
+        Assert.assertEquals(testIns.getCounter(), Integer.valueOf(1));
     }
 
     @Test(description = "Test invoking a java instance function that accepts and return nothing but has a throws")
@@ -162,7 +162,7 @@ public class InstanceMethodTest {
         Object returns = BRunUtil.invoke(result, "testInteropFunctionWithDifferentName", args);
 
         Assert.assertNull(returns);
-        Assert.assertEquals(testIns.getCounter(), new Integer(1));
+        Assert.assertEquals(testIns.getCounter(), Integer.valueOf(1));
     }
 
     @Test(description = "Test invoking a java instance function that accepts nothing and returns a something")
@@ -185,7 +185,7 @@ public class InstanceMethodTest {
         Object returns = BRunUtil.invoke(result, "testAcceptSomethingButReturnNothing", args);
 
         Assert.assertNull(returns);
-        Assert.assertEquals(testIns.getCounter(), new Integer(22));
+        Assert.assertEquals(testIns.getCounter(), Integer.valueOf(22));
     }
 
     @Test(description = "Test invoking a java instance function that accepts and returns a something")
@@ -222,12 +222,13 @@ public class InstanceMethodTest {
         Assert.assertEquals(getType(returns).getName(), "error");
         Assert.assertEquals(((BError) returns).getMessage(),
                 "org.ballerinalang.nativeimpl.jvm.tests.JavaInteropTestCheckedException");
-        Assert.assertEquals(((BMap) ((BError) returns).getDetails()).get(StringUtils.fromString("message")).toString(),
+        Assert.assertEquals(((BMap<?, ?>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
+                        .toString(),
                 "Custom error");
-        BError cause = (BError) ((BMap) ((BError) returns).getDetails()).get(StringUtils.fromString("cause"));
+        BError cause = (BError) ((BMap<?, ?>) ((BError) returns).getDetails()).get(StringUtils.fromString("cause"));
         Assert.assertEquals(getType(cause).getName(), "error");
         Assert.assertEquals(cause.getMessage(), "java.lang.Throwable");
-        Assert.assertEquals(((BMap) cause.getDetails()).get(StringUtils.fromString("message")).toString(),
+        Assert.assertEquals(((BMap<?, ?>) cause.getDetails()).get(StringUtils.fromString("message")).toString(),
                 "Interop Throwable");
     }
 
@@ -284,6 +285,11 @@ public class InstanceMethodTest {
                 "testUnionWithErrorReturnByteArray",
                 "testAnyOrErrorReturnStringArray"
         };
+    }
+
+    @Test
+    public void testInteropCallToAbstractClassMethod() {
+        BRunUtil.invoke(result, "testInteropCallToAbstractClassMethod");
     }
 
     @AfterClass

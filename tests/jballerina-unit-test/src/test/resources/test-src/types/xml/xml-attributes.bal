@@ -239,6 +239,34 @@ function testCharacterReferencesInXmlAttributeValue() {
     panic error("Assertion error, expected `" + expected + "`, found `" + att + "`");
 }
 
+function testAttributesInEmptyXMLSequence() {
+    xml testXml = xml `
+            <ClinicalDocument>
+                <realmCode code="US"/>
+                <typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+                <templateId root="2.16.840.1.113883"/>
+            </ClinicalDocument>
+        `;
+
+    xml idElement = testXml/<id>;
+    string|error idVal = idElement.root;
+    string? optionalIdVal = checkpanic idElement?.root;
+    assertEquality((), optionalIdVal);
+    if idVal is error {
+        error error(_, ...details) = idVal;
+        assertEquality("empty xml sequence cannot have attributes", details["message"]);
+        return;
+    }
+    panic error("expected 'error', found 'string'");
+}
+
 public function print(any|error... values) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}

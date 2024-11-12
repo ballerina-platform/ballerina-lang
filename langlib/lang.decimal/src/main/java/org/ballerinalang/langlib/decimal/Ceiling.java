@@ -34,7 +34,10 @@ import java.math.RoundingMode;
 //        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
 //        isPublic = true
 //)
-public class Ceiling {
+public final class Ceiling {
+
+    private Ceiling() {
+    }
 
     public static BDecimal ceiling(BDecimal x) {
         return ValueCreator.createDecimalValue(x.value().setScale(0, RoundingMode.CEILING));

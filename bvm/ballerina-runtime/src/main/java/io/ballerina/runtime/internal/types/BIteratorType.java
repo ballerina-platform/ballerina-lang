@@ -33,6 +33,7 @@ public class BIteratorType extends BType implements IteratorType {
         super(typeName, pkg, IteratorValue.class);
     }
 
+    @Override
     public <V extends Object> V getZeroValue() {
         return null;
     }

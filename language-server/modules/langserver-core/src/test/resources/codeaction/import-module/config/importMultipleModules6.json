@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 3,
+    "character": 25
+  },
+  "source": "project/importMultipleModules4.bal",
+  "expected": [
+    {
+      "title": "Import module 'project.module2'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import project.module2;\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

@@ -31,5 +31,6 @@ import io.ballerina.runtime.api.values.BCollection;
  */
 public interface CollectionValue extends BCollection {
 
-    IteratorValue getIterator();
+    @Override
+    IteratorValue<?> getIterator();
 }

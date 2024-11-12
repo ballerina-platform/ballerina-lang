@@ -39,9 +39,12 @@ import java.util.List;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class Get {
+public final class Get {
 
     public static final int LENGTH_OF_ONE = 1;
+
+    private Get() {
+    }
 
     public static BXml get(BXml xmlVal, long i) {
         // Handle single xml items
@@ -65,6 +68,6 @@ public class Get {
             throw ErrorHelper.getRuntimeException(ErrorCodes.XML_SEQUENCE_INDEX_OUT_OF_RANGE, size, i);
         }
 
-        return (BXml) childrenList.get((int) i);
+        return childrenList.get((int) i);
     }
 }

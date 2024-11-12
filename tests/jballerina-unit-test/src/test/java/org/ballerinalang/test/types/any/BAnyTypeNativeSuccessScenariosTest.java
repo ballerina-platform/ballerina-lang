@@ -56,54 +56,46 @@ public class BAnyTypeNativeSuccessScenariosTest {
 
     @Test(description = "This tests the finding of best native function when there are no direct match for println")
     public void testAnyPrintln() throws IOException {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "printlnAnyVal", new Object[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "{\"PropertyName\":\"Value\"}\n",
-                              "Invalid xml printed");
+                "Invalid xml printed");
         } finally {
-            outContent.close();
             System.setOut(original);
         }
     }
 
     @Test(description = "This tests the finding of best native function when there are no direct match for print")
     public void testAnyPrint() throws IOException {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "printAnyVal", new Object[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "{\"PropertyName\":\"Value\"}",
                                 "Invalid xml printed");
         } finally {
-            outContent.close();
             System.setOut(original);
         }
     }
 
     @Test(description = "This tests the finding of best native function when there are no direct match for print int")
     public void testFindBestMatchForNativeFunctionPrintln() throws IOException {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "findBestNativeFunctionPrintln", new Object[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "8\n", "Invalid int value printed");
         } finally {
-            outContent.close();
             System.setOut(original);
         }
     }
 
     @Test(description = "This tests the finding of best native function when there are no direct match for println int")
     public void testFindBestMatchForNativeFunctionPrint() throws IOException {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "findBestNativeFunctionPrint", new Object[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "7", "Invalid int value printed");
         } finally {
-            outContent.close();
             System.setOut(original);
         }
     }

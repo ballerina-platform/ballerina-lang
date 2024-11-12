@@ -38,7 +38,7 @@ public class FunctionSignatureNegativeTest {
 
         BAssertUtil.validateError(result, i++, "redeclared symbol 'c'", 1, 73);
         BAssertUtil.validateError(result, i++, "redeclared argument 'a'", 17, 19);
-        BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'c'", 21, 19);
+        BAssertUtil.validateError(result, i++, "undefined parameter 'c'", 21, 19);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'int', found 'float'", 29, 20);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'json', found 'xml:Text'", 40, 56);
         BAssertUtil.validateError(result, i++, "missing required parameter 'a' in call to " +
@@ -140,5 +140,14 @@ public class FunctionSignatureNegativeTest {
                 "external resource methods are not yet supported in service objects", 21, 5);
         BAssertUtil.validateError(result, 2,
                 "external resource methods are not yet supported in service objects", 23, 5);
+    }
+
+    @Test
+    public void testCyclicFunctions() {
+        CompileResult result = BCompileUtil.compile("test-src/functions/cyclic-functions-negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "illegal cyclic reference '[func, f1, testFunc]'", 17, 1);
+        BAssertUtil.validateError(result, i++, "illegal cyclic reference '[func1, f2, testFunc1]'", 31, 1);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 }

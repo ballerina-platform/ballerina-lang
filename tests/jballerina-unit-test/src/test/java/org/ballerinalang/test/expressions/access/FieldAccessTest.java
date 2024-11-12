@@ -139,6 +139,21 @@ public class FieldAccessTest {
                 "expression", 375, 15);
         validateError(negativeResult, i++, "'remote' methods of an object cannot be accessed using the field access " +
                 "expression", 377, 15);
+        validateError(negativeResult, i++, "invalid operation: type 'map<xml>' does not support field access"
+                , 382, 19);
+        validateError(negativeResult, i++, "invalid operation: type 'map<xml>' does not support field access"
+                , 387, 19);
+        validateError(negativeResult, i++, "invalid operation: type 'map<xml>' does not support field access"
+                , 393, 19);
+        validateError(negativeResult, i++, "invalid operation: type 'map<(xml|json)>' does not support field access"
+                , 399, 24);
+        validateError(negativeResult, i++, "invalid operation: type 'map<xml>' does not support " +
+                        "optional field access", 404, 13);
+        validateError(negativeResult, i++, "invalid operation: type 'map<xml>' does not support " +
+                "optional field access", 409, 14);
+        validateError(negativeResult, i++, "invalid operation: type 'map<xml>' does not support " +
+                "optional field access", 414, 13);
+
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -290,9 +305,20 @@ public class FieldAccessTest {
         BRunUtil.invoke(result, "testAccessingMethodOnUnionObjectType");
     }
 
+    @Test
+    public void testValidXMLmapFieldAccess() {
+        BRunUtil.invoke(result, "testValidXMLmapFieldAccess");
+    }
+
     @Test(dataProvider = "fieldAccessOnJsonTypedRecordFields")
     public void testFieldAccessOnJsonTypedRecordFields(String function) {
         BRunUtil.invoke(result, function);
+    }
+
+    @Test
+    public void testFieldAccessOnIntSubtypeRecordFields() {
+        Object returns = BRunUtil.invoke(result, "testFieldAccessOnIntSubtype");
+        Assert.assertEquals(returns, 1L);
     }
 
     @DataProvider(name = "fieldAccessOnJsonTypedRecordFields")

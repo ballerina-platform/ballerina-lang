@@ -88,7 +88,7 @@ public class FunctionSymbolTest {
         assertEquals(methodAnnots.get(0).getName().get(), expAnnot);
 
         // check qualifiers
-        if (expQuals.size() > 0) {
+        if (!expQuals.isEmpty()) {
             List<Qualifier> qualifiers = functionSymbol.qualifiers();
             expQuals.forEach(expQual -> assertTrue(qualifiers.contains(expQual)));
         } else {

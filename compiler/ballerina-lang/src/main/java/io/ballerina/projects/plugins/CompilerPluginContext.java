@@ -17,8 +17,11 @@
  */
 package io.ballerina.projects.plugins;
 
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.projects.plugins.codeaction.CodeAction;
 import io.ballerina.projects.plugins.completion.CompletionProvider;
+
+import java.util.Map;
 
 /**
  * This class can be used to add various compiler plugin tasks to the current compilation.
@@ -67,5 +70,12 @@ public interface CompilerPluginContext {
      *
      * @param completionProvider the {@link CompletionProvider} instance
      */
-    void addCompletionProvider(CompletionProvider completionProvider);
+    void addCompletionProvider(CompletionProvider<? extends Node> completionProvider);
+
+    /**
+     * Returns user data for the compiler plugin.
+     *
+     * @return Map of user data as {@link Map Map&lt;String, Object&gt;}
+     */
+    Map<String, Object> userData();
 }

@@ -19,15 +19,15 @@
 package io.ballerina.runtime.internal.scheduling;
 
 /**
- * This interface represents the function frame which saves the existing
+ * This abstract class represents the function frame which saves the existing
  * state when a function yields.
  *
  * @since 2201.2.0
  */
-public interface FunctionFrame {
+public abstract class FunctionFrame {
 
-    String getYieldLocation();
+    public String yieldLocation;
 
-    String getYieldStatus();
+    public String yieldStatus;
 
 }

@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 49,
+    "character": 19
+  },
+  "source": "testproject/modules/module3/module3.bal",
+  "expected": [
+    {
+      "title": "Create variable and check error"
+    }
+  ]
+}

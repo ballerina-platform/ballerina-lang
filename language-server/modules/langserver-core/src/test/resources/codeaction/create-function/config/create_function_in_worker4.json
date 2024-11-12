@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 17,
+    "character": 17
+  },
+  "source": "create_function_in_worker.bal",
+  "expected": [
+    {
+      "title": "Create function 'foo(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 25,
+              "character": 1
+            },
+            "end": {
+              "line": 25,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction foo() returns module1:TestRecord2 {\n    return {};\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "create_function_in_worker.bal",
+        "range": {
+          "start": {
+            "line": 17,
+            "character": 15
+          },
+          "end": {
+            "line": 17,
+            "character": 20
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 17.0,
+              "character": 15.0
+            },
+            "end": {
+              "line": 17.0,
+              "character": 20.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -85,22 +85,22 @@ public class BallerinaUnionTypeBuilder implements TypeBuilder.UNION {
     }
 
     private BType[] getMemberBTypes() {
-        if (memberTypes.size() == 0) {
+        if (memberTypes.isEmpty()) {
             throw new IllegalArgumentException("Member types can not be empty");
         }
 
         List<BType> bTypeList = new ArrayList<>();
         for (TypeSymbol memberType : memberTypes) {
-            if (memberType instanceof AbstractTypeSymbol) {
-                bTypeList.add(((AbstractTypeSymbol) memberType).getBType());
+            if (memberType instanceof AbstractTypeSymbol abstractTypeSymbol) {
+                bTypeList.add(abstractTypeSymbol.getBType());
                 continue;
             }
 
             if ((memberType instanceof ClassSymbol
                     || memberType instanceof ConstantSymbol
                     || memberType instanceof EnumSymbol)
-                    && memberType instanceof BallerinaSymbol) {
-                bTypeList.add(((BallerinaSymbol) memberType).getInternalSymbol().getType());
+                    && memberType instanceof BallerinaSymbol ballerinaSymbol) {
+                bTypeList.add(ballerinaSymbol.getInternalSymbol().getType());
                 continue;
             }
 

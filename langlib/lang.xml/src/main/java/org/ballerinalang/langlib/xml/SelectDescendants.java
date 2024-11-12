@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import org.wso2.ballerinalang.util.Lists;
+import org.ballerinalang.langlib.xml.utils.XmlUtils;
 
 /**
  * Searches in children recursively for elements matching the name and returns a sequence containing them all.
@@ -37,15 +37,18 @@ import org.wso2.ballerinalang.util.Lists;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class SelectDescendants {
+public final class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
+
+    private SelectDescendants() {
+    }
 
     public static BXml selectDescendants(Strand strand, BXml xml, BArray qnames) {
         try {
             // todo: this need to support list of qnames.
             String qname = qnames.getString(0);
-            return (BXml) xml.descendants(Lists.of(qname));
+            return xml.descendants(XmlUtils.getList(qname));
         } catch (Throwable e) {
             ErrorHelper.handleXMLException(OPERATION, e);
         }

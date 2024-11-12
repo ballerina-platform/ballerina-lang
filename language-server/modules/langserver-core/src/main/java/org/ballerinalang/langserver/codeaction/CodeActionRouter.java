@@ -52,7 +52,10 @@ import static org.ballerinalang.langserver.codeaction.CodeActionUtil.computePosi
  *
  * @since 1.1.1
  */
-public class CodeActionRouter {
+public final class CodeActionRouter {
+
+    private CodeActionRouter() {
+    }
 
     /**
      * Returns a list of supported code actions.
@@ -71,6 +74,12 @@ public class CodeActionRouter {
         if (syntaxTree.isEmpty()) {
             clientLogger.logTrace(LSContextOperation.TXT_CODE_ACTION.getName() + " " +
                     " Syntax tree is empty for file " + ctx.fileUri());
+            return Collections.emptyList();
+        }
+        if (ctx.currentSemanticModel().isEmpty()) {
+            clientLogger.logTrace(LSContextOperation.TXT_CODE_ACTION.getName() + " " +
+                    " Semantic model is empty for module " + ctx.currentModule()
+                    .map(module -> module.moduleName().toString()).orElse(""));
             return Collections.emptyList();
         }
         Range highlightedRange = ctx.range();

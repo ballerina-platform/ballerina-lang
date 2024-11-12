@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class LabelGenerator {
 
-    private Map<String, Label> bbLabels = new HashMap<>();
+    private final Map<String, Label> bbLabels = new HashMap<>();
 
     public Label getLabel(String labelKey) {
 

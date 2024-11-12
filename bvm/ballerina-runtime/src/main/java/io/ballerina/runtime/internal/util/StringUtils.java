@@ -47,7 +47,7 @@ import static io.ballerina.runtime.api.utils.StringUtils.fromString;
  *
  * @since 2201.6.0
  */
-public class StringUtils {
+public final class StringUtils {
 
     public static final String STR_CYCLE = "...";
     public static final String TO_STRING = "toString";
@@ -65,7 +65,7 @@ public class StringUtils {
         if (value == null) {
             return "";
         }
-        Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
+        Type type = TypeUtils.getImpliedType(TypeChecker.getType(value));
         if (type.getTag() == TypeTags.STRING_TAG) {
             return ((BString) value).getValue();
         }
@@ -77,7 +77,7 @@ public class StringUtils {
             return STR_CYCLE;
         }
         if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            MapValueImpl mapValue = (MapValueImpl) value;
+            MapValueImpl<?, ?> mapValue = (MapValueImpl<?, ?>) value;
             return mapValue.stringValue(parent);
         }
         if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
@@ -89,7 +89,7 @@ public class StringUtils {
         }
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue objectValue = (ObjectValue) value;
-            ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
+            ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(objectValue.getType());
             for (MethodType func : objectType.getMethods()) {
                 if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
@@ -112,7 +112,7 @@ public class StringUtils {
         if (value == null) {
             return "()";
         }
-        Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
+        Type type = TypeUtils.getImpliedType(TypeChecker.getType(value));
         if (type.getTag() == TypeTags.STRING_TAG) {
             return "\"" + ((BString) value).getValue() + "\"";
         }
@@ -136,7 +136,7 @@ public class StringUtils {
             return STR_CYCLE + "[" + node.getIndex() + "]";
         }
         if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            MapValueImpl mapValue = (MapValueImpl) value;
+            MapValueImpl<?, ?> mapValue = (MapValueImpl<?, ?>) value;
             return mapValue.expressionStringValue(parent);
         }
         if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
@@ -148,7 +148,7 @@ public class StringUtils {
         }
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
-            ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
+            ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(objectValue.getType());
             for (MethodType func : objectType.getMethods()) {
                 if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {

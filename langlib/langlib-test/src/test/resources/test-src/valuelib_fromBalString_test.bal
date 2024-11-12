@@ -163,8 +163,107 @@ function testMapFromBalString() {
     }
 
     assert(result3, mapVal3);
-}
 
+    string mapExpString = string `{"name":"John","city":"London"}`;
+    anydata|error output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"name": "John", "city": "London"});
+    }
+
+    string mapExpString1 = string `{"key1": [ 1, 2, "three", ["",4,{"key1":"val1", "key2": 2}]],  "key2"  : `;
+    string mapExpString2 = string `{"key1": [1, 2, "three", ["",4,{"key1":"val1", "key2": 2}]],  "key2": "London"}}`;
+    mapExpString = mapExpString1 + mapExpString2;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"key1":[1,2,"three",["",4,{"key1":"val1","key2":2}]],
+        "key2":{"key1":[1,2,"three",["",4,{"key1":"val1","key2":2}]],"key2":"London"}});
+    }
+
+    mapExpString = string `{"name":"John",city:"London"}`;
+    output = mapExpString.fromBalString();
+    assert(output is error, true);
+    if (output is error) {
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
+        <string>checkpanic output.detail()["message"]);
+    }
+
+    mapExpString = string `{name:"John",city:"London"}`;
+    output = mapExpString.fromBalString();
+    assert(output is error, true);
+    if (output is error) {
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
+        <string>checkpanic output.detail()["message"]);
+    }
+
+    mapExpString = string `{"   name    ":"                John","     city ":"        London                    "}`;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"   name    ": "                John", "     city ": "        London                    "});
+    }
+
+    mapExpString = string `   {"name" :    "John"  ,  "city"  :  "London"}   `;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"name": "John", "city": "London"});
+    }
+
+    mapExpString = string `
+              {                 "name"  :
+                "John" ,
+                         "city" : "London"      }`;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"name": "John", "city": "London"});
+    }
+
+    mapExpString = string `
+              {                 "intval"  :
+                3 ,
+                         "floatval" : 12.55      }`;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {intval: 3, floatval: 12.55});
+    }
+
+    mapExpString = string `
+              {                 "name"  :
+                "John" ,
+                         city : "London"      }`;
+    output = mapExpString.fromBalString();
+    assert(output is error, true);
+    if (output is error) {
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
+        <string>checkpanic output.detail()["message"]);
+    }
+
+    mapExpString = string `
+              {                 "name"  :
+                3 ,
+                         city" : 12.55      }`;
+    output = mapExpString.fromBalString();
+    assert(output is error, true);
+    if (output is error) {
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
+        <string>checkpanic output.detail()["message"]);
+    }
+
+    mapExpString = string `
+              {                 name"  :
+                3 ,
+                         city" : 12.55      }`;
+    output = mapExpString.fromBalString();
+    assert(output is error, true);
+    if (output is error) {
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
+        <string>checkpanic output.detail()["message"]);
+    }
+}
 
 function testTableFromBalString() {
     string s1 = "table key(name) [{\"id\":1,\"name\":\"Mary\",\"grade\":12}," +

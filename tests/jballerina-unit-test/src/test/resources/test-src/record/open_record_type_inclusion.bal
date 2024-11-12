@@ -217,6 +217,41 @@ type Baz record {
     int id;
 };
 
+type Student record {
+    *records:BClosedStudent;
+};
+
+type Student1 record {
+    string name = "chiranS";
+    *records:BClosedStudent;
+};
+
+type Foo5 record {
+    *records:BClosedStudent;
+    *records:BClosedPerson;
+    string name = "chiranS";
+    int age = 25;
+};
+
+type Foo6 record {
+    *records:BClosedStudent;
+    *records:BClosedPerson;
+    string name;
+    int age;
+};
+
+type Info record {
+    *records:Info;
+};
+
+type Info1 record {
+    *records:Info1;
+};
+
+type Location record {|
+    *records:Location;
+|};
+
 function testOutOfOrderFieldOverridingFieldFromTypeInclusion() {
     Baz bazRecord = {id: 4};
     Bar barRecord = {body: bazRecord};
@@ -228,9 +263,184 @@ function testCyclicRecord() {
     assertEquality(34, cc?.auth?.d1?.x);
 }
 
+function testDefaultValuesOfRecordFieldsWithTypeInclusion() {
+    Student student = {};
+    assertEquality("anonymous", student.name);
+    assertEquality(20, student.age);
+    Student1 student1 = {};
+    assertEquality("chiranS", student1.name);
+    assertEquality(20, student1.age);
+    Foo5 foo5 = {};
+    assertEquality("chiranS", foo5.name);
+    assertEquality(25, foo5.age);
+    Foo6 foo6 = {name: "sachintha", age: 28};
+    assertEquality("sachintha", foo6.name);
+    assertEquality(28, foo6.age);
+    Info info = {};
+    assertEquality("John", info.name);
+    assertEquality(30, info.age);
+    Location location = {city: "Colombo", country: "Sri Lanka"};
+    assertEquality("Colombo", location.city);
+    assertEquality("Sri Lanka", location.country);
+    assertEquality("abc", location.street);
+    assertEquality(123, location.zipCode);
+    Info1 info1 = {};
+    assertEquality("James", info1.name);
+    assertEquality(30, info1.age);
+}
+
+type Inner record {|
+    int foo;
+|};
+
+type Outer record {|
+    Inner inner?;
+|};
+
+isolated int count = 0;
+
+isolated function getDefaultInner() returns Inner {
+    lock {
+        count += 1;
+    }
+    return {foo: 10};
+}
+
+type OuterXBase record {
+    Inner inner = getDefaultInner();
+};
+
+type OuterX record {|
+    *OuterXBase;
+|};
+
+type OuterXOpenRecord record {|
+    *OuterXBase;
+    Inner...;
+|};
+
+type InnerOpenRec record {|
+    Inner...;
+|};
+
+type OuterXAlsoClosed record {|
+    *OuterXBase;
+    never...;
+|};
+
+type EffectivelyCloseRecord record {|
+    *OuterXBase;
+    record {|
+        never bar;
+    |}...;
+|};
+
+isolated function testDefaultValueFromInclusion() {
+    Outer o = {};
+    OuterX ox = {...o};
+    assertEquality(ox.inner.foo, 10);
+    lock {
+        assertEquality(1, count);
+    }
+    Outer o1 = {inner: {foo: 20}};
+    OuterX ox1 = {...o1};
+    assertEquality(20, ox1.inner.foo);
+    lock {
+        assertEquality(1, count);
+    }
+    map<Inner> innerMap = {};
+    OuterX ox2 = {...innerMap};
+    assertEquality(10, ox2.inner.foo);
+    lock {
+        assertEquality(2, count);
+    }
+
+    map<Inner> innerMap1 = {inner: {foo: 20}};
+    OuterX ox3 = {...innerMap1};
+    assertEquality(20, ox3.inner.foo);
+    lock {
+        assertEquality(2, count);
+    }
+
+    InnerOpenRec innerMap2 = {"inner": {foo: 20}};
+
+    OuterX ox4 = {...innerMap2};
+    assertEquality(20, ox4.inner.foo);
+    lock {
+        assertEquality(2, count);
+    }
+
+    OuterXOpenRecord ox5 = {...innerMap2};
+    assertEquality(20, ox5.inner.foo);
+    lock {
+        assertEquality(2, count);
+    }
+
+    OuterXOpenRecord ox6 = {...o};
+    assertEquality(10, ox6.inner.foo);
+    lock {
+        assertEquality(3, count);
+    }
+
+    OuterXAlsoClosed oxx = {...o};
+    assertEquality(oxx.inner.foo, 10);
+    lock {
+        assertEquality(4, count);
+    }
+    OuterXAlsoClosed oxx1 = {...o1};
+    assertEquality(20, oxx1.inner.foo);
+    lock {
+        assertEquality(4, count);
+    }
+
+    OuterX ox7 = {};
+    assertEquality(ox7.inner.foo, 10);
+    lock {
+        assertEquality(5, count);
+    }
+
+    OuterX ox8 = {inner: {foo: 20}};
+    assertEquality(ox8.inner.foo, 20);
+    lock {
+        assertEquality(5, count);
+    }
+
+    EffectivelyCloseRecord ecr = {...o};
+    assertEquality(ecr.inner.foo, 10);
+    lock {
+        assertEquality(6, count);
+    }
+
+    EffectivelyCloseRecord ecr1 = {...o1};
+    assertEquality(ecr1.inner.foo, 20);
+    lock {
+        assertEquality(6, count);
+    }
+}
+
+type Data record {
+    string id = fn();
+    string name;
+};
+
+type OpenData record {|
+    string name;
+    string...;
+|};
+
+isolated function fn() returns string {
+    panic error("shouldn't be called");
+}
+
+public function testSpreadOverrideDefault() {
+    OpenData or = {name: "May", "id": "A1234"};
+    Data emp = {...or};
+    assertEquality("A1234", emp.id);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
-function assertEquality(any|error expected, any|error actual) {
+isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
     }

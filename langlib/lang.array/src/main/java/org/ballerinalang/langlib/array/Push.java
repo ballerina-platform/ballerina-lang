@@ -36,12 +36,15 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
 //        returnType = {@ReturnType(type = TypeKind.ANY)},
 //        isPublic = true
 //)
-public class Push {
+public final class Push {
 
     private static final String FUNCTION_SIGNATURE = "push()";
 
+    private Push() {
+    }
+
     public static void push(BArray arr, Object... vals) {
-        Type arrType = TypeUtils.getReferredType(arr.getType());
+        Type arrType = TypeUtils.getImpliedType(arr.getType());
         int nVals = vals.length;
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:

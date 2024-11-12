@@ -40,7 +40,7 @@ import java.util.Locale;
 public class IterableOperationsWithVarMutabilityTests {
 
     private CompileResult compileResult;
-    private static BString[] values = BStringUtils.getBStringArray(new String[]{"Hello", "World..!", "I", "am",
+    private static final BString[] VALUES = BStringUtils.getBStringArray(new String[]{"Hello", "World..!", "I", "am",
             "Ballerina.!!!"});
 
     @BeforeClass
@@ -66,21 +66,21 @@ public class IterableOperationsWithVarMutabilityTests {
 
     @Test
     public void testBasicArray1() {
-        BArray array = ValueCreator.createArrayValue(values);
+        BArray array = ValueCreator.createArrayValue(VALUES);
         Object returns = BRunUtil.invoke(compileResult, "testBasicArray1", new Object[]{array});
         StringBuilder sb = new StringBuilder();
-        Arrays.stream(values).forEach(s -> sb.append(s.getValue().toUpperCase(Locale.getDefault())).append(":").
+        Arrays.stream(VALUES).forEach(s -> sb.append(s.getValue().toUpperCase(Locale.getDefault())).append(":").
                 append(s.getValue().toLowerCase(Locale.getDefault())).append(" "));
         Assert.assertEquals(returns.toString(), sb.toString().trim());
     }
 
     @Test
     public void testBasicArray2() {
-        BArray array = ValueCreator.createArrayValue(values);
+        BArray array = ValueCreator.createArrayValue(VALUES);
         Object returns = BRunUtil.invoke(compileResult, "testBasicArray2", new Object[]{array});
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < values.length; i++) {
-            sb.append(i).append(values[i]).append(" ");
+        for (int i = 0; i < VALUES.length; i++) {
+            sb.append(i).append(VALUES[i]).append(" ");
         }
         Assert.assertEquals(returns.toString(), sb.toString().trim());
     }

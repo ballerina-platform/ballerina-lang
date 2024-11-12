@@ -36,7 +36,7 @@ import java.util.zip.ZipInputStream;
 /**
  * Utility class for test integration common functions.
  */
-public class Utils {
+public final class Utils {
 
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
@@ -57,9 +57,7 @@ public class Utils {
             long startTime = System.currentTimeMillis();
             boolean isPortOpen = false;
             while (!isPortOpen && (System.currentTimeMillis() - startTime) < timeout) {
-                Socket socket = null;
-                try {
-                    socket = new Socket(address, port);
+                try (Socket socket = new Socket(address, port)) {
                     isPortOpen = socket.isConnected();
                     if (isPortOpen) {
                         if (verbose) {
@@ -73,14 +71,6 @@ public class Utils {
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException ignored) {
-                    }
-                } finally {
-                    try {
-                        if ((socket != null) && (socket.isConnected())) {
-                            socket.close();
-                        }
-                    } catch (IOException e) {
-                        log.error("Can not close the socket with is used to check the server status ", e);
                     }
                 }
             }

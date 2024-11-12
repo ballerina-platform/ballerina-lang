@@ -21,20 +21,21 @@ package io.ballerina.runtime.internal.configurable.providers.toml;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Constants used by toml parser.
  *
  * @since 2.0.0
  */
-public class TomlConstants {
+public final class TomlConstants {
+
     public static final String CONFIG_FILE_NAME = "Config.toml";
+    public static final String ENV_VAR_PREFIX = "BAL_CONFIG_VAR_";
     public static final String CONFIG_FILES_ENV_VARIABLE = "BAL_CONFIG_FILES";
     public static final String CONFIG_DATA_ENV_VARIABLE = "BAL_CONFIG_DATA";
     public static final String MODULES_ROOT = "modules";
     public static final String TEST_DIR_NAME = "tests";
-    public static final Path DEFAULT_CONFIG_PATH = Paths.get(RuntimeUtils.USER_DIR, CONFIG_FILE_NAME);
+    public static final Path DEFAULT_CONFIG_PATH = Path.of(RuntimeUtils.USER_DIR, CONFIG_FILE_NAME);
 
     private TomlConstants() {
     }

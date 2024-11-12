@@ -37,12 +37,12 @@ public class RecordDefNegativeTest {
     public void duplicateKeyTest() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/duplicate-key-negative.bal");
         int errorIndex = 0;
-        BAssertUtil.validateError(compileResult, errorIndex++, "invalid usage of record literal: duplicate key 'name'",
+        BAssertUtil.validateError(compileResult, errorIndex++, "invalid record constructor: duplicate key 'name'",
                 26, 10);
         BAssertUtil.validateWarning(compileResult, errorIndex++, "unused variable 'hi'", 31, 5);
-        BAssertUtil.validateError(compileResult, errorIndex++, "invalid usage of record literal: duplicate key 'name'",
+        BAssertUtil.validateError(compileResult, errorIndex++, "invalid record constructor: duplicate key 'name'",
                 35, 9);
-        BAssertUtil.validateError(compileResult, errorIndex++, "invalid usage of record literal: duplicate key 'name'",
+        BAssertUtil.validateError(compileResult, errorIndex++, "invalid record constructor: duplicate key 'name'",
                 43, 10);
         Assert.assertEquals(compileResult.getDiagnostics().length, errorIndex);
     }
@@ -134,6 +134,13 @@ public class RecordDefNegativeTest {
                 80, 13);
         BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
                 85, 13);
-        Assert.assertEquals(compileResult.getErrorCount(), i);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                97, 14);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'check' expression operator: no " +
+                "expression type is equivalent to error type", 97, 20);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                98, 16);
+        Assert.assertEquals(compileResult.getErrorCount(), i - 1);
+        Assert.assertEquals(compileResult.getWarnCount(), 1);
     }
 }

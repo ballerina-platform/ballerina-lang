@@ -22,19 +22,19 @@ int count = 0;
 
 function stopHandlerFunc1() returns error? {
     incrementCount();
-    assertCount(5);
+    assertCount(6);
     println("Stopped stopHandlerFunc1");
 }
 
 function stopHandlerFunc2() returns error? {
     incrementCount();
-    assertCount(4);
+    assertCount(5);
     println("Stopped stopHandlerFunc2");
 }
 
 function stopHandlerFunc3() returns error? {
     incrementCount();
-    assertCount(3);
+    assertCount(4);
     println("Stopped stopHandlerFunc3");
 }
 
@@ -49,6 +49,12 @@ public function main() {
     incrementCount();
     assertCount(2);
     runtime:onGracefulStop(stopHandlerFunc3);
+    runtime:StopHandler inlineStopHandler = function() returns error? {
+        incrementCount();
+        assertCount(3);
+        println("Stopped inlineStopHandler");
+    };
+    runtime:onGracefulStop(inlineStopHandler);
     runtime:sleep(3);
 }
 

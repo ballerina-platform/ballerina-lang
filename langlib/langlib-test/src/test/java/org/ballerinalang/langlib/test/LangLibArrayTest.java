@@ -552,6 +552,8 @@ public class LangLibArrayTest {
                 "testLastIndexOf",
                 "testPush",
                 "testShiftOperation",
+                "testTupleRemove",
+                "testUnshiftOperation",
                 "testSort1",
                 "testSort2",
                 "testSort4",
@@ -600,7 +602,11 @@ public class LangLibArrayTest {
                 "testModificationWithinEvery",
                 "testArrSortWithNamedArgs1",
                 "testArrSortWithNamedArgs2",
-                "testArrSortWithNamedArgs3"
+                "testArrSortWithNamedArgs3",
+                "testArrayPop",
+                "testSetLengthNegative",
+                "testArrayFilterWithEmptyArrayAndTypeBinding",
+                "testArrayReverseWithEmptyArrayAndTypeBinding"
         };
     }
 }

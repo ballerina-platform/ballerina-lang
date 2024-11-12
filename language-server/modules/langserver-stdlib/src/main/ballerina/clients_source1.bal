@@ -1,4 +1,5 @@
 import ballerina/jballerina.java;
+import module1.mod2;
 
 # The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it
 # provides includes functions for the standard HTTP methods, forwarding a received request and sending requests
@@ -42,6 +43,38 @@ public client class Client {
     remote function get(string path, TargetType targetType = <>) returns targetType|ClientError = @java:Method {
         'class: "org.ballerinalang.langserver.stdlib.ClientAction"
     } external;
+
+    # Sample remote method with java interoperability.
+    #
+    # + path - Resource path
+    # + targetType - Response or `anydata`, which is expected to be returned after data binding
+    # + return - The Response or the ClientError
+    remote function push(string path, TargetType targetType = <>) returns targetType|mod2:ClientError2 = @java:Method {
+        'class: "org.ballerinalang.langserver.stdlib.ClientAction",
+        name: "get"
+    } external;
+
+    # Sample remote method with java interoperability.
+    #
+    # + path - Resource path
+    # + targetType - Response or `anydata`, which is expected to be returned after data binding
+    # + return - The Response or the ClientError
+    remote function pull(string path, typedesc<anydata> targetType = <>) 
+        returns targetType|mod2:ClientError2 = @java:Method {
+        'class: "org.ballerinalang.langserver.stdlib.ClientAction",
+        name: "get"
+    } external;
+
+    # Sample remote method with java interoperability.
+    #
+    # + path - Resource path
+    # + targetType - Response or `anydata`, which is expected to be returned after data binding
+    # + return - The Response or the ClientError
+    remote function clear(string path, typedesc<anydata> targetType = <>)
+        returns targetType|ClientError = @java:Method {
+        'class: "org.ballerinalang.langserver.stdlib.ClientAction",
+        name: "get"
+    } external;
     
     # Sample remote method with java interoperability
     #
@@ -49,7 +82,8 @@ public client class Client {
     # + request - Request need to be forward
     # + targetType - Response or `anydata`, which is expected to be returned after data binding
     # + return - Response
-    remote function forward(string path, handle request, TargetType targetType = <>) returns targetType = @java:Method {
+    remote function forward(string path, handle request, TargetType targetType = <>)
+        returns targetType = @java:Method {
         'class: "org.ballerinalang.langserver.stdlib.ClientAction"
     } external;
     
@@ -74,7 +108,8 @@ public client class Client {
     #
     # + targetType - Response or `anydata`, which is expected to be returned after data binding
     # + return - The Response or the ClientError
-    resource function get path4/[string pathParam](TargetType targetType = <>) returns targetType|ClientError|error = @java:Method {
+    resource function get path4/[string pathParam](TargetType targetType = <>)
+        returns targetType|ClientError|error = @java:Method {
         'class: "org.ballerinalang.langserver.stdlib.ClientAction",
         name: "get"
     } external;
@@ -88,10 +123,31 @@ public client class Client {
     # + targetType - HTTP response or `anydata`, which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
     # establish the communication with the upstream server or a data binding failure
-    isolated resource function post [string ...path](RequestMessage message, map<string|string[]>? headers = (), string?
-            mediaType = (), TargetType targetType = <>) returns targetType|ClientError = @java:Method {
+    isolated resource function post [string ...path](RequestMessage message, map<string|string[]>? headers = (),
+        string? mediaType = (), TargetType targetType = <>) returns targetType|ClientError = @java:Method {
         'class: "org.ballerinalang.langserver.stdlib.ClientAction",
         name: "postResource"
+    } external;
+
+    
+    # Sample resource function to return a stream of objects.
+    # 
+    # + targetType - Response or `anydata`, which is expected to be returned after data binding
+    # + return - A stream of targetType and/or ClientError
+    isolated resource function get responses(TargetType2 targetType = <>)
+        returns stream<targetType, ClientError?> = @java:Method {
+        'class: "org.ballerinalang.langserver.stdlib.ClientAction",
+        name: "responses"
+    } external;
+
+    # Sample resource function to return a stream of objects.
+    # 
+    # + targetType - Response or `anydata`, which is expected to be returned after data binding
+    # + return - A stream of targetType and/or ClientError
+    isolated resource function delete responses(TargetType2 targetType = <>)
+        returns stream<targetType, mod2:ClientError2?> = @java:Method {
+        'class: "org.ballerinalang.langserver.stdlib.ClientAction",
+        name: "responses"
     } external;
 }
 

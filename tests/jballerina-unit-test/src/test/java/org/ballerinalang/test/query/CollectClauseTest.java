@@ -56,7 +56,8 @@ public class CollectClauseTest {
                 "testGroupByAndCollectInSameQuery",
                 "testMultipleCollect",
                 "testDoClause",
-                "testErrorSeq"
+                "testErrorSeq",
+                "testErrorCompletion"
         };
     }
 
@@ -138,6 +139,16 @@ public class CollectClauseTest {
                 "list constructor or function invocation", 150, 42);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
                 "'([int,int...]|record {| int n; |})', found '[int...]'", 154, 36);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|error)'",
+                181, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|error)'",
+                186, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|error)'",
+                190, 21);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|error)'",
+                196, 25);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|error)'",
+                203, 25);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }

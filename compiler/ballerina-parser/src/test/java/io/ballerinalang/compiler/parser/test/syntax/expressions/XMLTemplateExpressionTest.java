@@ -204,4 +204,8 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
     public void testMissingQuoteInXMLAttributeValue() {
         testFile("xml-template/xml_template_source_35.bal", "xml-template/xml_template_assert_35.json");
     }
+
+    public void testMissingClosingAndNextStartingAngleBracket() {
+        testFile("xml-template/xml_template_source_36.bal", "xml-template/xml_template_assert_36.json");
+    }
 }

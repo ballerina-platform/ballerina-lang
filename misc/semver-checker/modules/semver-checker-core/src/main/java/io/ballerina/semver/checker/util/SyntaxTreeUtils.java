@@ -40,7 +40,10 @@ import static io.ballerina.semver.checker.util.PackageUtils.capitalize;
  *
  * @since 2201.2.0
  */
-public class SyntaxTreeUtils {
+public final class SyntaxTreeUtils {
+
+    private SyntaxTreeUtils() {
+    }
 
     /**
      * Returns the node typename of the given {@link SyntaxKind} instance.
@@ -49,7 +52,7 @@ public class SyntaxTreeUtils {
      * @return node typename
      */
     public static String getNodeKindName(SyntaxKind nodeKind) {
-        return nodeKind.name().toLowerCase(Locale.ROOT).toLowerCase(Locale.ENGLISH).replaceAll("_", " ");
+        return nodeKind.name().toLowerCase(Locale.ROOT).toLowerCase(Locale.ENGLISH).replace("_", " ");
     }
 
     /**

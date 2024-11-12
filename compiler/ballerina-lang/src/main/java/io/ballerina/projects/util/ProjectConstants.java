@@ -16,16 +16,19 @@
  *  under the License.
  */
 package io.ballerina.projects.util;
-
-
 /**
  * Defines constants related to the project directory.
  *
  * @since 2.0.0
  */
-public class ProjectConstants {
+public final class ProjectConstants {
+
+    private ProjectConstants() {}
 
     public static final String BLANG_SOURCE_EXT = ".bal";
+    public static final String BALA_EXTENSION = ".bala";
+    public static final String PLATFORM = "platform";
+    public static final String TOML_EXTENSION = ".toml";
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
     public static final String DEPENDENCIES_TOML = "Dependencies.toml";
@@ -47,6 +50,7 @@ public class ProjectConstants {
     public static final String DEPENDENCY_GRAPH_JSON = "dependency-graph.json";
     public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";
     public static final String BUILD_FILE = "build";
+    public static final String JAVA_CLASS_EXT = ".class";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
@@ -64,6 +68,8 @@ public class ProjectConstants {
 
     public static final String USER_DIR = "user.dir";
     public static final String USER_NAME = "user.name";
+    public static final String IMPORT_PREFIX = "import ";
+    public static final String EMPTY_STRING = "";
 
     // Bala specific constants
     public static final String MODULES_ROOT = "modules";
@@ -79,6 +85,7 @@ public class ProjectConstants {
     public static final String JSON_CACHE_DIR_NAME = "json_cache";
     public static final String TESTS_CACHE_DIR_NAME = "tests_cache";
     public static final String TEST_DIR_NAME = "tests";
+    public static final String USER_DIR_PROPERTY = "user.dir";
 
     public static final String BLANG_COMPILED_PKG_BINARY_EXT = ".bala";
     public static final String BLANG_COMPILED_PKG_BIR_EXT = ".bir";
@@ -92,6 +99,7 @@ public class ProjectConstants {
 
     public static final String ANON_ORG = "$anon";
     public static final String DOT = ".";
+    public static final String EQUAL = "=";
     public static final String DEFAULT_VERSION = "0.0.0";
     public static final String INTERNAL_VERSION = "0.1.0";
     public static final String MODULE_NAME_SEPARATOR = DOT;
@@ -105,13 +113,19 @@ public class ProjectConstants {
     // Test framework related constants
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
     public static final String TEST_CORE_JAR_PREFIX = "testerina-core-";
-    public static final String TEST_SUITE = "test_suite";
+    public static final String TEST_UBER_JAR_SUFFIX = "-testable";
+    public static final String DIR_PATH_SEPARATOR = "/";
+    public static final String TEST_RUNTIME_MAIN_ARGS_FILE = "mainArgs.txt";
+    public static final String EXCLUDED_CLASSES_FILE = "excludedClasses.txt";
 
-    public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.10.jar";
-    public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.10.jar";
-    public static final String ASM_JAR = "asm-9.5.jar";
-    public static final String ASM_TREE_JAR = "asm-tree-9.5.jar";
-    public static final String ASM_COMMONS_JAR = "asm-commons-9.5.jar";
+    public static final String TEST_SUITE = "test_suite";
+    public static final String TEST_SUITE_JSON = "test_suit.json";
+
+    public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.12.jar";
+    public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.12.jar";
+    public static final String ASM_JAR = "asm-9.7.jar";
+    public static final String ASM_TREE_JAR = "asm-tree-9.7.jar";
+    public static final String ASM_COMMONS_JAR = "asm-commons-9.7.jar";
     public static final String DIFF_UTILS_JAR = "java-diff-utils-4.5.jar";
     public static final String REPORT_DIR_NAME = "report";
 
@@ -119,9 +133,20 @@ public class ProjectConstants {
     public static final String REPOSITORIES_DIR = "repositories";
     public static final String LOCAL_REPOSITORY_NAME = "local";
     public static final String CENTRAL_REPOSITORY_CACHE_NAME = "central.ballerina.io";
+    public static final String MAVEN_REPOSITORY_CACHE_NAME = "maven";
     public static final String DEPENDENCIES_TOML_VERSION = "2";
     public static final String BALLERINA_ORG = "ballerina";
     public static final String EXISTING_PACKAGE_FILES_DIR = "directories-with-existing-package-files-for-bal-new";
     public static final String CONFIG_ARGS_PATTERN = "-C[\\w\\W]+=([\\w\\W]+)";
     public static final String CONFIG_DIR = ".config";
+    public static final String PROFILER_DIR_NAME = "profiler";
+    public static final String TOOL_CACHE_DIR = "tool-cache";
+    public static final String TOOL_DIAGNOSTIC_CODE_PREFIX = "BCE53";
+    public static final String ORG = "org";
+    public static final String PACKAGE_NAME = "name";
+    public static final String LOCAL_TOOLS_JSON = "local-tools.json";
+    public static final String STICKY_FLAG = "--sticky";
+    public static final String OFFLINE_FLAG = "--offline";
+    public static final String REPOSITORY_FLAG = "--repository";
+    public static final String WILD_CARD = "*";
 }

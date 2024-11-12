@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
 /**
@@ -41,7 +40,7 @@ import java.util.ArrayList;
  * @since 2.0.0
  */
 public class TestExpressionFileScheme {
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/project");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/project");
     protected Endpoint serviceEndpoint;
 
     @BeforeClass
@@ -130,7 +129,7 @@ public class TestExpressionFileScheme {
         JsonArray exprCodeActions = JsonParser.parseString(exprCodeActionResponse).getAsJsonObject()
                         .get("result").getAsJsonArray();
         Assert.assertEquals(originalCodeActions.size(), 0);
-        Assert.assertEquals(exprCodeActions.size(), 3);
+        Assert.assertEquals(exprCodeActions.size(), 4);
 
         TestUtil.openDocument(serviceEndpoint, originalUri.toString(), originalContent);
         TestUtil.openDocument(serviceEndpoint, exprUri.toString(), originalContent);

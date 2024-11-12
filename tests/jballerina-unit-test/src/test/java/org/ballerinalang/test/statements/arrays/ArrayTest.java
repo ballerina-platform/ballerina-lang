@@ -62,7 +62,7 @@ public class ArrayTest {
 
         Object[] args = {arrayValue};
         BArray returnVals = (BArray) BRunUtil.invoke(compileResult, "testFloatArrayLength", args);
-        Assert.assertFalse(returnVals == null || returnVals.size() == 0 || returnVals.get(0) == null ||
+        Assert.assertFalse(returnVals == null || returnVals.isEmpty() || returnVals.get(0) == null ||
                 returnVals.get(1) == null, "Invalid Return Values.");
         Assert.assertEquals(returnVals.get(0), 3L, "Length didn't match");
         Assert.assertEquals(returnVals.get(1), 3L, "Length didn't match");
@@ -76,7 +76,7 @@ public class ArrayTest {
         arrayValue.add(2, 12);
         Object[] args = {arrayValue};
         BArray returnVals = (BArray) BRunUtil.invoke(compileResult, "testIntArrayLength", args);
-        Assert.assertFalse(returnVals == null || returnVals.size() == 0, "Invalid Return Values.");
+        Assert.assertFalse(returnVals == null || returnVals.isEmpty(), "Invalid Return Values.");
         Assert.assertNotNull(returnVals.get(0));
         Assert.assertNotNull(returnVals.get(1));
         Assert.assertEquals(returnVals.get(0), 3L, "Length didn't match");
@@ -91,7 +91,7 @@ public class ArrayTest {
         arrayValue.add(1, "World");
         Object[] args = {arrayValue};
         BArray returnVals = (BArray) BRunUtil.invoke(compileResult, "testStringArrayLength", args);
-        Assert.assertFalse(returnVals == null || returnVals.size() == 0, "Invalid Return Values.");
+        Assert.assertFalse(returnVals == null || returnVals.isEmpty(), "Invalid Return Values.");
         Assert.assertNotNull(returnVals.get(0));
         Assert.assertNotNull(returnVals.get(1));
         Assert.assertEquals(returnVals.get(0), 2L, "Length didn't match");
@@ -109,7 +109,7 @@ public class ArrayTest {
     @Test()
     public void testJSONArrayLength() {
         BArray returnVals = (BArray) BRunUtil.invoke(compileResult, "testJSONArrayLength");
-        Assert.assertFalse(returnVals == null || returnVals.size() == 0, "Invalid Return Values.");
+        Assert.assertFalse(returnVals == null || returnVals.isEmpty(), "Invalid Return Values.");
         Assert.assertNotNull(returnVals.get(0));
         Assert.assertNotNull(returnVals.get(1));
         Assert.assertEquals(returnVals.get(0), 2L, "Length didn't match");
@@ -142,8 +142,7 @@ public class ArrayTest {
         Assert.assertEquals(bBooleanArray.stringValue(null), "[true,true,false]");
 
         BXml[] xmlArray = {XmlFactory.parse("<foo> </foo>"), XmlFactory.parse("<bar>hello</bar>")};
-        ArrayValue bXmlArray = new ArrayValueImpl(xmlArray,
-                new io.ballerina.runtime.internal.types.BArrayType(PredefinedTypes.TYPE_XML));
+        ArrayValue bXmlArray = new ArrayValueImpl(xmlArray, new BArrayType(PredefinedTypes.TYPE_XML));
         Assert.assertEquals(bXmlArray.stringValue(null), "[`<foo> </foo>`,`<bar>hello</bar>`]");
     }
 
@@ -158,7 +157,7 @@ public class ArrayTest {
     @Test
     public void testArrayFieldInRecord() {
         Object retVals = BRunUtil.invoke(compileResult, "testArrayFieldInRecord");
-        BMap barRec = (BMap) retVals;
+        BMap<?, ?> barRec = (BMap<?, ?>) retVals;
         BArray arr = (BArray) barRec.get(StringUtils.fromString("fArr"));
         Assert.assertEquals(((BArrayType) arr.getType()).getState().getValue(), BArrayState.CLOSED.getValue());
         Assert.assertEquals(arr.toString(), "[1,2]");

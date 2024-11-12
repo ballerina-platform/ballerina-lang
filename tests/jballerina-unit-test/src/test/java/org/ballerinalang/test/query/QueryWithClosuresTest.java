@@ -43,6 +43,11 @@ public class QueryWithClosuresTest {
         BRunUtil.invoke(result, functionName);
     }
 
+    @Test
+    public void testQueriesWithinArrowFunctionsAndWithLet() {
+        BRunUtil.invoke(result, "testQueriesWithinArrowFunctionsAndWithLet");
+    }
+
     @DataProvider
     public Object[] dataToTestQueryWithClosures() {
         return new Object[]{
@@ -52,12 +57,13 @@ public class QueryWithClosuresTest {
                 "testClosuresInQueryInLet",
                 "testClosuresInNestedQueryInSelect",
                 "testClosuresInNestedQueryInSelect2",
-//                "testClosureInQueryActionInDo2" #39760
+                "testClosureInQueryActionInDo2",
                 "testClosureInQueryActionInDo3",
                 "testClosureInQueryActionInDo4",
                 "testClosureInQueryActionInDo5",
                 "testClosureInQueryActionInDo6",
-                "testClosureInQueryActionInDo7"
+                "testClosureInQueryActionInDo7",
+                "testNestedQueryAndClosureFieldInQuerySelect"
         };
     }
 

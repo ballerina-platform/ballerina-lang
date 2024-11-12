@@ -25,6 +25,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -34,7 +35,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.DUP;
@@ -45,6 +45,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_MODULES_PER_METHOD;
@@ -79,7 +80,7 @@ public class JvmModuleConstantsGen {
                                             s -> JvmConstants.MODULE_VAR_PREFIX + constantIndex.getAndIncrement());
     }
 
-    public void generateConstantInit(Map<String, byte[]> jarEntries) {
+    public void generateConstantInit(JarEntries jarEntries) {
 
         if (moduleVarMap.isEmpty()) {
             return;
@@ -93,13 +94,13 @@ public class JvmModuleConstantsGen {
         // Create static initializer which will call previously generated module init methods.
         generateStaticInitializer(cw);
         cw.visitEnd();
-        jarEntries.put(moduleConstantClass + ".class", cw.toByteArray());
+        jarEntries.put(moduleConstantClass + CLASS_FILE_SUFFIX, cw.toByteArray());
     }
 
     private void visitModuleField(ClassWriter cw, String varName) {
 
         FieldVisitor fv;
-        fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName, GET_MODULE, null, null);
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, varName, GET_MODULE, null, null);
         fv.visitEnd();
     }
 

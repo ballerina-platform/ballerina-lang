@@ -9,10 +9,10 @@
         "properties": {
           "id": {
             "type": "string",
-            "pattern": "^[a-zA-Z0-9_.]*$",
+            "pattern": "^[a-zA-Z0-9_]*$",
             "maxLength": 256,
             "message": {
-              "pattern": "invalid 'id' under [[tool]]: 'id' can only contain alphanumerics, underscores and periods",
+              "pattern": "invalid 'id' under [[tool]]: 'id' can only contain alphanumerics and underscores",
               "maxLength": "invalid 'id' under [[package]]: maximum length of 'id' is 256 characters"
             },
             "allOf": [

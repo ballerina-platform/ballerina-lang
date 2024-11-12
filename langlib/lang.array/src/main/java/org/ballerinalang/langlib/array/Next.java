@@ -30,10 +30,14 @@ import io.ballerina.runtime.api.values.BObject;
  *
  * @since 1.0
  */
-public class Next {
+public final class Next {
+
+    private Next() {
+    }
+
     //TODO: refactor hard coded values
     public static Object next(BObject m) {
-        BIterator arrIterator = (BIterator) m.getNativeData("&iterator&");
+        BIterator<?> arrIterator = (BIterator<?>) m.getNativeData("&iterator&");
         BArray arr = (BArray) m.get(StringUtils.fromString("m"));
         if (arrIterator == null) {
             arrIterator = arr.getIterator();

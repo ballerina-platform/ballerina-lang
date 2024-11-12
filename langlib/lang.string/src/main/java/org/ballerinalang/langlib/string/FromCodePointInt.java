@@ -20,14 +20,17 @@ package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import org.wso2.ballerinalang.compiler.util.Constants;
+import org.ballerinalang.langlib.string.utils.Constants;
 
 /**
  * Extern function lang.string:fromCodePointInt(int).
  *
  * @since 1.0
  */
-public class FromCodePointInt {
+public final class FromCodePointInt {
+
+    private FromCodePointInt() {
+    }
 
     public static Object fromCodePointInt(long codePoint) {
 

@@ -41,7 +41,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.DiagnosticState.REDECLARED;
@@ -151,8 +150,8 @@ public class SymbolLookupTest {
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
 
         List<Symbol> symbolList = model.visibleSymbols(srcFile, LinePosition.from(24, 5)).stream()
-                .filter(s -> s.getModule().get().id().equals(moduleID)).collect(Collectors.toList());
-        List<String> symbolStringList = symbolList.stream().map(this::createSymbolString).collect(Collectors.toList());
+                .filter(s -> s.getModule().get().id().equals(moduleID)).toList();
+        List<String> symbolStringList = symbolList.stream().map(this::createSymbolString).toList();
 
         List<String> expectedNameList = asList("SimpleRecordTYPE_DEFINITION", "func1ANNOTATION", "func1FUNCTION");
 
@@ -418,6 +417,6 @@ public class SymbolLookupTest {
     }
 
     private List<String> concatSymbols(List<String> moduleSymbols, String... symbols) {
-        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).collect(Collectors.toList());
+        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).toList();
     }
 }

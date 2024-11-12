@@ -6,6 +6,9 @@ WARNING [tests\new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a'
 Running Tests with Coverage
 
 	dataproviders
+
+	testGetState:1 has failed.
+
 		[pass] testGetState#0
 
 		[fail] testGetState#1:
@@ -17,7 +20,7 @@ Running Tests with Coverage
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 				callableName: testGetState moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 344
-				callableName: testGetState$lambda19$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 22
+				callableName: testGetState$lambda19$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 23
 			
 
 
@@ -25,12 +28,16 @@ Running Tests with Coverage
 		1 failing
 		0 skipped
 
+		Test execution time :*****s
+
 	dataproviders.module1
 
 
 		No tests found
 
+		Test execution time :*****s
+
 Generating Test Report
 	data-providers\target\report\test_results.json
 
-error: there are test failures
+error: there are test failures

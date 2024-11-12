@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -621,6 +621,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(receiveFieldsNode);
     }
 
+    public T transform(STAlternateReceiveNode alternateReceiveNode) {
+        return transformSyntaxNode(alternateReceiveNode);
+    }
+
     public T transform(STRestDescriptorNode restDescriptorNode) {
         return transformSyntaxNode(restDescriptorNode);
     }
@@ -707,6 +711,14 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STXMLNamePatternChainingNode xMLNamePatternChainingNode) {
         return transformSyntaxNode(xMLNamePatternChainingNode);
+    }
+
+    public T transform(STXMLStepIndexedExtendNode xMLStepIndexedExtendNode) {
+        return transformSyntaxNode(xMLStepIndexedExtendNode);
+    }
+
+    public T transform(STXMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
+        return transformSyntaxNode(xMLStepMethodCallExtendNode);
     }
 
     public T transform(STXMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
@@ -935,6 +947,10 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STMemberTypeDescriptorNode memberTypeDescriptorNode) {
         return transformSyntaxNode(memberTypeDescriptorNode);
+    }
+
+    public T transform(STReceiveFieldNode receiveFieldNode) {
+        return transformSyntaxNode(receiveFieldNode);
     }
 
     // Tokens

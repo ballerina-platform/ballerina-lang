@@ -33,7 +33,6 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
 import static io.ballerina.cli.cmd.CommandUtil.writeBallerinaToml;
@@ -48,8 +47,7 @@ import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
  */
 public class CommandUtilTest {
 
-    private static final Path COMMAND_UTIL_RESOURCE_DIR = Paths
-            .get("src", "test", "resources", "test-resources", "command-util");
+    private static final Path COMMAND_UTIL_RESOURCE_DIR = Path.of("src/test/resources/test-resources/command-util");
 
     @Test(description = "Test write new project Ballerina.toml from template package.json")
     public void testWriteBallerinaToml() throws IOException {
@@ -103,6 +101,6 @@ public class CommandUtilTest {
     @AfterMethod
     public void tearDown() throws IOException {
         Files.deleteIfExists(COMMAND_UTIL_RESOURCE_DIR.resolve(BALLERINA_TOML));
-        Files.deleteIfExists(COMMAND_UTIL_RESOURCE_DIR.resolve(DEPENDENCIES_TOML));
+        Files.deleteIfExists(COMMAND_UTIL_RESOURCE_DIR.resolve("hello_template_project").resolve(DEPENDENCIES_TOML));
     }
 }

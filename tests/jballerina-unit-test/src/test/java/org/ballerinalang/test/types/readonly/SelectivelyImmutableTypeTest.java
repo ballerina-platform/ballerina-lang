@@ -99,14 +99,21 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "incompatible types: expected '(PersonalDetails & readonly)', found " +
                 "'PersonalDetails'", 60, 18);
         validateError(result, index++, "incompatible types: expected '(ABAny & readonly)', found 'Obj'", 78, 26);
-        validateError(result, index++, "incompatible types: expected 'anydata & readonly', found 'string[]'", 81, 28);
-        validateError(result, index++, "incompatible types: expected 'any & readonly', found 'future'", 83, 24);
-        validateError(result, index++, "incompatible types: expected '((Obj & readonly)|(int[] & readonly))', found " +
-                "'string[]'", 85, 44);
+        validateError(result, index++, "incompatible types: expected '(anydata & readonly)', found 'string[]'", 81, 28);
+        validateError(result, index++, "incompatible types: expected '(any & readonly)', found 'future'", 83, 24);
+        validateError(result, index++, "incompatible types: expected '((Obj|int[]|future<int>) & readonly)'," +
+                " found 'string[]'", 85, 44);
         validateError(result, index++, "incompatible types: expected '(PersonalDetails & readonly)', found " +
                 "'PersonalDetails'", 112, 18);
         validateError(result, index++, "incompatible types: expected '(Department & readonly)' for field 'dept', " +
                 "found 'Department'", 113, 12);
+        validateError(result, index++,
+                "invalid usage of spread field with open record of type 'record {| Department dept; anydata...; |}', " +
+                        "that may have rest fields, to construct a closed record", 113, 12);
+        validateError(result, index++,
+                "invalid usage of spread field with open record of type 'record {| readonly (Department & readonly) " +
+                        "dept; (anydata & readonly)...; |} & readonly', that may have rest fields, to construct a " +
+                        "closed record", 133, 12);
 
         // Updates.
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 136, 5);
@@ -130,8 +137,8 @@ public class SelectivelyImmutableTypeTest {
                 5);
         validateError(result, index++, "invalid intersection type with 'readonly', 'JKL' can never be 'readonly'", 211,
                 19);
-        validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 230, 12);
-        validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 231, 9);
+        validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'int[]'", 230, 12);
+        validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'int[]'", 231, 9);
         validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'int[]'", 232, 12);
         validateError(result, index++, "incompatible types: expected 'int', found 'future<int>'", 238, 48);
         validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 242, 46);
@@ -185,7 +192,7 @@ public class SelectivelyImmutableTypeTest {
                       372, 22);
         validateError(result, index++, "incompatible types: expected '(string|error)', found '(json & readonly)'", 375,
                       22);
-        validateError(result, index++, "incompatible types: expected 'json & readonly', found '(anydata & readonly)'"
+        validateError(result, index++, "incompatible types: expected '(json & readonly)', found '(anydata & readonly)'"
                 , 384, 25);
         validateError(result, index++, "incompatible types: expected '(json & readonly)[]', found 'MyJson[]'", 403, 29);
         validateError(result, index++, "incompatible types: expected '(MyJson & readonly)[]', found 'json[]'", 405, 31);
@@ -193,6 +200,8 @@ public class SelectivelyImmutableTypeTest {
                 "'(json & readonly)[]'", 407, 28);
         validateError(result, index++, "incompatible types: expected '(json & readonly)[]', found " +
                 "'(xml & readonly)[]'", 408, 29);
+        validateError(result, index++, "incompatible types: expected " +
+                "'((stream<int>|ballerina/lang.string:0.0.0:RegExp) & readonly)', found 'stream<int>'", 412, 48);
 
         assertEquals(result.getErrorCount(), index);
     }
@@ -204,49 +213,49 @@ public class SelectivelyImmutableTypeTest {
         int index = 0;
 
         // lang.array - array, tuple.
-        validateError(result, index++, "cannot update 'readonly' value of type 'int[] & readonly'", 32, 14);
-        validateError(result, index++, "cannot update 'readonly' value of type 'int[] & readonly'", 33, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'int[] & readonly'", 34, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type '[(Details & readonly),string...] & " +
-                "readonly'", 35, 9);
-        validateError(result, index++, "cannot update 'readonly' value of type 'int[] & readonly'", 36, 9);
-        validateError(result, index++, "cannot update 'readonly' value of type '[(Details & readonly),string...] & " +
-                "readonly'", 37, 25);
-        validateError(result, index++, "cannot update 'readonly' value of type '[(Details & readonly),string...] & " +
-                "readonly'", 38, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'int[] & readonly'", 39, 14);
-        validateError(result, index++, "cannot update 'readonly' value of type '[(Details & readonly),string...] & " +
-                "readonly'", 40, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(int[] & readonly)'", 32, 14);
+        validateError(result, index++, "cannot update 'readonly' value of type '(int[] & readonly)'", 33, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(int[] & readonly)'", 34, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '([Details,string...] & " +
+                "readonly)'", 35, 9);
+        validateError(result, index++, "cannot update 'readonly' value of type '(int[] & readonly)'", 36, 9);
+        validateError(result, index++, "cannot update 'readonly' value of type '([Details,string...] & " +
+                "readonly)'", 37, 25);
+        validateError(result, index++, "cannot update 'readonly' value of type '([Details,string...] & " +
+                "readonly)'", 38, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(int[] & readonly)'", 39, 14);
+        validateError(result, index++, "cannot update 'readonly' value of type '([Details,string...] & " +
+                "readonly)'", 40, 5);
 
         // lang.map - map, record.
-        validateError(result, index++, "cannot update 'readonly' value of type 'map<string> & readonly'", 47, 17);
+        validateError(result, index++, "cannot update 'readonly' value of type '(map<string> & readonly)'", 47, 17);
         validateError(result, index++, "cannot update 'readonly' value of type '(Details & readonly)'", 48, 18);
-        validateError(result, index++, "cannot update 'readonly' value of type 'map<string> & readonly'", 49, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(map<string> & readonly)'", 49, 5);
         validateError(result, index++, "cannot update 'readonly' value of type '(Details & readonly)'", 50, 5);
 
         // lang.table
-        validateError(result, index++, "cannot update 'readonly' value of type 'table<(map<anydata> & readonly)> & " +
-                "readonly'", 64, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'table<(Details & readonly)> key(name)" +
-                " & readonly'", 65, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'table<(Details & readonly)> key(name)" +
-                " & readonly'", 66, 18);
-        validateError(result, index++, "cannot update 'readonly' value of type 'table<(Details & readonly)> key(name)" +
-                " & readonly'", 67, 19);
-        validateError(result, index++, "cannot update 'readonly' value of type 'table<(map<anydata> & readonly)> & " +
-                "readonly'", 68, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'table<(Details & readonly)> key(name)" +
-                " & readonly'", 69, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(table<map<anydata>> & " +
+                "readonly)'", 64, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(table<Details> key(name)" +
+                " & readonly)'", 65, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(table<Details> key(name)" +
+                " & readonly)'", 66, 18);
+        validateError(result, index++, "cannot update 'readonly' value of type '(table<Details> key(name)" +
+                " & readonly)'", 67, 19);
+        validateError(result, index++, "cannot update 'readonly' value of type '(table<map<anydata>> & " +
+                "readonly)'", 68, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(table<Details> key(name)" +
+                " & readonly)'", 69, 5);
 
         // lang.value
-        validateError(result, index++, "cannot update 'readonly' value of type 'map<(json & readonly)> & readonly'",
+        validateError(result, index++, "cannot update 'readonly' value of type '(map<json> & readonly)'",
                       77, 20);
-        validateError(result, index++, "cannot update 'readonly' value of type 'map<(json & readonly)> & readonly'",
+        validateError(result, index++, "cannot update 'readonly' value of type '(map<json> & readonly)'",
                       78, 20);
 
         // lang.xml
-        validateError(result, index++, "cannot update 'readonly' value of type 'xml:Element & readonly'", 85, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'xml:Element & readonly'", 86, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(xml:Element & readonly)'", 85, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(xml:Element & readonly)'", 86, 5);
 
         assertEquals(result.getErrorCount(), index);
     }

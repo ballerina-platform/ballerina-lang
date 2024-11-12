@@ -29,12 +29,16 @@ import io.ballerina.runtime.internal.TypeChecker;
  *
  * @since 2.0.0
  */
-public class EnsureType {
+public final class EnsureType {
+
+    private EnsureType() {
+    }
+
     public static Object ensureType(Object value, BTypedesc type) {
-        if (TypeUtils.getReferredType(TypeChecker.getType(value)).getTag() == TypeTags.ERROR_TAG) {
+        if (TypeUtils.getImpliedType(TypeChecker.getType(value)).getTag() == TypeTags.ERROR_TAG) {
             return value;
         }
-        return convert(TypeUtils.getReferredType(type.getDescribingType()), value);
+        return convert(TypeUtils.getImpliedType(type.getDescribingType()), value);
     }
 
     public static Object convert(Type convertType, Object inputValue) {

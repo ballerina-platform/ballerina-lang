@@ -43,6 +43,7 @@ import io.ballerina.shell.exceptions.InvokerPanicException;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.utils.StringUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.File;
@@ -56,11 +57,12 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Invoker that invokes a command to evaluate a list of snippets.
@@ -276,7 +278,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             DiagnosticResult diagnosticResult = packageCompilation.diagnosticResult();
 
-            for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : diagnosticResult.diagnostics()) {
+            for (Diagnostic diagnostic : diagnosticResult.diagnostics()) {
                 DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
                 if (severity == DiagnosticSeverity.ERROR) {
                     containErrors = true;
@@ -328,7 +330,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return Whether the compilation contains MODULE_NOT_FOUND error.
      */
     private boolean containsModuleNotFoundError(PackageCompilation compilation) {
-        for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : compilation.diagnosticResult().diagnostics()) {
+        for (Diagnostic diagnostic : compilation.diagnosticResult().diagnostics()) {
             if (diagnostic.diagnosticInfo().code().equals(MODULE_NOT_FOUND_CODE)) {
                 return true;
             }
@@ -376,8 +378,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             // First run configure initialization
             // TODO: (#28662) After configurables can be supported, change this to that file location
             invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
-                    new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
-                            new Path[]{}, null});
+                    new Class[]{Map.class, String[].class, Path[].class, String.class},
+                    new Object[]{new HashMap<>(), new String[]{}, new Path[]{}, null});
             // Initialize the module
             invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
             // Start the module
@@ -391,8 +393,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             List<String> stacktrace = Arrays.stream(panicError.getCause().getStackTrace())
                     .filter(element -> !(element.toString().contains(MODULE_STATEMENT_METHOD_NAME) ||
                                         element.toString().contains(MODULE_RUN_METHOD_NAME)))
-                    .collect(Collectors.toList())
-                    .stream().map(element -> "at " + element.getMethodName() + "()").collect(Collectors.toList());
+                    .toList()
+                    .stream().map(element -> "at " + element.getMethodName() + "()").toList();
             errorStream.println("panic: " + StringUtils.getErrorStringValue(panicError.getCause()));
             stacktrace.forEach(errorStream::println);
             addErrorDiagnostic("Execution aborted due to unhandled runtime error.");
@@ -434,9 +436,9 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                 // Unexpected runtime error
                 throw new InvokerPanicException(panic);
             }
-            if (result instanceof Throwable) {
+            if (result instanceof Throwable throwable) {
                 // Function returned error (panic)
-                throw new InvokerPanicException((Throwable) result);
+                throw new InvokerPanicException(throwable);
             }
             return result;
         } catch (ClassNotFoundException e) {
@@ -511,7 +513,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @param diagnostic Diagnostic to show.
      * @return The string with position highlighted.
      */
-    private String highlightedDiagnostic(Module module, io.ballerina.tools.diagnostics.Diagnostic diagnostic) {
+    private String highlightedDiagnostic(Module module, Diagnostic diagnostic) {
         Optional<DocumentId> documentId = module.documentIds().stream().findFirst();
         Document document = module.document(documentId.orElseThrow());
         return StringUtils.highlightDiagnostic(document.textDocument(), diagnostic);

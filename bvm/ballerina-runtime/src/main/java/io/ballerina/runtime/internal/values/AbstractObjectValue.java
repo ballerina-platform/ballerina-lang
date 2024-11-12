@@ -66,7 +66,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     public AbstractObjectValue(Type type) {
         this.type = type;
-        this.objectType = (BObjectType) TypeUtils.getReferredType(type);
+        this.objectType = (BObjectType) TypeUtils.getImpliedType(type);
     }
 
     @Override
@@ -132,9 +132,10 @@ public abstract class AbstractObjectValue implements ObjectValue {
         return (boolean) get(fieldName);
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public BMap getMapValue(BString fieldName) {
-        return (MapValueImpl) get(fieldName);
+        return (MapValueImpl<?, ?>) get(fieldName);
     }
 
     @Override

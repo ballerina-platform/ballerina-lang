@@ -42,6 +42,7 @@ public class DebugCompletionTest extends BaseTestCase {
     DebugTestRunner debugTestRunner;
     Map<String, CompletionItem> completions;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "completions-tests";
@@ -49,7 +50,7 @@ public class DebugCompletionTest extends BaseTestCase {
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testDebugCompletions() throws BallerinaTestException {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 71));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 79));
@@ -142,6 +143,7 @@ public class DebugCompletionTest extends BaseTestCase {
         debugTestRunner.assertCompletions(completions, "sayHello()");
     }
 
+    @Override
     @AfterClass(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

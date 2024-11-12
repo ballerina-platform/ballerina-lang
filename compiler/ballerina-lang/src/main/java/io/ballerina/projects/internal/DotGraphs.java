@@ -38,7 +38,7 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class DotGraphs {
+public final class DotGraphs {
 
     private DotGraphs() {
     }
@@ -150,7 +150,7 @@ public class DotGraphs {
                                       PackageVersionContainer<DependencyNode> pkgContainer, boolean isUnresolved) {
         StringJoiner attrs = new StringJoiner(",", getNodeLabel(depNode.pkgDesc()) + " [", "];");
         String labelAttr = getNodeLabelAttr(depNode, pkgContainer);
-        if (depNode.scope() == PackageDependencyScope.TEST_ONLY) {
+        if (getScope(depNode, pkgContainer) == PackageDependencyScope.TEST_ONLY) {
             attrs.add(getTestOnlyNodeLine(depNode));
         } else if (depNode.pkgDesc().repository().isPresent()) {
             attrs.add(getLocalRepoNodeLine());
@@ -163,6 +163,18 @@ public class DotGraphs {
         }
         attrs.add(labelAttr);
         return attrs.toString();
+    }
+
+    private static PackageDependencyScope getScope(
+            DependencyNode depNode, PackageVersionContainer<DependencyNode> pkgContainer) {
+        PackageDescriptor pkgDesc = depNode.pkgDesc();
+        Collection<DependencyNode> depNodes = pkgContainer.get(pkgDesc.org(), pkgDesc.name());
+        for (DependencyNode node : depNodes) {
+            if (node.scope() == PackageDependencyScope.DEFAULT) {
+                return PackageDependencyScope.DEFAULT;
+            }
+        }
+        return PackageDependencyScope.TEST_ONLY;
     }
 
     private static String getNodeLabelAttr(DependencyNode depNode,

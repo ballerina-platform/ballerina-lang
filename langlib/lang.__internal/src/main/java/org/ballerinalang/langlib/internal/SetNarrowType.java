@@ -35,14 +35,17 @@ import java.util.HashMap;
  *
  * @since 1.2.0
  */
-public class SetNarrowType {
+public final class SetNarrowType {
 
-    public static BMap setNarrowType(BTypedesc td, BMap value) {
-        RecordType recordType = (RecordType) TypeUtils.getReferredType(value.getType());
+    private SetNarrowType() {
+    }
+
+    public static BMap<?, ?> setNarrowType(BTypedesc td, BMap<?, ?> value) {
+        RecordType recordType = (RecordType) TypeUtils.getImpliedType(value.getType());
         RecordType newRecordType =
                 TypeCreator.createRecordType("narrowType", recordType.getPackage(), recordType.getTypeFlags(),
                                              recordType.isSealed(), recordType.getTypeFlags());
-        newRecordType.setFields(new HashMap() {{
+        newRecordType.setFields(new HashMap<>() {{
             put("value", TypeCreator.createField(td.getDescribingType(), "value",
                                                  SymbolFlags.PUBLIC + SymbolFlags.REQUIRED));
         }});

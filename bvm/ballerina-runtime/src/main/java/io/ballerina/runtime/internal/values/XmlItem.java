@@ -48,15 +48,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static io.ballerina.runtime.api.types.XmlNodeType.ELEMENT;
 import static io.ballerina.runtime.api.types.XmlNodeType.TEXT;
+import static io.ballerina.runtime.internal.TypeChecker.isEqual;
 
 /**
  * {@code XMLItem} represents a single XML element in Ballerina.
@@ -69,9 +70,9 @@ public final class XmlItem extends XmlValue implements BXmlItem {
 
     private QName name;
     private XmlSequence children;
-    private AttributeMapValueImpl attributes;
+    private final AttributeMapValueImpl attributes;
     // Keep track of probable parents of xml element to detect probable cycles in xml.
-    private List<WeakReference<XmlItem>> probableParents;
+    private final List<WeakReference<XmlItem>> probableParents;
 
     public XmlItem(QName name, XmlSequence children, boolean readonly) {
         this.name = name;
@@ -169,10 +170,12 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         return name.toString();
     }
 
+    @Override
     public QName getQName() {
         return this.name;
     }
 
+    @Override
     public void setQName(QName name) {
         this.name = name;
     }
@@ -381,10 +384,10 @@ public final class XmlItem extends XmlValue implements BXmlItem {
                 StringUtils.fromString("Cycle detected"));
     }
 
-    private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXml> appendingList) {
-        XmlPi lastChild = (XmlPi) leftList.get(leftList.size() - 1);
-        String firstChildContent = ((XmlPi) appendingList.get(0)).getData();
-        String mergedTextContent = lastChild.getData() + firstChildContent;
+    private void mergeAdjoiningTextNodesIntoList(List<BXml> leftList, List<BXml> appendingList) {
+        XmlText lastChild = (XmlText) leftList.get(leftList.size() - 1);
+        String firstChildContent = appendingList.get(0).getTextValue();
+        String mergedTextContent = lastChild.getTextValue() + firstChildContent;
         XmlText text = new XmlText(mergedTextContent);
         leftList.set(leftList.size() - 1, text);
         for (int i = 1; i < appendingList.size(); i++) {
@@ -443,7 +446,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
             return omElement;
         } catch (BError e) {
             throw e;
-        } catch (OMException | XMLStreamException e) {
+        } catch (OMException e) {
             Throwable cause = e.getCause() == null ? e : e.getCause();
             throw ErrorCreator.createError(StringUtils.fromString((cause.getMessage())));
         } catch (Throwable e) {
@@ -505,8 +508,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
 
         MapValue<BString, BString> attributesMap = xmlItem.getAttributesMap();
         MapValue<BString, BString> copy = (MapValue<BString, BString>) this.getAttributesMap().copy(refs);
-        if (attributesMap instanceof MapValueImpl) {
-            MapValueImpl<BString, BString> map = (MapValueImpl<BString, BString>) attributesMap;
+        if (attributesMap instanceof MapValueImpl<BString, BString> map) {
             map.putAll((Map<BString, BString>) copy);
         } else {
             for (Map.Entry<BString, BString> entry : copy.entrySet()) {
@@ -535,6 +537,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
                 ErrorCodes.XML_SEQUENCE_INDEX_OUT_OF_RANGE, 1, index);
     }
 
+    @Override
     public int size() {
         return 1;
     }
@@ -585,7 +588,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         List<Integer> toRemove = new ArrayList<>();
         for (int i = 0; i < children.size(); i++) {
             BXml child = children.get(i);
-            if (child.getNodeType() == ELEMENT && ((XmlItem) child).getElementName().equals(qname)) {
+            if (child.getNodeType() == ELEMENT && child.getElementName().equals(qname)) {
                 toRemove.add(i);
             }
         }
@@ -652,14 +655,15 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         }
     }
 
+    @Override
     public BXmlSequence getChildrenSeq() {
         return children;
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<XmlItem> getIterator() {
         XmlItem that = this;
-        return new IteratorValue() {
+        return new IteratorValue<>() {
             boolean read = false;
 
             @Override
@@ -668,7 +672,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
             }
 
             @Override
-            public Object next() {
+            public XmlItem next() {
                 if (read) {
                     throw new NoSuchElementException();
                 }
@@ -681,6 +685,31 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     @Override
     public int hashCode() {
         return Objects.hash(name, children, attributes, probableParents);
+    }
+
+    /**
+     * Deep equality check for XML Item.
+     *
+     * @param o The XML Item to be compared
+     * @param visitedValues Visited values due to circular references
+     * @return True if the XML Items are equal; False otherwise
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        if (o instanceof XmlItem rhsXMLItem) {
+            if (!(rhsXMLItem.getQName().equals(this.getQName()))) {
+                return false;
+            }
+            if (!(rhsXMLItem.getAttributesMap().entrySet().equals(this.getAttributesMap().entrySet()))) {
+                return false;
+            }
+            return isEqual(rhsXMLItem.getChildrenSeq(), this.getChildrenSeq());
+        }
+        if (o instanceof XmlSequence rhsXMLSequence) {
+            return rhsXMLSequence.getChildrenList().size() == 1 &&
+                    isEqual(this, rhsXMLSequence.getChildrenList().get(0));
+        }
+        return false;
     }
 
     private interface SetAttributeFunction {

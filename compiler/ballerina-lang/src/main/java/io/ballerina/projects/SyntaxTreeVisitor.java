@@ -69,6 +69,7 @@ class SyntaxTreeVisitor extends NodeVisitor {
         return diagnostics;
     }
 
+    @Override
     protected void visitSyntaxNode(Node node) {
         // We don't support syntax kinds related to Tokens
         if (node instanceof Token) {

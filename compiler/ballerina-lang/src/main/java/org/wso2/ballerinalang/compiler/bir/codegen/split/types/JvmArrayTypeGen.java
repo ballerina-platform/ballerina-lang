@@ -22,6 +22,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -62,14 +63,10 @@ public class JvmArrayTypeGen {
 
     private void loadDimension(MethodVisitor mv, BType eType, int dimension) {
         switch (eType.tag) {
-            case TypeTags.ARRAY:
-                loadDimension(mv, ((BArrayType) eType).eType, dimension + 1);
-                break;
-            case TypeTags.TYPEREFDESC:
-                loadDimension(mv, ((BTypeReferenceType) eType).referredType, dimension);
-                break;
-            default:
-                mv.visitLdcInsn(dimension);
+            case TypeTags.ARRAY -> loadDimension(mv, ((BArrayType) eType).eType, dimension + 1);
+            case TypeTags.TYPEREFDESC -> loadDimension(mv, ((BTypeReferenceType) eType).referredType, dimension);
+            case TypeTags.INTERSECTION -> loadDimension(mv, ((BIntersectionType) eType).effectiveType, dimension);
+            default -> mv.visitLdcInsn(dimension);
         }
     }
 

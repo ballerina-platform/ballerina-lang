@@ -43,7 +43,6 @@ import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BStructureType;
-import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -72,7 +71,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class JsonInternalUtils {
+public final class JsonInternalUtils {
 
     public static final String OBJECT = "object";
     public static final String ARRAY = "array";
@@ -102,7 +101,7 @@ public class JsonInternalUtils {
             return null;
         }
 
-        Type elementType = TypeUtils.getReferredType(bArray.getElementType());
+        Type elementType = TypeUtils.getImpliedType(bArray.getElementType());
         if (elementType == PredefinedTypes.TYPE_INT) {
             return convertIntArrayToJSON(bArray);
         } else if (elementType == PredefinedTypes.TYPE_BOOLEAN) {
@@ -226,10 +225,10 @@ public class JsonInternalUtils {
      * @return returns true if provided JSON is a JSON Array.
      */
     public static boolean isJSONArray(Object json) {
-        if (!(json instanceof BRefValue)) {
+        if (!(json instanceof BRefValue refValue)) {
             return false;
         }
-        return ((BRefValue) json).getType().getTag() == TypeTags.ARRAY_TAG;
+        return TypeUtils.getImpliedType(refValue.getType()).getTag() == TypeTags.ARRAY_TAG;
     }
 
     /**
@@ -239,11 +238,11 @@ public class JsonInternalUtils {
      * @return returns true if provided JSON is a JSON Object.
      */
     public static boolean isJSONObject(Object json) {
-        if (!(json instanceof BRefValue)) {
+        if (!(json instanceof BRefValue refValue)) {
             return false;
         }
 
-        Type type = TypeUtils.getReferredType(((BRefValue) json).getType());
+        Type type = TypeUtils.getImpliedType(refValue.getType());
         int typeTag = type.getTag();
         return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG;
     }
@@ -263,9 +262,8 @@ public class JsonInternalUtils {
         }
 
         MapValueImpl<BString, Object> map = new MapValueImpl<>(mapType);
-        Type mapConstraint = mapType.getConstrainedType();
-        if (mapConstraint == null || mapConstraint.getTag() == TypeTags.ANY_TAG ||
-                mapConstraint.getTag() == TypeTags.JSON_TAG) {
+        Type mapConstraint = TypeUtils.getImpliedType(mapType.getConstrainedType());
+        if (mapConstraint.getTag() == TypeTags.ANY_TAG || mapConstraint.getTag() == TypeTags.JSON_TAG) {
             ((MapValueImpl<BString, Object>) json).forEach(map::put);
 
             return map;
@@ -314,6 +312,7 @@ public class JsonInternalUtils {
     }
 
     public static Object convertJSON(Object jsonValue, Type targetType) {
+        targetType = TypeUtils.getImpliedType(targetType);
         Type matchingType;
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
@@ -326,7 +325,7 @@ public class JsonInternalUtils {
                 if (jsonValue instanceof BString) {
                     return jsonValue;
                 }
-                return jsonValue.toString();
+                return StringUtils.fromString(jsonValue.toString());
             case TypeTags.BOOLEAN_TAG:
                 return jsonNodeToBoolean(jsonValue);
             case TypeTags.JSON_TAG:
@@ -360,8 +359,6 @@ public class JsonInternalUtils {
                 return convertJSONToBArray(jsonValue, (BArrayType) targetType);
             case TypeTags.MAP_TAG:
                 return jsonToMap(jsonValue, (BMapType) targetType);
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return convertJSON(jsonValue, ((BTypeReferenceType) targetType).getReferredType());
             case TypeTags.NULL_TAG:
                 if (jsonValue == null) {
                     return null;
@@ -393,25 +390,21 @@ public class JsonInternalUtils {
             return null;
         }
 
-        Type type = TypeUtils.getReferredType(TypeChecker.getType(source));
-        switch (type.getTag()) {
-            case TypeTags.INT_TAG:
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
-            case TypeTags.STRING_TAG:
-            case TypeTags.BOOLEAN_TAG:
-            case TypeTags.JSON_TAG:
-                return source;
-            case TypeTags.NULL_TAG:
-                return null;
-            case TypeTags.MAP_TAG:
-            case TypeTags.OBJECT_TYPE_TAG:
-            case TypeTags.RECORD_TYPE_TAG:
-                return convertMapToJSON((MapValueImpl<BString, Object>) source, targetType);
-            default:
-                throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE,
-                                                               PredefinedTypes.TYPE_JSON, type);
-        }
+        Type type = TypeUtils.getImpliedType(TypeChecker.getType(source));
+        return switch (type.getTag()) {
+            case TypeTags.INT_TAG,
+                 TypeTags.FLOAT_TAG,
+                 TypeTags.DECIMAL_TAG,
+                 TypeTags.STRING_TAG,
+                 TypeTags.BOOLEAN_TAG,
+                 TypeTags.JSON_TAG -> source;
+            case TypeTags.NULL_TAG -> null;
+            case TypeTags.MAP_TAG,
+                 TypeTags.OBJECT_TYPE_TAG,
+                 TypeTags.RECORD_TYPE_TAG -> convertMapToJSON((MapValueImpl<BString, Object>) source, targetType);
+            default -> throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE,
+                    PredefinedTypes.TYPE_JSON, type);
+        };
     }
 
     /**
@@ -433,8 +426,8 @@ public class JsonInternalUtils {
             return null;
         }
 
-        Type j1Type = TypeUtils.getReferredType(TypeChecker.getType(j1));
-        Type j2Type = TypeUtils.getReferredType(TypeChecker.getType(j2));
+        Type j1Type = TypeUtils.getImpliedType(TypeChecker.getType(j1));
+        Type j2Type = TypeUtils.getImpliedType(TypeChecker.getType(j2));
 
         if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
             return ErrorCreator.createError(ErrorReasons.MERGE_JSON_ERROR,
@@ -469,7 +462,7 @@ public class JsonInternalUtils {
                                                 StringUtils.fromString("JSON Merge failed for key '" + key + "'"));
             initialValues[1] = new MappingInitialValueEntry.KeyValueEntry(TypeConstants.DETAIL_CAUSE,
                                                                           elementMergeNullableError);
-            MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL,
+            MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL,
                                                                         initialValues);
             return ErrorCreator.createError(ErrorReasons.MERGE_JSON_ERROR, detailMap);
         }
@@ -486,8 +479,8 @@ public class JsonInternalUtils {
         }
 
         if (checkMergeability) {
-            Type j1Type = TypeUtils.getReferredType(TypeChecker.getType(j1));
-            Type j2Type = TypeUtils.getReferredType(TypeChecker.getType(j2));
+            Type j1Type = TypeUtils.getImpliedType(TypeChecker.getType(j1));
+            Type j2Type = TypeUtils.getImpliedType(TypeChecker.getType(j2));
 
             if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
                 return ErrorCreator.createError(ErrorReasons.MERGE_JSON_ERROR,
@@ -509,13 +502,12 @@ public class JsonInternalUtils {
      *         of the JSON array. Otherwise the method will throw a {@link BError}.
      */
     public static ArrayValue convertJSONToBArray(Object json, BArrayType targetArrayType) {
-        if (!(json instanceof ArrayValue)) {
+        if (!(json instanceof ArrayValue jsonArray)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(ARRAY), getTypeName(json));
         }
 
-        Type targetElementType = TypeUtils.getReferredType(targetArrayType.getElementType());
-        ArrayValue jsonArray = (ArrayValue) json;
+        Type targetElementType = TypeUtils.getImpliedType(targetArrayType.getElementType());
         switch (targetElementType.getTag()) {
             case TypeTags.INT_TAG:
                 return jsonArrayToBIntArray(jsonArray);
@@ -548,7 +540,7 @@ public class JsonInternalUtils {
      * @param table {@link BTable} to be converted
      * @return JSON representation of the provided table
      */
-    public static Object toJSON(BTable table) {
+    public static Object toJSON(BTable<?, ?> table) {
         TableJsonDataSource jsonDataSource = new TableJsonDataSource(table);
         return jsonDataSource.build();
     }
@@ -569,12 +561,12 @@ public class JsonInternalUtils {
      * @return BInteger value of the JSON, if its a integer or a long JSON node. Error, otherwise.
      */
     private static long jsonNodeToInt(Object json) {
-        if (!(json instanceof Long)) {
+        if (!(json instanceof Long l)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                                                            PredefinedTypes.TYPE_INT, getTypeName(json));
         }
 
-        return (Long) json;
+        return l;
     }
 
     /**
@@ -584,12 +576,12 @@ public class JsonInternalUtils {
      * @return BFloat value of the JSON, if its a double or a float JSON node. Error, otherwise.
      */
     private static double jsonNodeToFloat(Object json) {
-        if (json instanceof Integer) {
-            return ((Integer) json).longValue();
-        } else if (json instanceof Double) {
-            return (Double) json;
-        } else if (json instanceof DecimalValue) {
-            return ((DecimalValue) json).floatValue();
+        if (json instanceof Integer i) {
+            return i.longValue();
+        } else if (json instanceof Double d) {
+            return d;
+        } else if (json instanceof DecimalValue decimalValue) {
+            return decimalValue.floatValue();
         } else {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                                                            PredefinedTypes.TYPE_FLOAT, getTypeName(json));
@@ -604,14 +596,14 @@ public class JsonInternalUtils {
      */
     private static DecimalValue jsonNodeToDecimal(Object json) {
         BigDecimal decimal;
-        if (json instanceof Integer) {
-            decimal = new BigDecimal(((Integer) json).longValue());
-        } else if (json instanceof Double) {
-            decimal = BigDecimal.valueOf((Double) json);
-        } else if (json instanceof BigDecimal) {
-            decimal = (BigDecimal) json;
-        } else if (json instanceof DecimalValue) {
-            return (DecimalValue) json;
+        if (json instanceof Integer i) {
+            decimal = new BigDecimal(i.longValue());
+        } else if (json instanceof Double d) {
+            decimal = BigDecimal.valueOf(d);
+        } else if (json instanceof BigDecimal bigDecimal) {
+            decimal = bigDecimal;
+        } else if (json instanceof DecimalValue decimalValue) {
+            return decimalValue;
         } else {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                                                            PredefinedTypes.TYPE_DECIMAL, getTypeName(json));
@@ -627,11 +619,11 @@ public class JsonInternalUtils {
      * @return Boolean value of the JSON, if its a boolean node. Error, otherwise.
      */
     private static boolean jsonNodeToBoolean(Object json) {
-        if (!(json instanceof Boolean)) {
+        if (!(json instanceof Boolean b)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                                                            PredefinedTypes.TYPE_BOOLEAN, getTypeName(json));
         }
-        return (Boolean) json;
+        return b;
     }
 
     private static ArrayValue jsonArrayToBIntArray(ArrayValue arrayNode) {
@@ -692,7 +684,7 @@ public class JsonInternalUtils {
                 json.append(null);
             }
 
-            Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
+            Type type = TypeUtils.getImpliedType(TypeChecker.getType(value));
             switch (type.getTag()) {
                 case TypeTags.JSON_TAG:
                     json.append(value);
@@ -779,7 +771,7 @@ public class JsonInternalUtils {
                 return;
             }
 
-            Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
+            Type type = TypeUtils.getImpliedType(TypeChecker.getType(value));
             switch (type.getTag()) {
                 case TypeTags.INT_TAG:
                 case TypeTags.FLOAT_TAG:
@@ -834,11 +826,10 @@ public class JsonInternalUtils {
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof ObjectPair)) {
+            if (!(obj instanceof ObjectPair other)) {
                 return false;
             }
 
-            ObjectPair other = (ObjectPair) obj;
             return this.lhsObject == other.lhsObject && this.rhsObject == other.rhsObject;
         }
     }

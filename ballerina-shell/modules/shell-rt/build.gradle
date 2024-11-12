@@ -16,15 +16,17 @@
  * under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 description = 'Ballerina - Ballerina Shell Runtime Dependencies'
 
 group = 'io.ballerina'
 
 dependencies {
-    testImplementation('org.testng:testng')
+    testImplementation libs.testng
 }
 
 test {

@@ -455,7 +455,7 @@ public class SealedArrayTest {
         BRunUtil.invoke(compileResult, "testSealedArrayConstrainedMapInvalidIndex", args);
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test()
     public void testArrayWithConstantSizeReferenceFill() {
         BRunUtil.invoke(compileResult, "testArrayWithConstantSizeReferenceFill");
     }

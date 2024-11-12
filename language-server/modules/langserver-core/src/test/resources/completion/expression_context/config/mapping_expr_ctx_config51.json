@@ -64,7 +64,7 @@
       "label": "...b",
       "kind": "Variable",
       "detail": "map<any>",
-      "sortText": "AB",
+      "sortText": "AC",
       "filterText": "b",
       "insertText": "...b",
       "insertTextFormat": "Snippet"

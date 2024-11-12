@@ -24,7 +24,7 @@ import io.ballerina.shell.DiagnosticReporter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +41,7 @@ public class BbeTopicsProvider extends DiagnosticReporter {
     private static final String BBE_FILE = "index.json";
     private static final String TOPICS = "topics";
 
-    private final List<String> topicList;;
+    private final List<String> topicList;
     private static BbeTopicsProvider bbeTopicsProvider = null;
 
     private BbeTopicsProvider() {
@@ -66,7 +66,7 @@ public class BbeTopicsProvider extends DiagnosticReporter {
                     Stream<BbeRecord> sampleList = Arrays.stream(samples);
                     sampleList.forEach((bbeRecordElement) -> {
                         if (bbeRecordElement != null) {
-                            topicList.add(bbeRecordElement.getUrl().replaceAll("-", " "));
+                            topicList.add(bbeRecordElement.getUrl().replace("-", " "));
                         }
                     });
                 }
@@ -88,7 +88,7 @@ public class BbeTopicsProvider extends DiagnosticReporter {
     private String readFileAsString(String file) {
         String content = null;
         try {
-            content = Files.readString(Paths.get(file));
+            content = Files.readString(Path.of(file));
         } catch (IOException e) {
             addDebugDiagnostic("Error loading the file : " + e.getMessage());
         }

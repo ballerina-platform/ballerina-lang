@@ -80,28 +80,23 @@ public class ConstantPool {
         bytes[0] = (byte) ((v >>> 24) & 0xFF);
         bytes[1] = (byte) ((v >>> 16) & 0xFF);
         bytes[2] = (byte) ((v >>> 8) & 0xFF);
-        bytes[3] = (byte) ((v >>> 0) & 0xFF);
+        bytes[3] = (byte) ((v) & 0xFF);
     }
 
     private void writeToStream(DataOutputStream stream) throws IOException {
         stream.writeInt(-1);
+
+        // cpEntries are modified while iterating over them
+        // noinspection ForLoopReplaceableByForEach
         for (int i = 0; i < cpEntries.size(); i++) {
             CPEntry cpEntry = cpEntries.get(i);
             stream.writeByte(cpEntry.entryType.value);
             switch (cpEntry.entryType) {
-                case CP_ENTRY_INTEGER:
-                    stream.writeLong(((CPEntry.IntegerCPEntry) cpEntry).value);
-                    break;
-                case CP_ENTRY_BYTE:
-                    stream.writeInt(((CPEntry.ByteCPEntry) cpEntry).value);
-                    break;
-                case CP_ENTRY_FLOAT:
-                    stream.writeDouble(((CPEntry.FloatCPEntry) cpEntry).value);
-                    break;
-                case CP_ENTRY_BOOLEAN:
-                    stream.writeBoolean(((CPEntry.BooleanCPEntry) cpEntry).value);
-                    break;
-                case CP_ENTRY_STRING:
+                case CP_ENTRY_INTEGER -> stream.writeLong(((CPEntry.IntegerCPEntry) cpEntry).value);
+                case CP_ENTRY_BYTE -> stream.writeInt(((CPEntry.ByteCPEntry) cpEntry).value);
+                case CP_ENTRY_FLOAT -> stream.writeDouble(((CPEntry.FloatCPEntry) cpEntry).value);
+                case CP_ENTRY_BOOLEAN -> stream.writeBoolean(((CPEntry.BooleanCPEntry) cpEntry).value);
+                case CP_ENTRY_STRING -> {
                     CPEntry.StringCPEntry stringCPEntry = (CPEntry.StringCPEntry) cpEntry;
                     if (stringCPEntry.value != null) {
                         byte[] strBytes = stringCPEntry.value.getBytes(StandardCharsets.UTF_8);
@@ -112,28 +107,25 @@ public class ConstantPool {
                         // This marks that the value followed by -1 size is a null value.
                         stream.writeShort(NULL_VALUE_FIELD_SIZE_TAG);
                     }
-                    break;
-                case CP_ENTRY_PACKAGE:
+                }
+                case CP_ENTRY_PACKAGE -> {
                     CPEntry.PackageCPEntry pkgCPEntry = (CPEntry.PackageCPEntry) cpEntry;
                     stream.writeInt(pkgCPEntry.orgNameCPIndex);
                     stream.writeInt(pkgCPEntry.pkgNameCPIndex);
                     stream.writeInt(pkgCPEntry.moduleNameCPIndex);
                     stream.writeInt(pkgCPEntry.versionCPIndex);
-                    break;
-                case CP_ENTRY_SHAPE:
+                }
+                case CP_ENTRY_SHAPE -> {
                     CPEntry.ShapeCPEntry shapeCPEntry = (CPEntry.ShapeCPEntry) cpEntry;
-
                     ByteBuf typeBuf = Unpooled.buffer();
                     BIRTypeWriter birTypeWriter = new BIRTypeWriter(typeBuf, this);
                     birTypeWriter.visitType(shapeCPEntry.shape);
                     byte[] bytes = Arrays.copyOfRange(typeBuf.array(), 0, typeBuf.writerIndex());
-
                     stream.writeInt(bytes.length);
                     stream.write(bytes);
-                    break;
-                default:
-                    throw new IllegalStateException("unsupported constant pool entry type: " +
-                                                    cpEntry.entryType.name());
+                }
+                default -> throw new IllegalStateException("unsupported constant pool entry type: " +
+                        cpEntry.entryType.name());
             }
         }
     }

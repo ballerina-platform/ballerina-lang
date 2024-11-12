@@ -590,28 +590,6 @@
                               ]
                             },
                             {
-                              "kind": "SIMPLE_NAME_REFERENCE",
-                              "hasDiagnostics": true,
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_TYPE_DESC"
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true,
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
-                              ]
-                            },
-                            {
                               "kind": "BLOCK_STATEMENT",
                               "hasDiagnostics": true,
                               "children": [

@@ -19,6 +19,10 @@ import com.google.gson.Gson;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.CodeActionManager;
 import io.ballerina.projects.CodeActionResult;
@@ -53,16 +57,15 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnostic;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BSymbolicProperty;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Tests for language server's extensions.
@@ -70,7 +73,7 @@ import java.util.stream.Collectors;
 @Test
 public class LanguageServerExtensionTests {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get(
+    private static final Path RESOURCE_DIRECTORY = Path.of(
             "src/test/resources/compiler_plugin_tests").toAbsolutePath();
 
     @BeforeSuite
@@ -84,7 +87,7 @@ public class LanguageServerExtensionTests {
         String path = RESOURCE_DIRECTORY.resolve("package_plugin_user_with_codeactions_1").toString();
         CompileResult result = BCompileUtil.compileAndCacheBala(path);
 
-        Path filePath = Paths.get(path, "main.bal");
+        Path filePath = Path.of(path, "main.bal");
         Project project = result.project();
         DocumentId documentId = project.documentId(filePath);
         Module module = project.currentPackage().module(documentId.moduleId());
@@ -120,7 +123,7 @@ public class LanguageServerExtensionTests {
         List<CodeActionArgument> arguments = info.get().getArguments();
         arguments = arguments.stream()
                 .map(codeActionArgument -> CodeActionArgument.from(gson.toJsonTree(codeActionArgument)))
-                .collect(Collectors.toList());
+                .toList();
 
         Assert.assertFalse(arguments.isEmpty());
 
@@ -148,14 +151,14 @@ public class LanguageServerExtensionTests {
         }));
     }
 
-    @Test
-    public void testOneCompilerPluginWithOneCompletionProvider() {
-        String path = RESOURCE_DIRECTORY.resolve("package_plugin_user_with_completions").toString();
+    @Test(dataProvider = "completion-data-provider")
+    public void testOneCompilerPluginWithOneCompletionProvider(String sourceDir, int line, int offset) {
+        String path = RESOURCE_DIRECTORY.resolve(sourceDir).toString();
         CompileResult result = BCompileUtil.compileAndCacheBala(path);
         Project project = result.project();
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         CompletionManager completionManager = packageCompilation.getCompletionManager();
-        Path filePath = Paths.get(path, "main.bal");
+        Path filePath = Path.of(path, "main.bal");
         DocumentId documentId = project.documentId(filePath);
         Module module = project.currentPackage().module(documentId.moduleId());
         Document document = module.document(documentId);
@@ -163,7 +166,7 @@ public class LanguageServerExtensionTests {
         //Get the service declaration node
         Node nodeAtCursor = ((ModulePartNode) document.syntaxTree().rootNode()).members().get(1);
 
-        LinePosition cursorPos = LinePosition.from(5, 5);
+        LinePosition cursorPos = LinePosition.from(line, offset);
         int cursorPositionInTree = document.textDocument().textPositionFrom(cursorPos);
         CompletionContext completionContext = CompletionContextImpl.from(filePath.toUri().toString(),
                 filePath, cursorPos, cursorPositionInTree, nodeAtCursor, document,
@@ -190,4 +193,72 @@ public class LanguageServerExtensionTests {
                 CompletionUtil.LINE_BREAK) && edit.range().startOffset() == nodeAtCursor.textRange().startOffset()
                 && edit.range().length() == 0);
     }
+
+    @Test
+    public void testOneCompilerPluginWithOneCompletionProviderNegative1() {
+        String path = RESOURCE_DIRECTORY.resolve("package_plugin_user_with_completions_5").toString();
+        CompileResult result = BCompileUtil.compileAndCacheBala(path);
+        Project project = result.project();
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        CompletionManager completionManager = packageCompilation.getCompletionManager();
+        Path filePath = Path.of(path, "main.bal");
+        DocumentId documentId = project.documentId(filePath);
+        Module module = project.currentPackage().module(documentId.moduleId());
+        Document document = module.document(documentId);
+
+        //Select list constructor node as the node at cursor
+        Node serviceNode = ((ModulePartNode) document.syntaxTree().rootNode()).members().get(1);
+        Assert.assertSame(serviceNode.kind(), SyntaxKind.SERVICE_DECLARATION);
+        NodeList<Node> members = ((ServiceDeclarationNode) serviceNode).members();
+
+        Assert.assertTrue(!members.isEmpty() && members.get(0).kind() == SyntaxKind.OBJECT_FIELD
+                && ((ObjectFieldNode) members.get(0)).expression().isPresent());
+        Node nodeAtCursor = ((ObjectFieldNode) members.get(0)).expression().get();
+
+        LinePosition cursorPos = LinePosition.from(5, 20);
+        int cursorPositionInTree = document.textDocument().textPositionFrom(cursorPos);
+        CompletionContext completionContext = CompletionContextImpl.from(filePath.toUri().toString(),
+                filePath, cursorPos, cursorPositionInTree, nodeAtCursor, document,
+                module.getCompilation().getSemanticModel());
+
+        CompletionResult completionResult = completionManager.completions(completionContext);
+        Assert.assertTrue(completionResult.getCompletionItems().isEmpty());
+    }
+
+    @Test
+    public void testOneCompilerPluginWithOneCompletionProviderNegative2() {
+        String path = RESOURCE_DIRECTORY.resolve("package_plugin_user_with_completions_6").toString();
+        CompileResult result = BCompileUtil.compileAndCacheBala(path);
+        Project project = result.project();
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        CompletionManager completionManager = packageCompilation.getCompletionManager();
+        Path filePath = Path.of(path, "main.bal");
+        DocumentId documentId = project.documentId(filePath);
+        Module module = project.currentPackage().module(documentId.moduleId());
+        Document document = module.document(documentId);
+
+        //Select list constructor node as the node at cursor
+        Node serviceNode = ((ModulePartNode) document.syntaxTree().rootNode()).members().get(1);
+
+        LinePosition cursorPos = LinePosition.from(4, 21);
+        int cursorPositionInTree = document.textDocument().textPositionFrom(cursorPos);
+        CompletionContext completionContext = CompletionContextImpl.from(filePath.toUri().toString(),
+                filePath, cursorPos, cursorPositionInTree, serviceNode, document,
+                module.getCompilation().getSemanticModel());
+
+        CompletionResult completionResult = completionManager.completions(completionContext);
+        Assert.assertTrue(completionResult.getCompletionItems().isEmpty());
+    }
+
+
+    @DataProvider(name = "completion-data-provider")
+    public Object[][] completionDataProvider() {
+        return new Object[][]{
+                {"package_plugin_user_with_completions_1", 5, 5},
+                {"package_plugin_user_with_completions_2", 7, 3},
+                {"package_plugin_user_with_completions_3", 5, 4},
+                {"package_plugin_user_with_completions_4", 9, 3}
+        };
+    }
+
 }

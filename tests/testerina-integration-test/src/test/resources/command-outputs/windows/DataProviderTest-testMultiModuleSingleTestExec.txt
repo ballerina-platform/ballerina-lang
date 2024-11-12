@@ -10,6 +10,8 @@ Running Tests with Coverage
 
 		No tests found
 
+		Test execution time :*****s
+
 	dataproviders.module1
 		[pass] stringDataProviderMod1Test#1
 
@@ -18,6 +20,8 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
+		Test execution time :*****s
+
 Generating Test Report
 	data-providers\target\report\test_results.json
-
+

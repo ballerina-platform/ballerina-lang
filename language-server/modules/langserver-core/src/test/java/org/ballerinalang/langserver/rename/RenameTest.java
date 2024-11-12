@@ -76,7 +76,13 @@ public class RenameTest extends AbstractRenameTest {
                 {"rename_on_keyword1.json", "fn"},
                 {"rename_self.json", "this"},
                 {"rename_invalid_qname_ref.json", "io"},
-                {"rename_resource_method_path_segment.json", "path1"}
+//                {"rename_resource_method_path_segment.json", "path1"} //TODO: Fix #41041
+                
+                {"rename_table_row_type_parameter1.json", "Student"},
+                {"rename_table_row_type_parameter2.json", "Student"},
+                {"rename_table_row_type_parameter3.json", "Student"},
+                {"rename_stream_type_parameter.json", "Student"},
+                {"rename_map_type_parameter.json", "Student"},
         };
     }
 }

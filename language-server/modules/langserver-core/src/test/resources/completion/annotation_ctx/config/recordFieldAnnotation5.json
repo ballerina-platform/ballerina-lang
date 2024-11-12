@@ -1,0 +1,52 @@
+{
+  "position": {
+    "line": 17,
+    "character": 18
+  },
+  "source": "annotation_ctx/source/recordFieldAnnotation5.bal",
+  "description": "Test completions for the config record body of an annotation attached to a record field",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill record {|string description; int id; string name?; anydata...;|} Required Fields",
+      "kind": "Property",
+      "detail": "record {|string description; int id; string name?; anydata...;|}",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "description: ${1:\"\"},\nid: ${2:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "(record {|string description; int id; string name?; anydata...;|}).name",
+      "sortText": "K",
+      "insertText": "name: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "description",
+      "kind": "Field",
+      "detail": "(record {|string description; int id; string name?; anydata...;|}).description",
+      "sortText": "K",
+      "insertText": "description: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "id",
+      "kind": "Field",
+      "detail": "(record {|string description; int id; string name?; anydata...;|}).id",
+      "sortText": "AG",
+      "insertText": "id: ${1:0}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
