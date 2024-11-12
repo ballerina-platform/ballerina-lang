@@ -16,7 +16,7 @@
 
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 
 import java.util.Map;

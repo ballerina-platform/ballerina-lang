@@ -17,7 +17,7 @@
 
 package io.ballerina.runtime.api;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.concurrent.StrandMetadata;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.BalRuntime;

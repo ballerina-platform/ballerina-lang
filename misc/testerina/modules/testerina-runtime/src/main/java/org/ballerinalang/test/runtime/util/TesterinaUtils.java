@@ -18,7 +18,7 @@
 package org.ballerinalang.test.runtime.util;
 
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;

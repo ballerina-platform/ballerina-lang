@@ -21,7 +21,7 @@ package io.ballerina.runtime.internal;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.concurrent.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -219,12 +219,12 @@ public class BalRuntime extends Runtime {
         return method.invoke(null, this);
     }
 
-    Class<?> loadClass(String className) throws ClassNotFoundException {
+    protected Class<?> loadClass(String className) throws ClassNotFoundException {
         String name = getFullQualifiedClassName(this.rootModule, className);
         return Class.forName(name);
     }
 
-    static String getFullQualifiedClassName(Module module, String className) {
+    protected static String getFullQualifiedClassName(Module module, String className) {
         String orgName = module.getOrg();
         String packageName = module.getName();
         if (!DOT.equals(packageName)) {

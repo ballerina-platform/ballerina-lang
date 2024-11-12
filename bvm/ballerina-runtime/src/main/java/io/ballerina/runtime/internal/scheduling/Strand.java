@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime.internal.scheduling;
 
-import io.ballerina.runtime.internal.ErrorUtils;
+import io.ballerina.runtime.internal.utils.ErrorUtils;
 import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 import java.util.HashMap;

@@ -19,8 +19,8 @@
 package org.ballerinalang.langlib.integer;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.MathUtils;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
+import io.ballerina.runtime.internal.utils.MathUtils;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;

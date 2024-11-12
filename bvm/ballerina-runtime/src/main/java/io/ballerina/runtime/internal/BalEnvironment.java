@@ -20,8 +20,9 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.Repository;
+import io.ballerina.runtime.api.repository.Repository;
 import io.ballerina.runtime.api.types.Parameter;
+import io.ballerina.runtime.internal.repository.RepositoryImpl;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.function.Supplier;

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.bool;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.errors.ErrorCodes;

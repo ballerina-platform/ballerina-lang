@@ -19,11 +19,11 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
@@ -33,10 +33,10 @@ import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
-import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BTypeIdSet;
+import io.ballerina.runtime.internal.utils.CycleUtils;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -49,13 +49,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_MAP;
 import static io.ballerina.runtime.internal.TypeChecker.isEqual;
-import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
-import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
+import static io.ballerina.runtime.internal.utils.StringUtils.getExpressionStringVal;
+import static io.ballerina.runtime.internal.utils.StringUtils.getStringVal;
 
 /**
  * <p>

@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langlib.value;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BTypedesc;

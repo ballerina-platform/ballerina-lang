@@ -23,7 +23,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.test.runtime.entity.MockFunctionReplaceVisitor;
 import org.ballerinalang.test.runtime.entity.TestSuite;

@@ -19,19 +19,19 @@
 package org.ballerinalang.langlib.map;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
 
-import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
+import static io.ballerina.runtime.internal.utils.MapUtils.createOpNotSupportedError;
 
 /**
  * Native implementation of lang.map:filter(map&lt;Type&gt;, function).

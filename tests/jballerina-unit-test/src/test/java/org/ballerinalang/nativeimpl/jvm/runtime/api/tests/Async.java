@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.concurrent.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
