@@ -38,6 +38,7 @@ public class Package {
     private final Function<ModuleId, Module> populateModuleFunc;
     // Following are not final since they will be lazy loaded
     private Optional<PackageMd> packageMd = Optional.empty();
+    private Optional<PackageReadmeMd> readmeMd = Optional.empty();
     private Optional<BallerinaToml> ballerinaToml = Optional.empty();
     private Optional<DependenciesToml> dependenciesToml = Optional.empty();
     private Optional<CloudToml> cloudToml = Optional.empty();
@@ -226,7 +227,13 @@ public class Package {
         return this.balToolToml;
     }
 
-    @Deprecated (forRemoval = true)
+    /**
+     * Returns the PackageMd document.
+     *
+     * @return PackageMd
+     * @deprecated use {@link #readmeMd()} instead.
+     */
+    @Deprecated (forRemoval = true, since = "2.11.0")
     public Optional<PackageMd> packageMd() {
         if (this.packageMd.isEmpty()) {
             this.packageMd = this.packageContext.packageMdContext().map(c ->
@@ -234,6 +241,15 @@ public class Package {
             );
         }
         return this.packageMd;
+    }
+
+    public Optional<PackageReadmeMd> readmeMd() {
+        if (this.readmeMd.isEmpty()) {
+            this.readmeMd = this.packageContext.readmeMdContext().map(c ->
+                    PackageReadmeMd.from(c, this)
+            );
+        }
+        return this.readmeMd;
     }
 
     public Collection<DocumentId> resourceIds() {
@@ -450,7 +466,7 @@ public class Package {
         private TomlDocumentContext cloudTomlContext;
         private TomlDocumentContext compilerPluginTomlContext;
         private TomlDocumentContext balToolTomlContext;
-        private MdDocumentContext packageMdContext;
+        private MdDocumentContext readmeMdContext;
         private final Map<DocumentId, ResourceContext> resourceContextMap;
         private final Map<DocumentId, ResourceContext> testResourceContextMap;
 
@@ -467,7 +483,7 @@ public class Package {
             this.cloudTomlContext = oldPackage.packageContext.cloudTomlContext().orElse(null);
             this.compilerPluginTomlContext = oldPackage.packageContext.compilerPluginTomlContext().orElse(null);
             this.balToolTomlContext = oldPackage.packageContext.balToolTomlContext().orElse(null);
-            this.packageMdContext = oldPackage.packageContext.packageMdContext().orElse(null);
+            this.readmeMdContext = oldPackage.packageContext.readmeMdContext().orElse(null);
             resourceContextMap = copyResources(oldPackage, oldPackage.packageContext.resourceIds());
             testResourceContextMap = copyResources(oldPackage, oldPackage.packageContext.testResourceIds());
         }
@@ -587,7 +603,7 @@ public class Package {
          * @return Package.Modifier which contains the updated package
          */
         public Modifier addPackageMd(DocumentConfig documentConfig) {
-            this.packageMdContext = MdDocumentContext.from(documentConfig);
+            this.readmeMdContext = MdDocumentContext.from(documentConfig);
             return this;
         }
 
@@ -597,7 +613,7 @@ public class Package {
          * @return Package.Modifier which contains the updated package
          */
         public Modifier removePackageMd() {
-            this.packageMdContext = null;
+            this.readmeMdContext = null;
             return this;
         }
 
@@ -632,7 +648,7 @@ public class Package {
         }
 
         Modifier updatePackageMd(MdDocumentContext packageMd) {
-            this.packageMdContext = packageMd;
+            this.readmeMdContext = packageMd;
             return this;
         }
 
@@ -659,7 +675,7 @@ public class Package {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
                     this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
                     this.cloudTomlContext, this.compilerPluginTomlContext, this.balToolTomlContext,
-                    this.packageMdContext, this.compilationOptions, this.moduleContextMap,
+                    this.readmeMdContext, this.compilationOptions, this.moduleContextMap,
                     DependencyGraph.emptyGraph(), this.resourceContextMap,
                     this.testResourceContextMap);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
@@ -793,7 +809,7 @@ public class Package {
 
                 moduleContextSet.add(new ModuleContext(this.project, moduleId, moduleDescriptor,
                         oldModuleContext.isDefaultModule(), srcDocContextMap, testDocContextMap,
-                        oldModuleContext.moduleMdContext().orElse(null),
+                        oldModuleContext.readmeMdContext().orElse(null),
                         oldModuleContext.moduleDescDependencies()));
                 // Remove the module with old PackageID from the compilation cache
                 PackageCache.getInstance(project.projectEnvironmentContext().getService(CompilerContext.class)).

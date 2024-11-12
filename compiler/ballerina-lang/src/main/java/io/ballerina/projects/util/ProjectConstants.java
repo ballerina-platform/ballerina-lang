@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects.util;
 
-import java.nio.file.Path;
-
 /**
  * Defines constants related to the project directory.
  *

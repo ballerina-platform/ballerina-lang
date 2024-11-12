@@ -4,6 +4,6 @@ name = "winery"
 version = "0.1.0"
 description = "Add the sample package description here"
 
-[package.modules.winery.storage]
+[[package.modules]]
+name = "winery.storage"
 readme = "modules/storage/Module.md"
-

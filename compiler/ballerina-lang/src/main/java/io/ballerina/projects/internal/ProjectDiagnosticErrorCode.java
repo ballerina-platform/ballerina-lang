@@ -39,6 +39,8 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     LOCAL_PACKAGES_IN_DEPENDENCIES_TOML("BCE5102", "local.packages.in.dependencies.toml"),
     CORRUPTED_DEPENDENCIES_TOML("BCE5103", "corrupted.dependencies.toml"),
     DEPRECATED_BALLERINA_TOML_ENTRY("BCE5104", "deprecated.ballerina.toml.entry"),
+    INVALID_MODULE("BCE5105", "invalid.module"),
+    DEPRECATED_DOC_FILE("BCE5106", "deprecated.doc.file"),
 
     // Error codes used during dependency resolution.
     INCOMPATIBLE_DEPENDENCY_VERSIONS("BCE5201", "incompatible.dependency.versions"),
@@ -64,7 +66,8 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     PROVIDED_PLATFORM_JAR_IN_EXECUTABLE("BCE5502", "provided.platform.jars"),
 
     // Error codes used in resources resolution
-    CONFLICTING_RESOURCE_FILE("BCE5601", "conflicting.resources.type")
+    CONFLICTING_RESOURCE_FILE("BCE5601", "conflicting.resources.type"),
+    DEPRECATED_RESOURCES_STRUCTURE("BCE5602", "deprecated.resources.structure"),
     ;
 
     private final String diagnosticId;

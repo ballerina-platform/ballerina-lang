@@ -59,7 +59,7 @@ public class PackageJson {
     private boolean template; //?
     private String template_version; //?
 
-    //Docs
+    // Docs
     private String readme;
     private String description;
     private List<PackageManifest.Module> modules;
@@ -126,6 +126,7 @@ public class PackageJson {
         this.keywords = keywords;
     }
 
+    @Deprecated (forRemoval = true, since = "2.11.0")
     public List<String> getExport() {
         return export;
     }

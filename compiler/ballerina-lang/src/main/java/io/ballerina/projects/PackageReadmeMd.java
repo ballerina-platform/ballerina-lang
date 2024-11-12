@@ -1,48 +1,44 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-
-
 package io.ballerina.projects;
 
 /**
- * Represents the 'Package.md' file in a package.
+ * Represents the README file in a package.
  *
- * @since 2.0.0
- * @deprecated use {@link PackageReadmeMd} instead
+ * @since 2.11.0
  */
-@Deprecated (forRemoval = true, since = "2.11.0")
-public class PackageMd {
+public class PackageReadmeMd {
 
     private final MdDocumentContext mdDocumentContext;
     private final Package packageInstance;
 
-    PackageMd(MdDocumentContext documentContext, Package packageInstance) {
+    PackageReadmeMd(MdDocumentContext documentContext, Package packageInstance) {
         this.mdDocumentContext = documentContext;
         this.packageInstance = packageInstance;
     }
 
-    public static PackageMd from(DocumentConfig documentConfig, Package aPackage) {
+    public static PackageReadmeMd from(DocumentConfig documentConfig, Package aPackage) {
         MdDocumentContext documentContext = MdDocumentContext.from(documentConfig);
-        return new PackageMd(documentContext, aPackage);
+        return new PackageReadmeMd(documentContext, aPackage);
     }
 
-    public static PackageMd from(MdDocumentContext documentContext, Package aPackage) {
-        return new PackageMd(documentContext, aPackage);
+    public static PackageReadmeMd from(MdDocumentContext documentContext, Package aPackage) {
+        return new PackageReadmeMd(documentContext, aPackage);
     }
 
     public Package packageInstance() {
@@ -59,7 +55,7 @@ public class PackageMd {
      * @return  module modifier
      */
     public Modifier modify() {
-        return new PackageMd.Modifier(this);
+        return new PackageReadmeMd.Modifier(this);
     }
 
     /**
@@ -71,7 +67,7 @@ public class PackageMd {
         private final DocumentId documentId;
         private final Package oldPackage;
 
-        private Modifier(PackageMd oldDocument) {
+        private Modifier(PackageReadmeMd oldDocument) {
             this.content = oldDocument.mdDocumentContext.content();
             this.oldPackage = oldDocument.packageInstance();
             this.name = oldDocument.mdDocumentContext.name();
@@ -94,11 +90,11 @@ public class PackageMd {
          *
          * @return document with updated content
          */
-        public PackageMd apply() {
-            MdDocumentContext packageMd = MdDocumentContext.from(DocumentConfig.from(this.documentId,
+        public PackageReadmeMd apply() {
+            MdDocumentContext readmeMd = MdDocumentContext.from(DocumentConfig.from(this.documentId,
                     this.content, this.name));
-            Package newPackage = oldPackage.modify().updatePackageMd(packageMd).apply();
-            return newPackage.packageMd().get();
+            Package newPackage = oldPackage.modify().updatePackageMd(readmeMd).apply();
+            return newPackage.readmeMd().get();
         }
     }
 }

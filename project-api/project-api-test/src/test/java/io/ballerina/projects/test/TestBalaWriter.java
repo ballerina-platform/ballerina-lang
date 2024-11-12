@@ -108,7 +108,7 @@ public class TestBalaWriter {
 
         try (FileReader reader = new FileReader(String.valueOf(balaJsonPath))) {
             BalaJson balaJson = gson.fromJson(reader, BalaJson.class);
-            Assert.assertEquals(balaJson.getBala_version(), "2.0.0");
+            Assert.assertEquals(balaJson.getBala_version(), "3.0.0");
             Assert.assertEquals(balaJson.getBuilt_by(), "WSO2");
         }
 
@@ -316,7 +316,7 @@ public class TestBalaWriter {
 
         try (FileReader reader = new FileReader(String.valueOf(balaJsonPath))) {
             BalaJson balaJson = gson.fromJson(reader, BalaJson.class);
-            Assert.assertEquals(balaJson.getBala_version(), "2.0.0");
+            Assert.assertEquals(balaJson.getBala_version(), "3.0.0");
             Assert.assertEquals(balaJson.getBuilt_by(), "WSO2");
         }
 
@@ -411,7 +411,7 @@ public class TestBalaWriter {
 
         try (FileReader reader = new FileReader(String.valueOf(balaJsonPath))) {
             BalaJson balaJson = gson.fromJson(reader, BalaJson.class);
-            Assert.assertEquals(balaJson.getBala_version(), "2.0.0");
+            Assert.assertEquals(balaJson.getBala_version(), "3.0.0");
             Assert.assertEquals(balaJson.getBuilt_by(), "WSO2");
         }
 
@@ -472,7 +472,7 @@ public class TestBalaWriter {
 
         try (FileReader reader = new FileReader(String.valueOf(balaJsonPath))) {
             BalaJson balaJson = gson.fromJson(reader, BalaJson.class);
-            Assert.assertEquals(balaJson.getBala_version(), "2.0.0");
+            Assert.assertEquals(balaJson.getBala_version(), "3.0.0");
             Assert.assertEquals(balaJson.getBuilt_by(), "WSO2");
         }
 

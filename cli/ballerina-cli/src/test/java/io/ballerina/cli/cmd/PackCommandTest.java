@@ -11,6 +11,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
@@ -22,7 +23,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Objects;
@@ -80,6 +80,11 @@ public class PackCommandTest extends BaseCommandTest {
         Files.writeString(logFile, "");
     }
 
+    @AfterMethod
+    public void afterMethod() {
+        ProjectUtils.clearDiagnostics();
+    }
+
     @Test(description = "Pack a library package", dataProvider = "optimizeDependencyCompilation")
     public void testPackProject(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("validLibraryProject");
@@ -107,8 +112,7 @@ public class PackCommandTest extends BaseCommandTest {
 
         String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
         PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
-        Assert.assertEquals(packageJson.getDocs().entrySet().size(), 1);
-        Assert.assertEquals(BALA_DOCS_DIR + "/" + README_MD_FILE_NAME, packageJson.getDocs().get("winery"));
+        Assert.assertEquals(BALA_DOCS_DIR + "/" + README_MD_FILE_NAME, packageJson.getReadme());
     }
 
     @Test(description = "Pack a ballerina project with the engagement of all type of compiler plugins",
@@ -725,8 +729,13 @@ public class PackCommandTest extends BaseCommandTest {
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.contains("WARNING [winery] The use of Package.md and Module.md is deprecated. " +
-                "Update the package to add a README.md file."));
+        String warning = """
+                        The default file for package documentation is changed to README.md. If you prefer to \
+                        use the Package.md, add the following line under the '[package]' section in your \
+                        Ballerina.toml file:
+                        \treadme = "Package.md"
+                        """;
+        Assert.assertTrue(buildLog.contains(warning));
 
         // Verify the docs
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
@@ -738,8 +747,7 @@ public class PackCommandTest extends BaseCommandTest {
         // Verify the docs entry in package.json
         String packageJsonContent = Files.readString(extractedPath.resolve("package.json"));
         PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
-        Assert.assertEquals(packageJson.getDocs().entrySet().size(), 1);
-        Assert.assertEquals(BALA_DOCS_DIR + "/" + PACKAGE_MD_FILE_NAME, packageJson.getDocs().get("winery"));
+        Assert.assertEquals(BALA_DOCS_DIR + "/" + PACKAGE_MD_FILE_NAME, packageJson.getReadme());
     }
 
     @Test (description = "Add the readme entry to the package with old doc structure to resolve the warning",
@@ -755,8 +763,13 @@ public class PackCommandTest extends BaseCommandTest {
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertFalse(buildLog.contains("WARNING [winery] The use of Package.md and Module.md is deprecated. " +
-                "Update the package to add a README.md file."));
+        String warning = """
+                        The default file for package documentation is changed to README.md. If you prefer to \
+                        use the Package.md, add the following line under the '[package]' section in your \
+                        Ballerina.toml file:
+                        \treadme = "Package.md"
+                        """;
+        Assert.assertFalse(buildLog.contains(warning));
 
         // Verify the docs
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
@@ -768,8 +781,7 @@ public class PackCommandTest extends BaseCommandTest {
         // Verify the docs entry in package.json
         String packageJsonContent = Files.readString(extractedPath.resolve("package.json"));
         PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
-        Assert.assertEquals(packageJson.getDocs().entrySet().size(), 1);
-        Assert.assertEquals(BALA_DOCS_DIR + "/" + PACKAGE_MD_FILE_NAME, packageJson.getDocs().get("winery"));
+        Assert.assertEquals(BALA_DOCS_DIR + "/" + PACKAGE_MD_FILE_NAME, packageJson.getReadme());
     }
 
     @Test (description = "Package root contains README.md but the Ballerina.toml has Package.md")
@@ -798,8 +810,14 @@ public class PackCommandTest extends BaseCommandTest {
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.contains("WARNING [winery] The use of Package.md and Module.md is deprecated. " +
-                "Update the package to add a README.md file."));
+
+        String warning = """
+                        The default file for package documentation is changed to README.md. If you prefer to \
+                        use the Package.md, add the following line under the '[package]' section in your \
+                        Ballerina.toml file:
+                        \treadme = "Package.md"
+                        """;
+        Assert.assertTrue(buildLog.contains(warning));
 
         // Verify the docs
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
@@ -815,9 +833,10 @@ public class PackCommandTest extends BaseCommandTest {
         // Verify the docs entry in package.json
         String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
         PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
-        Assert.assertEquals(packageJson.getDocs().entrySet().size(), 2);
-        Assert.assertEquals(packageDocPath, packageJson.getDocs().get("winery"));
-        Assert.assertEquals(nonDefaultModuleDocPath, packageJson.getDocs().get("winery.storage"));
+        Assert.assertEquals(packageJson.getModules().size(), 1);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(nonDefaultModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.storage".equals(module.name())).findFirst().get().readme());
     }
 
     @Test (description = "Add readme entries for all places in the package with the old doc structure" +
@@ -834,8 +853,13 @@ public class PackCommandTest extends BaseCommandTest {
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertFalse(buildLog.contains("WARNING [winery] The use of Package.md and Module.md is deprecated. " +
-                "Update the package to add a README.md file."));
+        String warning = """
+                        The default file for package documentation is changed to README.md. If you prefer to \
+                        use the Package.md, add the following line under the '[package]' section in your \
+                        Ballerina.toml file:
+                        \treadme = "Package.md"
+                        """;
+        Assert.assertFalse(buildLog.contains(warning));
 
         // Verify the docs
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
@@ -851,9 +875,10 @@ public class PackCommandTest extends BaseCommandTest {
         // Verify the docs entry in package.json
         String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
         PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
-        Assert.assertEquals(packageJson.getDocs().entrySet().size(), 2);
-        Assert.assertEquals(packageDocPath, packageJson.getDocs().get("winery"));
-        Assert.assertEquals(nonDefaultModuleDocPath, packageJson.getDocs().get("winery.storage"));
+        Assert.assertEquals(packageJson.getModules().size(), 1);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(nonDefaultModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.storage".equals(module.name())).findFirst().get().readme());
     }
 
     @Test
@@ -880,9 +905,10 @@ public class PackCommandTest extends BaseCommandTest {
         // Verify the docs entry in package.json
         String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
         PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
-        Assert.assertEquals(packageJson.getDocs().entrySet().size(), 2);
-        Assert.assertEquals(packageDocPath, packageJson.getDocs().get("winery"));
-        Assert.assertEquals(nonDefaultModuleDocPath, packageJson.getDocs().get("winery.storage"));
+        Assert.assertEquals(packageJson.getModules().size(), 1);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(nonDefaultModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.storage".equals(module.name())).findFirst().get().readme());
     }
 
     @Test (description = "One non-default module does not contain a readme")
@@ -911,9 +937,10 @@ public class PackCommandTest extends BaseCommandTest {
         // Verify the docs entry in package.json
         String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
         PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
-        Assert.assertEquals(packageJson.getDocs().entrySet().size(), 2);
-        Assert.assertEquals(packageDocPath, packageJson.getDocs().get("winery"));
-        Assert.assertEquals(storageModuleDocPath, packageJson.getDocs().get("winery.storage"));
+        Assert.assertEquals(packageJson.getModules().size(), 2);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(storageModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.storage".equals(module.name())).findFirst().get().readme());
     }
 
     @Test (description = "One non-default module uses a custom MD. " +
@@ -943,10 +970,12 @@ public class PackCommandTest extends BaseCommandTest {
         // Verify the docs entry in package.json
         String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
         PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
-        Assert.assertEquals(packageJson.getDocs().entrySet().size(), 3);
-        Assert.assertEquals(packageDocPath, packageJson.getDocs().get("winery"));
-        Assert.assertEquals(storageModuleDocPath, packageJson.getDocs().get("winery.storage"));
-        Assert.assertEquals(commonModuleDocPath, packageJson.getDocs().get("winery.common"));
+        Assert.assertEquals(packageJson.getModules().size(), 2);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(storageModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.storage".equals(module.name())).findFirst().get().readme());
+        Assert.assertEquals(commonModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.common".equals(module.name())).findFirst().get().readme());
     }
 
     @Test (description = "One non-default module does not have a doc")
@@ -975,9 +1004,10 @@ public class PackCommandTest extends BaseCommandTest {
         // Verify the docs entry in package.json
         String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
         PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
-        Assert.assertEquals(packageJson.getDocs().entrySet().size(), 2);
-        Assert.assertEquals(packageDocPath, packageJson.getDocs().get("winery"));
-        Assert.assertEquals(storageModuleDocPath, packageJson.getDocs().get("winery.storage"));
+        Assert.assertEquals(packageJson.getModules().size(), 2);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(storageModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.storage".equals(module.name())).findFirst().get().readme());
     }
 
     @Test
@@ -1006,9 +1036,10 @@ public class PackCommandTest extends BaseCommandTest {
         // Verify the docs entry in package.json
         String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
         PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
-        Assert.assertEquals(packageJson.getDocs().entrySet().size(), 2);
-        Assert.assertEquals(packageDocPath, packageJson.getDocs().get("winery"));
-        Assert.assertEquals(storageModuleDocPath, packageJson.getDocs().get("winery.bar.storage"));
+        Assert.assertEquals(packageJson.getModules().size(), 2);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(storageModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.bar.storage".equals(module.name())).findFirst().get().readme());
     }
 
     @Test
@@ -1037,9 +1068,10 @@ public class PackCommandTest extends BaseCommandTest {
         // Verify the docs entry in package.json
         String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
         PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
-        Assert.assertEquals(packageJson.getDocs().entrySet().size(), 2);
-        Assert.assertEquals(packageDocPath, packageJson.getDocs().get("bar.winery"));
-        Assert.assertEquals(storageModuleDocPath, packageJson.getDocs().get("bar.winery.storage"));
+        Assert.assertEquals(packageJson.getModules().size(), 2);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(storageModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "bar.winery.storage".equals(module.name())).findFirst().get().readme());
     }
 
     @Test
@@ -1064,7 +1096,7 @@ public class PackCommandTest extends BaseCommandTest {
         // Verify the docs entry in package.json
         String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
         PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
-        Assert.assertEquals(packageJson.getDocs().entrySet().size(), 0);
+        Assert.assertNull(packageJson.getModules());
     }
 
     @AfterClass

@@ -59,10 +59,8 @@ public class GenDocsForBalaTest {
 
         String sfModuleApiDocsJsonAsString = Files.readString(
                 this.docsPath.resolve("foo/fb/1.3.5").resolve(BallerinaDocGenerator.API_DOCS_JSON));
-        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("\"id\":\"fb\",\"summary\":\"This module " +
-                        "provides an implementation to interact with fb Brokers via fb Consumer and " +
-                        "fb [Ballerina](https://ballerina.io) Producer clients.\\n\""),
-                "Default module summary is missing");
+        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("\"id\":\"fb\",\"summary\":\"Package md content with " +
+                        "character length bigger than 50 characters, in one line in the Package MD file.\\n\""));
         Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("\"id\":\"fb.world\",\"summary\":" +
                         "\"Connects the twilio communication services.\\n\""),
                 "fb.world module summary is missing");

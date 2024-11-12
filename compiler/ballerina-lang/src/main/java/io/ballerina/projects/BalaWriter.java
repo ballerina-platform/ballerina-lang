@@ -163,6 +163,7 @@ public abstract class BalaWriter {
         packageJson.setAuthors(packageManifest.authors());
         packageJson.setSourceRepository(packageManifest.repository());
         packageJson.setKeywords(packageManifest.keywords());
+        packageJson.setExport(packageManifest.exportedModules());
         packageJson.setInclude(packageManifest.includes());
         packageJson.setVisibility(packageManifest.visibility());
         packageJson.setTemplate(packageManifest.template());
@@ -289,6 +290,7 @@ public abstract class BalaWriter {
         if (packageManifest.readme() == null) {
             return;
         }
+        Path sourceRoot = this.packageContext.project().sourceRoot;
         Path pkgReadme = Paths.get(packageManifest.readme());
         Path docsDirInBala = Path.of(BALA_DOCS_DIR);
 
@@ -313,7 +315,7 @@ public abstract class BalaWriter {
             Path otherReadmeMdInBalaDocs = modulesDirInBalaDocs.resolve(module.name())
                     .resolve(Paths.get(module.readme()).getFileName());
             putZipEntry(balaOutputStream, otherReadmeMdInBalaDocs,
-                    new FileInputStream(module.readme()));
+                    new FileInputStream(sourceRoot.resolve(module.readme()).toString()));
         }
     }
 

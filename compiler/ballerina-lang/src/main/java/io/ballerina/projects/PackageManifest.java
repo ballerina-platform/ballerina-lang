@@ -67,35 +67,6 @@ public class PackageManifest {
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
-                            DiagnosticResult diagnostics) {
-        this.packageDesc = packageDesc;
-        this.compilerPluginDesc = compilerPluginDesc;
-        this.balToolDesc = balToolDesc;
-        this.platforms = Collections.unmodifiableMap(platforms);
-        this.dependencies = Collections.unmodifiableList(dependencies);
-        this.otherEntries = Collections.unmodifiableMap(otherEntries);
-        this.diagnostics = diagnostics;
-        this.license = Collections.emptyList();
-        this.authors = Collections.emptyList();
-        this.keywords = Collections.emptyList();
-        this.exportedModules = Collections.emptyList();
-        this.includes = Collections.emptyList();
-        this.repository = "";
-        this.ballerinaVersion = "";
-        this.visibility = "";
-        this.icon = "";
-        this.tools = Collections.emptyList();
-        this.readme = "";
-        this.description = "";
-        this.moduleList = Collections.emptyList();
-    }
-
-    private PackageManifest(PackageDescriptor packageDesc,
-                            CompilerPluginDescriptor compilerPluginDesc,
-                            BalToolDescriptor balToolDesc,
-                            Map<String, Platform> platforms,
-                            List<Dependency> dependencies,
-                            Map<String, Object> otherEntries,
                             List<Tool> tools,
                             DiagnosticResult diagnostics) {
         this.packageDesc = packageDesc;

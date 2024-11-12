@@ -69,6 +69,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.internal.ManifestUtils.ToolNodeValueType;
@@ -230,7 +231,7 @@ public class ManifestBuilder {
                 validateIconPathForPng(icon, pkgNode);
 
                 String customReadmeVal = getStringValueFromTomlTableNode(pkgNode, README, null);
-                readme = validateAndGetReadmePath(pkgNode, customReadmeVal);
+                readme = validateAndGetReadmePath(pkgNode, customReadmeVal, packageDescriptor.name());
                 description = getStringValueFromTomlTableNode(pkgNode, DESCRIPTION, "");
                 moduleEntries = getModuleEntries(pkgNode, customReadmeVal, packageDescriptor.name());
 
@@ -289,17 +290,19 @@ public class ManifestBuilder {
     private List<PackageManifest.Module> getModuleEntries(
             TomlTableNode pkgNode, String customReadmeVal, PackageName packageName) {
 
+        TopLevelNode dependencyEntries = validateAndGetModuleNodes(pkgNode, packageName);
+
         List<PackageManifest.Module> moduleList = new ArrayList<>();
         Path modulesRoot = this.projectPath.resolve(ProjectConstants.MODULES_ROOT);
         if (!Files.exists(modulesRoot)) {
             return moduleList;
         }
-        List<Path> moduleDirs;
-        try (Stream<Path> stream = Files.walk(modulesRoot, 1)) {  // depth of 1 ensures we only look at direct children
+        Map<String, Path> moduleDirs;
+        try (Stream<Path> stream = Files.walk(modulesRoot, 1)) {
             moduleDirs = stream
                     .filter(Files::isDirectory)
                     .filter(path -> !path.equals(modulesRoot))
-                    .toList();
+                    .collect(Collectors.toMap(path -> Optional.of(path.getFileName()).get().toString(), path -> path));
         } catch (IOException e) {
             throw new ProjectException("Failed to read the module README:", e);
         }
@@ -307,14 +310,15 @@ public class ManifestBuilder {
         if (customReadmeVal == null) {
             if (Files.exists(this.projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME))) {
                 // old structure. Module READMEs are captured by <module-root>/Module.md file.
-                for (Path moduleDir : moduleDirs) {
-                    Path modReadmePath = moduleDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+                for (Map.Entry<String, Path> pathEntry : moduleDirs.entrySet()) {
+                    Path modReadmePath = pathEntry.getValue().resolve(ProjectConstants.MODULE_MD_FILE_NAME);
                     String modReadme = null;
                     if (Files.exists(modReadmePath)) {
-                        modReadme = modReadmePath.toString();
+                        modReadme = Paths.get(ProjectConstants.MODULES_ROOT).resolve(pathEntry.getKey())
+                                .resolve(ProjectConstants.MODULE_MD_FILE_NAME).toString();
                     }
                     PackageManifest.Module module = new PackageManifest.Module(
-                            packageName + DOT + moduleDir.getFileName().toString(), false,
+                            packageName + DOT + Optional.of(pathEntry.getValue().getFileName()).get(), false,
                             "", modReadme);
                     moduleList.add(module);
                 }
@@ -323,16 +327,16 @@ public class ManifestBuilder {
         }
 
         // new structure
-        TopLevelNode dependencyEntries = pkgNode.entries().get("modules");
         if (dependencyEntries == null || dependencyEntries.kind() == TomlType.NONE) {
-            for (Path moduleDir : moduleDirs) {
-                Path modReadmePath = moduleDir.resolve(ProjectConstants.README_MD_FILE_NAME);
-                String modReadme = null;
+            for (Map.Entry<String, Path> pathEntry : moduleDirs.entrySet()) {
+                Path modReadmePath = pathEntry.getValue().resolve(ProjectConstants.README_MD_FILE_NAME);
+                String modReadme = "";
                 if (Files.exists(modReadmePath)) {
-                    modReadme = modReadmePath.toString();
+                    modReadme = Paths.get(ProjectConstants.MODULES_ROOT).resolve(pathEntry.getKey())
+                            .resolve(ProjectConstants.README_MD_FILE_NAME).toString();;
                 }
                 PackageManifest.Module module = new PackageManifest.Module(
-                        packageName + DOT + moduleDir.getFileName().toString(), false,
+                        packageName + DOT + Optional.of(pathEntry.getValue().getFileName()).get(), false,
                         "", modReadme);
                 moduleList.add(module);
             }
@@ -343,21 +347,6 @@ public class ManifestBuilder {
             for (TomlTableNode modulesNode : dependencyTableArray.children()) {
                 String moduleName = getStringValueFromTomlTableNode(modulesNode, NAME, null);
                 if (moduleName == null) {
-                    continue;
-                }
-                if (moduleName.equals(getStringValueFromTomlTableNode(pkgNode, NAME))) {
-                    // TODO: report diagnostic - default module not allowed
-                    continue;
-                }
-
-                try {
-                    if (Files.notExists(this.projectPath.resolve(ProjectConstants.MODULES_ROOT)
-                            .resolve(moduleName.split(packageName + DOT)[1]))) {
-                        // TODO: report diagnostic - invalid module provided. module not found
-                        continue;
-                    }
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    // TODO: report diagnostic - invalid module provided. module not found
                     continue;
                 }
 
@@ -377,17 +366,73 @@ public class ManifestBuilder {
                 PackageManifest.Module module = new PackageManifest.Module(moduleName, export,
                         description, modReadme);
                 moduleList.add(module);
+                moduleDirs.remove(moduleName.split("[.]")[1]);
+            }
+            // If there are README.mds in other modules, add them
+            for (Map.Entry<String, Path> pathEntry : moduleDirs.entrySet()) {
+                Path modReadmePath = pathEntry.getValue().resolve(ProjectConstants.README_MD_FILE_NAME);
+                String modReadme = "";
+                if (Files.exists(modReadmePath)) {
+                    modReadme = modReadmePath.toString();
+                }
+                PackageManifest.Module module = new PackageManifest.Module(
+                        packageName + DOT + Optional.of(pathEntry.getValue().getFileName()).get(), false,
+                        "", modReadme);
+                moduleList.add(module);
             }
         }
         return moduleList;
     }
 
-    private String validateAndGetReadmePath(TomlTableNode pkgNode, String readme) {
+    private TopLevelNode validateAndGetModuleNodes(TomlTableNode pkgNode, PackageName packageName) {
+        TopLevelNode dependencyEntries = pkgNode.entries().get("modules");
+        if (dependencyEntries != null && dependencyEntries.kind() == TomlType.TABLE_ARRAY) {
+            TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyEntries;
+            for (TomlTableNode modulesNode : dependencyTableArray.children()) {
+                String moduleName = getStringValueFromTomlTableNode(modulesNode, NAME, null);
+                if (moduleName == null) {
+                    continue;
+                }
+                if (moduleName.equals(packageName.toString())) {
+                    String warning = "module '" + moduleName + "' is not allowed\n";
+                    reportDiagnostic(modulesNode.entries().get(NAME), warning,
+                            ProjectDiagnosticErrorCode.INVALID_MODULE, DiagnosticSeverity.ERROR);
+                    continue;
+                }
+
+                try {
+                    if (Files.notExists(this.projectPath.resolve(ProjectConstants.MODULES_ROOT)
+                            .resolve(moduleName.split(packageName + DOT)[1]))) {
+                        String warning = "module '" + moduleName + "' not found";
+                        reportDiagnostic(modulesNode.entries().get(NAME), warning,
+                                ProjectDiagnosticErrorCode.INVALID_MODULE, DiagnosticSeverity.ERROR);
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    String warning = "module '" + moduleName + "' not found";
+                    reportDiagnostic(modulesNode.entries().get(NAME), warning,
+                            ProjectDiagnosticErrorCode.INVALID_MODULE, DiagnosticSeverity.ERROR);
+                }
+            }
+        }
+        return dependencyEntries;
+    }
+
+    private String validateAndGetReadmePath(TomlTableNode pkgNode, String readme, PackageName name) {
         Path readmeMdPath;
         if (readme == null) {
             readmeMdPath = this.projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
             if (Files.exists(readmeMdPath)) {
-                // TODO: can we report the diagnostic?
+                String warning = """
+                        The default file for package documentation is changed to README.md. If you prefer to \
+                        use the Package.md, add the following line under the '[package]' section in your \
+                        Ballerina.toml file:
+                        \treadme = "Package.md"
+                        """;
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(ProjectDiagnosticErrorCode.
+                        DEPRECATED_DOC_FILE.diagnosticId(), warning, DiagnosticSeverity.WARNING);
+                PackageDiagnostic packageDiagnostic = new PackageDiagnostic(diagnosticInfo,
+                        name.toString());
+                ProjectUtils.addMiscellaneousProjectDiagnostics(packageDiagnostic);
                 isOldStructure = true;
                 return readmeMdPath.toString();
             } else {
@@ -415,7 +460,7 @@ public class ManifestBuilder {
                     "invalid 'readme' under [package]: 'readme' can only have '.md' files",
                     ProjectDiagnosticErrorCode.INVALID_FILE_FORMAT, DiagnosticSeverity.ERROR);
         }
-        return readme;
+        return readmeMdPath.toString();
     }
 
     private List<PackageManifest.Tool> getTools() {

@@ -4,5 +4,6 @@ name = "winery"
 version = "0.1.0"
 readme = "Package.md"
 
-[package.modules.winery.bar.storage]
+[[package.modules]]
+name = "winery.bar.storage"
 readme = "modules/bar.storage/Module.md"

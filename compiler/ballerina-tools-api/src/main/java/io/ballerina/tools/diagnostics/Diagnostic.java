@@ -56,7 +56,13 @@ public abstract class Diagnostic {
 
     @Override
     public String toString() {
-        return diagnosticInfo().severity().toString() + " [" +
-                location().lineRange().fileName() + ":" + location().lineRange() + "] " + message();
+        String location;
+        if (location().lineRange().fileName().isEmpty()) {
+            location = "";
+        } else {
+            location = " [" +
+                    location().lineRange().fileName() + ":" + location().lineRange() + "]";
+        }
+        return diagnosticInfo().severity().toString() + location + " " + message();
     }
 }
