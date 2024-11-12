@@ -81,7 +81,7 @@ public class TransactionResourceManager {
     public static final String TRANSACTION_AUTO_COMMIT_TIMEOUT_KEY = "transactionAutoCommitTimeout";
     public static final String TRANSACTION_CLEANUP_TIMEOUT_KEY = "transactionCleanupTimeout";
 
-    private static final PrintStream outStream = System.out;
+    private static final PrintStream OUTSTREAM = System.out;
     private Map<String, List<BallerinaTransactionContext>> resourceRegistry;
     private Map<String, Transaction> trxRegistry;
     private Map<String, Xid> xidRegistry;
@@ -312,7 +312,7 @@ public class TransactionResourceManager {
             // resource participant reported failure.
             status = false;
         }
-        outStream.printf("Transaction prepare (participants): %s%n", status ? "success" : "failed");
+        OUTSTREAM.printf("Transaction prepare (participants): %s%n", status ? "success" : "failed");
         return status;
     }
 
@@ -639,7 +639,7 @@ public class TransactionResourceManager {
     public void notifyResourceFailure(String gTransactionId) {
         failedResourceParticipantSet.add(gTransactionId);
         // The resource excepted (uncaught).
-        outStream.println("Trx infected callable unit excepted id : " + gTransactionId);
+        OUTSTREAM.println("Trx infected callable unit excepted id : " + gTransactionId);
     }
 
     public void notifyLocalParticipantFailure(String gTransactionId, String blockId) {
@@ -659,6 +659,6 @@ public class TransactionResourceManager {
     }
 
     private void logError(String message, Exception err) {
-        outStream.println(LocalDateTime.now() + "ERROR\t" + message + "\n" + Arrays.toString(err.getStackTrace()));
+        OUTSTREAM.println(LocalDateTime.now() + "ERROR\t" + message + "\n" + Arrays.toString(err.getStackTrace()));
     }
 }
