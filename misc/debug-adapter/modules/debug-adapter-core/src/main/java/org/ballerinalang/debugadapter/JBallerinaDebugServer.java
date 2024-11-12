@@ -38,6 +38,7 @@ import org.ballerinalang.debugadapter.config.ClientAttachConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigurationException;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
+import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.DebugExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -149,6 +150,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private ThreadReferenceProxyImpl activeThread;
     private SuspendedContext suspendedContext;
     private DebugOutputLogger outputLogger;
+    private DebugExpressionEvaluator evaluator;
 
     private final AtomicInteger nextVarReference = new AtomicInteger();
     private final Map<Integer, StackFrameProxyImpl> stackFrames = new HashMap<>();
@@ -335,7 +337,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<Void> pause(PauseArguments args) {
         VirtualMachineProxyImpl debuggeeVM = context.getDebuggeeVM();
-        // Checks if the program VM is a read-only VM. (If a method which would modify the state of the VM is called
+        // Checks if the program VM is a read-only VM. If a method which modified the state of the VM is called
         // on a read-only VM, a `VMCannotBeModifiedException` will be thrown.
         if (!debuggeeVM.canBeModified()) {
             getOutputLogger().sendConsoleOutput("Failed to suspend the remote VM due to: pause requests are not " +
@@ -490,23 +492,22 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             return CompletableFuture.completedFuture(response);
         }
 
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                StackFrameProxyImpl frame = stackFrames.get(args.getFrameId());
-                SuspendedContext suspendedContext = new SuspendedContext(context, activeThread, frame);
-                EvaluationContext evaluationContext = new EvaluationContext(suspendedContext);
-                DebugExpressionEvaluator evaluator = new DebugExpressionEvaluator(evaluationContext);
-                evaluator.setExpression(args.getExpression());
-                BVariable evaluationResult = evaluator.evaluate().getBVariable();
-                return constructEvaluateResponse(args, evaluationResult);
-            } catch (EvaluationException e) {
-                context.getOutputLogger().sendErrorOutput(e.getMessage());
-                return new EvaluateResponse();
-            } catch (Exception e) {
-                context.getOutputLogger().sendErrorOutput(EvaluationExceptionKind.PREFIX + "internal error");
-                return new EvaluateResponse();
-            }
-        });
+        try {
+            StackFrameProxyImpl frame = stackFrames.get(args.getFrameId());
+            SuspendedContext suspendedContext = new SuspendedContext(context, activeThread, frame);
+            EvaluationContext evaluationContext = new EvaluationContext(suspendedContext);
+            evaluator = Objects.requireNonNullElse(evaluator, new DebugExpressionEvaluator(evaluationContext));
+            evaluator.setExpression(args.getExpression());
+            BExpressionValue evaluateResult = evaluator.evaluate();
+            EvaluateResponse evaluateResponse = constructEvaluateResponse(args, evaluateResult.getBVariable());
+            return CompletableFuture.completedFuture(evaluateResponse);
+        } catch (EvaluationException e) {
+            context.getOutputLogger().sendErrorOutput(e.getMessage());
+            return CompletableFuture.completedFuture(new EvaluateResponse());
+        } catch (Exception e) {
+            context.getOutputLogger().sendErrorOutput(EvaluationExceptionKind.PREFIX + "internal error");
+            return CompletableFuture.completedFuture(new EvaluateResponse());
+        }
     }
 
     @Override
@@ -648,7 +649,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         if (context.getLaunchedProcess().isPresent() && context.getLaunchedProcess().get().isAlive()) {
             killProcessWithDescendants(context.getLaunchedProcess().get());
         }
-        // Destroys remote VM process, if `terminteDebuggee' flag is set.
+        // Destroys remote VM process, if `terminateDebuggee' flag is set.
         if (terminateDebuggee && context.getDebuggeeVM() != null) {
             int exitCode = 0;
             if (context.getDebuggeeVM().process() != null) {
@@ -845,7 +846,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     /**
-     * Validates a given ballerina stack frame for for its source information.
+     * Validates a given ballerina stack frame for its source information.
      *
      * @param stackFrame ballerina stack frame
      * @return true if its a valid ballerina frame
@@ -1189,6 +1190,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      */
     private void clearState() {
         suspendedContext = null;
+        evaluator = null;
         activeThread = null;
         stackFrames.clear();
         loadedCompoundVariables.clear();
