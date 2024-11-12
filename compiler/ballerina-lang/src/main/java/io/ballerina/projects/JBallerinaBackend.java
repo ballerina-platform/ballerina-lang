@@ -77,7 +77,6 @@ import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getConflictingResourcesMsg;
-import static io.ballerina.projects.util.ProjectUtils.getResourcesPath;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 
@@ -718,7 +717,6 @@ public class JBallerinaBackend extends CompilerBackend {
             nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
                     executableFilePath.toString(),
                     "-o " + executableFilePath.getParent() + "/" + nativeImageName,
-                    "-H:IncludeResources=" + getResourcesPath(),
                     "--no-fallback"));
         }
 
