@@ -39,9 +39,9 @@ public final class ConverterUtils {
      */
     public static String convertOpenAPITypeToBallerina(String type) {
 
-        //In the case where type is not specified return anydata by default
+        //In the case where type is not specified return json by default
         if (type == null || type.isEmpty()) {
-            return "anydata";
+            return "json";
         }
 
         return switch (type) {
@@ -54,7 +54,7 @@ public final class ConverterUtils {
                  Constants.NUMBER,
                  Constants.DOUBLE -> "decimal";
             case Constants.FLOAT -> "float";
-            default -> "anydata";
+            default -> "json";
         };
     }
 

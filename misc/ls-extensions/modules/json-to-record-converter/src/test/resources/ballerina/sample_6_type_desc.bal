@@ -1,32 +1,38 @@
-type Person record {
-    record {
-        record {
+type Person record {|
+    record {|
+        record {|
             string country;
             string period;
             string name;
-        } author;
+            json...;
+        |} author;
         string name;
-    }[] books;
+        json...;
+    |}[] books;
 
-    record {
+    record {|
         string number;
         string city;
         string street;
         string neighborhood;
-        record {
+        record {|
             string code;
             string name;
-        } state;
-    } address;
+            json...;
+        |} state;
+        json...;
+    |} address;
 
-    record {
+    record {|
         string position;
         string sport;
-    }[] sports;
+        json...;
+    |}[] sports;
 
     string school;
     string year;
     string name;
     int age;
     boolean honors;
-};
+    json...;
+|};

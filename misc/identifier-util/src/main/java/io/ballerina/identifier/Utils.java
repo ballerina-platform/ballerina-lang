@@ -139,7 +139,7 @@ public final class Utils {
      */
     public static String decodeIdentifier(String encodedIdentifier) {
         if (encodedIdentifier == null) {
-            return encodedIdentifier;
+            return null;
         }
         StringBuilder sb = new StringBuilder();
         int index = 0;

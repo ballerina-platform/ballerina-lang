@@ -89,7 +89,7 @@ public class BServerInstance implements BServer {
     private void configureAgentArgs() throws BallerinaTestException {
         String balAgent = Path.of(System.getProperty(BALLERINA_AGENT_PATH)).toString();
 
-        if (balAgent == null || balAgent.isEmpty()) {
+        if (balAgent.isEmpty()) {
             throw new BallerinaTestException("Cannot start server, Ballerina agent not provided");
         }
 

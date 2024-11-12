@@ -584,7 +584,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         constantSymbol.value = value;
 
         if (value == null) {
-            return value;
+            return null;
         }
 
         this.anonTypeNameSuffixes = anonTypeNameSuffixes;
