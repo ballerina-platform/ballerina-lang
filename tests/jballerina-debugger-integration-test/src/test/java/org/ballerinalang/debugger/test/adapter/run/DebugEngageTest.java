@@ -63,7 +63,7 @@ public class DebugEngageTest extends BaseTestCase {
 
     @Test(description = "Debug engage test (launch mode), with special Ballerina project files as inputs " +
             "(i.e. persist/model.bal, etc.)")
-    public void testDebugLaunchWithBallerinaToolFile() throws BallerinaTestException {
+    public void testDebugLaunchWithBallerinaToolFiles() throws BallerinaTestException {
         String balPersistModelFile = "persist/model.bal";
         debugTestRunner = new DebugTestRunner(TEST_PROJECT_NAME, balPersistModelFile, true);
         Path breakpointFilePath = debugTestRunner.testProjectPath.resolve("hello_world.bal");
