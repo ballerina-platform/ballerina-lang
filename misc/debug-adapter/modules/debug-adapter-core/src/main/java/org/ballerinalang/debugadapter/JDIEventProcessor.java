@@ -126,12 +126,12 @@ public class JDIEventProcessor {
     void enableBreakpoints(String qualifiedClassName, LinkedHashMap<Integer, BalBreakpoint> breakpoints) {
         breakpointProcessor.addSourceBreakpoints(qualifiedClassName, breakpoints);
 
-        if (context.getDebuggeeVM() != null) {
-            // Setting breakpoints to a already running debug session.
-            context.getEventManager().deleteAllBreakpoints();
-            context.getDebuggeeVM().allClasses().forEach(referenceType ->
-                    breakpointProcessor.activateUserBreakPoints(referenceType, false));
+        if (context.getDebuggeeVM() == null) {
+            return;
         }
+        // Setting breakpoints to an already running debug session.
+        context.getEventManager().deleteAllBreakpoints();
+        context.getDebuggeeVM().allClasses().forEach(ref -> breakpointProcessor.activateUserBreakPoints(ref, false));
     }
 
     void sendStepRequest(int threadId, int stepType) {

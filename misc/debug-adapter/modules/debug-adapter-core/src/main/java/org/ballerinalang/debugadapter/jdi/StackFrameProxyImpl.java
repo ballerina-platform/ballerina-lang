@@ -286,13 +286,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
         Exception error = null;
         for (int attempt = 0; attempt < RETRY_COUNT; attempt++) {
             try {
-                Map<LocalVariable, Value> values = getAllValues();
-                LocalVariable variable = localVariable.getVariable();
-                if (values.containsKey(variable)) {
-                    return values.get(variable);
-                } else { // try direct get
-                    return getStackFrame().getValue(variable);
-                }
+                return getStackFrame().getValue(localVariable.getVariable());
             } catch (InvalidStackFrameException e) {
                 error = e;
                 clearCaches();
