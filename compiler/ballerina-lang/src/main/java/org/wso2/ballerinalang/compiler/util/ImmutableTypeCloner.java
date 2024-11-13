@@ -18,8 +18,6 @@
 package org.wso2.ballerinalang.compiler.util;
 
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.types.PredefinedType;
-import io.ballerina.types.SemType;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -82,7 +80,6 @@ import java.util.Set;
 import static io.ballerina.types.SemTypes.intersect;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.wso2.ballerinalang.compiler.semantics.analyzer.Types.AND_READONLY_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -284,7 +281,7 @@ public final class ImmutableTypeCloner {
             return immutableType.get();
         } else {
             Types.addImmutableType(symTable, pkgId, type, createImmutableIntersectionType(pkgId, owner,
-                    originalType, new BTableType(symTable.typeEnv(), TypeTags.TABLE, null, immutableTableTSymbol,
+                    originalType, new BTableType(symTable.typeEnv(), null, immutableTableTSymbol,
                             type.getFlags() | Flags.READONLY), symTable));
         }
 

@@ -1150,7 +1150,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     recordLiteral.setBType(inherentMemberType);
                 }
             }
-            BTableType tableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, inherentMemberType, null);
+            BTableType tableType = new BTableType(symTable.typeEnv(), inherentMemberType, null);
             if (!validateTableConstructorExpr(tableConstructorExpr, tableType, data)) {
                 data.resultType = symTable.semanticError;
                 return;
@@ -1195,7 +1195,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return;
             }
 
-            BTableType tableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, inferTableMemberType(memTypes,
+            BTableType tableType = new BTableType(symTable.typeEnv(), inferTableMemberType(memTypes,
                     applicableExpType), null);
 
             if (Symbols.isFlagOn(applicableExpType.getFlags(), Flags.READONLY)) {
@@ -1283,7 +1283,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
         }
 
-        return new BTableType(symTable.typeEnv(), TypeTags.TABLE, inferTableMemberType(memTypes, exprToLog, data),
+        return new BTableType(symTable.typeEnv(), inferTableMemberType(memTypes, exprToLog, data),
                 null);
     }
 
@@ -5043,7 +5043,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         } else {
             expr = keyVal.valueExpr;
         }
-        BFutureType futureType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, type, null);
+        BFutureType futureType = new BFutureType(symTable.typeEnv(), type);
         checkExpr(expr, futureType, data);
         setEventualTypeForExpression(expr, type, data);
     }
@@ -5077,7 +5077,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             dlog.error(expression.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR,
                     currentExpectedType, eventualType, expression);
         }
-        futureType.constraint = eventualType;
+        futureType.setConstraint(eventualType);
     }
 
     private void setEventualTypeForWaitExpression(BLangExpression expression, Location pos, AnalyzerData data) {
@@ -5105,7 +5105,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         BType referredResultType = Types.getImpliedType(data.resultType);
         if (referredResultType.tag == TypeTags.FUTURE) {
-            ((BFutureType) data.resultType).constraint = eventualType;
+            ((BFutureType) data.resultType).setConstraint(eventualType);
         } else {
             data.resultType = eventualType;
         }
@@ -5142,7 +5142,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         BType referredResultType = Types.getImpliedType(data.resultType);
         if (referredResultType.tag == TypeTags.FUTURE) {
-            ((BFutureType) referredResultType).constraint = eventualType;
+            ((BFutureType) referredResultType).setConstraint(eventualType);
         } else {
             data.resultType = eventualType;
         }
@@ -5222,7 +5222,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangWaitExpr waitExpr, AnalyzerData data) {
-        data.expType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, data.expType, null);
+        data.expType = new BFutureType(symTable.typeEnv(), data.expType);
         checkExpr(waitExpr.getExpression(), data.expType, data);
         // Handle union types in lhs
         BType referredResultType = Types.getImpliedType(data.resultType);
@@ -7706,7 +7706,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BFutureType generateFutureType(BInvokableSymbol invocableSymbol, BType retType) {
         boolean isWorkerStart = Symbols.isFlagOn(invocableSymbol.flags, Flags.WORKER);
-        return new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, retType, null, isWorkerStart);
+        return new BFutureType(symTable.typeEnv(), retType, isWorkerStart);
     }
 
     protected void checkTypeParamExpr(BLangExpression arg, BType expectedType, AnalyzerData data) {

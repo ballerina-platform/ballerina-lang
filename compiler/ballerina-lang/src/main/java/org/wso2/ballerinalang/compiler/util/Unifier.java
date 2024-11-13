@@ -335,7 +335,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BTableType newTableType = new BTableType(originalType.env, TypeTags.TABLE, newConstraint, null);
+        BTableType newTableType = new BTableType(types.typeCtx().env, newConstraint, null);
         newTableType.keyTypeConstraint = null;
         newTableType.fieldNameList = originalType.fieldNameList;
         newTableType.constraintPos = originalType.constraintPos;
@@ -506,8 +506,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BFutureType newFutureType = new BFutureType(originalType.env, originalType.tag, newConstraint, null,
-                                                    originalType.workerDerivative);
+        BFutureType newFutureType = new BFutureType(types.typeCtx().env, newConstraint,
+                originalType.workerDerivative);
         setFlags(newFutureType, originalType.getFlags());
         return newFutureType;
     }

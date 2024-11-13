@@ -1404,7 +1404,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return symTable.noType;
         }
 
-        BTableType tableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, constraintType, null);
+        BTableType tableType = new BTableType(symTable.typeEnv(), constraintType, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
                 typeSymbol.name, typeSymbol.originalName, typeSymbol.pkgID,
@@ -1548,7 +1548,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         BType constrainedType;
         if (type.tag == TypeTags.FUTURE) {
-            constrainedType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, constraintType, null);
+            constrainedType = new BFutureType(symTable.typeEnv(), constraintType);
         } else if (type.tag == TypeTags.MAP) {
             constrainedType = new BMapType(symTable.typeEnv(), TypeTags.MAP, constraintType, null);
         } else if (type.tag == TypeTags.TYPEDESC) {

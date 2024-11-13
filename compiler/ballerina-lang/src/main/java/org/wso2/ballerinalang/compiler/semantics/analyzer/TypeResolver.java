@@ -783,7 +783,7 @@ public class TypeResolver {
 
         SymbolEnv symEnv = data.env;
         BType type = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.type, data);
-        BFutureType constrainedType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, symTable.empty, null);
+        BFutureType constrainedType = new BFutureType(symTable.typeEnv(), symTable.empty);
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                 typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, constrainedType, typeSymbol.owner,
@@ -1679,7 +1679,7 @@ public class TypeResolver {
         SymbolEnv symEnv = data.env;
         BType type = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.type, data);
 
-        BTableType tableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, symTable.empty, null);
+        BTableType tableType = new BTableType(symTable.typeEnv(), symTable.empty, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
                 typeSymbol.name, typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID,

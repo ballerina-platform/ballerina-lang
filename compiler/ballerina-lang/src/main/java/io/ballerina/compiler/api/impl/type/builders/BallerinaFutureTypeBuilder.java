@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
@@ -63,8 +62,8 @@ public class BallerinaFutureTypeBuilder implements TypeBuilder.FUTURE {
         BTypeSymbol futureTSymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.EMPTY,
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
 
-        BFutureType futureType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, getBType(typeParam),
-                futureTSymbol);
+        BFutureType futureType = new BFutureType(symTable.typeEnv(), getBType(typeParam));
+        futureType.tsymbol = futureTSymbol;
         futureTSymbol.type = futureType;
         FutureTypeSymbol futureTypeSymbol = (FutureTypeSymbol) typesFactory.getTypeDescriptor(futureType);
         this.typeParam = null;

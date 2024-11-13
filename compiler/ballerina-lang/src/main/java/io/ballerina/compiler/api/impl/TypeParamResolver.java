@@ -265,7 +265,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        BTableType bTableType = new BTableType(types.typeEnv(), typeInSymbol.tag, boundConstraintType,
+        BTableType bTableType = new BTableType(types.typeEnv(), boundConstraintType,
                 typeInSymbol.tsymbol,
                 typeInSymbol.getFlags());
         bTableType.keyTypeConstraint = typeInSymbol.keyTypeConstraint;

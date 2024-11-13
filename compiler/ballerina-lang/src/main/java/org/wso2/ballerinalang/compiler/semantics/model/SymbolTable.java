@@ -307,7 +307,7 @@ public class SymbolTable {
 
         xmlType = new BXMLType(BUnionType.create(types.typeEnv(), null, xmlElementType, xmlCommentType,
                 xmlPIType, xmlTextType), null);
-        futureType = new BFutureType(types.typeEnv(), TypeTags.FUTURE, nilType, null);
+        futureType = new BFutureType(types.typeEnv(), nilType, PredefinedType.FUTURE);
         typeDesc = new BTypedescType(types.typeEnv(), this.anyType, PredefinedType.TYPEDESC);
         initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
         initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);
@@ -1157,7 +1157,7 @@ public class SymbolTable {
 
         pureType = BUnionType.create(typeEnv(), null, anydataType, errorType);
         streamType = new BStreamType(typeEnv(), TypeTags.STREAM, pureType, nilType, null);
-        tableType = new BTableType(typeEnv(), TypeTags.TABLE, pureType, null);
+        tableType = new BTableType(typeEnv(), pureType, null);
 
         initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
         initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
@@ -1166,7 +1166,7 @@ public class SymbolTable {
     private void addCyclicArrayMapTableOfMapMembers(BUnionType unionType) {
         BArrayType arrayCloneableType = new BArrayType(typeEnv(), unionType);
         BMapType mapCloneableType = new BMapType(typeEnv(), TypeTags.MAP, unionType, null);
-        BType tableMapCloneableType = new BTableType(typeEnv(), TypeTags.TABLE, mapCloneableType, null);
+        BType tableMapCloneableType = new BTableType(typeEnv(), mapCloneableType, null);
         unionType.add(arrayCloneableType);
         unionType.add(mapCloneableType);
         unionType.add(tableMapCloneableType);

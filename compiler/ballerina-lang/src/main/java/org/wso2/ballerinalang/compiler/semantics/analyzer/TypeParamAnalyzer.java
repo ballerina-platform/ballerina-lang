@@ -338,7 +338,7 @@ public class TypeParamAnalyzer {
     private void addCyclicArrayMapTableOfMapMembers(BUnionType unionType) {
         BArrayType arrayCloneableType = new BArrayType(symTable.typeEnv(), unionType);
         BMapType mapCloneableType = new BMapType(symTable.typeEnv(), TypeTags.MAP, unionType, null);
-        BType tableMapCloneableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, mapCloneableType, null);
+        BType tableMapCloneableType = new BTableType(symTable.typeEnv(), mapCloneableType, null);
         unionType.add(arrayCloneableType);
         unionType.add(mapCloneableType);
         unionType.add(tableMapCloneableType);
@@ -848,7 +848,7 @@ public class TypeParamAnalyzer {
                     return expTableType;
                 }
 
-                BTableType tableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, tableConstraint,
+                BTableType tableType = new BTableType(symTable.typeEnv(), tableConstraint,
                         symTable.tableType.tsymbol);
                 if (expTableKeyTypeConstraint != null) {
                     tableType.keyTypeConstraint = keyTypeConstraint;

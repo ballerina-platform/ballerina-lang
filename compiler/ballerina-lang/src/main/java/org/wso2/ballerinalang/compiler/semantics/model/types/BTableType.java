@@ -49,22 +49,27 @@ public class BTableType extends BType implements TableType {
     public Location constraintPos;
 
     public BTableType mutableType;
-    public final Env env;
+    private final Env env;
 
-    public BTableType(Env env, int tag, BType constraint, BTypeSymbol tSymbol) {
-        super(tag, tSymbol);
+    public BTableType(Env env, BType constraint, BTypeSymbol tSymbol) {
+        super(TypeTags.TABLE, tSymbol);
         this.constraint = constraint;
         this.env = env;
     }
 
-    public BTableType(Env env, int tag, BType constraint, BTypeSymbol tSymbol, long flags) {
-        super(tag, tSymbol, flags);
+    public BTableType(Env env, BType constraint, BTypeSymbol tSymbol, long flags) {
+        super(TypeTags.TABLE, tSymbol, flags);
         this.constraint = constraint;
         this.env = env;
     }
 
     public BType getConstraint() {
         return this.constraint;
+    }
+
+    public void setConstraint(BType constraint) {
+        this.constraint = constraint;
+        this.semType = null;
     }
 
     @Override
@@ -109,9 +114,14 @@ public class BTableType extends BType implements TableType {
 
     @Override
     public SemType semType() {
-        boolean readonly = Symbols.isFlagOn(this.getFlags(), Flags.READONLY);
+        if (this.semType != null) {
+            return this.semType;
+        }
+
         SemType s = semTypeInner();
-        return readonly ? SemTypes.intersect(PredefinedType.VAL_READONLY, s) : s;
+        boolean readonly = Symbols.isFlagOn(this.getFlags(), Flags.READONLY);
+        this.semType = readonly ? SemTypes.intersect(PredefinedType.VAL_READONLY, s) : s;
+        return this.semType;
     }
 
     private SemType semTypeInner() {

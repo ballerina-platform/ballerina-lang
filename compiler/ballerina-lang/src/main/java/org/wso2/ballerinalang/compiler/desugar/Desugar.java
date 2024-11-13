@@ -7110,7 +7110,7 @@ public class Desugar extends BLangNodeVisitor {
         if (Symbols.isFlagOn(invSym.retType.getFlags(), Flags.PARAMETERIZED)) {
             BType retType = unifier.build(invSym.retType);
             invocation.setBType(invocation.async ?
-                    new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, retType, null) : retType);
+                    new BFutureType(symTable.typeEnv(), retType) : retType);
         }
 
         if (invocation.expr == null) {

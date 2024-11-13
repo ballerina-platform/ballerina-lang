@@ -1397,7 +1397,7 @@ public class BIRPackageSymbolEnter {
                     bStreamType.setFlags(flags);
                     return bStreamType;
                 case TypeTags.TABLE:
-                    BTableType bTableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, null,
+                    BTableType bTableType = new BTableType(symTable.typeEnv(), null,
                             symTable.tableType.tsymbol, flags);
                     bTableType.constraint = readTypeFromCp();
 
@@ -1629,8 +1629,7 @@ public class BIRPackageSymbolEnter {
 
                     return bTupleType;
                 case TypeTags.FUTURE:
-                    BFutureType bFutureType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, null,
-                            symTable.futureType.tsymbol);
+                    BFutureType bFutureType = new BFutureType(symTable.typeEnv(), null);
                     bFutureType.constraint = readTypeFromCp();
                     bFutureType.setFlags(flags);
                     return bFutureType;
