@@ -173,8 +173,12 @@ public class BreakpointProcessor {
         if (context.getDebuggeeVM() == null) {
             return;
         }
+
         context.getEventManager().deleteAllBreakpoints();
-        context.getDebuggeeVM().allClasses().forEach(classRef -> activateUserBreakPoints(classRef, false));
+        for (Map.Entry<String, LinkedHashMap<Integer, BalBreakpoint>> entry : userBreakpoints.entrySet()) {
+            String qClassName = entry.getKey();
+            context.getDebuggeeVM().classesByName(qClassName).forEach(ref -> activateUserBreakPoints(ref, false));
+        }
     }
 
     /**
@@ -210,7 +214,7 @@ public class BreakpointProcessor {
         } catch (AbsentInformationException ignored) {
             // classes with no line number information can be ignored.
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.error("Error while activating user breakpoints:" + e.getMessage(), e);
         }
     }
 
