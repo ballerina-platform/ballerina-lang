@@ -3215,7 +3215,7 @@ public class Types {
                     if (liftError) {
                         return symTable.anyAndReadonly;
                     }
-                    return BReadonlyType.newNilLiftedBReadonlyType(type.tsymbol);
+                    return BReadonlyType.newNilLiftedBReadonlyType();
             }
         }
 

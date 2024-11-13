@@ -137,7 +137,7 @@ public class SymbolTable {
     public final BType stringArrayType;
     public final BType handleType = new BHandleType();
     public final BTypedescType typeDesc;
-    public final BType readonlyType = new BReadonlyType(null);
+    public final BType readonlyType = new BReadonlyType();
     public final BType pathParamAllowedType;
     public final BIntersectionType anyAndReadonly;
     public BUnionType anyAndReadonlyOrError;

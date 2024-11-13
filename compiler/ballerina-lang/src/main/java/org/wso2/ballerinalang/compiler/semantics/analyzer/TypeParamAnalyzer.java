@@ -280,7 +280,7 @@ public class TypeParamAnalyzer {
                  TypeTags.BOOLEAN -> new BType(tag, null, name, flags);
             case TypeTags.ANY -> new BAnyType(name, flags);
             case TypeTags.ANYDATA -> createAnydataType((BUnionType) referredType, name, flags);
-            case TypeTags.READONLY -> new BReadonlyType(null, name, flags);
+            case TypeTags.READONLY -> new BReadonlyType(flags);
             // For others, we will use TSymbol.
             default -> type;
         };
@@ -302,7 +302,7 @@ public class TypeParamAnalyzer {
             case TypeTags.ANYDATA:
                 return createAnydataType((BUnionType) type, name, flags);
             case TypeTags.READONLY:
-                return new BReadonlyType(null, name, flags);
+                return new BReadonlyType(flags);
             case TypeTags.UNION:
                 if (types.isCloneableType((BUnionType) refType)) {
                     BUnionType cloneableType =
