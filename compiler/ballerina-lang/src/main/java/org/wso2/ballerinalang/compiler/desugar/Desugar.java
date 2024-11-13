@@ -965,7 +965,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangLiteral configNameLiteral =
                 ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, configVarName);
         BType type = configurableVar.getBType();
-        BType typedescType = new BTypedescType(symTable.typeEnv(), type, symTable.typeDesc.tsymbol);
+        BType typedescType = new BTypedescType(symTable.typeEnv(), type);
 
         BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
         typedescExpr.resolvedType = type;
@@ -2285,7 +2285,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangInvocation generateCreateRecordValueInvocation(Location pos,
                                                                 BType targetType,
                                                                 BVarSymbol source) {
-        BType typedescType = new BTypedescType(symTable.typeEnv(), targetType, symTable.typeDesc.tsymbol);
+        BType typedescType = new BTypedescType(symTable.typeEnv(), targetType);
         BLangInvocation invocationNode = createInvocationNode(CREATE_RECORD_VALUE, new ArrayList<>(), typedescType);
 
         BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
@@ -2303,7 +2303,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangInvocation generateCloneWithTypeInvocation(Location pos,
                                                             BType targetType,
                                                             BVarSymbol source) {
-        BType typedescType = new BTypedescType(symTable.typeEnv(), targetType, symTable.typeDesc.tsymbol);
+        BType typedescType = new BTypedescType(symTable.typeEnv(), targetType);
         BLangInvocation invocationNode = createInvocationNode(CLONE_WITH_TYPE, new ArrayList<>(), typedescType);
 
         BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
@@ -7314,13 +7314,13 @@ public class Desugar extends BLangNodeVisitor {
 
         BStreamType referredStreamType = (BStreamType) Types.getImpliedType(typeInitExpr.getBType());
         BType constraintType = referredStreamType.constraint;
-        BType constraintTdType = new BTypedescType(symTable.typeEnv(), constraintType, symTable.typeDesc.tsymbol);
+        BType constraintTdType = new BTypedescType(symTable.typeEnv(), constraintType);
         BLangTypedescExpr constraintTdExpr = new BLangTypedescExpr();
         constraintTdExpr.resolvedType = constraintType;
         constraintTdExpr.setBType(constraintTdType);
 
         BType completionType = referredStreamType.completionType;
-        BType completionTdType = new BTypedescType(symTable.typeEnv(), completionType, symTable.typeDesc.tsymbol);
+        BType completionTdType = new BTypedescType(symTable.typeEnv(), completionType);
         BLangTypedescExpr completionTdExpr = new BLangTypedescExpr();
         completionTdExpr.resolvedType = completionType;
         completionTdExpr.setBType(completionTdType);

@@ -308,17 +308,13 @@ public class SymbolTable {
         xmlType = new BXMLType(BUnionType.create(types.typeEnv(), null, xmlElementType, xmlCommentType,
                 xmlPIType, xmlTextType), null);
         futureType = new BFutureType(types.typeEnv(), TypeTags.FUTURE, nilType, null);
-        typeDesc = new BTypedescType(types.typeEnv(), this.anyType, null);
+        typeDesc = new BTypedescType(types.typeEnv(), this.anyType, PredefinedType.TYPEDESC);
         initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
         initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);
         initializeType(typeDesc, TypeKind.TYPEDESC.typeName(), BUILTIN);
 
         defineCyclicUnionBasedInternalTypes();
 
-        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
-                                                                Names.fromString("$anonType$TRUE"),
-                                                                rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
-                                                                this.builtinPos, VIRTUAL);
         BTypeSymbol trueFiniteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
                 Names.fromString("$anonType$TRUE"), rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
                 this.builtinPos, VIRTUAL);

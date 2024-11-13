@@ -1359,7 +1359,7 @@ public class BIRPackageSymbolEnter {
                     SymbolEnv pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
                     return lookupSymbolInMainSpace(pkgEnv, Names.fromString(recordName));
                 case TypeTags.TYPEDESC:
-                    BTypedescType typedescType = new BTypedescType(symTable.typeEnv(), null, symTable.typeDesc.tsymbol);
+                    BTypedescType typedescType = new BTypedescType(symTable.typeEnv(), null);
                     typedescType.constraint = readTypeFromCp();
                     typedescType.setFlags(flags);
                     return typedescType;

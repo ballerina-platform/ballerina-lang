@@ -532,7 +532,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BTypedescType newTypedescType = new BTypedescType(originalType.env, newConstraint, null);
+        BTypedescType newTypedescType = new BTypedescType(types.typeEnv(), newConstraint);
         setFlags(newTypedescType, originalType.getFlags());
         return newTypedescType;
     }
@@ -565,7 +565,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                         // argument is invalid, the type checker will log the error.
                         dlog.error(invocation.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_INFERRED_TYPEDESC_VALUE,
                                    paramVarName, paramSymbolTypedescType, new BTypedescType(symbolTable.typeEnv(),
-                                        expType, null));
+                                        expType));
                         return symbolTable.semanticError;
                     }
                     BType type = paramValueTypes.get(paramVarName);
@@ -694,7 +694,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         BLangTypedescExpr typedescExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
         typedescExpr.pos = this.symbolTable.builtinPos;
         typedescExpr.resolvedType = expType;
-        typedescExpr.setBType(new BTypedescType(symbolTable.typeEnv(), expType, null));
+        typedescExpr.setBType(new BTypedescType(symbolTable.typeEnv(), expType));
 
         BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) TreeBuilder.createNamedArgNode();
         BLangIdentifier identifierNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();

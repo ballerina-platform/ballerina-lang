@@ -1156,7 +1156,7 @@ public class QueryTypeChecker extends TypeChecker {
                 }
             } else if ((symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
                 actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type :
-                        new BTypedescType(symTable.typeEnv(), symbol.type, null);
+                        new BTypedescType(symTable.typeEnv(), symbol.type);
                 varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 BConstantSymbol constSymbol = (BConstantSymbol) symbol;
