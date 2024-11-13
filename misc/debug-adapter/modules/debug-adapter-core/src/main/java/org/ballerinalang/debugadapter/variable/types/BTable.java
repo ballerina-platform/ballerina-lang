@@ -145,8 +145,7 @@ public class BTable extends IndexedCompoundVariable {
                 tableSize = -1;
                 return;
             }
-            Value size = ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread().getThreadReference(),
-                    method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+            Value size = VariableUtils.invokeRemoteVMMethod(context, jvmValue, method.get(), null);
             tableSize = ((IntegerValue) size).intValue();
         } catch (Exception e) {
             this.tableSize = -1;
@@ -188,8 +187,7 @@ public class BTable extends IndexedCompoundVariable {
         if (getIteratorMethod.isEmpty()) {
             return null;
         }
-        return ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread().getThreadReference(),
-                getIteratorMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+        return VariableUtils.invokeRemoteVMMethod(context, jvmValue, getIteratorMethod.get(), null);
     }
 
     private boolean hasNext(@Nullable Value iterator) throws Exception {
@@ -197,8 +195,7 @@ public class BTable extends IndexedCompoundVariable {
         if (hasNextMethod.isEmpty()) {
             return false;
         }
-        Value hasNext = ((ObjectReference) iterator).invokeMethod(getContext().getOwningThread().getThreadReference(),
-                hasNextMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+        Value hasNext = VariableUtils.invokeRemoteVMMethod(context, iterator, hasNextMethod.get(), null);
         return Boolean.parseBoolean(hasNext.toString());
     }
 
@@ -208,8 +205,7 @@ public class BTable extends IndexedCompoundVariable {
         if (nextMethod.isEmpty()) {
             return null;
         }
-        return ((ObjectReference) iterator).invokeMethod(getContext().getOwningThread().getThreadReference(),
-                nextMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+        return VariableUtils.invokeRemoteVMMethod(context, iterator, nextMethod.get(), null);
     }
 
     @Nullable
@@ -218,7 +214,6 @@ public class BTable extends IndexedCompoundVariable {
         if (getValuesMethod.isEmpty()) {
             return null;
         }
-        return ((ObjectReference) next).invokeMethod(getContext().getOwningThread().getThreadReference(),
-                getValuesMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+        return VariableUtils.invokeRemoteVMMethod(context, next, getValuesMethod.get(), null);
     }
 }
