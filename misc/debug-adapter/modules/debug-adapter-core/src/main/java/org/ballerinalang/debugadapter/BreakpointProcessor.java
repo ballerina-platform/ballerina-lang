@@ -256,11 +256,7 @@ public class BreakpointProcessor {
                 context.setPrevLocation(validFrames.get(0).getJStackFrame().location());
             }
         } catch (JdiProxyException e) {
-            LOGGER.error(e.getMessage());
-            if (!jdiEventProcessor.getStepRequests().isEmpty()) {
-                int stepType = ((StepRequest) jdiEventProcessor.getStepRequests().get(0)).depth();
-                jdiEventProcessor.sendStepRequest(threadId, stepType);
-            }
+            LOGGER.error("Error while activating dynamic breakpoints:" + e.getMessage(), e);
         }
     }
 
