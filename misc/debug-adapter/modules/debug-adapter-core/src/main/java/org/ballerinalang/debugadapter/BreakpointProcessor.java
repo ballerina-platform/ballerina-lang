@@ -22,7 +22,6 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.request.BreakpointRequest;
-import com.sun.jdi.request.StepRequest;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.breakpoint.LogMessage;
 import org.ballerinalang.debugadapter.breakpoint.TemplateLogMessage;

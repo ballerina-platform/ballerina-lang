@@ -311,7 +311,8 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
         throw new JdiProxyException(error.getMessage(), error);
     }
 
-    private Map<LocalVariable, Value> getAllValues() throws JdiProxyException {
+    @SuppressWarnings("unused")
+    public Map<LocalVariable, Value> getAllValues() throws JdiProxyException {
         checkValid();
         if (myAllValues == null) {
             try {
@@ -339,6 +340,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
         return myAllValues;
     }
 
+    @SuppressWarnings("unused")
     public void setValue(LocalVariableProxyImpl localVariable, Value value)
             throws JdiProxyException, ClassNotLoadedException, InvalidTypeException {
         InvalidStackFrameException error = null;
