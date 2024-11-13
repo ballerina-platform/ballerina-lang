@@ -40,6 +40,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -140,6 +141,9 @@ public final class PackageUtils {
     }
 
     private static boolean hasBallerinaToml(Path filePath) {
+        if (Objects.isNull(filePath)) {
+            return false;
+        }
         Path absFilePath = filePath.toAbsolutePath().normalize();
         return absFilePath.resolve(BALLERINA_TOML).toFile().exists();
     }
