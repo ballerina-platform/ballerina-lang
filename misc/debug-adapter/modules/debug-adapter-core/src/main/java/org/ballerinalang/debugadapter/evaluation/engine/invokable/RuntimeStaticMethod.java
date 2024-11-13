@@ -45,7 +45,7 @@ public class RuntimeStaticMethod extends RuntimeMethod {
     }
 
     @Override
-    protected Value invoke() throws EvaluationException {
+    protected synchronized Value invoke() throws EvaluationException {
         try {
             if (!(classRef instanceof ClassType classType)) {
                 throw createEvaluationException(FUNCTION_EXECUTION_ERROR, methodRef.name());
