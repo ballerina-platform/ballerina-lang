@@ -186,7 +186,7 @@ public class InitMethodGen {
                 jvmCastGen.addUnboxInsn(mv, paramType);
                 paramIndex += 1;
             }
-            methodDesc = JvmCodeGenUtil.getMethodDesc(paramTypes, returnType);
+            methodDesc = JvmCodeGenUtil.getMethodDesc(symbolTable.typeEnv(), paramTypes, returnType);
         }
 
         mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_EXECUTE_METHOD, methodDesc, false);
@@ -332,21 +332,21 @@ public class InitMethodGen {
         javaClass.functions.add(initFunc);
         pkg.functions.add(initFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_INIT_METHOD,
-                JvmPackageGen.getFunctionWrapper(initFunc, pkg.packageID, typeOwnerClass));
+                JvmPackageGen.getFunctionWrapper(symbolTable.typeEnv(), initFunc, pkg.packageID, typeOwnerClass));
 
         BIRNode.BIRFunction startFunc = generateDefaultFunction(moduleImports, pkg, MODULE_START_METHOD,
                                                                 MethodGenUtils.START_FUNCTION_SUFFIX);
         javaClass.functions.add(startFunc);
         pkg.functions.add(startFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_START_METHOD,
-                JvmPackageGen.getFunctionWrapper(startFunc, pkg.packageID, typeOwnerClass));
+                JvmPackageGen.getFunctionWrapper(symbolTable.typeEnv(), startFunc, pkg.packageID, typeOwnerClass));
 
         BIRNode.BIRFunction execFunc = generateExecuteFunction(pkg, mainFunc, testExecuteFunc
                                                               );
         javaClass.functions.add(execFunc);
         pkg.functions.add(execFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_EXECUTE_METHOD,
-                JvmPackageGen.getFunctionWrapper(execFunc, pkg.packageID, typeOwnerClass));
+                JvmPackageGen.getFunctionWrapper(symbolTable.typeEnv(), execFunc, pkg.packageID, typeOwnerClass));
     }
 
     private BIRNode.BIRFunction generateExecuteFunction(BIRNode.BIRPackage pkg,

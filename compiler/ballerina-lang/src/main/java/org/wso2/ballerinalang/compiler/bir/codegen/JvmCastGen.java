@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.types.Env;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -1397,5 +1398,10 @@ public class JvmCastGen {
 
     private void generateXMLToAttributesMap(MethodVisitor mv) {
         mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttributesMap", GET_ATTRAIBUTE_MAP, false);
+    }
+
+    public Env typeEnv() {
+        assert types.typeEnv() != null;
+        return types.typeEnv();
     }
 }

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -59,7 +60,7 @@ class JMethodRequest {
 
     }
 
-    static JMethodRequest build(InteropValidationRequest.MethodValidationRequest methodValidationRequest,
+    static JMethodRequest build(Env typeEnv, InteropValidationRequest.MethodValidationRequest methodValidationRequest,
                                 ClassLoader classLoader) {
 
         JMethodRequest jMethodReq = new JMethodRequest();
@@ -94,7 +95,7 @@ class JMethodRequest {
         jMethodReq.bParamTypes = paramTypes.toArray(new BType[0]);
         jMethodReq.pathParamSymbols = pathParams;
 
-        BType returnType = unifier.build(bFuncType.retType);
+        BType returnType = unifier.build(typeEnv, bFuncType.retType);
         jMethodReq.bReturnType = returnType;
         jMethodReq.returnsBErrorType = SemTypes.containsBasicType(returnType.semType(), PredefinedType.ERROR);
         jMethodReq.restParamExist = methodValidationRequest.restParamExist;

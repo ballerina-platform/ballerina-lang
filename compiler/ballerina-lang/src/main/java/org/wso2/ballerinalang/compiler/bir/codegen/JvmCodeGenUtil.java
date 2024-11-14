@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.Env;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
@@ -333,18 +334,18 @@ public final class JvmCodeGenUtil {
         return name.replace(".", FILE_NAME_PERIOD_SEPERATOR);
     }
 
-    public static String getMethodDesc(List<BType> paramTypes, BType retType) {
-        return INITIAL_METHOD_DESC + getMethodDescParams(paramTypes) + generateReturnType(retType);
+    public static String getMethodDesc(Env typeEnv, List<BType> paramTypes, BType retType) {
+        return INITIAL_METHOD_DESC + getMethodDescParams(paramTypes) + generateReturnType(retType, typeEnv);
     }
 
-    public static String getMethodDesc(List<BType> paramTypes, BType retType, BType attachedType) {
+    public static String getMethodDesc(Env typeEnv, List<BType> paramTypes, BType retType, BType attachedType) {
         return INITIAL_METHOD_DESC + getArgTypeSignature(attachedType) + getMethodDescParams(paramTypes) +
-                generateReturnType(retType);
+                generateReturnType(retType, typeEnv);
     }
 
-    public static String getMethodDesc(List<BType> paramTypes, BType retType, String attachedTypeClassName) {
+    public static String getMethodDesc(Env typeEnv, List<BType> paramTypes, BType retType, String attachedTypeClassName) {
         return INITIAL_METHOD_DESC + "L" + attachedTypeClassName + ";" + getMethodDescParams(paramTypes) +
-                generateReturnType(retType);
+                generateReturnType(retType, typeEnv);
     }
 
     public static String getMethodDescParams(List<BType> paramTypes) {
@@ -387,13 +388,13 @@ public final class JvmCodeGenUtil {
         };
     }
 
-    public static String generateReturnType(BType bType) {
+    public static String generateReturnType(BType bType, Env typeEnv) {
         bType = JvmCodeGenUtil.getImpliedType(bType);
         if (bType == null) {
             return RETURN_JOBJECT;
         }
 
-        bType = JvmCodeGenUtil.UNIFIER.build(bType);
+        bType = JvmCodeGenUtil.UNIFIER.build(typeEnv, bType);
         if (bType == null || bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             return RETURN_JOBJECT;
         } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
