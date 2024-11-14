@@ -49,7 +49,7 @@ public class BErrorType extends BType implements ErrorType {
     private static final String ERROR = "error<";
     private static final String CLOSE_ERROR = ">";
 
-    public final Env env;
+    private final Env env;
     public int distinctId = -1;
     private final DistinctIdSupplier distinctIdSupplier;
 
@@ -108,13 +108,18 @@ public class BErrorType extends BType implements ErrorType {
     }
 
     private SemType semTypeInner() {
+        if (this.semType != null) {
+            return this.semType;
+        }
+
         if (detailType == null || detailType.semType() == null) {
             // semtype will be null for semantic error
-            return PredefinedType.ERROR;
+            this.semType = PredefinedType.ERROR;
         } else {
             SemType detail = detailType.semType();
-            return SemTypes.errorDetail(detail);
+            this.semType = SemTypes.errorDetail(detail);
         }
+        return this.semType;
     }
 
     private final class DistinctIdSupplier implements Supplier<List<Integer>> {
