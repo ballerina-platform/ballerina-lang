@@ -144,6 +144,14 @@ public class BRecordType extends BStructureType implements RecordType {
         return false;
     }
 
+    /**
+     * When the type is mutated we need to reset the definition used for the semType.
+     */
+    @Override
+    public void resetSemType() {
+        md = null;
+    }
+
     // If the member has a semtype component then it will be represented by that component otherwise with never. This
     // means we depend on properly partitioning types to semtype components. Also, we need to ensure member types are
     // "ready" when we call this
@@ -171,8 +179,8 @@ public class BRecordType extends BStructureType implements RecordType {
             SemType ty = bType.semType();
             if (ty == null || NEVER.equals(ty)) {
                 if (!optional) {
-                    // if there is a non-optional field with `never` type(BType Component + SemType Component),
-                    // it is not possible to create a value. Hence, the whole record type is considered as `never`.
+                    // if there is a non-optional field with `never` type, it is not possible to create a value.
+                    // Hence, the whole record type is considered as `never`.
                     md.setSemTypeToNever();
                     return NEVER;
                 }

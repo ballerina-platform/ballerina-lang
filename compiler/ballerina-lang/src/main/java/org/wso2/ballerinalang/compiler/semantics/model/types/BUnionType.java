@@ -24,7 +24,6 @@ import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -53,10 +52,9 @@ public class BUnionType extends BType implements UnionType {
     private String cachedToString;
 
     protected LinkedHashSet<BType> memberTypes;
-    public LinkedHashSet<SemType> memberSemTypes;
 
-    public Boolean isAnyData = null;
-    public Boolean isPureType = null;
+    private LinkedHashSet<SemType> memberSemTypes;
+
     public boolean isCyclic = false;
 
 
@@ -490,7 +488,7 @@ public class BUnionType extends BType implements UnionType {
         }
 
         this.memberSemTypes = memberSemTypes;
-        this.semType = null; // reset cached sem-type if exists
+        this.resetSemType();
     }
 
     private void populateMemberSemTypes(BType memberType, LinkedHashSet<SemType> memberSemTypes,
@@ -507,15 +505,17 @@ public class BUnionType extends BType implements UnionType {
             return;
         }
 
-        SemType s = SemTypeHelper.semType(memberType, ignoreTypeIds);
+        SemType s = memberType.semType();
         if (!Core.isNever(s)) {
             memberSemTypes.add(s);
         }
     }
 
-    public SemType semTypeIgnoringTypeIds() {
-        populateMemberSemTypes(true);
-        return computeResultantUnion(memberSemTypes);
+    /**
+     * When the type is mutated we need to reset resolved semType.
+     */
+    public void resetSemType() {
+        this.semType = null;
     }
 
     @Override

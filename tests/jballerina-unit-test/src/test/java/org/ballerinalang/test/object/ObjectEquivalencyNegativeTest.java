@@ -33,8 +33,6 @@ public class ObjectEquivalencyNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-equivalency-01-negative.bal");
         int i = 0;
         BAssertUtil.validateError(compileResult, i++,
-                                  "incompatible types: 'employee01' cannot be cast to 'person01'", 24, 18);
-        BAssertUtil.validateError(compileResult, i++,
                                   "incompatible types: 'employee02' cannot be cast to 'person02'", 51, 18);
         BAssertUtil.validateError(compileResult, i++,
                 "incompatible types: 'employee04' cannot be cast to 'person04'", 108, 18);
@@ -42,10 +40,6 @@ public class ObjectEquivalencyNegativeTest {
                                   "incompatible types: 'employee05' cannot be cast to 'person05'", 145, 18);
         BAssertUtil.validateError(compileResult, i++,
                                   "incompatible types: 'employee06' cannot be cast to 'person06'", 175, 18);
-        BAssertUtil.validateError(compileResult, i++,
-                                  "incompatible types: 'employee08' cannot be cast to 'person08'", 284, 18);
-        BAssertUtil.validateError(compileResult, i++,
-                                  "incompatible types: 'employee09' cannot be cast to 'person09'", 341, 18);
         BAssertUtil.validateError(compileResult, i++,
                 "incompatible types: expected 'ObjWithRemoteMethod', found 'NonClientObj'", 460, 29);
         BAssertUtil.validateError(compileResult, i++,

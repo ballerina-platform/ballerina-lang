@@ -22,7 +22,6 @@ import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.IntersectionType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -135,6 +134,13 @@ public class BIntersectionType extends BType implements IntersectionType {
         return this.effectiveType;
     }
 
+    /**
+     * When the type is mutated we need to reset resolved semType.
+     */
+    public void resetSemType() {
+        this.semType = null;
+    }
+
     @Override
     public SemType semType() {
         // We have to recalculate this everytime since the actual BTypes inside constituent types do mutate and we
@@ -145,7 +151,7 @@ public class BIntersectionType extends BType implements IntersectionType {
     private SemType computeResultantIntersection() {
         SemType t = PredefinedType.VAL;
         for (BType constituentType : this.getConstituentTypes()) {
-            t = SemTypes.intersect(t, SemTypeHelper.semType(constituentType));
+            t = SemTypes.intersect(t, constituentType.semType());
         }
 
         // TODO: this is a temporary workaround to propagate effective typeIds
