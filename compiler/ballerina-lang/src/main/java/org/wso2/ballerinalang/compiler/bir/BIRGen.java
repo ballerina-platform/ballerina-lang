@@ -2808,11 +2808,22 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
         BType listConstructorExprType = listConstructorExpr.getBType();
-        BIROperand typeDesc = new BIROperand(getTypedescVariable(listConstructorExprType, listConstructorExpr.pos));
 
-        long size = -1L;
         List<BLangExpression> exprs = listConstructorExpr.exprs;
         BType referredType = Types.getImpliedType(listConstructorExprType);
+        BIROperand typeDesc = null;
+        boolean isRecordArray = false;
+        if (referredType.tag == TypeTags.TUPLE) {
+            typeDesc = new BIROperand(getTypedescVariable(listConstructorExprType, listConstructorExpr.pos));
+        } else {
+            BType elementType = ((BArrayType) referredType).getElementType();
+            if (Types.getImpliedType(elementType).tag == TypeTags.RECORD) {
+                typeDesc = new BIROperand(getTypedescVariable(elementType, elementType.tsymbol.pos));
+                isRecordArray = true;
+            }
+        }
+
+        long size = -1L;
         if (referredType.tag == TypeTags.ARRAY &&
                 ((BArrayType) referredType).state != BArrayState.OPEN) {
             size = ((BArrayType) referredType).size;
@@ -2847,12 +2858,10 @@ public class BIRGen extends BLangNodeVisitor {
         } else {
             BIRNonTerminator.NewArray newArrayIns = new BIRNonTerminator.NewArray(listConstructorExpr.pos,
                     listConstructorExprType, toVarRef, sizeOp, initialValues);
-            BType elementType = ((BArrayType) referredType).getElementType();
             // If the referredType is an array type and the element type is record type, then we need to set
             // the element typeDesc which will be used to initialize the `ArrayValueImpl`
-            if (Types.getImpliedType(elementType).tag == TypeTags.RECORD) {
-                BIRVariableDcl typedescVar = getTypedescVariable(elementType, elementType.tsymbol.pos);
-                newArrayIns.elementTypedescOp = new BIROperand(typedescVar);
+            if (isRecordArray) {
+                newArrayIns.elementTypedescOp = typeDesc;
             }
             setScopeAndEmit(newArrayIns);
         }
