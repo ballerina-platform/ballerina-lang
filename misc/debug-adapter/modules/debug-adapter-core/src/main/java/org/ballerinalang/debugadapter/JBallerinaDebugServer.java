@@ -42,6 +42,7 @@ import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.DebugExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.jdi.JDIUtils;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
@@ -590,11 +591,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             // attach to target VM
             while (context.getDebuggeeVM() == null && tryCounter < 10) {
                 try {
-                    TimeUnit.SECONDS.sleep(3);
+                    JDIUtils.sleepMillis(3000);
                     attachToRemoteVM("", clientConfigHolder.getDebuggePort());
                 } catch (IOException ignored) {
                     tryCounter++;
-                } catch (IllegalConnectorArgumentsException | ClientConfigurationException | InterruptedException e) {
+                } catch (IllegalConnectorArgumentsException | ClientConfigurationException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -680,10 +681,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
         // Exits from the debug server VM.
         new java.lang.Thread(() -> {
-            try {
-                java.lang.Thread.sleep(500);
-            } catch (InterruptedException ignored) {
-            }
+            JDIUtils.sleepMillis(500);
             System.exit(0);
         }).start();
     }
