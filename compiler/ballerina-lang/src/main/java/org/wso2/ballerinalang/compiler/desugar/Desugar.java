@@ -314,7 +314,6 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import javax.xml.XMLConstants;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -333,6 +332,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import javax.xml.XMLConstants;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;

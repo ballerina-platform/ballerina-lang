@@ -207,7 +207,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 
-import javax.xml.XMLConstants;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -218,6 +217,8 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.INVOCATION;
@@ -2506,8 +2507,8 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private BIRVariableDcl createTempVariable() {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.typeDesc, this.env.nextLocalVarId(names), VarScope.FUNCTION,
-                                                       VarKind.TEMP);
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.typeDesc, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         return tempVarDcl;
     }

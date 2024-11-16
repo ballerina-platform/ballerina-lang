@@ -2672,6 +2672,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     addDependency(ownerSymbol, symbol);
                     break;
                 }
+                // fall through
             default:
                 if (globalVarSymbol || symbol instanceof BTypeSymbol || ownerSymbol.tag == SymTag.LET) {
                     BSymbol dependent = this.currDependentSymbolDeque.peek();

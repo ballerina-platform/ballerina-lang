@@ -121,7 +121,8 @@ public class ClosedRecordTypeInclusionTest {
         assertEquals(getType(foo2.get(StringUtils.fromString("rp"))).getTag(), TypeTags.OBJECT_TYPE_TAG);
         assertEquals(((BObject) foo2.get(StringUtils.fromString("rp"))).get(StringUtils.fromString("name")).toString(),
                 "John Doe");
-        assertEquals(TypeUtils.getReferredType(getType(foo2.get(StringUtils.fromString("ra")))).getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(TypeUtils.getReferredType(getType(foo2.get(StringUtils.fromString("ra")))).getTag(),
+                TypeTags.RECORD_TYPE_TAG);
         assertEquals(foo2.get(StringUtils.fromString("ra")).toString(), "{\"city\":\"Colombo\",\"country\":\"Sri " +
                 "Lanka\"}");
         assertEquals(getType(foo2.get(StringUtils.fromString("crx"))).getTag(), TypeTags.XML_ELEMENT_TAG);

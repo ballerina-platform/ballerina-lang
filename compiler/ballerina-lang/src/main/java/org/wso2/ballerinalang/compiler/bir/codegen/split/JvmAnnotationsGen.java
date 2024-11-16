@@ -129,7 +129,7 @@ public class JvmAnnotationsGen {
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, JvmSignatures.GET_MAP_VALUE);
         BType type = typeDef.type;
         BType refType = typeDef.referenceType == null ||
-                (type.tag == TypeTags.RECORD && typeDef.origin == SymbolOrigin.VIRTUAL)? type : typeDef.referenceType;
+                (type.tag == TypeTags.RECORD && typeDef.origin == SymbolOrigin.VIRTUAL) ? type : typeDef.referenceType;
         jvmTypeGen.loadType(mv, refType);
         mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations",
                 JvmSignatures.PROCESS_ANNOTATIONS, false);

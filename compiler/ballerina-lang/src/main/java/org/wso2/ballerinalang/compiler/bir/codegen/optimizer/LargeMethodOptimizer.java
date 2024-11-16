@@ -846,7 +846,7 @@ public class LargeMethodOptimizer {
             BIRBasicBlock bb = bbs.get(bbIndex);
             handleBasicBlockStart(splitFuncEnv, nextBBPendingIns, bb);
             // skip large arg restore and array size ins
-            int insIndex = bbIndex == 0? skipLargeArgRestoreInstsAndGetIndex(bb) + 1 : 0;
+            int insIndex = bbIndex == 0 ? skipLargeArgRestoreInstsAndGetIndex(bb) + 1 : 0;
             for (; insIndex < bb.instructions.size(); insIndex++) {
                 if ((bbIndex == newArrayInsBBNum) && (insIndex == newArrayInsNumInRelevantBB)) {
                     createNewFuncForPeriodicSplit(parentFunc, newlyAddingFunctions, fromAttachedFunction,
@@ -892,7 +892,7 @@ public class LargeMethodOptimizer {
      **/
     private int skipLargeArgRestoreInstsAndGetIndex(BIRBasicBlock bb) {
         List<BIRNonTerminator> instructions = bb.instructions;
-        for (int i = 0; i < instructions.size(); i= i + 2) {
+        for (int i = 0; i < instructions.size(); i = i + 2) {
             if (!instructions.get(i).lhsOp.variableDcl.name.value.equals(ARG_INDEX)) {
                 return i;
             }
@@ -1329,7 +1329,7 @@ public class LargeMethodOptimizer {
         boolean splitStarted = false;
         boolean returnValAssigned = false;
         boolean splitTypeArray = true; // will be used to mark the split caused from either NewArray or NewStructure
-        Set<BIRVariableDcl> neededOperandsVarDcl = new LinkedHashSet<>(); // that will need to be passed as function args
+        Set<BIRVariableDcl> neededOperandsVarDcl = new LinkedHashSet<>(); // that will need to be passed as func args
         Set<BIRVariableDcl> lhsOperandList = new LinkedHashSet<>(); // that will need as localVars in the new function
         BIROperand splitStartOperand = null;
         int splitInsCount = 0; // including terminator instructions
@@ -1619,7 +1619,7 @@ public class LargeMethodOptimizer {
             // extra +1 for BB incremented in createNewBIRFunctionAcrossBB function, hence BB number is newBBNum + 2
             BIRBasicBlock parentFuncNewBB = new BIRBasicBlock(newBBNum + 2);
             boolean largeArgs = currSplit.funcArgs.size() > MAX_SPLIT_FUNCTION_ARG_COUNT;
-            List<Name> argNameList = largeArgs? createArgTupleAndGetArgNameList(function.localVars,
+            List<Name> argNameList = largeArgs ? createArgTupleAndGetArgNameList(function.localVars,
                     currSplit.funcArgs, currentBB.instructions) : new ArrayList<>();
             BIRFunction newBIRFunc = createNewBIRFunctionAcrossBB(function, newFuncName, newFuncReturnType, currSplit,
                     newBBNum, fromAttachedFunction, changedErrorTableEndBB, parentFuncNewBB, argNameList);
@@ -2007,7 +2007,7 @@ public class LargeMethodOptimizer {
             currentBB.instructions.addAll(instructionList.subList(startInsNum, possibleSplit.firstIns));
 
             boolean largeArgs = possibleSplit.funcArgs.size() > MAX_SPLIT_FUNCTION_ARG_COUNT;
-            List<Name> argNameList = largeArgs? createArgTupleAndGetArgNameList(function.localVars,
+            List<Name> argNameList = largeArgs ? createArgTupleAndGetArgNameList(function.localVars,
                     possibleSplit.funcArgs, currentBB.instructions) : new ArrayList<>();
             BIRFunction newBIRFunc = createNewBIRFuncForSplitInBB(newFuncName,
                     instructionList.get(possibleSplit.lastIns),
