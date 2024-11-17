@@ -51,8 +51,13 @@ public class BLockStore {
     */
     @SuppressWarnings("unused")
     public void lock(Strand strand, String lockName) {
-        getLockFromMap(lockName).lock();
-        strand.acquiredLockCount++;
+        try {
+            strand.yield();
+            getLockFromMap(lockName).lock();
+            strand.acquiredLockCount++;
+        } finally {
+            strand.resume();
+        }
     }
 
     /*
@@ -60,8 +65,13 @@ public class BLockStore {
     */
     @SuppressWarnings("unused")
     public void unlock(Strand strand, String lockName) {
-        getLockFromMap(lockName).unlock();
-        strand.acquiredLockCount--;
+        try {
+            strand.yield();
+            getLockFromMap(lockName).unlock();
+            strand.acquiredLockCount--;
+        } finally {
+            strand.resume();
+        }
     }
 
 
