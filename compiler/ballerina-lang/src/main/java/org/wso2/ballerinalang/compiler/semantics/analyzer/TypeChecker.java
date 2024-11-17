@@ -4094,8 +4094,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (first.isPresent()) {
                 resourceFunctions = new ArrayList<>(List.of(first.get()));
             } else {
-                handleResourceAccessError(resourceAccessInvocation.resourceAccessPathSegments, resourceAccessInvocation.pos,
-                        DiagnosticErrorCode.AMBIGUOUS_RESOURCE_ACCESS_NOT_YET_SUPPORTED, data, lhsExprType);
+                handleResourceAccessError(resourceAccessInvocation.resourceAccessPathSegments,
+                        resourceAccessInvocation.pos, DiagnosticErrorCode.AMBIGUOUS_RESOURCE_ACCESS_NOT_YET_SUPPORTED,
+                        data, lhsExprType);
                 return;
             }
         }
