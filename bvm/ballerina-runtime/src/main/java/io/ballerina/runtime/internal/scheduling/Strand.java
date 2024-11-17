@@ -60,6 +60,8 @@ public class Strand {
             this.globalProps = properties;
         } else if (parent != null && parent.globalProps != null) {
             this.globalProps = new HashMap<>(parent.globalProps);
+        } else {
+            this.globalProps = new HashMap<>();
         }
         this.workerChannelMap = workerChannelMap;
     }
@@ -92,18 +94,18 @@ public class Strand {
     public void yield() {
         checkStrandCancelled();
         if (!this.isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
-            scheduler.globalNonIsolatedLock.unlock();
+            this.scheduler.globalNonIsolatedLock.unlock();
         }
     }
 
     public void done() {
         if (!this.isIsolated && scheduler.globalNonIsolatedLock.isHeldByCurrentThread()) {
-            scheduler.globalNonIsolatedLock.unlock();
+            this.scheduler.globalNonIsolatedLock.unlock();
         }
     }
 
     public boolean isRunnable() {
-        return isIsolated || this.scheduler.globalNonIsolatedLock.isHeldByCurrentThread();
+        return this.isIsolated || this.scheduler.globalNonIsolatedLock.isHeldByCurrentThread();
     }
 
 
@@ -124,24 +126,11 @@ public class Strand {
     }
 
     public Object getProperty(String key) {
-        if (this.globalProps == null) {
-            return null;
-        }
         return this.globalProps.get(key);
     }
 
     public void setProperty(String key, Object value) {
-        if (this.globalProps == null) {
-            this.globalProps = new HashMap<>();
-        }
         this.globalProps.put(key, value);
-    }
-
-    public Object removeProperty(String key) {
-        if (this.globalProps == null) {
-            return null;
-        }
-        return this.globalProps.remove(key);
     }
 
     public boolean isInTransaction() {
@@ -151,10 +140,10 @@ public class Strand {
     public void removeCurrentTrxContext() {
         if (!this.trxContexts.isEmpty()) {
             this.currentTrxContext = this.trxContexts.pop();
-            this.setProperty(CURRENT_TRANSACTION_CONTEXT_PROPERTY, this.currentTrxContext);
+            this.globalProps.put(CURRENT_TRANSACTION_CONTEXT_PROPERTY, this.currentTrxContext);
             return;
         }
-        this.removeProperty(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
+        this.globalProps.remove(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
         this.currentTrxContext = null;
     }
 
@@ -163,11 +152,11 @@ public class Strand {
             this.trxContexts.push(this.currentTrxContext);
         }
         this.currentTrxContext = ctx;
-        this.setProperty(CURRENT_TRANSACTION_CONTEXT_PROPERTY, this.currentTrxContext);
+        this.globalProps.putIfAbsent(CURRENT_TRANSACTION_CONTEXT_PROPERTY, this.currentTrxContext);
     }
 
     public int getId() {
-        return id;
+        return this.id;
     }
 
     public void checkStrandCancelled() {
