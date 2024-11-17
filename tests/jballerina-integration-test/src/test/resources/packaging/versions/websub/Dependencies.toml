@@ -5,7 +5,7 @@
 
 [ballerina]
 dependencies-toml-version = "2"
-distribution-version = "2201.10.0-SNAPSHOT"
+distribution-version = "2201.6.0-SNAPSHOT"
 
 [[package]]
 org = "waruna"

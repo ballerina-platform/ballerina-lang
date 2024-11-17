@@ -5,7 +5,7 @@
 
 [ballerina]
 dependencies-toml-version = "2"
-distribution-version = "2201.10.0-SNAPSHOT"
+distribution-version = "2201.6.0-SNAPSHOT"
 
 [[package]]
 org = "ballerina"
@@ -13,24 +13,6 @@ name = "jballerina.java"
 version = "0.0.0"
 modules = [
 	{org = "ballerina", packageName = "jballerina.java", moduleName = "jballerina.java"}
-]
-
-[[package]]
-org = "ballerina"
-name = "lang.__internal"
-version = "0.0.0"
-dependencies = [
-	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "lang.object"}
-]
-
-[[package]]
-org = "ballerina"
-name = "lang.array"
-version = "0.0.0"
-dependencies = [
-	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "lang.__internal"}
 ]
 
 [[package]]
@@ -43,16 +25,10 @@ dependencies = [
 
 [[package]]
 org = "ballerina"
-name = "lang.object"
-version = "0.0.0"
-
-[[package]]
-org = "ballerina"
 name = "test"
 version = "0.0.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "lang.array"},
 	{org = "ballerina", name = "lang.error"}
 ]
 modules = [
@@ -60,7 +36,7 @@ modules = [
 ]
 
 [[package]]
-org = "dulminakodagoda"
+org = "gabilan"
 name = "myPackage2"
 version = "0.1.0"
 dependencies = [
@@ -70,8 +46,8 @@ dependencies = [
 	{org = "waruna", name = "websub"}
 ]
 modules = [
-	{org = "dulminakodagoda", packageName = "myPackage2", moduleName = "myPackage2"},
-	{org = "dulminakodagoda", packageName = "myPackage2", moduleName = "myPackage2.mod1"}
+	{org = "gabilan", packageName = "myPackage2", moduleName = "myPackage2"},
+	{org = "gabilan", packageName = "myPackage2", moduleName = "myPackage2.mod1"}
 ]
 
 [[package]]

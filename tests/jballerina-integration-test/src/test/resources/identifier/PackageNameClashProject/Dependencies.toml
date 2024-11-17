@@ -5,7 +5,7 @@
 
 [ballerina]
 dependencies-toml-version = "2"
-distribution-version = "2201.10.0-SNAPSHOT"
+distribution-version = "2201.6.0-SNAPSHOT"
 
 [[package]]
 org = "a"
@@ -39,24 +39,6 @@ modules = [
 
 [[package]]
 org = "ballerina"
-name = "lang.__internal"
-version = "0.0.0"
-dependencies = [
-	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "lang.object"}
-]
-
-[[package]]
-org = "ballerina"
-name = "lang.array"
-version = "0.0.0"
-dependencies = [
-	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "lang.__internal"}
-]
-
-[[package]]
-org = "ballerina"
 name = "lang.error"
 version = "0.0.0"
 dependencies = [
@@ -65,16 +47,10 @@ dependencies = [
 
 [[package]]
 org = "ballerina"
-name = "lang.object"
-version = "0.0.0"
-
-[[package]]
-org = "ballerina"
 name = "test"
 version = "0.0.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "lang.array"},
 	{org = "ballerina", name = "lang.error"}
 ]
 modules = [
