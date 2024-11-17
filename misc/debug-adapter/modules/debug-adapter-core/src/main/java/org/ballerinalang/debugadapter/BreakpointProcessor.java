@@ -22,7 +22,6 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.request.BreakpointRequest;
-import com.sun.jdi.request.StepRequest;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.breakpoint.LogMessage;
 import org.ballerinalang.debugadapter.breakpoint.TemplateLogMessage;
@@ -173,8 +172,12 @@ public class BreakpointProcessor {
         if (context.getDebuggeeVM() == null) {
             return;
         }
+
         context.getEventManager().deleteAllBreakpoints();
-        context.getDebuggeeVM().allClasses().forEach(classRef -> activateUserBreakPoints(classRef, false));
+        for (Map.Entry<String, LinkedHashMap<Integer, BalBreakpoint>> entry : userBreakpoints.entrySet()) {
+            String qClassName = entry.getKey();
+            context.getDebuggeeVM().classesByName(qClassName).forEach(ref -> activateUserBreakPoints(ref, false));
+        }
     }
 
     /**
@@ -210,7 +213,7 @@ public class BreakpointProcessor {
         } catch (AbsentInformationException ignored) {
             // classes with no line number information can be ignored.
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.error("Error while activating user breakpoints:" + e.getMessage(), e);
         }
     }
 
@@ -252,11 +255,7 @@ public class BreakpointProcessor {
                 context.setPrevLocation(validFrames.get(0).getJStackFrame().location());
             }
         } catch (JdiProxyException e) {
-            LOGGER.error(e.getMessage());
-            if (!jdiEventProcessor.getStepRequests().isEmpty()) {
-                int stepType = ((StepRequest) jdiEventProcessor.getStepRequests().get(0)).depth();
-                jdiEventProcessor.sendStepRequest(threadId, stepType);
-            }
+            LOGGER.error("Error while activating dynamic breakpoints:" + e.getMessage(), e);
         }
     }
 
