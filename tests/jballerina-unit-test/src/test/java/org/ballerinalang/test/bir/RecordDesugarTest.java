@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -73,12 +72,12 @@ public class RecordDesugarTest {
     private String readFile(String name) throws IOException {
         // The files in the bir-dump folder are named with the function name and contain the expected bir dump for
         // the function
-        Path filePath = Paths.get("src", "test", "resources", "test-src", "bir", "bir-dump", name).toAbsolutePath();
+        Path filePath = Path.of("src", "test", "resources", "test-src", "bir", "bir-dump", name).toAbsolutePath();
         if (Files.exists(filePath)) {
             StringBuilder contentBuilder = new StringBuilder();
-
-            Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8);
-            stream.forEach(s -> contentBuilder.append(s).append("\n"));
+            try (Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8)) {
+                stream.forEach(s -> contentBuilder.append(s).append("\n"));
+            }
 
             return contentBuilder.toString().trim();
         }

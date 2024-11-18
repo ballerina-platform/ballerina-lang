@@ -69,8 +69,8 @@ function xmlTypeParamUnionIter() {
         concatString(elem.toString());
     }
 
-    record {| 'xml:Element|'xml:Text value; |}? nextUnionXMLVal2 = el2.iterator().next();
-    record {| 'xml:Element|'xml:Text value; |}? nextUnionXMLVal3 = el3.iterator().next();
+    record {| 'xml:Element value; |}? nextUnionXMLVal2 = el2.iterator().next();
+    record {| 'xml:Text value; |}? nextUnionXMLVal3 = el3.iterator().next();
 }
 
 function xmlElementTypeArrayIter() {

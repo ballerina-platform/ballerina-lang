@@ -30,7 +30,8 @@ import io.ballerina.runtime.internal.errors.ErrorReasons;
  *
  * @since 1.0.0
  */
-public class JavaUtils {
+public final class JavaUtils {
+
     private static final String booleanTypeName = "boolean";
     private static final String byteTypeName = "byte";
     private static final String shortTypeName = "short";
@@ -41,6 +42,9 @@ public class JavaUtils {
     private static final String doubleTypeName = "double";
     private static final Module JAVA_PACKAGE_ID = new Module(RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX, "java",
                                                              "0.9.0");
+
+    private JavaUtils() {
+    }
 
     /**
      * Returns the Java Class object associated with the class or interface with the given string name.
@@ -65,25 +69,16 @@ public class JavaUtils {
     }
 
     private static Class<?> getPrimitiveTypeClass(String name) {
-        switch (name) {
-            case booleanTypeName:
-                return Boolean.TYPE;
-            case byteTypeName:
-                return Byte.TYPE;
-            case shortTypeName:
-                return Short.TYPE;
-            case charTypeName:
-                return Character.TYPE;
-            case intTypeName:
-                return Integer.TYPE;
-            case longTypeName:
-                return Long.TYPE;
-            case floatTypeName:
-                return Float.TYPE;
-            case doubleTypeName:
-                return Double.TYPE;
-            default:
-                return null;
-        }
+        return switch (name) {
+            case booleanTypeName -> Boolean.TYPE;
+            case byteTypeName -> Byte.TYPE;
+            case shortTypeName -> Short.TYPE;
+            case charTypeName -> Character.TYPE;
+            case intTypeName -> Integer.TYPE;
+            case longTypeName -> Long.TYPE;
+            case floatTypeName -> Float.TYPE;
+            case doubleTypeName -> Double.TYPE;
+            default -> null;
+        };
     }
 }

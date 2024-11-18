@@ -51,7 +51,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -523,7 +522,7 @@ public class BuildProject extends Project {
         if (this.buildOptions().getTargetPath() == null) {
             return this.sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
         } else {
-            return Paths.get(this.buildOptions().getTargetPath());
+            return Path.of(this.buildOptions().getTargetPath());
         }
     }
 

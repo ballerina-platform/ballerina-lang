@@ -19,7 +19,7 @@
 
 package org.ballerinalang.test.bala.record;
 
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -82,7 +82,7 @@ public class OpenRecordTypeInclusionTest {
     @Test(description = "Test case for type referencing all value-typed fields")
     public void testValRefType() {
         Object returns = BRunUtil.invoke(compileResult, "testValRefType");
-        BMap foo1 = (BMap) returns;
+        BMap<?, ?> foo1 = (BMap<?, ?>) returns;
         assertEquals(foo1.get(StringUtils.fromString("a")), 10L);
         assertEquals(foo1.get(StringUtils.fromString("b")), 23.45);
         assertEquals(foo1.get(StringUtils.fromString("s")).toString(), "hello foo");
@@ -101,7 +101,7 @@ public class OpenRecordTypeInclusionTest {
     @Test(description = "Test case for type referencing records with complex ref types")
     public void testRefTypes() {
         Object returns = BRunUtil.invoke(compileResult, "testRefTypes");
-        BMap foo2 = (BMap) returns;
+        BMap<?, ?> foo2 = (BMap<?, ?>) returns;
         assertEquals(foo2.get(StringUtils.fromString("s")).toString(), "qwerty");
         assertEquals(foo2.get(StringUtils.fromString("i")), 10L);
         assertEquals(getType(foo2.get(StringUtils.fromString("rj"))).getTag(), TypeTags.MAP_TAG);
@@ -131,7 +131,7 @@ public class OpenRecordTypeInclusionTest {
     @Test(description = "Test case for order of resolving")
     public void testOrdering() {
         Object returns = BRunUtil.invoke(compileResult, "testOrdering");
-        BMap foo3 = (BMap) returns;
+        BMap<?, ?> foo3 = (BMap<?, ?>) returns;
         assertEquals(foo3.get(StringUtils.fromString("s")).toString(), "qwerty");
         assertEquals(foo3.get(StringUtils.fromString("ri")), 10L);
         assertEquals(foo3.get(StringUtils.fromString("rs")).toString(), "asdf");
@@ -140,7 +140,7 @@ public class OpenRecordTypeInclusionTest {
     @Test(description = "Test case for reference chains")
     public void testReferenceChains() {
         Object returns = BRunUtil.invoke(compileResult, "testReferenceChains");
-        BMap foo4 = (BMap) returns;
+        BMap<?, ?> foo4 = (BMap<?, ?>) returns;
         assertEquals(foo4.get(StringUtils.fromString("s")).toString(), "qwerty");
         assertEquals(foo4.get(StringUtils.fromString("abi")), 10L);
         assertEquals(foo4.get(StringUtils.fromString("efs")).toString(), "asdf");
@@ -150,7 +150,7 @@ public class OpenRecordTypeInclusionTest {
     @Test(description = "Test case for type referencing in BALAs")
     public void testTypeReferencingInBALAs() {
         Object returns = BRunUtil.invoke(compileResult, "testTypeReferencingInBALAs");
-        BMap manager = (BMap) returns;
+        BMap<?, ?> manager = (BMap<?, ?>) returns;
         assertEquals(manager.get(StringUtils.fromString("name")).toString(), "John Doe");
         assertEquals(manager.get(StringUtils.fromString("age")), 25L);
         assertEquals(manager.get(StringUtils.fromString("adr")).toString(),
@@ -162,7 +162,7 @@ public class OpenRecordTypeInclusionTest {
     @Test(description = "Test case for default value initializing in type referenced fields")
     public void testDefaultValueInit() {
         Object returns = BRunUtil.invoke(compileResult, "testDefaultValueInit");
-        BMap manager = (BMap) returns;
+        BMap<?, ?> manager = (BMap<?, ?>) returns;
         assertEquals(manager.get(StringUtils.fromString("name")).toString(), "John Doe");
         assertEquals(manager.get(StringUtils.fromString("age")), 25L);
         assertEquals(manager.get(StringUtils.fromString("adr")).toString(),
@@ -174,7 +174,7 @@ public class OpenRecordTypeInclusionTest {
     @Test(description = "Test case for default value initializing in type referenced fields from a bala")
     public void testDefaultValueInitInBALAs() {
         Object returns = BRunUtil.invoke(compileResult, "testDefaultValueInitInBALAs");
-        BMap manager = (BMap) returns;
+        BMap<?, ?> manager = (BMap<?, ?>) returns;
         assertEquals(manager.get(StringUtils.fromString("name")).toString(), "anonymous");
         assertEquals(manager.get(StringUtils.fromString("age")), 0L);
         assertEquals(manager.get(StringUtils.fromString("adr")).toString(), "{\"city\":\"\",\"country\":\"\"}");
@@ -193,7 +193,9 @@ public class OpenRecordTypeInclusionTest {
                 "testCyclicRecord",
                 "testOutOfOrderFieldOverridingFieldFromTypeInclusion",
                 "testCreatingRecordWithOverriddenFields",
-                "testDefaultValuesOfRecordFieldsWithTypeInclusion"
+                "testDefaultValuesOfRecordFieldsWithTypeInclusion",
+                "testDefaultValueFromInclusion",
+                "testSpreadOverrideDefault"
         };
     }
 

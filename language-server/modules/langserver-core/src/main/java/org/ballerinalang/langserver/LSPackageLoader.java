@@ -73,10 +73,10 @@ public class LSPackageLoader {
     public static final LanguageServerContext.Key<LSPackageLoader> LS_PACKAGE_LOADER_KEY =
             new LanguageServerContext.Key<>();
 
-    private List<ModuleInfo> distRepoPackages = new ArrayList<>();
+    private final List<ModuleInfo> distRepoPackages = new ArrayList<>();
     private final List<ModuleInfo> remoteRepoPackages = new ArrayList<>();
     private final List<ModuleInfo> localRepoPackages = new ArrayList<>();
-    private List<ModuleInfo> centralPackages = new ArrayList<>();
+    private final List<ModuleInfo> centralPackages = new ArrayList<>();
     private final LSClientLogger clientLogger;
 
     ExtendedLanguageClient languageClient;
@@ -85,7 +85,7 @@ public class LSPackageLoader {
 
     private boolean initialized = false;
 
-    private CentralPackageDescriptorLoader centralPackageDescriptorLoader;
+    private final CentralPackageDescriptorLoader centralPackageDescriptorLoader;
 
     public static LSPackageLoader getInstance(LanguageServerContext context) {
         LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
@@ -336,12 +336,12 @@ public class LSPackageLoader {
      */
     public static class ModuleInfo {
 
-        private PackageOrg packageOrg;
+        private final PackageOrg packageOrg;
         private PackageName packageName;
-        private PackageVersion packageVersion;
-        private Path sourceRoot;
+        private final PackageVersion packageVersion;
+        private final Path sourceRoot;
 
-        private String moduleIdentifier;
+        private final String moduleIdentifier;
 
         private boolean isModuleFromCurrentPackage = false;
 

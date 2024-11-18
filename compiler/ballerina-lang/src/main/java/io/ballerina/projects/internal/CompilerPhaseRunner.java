@@ -17,7 +17,7 @@
  */
 package io.ballerina.projects.internal;
 
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
@@ -64,7 +64,7 @@ public class CompilerPhaseRunner {
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
     private final IsolationAnalyzer isolationAnalyzer;
-    private boolean isToolingCompilation;
+    private final boolean isToolingCompilation;
 
 
     public static CompilerPhaseRunner getInstance(CompilerContext context) {

@@ -18,14 +18,17 @@
 
 package org.ballerinalang.langlib.value;
 
-import io.ballerina.runtime.internal.CloneUtils;
+import io.ballerina.runtime.internal.utils.CloneUtils;
 
 /**
  * Performs a deep copy, recursively copying all structural values and their members.
  *
  * @since 1.0
  */
-public class Clone {
+public final class Clone {
+
+    private Clone() {
+    }
 
     public static Object clone(Object value) {
         return CloneUtils.cloneValue(value);

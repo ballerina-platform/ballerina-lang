@@ -57,6 +57,7 @@ public class ParseImportDeclarationTest {
         ImportDeclarationNode importDeclNode = NodeParser.parseImportDeclaration("%import foobar/foo.bar.baz qux;;");
         Assert.assertEquals(importDeclNode.kind(), SyntaxKind.IMPORT_DECLARATION);
         Assert.assertTrue(importDeclNode.hasDiagnostics());
-        Assert.assertEquals(importDeclNode.toString(), " INVALID[%]import foobar/foo.bar.baz  MISSING[as]qux; INVALID[;]");
+        Assert.assertEquals(
+                importDeclNode.toString(), " INVALID[%]import foobar/foo.bar.baz  MISSING[as]qux; INVALID[;]");
     }
 }

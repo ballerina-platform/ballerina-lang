@@ -22,10 +22,14 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
  * 
  * @since 1.1.0
  */
-public class TypeFlags {
+public final class TypeFlags {
+
     public static final int NILABLE = 1;
     public static final int ANYDATA = NILABLE << 1;
     public static final int PURETYPE = ANYDATA << 1;
+
+    private TypeFlags() {
+    }
 
     public static int asMask(boolean isNilable, boolean isAnydata, boolean isPureType) {
         int mask = 0;

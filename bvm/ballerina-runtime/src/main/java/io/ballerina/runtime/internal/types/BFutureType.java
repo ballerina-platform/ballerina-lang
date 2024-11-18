@@ -18,10 +18,10 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FutureType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.TypeChecker;
 
 /**
@@ -70,7 +70,7 @@ public class BFutureType extends BType implements FutureType {
     @Override
     public boolean equals(Object obj) {
 
-        if (!(obj instanceof BFutureType)) {
+        if (!(obj instanceof BFutureType other)) {
             return false;
         }
 
@@ -78,7 +78,6 @@ public class BFutureType extends BType implements FutureType {
             return false;
         }
 
-        BFutureType other = (BFutureType) obj;
         if (constraint == other.constraint) {
             return true;
         }

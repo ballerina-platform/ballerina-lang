@@ -52,7 +52,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -65,7 +64,7 @@ import java.util.Optional;
  */
 public class TestBalaProject {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src", "test", "resources");
 
     @Test(description = "tests loading a valid bala project")
     public void testBalaProjectAPI() {
@@ -163,7 +162,7 @@ public class TestBalaProject {
         Target target = new Target(project.sourceRoot());
         Path baloPath = target.getBalaPath();
         // invoke write balo method
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, baloPath);
 
         // Load the balo as a project
@@ -229,7 +228,7 @@ public class TestBalaProject {
 
         // try to get id of a non-existing file
         try {
-            balaProject.documentId(Paths.get("foo.bal"));
+            balaProject.documentId(Path.of("foo.bal"));
             Assert.fail("expected a ProjectException");
         } catch (ProjectException e) {
             // ignore

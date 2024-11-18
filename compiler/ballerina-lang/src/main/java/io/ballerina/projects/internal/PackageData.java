@@ -42,7 +42,7 @@ public class PackageData {
     private final DocumentData cloudToml;
     private final DocumentData compilerPluginToml;
     private final DocumentData balToolToml;
-    private final DocumentData packageMd;
+    private final DocumentData readmeMd;
     private final List<Path> resources;
     private final List<Path> testResources;
 
@@ -56,7 +56,7 @@ public class PackageData {
                         DocumentData cloudToml,
                         DocumentData compilerPluginToml,
                         DocumentData balToolToml,
-                        DocumentData packageMd,
+                        DocumentData readmeMd,
                         List<Path> resources,
                         List<Path> testResources) {
         this.packagePath = packagePath;
@@ -64,7 +64,7 @@ public class PackageData {
         this.otherModules = otherModules;
         this.packageDesDependencyGraph = packageDesDependencyGraph;
         this.moduleDependencyGraph = moduleDependencyGraph;
-        this.packageMd = packageMd;
+        this.readmeMd = readmeMd;
         this.ballerinaToml = ballerinaToml;
         this.dependenciesToml = dependenciesToml;
         this.cloudToml = cloudToml;
@@ -82,12 +82,12 @@ public class PackageData {
                                    DocumentData cloudToml,
                                    DocumentData compilerPluginToml,
                                    DocumentData balToolToml,
-                                   DocumentData packageMd,
+                                   DocumentData readmeMd,
                                    List<Path> resources,
                                    List<Path> testResources) {
         return new PackageData(packagePath, defaultModule, otherModules, DependencyGraph.emptyGraph(),
                                DependencyGraph.emptyGraph(), ballerinaToml, dependenciesToml, cloudToml,
-                               compilerPluginToml, balToolToml, packageMd, resources, testResources);
+                               compilerPluginToml, balToolToml, readmeMd, resources, testResources);
     }
 
     public static PackageData from(Path packagePath,
@@ -148,8 +148,19 @@ public class PackageData {
         return Optional.ofNullable(balToolToml);
     }
 
+    /**
+     * Returns the PackageMd document data.
+     *
+     * @return DocumentData optionally.
+     * @deprecated use {@link #readmeMd()} instead.
+     */
+    @Deprecated (forRemoval = true)
     public Optional<DocumentData> packageMd() {
-        return Optional.ofNullable(packageMd);
+        return Optional.ofNullable(readmeMd);
+    }
+
+    public Optional<DocumentData> readmeMd() {
+        return Optional.ofNullable(readmeMd);
     }
 
     public List<Path> resources () {

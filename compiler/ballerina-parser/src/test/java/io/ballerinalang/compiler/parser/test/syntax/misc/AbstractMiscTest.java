@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.parser.test.syntax.misc;
 import io.ballerina.compiler.internal.parser.ParserRuleContext;
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test parsing miscellaneous constructs in ballerina.
@@ -30,6 +30,6 @@ import java.nio.file.Paths;
 public class AbstractMiscTest {
 
     void testFile(String path, String filePath) {
-        ParserTestUtils.test(Paths.get("misc/", path), ParserRuleContext.COMP_UNIT, Paths.get("misc/", filePath));
+        ParserTestUtils.test(Path.of("misc", path), ParserRuleContext.COMP_UNIT, Path.of("misc", filePath));
     }
 }

@@ -27,15 +27,12 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  * 
  * @since 0.88
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "getTextValue",
-//        returnType = {@ReturnType(type = TypeKind.STRING)},
-//        isPublic = true
-//)
 public class GetTextValue {
 
     private static final String OPERATION = "get text from xml";
+
+    private GetTextValue() {
+    }
 
     public static String getTextValue(Strand strand, BXml xml) {
         try {

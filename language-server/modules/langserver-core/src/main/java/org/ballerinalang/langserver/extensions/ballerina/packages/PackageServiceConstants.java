@@ -20,28 +20,31 @@ package org.ballerinalang.langserver.extensions.ballerina.packages;
  *
  * @since 2.0.0
  */
-public class PackageServiceConstants {
+public final class PackageServiceConstants {
 
-    protected static final String CAPABILITY_NAME = "ballerinaPackage";
-    protected static final String MAIN_FUNCTION = "main";
-    protected static final String NAME = "name";
-    protected static final String FILE_PATH = "filePath";
-    protected static final String START_LINE = "startLine";
-    protected static final String START_COLUMN = "startColumn";
-    protected static final String END_LINE = "endLine";
-    protected static final String END_COLUMN = "endColumn";
-    protected static final String FUNCTIONS = "functions";
-    protected static final String SERVICES = "services";
-    protected static final String MODULES = "modules";
-    protected static final String RESOURCES = "resources";
-    protected static final String RECORDS = "records";
-    protected static final String OBJECTS = "objects";
-    protected static final String TYPES = "types";
-    protected static final String CONSTANTS = "constants";
-    protected static final String ENUMS = "enums";
-    protected static final String CLASSES = "classes";
-    protected static final String LISTENERS = "listeners";
-    protected static final String MODULE_LEVEL_VARIABLE = "moduleVariables";
-    protected static final String CONFIGURABLE_VARIABLES = "configurableVariables";
-    protected static final String AUTOMATIONS = "automations";
+    static final String CAPABILITY_NAME = "ballerinaPackage";
+    static final String MAIN_FUNCTION = "main";
+    static final String NAME = "name";
+    static final String FILE_PATH = "filePath";
+    static final String START_LINE = "startLine";
+    static final String START_COLUMN = "startColumn";
+    static final String END_LINE = "endLine";
+    static final String END_COLUMN = "endColumn";
+    static final String FUNCTIONS = "functions";
+    static final String SERVICES = "services";
+    static final String MODULES = "modules";
+    static final String RESOURCES = "resources";
+    static final String RECORDS = "records";
+    static final String OBJECTS = "objects";
+    static final String TYPES = "types";
+    static final String CONSTANTS = "constants";
+    static final String ENUMS = "enums";
+    static final String CLASSES = "classes";
+    static final String LISTENERS = "listeners";
+    static final String MODULE_LEVEL_VARIABLE = "moduleVariables";
+    static final String CONFIGURABLE_VARIABLES = "configurableVariables";
+    static final String AUTOMATIONS = "automations";
+
+    private PackageServiceConstants() {
+    }
 }

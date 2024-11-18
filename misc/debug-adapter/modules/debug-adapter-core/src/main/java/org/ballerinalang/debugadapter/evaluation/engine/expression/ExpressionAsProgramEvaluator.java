@@ -252,7 +252,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             validateForCompilationErrors(pkgCompilation);
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_17);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_21);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
         } catch (ProjectException e) {
             throw createEvaluationException("failed to create executables while evaluating expression: "
@@ -510,7 +510,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             modifier = modifier.withModuleName(newModuleName);
 
             return modifier.apply();
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     private void processSnippetFunctionParameters() throws EvaluationException {
@@ -555,43 +555,35 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
      * @return type name
      */
     private String getTypeNameString(BVariable bVar) {
-        switch (bVar.getBType()) {
-            case BOOLEAN:
-            case INT:
-            case FLOAT:
-            case DECIMAL:
-            case STRING:
-            case XML:
-            case TABLE:
-            case ERROR:
-            case FUNCTION:
-            case FUTURE:
-            case TYPE_DESC:
-            case HANDLE:
-            case STREAM:
-            case SINGLETON:
-            case ANY:
-            case ANYDATA:
-            case NEVER:
-            case BYTE:
-            case SERVICE:
-                return bVar.getBType().getString();
-            case JSON:
-                return "map<json>";
-            case MAP:
-                return VariableUtils.getMapType(context, bVar.getJvmValue());
-            case NIL:
-                return "()";
-            case ARRAY:
-                return bVar.computeValue().substring(0, bVar.computeValue().indexOf("[")) + "[]";
-            case TUPLE:
-                return bVar.computeValue();
-            case RECORD:
-            case OBJECT:
-                return resolveObjectType(bVar);
-            default:
-                return UNKNOWN_VALUE;
-        }
+        return switch (bVar.getBType()) {
+            case BOOLEAN,
+                 INT,
+                 FLOAT,
+                 DECIMAL,
+                 STRING,
+                 XML,
+                 TABLE,
+                 ERROR,
+                 FUNCTION,
+                 FUTURE,
+                 TYPE_DESC,
+                 HANDLE,
+                 STREAM,
+                 SINGLETON,
+                 ANY,
+                 ANYDATA,
+                 NEVER,
+                 BYTE,
+                 SERVICE -> bVar.getBType().getString();
+            case JSON -> "map<json>";
+            case MAP -> VariableUtils.getMapType(context, bVar.getJvmValue());
+            case NIL -> "()";
+            case ARRAY -> bVar.computeValue().substring(0, bVar.computeValue().indexOf("[")) + "[]";
+            case TUPLE -> bVar.computeValue();
+            case RECORD,
+                 OBJECT -> resolveObjectType(bVar);
+            default -> UNKNOWN_VALUE;
+        };
     }
 
     private String resolveObjectType(BVariable bVar) {

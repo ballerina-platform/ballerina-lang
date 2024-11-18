@@ -183,7 +183,7 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
                 trigger = client.getTrigger(request.getTriggerId(), "any", RepoUtils.getBallerinaVersion());
                 return Optional.of(trigger);
             }
-        } catch (CentralClientException | SettingsTomlException e) {
+        } catch (CentralClientException e) {
             String msg = "Operation 'ballerinaTrigger/trigger' failed!";
             this.languageClient.logMessage(new MessageParams(MessageType.Error, msg));
         }

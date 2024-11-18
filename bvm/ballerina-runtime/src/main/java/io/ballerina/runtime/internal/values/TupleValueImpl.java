@@ -17,10 +17,10 @@
 */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -31,12 +31,12 @@ import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
-import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.ValueConverter;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
+import io.ballerina.runtime.internal.utils.CycleUtils;
+import io.ballerina.runtime.internal.utils.ValueConverter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -48,13 +48,13 @@ import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
-import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
-import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
+import static io.ballerina.runtime.internal.utils.StringUtils.getExpressionStringVal;
+import static io.ballerina.runtime.internal.utils.StringUtils.getStringVal;
+import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
 
 /**
  * <p>
@@ -266,8 +266,8 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     public byte getByte(long index) {
         Object value = get(index);
-        if (value instanceof Long) {
-            return ((Long) value).byteValue();
+        if (value instanceof Long l) {
+            return l.byteValue();
         }
         return (Byte) value;
     }
@@ -426,10 +426,12 @@ public class TupleValueImpl extends AbstractArrayValue {
         return shift(index, "shift");
     }
 
+    @Override
     public Object pop(long index) {
         return shift(index, "pop");
     }
 
+    @Override
     public Object remove(long index) {
         return shift(index, "remove");
     }
@@ -530,8 +532,8 @@ public class TupleValueImpl extends AbstractArrayValue {
         refs.put(this, refValueArray);
         IntStream.range(0, this.size).forEach(i -> {
             Object value = this.refValues[i];
-            if (value instanceof BRefValue) {
-                values[i] = ((BRefValue) value).copy(refs);
+            if (value instanceof BRefValue bRefValue) {
+                values[i] = bRefValue.copy(refs);
             } else {
                 values[i] = value;
             }
@@ -617,8 +619,8 @@ public class TupleValueImpl extends AbstractArrayValue {
         this.tupleType = (TupleType) TypeUtils.getImpliedType(type);
         for (int i = 0; i < this.size; i++) {
             Object value = this.get(i);
-            if (value instanceof BRefValue) {
-                ((BRefValue) value).freezeDirect();
+            if (value instanceof BRefValue bRefValue) {
+                bRefValue.freezeDirect();
             }
         }
         this.typedesc = null;
@@ -628,7 +630,7 @@ public class TupleValueImpl extends AbstractArrayValue {
      * {@inheritDoc}
      */
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<Object> getIterator() {
         return new ArrayIterator(this);
     }
 

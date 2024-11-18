@@ -146,7 +146,7 @@ public class CentralPackageDescriptorLoader {
         }
 
         public Map<String, String> getQueryMap() {
-            Map<String, String> params = new HashMap();
+            Map<String, String> params = new HashMap<>();
             params.put("readme", "false");
 
             if (getOrganization() != null) {

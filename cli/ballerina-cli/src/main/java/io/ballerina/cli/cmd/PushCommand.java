@@ -42,7 +42,6 @@ import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -54,7 +53,6 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Optional;
@@ -100,13 +98,13 @@ public class PushCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--skip-source-check"}, description = "skip checking if source has changed")
     private boolean skipSourceCheck;
 
-    private Path userDir;
-    private PrintStream errStream;
-    private PrintStream outStream;
-    private boolean exitWhenFinish;
+    private final Path userDir;
+    private final PrintStream errStream;
+    private final PrintStream outStream;
+    private final boolean exitWhenFinish;
 
     public PushCommand() {
-        this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.userDir = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.errStream = System.err;
         this.outStream = System.out;
         this.exitWhenFinish = true;
@@ -194,7 +192,7 @@ public class PushCommand implements BLauncherCmd {
                     if (!FileUtils.getExtension(balaPath).equals("bala")) {
                         throw new ProjectException("file provided is not a bala file: " + balaPath + ".");
                     }
-                    validatePackageMdAndBalToml(balaPath);
+                    validateReadmeAndBalToml(balaPath);
                     pushBalaToCustomRepo(balaPath);
                     return;
                 }
@@ -209,16 +207,16 @@ public class PushCommand implements BLauncherCmd {
                 Proxy proxy = settings.getProxy();
                 mvnClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
 
-                if (balaPath == null && isCustomRepository) {
+                if (balaPath == null) {
                     pushPackage(project, mvnClient);
-                } else if (isCustomRepository) {
+                } else {
                     if (!balaPath.toFile().exists()) {
                         throw new ProjectException("path provided for the bala file does not exist: " + balaPath + ".");
                     }
                     if (!FileUtils.getExtension(balaPath).equals("bala")) {
                         throw new ProjectException("file provided is not a bala file: " + balaPath + ".");
                     }
-                    validatePackageMdAndBalToml(balaPath);
+                    validateReadmeAndBalToml(balaPath);
                     pushBalaToCustomRepo(balaPath, mvnClient);
                 }
 
@@ -245,11 +243,11 @@ public class PushCommand implements BLauncherCmd {
                     if (!FileUtils.getExtension(balaPath).equals("bala")) {
                         throw new ProjectException("file provided is not a bala file: " + balaPath + ".");
                     }
-                    validatePackageMdAndBalToml(balaPath);
+                    validateReadmeAndBalToml(balaPath);
                     pushBalaToRemote(balaPath, client);
                 }
             }
-        } catch (ProjectException | CentralClientException | SettingsTomlException e) {
+        } catch (ProjectException | CentralClientException e) {
             CommandUtil.printError(this.errStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -351,20 +349,29 @@ public class PushCommand implements BLauncherCmd {
                             + "' in " + ProjectConstants.BALLERINA_TOML
                             + " file. Run 'bal pack' to recompile and generate the bala.");
         }
-        validatePackageMdAndBalToml(packageBalaFile);
+        validateReadmeAndBalToml(packageBalaFile);
 
         // bala file path
         return packageBalaFile;
     }
 
-    private static void validatePackageMdAndBalToml(Path balaPath) {
+    private static void validateReadmeAndBalToml(Path balaPath) {
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+
         try (ZipInputStream zip = new ZipInputStream(Files.newInputStream(balaPath, StandardOpenOption.READ))) {
             ZipEntry entry;
+            String readme;
             while ((entry = zip.getNextEntry()) != null) {
-                if (entry.getName().equals(
-                        ProjectConstants.BALA_DOCS_DIR + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME)) {
+                if (balaProject.currentPackage().manifest().readme() == null) {
+                    readme = ProjectConstants.BALA_DOCS_DIR + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME;
+                } else {
+                    readme = balaProject.currentPackage().manifest().readme();
+                }
+                if (entry.getName().equals(readme)) {
                     if (entry.getSize() == 0) {
-                        throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME + " cannot be empty.");
+                        throw new ProjectException("README file cannot be empty.");
                     }
                     return;
                 }
@@ -372,7 +379,7 @@ public class PushCommand implements BLauncherCmd {
         } catch (IOException e) {
             throw new ProjectException("error while validating the bala file: " + e.getMessage(), e);
         }
-        throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME + " is missing in bala file:" + balaPath);
+        throw new ProjectException("README file is missing in the bala file:" + balaPath);
     }
 
     private void pushBalaToCustomRepo(Path balaFilePath) {
@@ -484,15 +491,10 @@ public class PushCommand implements BLauncherCmd {
             Path ballerinaHomePath = RepoUtils.createAndGetHomeReposPath();
             Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
 
-            try {
-                authenticate(errStream, getBallerinaCentralCliTokenUrl(), settingsTomlFilePath, client);
-            } catch (SettingsTomlException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-                return;
-            }
+            authenticate(errStream, getBallerinaCentralCliTokenUrl(), settingsTomlFilePath, client);
 
             try {
-                client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_17.code(),
+                client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_21.code(),
                                    RepoUtils.getBallerinaVersion());
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();

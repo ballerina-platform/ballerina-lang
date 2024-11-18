@@ -35,6 +35,7 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.model.PackageJson;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
@@ -46,14 +47,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Creates a {@code PackageConfig} instance from the given {@code PackageData} instance.
  *
  * @since 2.0.0
  */
-public class PackageConfigCreator {
+public final class PackageConfigCreator {
+
+    private PackageConfigCreator() {
+    }
 
     public static PackageConfig createBuildProjectConfig(Path projectDirPath, boolean disableSyntaxTree) {
         ProjectFiles.validateBuildProjectDirPath(projectDirPath);
@@ -113,7 +117,8 @@ public class PackageConfigCreator {
         ProjectFiles.validateBalaProjectPath(balaPath);
         PackageManifest packageManifest = BalaFiles.createPackageManifest(balaPath);
         DependencyManifest dependencyManifest = BalaFiles.createDependencyManifest(balaPath);
-        PackageData packageData = BalaFiles.loadPackageData(balaPath, packageManifest);
+        PackageJson packageJson = BalaFiles.readPackageJson(balaPath);
+        PackageData packageData = BalaFiles.loadPackageData(balaPath, packageJson);
         BalaFiles.DependencyGraphResult packageDependencyGraph = BalaFiles
                 .createPackageDependencyGraph(balaPath);
 
@@ -143,14 +148,12 @@ public class PackageConfigCreator {
         PackageName packageName = packageManifest.name();
         PackageId packageId = PackageId.create(packageName.value());
 
-        List<ModuleConfig> moduleConfigs = packageData.otherModules()
-                .stream()
-                .map(moduleData -> createModuleConfig(packageManifest.descriptor(), moduleData,
-                        packageId, moduleDependencyGraph))
-                .collect(Collectors.toList());
+        List<ModuleConfig> moduleConfigs = Stream.concat(packageData.otherModules().stream()
+                        .map(moduleData -> createModuleConfig(packageManifest.descriptor(), moduleData,
+                                packageId, moduleDependencyGraph)),
+                Stream.of(createDefaultModuleConfig(packageManifest.descriptor(),
+                        packageData.defaultModule(), packageId, moduleDependencyGraph))).toList();
 
-        moduleConfigs.add(createDefaultModuleConfig(packageManifest.descriptor(),
-                packageData.defaultModule(), packageId, moduleDependencyGraph));
 
         DocumentConfig ballerinaToml = packageData.ballerinaToml()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
@@ -162,8 +165,7 @@ public class PackageConfigCreator {
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig balToolToml = packageData.balToolToml()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
-        DocumentConfig packageMd = packageData.packageMd()
-                .map(data -> createDocumentConfig(data, null)).orElse(null);
+
         List<ResourceConfig> resources = new ArrayList<>();
         List<ResourceConfig> testResources = new ArrayList<>();
         if (!packageData.resources().isEmpty()) {
@@ -172,9 +174,12 @@ public class PackageConfigCreator {
         if (!packageData.testResources().isEmpty()) {
             testResources = getResourceConfigs(packageData.testResources(), packageData.packagePath());
         }
+        DocumentConfig readmeMd = packageData.readmeMd()
+                .map(data -> createDocumentConfig(data, null)).orElse(null);
+
         return PackageConfig
                 .from(packageId, packageData.packagePath(), packageManifest, dependencyManifest, ballerinaToml,
-                        dependenciesToml, cloudToml, compilerPluginToml, balToolToml, packageMd, moduleConfigs,
+                        dependenciesToml, cloudToml, compilerPluginToml, balToolToml, readmeMd, moduleConfigs,
                         packageDependencyGraph, disableSyntaxTree, resources, testResources);
     }
     public static PackageConfig createPackageConfig(PackageData packageData,
@@ -227,17 +232,17 @@ public class PackageConfigCreator {
         List<DocumentConfig> srcDocs = getDocumentConfigs(moduleId, moduleData.sourceDocs());
         List<DocumentConfig> testSrcDocs = getDocumentConfigs(moduleId, moduleData.testSourceDocs());
 
-        DocumentConfig moduleMd = moduleData.moduleMd()
+        DocumentConfig readmeMd = moduleData.readmeMd()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
 
-        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies);
+        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, readmeMd, dependencies);
     }
 
     private static List<ResourceConfig> getResourceConfigs(List<Path> resources, Path packagePath) {
         // TODO: no need Remove duplicate paths before processing
         Set<Path> distinctResources = new HashSet<>(resources);
         return distinctResources.stream().map(
-                distinctResource -> createResourceConfig(distinctResource, packagePath)).collect(Collectors.toList());
+                distinctResource -> createResourceConfig(distinctResource, packagePath)).toList();
     }
 
     private static ResourceConfig createResourceConfig(Path path, Path packagePath) {
@@ -250,7 +255,7 @@ public class PackageConfigCreator {
                 .stream()
                 .sorted(Comparator.comparing(DocumentData::name))
                 .map(srcDoc -> createDocumentConfig(srcDoc, moduleId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     static DocumentConfig createDocumentConfig(DocumentData documentData, ModuleId moduleId) {

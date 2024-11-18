@@ -157,8 +157,8 @@ class CompilerLifecycleManager {
 
     static class CodeGenerationCompletedTask {
 
-        private CompilerLifecycleTask<CompilerLifecycleEventContext> lifecycleTask;
-        private LifecycleListenerInfo lifecycleListenerInfo;
+        private final CompilerLifecycleTask<CompilerLifecycleEventContext> lifecycleTask;
+        private final LifecycleListenerInfo lifecycleListenerInfo;
 
         public CodeGenerationCompletedTask(CompilerLifecycleTask<CompilerLifecycleEventContext> lifecycleTask,
                                            LifecycleListenerInfo lifecycleListenerInfo) {

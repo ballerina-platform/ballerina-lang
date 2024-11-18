@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
@@ -60,7 +59,7 @@ public class CreateExecutableTask implements Task {
         this.target = target;
         this.isHideTaskOutput = isHideTaskOutput;
         if (output != null) {
-            this.output = Paths.get(output);
+            this.output = Path.of(output);
         }
     }
 
@@ -73,14 +72,14 @@ public class CreateExecutableTask implements Task {
             }
         }
 
-        this.currentDir = Paths.get(System.getProperty(USER_DIR));
+        this.currentDir = Path.of(System.getProperty(USER_DIR));
         if (target == null) {
             target = getTarget(project);
         }
         Path executablePath = getExecutablePath(project, target);
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_17);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_21);
             long start = 0;
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
@@ -183,7 +182,7 @@ public class CreateExecutableTask implements Task {
 
         // If the --output does not have an extension, append the .jar extension
         if (!FileUtils.hasExtension(this.output)) {
-            return Paths.get(this.output.toString() + BLANG_COMPILED_JAR_EXT);
+            return Path.of(this.output.toString() + BLANG_COMPILED_JAR_EXT);
         }
 
         return this.output;

@@ -386,7 +386,10 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
  *
  * @since 0.94
  */
-public class TreeBuilder {
+public final class TreeBuilder {
+
+    private TreeBuilder() {
+    }
 
     public static CompilationUnitNode createCompilationUnit() {
         return new BLangCompilationUnit();
@@ -612,7 +615,7 @@ public class TreeBuilder {
     }
 
     public static FieldBasedAccessNode createFieldBasedAccessWithPrefixNode() {
-        return new BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess();
+        return new BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess();
     }
 
     public static TableKeySpecifierNode createTableKeySpecifierNode() {

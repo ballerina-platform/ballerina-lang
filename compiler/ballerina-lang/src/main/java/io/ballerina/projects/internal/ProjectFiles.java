@@ -25,6 +25,8 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.exceptions.InvalidBalaException;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +55,8 @@ import static io.ballerina.projects.util.ProjectUtils.checkReadPermission;
  *
  * @since 2.0.0
  */
-public class ProjectFiles {
+public final class ProjectFiles {
+
     public static final PathMatcher BAL_EXTENSION_MATCHER =
             FileSystems.getDefault().getPathMatcher("glob:**.bal");
     public static final PathMatcher BALA_EXTENSION_MATCHER =
@@ -76,11 +79,8 @@ public class ProjectFiles {
         ModuleData defaultModule = loadModule(packageDirPath);
         List<ModuleData> otherModules = loadOtherModules(packageDirPath);
         List<ModuleData> newModules = loadNewGeneratedModules(packageDirPath);
-        if (otherModules.isEmpty()) {
-            otherModules = newModules;
-        } else {
-            otherModules.addAll(newModules);
-        }
+        otherModules = Stream.concat(otherModules.stream(), newModules.stream()).toList();
+
         DocumentData ballerinaToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
         DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML));
         DocumentData cloudToml = loadDocument(packageDirPath.resolve(ProjectConstants.CLOUD_TOML));
@@ -125,7 +125,7 @@ public class ProjectFiles {
                             return true;
                         })
                         .map(ProjectFiles::loadModule)
-                        .collect(Collectors.toList());
+                        .toList();
             } catch (IOException e) {
                 throw new ProjectException(e);
             }
@@ -173,9 +173,9 @@ public class ProjectFiles {
 
     private static ModuleData loadModule(Path moduleDirPath) {
         List<DocumentData> srcDocs = loadDocuments(moduleDirPath);
-        List<DocumentData> testSrcDocs;
         Path testDirPath = moduleDirPath.resolve("tests");
-        testSrcDocs = Files.isDirectory(testDirPath) ? loadTestDocuments(testDirPath) : new ArrayList<>();
+        List<DocumentData> testSrcDocs = Files.isDirectory(testDirPath) ? loadTestDocuments(testDirPath) :
+                new ArrayList<>();
 
         // If the module is not a newly generated module, explicitly load generated sources
         if (!ProjectConstants.GENERATED_MODULES_ROOT.equals(Optional.of(
@@ -203,13 +203,17 @@ public class ProjectFiles {
                 parentPath.toFile().getName())) {
             List<Path> moduleResources = loadResources(moduleDirPath);
             if (!moduleResources.isEmpty()) {
-                String diagnosticMsg = "WARNING: module-level resources are not supported. Relocate the module-level " +
+                String warning = "WARNING: module-level resources are not supported. Relocate the module-level " +
                         "resources detected in '" + moduleDirPath.toFile().getName() + "' to the package " +
                         "resources path. Resource files:\n" +
                         moduleResources.stream()
                                 .map(Path::toString)
                                 .collect(Collectors.joining("\n")) + "\n";
-                ProjectUtils.addProjectLoadingDiagnostic(diagnosticMsg);
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(ProjectDiagnosticErrorCode.
+                        DEPRECATED_RESOURCES_STRUCTURE.diagnosticId(), warning, DiagnosticSeverity.WARNING);
+                PackageDiagnostic packageDiagnostic = new PackageDiagnostic(diagnosticInfo, "");
+
+                ProjectUtils.addMiscellaneousProjectDiagnostics(packageDiagnostic);
             }
         }
         // TODO Read Module.md file. Do we need to? Bala creator may need to package Module.md
@@ -260,7 +264,7 @@ public class ProjectFiles {
         try (Stream<Path> pathStream = Files.walk(resourcesPath, 10)) {
             return pathStream
                     .filter(Files::isRegularFile)
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (IOException e) {
             throw new ProjectException(e);
         }
@@ -386,16 +390,14 @@ public class ProjectFiles {
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
         if (null != projectRoot) {
             Path absFilePath = filePath.toAbsolutePath();
-            if (projectRoot.equals(Optional.of(absFilePath.getParent()).get())) {
+            if (projectRoot.equals(absFilePath.getParent())) {
                 throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
             }
             // Check if it is inside a module
             Path modulesRoot = projectRoot.resolve(ProjectConstants.MODULES_ROOT);
             Path parent = absFilePath.getParent();
-            if (parent != null) {
-                if (modulesRoot.equals(Optional.of(parent.getParent()).get())) {
-                    throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
-                }
+            if (parent != null && modulesRoot.equals(parent.getParent())) {
+                throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
             }
         }
         checkReadPermission(filePath);

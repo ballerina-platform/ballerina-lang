@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.error;
 
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -199,7 +199,7 @@ public class ErrorTest {
         Assert.assertTrue(returns instanceof BError);
         Assert.assertEquals(((BError) returns).getMessage(), CONST_ERROR_REASON);
         Assert.assertEquals(
-                ((BMap) ((BError) returns).getDetails()).get(StringUtils.fromString("message")).toString(),
+                ((BMap<?, ?>) ((BError) returns).getDetails()).get(StringUtils.fromString("message")).toString(),
                 "error detail message");
     }
 

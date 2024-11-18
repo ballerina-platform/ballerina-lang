@@ -23,14 +23,11 @@ package org.ballerinalang.langlib.floatingpoint;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.float", functionName = "isInfinite",
-//        args = {@Argument(name = "x", type = TypeKind.FLOAT)},
-//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-//        isPublic = true
-//)
 public class IsInfinite {
 
+
+    private IsInfinite() {
+    }
     public static boolean isInfinite(double x) {
         return Double.isInfinite(x);
     }

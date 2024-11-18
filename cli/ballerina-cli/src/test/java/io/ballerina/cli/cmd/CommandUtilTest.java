@@ -19,6 +19,7 @@
 package io.ballerina.cli.cmd;
 
 import com.google.gson.Gson;
+import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.PackageJson;
 import org.testng.Assert;
@@ -33,7 +34,6 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
 import static io.ballerina.cli.cmd.CommandUtil.writeBallerinaToml;
@@ -48,8 +48,7 @@ import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
  */
 public class CommandUtilTest {
 
-    private static final Path COMMAND_UTIL_RESOURCE_DIR = Paths
-            .get("src", "test", "resources", "test-resources", "command-util");
+    private static final Path COMMAND_UTIL_RESOURCE_DIR = Path.of("src/test/resources/test-resources/command-util");
 
     @Test(description = "Test write new project Ballerina.toml from template package.json")
     public void testWriteBallerinaToml() throws IOException {
@@ -60,12 +59,18 @@ public class CommandUtilTest {
             Reader fileReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
             packageJson = new Gson().fromJson(fileReader, PackageJson.class);
         }
+        BalaJson balaJson;
+        try (InputStream inputStream = new FileInputStream(
+                String.valueOf(COMMAND_UTIL_RESOURCE_DIR.resolve("sample-bala.json")))) {
+            Reader fileReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+            balaJson = new Gson().fromJson(fileReader, BalaJson.class);
+        }
 
         // Create empty Ballerina.toml
         Path ballerinaTomlPath = Files.createFile(COMMAND_UTIL_RESOURCE_DIR.resolve(BALLERINA_TOML));
 
         // Test writeBallerinaToml method
-        writeBallerinaToml(ballerinaTomlPath, packageJson, "gsheet_new_row_to_github_new_issue", "any");
+        writeBallerinaToml(ballerinaTomlPath, packageJson, balaJson, "gsheet_new_row_to_github_new_issue", "any");
         Assert.assertEquals(readFileAsString(COMMAND_UTIL_RESOURCE_DIR.resolve(BALLERINA_TOML)),
                 readFileAsString(COMMAND_UTIL_RESOURCE_DIR.resolve("expected-ballerina.toml")));
     }

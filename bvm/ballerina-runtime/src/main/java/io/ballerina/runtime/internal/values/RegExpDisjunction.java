@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BLink;
 
 import java.util.StringJoiner;
 
-import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
+import static io.ballerina.runtime.internal.utils.StringUtils.getStringVal;
 
 /**
  * <p>
@@ -55,8 +55,8 @@ public class RegExpDisjunction extends RegExpCommonValue {
             if (t == null) {
                 break;
             }
-            if (t instanceof String) {
-                terms.add(((String) t));
+            if (t instanceof String s) {
+                terms.add(s);
                 continue;
             }
             terms.add(getStringVal(t, parent));

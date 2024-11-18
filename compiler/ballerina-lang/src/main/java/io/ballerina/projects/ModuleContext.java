@@ -31,6 +31,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.BIRPackageSymbolEnter;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -44,6 +45,8 @@ import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -53,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static org.ballerinalang.model.tree.SourceKind.REGULAR_SOURCE;
 import static org.ballerinalang.model.tree.SourceKind.TEST_SOURCE;
@@ -71,7 +75,7 @@ class ModuleContext {
     private final boolean isDefaultModule;
     private final Map<DocumentId, DocumentContext> srcDocContextMap;
     private final Collection<DocumentId> testSrcDocIds;
-    private final MdDocumentContext moduleMdContext;
+    private final MdDocumentContext readmeMdContext;
     private final Map<DocumentId, DocumentContext> testDocContextMap;
     private final Project project;
     private final CompilationCache compilationCache;
@@ -92,7 +96,7 @@ class ModuleContext {
                   boolean isDefaultModule,
                   Map<DocumentId, DocumentContext> srcDocContextMap,
                   Map<DocumentId, DocumentContext> testDocContextMap,
-                  MdDocumentContext moduleMd,
+                  MdDocumentContext readmeMd,
                   List<ModuleDescriptor> moduleDescDependencies) {
         this.project = project;
         this.moduleId = moduleId;
@@ -102,7 +106,7 @@ class ModuleContext {
         this.srcDocIds = Collections.unmodifiableCollection(srcDocContextMap.keySet());
         this.testDocContextMap = testDocContextMap;
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
-        this.moduleMdContext = moduleMd;
+        this.readmeMdContext = readmeMd;
         this.moduleDescDependencies = Collections.unmodifiableList(moduleDescDependencies);
 
 
@@ -126,7 +130,7 @@ class ModuleContext {
 
         return new ModuleContext(project, moduleConfig.moduleId(), moduleConfig.moduleDescriptor(),
                 moduleConfig.isDefaultModule(), srcDocContextMap, testDocContextMap,
-                moduleConfig.moduleMd().map(c ->MdDocumentContext.from(c)).orElse(null),
+                moduleConfig.readmeMd().map(c ->MdDocumentContext.from(c)).orElse(null),
                 moduleConfig.dependencies());
     }
 
@@ -367,8 +371,7 @@ class ModuleContext {
             moduleContext.bootstrap.loadLangLib(compilerContext, moduleCompilationId);
         }
 
-        org.wso2.ballerinalang.compiler.PackageCache packageCache =
-                org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
+        PackageCache packageCache = PackageCache.getInstance(compilerContext);
         SymbolEnter symbolEnter = SymbolEnter.getInstance(compilerContext);
         CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
 
@@ -398,8 +401,12 @@ class ModuleContext {
             packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
             compilerPhaseRunner.performTypeCheckPhases(pkgNode);
         } catch (Throwable t) {
-            assert false : "Compilation failed due to" +
-                    (t.getMessage() != null ? ": " + t.getMessage() : " an unhandled exception");
+            assert false : "Compilation failed due to " + ((Supplier<String>) () -> {
+                StringWriter errors = new StringWriter();
+                t.printStackTrace(new PrintWriter(errors));
+                return errors.toString();
+            }).get();
+
             compilerPhaseRunner.addDiagnosticForUnhandledException(pkgNode, t);
         }
         moduleContext.bLangPackage = pkgNode;
@@ -417,8 +424,11 @@ class ModuleContext {
             try {
                 compilerPhaseRunner.performBirGenPhases(moduleContext.bLangPackage);
             } catch (Throwable t) {
-                assert false : "Compilation failed due to" +
-                        (t.getMessage() != null ? ": " + t.getMessage() : " an unhandled exception");
+                assert false : "Compilation failed due to " + ((Supplier<String>) () -> {
+                    StringWriter errors = new StringWriter();
+                    t.printStackTrace(new PrintWriter(errors));
+                    return errors.toString();
+                }).get();
                 compilerPhaseRunner.addDiagnosticForUnhandledException(moduleContext.bLangPackage, t);
                 return;
             }
@@ -505,8 +515,7 @@ class ModuleContext {
     }
 
     static void loadPackageSymbolInternal(ModuleContext moduleContext, CompilerContext compilerContext) {
-        org.wso2.ballerinalang.compiler.PackageCache packageCache =
-                org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
+        PackageCache packageCache = PackageCache.getInstance(compilerContext);
         BIRPackageSymbolEnter birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(compilerContext);
 
         PackageID moduleCompilationId = moduleContext.descriptor().moduleCompilationId();
@@ -524,8 +533,13 @@ class ModuleContext {
         moduleContext.srcDocContextMap.values().forEach(DocumentContext::shrink);
     }
 
+    @Deprecated (forRemoval = true)
     Optional<MdDocumentContext> moduleMdContext() {
-        return Optional.ofNullable(this.moduleMdContext);
+        return Optional.ofNullable(this.readmeMdContext);
+    }
+
+    public Optional<MdDocumentContext> readmeMdContext() {
+        return Optional.ofNullable(readmeMdContext);
     }
 
     ModuleContext duplicate(Project project) {
@@ -541,7 +555,7 @@ class ModuleContext {
             testDocContextMap.put(documentId, documentContext.duplicate());
         }
         return new ModuleContext(project, this.moduleId, this.moduleDescriptor, this.isDefaultModule,
-                srcDocContextMap, testDocContextMap, this.moduleMdContext().orElse(null),
+                srcDocContextMap, testDocContextMap, this.readmeMdContext().orElse(null),
                 this.moduleDescDependencies);
     }
 

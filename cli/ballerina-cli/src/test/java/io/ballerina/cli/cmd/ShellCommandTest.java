@@ -91,7 +91,7 @@ public class ShellCommandTest extends BaseCommandTest {
         PipedOutputStream shellOut = new PipedOutputStream();
         PipedInputStream testIn = new PipedInputStream(shellOut);
 
-        Thread testIntegratorThread = new Thread(() -> {
+        Thread testIntegratorThread = Thread.startVirtualThread(() -> {
             try {
                 PrintStream testPrint = new PrintStream(testOut, true, Charset.defaultCharset());
                 InputStreamReader inStreamReader = new InputStreamReader(testIn, Charset.defaultCharset());
@@ -110,10 +110,9 @@ public class ShellCommandTest extends BaseCommandTest {
                             shellPrompt, testCase[0], testCase[1], shellPrompt);
                     Assert.assertEquals(filteredString(exprResponse), filteredString(expectedExprResponse));
                 }
-            } catch (IOException | InterruptedException ignored) {
+            } catch (IOException ignored) {
             }
         });
-        testIntegratorThread.start();
 
         try {
             BShellConfiguration configuration = new BShellConfiguration.Builder()
@@ -137,7 +136,7 @@ public class ShellCommandTest extends BaseCommandTest {
         return data.toString();
     }
 
-    private void sendRequest(PrintStream stream, String string) throws InterruptedException {
+    private void sendRequest(PrintStream stream, String string) {
         stream.append(string);
         stream.println(System.lineSeparator());
         stream.flush();

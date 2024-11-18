@@ -19,9 +19,8 @@ plugins {
     id 'java-library'
     id 'checkstyle'
     id 'com.github.spotbugs'
+    id 'repositories'
 }
-
-apply from: "$rootDir/gradle/repositories.gradle"
 
 configurations {
     dist {
@@ -55,7 +54,6 @@ dependencies {
     dist project(path: ':ballerina-lang:query', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:transaction', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:regexp', configuration: 'distributionBirJar')
-//    dist project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'distributionBirJar')
 
     // Lang libs
     dist project(':ballerina-lang:internal')
@@ -85,38 +83,38 @@ dependencies {
 
     // Third party jars
     // config
-    dist "org.slf4j:slf4j-jdk14:${project.slf4jJdk14Version}"
-    dist "org.slf4j:slf4j-api:${project.slf4jApiVersion}"
-    dist "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
-    dist "org.apache.commons:commons-text:${project.apacheCommonsTextVersion}"
-    dist "com.moandjiezana.toml:toml4j:${project.moandjiezanaToml4jVersion}"
-    dist "com.fasterxml.woodstox:woodstox-core:${project.fasterxmlWoodstoxCoreVersion}"
-    dist "org.codehaus.woodstox:stax2-api:${project.codehausWoodstoxStax2ApiVersion}"
+    dist libs.slf4j.jdk14
+    dist libs.slf4j.api
+    dist libs.apache.commons.lang3
+    dist libs.apache.commons.text
+    dist libs.toml4j
+    dist libs.fasterxml.woodstox.core
+    dist libs.codehaus.woodstox.stax2.api
 
     // runtime
-    dist "org.apache.ws.commons.axiom:axiom-c14n:${project.apacheCommonsAxiomC14nVersion}"
-    dist "org.apache.ws.commons.axiom:axiom-impl:${project.apacheCommonsAxiomImplVersion}"
-    dist "org.apache.ws.commons.axiom:axiom-api:${project.apacheCommonsAxiomApiVersion}"
-    dist "org.apache.ws.commons.axiom:axiom-dom:${project.apacheCommonsAxiomDomVersion}"
-    dist "commons-logging:commons-logging:${project.commonsLoggingVersion}"
-    dist "io.opentelemetry:opentelemetry-api:${project.openTelemetryApiVersion}"
-    dist "io.opentelemetry:opentelemetry-context:${project.openTelemetryContextVersion}"
-    dist "org.awaitility:awaitility:${project.awaitilityVersion}"
-    dist "org.hdrhistogram:HdrHistogram:${project.hdrHistogramVersion}"
+    dist libs.apache.commons.axiom.c14n
+    dist libs.apache.commons.axiom.impl
+    dist libs.apache.commons.axiom.api
+    dist libs.apache.commons.axiom.dom
+    dist libs.commons.logging
+    dist libs.open.telemetry.api
+    dist libs.open.telemetry.context
+    dist libs.awaitility
+    dist libs.hdr.histogram
 
     // observability extensions
     //// metrics
     dist project(':metrics-extensions:ballerina-metrics-extension')
 
-    dist "com.google.code.gson:gson:${project.gsonVersion}"
+    dist libs.gson
 
     // Transaction related third party jars
-    dist "com.atomikos:transactions-jta:${project.atomikosTransactionsJtaVersion}"
-    dist "com.atomikos:atomikos-util:${project.atomikosUtilVersion}"
-    dist "com.atomikos:transactions-api:${project.atomikosTransactionsApiVersion}"
-    dist "com.atomikos:transactions-jdbc:${project.atomikosTransactionsJdbcVersion}"
-    dist "com.atomikos:transactions:${project.atomikosTransactionsVersion}"
-    dist "javax.transaction:javax.transaction-api:${project.javaxTransactionApiVersion}"
+    dist libs.atomikos.transactions.jta
+    dist libs.atomikos.util
+    dist libs.atomikos.transactions.api
+    dist libs.atomikos.transactions.jdbc
+    dist libs.atomikos.transactions
+    dist libs.javax.transaction.api
 
     // debugger runtime helpers
     dist project(':debug-adapter:debug-adapter-runtime')
@@ -128,6 +126,10 @@ dependencies {
     dist project(':ballerina-tools-api')
     dist project(':identifier-util')
 
+}
+
+configurations.configureEach {
+    transitive = false
 }
 
 jar {

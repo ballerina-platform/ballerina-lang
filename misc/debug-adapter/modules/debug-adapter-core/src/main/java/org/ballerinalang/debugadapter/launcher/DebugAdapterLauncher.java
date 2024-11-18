@@ -33,16 +33,18 @@ import java.net.Socket;
 /**
  * Launch debugger adapter protocol server instance.
  */
-public class DebugAdapterLauncher {
+public final class DebugAdapterLauncher {
 
     private static final int DEFAULT_PORT = 4711;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugAdapterLauncher.class);
 
+    private DebugAdapterLauncher() {
+    }
+
     public static void main(String[] args) {
         // Configures debug server port.
         int debugServerPort = args.length != 0 ? Integer.parseInt(args[0]) : DEFAULT_PORT;
-        try {
-            ServerSocket serverSocket = new ServerSocket(debugServerPort);
+        try (ServerSocket serverSocket = new ServerSocket(debugServerPort)) {
             PrintStream out = System.out;
             out.println("Debug server started on " + debugServerPort);
 

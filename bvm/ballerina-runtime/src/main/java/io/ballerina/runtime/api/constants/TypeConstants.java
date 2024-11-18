@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 0.995.0
  */
-public class TypeConstants {
+public final class TypeConstants {
 
     public static final String INT_TNAME = "int";
     public static final String BYTE_TNAME = "byte";

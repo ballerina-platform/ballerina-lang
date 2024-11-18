@@ -315,6 +315,21 @@ public function testRecursiveObjectArrayReadonlyClone() {
    assertTrue(x is readonly & Obj[]);
 }
 
+public function testReadonlyObjectMethodCall() {
+    File file = new VirtualFile();
+    string filename = file.filename();
+    assertEquality("File Name", filename);
+}
+
+public type File readonly & object {
+    public function filename() returns string;
+};
+
+public readonly class VirtualFile {
+    *File;
+    public function filename() returns string => "File Name";
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

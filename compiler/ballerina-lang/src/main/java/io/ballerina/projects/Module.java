@@ -43,7 +43,8 @@ public class Module {
     private final Map<DocumentId, Document> testSrcDocs;
     private final Function<DocumentId, Document> populateDocumentFunc;
 
-    private Optional<ModuleMd> moduleMd = null;
+    private Optional<ModuleMd> moduleMd = Optional.empty();
+    private ModuleReadmeMd readmeMd = null;
 
     Module(ModuleContext moduleContext, Package packageInstance) {
         this.moduleContext = moduleContext;
@@ -133,10 +134,18 @@ public class Module {
         return new Modifier(this);
     }
 
+    @Deprecated (forRemoval = true)
     ModuleContext moduleContext() {
         return moduleContext;
     }
 
+    /**
+     * Returns the ModuleMd document.
+     *
+     * @return ModuleMd
+     * @deprecated use {@link #readmeMd()} instead.
+     */
+    @Deprecated (forRemoval = true, since = "2.11.0")
     public Optional<ModuleMd> moduleMd() {
         if (null == this.moduleMd) {
             this.moduleMd = this.moduleContext.moduleMdContext().map(c ->
@@ -146,7 +155,16 @@ public class Module {
         return this.moduleMd;
     }
 
-    private static class DocumentIterable implements Iterable {
+    public Optional<ModuleReadmeMd> readmeMd() {
+        if (null == this.readmeMd) {
+            this.readmeMd = this.moduleContext.readmeMdContext().map(c ->
+                    ModuleReadmeMd.from(c, this)).orElse(null);
+
+        }
+        return Optional.ofNullable(this.readmeMd);
+    }
+
+    private static class DocumentIterable implements Iterable<Document> {
         private final Collection<Document> documentList;
 
         public DocumentIterable(Collection<Document> documentList) {
@@ -159,7 +177,7 @@ public class Module {
         }
 
         @Override
-        public Spliterator spliterator() {
+        public Spliterator<Document> spliterator() {
             return this.documentList.spliterator();
         }
     }
@@ -168,14 +186,14 @@ public class Module {
      * Inner class that handles module modifications.
      */
     public static class Modifier {
-        private ModuleId moduleId;
-        private ModuleDescriptor moduleDescriptor;
+        private final ModuleId moduleId;
+        private final ModuleDescriptor moduleDescriptor;
         private Map<DocumentId, DocumentContext> srcDocContextMap;
         private Map<DocumentId, DocumentContext> testDocContextMap;
-        private boolean isDefaultModule;
+        private final boolean isDefaultModule;
         private final List<ModuleDescriptor> dependencies;
-        private Package packageInstance;
-        private Project project;
+        private final Package packageInstance;
+        private final Project project;
         private MdDocumentContext moduleMdContext;
 
         private Modifier(Module oldModule) {
@@ -187,7 +205,7 @@ public class Module {
             dependencies = oldModule.moduleContext().moduleDescDependencies();
             packageInstance = oldModule.packageInstance;
             project = oldModule.project();
-            moduleMdContext = oldModule.moduleContext.moduleMdContext().orElse(null);
+            moduleMdContext = oldModule.moduleContext.readmeMdContext().orElse(null);
         }
 
         Modifier updateDocument(DocumentContext newDocContext) {

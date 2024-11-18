@@ -26,16 +26,11 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
  * 
  * @since 0.88
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "slice",
-//        args = { @Argument(name = "startIndex", type = TypeKind.INT),
-//                @Argument(name = "endIndex", type = TypeKind.INT) },
-//        returnType = { @ReturnType(type = TypeKind.XML) }, isPublic = true
-//)
-public class Slice {
-
+public final class Slice {
     private static final String OPERATION = "slice xml";
+
+    private Slice() {
+    }
 
     public static BXml slice(BXml xml, long startIndex, long endIndex) {
         try {

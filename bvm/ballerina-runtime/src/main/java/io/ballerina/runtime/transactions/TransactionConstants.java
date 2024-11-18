@@ -31,7 +31,8 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARA
  *
  * @since 1.0
  */
-public class TransactionConstants {
+public final class TransactionConstants {
+
     //Co-ordinator functions
     public static final String COORDINATOR_ABORT_TRANSACTION = "abortTransaction";
 
@@ -70,6 +71,10 @@ public class TransactionConstants {
 
     public static final String ANN_NAME_TRX_PARTICIPANT_CONFIG = "Participant";
     public static final String TIMESTAMP_OBJECT_VALUE_FIELD = "timeValue";
+
     public static final int DEFAULT_TRX_AUTO_COMMIT_TIMEOUT = 120;
     public static final int DEFAULT_TRX_CLEANUP_TIMEOUT = 600;
+
+    private TransactionConstants() {
+    }
 }

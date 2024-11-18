@@ -17,40 +17,45 @@
 package org.ballerinalang.test.runtime.api;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 
-import static org.ballerinalang.test.runtime.api.RuntimeAPITestUtils.blockAndInvokeMethodAsync;
-import static org.ballerinalang.test.runtime.api.RuntimeAPITestUtils.blockAndInvokeMethodAsyncSequentially;
+import java.io.PrintStream;
 
 /**
  * Source class to test the functionality of Ballerina runtime APIs for invoking functions.
  *
  * @since 2201.9.0
  */
-public class RuntimeAPICall {
+public final class RuntimeAPICall {
+
+    private RuntimeAPICall() {
+    }
+
+    private static final PrintStream out = System.out;
 
     public static void main(String[] args) {
         Module module = new Module("testorg", "function_invocation", "1");
         Runtime balRuntime = Runtime.from(module);
         balRuntime.init();
         balRuntime.start();
-        blockAndInvokeMethodAsync(balRuntime, "add", 5L, 7L);
+        Object result = balRuntime.callFunction(module, "add", null, 5L, 7L);
+        out.println(result);
 
-        BObject person = ValueCreator.createObjectValue(module, "Person", 1001,
-                StringUtils.fromString("John Doe"));
-        blockAndInvokeMethodAsyncSequentially(balRuntime, person, "getNameWithTitle", PredefinedTypes.TYPE_STRING,
-                StringUtils.fromString("Dr. "), false);
+        BObject person = ValueCreator.createObjectValue(module, "Person", 1001, StringUtils.fromString("John Doe"));
+        result = balRuntime.callMethod(person, "getNameWithTitle", null, StringUtils.fromString("Dr. "));
+        out.println(result);
         balRuntime.stop();
 
-        balRuntime = Runtime.from(new Module("testorg", "function_invocation.moduleA", "1"));
+        module = new Module("testorg", "function_invocation.moduleA", "1");
+        balRuntime = Runtime.from(module);
         balRuntime.init();
         balRuntime.start();
-        blockAndInvokeMethodAsync(balRuntime, "getPerson", 1001L, StringUtils.fromString("John"),
+        result = balRuntime.callFunction(module, "getPerson", null, 1001L, StringUtils.fromString("John"),
                 StringUtils.fromString("100m"));
+        out.println(result);
         balRuntime.stop();
     }
 }

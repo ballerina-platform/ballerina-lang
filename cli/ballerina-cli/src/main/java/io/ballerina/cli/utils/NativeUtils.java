@@ -23,7 +23,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.test.runtime.entity.MockFunctionReplaceVisitor;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -50,7 +50,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -61,7 +60,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.jar.JarOutputStream;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -76,7 +74,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT_REPLACER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.HYPHEN;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.JAR_EXTENSION;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.JAVA_17_DIR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.JAVA_PLATFORM_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FUNC_NAME_PREFIX;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
@@ -89,7 +87,8 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTABLE;
  *
  * @since 2.3.0
  */
-public class NativeUtils {
+public final class NativeUtils {
+
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String TEST_EXEC_FUNCTION = "__execute__";
     public static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
@@ -108,6 +107,9 @@ public class NativeUtils {
             "io.ballerina.runtime.api.values.BString",
             "io.ballerina.runtime.api.values.BString"
     });
+
+    private NativeUtils() {
+    }
 
     //Add dynamically loading classes and methods to reflection config
     public static void createReflectConfig(Path nativeConfigPath, Package currentPackage,
@@ -169,9 +171,7 @@ public class NativeUtils {
             if (mockedFunctionClassFile.isFile()) {
                 BufferedReader br = Files.newBufferedReader(mockedFunctionClassPath, StandardCharsets.UTF_8);
                 Gson gsonRead = new Gson();
-                Map<String, String[]> testFileMockedFunctionMapping = gsonRead.fromJson(br,
-                        new TypeToken<Map<String, String[]>>() {
-                        }.getType());
+                Map<String, String[]> testFileMockedFunctionMapping = gsonRead.fromJson(br, new TypeToken<>() { });
                 if (!testFileMockedFunctionMapping.isEmpty()) {
                     ReflectConfigClass originalTestFileRefConfClz;
                     for (Map.Entry<String, String[]> testFileMockedFunctionMappingEntry :
@@ -191,12 +191,12 @@ public class NativeUtils {
                         }
                         HashSet<String> methodSet = getMethodSet(qualifiedTestClass);
                         originalTestFileRefConfClz = new ReflectConfigClass(qualifiedTestClassName);
-                        for (int i = 0; i < mockedFunctions.length; i++) {
-                            if (!methodSet.contains(mockedFunctions[i])) {
+                        for (String mockedFunction : mockedFunctions) {
+                            if (!methodSet.contains(mockedFunction)) {
                                 continue;
                             }
                             originalTestFileRefConfClz.addReflectConfigClassMethod(
-                                    new ReflectConfigClassMethod(mockedFunctions[i]));
+                                    new ReflectConfigClassMethod(mockedFunction));
                             originalTestFileRefConfClz.setUnsafeAllocated(true);
                             originalTestFileRefConfClz.setAllDeclaredFields(true);
                             originalTestFileRefConfClz.setQueryAllDeclaredMethods(true);
@@ -270,7 +270,7 @@ public class NativeUtils {
 
         for (String jarFilePath : jarFilePaths) {
             try {
-                urlList.add(Paths.get(jarFilePath).toUri().toURL());
+                urlList.add(Path.of(jarFilePath).toUri().toURL());
             } catch (MalformedURLException e) {
                 // This path cannot get executed
                 throw new RuntimeException("Failed to create classloader with all jar files", e);
@@ -426,7 +426,7 @@ public class NativeUtils {
             //Load all classes within module jar
             Map<String, byte[]> unmodifiedFiles = loadUnmodifiedFilesWithinJar(mainJarPath);
             String modifiedJarPath = (target.path().resolve(CACHE_DIR).resolve(testSuite.getOrgName()).resolve
-                    (testSuite.getPackageName()).resolve(testSuite.getVersion()).resolve(JAVA_17_DIR)).toString()
+                    (testSuite.getPackageName()).resolve(testSuite.getVersion()).resolve(JAVA_PLATFORM_DIR)).toString()
                     + PATH_SEPARATOR + modifiedJarName;
             //Dump modified jar
             dumpJar(modifiedClassDef, unmodifiedFiles, modifiedJarPath);
@@ -601,9 +601,8 @@ public class NativeUtils {
             dependencies.addAll(testSuiteEntry.getValue().getTestExecutionDependencies());
 
         }
-        dependencies = dependencies.stream().distinct().collect(Collectors.toList());
-        dependencies = dependencies.stream().map((x) -> convertWinPathToUnixFormat(addQuotationMarkToString(x)))
-                .collect(Collectors.toList());
+        dependencies = dependencies.stream().distinct()
+                .map((x) -> convertWinPathToUnixFormat(addQuotationMarkToString(x))).toList();
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
         dependencies.forEach(classPath::add);

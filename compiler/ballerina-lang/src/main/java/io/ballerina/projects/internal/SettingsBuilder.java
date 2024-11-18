@@ -56,10 +56,10 @@ public class SettingsBuilder {
     private static final String WRITE_TIMEOUT = "writeTimeout";
     private static final String CALL_TIMEOUT = "callTimeout";
     private static final String MAX_RETRIES = "maxRetries";
-    private TomlDocument settingsToml;
-    private Settings settings;
+    private final TomlDocument settingsToml;
+    private final Settings settings;
     private DiagnosticResult diagnostics;
-    private List<Diagnostic> diagnosticList;
+    private final List<Diagnostic> diagnosticList;
 
     private static final String PROXY = "proxy";
     private static final String CENTRAL = "central";

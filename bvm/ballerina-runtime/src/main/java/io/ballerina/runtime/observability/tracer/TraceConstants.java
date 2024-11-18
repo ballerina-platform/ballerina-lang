@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 0.964.1
  */
-public class TraceConstants {
+public final class TraceConstants {
 
     private TraceConstants() {
     }

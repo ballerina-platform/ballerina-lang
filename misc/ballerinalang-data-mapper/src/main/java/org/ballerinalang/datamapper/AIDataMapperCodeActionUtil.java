@@ -87,17 +87,17 @@ class AIDataMapperCodeActionUtil {
     private static final int MAXIMUM_CACHE_SIZE = 100;
     private static final int RIGHT_SYMBOL_INDEX = 1;
     private static final int LEFT_SYMBOL_INDEX = 0;
-    private Cache<Integer, String> mappingCache =
+    private final Cache<Integer, String> mappingCache =
             CacheBuilder.newBuilder().maximumSize(MAXIMUM_CACHE_SIZE).build();
-    private HashMap<String, String> isOptionalMap = new HashMap<>();
-    private HashMap<String, String> leftFieldMap = new HashMap<>();
-    private HashMap<String, String> responseFieldMap = new HashMap<>();
+    private final HashMap<String, String> isOptionalMap = new HashMap<>();
+    private final HashMap<String, String> leftFieldMap = new HashMap<>();
+    private final HashMap<String, String> responseFieldMap = new HashMap<>();
     private HashMap<String, String> restFieldMap = new HashMap<>();
     private HashMap<String, Map<String, RecordFieldSymbol>> spreadFieldMap = new HashMap<>();
-    private HashMap<String, String> spreadFieldResponseMap = new HashMap<>();
-    private ArrayList<String> leftReadOnlyFields = new ArrayList<>();
+    private final HashMap<String, String> spreadFieldResponseMap = new HashMap<>();
+    private final ArrayList<String> leftReadOnlyFields = new ArrayList<>();
     private ArrayList<String> rightSpecificFieldList = new ArrayList<>();
-    private ArrayList<String> optionalRightRecordFields = new ArrayList<>();
+    private final ArrayList<String> optionalRightRecordFields = new ArrayList<>();
 
     private static final String SCHEMA = "schema";
     private static final String ID = "id";
@@ -437,9 +437,7 @@ class AIDataMapperCodeActionUtil {
             rightRecordJSON.addProperty(TYPE, "object");
             rightRecordJSON.add(PROPERTIES, rightSchema);
 
-            Map<String, Object> rightSchemaMap = new Gson().fromJson(rightSchema,
-                    new TypeToken<HashMap<String, Object>>() {
-                    }.getType());
+            Map<String, Object> rightSchemaMap = new Gson().fromJson(rightSchema, new TypeToken<>() { });
             this.isOptionalMap.clear();
             generateOptionalMap(rightSchemaMap, foundTypeRight);
 
@@ -452,9 +450,7 @@ class AIDataMapperCodeActionUtil {
             leftRecordJSON.addProperty(TYPE, "object");
             leftRecordJSON.add(PROPERTIES, leftSchema);
 
-            Map<String, Object> leftSchemaMap = new Gson().fromJson(leftSchema,
-                    new TypeToken<HashMap<String, Object>>() {
-                    }.getType());
+            Map<String, Object> leftSchemaMap = new Gson().fromJson(leftSchema, new TypeToken<>() { });
             this.leftFieldMap.clear();
             getLeftFields(leftSchemaMap, "");
         }
@@ -484,14 +480,14 @@ class AIDataMapperCodeActionUtil {
     private void generateOptionalMap(Map<String, Object> rightSchemaMap, String foundTypeRight) {
         for (Map.Entry<String, Object> field : rightSchemaMap.entrySet()) {
             StringBuilder optionalKey = new StringBuilder(foundTypeRight.toLowerCase());
-            if (!(((Map) field.getValue()).containsKey(OPTIONAL))) {
+            if (!(((Map<?, ?>) field.getValue()).containsKey(OPTIONAL))) {
                 optionalKey.append(".").append(field.getKey());
-                generateOptionalMap((Map<String, Object>) ((Map) field.getValue()).get(PROPERTIES),
+                generateOptionalMap((Map<String, Object>) ((Map<?, ?>) field.getValue()).get(PROPERTIES),
                         optionalKey.toString());
-            } else if ((boolean) ((Map) field.getValue()).get(OPTIONAL) |
+            } else if ((boolean) ((Map<?, ?>) field.getValue()).get(OPTIONAL) |
                     (checkForOptionalRecordField(optionalKey.toString()) > 0)) {
                 optionalKey.append(".").append(field.getKey());
-                this.isOptionalMap.put(optionalKey.toString(), ((Map) field.getValue()).get(SIGNATURE).
+                this.isOptionalMap.put(optionalKey.toString(), ((Map<?, ?>) field.getValue()).get(SIGNATURE).
                         toString());
             }
         }
@@ -513,14 +509,14 @@ class AIDataMapperCodeActionUtil {
             if (!fieldName.isEmpty()) {
                 fieldKey.append(fieldName).append(".");
             }
-            if (!(((Map) field.getValue()).containsKey(READONLY))) {
+            if (!(((Map<?, ?>) field.getValue()).containsKey(READONLY))) {
                 fieldKey.append(field.getKey());
-                getLeftFields((Map<String, Object>) ((Map) field.getValue()).get(PROPERTIES),
+                getLeftFields((Map<String, Object>) ((Map<?, ?>) field.getValue()).get(PROPERTIES),
                         fieldKey.toString());
             } else {
                 fieldKey.append(field.getKey());
-                this.leftFieldMap.put(fieldKey.toString(), ((Map) field.getValue()).get(TYPE).toString());
-                if ((((Map) field.getValue()).get(READONLY)).toString().contains("true")) {
+                this.leftFieldMap.put(fieldKey.toString(), ((Map<?, ?>) field.getValue()).get(TYPE).toString());
+                if ((((Map<?, ?>) field.getValue()).get(READONLY)).toString().contains("true")) {
                     this.leftReadOnlyFields.add(field.getKey());
                 }
             }
@@ -534,9 +530,9 @@ class AIDataMapperCodeActionUtil {
      * @param schemaFields {@link List<RecordFieldSymbol>}
      */
     private void getSpreadFieldDetails(String key, Collection<RecordFieldSymbol> schemaFields) {
-        Iterator iterator = schemaFields.iterator();
+        Iterator<RecordFieldSymbol> iterator = schemaFields.iterator();
         while (iterator.hasNext()) {
-            RecordFieldSymbol attribute = (RecordFieldSymbol) iterator.next();
+            RecordFieldSymbol attribute = iterator.next();
             TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
 
             if (!key.isEmpty()) {
@@ -577,12 +573,12 @@ class AIDataMapperCodeActionUtil {
     private void getResponseKeys(Map<String, Object> leftSchemaMap, String keyName) {
         for (Map.Entry<String, Object> field : leftSchemaMap.entrySet()) {
             StringBuilder fieldKey = new StringBuilder();
-            Map treeMap = null;
+            Map<?, ?> treeMap = null;
             if (!keyName.isEmpty()) {
                 fieldKey.append(keyName).append(".");
             }
             try {
-                treeMap = (Map) field.getValue();
+                treeMap = (Map<?, ?>) field.getValue();
             } catch (Exception e) {
                 //ignore
             }
@@ -757,8 +753,7 @@ class AIDataMapperCodeActionUtil {
                     throw new IOException("Error: AI service error");
                 }
             }
-            JsonParser parser = new JsonParser();
-            return parser.parse(response.getData()).getAsJsonObject().get("answer").toString();
+            return JsonParser.parseString(response.getData()).getAsJsonObject().get("answer").toString();
         } catch (IOException e) {
             throw new IOException("Error connecting the AI service" + e.getMessage(), e);
         }
@@ -876,9 +871,8 @@ class AIDataMapperCodeActionUtil {
         //To generate the default values
         try {
             Map<String, Object> responseMap = new Gson().fromJson(
-                    new JsonParser().parse(mappingFromServer).getAsJsonObject(),
-                    new TypeToken<HashMap<String, Object>>() {
-                    }.getType());
+                    JsonParser.parseString(mappingFromServer).getAsJsonObject(),
+                    new TypeToken<>() { });
             getResponseKeys(responseMap, "");
             HashSet<String> unionKeys = new HashSet<>(this.responseFieldMap.keySet());
             unionKeys.addAll(this.leftFieldMap.keySet());

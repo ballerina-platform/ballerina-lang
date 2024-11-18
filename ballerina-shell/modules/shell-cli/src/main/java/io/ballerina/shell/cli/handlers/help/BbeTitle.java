@@ -25,10 +25,10 @@ import java.util.Arrays;
  */
 public class BbeTitle {
 
-    private String title;
-    private String column;
-    private String category;
-    private BbeRecord[] samples;
+    private final String title;
+    private final String column;
+    private final String category;
+    private final BbeRecord[] samples;
 
     public BbeTitle(String title, String column, String category, BbeRecord[] samples) {
         this.title = title;

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.expressions.stamp;
 
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
@@ -137,17 +137,19 @@ public class ArrayStampInbuiltFunctionTest {
         Assert.assertEquals(getType(mapValue0).getClass(), BMapType.class);
         Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BJsonType.class);
         Assert.assertEquals((mapValue0).size(), 4);
-        Assert.assertEquals(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch")).toString(), "LK2014");
+        Assert.assertEquals(((LinkedHashMap<?, ?>) mapValue0).get(StringUtils.fromString("batch")).toString(),
+                "LK2014");
         Assert.assertEquals(
-                getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch"))).getClass(),
+                getType(((LinkedHashMap<?, ?>) mapValue0).get(StringUtils.fromString("batch"))).getClass(),
                 BStringType.class);
 
         Assert.assertEquals(getType(mapValue1).getClass(), BMapType.class);
         Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BJsonType.class);
         Assert.assertEquals((mapValue1).size(), 4);
-        Assert.assertEquals(((LinkedHashMap) mapValue1).get(StringUtils.fromString("batch")).toString(), "LK2014");
+        Assert.assertEquals(((LinkedHashMap<?, ?>) mapValue1).get(StringUtils.fromString("batch")).toString(),
+                "LK2014");
         Assert.assertEquals(
-                getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch"))).getClass(),
+                getType(((LinkedHashMap<?, ?>) mapValue0).get(StringUtils.fromString("batch"))).getClass(),
                 BStringType.class);
 
     }
@@ -220,26 +222,28 @@ public class ArrayStampInbuiltFunctionTest {
         Assert.assertEquals(getType(tupleValue2).getClass(), BRecordType.class);
         Assert.assertEquals(getType(tupleValue2).getName(), "Student");
 
-        Assert.assertEquals(((BMap) tupleValue2).size(), 4);
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).size(), 4);
 
-        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("name")).toString(), "Raja");
+        Assert.assertEquals(getType(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("name"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("status")).toString(), "single");
+        Assert.assertEquals(getType(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("status"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
+        Assert.assertEquals(getType(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("batch"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("school")).toString(),
+                "Hindu College");
+        Assert.assertEquals(getType(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("school"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BMap) tupleValue1).get(StringUtils.fromString("school")).toString(), "Royal College");
-        Assert.assertEquals(getType(((BMap) tupleValue1).get(StringUtils.fromString("school"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) tupleValue1).get(StringUtils.fromString("school")).toString(),
+                "Royal College");
+        Assert.assertEquals(getType(((BMap<?, ?>) tupleValue1).get(StringUtils.fromString("school"))).getClass(),
                 BStringType.class);
     }
 
@@ -250,11 +254,11 @@ public class ArrayStampInbuiltFunctionTest {
         BArray valueArray = (BArray) results;
 
         Assert.assertEquals(valueArray.size(), 4);
-        Assert.assertEquals(((BArray) results).getElementType().getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(((BArray) results).getInt(0), 1);
-        Assert.assertEquals(((BArray) results).getInt(1), 2);
-        Assert.assertEquals(((BArray) results).getInt(2), 3);
-        Assert.assertEquals(((BArray) results).getInt(3), 4);
+        Assert.assertEquals(valueArray.getElementType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(valueArray.getInt(0), 1);
+        Assert.assertEquals(valueArray.getInt(1), 2);
+        Assert.assertEquals(valueArray.getInt(2), 3);
+        Assert.assertEquals(valueArray.getInt(3), 4);
     }
 
     @Test
@@ -264,11 +268,11 @@ public class ArrayStampInbuiltFunctionTest {
         BArray valueArray = (BArray) results;
 
         Assert.assertEquals(valueArray.size(), 4);
-        Assert.assertEquals(((BArray) results).getElementType().getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(((BArray) results).getInt(0), 1);
-        Assert.assertEquals(((BArray) results).getInt(1), 2);
-        Assert.assertEquals(((BArray) results).getInt(2), 3);
-        Assert.assertEquals(((BArray) results).getInt(3), 4);
+        Assert.assertEquals(valueArray.getElementType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(valueArray.getInt(0), 1);
+        Assert.assertEquals(valueArray.getInt(1), 2);
+        Assert.assertEquals(valueArray.getInt(2), 3);
+        Assert.assertEquals(valueArray.getInt(3), 4);
     }
 
     @Test
@@ -278,11 +282,11 @@ public class ArrayStampInbuiltFunctionTest {
         BArray valueArray = (BArray) results;
 
         Assert.assertEquals(valueArray.size(), 4);
-        Assert.assertEquals(((BArray) results).getElementType().getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(((BArray) results).getInt(0), 1);
-        Assert.assertEquals(((BArray) results).getInt(1), 2);
-        Assert.assertEquals(((BArray) results).getInt(2), 3);
-        Assert.assertEquals(((BArray) results).getInt(3), 4);
+        Assert.assertEquals(valueArray.getElementType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(valueArray.getInt(0), 1);
+        Assert.assertEquals(valueArray.getInt(1), 2);
+        Assert.assertEquals(valueArray.getInt(2), 3);
+        Assert.assertEquals(valueArray.getInt(3), 4);
     }
 
     @Test
@@ -292,11 +296,11 @@ public class ArrayStampInbuiltFunctionTest {
         BArray valueArray = (BArray) results;
 
         Assert.assertEquals(valueArray.size(), 4);
-        Assert.assertEquals(((BArray) results).getElementType().getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(((BArray) results).getInt(0), 1);
-        Assert.assertEquals(((BArray) results).getInt(1), 2);
-        Assert.assertEquals(((BArray) results).getInt(2), 3);
-        Assert.assertEquals(((BArray) results).getInt(3), 4);
+        Assert.assertEquals(valueArray.getElementType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(valueArray.getInt(0), 1);
+        Assert.assertEquals(valueArray.getInt(1), 2);
+        Assert.assertEquals(valueArray.getInt(2), 3);
+        Assert.assertEquals(valueArray.getInt(3), 4);
     }
 
     @Test

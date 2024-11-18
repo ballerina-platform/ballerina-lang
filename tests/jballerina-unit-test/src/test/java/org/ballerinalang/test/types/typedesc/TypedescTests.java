@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.test.types.typedesc;
 
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BTypedesc;
 import org.ballerinalang.test.BCompileUtil;

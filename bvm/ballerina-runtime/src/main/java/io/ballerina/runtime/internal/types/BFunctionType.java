@@ -19,12 +19,12 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Parameter;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 
 import java.util.Arrays;
 
@@ -71,8 +71,6 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         this.flags = flags;
     }
 
-    @Deprecated
-    @Override
     public Type[] getParameterTypes() {
         Type[] types = new Type[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
@@ -115,14 +113,12 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof BFunctionType)) {
+        if (!(o instanceof BFunctionType that)) {
             return false;
         }
         if (!super.equals(o)) {
             return false;
         }
-
-        BFunctionType that = (BFunctionType) o;
 
         boolean isSourceAnyFunction = SymbolFlags.isFlagOn(this.flags, SymbolFlags.ANY_FUNCTION);
         boolean isTargetAnyFunction = SymbolFlags.isFlagOn(that.flags, SymbolFlags.ANY_FUNCTION);
@@ -180,9 +176,9 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
             if (parameters != null) {
                 addParamListToString(parameters, stringRep);
             }
-            if (restType instanceof BArrayType) {
+            if (restType instanceof BArrayType bArrayType) {
                 stringRep.append(",");
-                stringRep.append(((BArrayType) restType).getElementType().toString());
+                stringRep.append(bArrayType.getElementType().toString());
                 stringRep.append("...");
             }
             stringRep.append(")");

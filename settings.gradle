@@ -1,5 +1,10 @@
+pluginManagement {
+    repositories.gradlePluginPortal()
+    includeBuild("gradle/plugins")
+}
+
 plugins {
-    id "com.gradle.enterprise" version "3.13.2"
+    id "com.gradle.develocity" version "3.17.5"
 }
 
 rootProject.name = 'ballerina-parent'
@@ -48,7 +53,6 @@ include(':jballerina-unit-test')
 include(':jballerina-semtype-test')
 include(':jballerina-benchmark-test')
 include(':ballerina-compiler-plugin-test')
-//include(':ballerina-cli-utils')
 include(':ballerina-cli')
 include(':diagram-util')
 include(':syntax-api-calls-gen')
@@ -84,14 +88,8 @@ include(':ballerina')
 include(':jballerina')
 include(':jballerina-tools')
 include(':nballerina-tools')
-include(':test-launch-listener-01')
-include(':test-launch-listener-02')
-include(':test-launch-listener-03')
-include(':test-launch-listener-04')
 include(':jballerina-integration-test')
 include(':central-client')
-// include(':composer-integration-test')
-// include(':ballerina-tools-integration-test')
 include(':testerina:testerina-runtime')
 include(':testerina:report-tools')
 include(':testerina-integration-test')
@@ -248,16 +246,8 @@ project(':composer-library').projectDir = file('composer')
 project(':jballerina').projectDir = file('distribution/zip/jballerina')
 project(':jballerina-tools').projectDir = file('distribution/zip/jballerina-tools')
 project(':nballerina-tools').projectDir = file('distribution/zip/nballerina-tools')
-project(':test-launch-listener-01').projectDir = file('tests/launch-listener-test-util-libs/test-launch-listener-01')
-project(':test-launch-listener-02').projectDir = file('tests/launch-listener-test-util-libs/test-launch-listener-02')
-project(':test-launch-listener-03').projectDir = file('tests/launch-listener-test-util-libs/test-launch-listener-03')
-project(':test-launch-listener-04').projectDir = file('tests/launch-listener-test-util-libs/test-launch-listener-04')
 project(':jballerina-integration-test').projectDir = file('tests/jballerina-integration-test')
 project(':language-server-integration-tests').projectDir = file('tests/language-server-integration-tests')
-// project(':composer-integration-test').projectDir = file('tests/composer-integration-test')
-// project(':ballerina-tools-integration-test').projectDir = file('tests/ballerina-tools-integration-test')
-//project(':ballerina-stringutils').projectDir = file('stdlib/stringutils')
-//project(':ballerina-libs').projectDir = file('distribution/libs')
 project(':testerina:testerina-runtime').projectDir = file('misc/testerina/modules/testerina-runtime')
 project(':testerina:report-tools').projectDir = file('misc/testerina/modules/report-tools')
 project(':testerina-integration-test').projectDir = file('tests/testerina-integration-test')
@@ -289,9 +279,9 @@ buildCache {
     }
 }
 
-gradleEnterprise {
+develocity {
     buildScan {
-        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-        termsOfServiceAgree = 'yes'
+        termsOfUseUrl = 'https://gradle.com/help/legal-terms-of-use'
+        termsOfUseAgree = 'yes'
     }
 }

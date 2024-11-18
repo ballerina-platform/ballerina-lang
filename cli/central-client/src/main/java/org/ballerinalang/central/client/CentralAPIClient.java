@@ -54,8 +54,6 @@ import org.ballerinalang.central.client.model.ToolSearchResult;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Proxy;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -287,9 +285,6 @@ public class CentralAPIClient {
             }
 
             throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature);
-        } catch (SocketTimeoutException e) {
-            throw new ConnectionErrorException(ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: " +
-                    e.getMessage());
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: " +
                     e.getMessage());
@@ -373,9 +368,6 @@ public class CentralAPIClient {
             }
 
             throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ".");
-        } catch (SocketTimeoutException | UnknownHostException e) {
-            throw new ConnectionErrorException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ". reason: " +
-                    e.getMessage());
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ". reason: " +
                     e.getMessage());
@@ -1825,11 +1817,10 @@ public class CentralAPIClient {
      * @param org          org name
      * @param body         response body
      * @param responseBody error message
-     * @throws IOException            when accessing response body
      * @throws CentralClientException with unauthorized error message
      */
     private void handleUnauthorizedResponse(String org, Optional<ResponseBody> body, String responseBody)
-            throws IOException, CentralClientException {
+            throws CentralClientException {
         if (body.isPresent()) {
             Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
             if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
@@ -1848,11 +1839,10 @@ public class CentralAPIClient {
      *
      * @param body         response body
      * @param responseBody error message
-     * @throws IOException            when accessing response body
      * @throws CentralClientException with unauthorized error message
      */
     private void handleUnauthorizedResponse(Optional<ResponseBody> body, String responseBody)
-            throws IOException, CentralClientException {
+            throws CentralClientException {
         if (body.isPresent()) {
             Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
             if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
@@ -1871,11 +1861,10 @@ public class CentralAPIClient {
      *
      * @param mediaType mediaType
      * @param responseBody response body
-     * @throws IOException            when accessing response body
      * @throws CentralClientException with unauthorized error message
      */
     private void handleUnauthorizedResponse(MediaType mediaType, String responseBody)
-            throws IOException, CentralClientException {
+            throws CentralClientException {
         Optional<MediaType> contentType = Optional.ofNullable(mediaType);
         StringBuilder message = new StringBuilder("unauthorized access token. " +
                     "check access token set in 'Settings.toml' file.");

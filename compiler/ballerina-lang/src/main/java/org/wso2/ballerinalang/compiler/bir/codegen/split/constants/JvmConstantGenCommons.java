@@ -28,7 +28,7 @@ import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V17;
+import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
@@ -36,13 +36,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
  *
  * @since 2201.2.0
  */
-public class JvmConstantGenCommons {
+public final class JvmConstantGenCommons {
 
     private JvmConstantGenCommons() {
     }
 
     public static void generateConstantsClassInit(ClassWriter cw, String constantsClass) {
-        cw.visit(V17, ACC_PUBLIC | ACC_SUPER, constantsClass, null, JvmConstants.OBJECT, null);
+        cw.visit(V21, ACC_PUBLIC | ACC_SUPER, constantsClass, null, JvmConstants.OBJECT, null);
         MethodVisitor methodVisitor =
                 cw.visitMethod(ACC_PRIVATE, JvmConstants.JVM_INIT_METHOD, VOID_METHOD_DESC, null, null);
         methodVisitor.visitCode();

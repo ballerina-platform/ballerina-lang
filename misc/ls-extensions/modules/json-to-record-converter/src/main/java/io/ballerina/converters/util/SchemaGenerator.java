@@ -35,7 +35,7 @@ import java.util.Map;
  *
  * @since 2.0.0
  */
-public class SchemaGenerator {
+public final class SchemaGenerator {
 
     private SchemaGenerator() {
         // not called
@@ -69,10 +69,8 @@ public class SchemaGenerator {
         }
 
         // handle array type
-        if (json.getNodeType() == JsonNodeType.ARRAY && json instanceof ArrayNode) {
+        if (json.getNodeType() == JsonNodeType.ARRAY && json instanceof ArrayNode array) {
             schema.put("type", "array");
-
-            ArrayNode array = (ArrayNode) json;
 
             if (array.isEmpty()) {
                 schema.put("items", new HashMap<String, Object>());
@@ -84,15 +82,14 @@ public class SchemaGenerator {
         }
 
         if (json.getNodeType() == JsonNodeType.NULL) {
-            schema.put("type", "anydata");
+            schema.put("type", "json");
             return schema;
         }
 
-        if (!(json instanceof ObjectNode)) {
+        if (!(json instanceof ObjectNode object)) {
             throw new JsonToRecordConverterException(ErrorMessages.parserException(json.toString()));
         }
         // handle object type
-        ObjectNode object = (ObjectNode) json;
         schema.put("type", "object");
 
         if (object.isEmpty()) {

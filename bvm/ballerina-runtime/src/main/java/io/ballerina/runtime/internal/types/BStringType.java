@@ -18,9 +18,9 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.StringType;
+import io.ballerina.runtime.api.types.TypeTags;
 
 /**
  * {@code BStringType} represents a String type in ballerina.

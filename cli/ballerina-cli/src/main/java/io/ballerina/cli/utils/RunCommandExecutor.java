@@ -22,7 +22,7 @@ import io.ballerina.cli.cmd.RunCommand;
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.cli.launcher.RuntimePanicException;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 
 import java.io.PrintStream;
@@ -45,6 +45,7 @@ public class RunCommandExecutor extends Thread {
         this.runtimePanic = false;
     }
 
+    @Override
     public void run() {
         // We use the original runCommand instance with the watch field set to false. That will preserve all the
         // build options passed by the developer.

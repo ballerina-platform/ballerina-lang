@@ -52,7 +52,6 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -66,7 +65,7 @@ import java.util.Optional;
  */
 public class CompilerPluginTests {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get(
+    private static final Path RESOURCE_DIRECTORY = Path.of(
             "src/test/resources/compiler_plugin_tests").toAbsolutePath();
     private static final PrintStream OUT = System.out;
     private static final String PLUGIN_OP_FILE_PATH = "./src/test/resources/compiler_plugin_tests/" +
@@ -183,7 +182,7 @@ public class CompilerPluginTests {
         Assert.assertEquals(diagnosticResult.errorCount(), 1);
         Assert.assertEquals(diagnosticResult.warningCount(), 2);
 
-        Path logFilePath = Paths.get("build/logs/diagnostics.log");
+        Path logFilePath = Path.of("build/logs/diagnostics.log");
         Assert.assertTrue(Files.exists(logFilePath));
         String logFileContent = Files.readString(logFilePath, Charset.defaultCharset());
         Assert.assertTrue(logFileContent.contains(diagnosticResult.warnings().stream().findFirst().get().toString()));
@@ -201,7 +200,7 @@ public class CompilerPluginTests {
         Assert.assertEquals(diagnosticResult.errorCount(), 1);
         Assert.assertEquals(diagnosticResult.warningCount(), 1);
 
-        Path logFilePath = Paths.get("build/logs/single-file/diagnostics.log");
+        Path logFilePath = Path.of("build/logs/single-file/diagnostics.log");
         Assert.assertTrue(Files.exists(logFilePath));
         String logFileContent = Files.readString(logFilePath, Charset.defaultCharset());
         Assert.assertTrue(logFileContent.contains(diagnosticResult.warnings().stream().findFirst().get().toString()));
@@ -215,12 +214,12 @@ public class CompilerPluginTests {
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 3, "Unexpected number of compilation diagnostics");
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
-        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(8:1,8:65)] "
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(7:1,7:65)] "
                 + "could not locate dependency path '../libs/ballerina-runtime-api-2.0.0-beta.2-SNAPSHOT.jar'");
-        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(5:11,5:16)] "
-                + "exported module 'abc' is not a module of the package");
-        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(5:18,5:23)] "
-                + "exported module 'xyz' is not a module of the package");
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(16:1,16:13)] " +
+                "module 'abc' not found");
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(20:1,20:13)] " +
+                "module 'xyz' not found");
     }
 
     @Test(description = "Test `package-toml-semantic-analyzer` compiler plugin by checking valid export "
@@ -351,7 +350,7 @@ public class CompilerPluginTests {
 
     @Test(description = "Test a combination of in-built and package provided compiler plugins")
     public void testCombinationOfCompilerPlugins() throws IOException {
-        Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
+        Path logFile = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
         Files.writeString(logFile, "");
         Package currentPackage = loadPackage("log_creator_combined_plugin");
         currentPackage.getCompilation();
@@ -483,7 +482,7 @@ public class CompilerPluginTests {
         Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
 
         PackageCompilation packageCompilation = newPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         CompileResult compileResult = new CompileResult(newPackage, jBallerinaBackend);
 
         try {
@@ -505,7 +504,7 @@ public class CompilerPluginTests {
         Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
 
         PackageCompilation packageCompilation = newPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         CompileResult compileResult = new CompileResult(newPackage, jBallerinaBackend);
 
         try {
@@ -666,7 +665,7 @@ public class CompilerPluginTests {
 
     private void releaseLock() {
         try {
-            Files.delete(Paths.get(PLUGIN_LOCK_FILE_PATH));
+            Files.delete(Path.of(PLUGIN_LOCK_FILE_PATH));
         } catch (IOException e) {
             throw new RuntimeException(
                     "Error while deleting the lock file: " + PLUGIN_LOCK_FILE_PATH + " " + e.getMessage());
@@ -675,7 +674,7 @@ public class CompilerPluginTests {
 
     @AfterSuite
     private void cleanup() throws IOException {
-        Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
+        Path logFile = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
         Files.delete(logFile);
     }
 }

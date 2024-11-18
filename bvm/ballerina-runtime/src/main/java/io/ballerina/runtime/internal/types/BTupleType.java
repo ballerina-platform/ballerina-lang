@@ -19,11 +19,11 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 
@@ -229,10 +229,9 @@ public class BTupleType extends BAnnotatableType implements TupleType {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof BTupleType)) {
+        if (!(o instanceof BTupleType that)) {
             return false;
         }
-        BTupleType that = (BTupleType) o;
 
         if (this.isCyclic || that.isCyclic) {
             if (this.isCyclic != that.isCyclic) {

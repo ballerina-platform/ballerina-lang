@@ -1,6 +1,9 @@
 module io.ballerina.lang {
     uses io.ballerina.projects.plugins.CompilerPlugin;
     uses io.ballerina.projects.buildtools.CodeGeneratorTool;
+    uses org.ballerinalang.spi.CompilerBackendCodeGenerator;
+    uses org.ballerinalang.compiler.plugins.CompilerPlugin;
+    uses org.ballerinalang.spi.EmbeddedExecutor;
     requires java.compiler;
     requires com.google.gson;
     requires java.xml;

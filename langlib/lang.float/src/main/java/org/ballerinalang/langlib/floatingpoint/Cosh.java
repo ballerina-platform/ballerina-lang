@@ -23,13 +23,11 @@ package org.ballerinalang.langlib.floatingpoint;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.float", functionName = "cosh",
-//        args = {@Argument(name = "x", type = TypeKind.FLOAT)},
-//        returnType = {@ReturnType(type = TypeKind.FLOAT)},
-//        isPublic = true
-//)
 public class Cosh {
+
+
+    private Cosh() {
+    }
 
     public static double cosh(double x) {
         return Math.cosh(x);

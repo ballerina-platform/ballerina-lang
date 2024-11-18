@@ -103,7 +103,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -117,7 +116,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Common utils that are reused within test suits.
  */
-public class TestUtil {
+public final class TestUtil {
 
     private static final String HOVER = "textDocument/hover";
 
@@ -564,9 +563,8 @@ public class TestUtil {
      * @param serviceEndpoint Language Server Service Endpoint
      * @param fileUri         uri of the document to open
      * @param content         File content
-     * @throws IOException Exception while reading the file content
      */
-    public static void openDocument(Endpoint serviceEndpoint, String fileUri, String content) throws IOException {
+    public static void openDocument(Endpoint serviceEndpoint, String fileUri, String content) {
         DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
         TextDocumentItem textDocumentItem = new TextDocumentItem();
 
@@ -699,7 +697,7 @@ public class TestUtil {
     @Deprecated
     public static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier();
-        identifier.setUri(Paths.get(filePath).toUri().toString());
+        identifier.setUri(Path.of(filePath).toUri().toString());
 
         return identifier;
     }

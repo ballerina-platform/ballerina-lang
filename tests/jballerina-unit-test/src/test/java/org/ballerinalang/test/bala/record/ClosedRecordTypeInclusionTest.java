@@ -19,7 +19,7 @@
 
 package org.ballerinalang.test.bala.record;
 
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -90,7 +90,7 @@ public class ClosedRecordTypeInclusionTest {
     @Test(description = "Test case for type referencing all value-typed fields")
     public void testValRefType() {
         Object returns = BRunUtil.invoke(compileResult, "testValRefType");
-        BMap foo1 = (BMap) returns;
+        BMap<?, ?> foo1 = (BMap<?, ?>) returns;
         assertEquals(foo1.get(StringUtils.fromString("a")), 10L);
         assertEquals(foo1.get(StringUtils.fromString("b")), 23.45);
         assertEquals(foo1.get(StringUtils.fromString("s")).toString(), "hello foo");
@@ -109,32 +109,26 @@ public class ClosedRecordTypeInclusionTest {
     @Test(description = "Test case for type referencing records with complex ref types")
     public void testRefTypes() {
         Object returns = BRunUtil.invoke(compileResult, "testRefTypes");
-        BMap foo2 = (BMap) returns;
+        BMap<?, ?> foo2 = (BMap<?, ?>) returns;
         assertEquals(foo2.get(StringUtils.fromString("s")).toString(), "qwerty");
         assertEquals(foo2.get(StringUtils.fromString("i")), 10L);
-        assertEquals(getType(foo2.get(StringUtils.fromString("rj"))).getTag(),
-                io.ballerina.runtime.api.TypeTags.MAP_TAG);
+        assertEquals(getType(foo2.get(StringUtils.fromString("rj"))).getTag(), TypeTags.MAP_TAG);
         assertEquals(foo2.get(StringUtils.fromString("rj")).toString(),
                 "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
-        assertEquals(getType(foo2.get(StringUtils.fromString("rx"))).getTag(),
-                TypeTags.XML_ELEMENT_TAG);
+        assertEquals(getType(foo2.get(StringUtils.fromString("rx"))).getTag(), TypeTags.XML_ELEMENT_TAG);
         assertEquals(foo2.get(StringUtils.fromString("rx")).toString(), "<book>Count of Monte Cristo</book>");
-        assertEquals(getType(foo2.get(StringUtils.fromString("rp"))).getTag(),
-                io.ballerina.runtime.api.TypeTags.OBJECT_TYPE_TAG);
+        assertEquals(getType(foo2.get(StringUtils.fromString("rp"))).getTag(), TypeTags.OBJECT_TYPE_TAG);
         assertEquals(((BObject) foo2.get(StringUtils.fromString("rp"))).get(StringUtils.fromString("name")).toString(),
                 "John Doe");
-        assertEquals(getType(foo2.get(StringUtils.fromString("ra"))).getTag(),
-                io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG);
+        assertEquals(getType(foo2.get(StringUtils.fromString("ra"))).getTag(), TypeTags.RECORD_TYPE_TAG);
         assertEquals(foo2.get(StringUtils.fromString("ra")).toString(), "{\"city\":\"Colombo\",\"country\":\"Sri " +
                 "Lanka\"}");
         assertEquals(getType(foo2.get(StringUtils.fromString("crx"))).getTag(), TypeTags.XML_ELEMENT_TAG);
         assertEquals(foo2.get(StringUtils.fromString("crx")).toString(), "<book>Count of Monte Cristo</book>");
-        assertEquals(getType(foo2.get(StringUtils.fromString("crj"))).getTag(),
-                io.ballerina.runtime.api.TypeTags.MAP_TAG);
+        assertEquals(getType(foo2.get(StringUtils.fromString("crj"))).getTag(), TypeTags.MAP_TAG);
         assertEquals(foo2.get(StringUtils.fromString("crj")).toString(),
                 "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
-        assertEquals(getType(foo2.get(StringUtils.fromString("rp"))).getTag(),
-                io.ballerina.runtime.api.TypeTags.OBJECT_TYPE_TAG);
+        assertEquals(getType(foo2.get(StringUtils.fromString("rp"))).getTag(), TypeTags.OBJECT_TYPE_TAG);
         assertEquals(((BObject) foo2.get(StringUtils.fromString("crp"))).get(StringUtils.fromString("name")).toString(),
                 "Jane Doe");
         assertEquals(getType(foo2.get(StringUtils.fromString("cra"))).getTag(), TypeTags.RECORD_TYPE_TAG);
@@ -145,7 +139,7 @@ public class ClosedRecordTypeInclusionTest {
     @Test(description = "Test case for order of resolving")
     public void testOrdering() {
         Object returns = BRunUtil.invoke(compileResult, "testOrdering");
-        BMap foo3 = (BMap) returns;
+        BMap<?, ?> foo3 = (BMap<?, ?>) returns;
         assertEquals(foo3.get(StringUtils.fromString("s")).toString(), "qwerty");
         assertEquals(foo3.get(StringUtils.fromString("ri")), 10L);
         assertEquals(foo3.get(StringUtils.fromString("rs")).toString(), "asdf");
@@ -154,7 +148,7 @@ public class ClosedRecordTypeInclusionTest {
     @Test(description = "Test case for reference chains")
     public void testReferenceChains() {
         Object returns = BRunUtil.invoke(compileResult, "testReferenceChains");
-        BMap foo4 = (BMap) returns;
+        BMap<?, ?> foo4 = (BMap<?, ?>) returns;
         assertEquals(foo4.get(StringUtils.fromString("s")).toString(), "qwerty");
         assertEquals(foo4.get(StringUtils.fromString("abi")), 10L);
         assertEquals(foo4.get(StringUtils.fromString("efs")).toString(), "asdf");
@@ -164,7 +158,7 @@ public class ClosedRecordTypeInclusionTest {
     @Test(description = "Test case for type referencing in BALAs")
     public void testTypeReferencingInBALAs() {
         Object returns = BRunUtil.invoke(compileResult, "testTypeReferencingInBALAs");
-        BMap manager = (BMap) returns;
+        BMap<?, ?> manager = (BMap<?, ?>) returns;
         assertEquals(manager.get(StringUtils.fromString("name")).toString(), "John Doe");
         assertEquals(manager.get(StringUtils.fromString("age")), 25L);
         assertEquals(manager.get(StringUtils.fromString("adr")).toString(), "{\"city\":\"Colombo\",\"country\":\"Sri " +
@@ -176,7 +170,7 @@ public class ClosedRecordTypeInclusionTest {
     @Test(description = "Test case for default value initializing in type referenced fields")
     public void testDefaultValueInit() {
         Object returns = BRunUtil.invoke(compileResult, "testDefaultValueInit");
-        BMap manager = (BMap) returns;
+        BMap<?, ?> manager = (BMap<?, ?>) returns;
         assertEquals(manager.get(StringUtils.fromString("name")).toString(), "John Doe");
         assertEquals(manager.get(StringUtils.fromString("age")), 25L);
         assertEquals(manager.get(StringUtils.fromString("adr")).toString(), "{\"city\":\"Colombo\",\"country\":\"Sri " +
@@ -188,7 +182,7 @@ public class ClosedRecordTypeInclusionTest {
     @Test(description = "Test case for default value initializing in type referenced fields from a bala")
     public void testDefaultValueInitInBALAs() {
         Object returns = BRunUtil.invoke(compileResult, "testDefaultValueInitInBALAs");
-        BMap manager = (BMap) returns;
+        BMap<?, ?> manager = (BMap<?, ?>) returns;
         assertEquals(manager.get(StringUtils.fromString("name")).toString(), "anonymous");
         assertEquals(manager.get(StringUtils.fromString("age")), 0L);
         assertEquals(manager.get(StringUtils.fromString("adr")).toString(), "{\"city\":\"\",\"country\":\"\"}");
@@ -207,6 +201,7 @@ public class ClosedRecordTypeInclusionTest {
                 "testRestTypeOverriding",
                 "testOutOfOrderFieldOverridingFieldFromTypeInclusion",
                 "testTypeInclusionWithFiniteField",
+                "testDefaultValueFromInclusion"
         };
     }
 

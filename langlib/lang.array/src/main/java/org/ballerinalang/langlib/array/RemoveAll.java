@@ -25,12 +25,10 @@ import io.ballerina.runtime.api.values.BArray;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "removeAll",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
-//        isPublic = true
-//)
 public class RemoveAll {
+
+    private RemoveAll() {
+    }
 
     public static void removeAll(BArray arr) {
         SetLength.setLength(arr, 0);

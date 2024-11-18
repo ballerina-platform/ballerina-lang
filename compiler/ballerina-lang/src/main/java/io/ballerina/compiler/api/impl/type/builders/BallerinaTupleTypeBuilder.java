@@ -100,13 +100,13 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
             throw new IllegalArgumentException("Member type provided to the Tuple type descriptor can not be null.");
         }
 
-        if (memberType instanceof AbstractTypeSymbol) {
-            return ((AbstractTypeSymbol) memberType).getBType();
+        if (memberType instanceof AbstractTypeSymbol abstractTypeSymbol) {
+            return abstractTypeSymbol.getBType();
         }
         return symTable.noType;
     }
 
     private BType getRestType(TypeSymbol restType) {
-        return restType instanceof AbstractTypeSymbol ? ((AbstractTypeSymbol) restType).getBType() : null;
+        return restType instanceof AbstractTypeSymbol abstractTypeSymbol ? abstractTypeSymbol.getBType() : null;
     }
 }

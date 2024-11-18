@@ -22,13 +22,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
 /**
  * An abstract implementation of any rename test.
  */
-public class RenameTestUtil {
+public final class RenameTestUtil {
+
+    private RenameTestUtil() {
+    }
 
     public static void alterExpectedUri(JsonObject expected, Path sourceRoot) throws IOException {
         if (expected == null) {
@@ -38,7 +40,7 @@ public class RenameTestUtil {
             JsonObject newChanges = new JsonObject();
             for (Map.Entry<String, JsonElement> jEntry : expected.getAsJsonObject("changes").entrySet()) {
                 String[] uriComponents = jEntry.getKey().replace("\"", "").split("/");
-                Path expectedPath = Paths.get(sourceRoot.toUri());
+                Path expectedPath = Path.of(sourceRoot.toUri());
                 for (String uriComponent : uriComponents) {
                     expectedPath = expectedPath.resolve(uriComponent);
                 }
@@ -52,7 +54,7 @@ public class RenameTestUtil {
                 JsonObject object = new JsonObject();
                 String[] uriComponents = entry.getAsJsonObject().getAsJsonObject("textDocument").get("uri")
                         .getAsString().replace("\"", "").split("/");
-                Path expectedPath = Paths.get(sourceRoot.toUri());
+                Path expectedPath = Path.of(sourceRoot.toUri());
                 for (String uriComponent : uriComponents) {
                     expectedPath = expectedPath.resolve(uriComponent);
                 }

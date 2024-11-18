@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.testerina.natives.mock;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -47,10 +47,10 @@ import java.util.Map;
  */
 public class GenericMockObjectValue implements ObjectValue {
 
-    private ObjectValue mockObj;
+    private final ObjectValue mockObj;
 
-    private ObjectType type;
-    private BTypedesc typedesc;
+    private final ObjectType type;
+    private final BTypedesc typedesc;
 
     public GenericMockObjectValue(ObjectType type, ObjectValue mockObj) {
         this.type = type;
@@ -115,6 +115,7 @@ public class GenericMockObjectValue implements ObjectValue {
         return false;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public BMap getMapValue(BString fieldName) {
         return null;

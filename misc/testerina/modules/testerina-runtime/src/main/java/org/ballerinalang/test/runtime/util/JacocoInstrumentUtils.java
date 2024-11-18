@@ -36,20 +36,24 @@ import java.util.List;
  *
  * @since 2201.2.0
  */
-public class JacocoInstrumentUtils {
+public final class JacocoInstrumentUtils {
 
     private static final Instrumenter instrumenter = new Instrumenter(new OfflineInstrumentationAccessGenerator());
 
+    private JacocoInstrumentUtils() {
+    }
+
     public static void instrumentOffline(List<URL> projectModuleJarList, Path destDir, List<String> mockClassNames)
             throws IOException, ClassNotFoundException {
-        URLClassLoader classLoader = new URLClassLoader(projectModuleJarList.toArray(new URL[0]));
-        for (String className : mockClassNames) {
-            Class<?> clazz = classLoader.loadClass(className);
-            File file = new File(destDir.toString(), className.replace(".", "/") + ".class");
-            file.getParentFile().mkdirs();
-            try (InputStream input = clazz.getResourceAsStream(clazz.getSimpleName() + ".class");
-                 OutputStream output = new FileOutputStream(file)) {
-                instrumenter.instrumentAll(input, output, className);
+        try (URLClassLoader classLoader = new URLClassLoader(projectModuleJarList.toArray(new URL[0]))) {
+            for (String className : mockClassNames) {
+                Class<?> clazz = classLoader.loadClass(className);
+                File file = new File(destDir.toString(), className.replace(".", "/") + ".class");
+                file.getParentFile().mkdirs();
+                try (InputStream input = clazz.getResourceAsStream(clazz.getSimpleName() + ".class");
+                     OutputStream output = new FileOutputStream(file)) {
+                    instrumenter.instrumentAll(input, output, className);
+                }
             }
         }
     }

@@ -23,7 +23,6 @@ import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -36,7 +35,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Handles the completions for the {@link io.ballerina.compiler.syntax.tree.RequiredParameterNode}.
+ * Handles the completions for the {@link RequiredParameterNode}.
  *
  * @since 2.0.0
  */
@@ -48,8 +47,7 @@ public class RequiredParameterNodeContext extends AbstractCompletionProvider<Req
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, RequiredParameterNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, RequiredParameterNode node) {
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();

@@ -23,13 +23,11 @@ package org.ballerinalang.langlib.floatingpoint;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.float", functionName = "toBitsInt",
-//        args = {@Argument(name = "x", type = TypeKind.FLOAT)},
-//        returnType = {@ReturnType(type = TypeKind.INT)},
-//        isPublic = true
-//)
 public class ToBitsInt {
+
+
+    private ToBitsInt() {
+    }
 
     public static long toBitsInt(double x) {
         return Double.doubleToLongBits(x);

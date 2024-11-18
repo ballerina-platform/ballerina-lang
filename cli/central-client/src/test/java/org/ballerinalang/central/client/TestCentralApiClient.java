@@ -57,7 +57,6 @@ import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -86,12 +85,12 @@ public class TestCentralApiClient extends CentralAPIClient {
     private ByteArrayOutputStream console;
 
     public static final String ERROR_CONNECTION_RESET = "error: Connection reset";
-    private static final Path UTILS_TEST_RESOURCES = Paths.get("src/test/resources/test-resources/utils");
+    private static final Path UTILS_TEST_RESOURCES = Path.of("src/test/resources/test-resources/utils");
     private static final Path TMP_DIR = UTILS_TEST_RESOURCES.resolve("temp-test-central-api-client");
     private static final String TEST_BAL_VERSION = "slp5";
     private static final String ANY_PLATFORM = "any";
     private static final String TEST_BALA_NAME = "sf-any.bala";
-    private static final String TEST_TOOL_BALA_NAME = "baz-toolbox-java17-0.1.0.bala";
+    private static final String TEST_TOOL_BALA_NAME = "baz-toolbox-java21-0.1.0.bala";
     private static final String OUTPUT_BALA = "output.bala";
     private static final String WINERY = "winery";
     private static final String ACCESS_TOKEN = "273cc9f6-c333-36ab-aa2q-f08e9513ff5y";
@@ -650,7 +649,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     private void setBallerinaHome() {
         final String ballerinaInstallDirProp = "ballerina.home";
         if (System.getProperty(ballerinaInstallDirProp) == null) {
-            System.setProperty(ballerinaInstallDirProp, String.valueOf(Paths.get("build")));
+            System.setProperty(ballerinaInstallDirProp, String.valueOf(Path.of("build")));
         }
     }
 
@@ -860,7 +859,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     public void testPullTool() throws IOException, CentralClientException {
         Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_TOOL_BALA_NAME);
         File balaFile = new File(String.valueOf(balaPath));
-        String balaFileName = "attachment; filename=baz-toolbox-java17-0.1.0.bala";
+        String balaFileName = "attachment; filename=baz-toolbox-java21-0.1.0.bala";
 
         try (InputStream ignored = new FileInputStream(balaFile)) {
             Request mockRequest = new Request.Builder()
@@ -870,13 +869,13 @@ public class TestCentralApiClient extends CentralAPIClient {
                     .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
                     .build();
             String toolBalaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/toolbox/0.1.0/" +
-                    "baz-toolbox-java17-0.1.0.bala";
+                    "baz-toolbox-java21-0.1.0.bala";
             ResponseBody mockResponseBody = ResponseBody.create(MediaType.parse("application/json"), "{\n" +
                     "    \"organization\": \"baz\",\n" +
                     "    \"name\": \"toolbox\",\n" +
                     "    \"version\": \"0.1.0\",\n" +
                     "    \"balaURL\": \"" + toolBalaUrl + "\",\n" +
-                    "    \"platform\": \"java17\",\n" +
+                    "    \"platform\": \"java21\",\n" +
                     "    \"digest\": \"sha-256=623bae28884bbc9cd61eb684acf7921cf43cb1d19ed0e36766bf6a75b0cdb15b\"\n}");
             Response mockResponse = new Response.Builder()
                     .request(mockRequest)
@@ -910,7 +909,7 @@ public class TestCentralApiClient extends CentralAPIClient {
             System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
             this.pullTool("sample_tool", "0.1.0", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
 
-            Path balaDir = TMP_DIR.resolve("baz").resolve("toolbox").resolve("0.1.0").resolve("java17");
+            Path balaDir = TMP_DIR.resolve("baz").resolve("toolbox").resolve("0.1.0").resolve("java21");
             Assert.assertTrue(balaDir.toFile().exists());
             Assert.assertTrue(balaDir.resolve("bala.json").toFile().exists());
             Assert.assertTrue(balaDir.resolve("modules").toFile().exists());
@@ -1060,7 +1059,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         String retryOutput = "* Retrying to pull the tool: foosf:1.3.5 due to: error" +
                 ": Connection reset. Retry attempt: ";
         String responseBody = "{\"id\":14069, \"organization\":\"foo\", \"name\":\"sf\", \"version\":\"1.3.5\", " +
-                "\"platform\":\"java17\", \"balaURL\":\"" + this.balaUrl + "\", " +
+                "\"platform\":\"java21\", \"balaURL\":\"" + this.balaUrl + "\", " +
                 "\"digest\":\"sha-256=47e043c80d516234b1e6bd93140f126c9d9e79b5c7c0600cc6316d12504c2cf4\"}";
         Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
         File balaFile = new File(String.valueOf(balaPath));
@@ -1127,7 +1126,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         String retryOutput = "* Retrying to pull the tool: foosf:1.3.5 due to: error" +
                 ": Connection reset. Retry attempt: ";
         String responseBody = "{\"id\":14069, \"organization\":\"foo\", \"name\":\"sf\", \"version\":\"1.3.5\", " +
-                "\"platform\":\"java17\", \"balaURL\":\"" + this.balaUrl + "\", " +
+                "\"platform\":\"java21\", \"balaURL\":\"" + this.balaUrl + "\", " +
                 "\"digest\":\"sha-256=47e043c80d516234b1e6bd93140f126c9d9e79b5c7c0600cc6316d12504c2cf4\"}";
         Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
         File balaFile = new File(String.valueOf(balaPath));

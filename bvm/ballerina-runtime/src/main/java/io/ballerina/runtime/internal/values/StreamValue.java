@@ -23,8 +23,8 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.types.BStreamType;
+import io.ballerina.runtime.internal.utils.IteratorUtils;
 
 import java.util.Map;
 import java.util.UUID;
@@ -42,11 +42,11 @@ import java.util.UUID;
 public class StreamValue implements RefValue, BStream {
 
     private BTypedesc typedesc;
-    private Type type;
-    private Type constraintType;
-    private Type completionType;
+    private final Type type;
+    private final Type constraintType;
+    private final Type completionType;
     private Type iteratorNextReturnType;
-    private BObject iteratorObj;
+    private final BObject iteratorObj;
 
 
     /**

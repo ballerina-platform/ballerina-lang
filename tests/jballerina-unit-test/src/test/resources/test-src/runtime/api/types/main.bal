@@ -17,6 +17,7 @@
 import ballerina/test;
 import types.objects;
 import types.typeref;
+import types.functions;
 
 objects:PublicClientObject obj = new ();
 
@@ -28,6 +29,7 @@ public function main() {
     testConstituentTypes();
     testTypeIds();
     testObjectInitParameters();
+    testGetFunctionType();
 }
 
 function testConstituentTypes() {
@@ -81,4 +83,8 @@ function testParamTypesString() {
 function testObjectInitParameters() {
     objects:Person person = new(16154, "Tim Cook", 36);
     test:assertEquals(objects:getParamNamesFromObjectInit(person), ["id", "name", "age"]);
+}
+
+function testGetFunctionType() {
+    test:assertEquals(functions:getFunctionParameterCountByName("foo"), 3);
 }

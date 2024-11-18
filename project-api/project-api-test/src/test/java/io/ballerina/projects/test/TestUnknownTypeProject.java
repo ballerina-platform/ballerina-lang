@@ -28,7 +28,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 
 /**
@@ -37,7 +36,7 @@ import java.util.Collection;
  * @since 2.0.0
  */
 public class TestUnknownTypeProject {
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/");
 
     @Test (description = "tests loading a file from the default module")
     public void testLoadProjectByDefaultModuleFile() {

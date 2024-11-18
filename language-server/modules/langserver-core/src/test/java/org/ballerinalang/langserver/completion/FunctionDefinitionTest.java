@@ -35,6 +35,7 @@ public class FunctionDefinitionTest extends CompletionTest {
         return this.getConfigsList();
     }
 
+    @Override
     @Test(dataProvider = "completion-data-provider")
     public void test(String config, String configPath) throws IOException, WorkspaceDocumentException {
         super.test(config, configPath);

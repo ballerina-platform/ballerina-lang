@@ -94,8 +94,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -151,6 +152,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -213,7 +217,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
@@ -265,10 +268,10 @@ public class ReferenceFinder extends BaseVisitor {
         find(pkgNode.typeDefinitions);
         find(pkgNode.classDefinitions.stream()
                      .filter(c -> !isGeneratedClassDefForService(c))
-                     .collect(Collectors.toList()));
+                     .toList());
         find(pkgNode.functions.stream()
                      .filter(f -> !f.flagSet.contains(Flag.LAMBDA))
-                     .collect(Collectors.toList()));
+                     .toList());
 
         if (!(pkgNode instanceof BLangTestablePackage)) {
             find(pkgNode.getTestablePkg());
@@ -863,9 +866,9 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        find(nsPrefixedFieldBasedAccess.expr);
-        addIfSameSymbol(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos);
+    public void visit(BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
+        find(prefixedFieldBasedAccess.expr);
+        addIfSameSymbol(prefixedFieldBasedAccess.symbol, prefixedFieldBasedAccess.prefix.pos);
     }
 
     @Override
@@ -1323,9 +1326,34 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
-        find(xmlNavigation.childIndex);
         find(xmlNavigation.filters);
         find(xmlNavigation.expr);
+    }
+
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess) {
+        find(extendedXmlNavigationAccess.extensions);
+        find(extendedXmlNavigationAccess.stepExpr);
+    }
+
+    @Override
+    public void visit(BLangXMLIndexedStepExtend xmlIndexedStepExtend) {
+        find(xmlIndexedStepExtend.indexExpr);
+    }
+
+    @Override
+    public void visit(BLangXMLFilterStepExtend xmlFilterStepExtend) {
+        find(xmlFilterStepExtend.filters);
+    }
+
+    @Override
+    public void visit(BLangXMLMethodCallStepExtend xmlMethodCallStepExtend) {
+        BLangInvocation invocation = xmlMethodCallStepExtend.invocation;
+        List<BLangExpression> argExprs = invocation.argExprs;
+        for (int i = 1; i < argExprs.size(); i++) {
+            find(argExprs.get(i));
+        }
+        addIfSameSymbol(invocation.symbol, invocation.name.pos);
     }
 
     @Override

@@ -46,7 +46,6 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
@@ -306,13 +305,9 @@ public class RunBuildToolsTask implements Task {
                 .collect(Collectors.joining(","));
         Path balaCacheDirPath = BuildToolUtils.getCentralBalaDirPath();
         Settings settings;
-        try {
-            settings = RepoUtils.readSettings();
-            // Ignore Settings.toml diagnostics in the pull command
-        } catch (SettingsTomlException e) {
-            // Ignore 'Settings.toml' parsing errors and return empty Settings object
-            settings = Settings.from();
-        }
+        settings = RepoUtils.readSettings();
+        // Ignore Settings.toml diagnostics in the pull command
+
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, Boolean.TRUE.toString());
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
@@ -368,6 +363,6 @@ public class RunBuildToolsTask implements Task {
                         .resolve(TOOL).resolve(LIBS)
                         .toFile()))
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

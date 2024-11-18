@@ -19,7 +19,6 @@ package io.ballerina.projects.test.resolution.packages.internal;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 /**
@@ -96,10 +95,13 @@ public class TestCaseFilePaths {
      *
      * @since 2.0.0
      */
-    public static class TestCaseFilePathsBuilder {
+    public static final class TestCaseFilePathsBuilder {
+
+        private TestCaseFilePathsBuilder() {
+        }
 
         public static TestCaseFilePaths build(Path testSuitePath, Path testCasePath) {
-            Path appPath = getFilePath(testSuitePath, testCasePath, Paths.get(Constants.APP_FILE_NAME));
+            Path appPath = getFilePath(testSuitePath, testCasePath, Path.of(Constants.APP_FILE_NAME));
             if (appPath == null) {
                 throw new IllegalStateException(Constants.APP_FILE_NAME +
                         " cannot be found in neither testcase dir `" +
@@ -108,18 +110,18 @@ public class TestCaseFilePaths {
             }
 
             Path centralRepoPath = getFilePath(testSuitePath, testCasePath,
-                    Paths.get(Constants.REPO_DIR_NAME).resolve(Constants.CENTRAL_REPO_FILE_NAME));
+                    Path.of(Constants.REPO_DIR_NAME).resolve(Constants.CENTRAL_REPO_FILE_NAME));
             Path distRepoPath = getFilePath(testSuitePath, testCasePath,
-                    Paths.get(Constants.REPO_DIR_NAME).resolve(Constants.DIST_REPO_FILE_NAME));
+                    Path.of(Constants.REPO_DIR_NAME).resolve(Constants.DIST_REPO_FILE_NAME));
             Path localRepoDirPath = getFilePath(testSuitePath, testCasePath,
-                    Paths.get(Constants.REPO_DIR_NAME).resolve(Constants.LOCAL_REPO_DIR_NAME));
+                    Path.of(Constants.REPO_DIR_NAME).resolve(Constants.LOCAL_REPO_DIR_NAME));
 
-            Path depsTomlPath = getFilePath(testSuitePath, testCasePath, Paths.get(Constants.DEPS_TOML_FILE_NAME));
-            Path balTomlPath = getFilePath(testSuitePath, testCasePath, Paths.get(Constants.BAL_TOML_FILE_NAME));
+            Path depsTomlPath = getFilePath(testSuitePath, testCasePath, Path.of(Constants.DEPS_TOML_FILE_NAME));
+            Path balTomlPath = getFilePath(testSuitePath, testCasePath, Path.of(Constants.BAL_TOML_FILE_NAME));
             Path expGraphStickyPath = getFilePath(testSuitePath, testCasePath,
-                    Paths.get(Constants.EXP_GRAPH_STICKY_FILE_NAME));
+                    Path.of(Constants.EXP_GRAPH_STICKY_FILE_NAME));
             Path expGraphNoStickyPath = getFilePath(testSuitePath, testCasePath,
-                    Paths.get(Constants.EXP_GRAPH_NO_STICKY_FILE_NAME));
+                    Path.of(Constants.EXP_GRAPH_NO_STICKY_FILE_NAME));
 
             return new TestCaseFilePaths(centralRepoPath, distRepoPath, localRepoDirPath,
                     appPath, depsTomlPath, balTomlPath, expGraphStickyPath, expGraphNoStickyPath);

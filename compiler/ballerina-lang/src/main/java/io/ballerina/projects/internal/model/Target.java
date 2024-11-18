@@ -35,18 +35,18 @@ import java.nio.file.Path;
 public class Target {
     private final Path targetPath;
     private Path outputPath = null;
-    private Path cache;
-    private Path jarCachePath;
-    private Path balaCachePath;
-    private Path birCachePath;
-    private Path testsCachePath;
-    private Path binPath;
-    private Path reportPath;
-    private Path docPath;
-    private Path nativePath;
-    private Path nativeConfigPath;
-    private Path profilerPath;
-    private Path resourcesPath;
+    private final Path cache;
+    private final Path jarCachePath;
+    private final Path balaCachePath;
+    private final Path birCachePath;
+    private final Path testsCachePath;
+    private final Path binPath;
+    private final Path reportPath;
+    private final Path docPath;
+    private final Path nativePath;
+    private final Path nativeConfigPath;
+    private final Path profilerPath;
+    private final Path resourcesPath;
 
     public Target(Path targetPath) throws IOException {
         this.targetPath = targetPath;
@@ -242,7 +242,7 @@ public class Target {
     /**
      * Clean any files that created from the build.
      */
-    public void clean(boolean isModified, boolean cacheEnabled) throws IOException {
+    public void clean(boolean isModified, boolean cacheEnabled) {
         if (isModified || !cacheEnabled) {
             // Remove from cache
             ProjectUtils.deleteDirectory(this.cache);
@@ -259,7 +259,7 @@ public class Target {
     /**
      * Clean cache files that created from the build.
      */
-    public void cleanCache() throws IOException {
+    public void cleanCache() {
         // Remove from cache
         ProjectUtils.deleteDirectory(this.cache);
     }
@@ -274,7 +274,7 @@ public class Target {
         return nativeConfigPath;
     }
 
-    public void cleanBinTests() throws IOException {
+    public void cleanBinTests() {
         ProjectUtils.deleteDirectory(this.binPath.resolve(ProjectConstants.TEST_DIR_NAME));
     }
 }

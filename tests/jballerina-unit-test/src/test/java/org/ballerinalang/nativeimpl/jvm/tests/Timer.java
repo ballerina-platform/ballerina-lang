@@ -18,8 +18,8 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.concurrent.StrandMetadata;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import org.testng.Assert;
 
@@ -30,18 +30,19 @@ import org.testng.Assert;
  *
  * @since 1.0.0
  */
-public class Timer {
+public final class Timer {
+
+    private Timer() {
+    }
 
     public static void startTimer(Environment env, int interval, int count, ObjectValue object) {
         Runtime runtime = env.getRuntime();
-
-        new Thread(() -> {
+        Thread.startVirtualThread(() -> {
             for (int i = 0; i < count; i++) {
                 sleep(interval);
-                runtime.invokeMethodAsyncConcurrently(object, "exec", null, null, null, null,
-                                                      PredefinedTypes.TYPE_NULL);
+                runtime.callMethod(object, "exec", new StrandMetadata(true, null));
             }
-        }).start();
+        });
     }
 
     public static void sleep(int millis) {

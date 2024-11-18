@@ -1,0 +1,4 @@
+[package]
+org = "samjs"
+name = "foo.bar"
+version = "1.0.2"

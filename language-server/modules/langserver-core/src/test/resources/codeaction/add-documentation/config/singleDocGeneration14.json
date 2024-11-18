@@ -1,0 +1,32 @@
+{
+  "position": {
+    "line": 99,
+    "character": 8
+  },
+  "source": "singleDocGeneration.bal",
+  "expected": [
+    {
+      "title": "Document this",
+      "command": {
+        "title": "Document this",
+        "command": "ADD_DOC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 99,
+                "character": 0
+              },
+              "end": {
+                "line": 99,
+                "character": 21
+              }
+            }
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

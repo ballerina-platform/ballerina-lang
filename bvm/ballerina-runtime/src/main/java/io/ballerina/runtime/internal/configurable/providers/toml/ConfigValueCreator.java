@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
@@ -31,6 +30,7 @@ import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -65,11 +65,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getValueFromKeyValueNode;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isSimpleType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isXMLType;
+import static io.ballerina.runtime.internal.utils.ValueUtils.createReadOnlyXmlValue;
 
 /**
  * Value creator to create values for structured configurable values from TOML nodes.
@@ -195,18 +195,11 @@ public class ConfigValueCreator {
     }
 
     private ListInitialValueEntry.ExpressionEntry[] getListEntries(TomlNode tomlValue, Type elementType) {
-        ListInitialValueEntry.ExpressionEntry[] entries;
-        switch (tomlValue.kind()) {
-            case ARRAY:
-                entries = createInitialValuesFromArrayNode((TomlArrayValueNode) tomlValue, elementType);
-                break;
-            case TABLE_ARRAY:
-                entries = createInitialValuesFromTableArrayNode((TomlTableArrayNode) tomlValue, elementType);
-                break;
-            default:
-                entries = getListEntries(((TomlKeyValueNode) tomlValue).value(), elementType);
-        }
-        return entries;
+        return switch (tomlValue.kind()) {
+            case ARRAY -> createInitialValuesFromArrayNode((TomlArrayValueNode) tomlValue, elementType);
+            case TABLE_ARRAY -> createInitialValuesFromTableArrayNode((TomlTableArrayNode) tomlValue, elementType);
+            default -> getListEntries(((TomlKeyValueNode) tomlValue).value(), elementType);
+        };
     }
 
     private BArray createArrayFromSimpleTomlValue(TomlArrayValueNode tomlValue, ArrayType arrayType,
@@ -224,27 +217,20 @@ public class ConfigValueCreator {
     }
 
     private Object getElementValue(Type elementType, TomlNode tomlValueNode) {
-        Object balValue;
         Type refElementType = TypeUtils.getImpliedType(elementType);
-        switch (refElementType.getTag()) {
-            case TypeTags.ARRAY_TAG:
+        return switch (refElementType.getTag()) {
+            case TypeTags.ARRAY_TAG -> {
                 ArrayType arrayType = (ArrayType) refElementType;
-                balValue = createArrayFromSimpleTomlValue(
+                yield createArrayFromSimpleTomlValue(
                         (TomlArrayValueNode) tomlValueNode, arrayType,
                         TypeUtils.getImpliedType(arrayType.getElementType()));
-                break;
-            case TypeTags.ANYDATA_TAG:
-            case TypeTags.UNION_TAG:
-            case TypeTags.JSON_TAG:
-                balValue = createUnionValue(tomlValueNode, (BUnionType) refElementType);
-                break;
-            case TypeTags.TUPLE_TAG:
-                balValue = createTupleValue(tomlValueNode, (TupleType) refElementType);
-                break;
-            default:
-                balValue = createBalValue(elementType, (TomlValueNode) tomlValueNode);
-        }
-        return balValue;
+            }
+            case TypeTags.ANYDATA_TAG,
+                 TypeTags.UNION_TAG,
+                 TypeTags.JSON_TAG -> createUnionValue(tomlValueNode, (BUnionType) refElementType);
+            case TypeTags.TUPLE_TAG -> createTupleValue(tomlValueNode, (TupleType) refElementType);
+            default -> createBalValue(elementType, (TomlValueNode) tomlValueNode);
+        };
     }
 
     private BMap<BString, Object> createRecordValue(TomlNode tomlNode, Type type) {
@@ -331,23 +317,18 @@ public class ConfigValueCreator {
 
     private Object createBalValue(Type type, TomlValueNode tomlValueNode) {
         Object tomlValue = ((TomlBasicValueNode<?>) tomlValueNode).getValue();
-        switch (TypeUtils.getImpliedType(type).getTag()) {
-            case TypeTags.BYTE_TAG:
-                return ((Long) tomlValue).intValue();
-            case TypeTags.DECIMAL_TAG:
-                return ValueCreator.createDecimalValue(BigDecimal.valueOf((Double) tomlValue));
-            case TypeTags.STRING_TAG:
-                return StringUtils.fromString((String) tomlValue);
-            case TypeTags.XML_ATTRIBUTES_TAG:
-            case TypeTags.XML_COMMENT_TAG:
-            case TypeTags.XML_ELEMENT_TAG:
-            case TypeTags.XML_PI_TAG:
-            case TypeTags.XML_TAG:
-            case TypeTags.XML_TEXT_TAG:
-                return createReadOnlyXmlValue((String) tomlValue);
-            default:
-                return tomlValue;
-        }
+        return switch (TypeUtils.getImpliedType(type).getTag()) {
+            case TypeTags.BYTE_TAG -> ((Long) tomlValue).intValue();
+            case TypeTags.DECIMAL_TAG -> ValueCreator.createDecimalValue(BigDecimal.valueOf((Double) tomlValue));
+            case TypeTags.STRING_TAG -> StringUtils.fromString((String) tomlValue);
+            case TypeTags.XML_ATTRIBUTES_TAG,
+                 TypeTags.XML_COMMENT_TAG,
+                 TypeTags.XML_ELEMENT_TAG,
+                 TypeTags.XML_PI_TAG,
+                 TypeTags.XML_TAG,
+                 TypeTags.XML_TEXT_TAG -> createReadOnlyXmlValue((String) tomlValue);
+            default -> tomlValue;
+        };
     }
 
     private BMap<BString, Object> createMapValue(TomlNode tomlValue, MapType mapType) {

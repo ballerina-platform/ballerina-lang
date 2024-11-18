@@ -49,7 +49,7 @@ public abstract class AbstractEvaluatorTest {
      *
      * @param fileName File containing test cases.
      */
-    protected void testEvaluate(String fileName) throws BallerinaShellException {
+    protected void testEvaluate(String fileName) {
         // Create evaluator
         TestInvoker invoker = new TestInvoker();
         Evaluator evaluator = new EvaluatorBuilder()

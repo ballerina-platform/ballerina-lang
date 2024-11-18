@@ -61,7 +61,7 @@ public function main() {
 
     // debug engage in Asynchronous function call (Non-blocking calls)
     future<int> v10_future = start sum(40, 50);
-    _ = checkpanic wait v10_future;
+    int result = checkpanic wait v10_future;
 }
 
 function sum(int a, int b) returns int {

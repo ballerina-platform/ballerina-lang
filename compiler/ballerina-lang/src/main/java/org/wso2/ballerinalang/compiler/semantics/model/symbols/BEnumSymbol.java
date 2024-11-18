@@ -38,7 +38,7 @@ import java.util.List;
 public class BEnumSymbol extends BTypeSymbol implements Annotatable {
 
     public List<BConstantSymbol> members;
-    private List<BAnnotationAttachmentSymbol> annotationAttachments;
+    private final List<BAnnotationAttachmentSymbol> annotationAttachments;
 
     public BEnumSymbol(List<BConstantSymbol> members, long flags, Name name, Name originalName,
                        PackageID pkgID, BType type, BSymbol owner, Location pos, SymbolOrigin origin) {

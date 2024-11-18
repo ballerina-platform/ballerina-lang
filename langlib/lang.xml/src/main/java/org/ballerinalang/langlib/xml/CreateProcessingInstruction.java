@@ -19,23 +19,17 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.xml.XmlFactory;
 
 /**
  * Create XML processing instruction.
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "createProcessingInstruction",
-//        args = {
-//                @Argument(name = "target", type = TypeKind.STRING),
-//                @Argument(name = "content", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
-public class CreateProcessingInstruction {
+public final class CreateProcessingInstruction {
+
+    private CreateProcessingInstruction() {
+    }
 
     public static BXml createProcessingInstruction(BString target, BString content) {
         return XmlFactory.createXMLProcessingInstruction(target, content);

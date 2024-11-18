@@ -40,19 +40,20 @@ import java.nio.file.Path;
 public class DebugEngageTest extends BaseTestCase {
 
     DebugTestRunner debugTestRunner;
+    private static final String TEST_PROJECT_NAME = "basic-project";
 
+    @Override
     @BeforeClass
     public void setup() {
-        String testProjectName = "breakpoint-tests";
-        String testModuleFileName = "Ballerina.toml";
-        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
-    @Test(description = "Debug engage test for launch mode, with special ballerina project files as input(i.e. " +
-            "Ballerina.toml, Dependencies.toml, etc.)")
-    public void testNonBallerinaInputSource() throws BallerinaTestException {
-        Path breakpointFilePath = debugTestRunner.testProjectPath.resolve("main.bal");
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(breakpointFilePath, 22));
+    @Test(description = "Debug engage test (launch mode), with special ballerina project files as inputs" +
+            "(i.e. Ballerina.toml, Dependencies.toml, etc.)")
+    public void testDebugLaunchWithNonBallerinaFiles() throws BallerinaTestException {
+        String balTomlFile = "Ballerina.toml";
+        debugTestRunner = new DebugTestRunner(TEST_PROJECT_NAME, balTomlFile, true);
+        Path breakpointFilePath = debugTestRunner.testProjectPath.resolve("hello_world.bal");
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(breakpointFilePath, 19));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         // Test for debug engage
@@ -60,6 +61,20 @@ public class DebugEngageTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
     }
 
+    @Test(description = "Debug engage test (launch mode), with special Ballerina project files as inputs " +
+            "(i.e. persist/model.bal, etc.)")
+    public void testDebugLaunchWithBallerinaToolFiles() throws BallerinaTestException {
+        String balPersistModelFile = "persist/model.bal";
+        debugTestRunner = new DebugTestRunner(TEST_PROJECT_NAME, balPersistModelFile, true);
+        Path breakpointFilePath = debugTestRunner.testProjectPath.resolve("hello_world.bal");
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(breakpointFilePath, 19));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+        // Test for debug engage
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
+    }
+
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

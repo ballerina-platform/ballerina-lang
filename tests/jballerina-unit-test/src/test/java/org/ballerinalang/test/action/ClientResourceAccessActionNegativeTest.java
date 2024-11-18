@@ -82,7 +82,7 @@ public class ClientResourceAccessActionNegativeTest {
                 "missing required parameter 'name' in call to 'get()'",
                 78, 13);
         validateError(clientResourceAccessNegative, index++,
-                "undefined defaultable parameter 'b'",
+                "undefined parameter 'b'",
                 78, 38);
         validateError(clientResourceAccessNegative, index++,
                 "too many arguments in call to 'get()'", 79, 52);
@@ -159,14 +159,14 @@ public class ClientResourceAccessActionNegativeTest {
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 111, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource method 'put' on target resource in object 'isolated object" +
@@ -174,13 +174,13 @@ public class ClientResourceAccessActionNegativeTest {
                         "returns (int); resource function get path/[int]/foo(string) returns (int); resource" +
                         " function get path/[int]/foo2(string,string) returns (int); resource function get" +
                         " path/foo/bar() returns (); resource function get stringPath/[string]() returns (int);" +
-                        " resource function get intQuotedPath/5() returns (int); resource function get " +
+                        " resource function get intQuotedPath/'5() returns (int); resource function get " +
                         "intPath/[int]() returns (int); resource function get booleanPath/[boolean]() " +
                         "returns (int); resource function get stringRestPath/[string...]() returns (int);" +
                         " resource function get intRestPath/[int...]() returns (int); resource function get " +
                         "booleanRestPath/[boolean...]() returns (int); resource function get x(int) " +
                         "returns (string); resource function get y(int?) returns (string?); resource " +
-                        "function get 5(string) returns (string); resource function get 6(string?) " +
+                        "function get '5(string) returns (string); resource function get '6(string?) " +
                         "returns (string?); }'",
                 112, 34);
         validateError(clientResourcePathNegative, index++,
@@ -188,28 +188,28 @@ public class ClientResourceAccessActionNegativeTest {
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 113, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 114, 28);
         validateError(clientResourcePathNegative, index++,
                 "resource access path segment is not allowed after resource access rest segment",
@@ -223,364 +223,364 @@ public class ClientResourceAccessActionNegativeTest {
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 116, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 117, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 118, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 119, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 120, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 121, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 122, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 123, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 124, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 125, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 126, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 127, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 128, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 129, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 130, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 131, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 132, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 133, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 134, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 135, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 136, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 137, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 138, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 139, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 140, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 141, 28);
         validateError(clientResourcePathNegative, index++,
                 "unsupported computed resource access path segment type: expected 'int', 'string'," +
@@ -599,84 +599,84 @@ public class ClientResourceAccessActionNegativeTest {
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 145, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 146, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 147, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 148, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 149, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 150, 28);
 
         validateError(clientResourcePathNegative, index++,
@@ -684,14 +684,14 @@ public class ClientResourceAccessActionNegativeTest {
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 151, 28);
 
         validateError(clientResourcePathNegative, index++,
@@ -699,14 +699,14 @@ public class ClientResourceAccessActionNegativeTest {
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
                         " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/'5()" +
                         " returns (int); resource function get intPath/[int]() returns (int); resource function" +
                         " get booleanPath/[boolean]() returns (int); resource function get " +
                         "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
                         " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
                         " resource function get x(int) returns (string); resource function get y(int?) " +
-                        "returns (string?); resource function get 5(string) returns (string); resource" +
-                        " function get 6(string?) returns (string?); }'",
+                        "returns (string?); resource function get '5(string) returns (string); resource" +
+                        " function get '6(string?) returns (string?); }'",
                 152, 28);
         validateError(clientResourcePathNegative, index++,
                 "unsupported resource access rest segment type: expected array of 'int', 'string', " +

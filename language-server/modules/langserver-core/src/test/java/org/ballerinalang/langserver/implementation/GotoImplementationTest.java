@@ -41,9 +41,8 @@ import java.nio.file.Path;
  */
 public class GotoImplementationTest {
     private Endpoint serviceEndpoint;
-    private String configRoot = "implementation" + CommonUtil.FILE_SEPARATOR + "expected";
-    private JsonParser jsonParser = new JsonParser();
-    private static final Logger log = LoggerFactory.getLogger(GotoImplementationTest.class);
+    private static final String CONFIG_ROOT = "implementation" + CommonUtil.FILE_SEPARATOR + "expected";
+    private static final Logger LOG = LoggerFactory.getLogger(GotoImplementationTest.class);
 
     @BeforeClass
     public void init() {
@@ -55,12 +54,12 @@ public class GotoImplementationTest {
         Path sourcePath = FileUtils.RES_DIR.resolve(source);
         try {
             TestUtil.openDocument(serviceEndpoint, sourcePath);
-            JsonObject configJsonObject = FileUtils.fileContentAsObject(configRoot + CommonUtil.FILE_SEPARATOR
+            JsonObject configJsonObject = FileUtils.fileContentAsObject(CONFIG_ROOT + CommonUtil.FILE_SEPARATOR
                     + configPath);
             JsonObject position = configJsonObject.getAsJsonObject("position");
             Position cursor = new Position(position.get("line").getAsInt(), position.get("col").getAsInt());
             String response = TestUtil.getGotoImplementationResponse(serviceEndpoint, sourcePath.toString(), cursor);
-            JsonObject responseJson = jsonParser.parse(response).getAsJsonObject();
+            JsonObject responseJson = JsonParser.parseString(response).getAsJsonObject();
             responseJson.getAsJsonArray("result").forEach(jsonElement -> jsonElement.getAsJsonObject().remove("uri"));
             JsonObject expected = configJsonObject.getAsJsonObject("expected");
             Assert.assertEquals(expected, responseJson, "Test Failed for" + configPath);
@@ -74,7 +73,7 @@ public class GotoImplementationTest {
 
     @DataProvider(name = "goto-impl-data-provider")
     public Object[][] dataProvider() {
-        log.info("Test textDocument/implementation");
+        LOG.info("Test textDocument/implementation");
         String sourcePath1 = "implementation" + CommonUtil.FILE_SEPARATOR + "source" + CommonUtil.FILE_SEPARATOR
                 + "gotoImplProject" + CommonUtil.FILE_SEPARATOR + "src" + CommonUtil.FILE_SEPARATOR  + "pkg1"
                 + CommonUtil.FILE_SEPARATOR + "main.bal";

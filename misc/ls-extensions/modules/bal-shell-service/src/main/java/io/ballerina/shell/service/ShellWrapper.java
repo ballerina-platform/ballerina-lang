@@ -36,7 +36,7 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -80,9 +80,9 @@ public class ShellWrapper {
         PrintStream originalErr = System.err;
         ConsoleOutCollector consoleOutCollector = new ConsoleOutCollector();
         PrintStream printStreamCollector = new PrintStream(consoleOutCollector, false, StandardCharsets.UTF_8);
-        System.setOut(printStreamCollector);
-        System.setErr(printStreamCollector);
-        try {
+        try (printStreamCollector) {
+            System.setOut(printStreamCollector);
+            System.setErr(printStreamCollector);
             ShellCompilation shellCompilation = evaluator.getCompilation(source);
             // continue the execution if the compilation is done successfully
             // info related to errors required for the Ballerina notebook in compilation
@@ -123,7 +123,6 @@ public class ShellWrapper {
             );
             evaluator.resetDiagnostics();
             evaluator.clearPreviousVariablesAndModuleDclnsNames();
-            printStreamCollector.close();
             System.setOut(originalOut);
             System.setErr(originalErr);
         }
@@ -138,7 +137,7 @@ public class ShellWrapper {
     public ShellFileSourceResponse getShellFileSource() {
         String fileContent;
         try {
-            fileContent = Files.readString(Paths.get(evaluator.getBufferFileUri()), Charset.defaultCharset()).trim();
+            fileContent = Files.readString(Path.of(evaluator.getBufferFileUri()), Charset.defaultCharset()).trim();
             File tempFile = writeToFile(fileContent);
             return new ShellFileSourceResponse(tempFile, fileContent);
         } catch (IOException ignored) {

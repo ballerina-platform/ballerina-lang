@@ -25,8 +25,8 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
  */
 public class DocumentEdit {
 
-    private String fileUri;
-    private SyntaxTree modifiedSyntaxTree;
+    private final String fileUri;
+    private final SyntaxTree modifiedSyntaxTree;
 
     public DocumentEdit(String fileUri, SyntaxTree modifiedSyntaxTree) {
         this.fileUri = fileUri;

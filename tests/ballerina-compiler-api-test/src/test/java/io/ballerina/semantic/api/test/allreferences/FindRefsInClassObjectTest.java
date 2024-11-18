@@ -32,6 +32,7 @@ import java.util.List;
 @Test
 public class FindRefsInClassObjectTest extends FindAllReferencesTest {
 
+    @Override
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{
@@ -82,6 +83,7 @@ public class FindRefsInClassObjectTest extends FindAllReferencesTest {
         return "test-src/find-all-ref/find_refs_in_class_object.bal";
     }
 
+    @Override
     @AfterClass
     public void tearDown() {
         super.tearDown();

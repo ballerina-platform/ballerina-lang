@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static io.ballerina.compiler.internal.syntax.SyntaxUtils.isSTNodePresent;
@@ -71,7 +70,7 @@ public abstract class NonTerminalNode extends Node {
                 IntStream.range(0, bucketCount())
                         .filter(bucket -> childInBucket(bucket) != null)
                         .mapToObj(bucket -> new ChildNodeEntry(childNames[bucket], childInBucket(bucket)))
-                        .collect(Collectors.toList()));
+                        .toList());
     }
 
     @Override
@@ -92,8 +91,7 @@ public abstract class NonTerminalNode extends Node {
         // If that is the case, return the eof token.
         // Fixes 24905
         if (textRangeWithMinutiae.endOffset() == position &&
-                this instanceof ModulePartNode) {
-            ModulePartNode modulePartNode = (ModulePartNode) this;
+                this instanceof ModulePartNode modulePartNode) {
             return modulePartNode.eofToken();
         }
 

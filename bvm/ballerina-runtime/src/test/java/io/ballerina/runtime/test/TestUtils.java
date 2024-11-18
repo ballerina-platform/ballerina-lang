@@ -18,27 +18,29 @@
 package io.ballerina.runtime.test;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.types.BIntersectionType;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Utils class for runtime unit tests.
  * @since 2.0.0
  */
-public class TestUtils {
+public final class TestUtils {
+
+    private TestUtils() {
+    }
 
     public static Path getConfigPath(String configFileName) {
-        return Paths.get(RuntimeUtils.USER_DIR, "src", "test", "resources", "config_files", configFileName);
+        return Path.of(RuntimeUtils.USER_DIR, "src", "test", "resources", "config_files", configFileName);
     }
 
     public static Path getConfigPathForNegativeCases(String configFileName) {
-        return Paths.get(RuntimeUtils.USER_DIR, "src", "test", "resources", "config_files", "negative", configFileName);
+        return Path.of(RuntimeUtils.USER_DIR, "src", "test", "resources", "config_files", "negative", configFileName);
     }
 
      public static VariableKey[] getSimpleVariableKeys(Module module) {

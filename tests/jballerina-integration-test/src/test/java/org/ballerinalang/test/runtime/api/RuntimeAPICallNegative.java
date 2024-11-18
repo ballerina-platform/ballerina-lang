@@ -19,19 +19,21 @@ package org.ballerinalang.test.runtime.api;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.values.FPValue;
 
 import java.io.PrintStream;
-
-import static org.ballerinalang.test.runtime.api.RuntimeAPITestUtils.blockAndInvokeMethodAsync;
 
 /**
  * Source class to test the functionality of Ballerina runtime APIs for invoking functions.
  *
  * @since 2201.9.0
  */
-public class RuntimeAPICallNegative {
+public final class RuntimeAPICallNegative {
 
     private static final PrintStream out = System.out;
+
+    private RuntimeAPICallNegative() {
+    }
 
     public static void main(String[] args) {
         Module module = new Module("testorg", "function_invocation", "1");
@@ -39,7 +41,7 @@ public class RuntimeAPICallNegative {
 
         // Test function called before module initialization error for add, start and stop functions
         try {
-            blockAndInvokeMethodAsync(balRuntime, "add");
+            balRuntime.callFunction(module, "add", null);
         } catch (BError e) {
             out.println(e.getMessage());
         }
@@ -50,6 +52,21 @@ public class RuntimeAPICallNegative {
         }
         try {
             balRuntime.stop();
+        } catch (BError e) {
+            out.println(e.getMessage());
+        }
+        try {
+            balRuntime.registerListener(null);
+        } catch (BError e) {
+            out.println(e.getMessage());
+        }
+        try {
+            balRuntime.deregisterListener(null);
+        } catch (BError e) {
+            out.println(e.getMessage());
+        }
+        try {
+            balRuntime.registerStopHandler(new FPValue(null, null, null, true));
         } catch (BError e) {
             out.println(e.getMessage());
         }

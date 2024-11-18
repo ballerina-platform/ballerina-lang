@@ -43,6 +43,7 @@ public class VariableQueryTest extends BaseTestCase {
     Map<String, Variable> localVariables = new HashMap<>();
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() throws BallerinaTestException {
         String testProjectName = "variable-query-tests";
@@ -206,6 +207,7 @@ public class VariableQueryTest extends BaseTestCase {
         debugTestRunner.assertVariable(xmlGrandChildrenVariables, "[0]", "900", "xml");
     }
 
+    @Override
     @AfterClass(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();
