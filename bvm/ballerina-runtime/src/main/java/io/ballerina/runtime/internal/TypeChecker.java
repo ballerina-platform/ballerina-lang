@@ -553,6 +553,7 @@ public final class TypeChecker {
         }
         MapValue annotations =  ((TypedescValueImpl) typedescValue).annotations;
         if (annotations != null) {
+            // ATM only field annotations will reach here
             return annotations.get(annotTag);
         }
         return annotatableType.getAnnotation(annotTag);

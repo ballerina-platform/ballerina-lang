@@ -3180,20 +3180,6 @@ public class BIRGen extends BLangNodeVisitor {
         return annotationAttachments;
     }
 
-    private BIROperand getAnnotations(BTypeSymbol typeSymbol, BIRGenEnv env) {
-        if (typeSymbol == null || typeSymbol.annotations == null) {
-            return null;
-        }
-        return new BIROperand(getAnnotations(typeSymbol.annotations, env));
-    }
-
-    private BIRVariableDcl getAnnotations(BVarSymbol annotations, BIRGenEnv env) {
-        if (env.symbolVarMap.containsKey(annotations)) {
-            return env.symbolVarMap.get(annotations);
-        }
-        return globalVarMap.get(annotations);
-    }
-
     private void addReturnBB(Location pos) {
         if (this.env.returnBB == null) {
             BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId());
