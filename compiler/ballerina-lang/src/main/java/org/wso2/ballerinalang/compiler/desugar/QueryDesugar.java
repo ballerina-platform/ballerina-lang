@@ -17,6 +17,9 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
@@ -324,14 +327,16 @@ public class QueryDesugar extends BLangNodeVisitor {
             result = getStreamFunctionVariableRef(queryBlock, COLLECT_QUERY_FUNCTION, Lists.of(streamRef), pos);
         } else {
             BType refType = Types.getImpliedType(queryExpr.getBType());
-            BType safeType = types.getSafeType(refType, true, true);
-            if (isXml(safeType)) {
-                if (types.isSubTypeOfReadOnly(refType, env)) {
+            SemType refSemType = refType.semType();
+            SemType safeType = types.getNilAndErrorLiftType(refSemType);
+            if (SemTypes.isSubtypeSimpleNotNever(safeType, PredefinedType.XML)) {
+                if (types.isSubTypeOfReadOnly(refSemType)) {
                     isReadonly.value = true;
                 }
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION,
                         Lists.of(streamRef, isReadonly), pos);
-            } else if (TypeTags.isStringTypeTag(safeType.tag)) {
+            } else if (PredefinedType.STRING.equals(safeType) ||
+                    SemTypes.isSameType(types.typeCtx(), safeType, PredefinedType.STRING_CHAR)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
                 BType arrayType = refType;

@@ -189,6 +189,14 @@ public class BInvokableType extends BType implements InvokableType {
         return false;
     }
 
+    /**
+     * When the type is mutated we need to reset the definition used for the semType.
+     */
+    @Override
+    public void resetSemType() {
+        defn = null;
+    }
+
     @Override
     public SemType semType() {
         if (isFunctionTop()) {

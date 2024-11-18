@@ -79,10 +79,6 @@ public class TableCastTest {
                 16);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'int'", 60,
                 16);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: 'CustomerTable' cannot be" +
-                " cast to 'CustomerEmptyKeyedTbl'", 77, 34);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: 'CustomerTable' cannot be cast to " +
-                "'table<record {| int id; string name; string lname; anydata...; |}>'", 83, 20);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 

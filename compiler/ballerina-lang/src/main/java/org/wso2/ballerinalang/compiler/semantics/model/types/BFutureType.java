@@ -21,7 +21,6 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.ConstrainedType;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -79,7 +78,6 @@ public class BFutureType extends BBuiltInRefType implements ConstrainedType {
             return PredefinedType.FUTURE;
         }
 
-        SemType constraintSemtype = SemTypeHelper.semType(constraint);
-        return SemTypes.futureContaining(env, constraintSemtype);
+        return SemTypes.futureContaining(env, constraint.semType());
     }
 }

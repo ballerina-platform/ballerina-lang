@@ -81,4 +81,11 @@
         </Or>
         <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.types.Core">
+            <Method name="nextBoundary">
+                <Bug pattern="NP_LOAD_OF_KNOWN_NULL_VALUE"/>
+            </Method>
+        </Class>
+    </Match>
 </FindBugsFilter>

@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.types.Core;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
 import io.ballerina.types.Value;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
@@ -1397,10 +1399,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 if (varBindingPattern.matchExpr == null) {
                     return;
                 }
-                varBindingPattern.isLastPattern = types.isSameType(varBindingPattern.matchExpr.getBType(),
-                                                                   varBindingPattern.getBType()) || types.isAssignable(
-                        varBindingPattern.matchExpr.getBType(),
-                        varBindingPattern.getBType());
+                varBindingPattern.isLastPattern = types.isAssignable(varBindingPattern.matchExpr.getBType(),
+                                                                     varBindingPattern.getBType());
         }
     }
 
@@ -1529,7 +1529,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!data.failureHandled) {
             BType exprType = data.env.enclInvokable.getReturnTypeNode().getBType();
             data.returnTypes.peek().add(exprType);
-            if (!types.isAssignable(types.getErrorTypes(failNode.expr.getBType()), exprType)) {
+            BType type = failNode.expr.getBType();
+            if (!types.isSubtype(types.getErrorIntersection(type.semType()), exprType.semType())) {
                 dlog.error(failNode.pos, DiagnosticErrorCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
             }
         }
@@ -2274,25 +2275,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private boolean hasNonErrorType(BType returnType) {
-        if (returnType == null) {
-            return false;
-        }
-
-        BType effType = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(returnType));
-        if (effType.tag == TypeTags.ERROR) {
-            return false;
-        }
-
-        if (effType.tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) returnType).getMemberTypes()) {
-                if (hasNonErrorType(memberType)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        return true;
+        return !Core.isSubtypeSimple(returnType.semType(), PredefinedType.ERROR);
     }
 
     @Override
@@ -3335,14 +3318,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         BType exprType = Types.getImpliedType(enclInvokable.getReturnTypeNode().getBType());
         BType checkedExprType = checkedExpr.expr.getBType();
-        BType errorType = types.getErrorTypes(checkedExprType);
+        SemType errorType = types.getErrorIntersection(checkedExprType.semType());
 
-        if (errorType == symTable.semanticError) {
+        if (Core.isNever(errorType)) {
             return;
         }
 
         boolean ignoreErrForCheckExpr = data.withinQuery && data.queryConstructType == Types.QueryConstructType.STREAM;
-        if (!data.failureHandled && !ignoreErrForCheckExpr && !types.isAssignable(errorType, exprType)
+        if (!data.failureHandled && !ignoreErrForCheckExpr && !types.isSubtype(errorType, exprType.semType())
                 && !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(checkedExprType)) {
             dlog.error(checkedExpr.pos,
                     DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
@@ -3541,7 +3524,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         // It'll be only possible iff, the target type has been assigned to the source
         // variable at some point. To do that, a value of target type should be assignable
         // to the type of the source variable.
-        if (!intersectionExists(expr, typeNodeType, data, typeTestExpr.pos)) {
+        if (!types.intersectionExists(expr.getBType().semType(), typeNodeType.semType())) {
             dlog.error(typeTestExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CHECK, exprType, typeNodeType);
         }
     }
@@ -3568,20 +3551,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         dlog.warning(pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
-    }
-
-    private boolean intersectionExists(BLangExpression expression, BType testType, AnalyzerData data,
-                                       Location intersectionPos) {
-        BType expressionType = expression.getBType();
-
-        BType intersectionType = types.getTypeIntersection(
-                Types.IntersectionContext.typeTestIntersectionExistenceContext(intersectionPos),
-                expressionType, testType, data.env);
-
-        // any and readonly has an intersection
-        return (intersectionType != symTable.semanticError) ||
-                (Types.getImpliedType(expressionType).tag == TypeTags.ANY &&
-                        Types.getImpliedType(testType).tag == TypeTags.READONLY);
     }
 
     @Override

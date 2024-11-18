@@ -98,6 +98,14 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
         return constraint instanceof BNoType;
     }
 
+    /**
+     * When the type is mutated we need to reset the definition used for the semType.
+     */
+    @Override
+    public void resetSemType() {
+        md = null;
+    }
+
     // If the member has a semtype component then it will be represented by that component otherwise with never. This
     // means we depend on properly partitioning types to semtype components. Also, we need to ensure member types are
     // "ready" when we call this

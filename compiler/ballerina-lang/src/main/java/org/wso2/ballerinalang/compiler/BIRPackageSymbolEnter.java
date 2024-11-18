@@ -119,8 +119,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
@@ -156,7 +154,6 @@ import static io.ballerina.types.PredefinedType.BDD_REC_ATOM_READONLY;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.symbols.SymbolOrigin.toOrigin;
-import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.ANON_PREFIX;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
 
@@ -1359,7 +1356,7 @@ public class BIRPackageSymbolEnter {
                     }
 
                     SymbolEnv pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
-                    return getType(recordType, pkgEnv, Names.fromString(recordName));
+                    return lookupSymbolInMainSpace(pkgEnv, Names.fromString(recordName));
                 case TypeTags.TYPEDESC:
                     BTypedescType typedescType = new BTypedescType(symTable.typeEnv(), null, symTable.typeDesc.tsymbol);
                     typedescType.constraint = readTypeFromCp();
@@ -1529,7 +1526,7 @@ public class BIRPackageSymbolEnter {
                         } else {
                             pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(unionsPkgId));
                             if (pkgEnv != null) {
-                                BType existingUnionType = getType(unionType, pkgEnv, unionName);
+                                BType existingUnionType = lookupSymbolInMainSpace(pkgEnv, unionName);
                                 if (existingUnionType != symTable.noType) {
                                     return existingUnionType;
                                 }
@@ -1732,7 +1729,7 @@ public class BIRPackageSymbolEnter {
                     }
 
                     pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
-                    return getType(objectType, pkgEnv, Names.fromString(objName));
+                    return lookupSymbolInMainSpace(pkgEnv, Names.fromString(objName));
                 case TypeTags.BYTE_ARRAY:
                     // TODO fix
                     break;
@@ -2156,43 +2153,8 @@ public class BIRPackageSymbolEnter {
         // --------------------------------------- End of SemType -----------------------------------------------
     }
 
-    private BType getType(BType readShape, SymbolEnv pkgEnv, Name name) {
-        BType type = symbolResolver.lookupSymbolInMainSpace(pkgEnv, name).type;
-
-        if (type != symTable.noType && (!name.value.contains(ANON_PREFIX) || types.isSameBIRShape(readShape, type))) {
-            return type;
-        }
-
-        if (pkgEnv.node != null) {
-            for (BLangTypeDefinition typeDefinition : ((BLangPackage) pkgEnv.node).typeDefinitions) {
-                BSymbol symbol = typeDefinition.symbol;
-
-                String typeDefName = typeDefinition.name.value;
-                if (typeDefName.contains(ANON_PREFIX)) {
-                    BType anonType = symbol.type;
-
-                    if (types.isSameBIRShape(readShape, anonType)) {
-                        return anonType;
-                    }
-                } else if (typeDefName.equals(name.value)) {
-                    return symbol.type;
-                }
-            }
-        } else {
-            for (Map.Entry<Name, Scope.ScopeEntry> value : pkgEnv.scope.entries.entrySet()) {
-                BSymbol symbol = value.getValue().symbol;
-
-                if (value.getKey().value.contains(ANON_PREFIX)) {
-                    BType anonType = symbol.type;
-
-                    if (types.isSameBIRShape(readShape, anonType)) {
-                        return anonType;
-                    }
-                }
-            }
-        }
-
-        return type;
+    private BType lookupSymbolInMainSpace(SymbolEnv pkgEnv, Name name) {
+        return symbolResolver.lookupSymbolInMainSpace(pkgEnv, name).type;
     }
 
     private byte[] readDocBytes(DataInputStream inputStream) throws IOException {

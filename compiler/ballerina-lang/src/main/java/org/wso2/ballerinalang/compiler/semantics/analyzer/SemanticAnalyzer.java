@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.PredefinedType;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -1246,7 +1247,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private void validateMapConfigVariable(String configKey, BVarSymbol variable, Map<String, PackageID> configKeys) {
-        if (configKeys.containsKey(configKey) && types.isSubTypeOfMapping(variable.type)) {
+        if (configKeys.containsKey(configKey) && types.isSubTypeOfMapping(variable.type.semType())) {
             dlog.error(variable.pos, DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MODULE_AMBIGUITY,
                     variable.name.value, configKeys.get(configKey));
         }
@@ -1336,7 +1337,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             case ANYDATA:
                 break;
             case FINITE:
-                return types.isAnydata(type);
+                return types.isAnydata(type.semType());
             case NIL:
                 return !isRequired;
             case ARRAY:
@@ -1413,21 +1414,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private boolean isNilableDefaultField(BField field, BType fieldType) {
-        if (!Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED) && !Symbols.isFlagOn(field.symbol.flags,
-                Flags.OPTIONAL)) {
-            if (fieldType.tag == TypeTags.NIL) {
-                return true;
-            }
-            if (fieldType.tag == TypeTags.UNION) {
-                BUnionType unionType = (BUnionType) fieldType;
-                for (BType memberType : unionType.getMemberTypes()) {
-                    if (memberType.tag == TypeTags.NIL) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+        return !Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED) &&
+                !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
+                fieldType.isNullable();
     }
 
     private void validateListenerCompatibility(BLangSimpleVariable varNode, BType rhsType) {
@@ -2066,7 +2055,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
                 if ((TypeTags.TUPLE != referredRhsType.tag && TypeTags.ARRAY != referredRhsType.tag &&
                         TypeTags.UNION != referredRhsType.tag) ||
-                        (variable.isDeclaredWithVar && !types.isSubTypeOfBaseType(rhsType, TypeTags.TUPLE))) {
+                        (variable.isDeclaredWithVar && !types.isSubTypeOfBaseType(rhsType, PredefinedType.LIST))) {
                     dlog.error(variable.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN_INFERENCE, rhsType);
                     recursivelyDefineVariables(tupleVariable, blockEnv);
                     return;
@@ -3983,7 +3972,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
         }
         if (errorExpressionType != symTable.semanticError &&
-                !types.isSubTypeOfBaseType(errorExpressionType, symTable.errorType.tag)) {
+                !types.isSubTypeOfBaseType(errorExpressionType, PredefinedType.ERROR)) {
             dlog.error(errorExpression.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, errorExpressionType);
         }
         data.notCompletedNormally = true;
@@ -4023,8 +4012,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 dlog.error(attachExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, LISTENER_NAME, exprType);
             } else if (exprType != symTable.semanticError && serviceNode.listenerType == null) {
                 serviceNode.listenerType = exprType;
-            } else if (exprType != symTable.semanticError) {
-                this.types.isSameType(exprType, serviceNode.listenerType);
             }
 
             if (attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -4932,7 +4919,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         BType type = isRestParam ? ((BArrayType) variable.getBType()).eType : variable.getBType();
 
-        if (!types.isSubTypeOfBaseType(type, TypeTags.INVOKABLE)) {
+        if (!types.isSubTypeOfBaseType(type, PredefinedType.FUNCTION)) {
             dlog.error(variable.pos, DiagnosticErrorCode.ISOLATED_PARAM_USED_WITH_INVALID_TYPE);
         }
 

@@ -31,7 +31,7 @@ public class Range {
         this.max = max;
     }
 
-    public static Range from(int min, int max) {
+    public static Range from(long min, long max) {
         return new Range(min, max);
     }
 

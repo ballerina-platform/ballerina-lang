@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
+import io.ballerina.types.PredefinedType;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
@@ -40,6 +41,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -295,11 +297,49 @@ public class JvmTerminatorGen {
         this.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    public void genReturnTerm(int returnVarRefIndex, BIRNode.BIRFunction func, int channelMapVarIndex,
-                              int sendWorkerChannelNamesVar, int receiveWorkerChannelNamesVar, int localVarOffset) {
-        BType bType = unifier.build(func.type.retType);
-        generateReturnTermFromType(bType, func, returnVarRefIndex, channelMapVarIndex, sendWorkerChannelNamesVar,
-                receiveWorkerChannelNamesVar, localVarOffset);
+    private void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName) {
+
+        Label gotoLabel = this.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
+
+        // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
+        String lockStore = "L" + LOCK_STORE + ";";
+        String lockName = GLOBAL_LOCK_NAME + unlockIns.relatedLock.lockId;
+        String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
+        this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, lockStore);
+        this.mv.visitLdcInsn(lockName);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", GET_LOCK_MAP, false);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", VOID_METHOD_DESC, false);
+
+        this.mv.visitJumpInsn(GOTO, gotoLabel);
+    }
+
+    private void handleErrorRetInUnion(int returnVarRefIndex, List<BIRNode.ChannelDetails> channels, BUnionType bType,
+                                       int invocationVarIndex, int localVarOffset) {
+
+        if (channels.isEmpty()) {
+            return;
+        }
+
+        boolean errorIncluded = SemTypeHelper.containsBasicType(bType, PredefinedType.ERROR);
+        if (errorIncluded) {
+            this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+            this.mv.visitVarInsn(ALOAD, localVarOffset);
+            JvmCodeGenUtil.loadChannelDetails(this.mv, channels, invocationVarIndex);
+            this.mv.visitMethodInsn(INVOKESTATIC, WORKER_UTILS, "handleWorkerError",
+                                    HANDLE_WORKER_ERROR, false);
+        }
+    }
+
+    private void notifyChannels(List<BIRNode.ChannelDetails> channels, int retIndex, int invocationVarIndex) {
+
+        if (channels.isEmpty()) {
+            return;
+        }
+
+        this.mv.visitVarInsn(ALOAD, 0);
+        JvmCodeGenUtil.loadChannelDetails(this.mv, channels, invocationVarIndex);
+        this.mv.visitVarInsn(ALOAD, retIndex);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "handleChannelError", HANDLE_CHANNEL_ERROR, false);
     }
 
     private void genBranchTerm(BIRTerminator.Branch branchIns, String funcName) {

@@ -622,7 +622,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     mappingConstructor, data);
 
             if (memCompatibiltyType != symTable.semanticError && dlog.errorCount() == 0 &&
-                    isUniqueType(compatibleTypes, listCompatibleMemType)) {
+                    types.isUniqueType(compatibleTypes, listCompatibleMemType)) {
                 compatibleTypes.add(listCompatibleMemType);
             }
         }
@@ -950,22 +950,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return createNewRecordType(recordSymbol, inferredFields, data);
     }
 
-    private boolean isUniqueType(Iterable<BType> typeList, BType type) {
-        boolean isRecord = type.tag == TypeTags.RECORD;
-
-        for (BType bType : typeList) {
-
-            if (isRecord) {
-                if (type == bType) {
-                    return false;
-                }
-            } else if (types.isSameType(type, bType)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private boolean validateRequiredFields(BRecordType type, List<RecordLiteralNode.RecordField> specifiedFields,
                                            Location pos, AnalyzerData data) {
         HashSet<String> specFieldNames = getFieldNames(specifiedFields, data);
@@ -1085,7 +1069,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BType memCompatibiltyType = checkListConstructorCompatibility(listCompatibleMemType, listConstructor,
                         data);
                 if (memCompatibiltyType != symTable.semanticError && dlog.errorCount() == 0 &&
-                        isUniqueType(compatibleTypes, memCompatibiltyType)) {
+                        types.isUniqueType(compatibleTypes, memCompatibiltyType)) {
                     compatibleTypes.add(memCompatibiltyType);
                 }
             }

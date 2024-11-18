@@ -387,19 +387,6 @@ class JMethodResolver {
                     "Incompatible ballerina return type for Java method '" + jMethodRequest.methodName + "' which " +
                             "throws checked exception found in class '" + jMethodRequest.declaringClass.getName() +
                             "': expected '" + expectedRetTypeName + "', found '" + returnType + "'");
-        } else if (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue) {
-            String errorMsgPart;
-            if (returnType instanceof BUnionType bUnionReturnType) {
-                BType modifiedRetType =
-                        BUnionType.create(symbolTable.typeEnv(), null, getNonErrorMembers(bUnionReturnType));
-                errorMsgPart = "expected '" + modifiedRetType + "', found '" + returnType + "'";
-            } else {
-                errorMsgPart = "no return type expected but found '" + returnType + "'";
-            }
-            throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
-                    "Incompatible ballerina return type for Java method '" + jMethodRequest.methodName + "' which " +
-                            "throws 'java.lang.RuntimeException' found in class '" +
-                            jMethodRequest.declaringClass.getName() + "': " + errorMsgPart);
         }
     }
 

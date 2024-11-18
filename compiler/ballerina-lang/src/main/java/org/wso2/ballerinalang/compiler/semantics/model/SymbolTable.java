@@ -142,8 +142,8 @@ public class SymbolTable {
     public final BIntersectionType anyAndReadonly;
     public BUnionType anyAndReadonlyOrError;
 
-    public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
-    public final BType nullSet = new BType(TypeTags.NULL_SET, null);
+    public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null, PredefinedType.NEVER);
+    public final BType nullSet = new BType(TypeTags.NULL_SET, null, PredefinedType.NEVER);
     public final BType invokableType;
     public final BType empty = new BType(TypeTags.EMPTY, null);
 

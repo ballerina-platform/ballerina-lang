@@ -6695,7 +6695,7 @@ public class Desugar extends BLangNodeVisitor {
         if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                                                   indexAccessExpr.indexExpr, indexAccessExpr.isStoreOnCreation);
-        } else if (types.isSubTypeOfMapping(types.getSafeType(varRefType, true, false))) {
+        } else if (types.isSubTypeOfMapping(types.getNilLiftType(varRefType.semType()))) {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                                                           indexAccessExpr.indexExpr,
                                                           (BVarSymbol) indexAccessExpr.symbol, false);
@@ -9343,7 +9343,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression createTypeCastExpr(BLangExpression expr, BType targetType) {
-        if (types.isSameType(expr.getBType(), targetType)) {
+        if (types.isSameTypeIncludingTags(expr.getBType(), targetType)) {
             return expr;
         }
 
