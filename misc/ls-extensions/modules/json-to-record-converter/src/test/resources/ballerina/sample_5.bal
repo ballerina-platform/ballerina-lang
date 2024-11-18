@@ -1,6 +1,7 @@
-type NewRecord record {
+type NewRecord record {|
 	string size;
 	string color;
 	string fruit;
-};
+	json...;
+|};
 
