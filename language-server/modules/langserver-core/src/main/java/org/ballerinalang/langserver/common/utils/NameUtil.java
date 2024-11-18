@@ -281,20 +281,11 @@ public final class NameUtil {
      * @return The generated name for the raw type.
      */
     private static String generateNameForRawType(TypeDescKind rawType) {
-        String name;
-        switch (rawType) {
-            case RECORD:
-                name = "mappingResult";
-                break;
-            case TUPLE:
-            case ARRAY:
-                name = "listResult";
-                break;
-            default:
-                name = rawType.getName() + "Result";
-                break;
-        }
-        return name;
+        return switch (rawType) {
+            case RECORD -> "mappingResult";
+            case TUPLE, ARRAY -> "listResult";
+            default -> rawType.getName() + "Result";
+        };
     }
 
     /**

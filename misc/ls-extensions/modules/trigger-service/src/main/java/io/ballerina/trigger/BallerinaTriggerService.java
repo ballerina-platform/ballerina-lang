@@ -36,6 +36,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
@@ -103,7 +104,7 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
                 CentralTriggerListResult centralTriggerListResult = getCentralTriggerListResult(request);
                 triggersList.setCentralTriggers(centralTriggerListResult.getTriggers());
                 return triggersList;
-            } catch (CentralClientException e) {
+            } catch (CentralClientException | SettingsTomlException e) {
                 String msg = "Operation 'ballerinaTrigger/triggers' failed!";
                 this.languageClient.logMessage(new MessageParams(MessageType.Error, msg));
                 return triggersList;
