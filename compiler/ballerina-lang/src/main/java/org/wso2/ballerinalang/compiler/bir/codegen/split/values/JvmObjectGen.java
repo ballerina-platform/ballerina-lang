@@ -197,7 +197,7 @@ public class JvmObjectGen {
     }
 
     private boolean isListenerAttach(BIRNode.BIRFunction func) {
-        return func.name.value.equals("attach") && Symbols.isFlagOn(func.parameters.getFirst().type.flags,
+        return func.name.value.equals("attach") && Symbols.isFlagOn(func.parameters.getFirst().type.getFlags(),
                 Flags.SERVICE);
     }
 

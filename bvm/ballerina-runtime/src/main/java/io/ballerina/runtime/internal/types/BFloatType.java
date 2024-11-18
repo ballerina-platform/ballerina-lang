@@ -18,18 +18,16 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FloatType;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.function.Supplier;
 
-import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
-import io.ballerina.runtime.api.types.FloatType;
-import io.ballerina.runtime.api.types.TypeTags;
+import static io.ballerina.runtime.api.types.PredefinedTypes.EMPTY_MODULE;
 
 /**
  * {@code BFloatType} represents a integer which is a 32-bit floating-point number according to the

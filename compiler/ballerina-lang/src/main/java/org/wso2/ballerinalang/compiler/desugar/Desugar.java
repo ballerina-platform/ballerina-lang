@@ -332,7 +332,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
@@ -6874,7 +6873,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Add `@strand {thread: "any"}` annotation to an isolated start-action.
-        if (actionInvocation.async && Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
+        if (actionInvocation.async && Symbols.isFlagOn(actionInvocation.symbol.type.getFlags(), Flags.ISOLATED)) {
             addStrandAnnotationWithThreadAny(actionInvocation.pos);
             actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
             ((BInvokableSymbol) actionInvocation.symbol)

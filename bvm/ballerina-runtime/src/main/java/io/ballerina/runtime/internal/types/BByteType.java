@@ -19,19 +19,17 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.ByteType;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.function.Supplier;
 
-import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
-import io.ballerina.runtime.api.types.ByteType;
-import io.ballerina.runtime.api.types.TypeTags;
+import static io.ballerina.runtime.api.types.PredefinedTypes.EMPTY_MODULE;
 
 /**
  * {@code BByteType} represents byte type in Ballerina.
