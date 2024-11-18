@@ -343,7 +343,8 @@ public final class JvmCodeGenUtil {
                 generateReturnType(retType, typeEnv);
     }
 
-    public static String getMethodDesc(Env typeEnv, List<BType> paramTypes, BType retType, String attachedTypeClassName) {
+    public static String getMethodDesc(Env typeEnv, List<BType> paramTypes, BType retType,
+                                       String attachedTypeClassName) {
         return INITIAL_METHOD_DESC + "L" + attachedTypeClassName + ";" + getMethodDescParams(paramTypes) +
                 generateReturnType(retType, typeEnv);
     }
