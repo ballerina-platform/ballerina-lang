@@ -19,8 +19,8 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.internal.DecimalValueKind;
 import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.DecimalValueKind;
 
 import java.math.BigDecimal;
 

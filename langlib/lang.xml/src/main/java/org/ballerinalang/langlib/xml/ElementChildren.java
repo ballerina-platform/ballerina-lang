@@ -32,13 +32,6 @@ import java.util.List;
  *
  * @since 1.2
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "elementChildren",
-//        args = {@Argument(name = "BXML", type = TypeKind.XML), @Argument(name = "nm", type = TypeKind.UNION)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
 public final class ElementChildren {
 
     private ElementChildren() {

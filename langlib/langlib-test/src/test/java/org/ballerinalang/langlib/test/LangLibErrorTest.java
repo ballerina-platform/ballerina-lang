@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.test;
 
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;

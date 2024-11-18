@@ -61,41 +61,27 @@ import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
-import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
-import static org.objectweb.asm.Opcodes.ARETURN;
-import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
-import static org.objectweb.asm.Opcodes.IFEQ;
-import static org.objectweb.asm.Opcodes.IFNULL;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.POP;
-import static org.objectweb.asm.Opcodes.PUTFIELD;
-import static org.objectweb.asm.Opcodes.V17;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
+import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALL_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.IS_BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_FUNCTION_CALLS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_SELF_INSTANCE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOBJECT_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FUNCTION_CALL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
@@ -141,7 +127,7 @@ public class LambdaGen {
     }
 
     private void generateConstantsClassInit(ClassWriter cw, String lambdaClassName) {
-        cw.visit(V17, ACC_PUBLIC | ACC_SUPER, lambdaClassName, null, JvmConstants.OBJECT, null);
+        cw.visit(V21, ACC_PUBLIC | ACC_SUPER, lambdaClassName, null, JvmConstants.OBJECT, null);
         MethodVisitor methodVisitor =
                 cw.visitMethod(ACC_PRIVATE, JvmConstants.JVM_INIT_METHOD, VOID_METHOD_DESC, null, null);
         methodVisitor.visitCode();
@@ -171,7 +157,7 @@ public class LambdaGen {
     }
 
     private void genNonVirtual(LambdaDetails lambdaDetails, MethodVisitor mv, List<BType> paramBTypes,
-                               boolean isWorker, boolean isSamePkg) {
+                               boolean isSamePkg) {
         String jvmClass, funcName, methodDesc;
         if (!isSamePkg) {
             // Use call method of function calls class to execute functions from imported modules
@@ -188,8 +174,7 @@ public class LambdaGen {
             jvmClass = JvmCodeGenUtil.getModuleLevelClassName(lambdaDetails.packageID,
                     MODULE_FUNCTION_CALLS_CLASS_NAME);
         }
-        methodDesc = getLambdaMethodDesc(paramBTypes, lambdaDetails.returnType, lambdaDetails.closureMapsCount,
-                isWorker);
+        methodDesc = getLambdaMethodDesc(paramBTypes, lambdaDetails.returnType, lambdaDetails.closureMapsCount);
         mv.visitMethodInsn(INVOKESTATIC, jvmClass, lambdaDetails.encodedFuncName, methodDesc, false);
         jvmCastGen.addBoxInsn(mv, lambdaDetails.returnType);
     }
@@ -220,7 +205,7 @@ public class LambdaGen {
         mv.visitInsn(POP);
         mv.visitVarInsn(ALOAD, closureMapsCount);
         mv.visitInsn(ICONST_1);
-        BIROperand ref = ins.args.get(0);
+        BIROperand ref = ins.args.getFirst();
         mv.visitInsn(AALOAD);
         jvmCastGen.addUnboxInsn(mv, ref.variableDcl.type);
         mv.visitVarInsn(ALOAD, closureMapsCount);
@@ -273,7 +258,7 @@ public class LambdaGen {
                 generateFpCallArgs(mv, paramIndex);
             }
         }
-        genNonVirtual(lambdaDetails, mv, paramBTypes, false, isSamePkg);
+        genNonVirtual(lambdaDetails, mv, paramBTypes, isSamePkg);
     }
 
     private List<BType> getFpParamTypes(LambdaDetails lambdaDetails) {
@@ -297,7 +282,7 @@ public class LambdaGen {
         loadClosureMaps(lambdaDetails, mv);
         // load and cast param values
         loadAndCastParamValues(ins, lambdaDetails, mv, paramBTypes, isSamePkg);
-        genNonVirtual(lambdaDetails, mv, paramBTypes, ins.isWorker, isSamePkg);
+        genNonVirtual(lambdaDetails, mv, paramBTypes, isSamePkg);
     }
 
     private void loadAndCastParamValues(BIRNonTerminator.FPLoad ins, LambdaDetails lambdaDetails, MethodVisitor mv,
@@ -346,16 +331,6 @@ public class LambdaGen {
         if (!isSamePkg) {
             mv.visitLdcInsn(lambdaDetails.encodedFuncName);
         }
-        if ((ins.getKind() == InstructionKind.FP_LOAD) && ((BIRNonTerminator.FPLoad) ins).isWorker) {
-            mv.visitVarInsn(ALOAD, lambdaDetails.closureMapsCount);
-            mv.visitInsn(ICONST_1);
-            mv.visitInsn(AALOAD);
-            mv.visitTypeInsn(CHECKCAST, INT_VALUE);
-            mv.visitMethodInsn(INVOKEVIRTUAL, INT_VALUE, "intValue", "()I", false);
-        }
-        if (lambdaDetails.isExternFunction) {
-            generateBlockedOnExtern(lambdaDetails.closureMapsCount, mv);
-        }
         return mv;
     }
 
@@ -365,38 +340,6 @@ public class LambdaGen {
             desc.append("L").append(JvmConstants.MAP_VALUE).append(";");
         }
         return desc.toString();
-    }
-
-    private void generateBlockedOnExtern(int closureMapsCount, MethodVisitor mv) {
-        Label blockedOnExternLabel = new Label();
-
-        mv.visitInsn(DUP);
-
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS , IS_BLOCKED_ON_EXTERN_FIELD, "()Z", false);
-        mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
-
-        mv.visitInsn(DUP);
-        mv.visitInsn(ICONST_0);
-        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS , BLOCKED_ON_EXTERN_FIELD, "Z");
-
-        mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS , PANIC_FIELD, GET_BERROR);
-        Label panicLabel = new Label();
-        mv.visitJumpInsn(IFNULL, panicLabel);
-        mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS , PANIC_FIELD, GET_BERROR);
-        mv.visitVarInsn(ASTORE, closureMapsCount + 1);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS , PANIC_FIELD, GET_BERROR);
-        mv.visitVarInsn(ALOAD, closureMapsCount + 1);
-        mv.visitInsn(ATHROW);
-        mv.visitLabel(panicLabel);
-
-        mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "returnValue", "Ljava/lang/Object;");
-        mv.visitInsn(ARETURN);
-
-        mv.visitLabel(blockedOnExternLabel);
     }
 
     private LambdaDetails getLambdaDetails(BIRInstruction ins) {
@@ -509,11 +452,8 @@ public class LambdaGen {
         int closureMapsCount = 0;
     }
 
-    private String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount, boolean isWorker) {
+    private String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount) {
         StringBuilder desc = new StringBuilder(INITIAL_METHOD_DESC);
-        if (isWorker) {
-            desc.append("I");
-        }
         appendClosureMaps(closureMapsCount, desc);
         appendParamTypes(paramTypes, desc);
         desc.append(JvmCodeGenUtil.generateReturnType(retType));

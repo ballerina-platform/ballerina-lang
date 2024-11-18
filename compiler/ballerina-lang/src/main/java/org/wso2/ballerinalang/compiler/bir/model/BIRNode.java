@@ -389,6 +389,8 @@ public abstract class BIRNode {
         
         public List<BType> pathSegmentTypeList;
 
+        public boolean hasWorkers;
+
         public BIRFunction(Location pos, Name name, Name originalName, long flags, SymbolOrigin origin,
                            BInvokableType type, List<BIRParameter> requiredParams, BIRVariableDcl receiver,
                            BIRParameter restParam, int argsCount, List<BIRVariableDcl> localVars,

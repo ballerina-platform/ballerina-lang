@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;

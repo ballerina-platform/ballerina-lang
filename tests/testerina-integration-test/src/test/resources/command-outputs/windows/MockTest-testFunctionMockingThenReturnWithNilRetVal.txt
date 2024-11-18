@@ -16,6 +16,13 @@ Running Tests with Coverage
 				callableName: mockHandler moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 590
 				callableName: testFunctionMock3 moduleName: intg_tests.function_mocking$test.0.tests.tests fileName: tests/tests.bal lineNumber: 43
 				callableName: testFunctionMock3$lambda2$ moduleName: intg_tests.function_mocking$test.0.tests.test_execute-generated_*****lineNumber: 6
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: intg_tests.function_mocking$test.0.tests.test_execute-generated_*****lineNumber: 10
 			
 
 

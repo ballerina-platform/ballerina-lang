@@ -16,11 +16,11 @@
 
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -29,13 +29,13 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
-import io.ballerina.runtime.internal.CycleUtils;
-import io.ballerina.runtime.internal.IteratorUtils;
-import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.utils.CycleUtils;
+import io.ballerina.runtime.internal.utils.IteratorUtils;
+import io.ballerina.runtime.internal.xml.XmlFactory;
 
 import java.util.ArrayList;
 import java.util.HashSet;

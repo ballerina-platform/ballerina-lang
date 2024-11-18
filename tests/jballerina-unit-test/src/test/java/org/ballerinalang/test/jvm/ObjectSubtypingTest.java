@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.ballerinalang.test.BAssertUtil.validateWarning;
 import static org.testng.Assert.assertEquals;
+import static java.lang.String.format;
 
 /**
  * Test cases for testing the object subtyping rules.

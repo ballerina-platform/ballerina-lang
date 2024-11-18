@@ -17,13 +17,13 @@
 */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -34,13 +34,13 @@ import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
-import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.ValueConverter;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.utils.CycleUtils;
+import io.ballerina.runtime.internal.utils.ValueConverter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -54,12 +54,12 @@ import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
-import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
-import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
+import static io.ballerina.runtime.internal.utils.StringUtils.getExpressionStringVal;
+import static io.ballerina.runtime.internal.utils.StringUtils.getStringVal;
+import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
 
 /**
  * <p>

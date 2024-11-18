@@ -198,7 +198,7 @@ public class JvmObjectGen {
 
     private boolean isListenerAttach(BIRNode.BIRFunction func) {
         return func.name.value.equals("attach") &&
-                Symbols.isFlagOn(func.parameters.get(0).type.getFlags(), Flags.SERVICE);
+                Symbols.isFlagOn(func.parameters.getFirst().type.getFlags(), Flags.SERVICE);
     }
 
     public void createAndSplitGetMethod(ClassWriter cw, Map<String, BField> fields, String className,

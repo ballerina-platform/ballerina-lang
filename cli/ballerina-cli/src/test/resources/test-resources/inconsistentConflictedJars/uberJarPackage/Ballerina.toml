@@ -4,7 +4,7 @@ name = "uberJarPackage"
 version = "0.1.0"
 distribution = "2201.0.0"
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 path = "./libs/redis-2.2.0.jar"
 groupId = "org.ballerinalang"
 artifactId = "redis-utils"

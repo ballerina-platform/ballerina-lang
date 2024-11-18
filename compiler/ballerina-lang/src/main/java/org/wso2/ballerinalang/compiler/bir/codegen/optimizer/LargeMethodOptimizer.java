@@ -191,8 +191,8 @@ public class LargeMethodOptimizer {
                 mapKeyOperandLocations);
 
         // add the constant load array size operand instruction
-        parentFuncEnv.parentFuncNewInsList.add(bbs.get(0).instructions.get(0));
-        parentFuncEnv.parentFuncLocalVarList.add(bbs.get(0).instructions.get(0).lhsOp.variableDcl);
+        parentFuncEnv.parentFuncNewInsList.add(bbs.getFirst().instructions.getFirst());
+        parentFuncEnv.parentFuncLocalVarList.add(bbs.getFirst().instructions.getFirst().lhsOp.variableDcl);
 
         splitParentFuncForPeriodicMapSplits(parentFunc, newlyAddingFunctions, fromAttachedFunction,
                 bbs, newMapInsBBNum, newMapInsNumInRelevantBB,
@@ -258,8 +258,8 @@ public class LargeMethodOptimizer {
                 handleArrayOperand, birOperands, arrayValuesOperands);
 
         // add the constant load array size operand instruction
-        parentFuncEnv.parentFuncNewInsList.add(bbs.get(0).instructions.get(0));
-        parentFuncEnv.parentFuncLocalVarList.add(bbs.get(0).instructions.get(0).lhsOp.variableDcl);
+        parentFuncEnv.parentFuncNewInsList.add(bbs.getFirst().instructions.getFirst());
+        parentFuncEnv.parentFuncLocalVarList.add(bbs.getFirst().instructions.getFirst().lhsOp.variableDcl);
 
         splitParentFuncForPeriodicArraySplits(parentFunc, newlyAddingFunctions, fromAttachedFunction,
                 bbs, newArrayInsBBNum, newArrayInsNumInRelevantBB,
@@ -1286,8 +1286,8 @@ public class LargeMethodOptimizer {
 
                         // if the split will have all the available instructions already in the function -
                         // no need to make that split, avoids doing the same split repeatedly
-                        if ((bbNum == basicBlocks.size() - 2) && (!basicBlocks.get(0).instructions.isEmpty()) &&
-                                (basicBlocks.get(0).instructions.get(0).lhsOp == splitStartOperand)
+                        if ((bbNum == basicBlocks.size() - 2) && (!basicBlocks.getFirst().instructions.isEmpty()) &&
+                                (basicBlocks.getFirst().instructions.getFirst().lhsOp == splitStartOperand)
                                 && fromSplitFunction) {
                             continue;
                         }

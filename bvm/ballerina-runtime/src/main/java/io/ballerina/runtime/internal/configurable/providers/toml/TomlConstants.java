@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 
 import java.nio.file.Path;
 

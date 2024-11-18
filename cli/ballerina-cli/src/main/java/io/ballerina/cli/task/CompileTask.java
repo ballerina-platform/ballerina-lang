@@ -229,7 +229,7 @@ public class CompileTask implements Task {
                 BuildTime.getInstance().packageCompilationDuration = System.currentTimeMillis() - start;
                 start = System.currentTimeMillis();
             }
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().codeGenDuration = System.currentTimeMillis() - start;
             }

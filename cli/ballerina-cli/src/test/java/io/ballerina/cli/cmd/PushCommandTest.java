@@ -224,9 +224,8 @@ public class PushCommandTest extends BaseCommandTest {
                 this.testResources.resolve("tool-gayals").toFile(), validBalProject.toFile());
         FileUtils.moveDirectory(
                 validBalProject.resolve("target-dir").toFile(), validBalProject.resolve("custom").toFile());
-
         Path customTargetDirBalaPath =
-                validBalProject.resolve("custom/bala/gayaldassanayake-tool_gayal-java17-1.1.0.bala");
+                validBalProject.resolve("custom/bala/gayaldassanayake-tool_gayal-java21-1.1.0.bala");
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false,
                 customTargetDirBalaPath);
         String[] args = { "--repository=local" };
@@ -248,7 +247,7 @@ public class PushCommandTest extends BaseCommandTest {
 
         try {
             ProjectFiles.validateBalaProjectPath(
-                    mockRepo.resolve("repositories/local/bala/gayaldassanayake/tool_gayal/1.1.0/java17"));
+                    mockRepo.resolve("repositories/local/bala/gayaldassanayake/tool_gayal/1.1.0/java21"));
         } catch (ProjectException e) {
             Assert.fail(e.getMessage());
         }

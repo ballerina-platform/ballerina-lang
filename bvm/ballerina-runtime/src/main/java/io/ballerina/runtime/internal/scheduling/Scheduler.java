@@ -17,35 +17,35 @@
 
 package io.ballerina.runtime.internal.scheduling;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.async.Callback;
-import io.ballerina.runtime.api.async.StrandMetadata;
-import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.concurrent.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.Parameter;
+import io.ballerina.runtime.api.types.RemoteMethodType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.errors.ErrorReasons;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
-import io.ballerina.runtime.internal.values.ChannelDetails;
+import io.ballerina.runtime.api.values.BNever;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.internal.BalRuntime;
+import io.ballerina.runtime.internal.types.BFunctionType;
+import io.ballerina.runtime.internal.types.BServiceType;
+import io.ballerina.runtime.internal.utils.ErrorUtils;
+import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.FutureValue;
+import io.ballerina.runtime.internal.values.ObjectValue;
+import io.ballerina.runtime.internal.values.ValueCreator;
 
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
-
-import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
 
 /**
  * Strand scheduler for JBallerina.
@@ -54,510 +54,405 @@ import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
  */
 public class Scheduler {
 
-    private static final PrintStream ERR = System.err;
+    public final ReentrantLock globalNonIsolatedLock = new ReentrantLock();
 
-    /**
-     * Scheduler does not get killed if the immortal value is true. Specific to services.
-     */
-    private volatile boolean immortal;
-    private boolean listenerDeclarationFound;
-    /**
-     * Strands that are ready for execution.
-     */
-    private final BlockingQueue<ItemGroup> runnableList = new LinkedBlockingDeque<>();
+    private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
 
-    private static final ThreadLocal<StrandHolder> STRAND_HOLDER = ThreadLocal.withInitial(StrandHolder::new);
-    private static final ConcurrentHashMap<Integer, Strand> CURRENT_STRANDS = new ConcurrentHashMap<>();
-    private final Strand previousStrand;
+    public  final BalRuntime runtime;
 
-    private final AtomicInteger totalStrands = new AtomicInteger();
-
-    private static final String POOL_SIZE_CONF = System.getenv(RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
-
-    /**
-     * This can be changed by setting the BALLERINA_MAX_POOL_SIZE system variable.
-     * Default is 100.
-     */
-    private final int numThreads;
-
-    private static int poolSize = Runtime.getRuntime().availableProcessors() * 2;
-
-    private Semaphore mainBlockSem;
-    private final RuntimeRegistry runtimeRegistry;
-    private final AtomicReference<ItemGroup> objectGroup = new AtomicReference<>();
-    private static Strand daemonStrand = null;
-
-    public static void setDaemonStrand(Strand strand) {
-        daemonStrand = strand;
-    }
-
-    public static Strand getDaemonStrand() {
-        return daemonStrand;
-    }
-
-    public Scheduler(boolean immortal) {
-        this(getPoolSize(), immortal);
-    }
-
-    public Scheduler(int numThreads, boolean immortal) {
-        this.numThreads = numThreads;
-        this.immortal = immortal;
-        this.runtimeRegistry = new RuntimeRegistry(this);
-        this.previousStrand = numThreads == 1 ? STRAND_HOLDER.get().strand : null;
-        ItemGroup group = new ItemGroup();
-        objectGroup.set(group);
+    public Scheduler(BalRuntime runtime) {
+        this.runtime = runtime;
     }
 
     public static Strand getStrand() {
-        Strand strand = STRAND_HOLDER.get().strand;
-        if (strand == null) {
-            throw new IllegalStateException("strand is not accessible from non-strand-worker threads");
+        return strandHolder.get().strand;
+    }
+    public Object callFunction(Module module, String functionName, StrandMetadata metadata, Object... args) {
+        Strand parentStrand = Scheduler.getStrand();
+        if (parentStrand != null) {
+            boolean runnable = parentStrand.isRunnable();
+            if (!runnable) {
+                parentStrand.resume();
+            }
+            ValueCreatorAndFunctionType functionType = getGetValueCreatorAndFunctionType(module, functionName);
+            Object[] argsWithDefaultValues = getArgsWithDefaultValues(functionType.valueCreator(),
+                    functionType.functionType(), parentStrand, args);
+            Object result = functionType.valueCreator().call(parentStrand, functionName, argsWithDefaultValues);
+            if (!runnable) {
+                parentStrand.yield();
+            }
+            return result;
         }
-        return strand;
-    }
-
-    public static Strand getStrandNoException() {
-        // issue #22871 is opened to fix this
-        return STRAND_HOLDER.get().strand;
-    }
-
-    public static Map<Integer, Strand> getCurrentStrands() {
-        return new HashMap<>(CURRENT_STRANDS);
-    }
-
-    /**
-     * Schedules given function by creating a new strand group.
-     *
-     * @param params     parameters to underlying function.
-     * @param fp         function pointer to be executed.
-     * @param parent     parent of the new Strand that get created here.
-     * @param returnType return type of the function.
-     * @param strandName name for new strand
-     * @param metadata   meta data of new strand
-     * @return {@link FutureValue} reference to the given function pointer invocation.
-     */
-    public FutureValue scheduleFunction(Object[] params,
-                                        BFunctionPointer<Object[], Object> fp, Strand parent, Type returnType,
-                                        String strandName, StrandMetadata metadata) {
-        return schedule(params, fp.getFunction(), parent, null, null, returnType, strandName, metadata);
-    }
-
-    public FutureValue scheduleFunction(Object[] params,
-                                        BFunctionPointer<Object[], Object> fp, Strand parent, Type returnType,
-                                        String strandName, StrandMetadata metadata , Callback callback) {
-        return schedule(params, fp.getFunction(), parent, callback, null, returnType, strandName, metadata);
-    }
-
-    /**
-     * Schedules given function to the callers strand group.
-     *
-     * @param params     parameters to underlying function.
-     * @param fp         function to be executed.
-     * @param parent     parent of the new Strand that get created here.
-     * @param returnType return type of the function.
-     * @param strandName name for new strand
-     * @param metadata   meta data of new strand
-     * @return {@link FutureValue} reference to the given function invocation.
-     */
-    public FutureValue scheduleLocal(Object[] params, BFunctionPointer<Object[], ?> fp, Strand parent, Type returnType,
-                                     String strandName, StrandMetadata metadata) {
-        FutureValue future = createFuture(parent, null, null, returnType, strandName, metadata);
-        return scheduleLocal(params, fp, parent, future);
-    }
-
-    public FutureValue scheduleLocal(Object[] params, BFunctionPointer<Object[], ?> fp,
-                                     Strand parent, FutureValue future) {
-        params[0] = future.strand;
-        SchedulerItem item = new SchedulerItem(fp.getFunction(), params, future);
-        future.strand.schedulerItem = item;
-        totalStrands.incrementAndGet();
-        future.strand.strandGroup = parent.strandGroup;
-        addToRunnableList(item, parent.strandGroup);
-        return future;
-    }
-
-    public FutureValue scheduleToObjectGroup(Object[] params, Function<Object[], ?> function, Strand parent,
-                                             Callback callback, Map<String, Object> properties, Type returnType,
-                                             String strandName, StrandMetadata metadata) {
-        FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
-        return scheduleToObjectGroup(params, function, future);
-    }
-
-    public FutureValue scheduleToObjectGroup(Object[] params, Function<Object[], ?> function,
-                                             FutureValue future) {
-        params[0] = future.strand;
-        SchedulerItem item = new SchedulerItem(function, params, future);
-        future.strand.schedulerItem = item;
-        totalStrands.incrementAndGet();
-        ItemGroup group = objectGroup.get();
-        future.strand.strandGroup = group;
-        addToRunnableList(item, group);
-        return future;
-    }
-
-    /**
-     * Add a task to the runnable list, which will eventually be executed by the Scheduler.
-     *
-     * @param params     parameters to be passed to the function
-     * @param function   function to be executed
-     * @param parent     parent strand that makes the request to schedule another
-     * @param callback   to notify any listener when ever the execution of the given function is finished
-     * @param properties request properties which requires for co-relation
-     * @param returnType return type of the scheduled function
-     * @param strandName name for new strand
-     * @param metadata   meta data of new strand
-     * @return Reference to the scheduled task
-     */
-    public FutureValue schedule(Object[] params, Function<Object[], ?> function, Strand parent, Callback callback,
-                                Map<String, Object> properties, Type returnType, String strandName,
-                                StrandMetadata metadata) {
-        FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
-        return schedule(params, function, future);
-    }
-
-    /**
-     * Add a task to the runnable list, which will eventually be executed by the Scheduler.
-     *
-     * @param params     parameters to be passed to the function
-     * @param function   function to be executed
-     * @param parent     parent strand that makes the request to schedule another
-     * @param callback   to notify any listener when ever the execution of the given function is finished
-     * @param strandName name for new strand
-     * @param metadata   meta data of new strand
-     * @return Reference to the scheduled task
-     */
-    public FutureValue schedule(Object[] params, Function<Object[], ?> function, Strand parent, Callback callback,
-                                String strandName, StrandMetadata metadata) {
-        FutureValue future = createFuture(parent, callback, null, PredefinedTypes.TYPE_NULL, strandName, metadata);
-        return schedule(params, function, future);
-    }
-
-    public FutureValue schedule(Object[] params, Function<Object[], ?> function, FutureValue future) {
-        params[0] = future.strand;
-        SchedulerItem item = new SchedulerItem(function, params, future);
-        future.strand.schedulerItem = item;
-        totalStrands.incrementAndGet();
-        ItemGroup group = new ItemGroup(item);
-        future.strand.strandGroup = group;
-        group.scheduled.set(true);
-        runnableList.add(group);
-        return future;
-    }
-
-    /**
-     * Add a void returning task to the runnable list, which will eventually be executed by the Scheduler.
-     *
-     * @param params     parameters to be passed to the function
-     * @param consumer   consumer to be executed
-     * @param parent     parent strand that makes the request to schedule another
-     * @param callback   to notify any listener when ever the execution of the given function is finished
-     * @param strandName name for new strand
-     * @param metadata   meta data of new strand
-     * @return Reference to the scheduled task
-     */
-    @Deprecated
-    public FutureValue schedule(Object[] params, Consumer<Object[]> consumer, Strand parent, Callback callback,
-                                String strandName, StrandMetadata metadata) {
-        FutureValue future = createFuture(parent, callback, null, PredefinedTypes.TYPE_NULL, strandName, metadata);
-        params[0] = future.strand;
-        SchedulerItem item = new SchedulerItem(consumer, params, future);
-        future.strand.schedulerItem = item;
-        totalStrands.incrementAndGet();
-        ItemGroup group = new ItemGroup(item);
-        future.strand.strandGroup = group;
-        group.scheduled.set(true);
-        runnableList.add(group);
-        return future;
-    }
-
-    public void start() {
-        this.mainBlockSem = new Semaphore(-(numThreads - 1));
-        for (int i = 0; i < numThreads - 1; i++) {
-            new Thread(this::runSafely, "jbal-strand-exec-" + i).start();
+        if (metadata != null && metadata.isConcurrentSafe()) {
+            return AsyncUtils.getFutureResult(
+                    startIsolatedFunction(module, functionName, metadata, args).completableFuture);
         }
-        this.runSafely();
-        try {
-            this.mainBlockSem.acquire();
-        } catch (InterruptedException e) {
-            RuntimeUtils.printCrashLog(e);
-        }
+        return AsyncUtils.getFutureResult(startNonIsolatedFunction(module, functionName, metadata, args)
+                .completableFuture);
     }
 
-    /**
-     * Defensive programming to prevent unforeseen errors.
-     */
-    private void runSafely() {
-        try {
-            run();
-        } catch (Throwable t) {
-            RuntimeUtils.printCrashLog(t);
+    public Object callMethod(BObject object, String methodName, StrandMetadata metadata, Object... args) {
+        Strand parentStrand = Scheduler.getStrand();
+        if (parentStrand != null) {
+            boolean runnable = parentStrand.isRunnable();
+            if (!runnable) {
+                parentStrand.resume();
+            }
+            ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
+            MethodType methodType = getObjectMethodType(methodName, objectType);
+            Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, parentStrand, args);
+            Object result = ((ObjectValue) object).call(parentStrand, methodName, argsWithDefaultValues);
+            if (!runnable) {
+                parentStrand.yield();
+            }
+            return result;
         }
+        if (metadata != null && metadata.isConcurrentSafe()) {
+            return AsyncUtils.getFutureResult(startIsolatedMethod(object, methodName, metadata, args)
+                    .completableFuture);
+        }
+        return AsyncUtils.getFutureResult(startNonIsolatedMethod(object, methodName, metadata, args)
+                .completableFuture);
     }
 
-    /**
-     * Executes tasks that are submitted to the Scheduler.
+    public Object callFP(FPValue fp, StrandMetadata metadata, Object... args) {
+        Strand parentStrand = Scheduler.getStrand();
+        if (parentStrand != null) {
+            boolean runnable = parentStrand.isRunnable();
+            if (!runnable) {
+                parentStrand.resume();
+            }
+            FunctionType functionType = (FunctionType) TypeUtils.getImpliedType(TypeUtils.getType(fp));
+            Object[] argsWithDefaultValues = getArgsWithDefaultValues(parentStrand, args, functionType);
+            Object[] argsWithStrand = getArgsWithStrand(parentStrand, argsWithDefaultValues);
+            Object result = fp.function.apply(argsWithStrand);
+            if (!runnable) {
+                parentStrand.yield();
+            }
+            return result;
+        }
+        if (metadata != null && metadata.isConcurrentSafe()) {
+            return AsyncUtils.getFutureResult(startIsolatedFP(fp, metadata, args).completableFuture);
+        }
+        return AsyncUtils.getFutureResult(startNonIsolatedFP(fp, metadata, args).completableFuture);
+    }
+
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen isolated function pointer start call
      */
-    private void run() {
-        while (true) {
-            SchedulerItem item;
-            ItemGroup group;
+    public FutureValue startIsolatedWorker(FPValue fp, Strand parentStrand, Type returnType, String strandName,
+                                           WorkerChannelMap workerChannelMap, Object[] args) {
+        FutureValue future = createFuture(parentStrand, strandName, true, returnType,
+                null, workerChannelMap);
+        args[0] = future.strand;
+        Thread.startVirtualThread(() -> {
             try {
-                group = runnableList.take();
-            } catch (InterruptedException ignored) {
-                continue;
+                strandHolder.get().strand = future.strand;
+                Object result = fp.function.apply(args);
+                future.completableFuture.complete(result);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
             }
-
-            if (group == POISON_PILL) {
-                this.mainBlockSem.release();
-                break;
-            }
-
-            boolean isItemsEmpty = group.items.isEmpty();
-            while (!isItemsEmpty) {
-                Object result = null;
-                Throwable panic = null;
-
-                item = group.get();
-
-                try {
-                    STRAND_HOLDER.get().strand = item.future.strand;
-                    result = item.execute();
-                } catch (Throwable e) {
-                    panic = createError(e);
-                    notifyChannels(item, panic);
-
-                    if (!(panic instanceof BError)) {
-                        RuntimeUtils.printCrashLog(panic);
-                    }
-                    // Please refer #18763.
-                    // This logs cases where errors have occurred while strand is blocked.
-                    if (item.isYielded()) {
-                        RuntimeUtils.printCrashLog(panic);
-                    }
-                } finally {
-                    STRAND_HOLDER.get().strand = previousStrand;
-                }
-                postProcess(item, result, panic);
-                group.lock();
-                if ((isItemsEmpty = group.items.isEmpty())) {
-                    group.scheduled.set(false);
-                }
-                group.unlock();
-            }
-        }
-    }
-
-    /**
-     * Processes the item after executing for notifying blocked items etc.
-     */
-    private void postProcess(SchedulerItem item, Object result, Throwable panic) {
-        switch (item.getState()) {
-            case BLOCK_AND_YIELD:
-                item.future.strand.lock();
-                // need to recheck due to concurrency, unblockStrand() may have changed state
-                if (item.getState().getStatus() == State.YIELD.getStatus()) {
-                    reschedule(item);
-                    item.future.strand.unlock();
-                    break;
-                }
-                item.parked = true;
-                item.future.strand.unlock();
-                break;
-            case BLOCK_ON_AND_YIELD:
-                WaitContext waitContext = item.future.strand.waitContext;
-                waitContext.lock();
-                waitContext.intermediate = false;
-                if (waitContext.runnable) {
-                    waitContext.completed = true;
-                    reschedule(item);
-                }
-                waitContext.unLock();
-                break;
-            case YIELD:
-                reschedule(item);
-                break;
-            case RUNNABLE:
-                item.future.result = result;
-                item.future.isDone = true;
-                item.future.panic = panic;
-                // TODO clean, better move it to future value itself
-                if (item.future.callback != null) {
-                    if (item.future.panic != null) {
-                        item.future.callback.notifyFailure(ErrorCreator.createError(panic));
-                        if (item.future.strand.currentTrxContext != null) {
-                            item.future.strand.currentTrxContext.notifyLocalRemoteParticipantFailure();
-                        }
-                    } else {
-                        item.future.callback.notifySuccess(result);
-                    }
-                }
-
-                Strand justCompleted = item.future.strand;
-                assert !justCompleted.getState().equals(State.DONE) : "Can't be completed twice";
-
-                justCompleted.setState(State.DONE);
-
-                for (WaitContext ctx : justCompleted.waitingContexts) {
-                    ctx.lock();
-                    if (!ctx.completed) {
-                        if ((item.future.panic != null && ctx.handlePanic()) || ctx.waitCompleted(result)) {
-                            if (ctx.intermediate) {
-                                ctx.runnable = true;
-                            } else {
-                                ctx.completed = true;
-                                reschedule(ctx.schedulerItem);
-                            }
-                        }
-                    }
-                    ctx.unLock();
-                }
-
-                cleanUp(justCompleted);
-
-                int strandsLeft = totalStrands.decrementAndGet();
-                if (strandsLeft == 0) {
-                    // (number of started stands - finished stands) = 0, all the work is done
-                    assert runnableList.isEmpty();
-
-                    gracefulExit();
-                }
-                break;
-            default:
-                assert false : "illegal strand state during execute " + item.getState();
-        }
-    }
-
-    public void setImmortal(boolean immortal) {
-        this.immortal = immortal;
-    }
-
-    private Throwable createError(Throwable t) {
-        if (t instanceof StackOverflowError) {
-            BError error = ErrorCreator.createError(ErrorReasons.STACK_OVERFLOW_ERROR);
-            error.setStackTrace(t.getStackTrace());
-            return error;
-        } else if (t instanceof OutOfMemoryError) {
-            BError error = ErrorCreator.createError(ErrorReasons.JAVA_OUT_OF_MEMORY_ERROR,
-                    StringUtils.fromString(t.getMessage()));
-            error.setStackTrace(t.getStackTrace());
-            return error;
-        }
-        return t;
-    }
-
-    public void unblockStrand(Strand strand) {
-        strand.lock();
-        if (strand.schedulerItem.parked) {
-            strand.schedulerItem.parked = false;
-            reschedule(strand.schedulerItem);
-        } else {
-            // item not returned to scheduler, yet.
-            // scheduler will simply reschedule since this is already unlocked.
-            strand.setState(State.YIELD);
-        }
-        strand.unlock();
-    }
-
-    private void cleanUp(Strand justCompleted) {
-        justCompleted.frames = null;
-        justCompleted.waitingContexts = null;
-
-        CURRENT_STRANDS.remove(justCompleted.getId());
-        //TODO: more cleanup , eg channels
-    }
-
-    private void notifyChannels(SchedulerItem item, Throwable panic) {
-        Set<ChannelDetails> channels = item.future.strand.channelDetails;
-
-        for (ChannelDetails details : channels) {
-            WorkerDataChannel wdChannel;
-
-            if (details.channelInSameStrand) {
-                wdChannel = item.future.strand.wdChannels.getWorkerDataChannel(details.name);
-            } else {
-                wdChannel = item.future.strand.parent.wdChannels.getWorkerDataChannel(details.name);
-            }
-
-            if (details.send) {
-                wdChannel.setSendPanic(panic);
-            } else {
-                wdChannel.setReceiverPanic(panic);
-            }
-        }
-    }
-
-    private void reschedule(SchedulerItem item) {
-        if (!item.getState().equals(State.RUNNABLE)) {
-            ItemGroup group = item.future.strand.strandGroup;
-            item.setState(State.RUNNABLE);
-            addToRunnableList(item, group);
-        }
-    }
-
-    private void addToRunnableList(SchedulerItem item, ItemGroup group) {
-        group.lock();
-        group.add(item);
-        // Group maybe not picked by any thread at the moment because,
-        //  1) All items are blocked.
-        //  2) All others have finished
-        // In this case we need to put it back in the runnable list.
-        if (group.scheduled.compareAndSet(false, true)) {
-            runnableList.add(group);
-        }
-        group.unlock();
-    }
-
-    public FutureValue createFuture(Strand parent, Callback callback, Map<String, Object> properties,
-                                    Type constraint, String name, StrandMetadata metadata) {
-        Strand newStrand = new Strand(name, metadata, this, parent, properties, parent != null ?
-                parent.currentTrxContext : null);
-        CURRENT_STRANDS.put(newStrand.getId(), newStrand);
-        return createFuture(parent, callback, constraint, newStrand);
-    }
-
-    private FutureValue createFuture(Strand parent, Callback callback, Type constraint, Strand newStrand) {
-        FutureValue future = new FutureValue(newStrand, callback, constraint);
-        future.strand.frames = new Stack<>();
+        }).setName(future.strand.name);
         return future;
     }
 
-    public void poison() {
-        for (int i = 0; i < numThreads; i++) {
-            runnableList.add(POISON_PILL);
-        }
-    }
-
-    public void setListenerDeclarationFound(boolean listenerDeclarationFound) {
-        this.listenerDeclarationFound = listenerDeclarationFound;
-        if (listenerDeclarationFound) {
-            setImmortal(true);
-        }
-    }
-
-    public boolean isListenerDeclarationFound() {
-        return listenerDeclarationFound;
-    }
-
-    public RuntimeRegistry getRuntimeRegistry() {
-        return runtimeRegistry;
-    }
-
-    private static int getPoolSize() {
-        try {
-            if (POOL_SIZE_CONF != null) {
-                poolSize = Integer.parseInt(POOL_SIZE_CONF);
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen non isolated function pointer start call
+     */
+    public FutureValue startNonIsolatedWorker(FPValue fp, Strand parentStrand, Type returnType, String strandName,
+                                              WorkerChannelMap workerChannelMap, Object[] args) {
+        FutureValue future = createFuture(parentStrand, strandName, false, returnType, null, workerChannelMap);
+        args[0] = future.strand;
+        Thread.startVirtualThread(() -> {
+            try {
+                future.strand.resume();
+                strandHolder.get().strand = future.strand;
+                Object result = fp.function.apply(args);
+                future.completableFuture.complete(result);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
+            } finally {
+                future.strand.done();
             }
-        } catch (Throwable t) {
-            // Log and continue with default
-            ERR.println("ballerina: error occurred in scheduler while reading system variable:" +
-                    RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
-        }
-        return poolSize;
+        }).setName(future.strand.name);
+        return future;
     }
 
-    public void gracefulExit() {
-        if (!this.immortal) {
-            this.poison();
+    public FutureValue startIsolatedFunction(Module module, String functionName, StrandMetadata metadata,
+                                             Object... args) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
+                module.getName(), module.getMajorVersion(), module.isTestPkg()));
+        FunctionType functionType = valueCreator.getFunctionType(functionName);
+        FutureValue future = createFutureWithMetadata(null, functionName, true, functionType.getReturnType(),
+                metadata, null);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(valueCreator, functionType, future.strand, args);
+        Thread.startVirtualThread(() -> {
+            try {
+                strandHolder.get().strand = future.strand;
+                Object result = valueCreator.call(future.strand, functionName, argsWithDefaultValues);
+                future.completableFuture.complete(result);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
+            }
+        }).setName(future.strand.name);
+        return future;
+    }
+
+    private FutureValue startIsolatedMethod(BObject object, String methodName, StrandMetadata metadata,
+                                            Object... args) {
+        String strandName = getStrandName(object, methodName);
+        ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
+        MethodType methodType = getObjectMethodType(methodName, objectType);
+        FutureValue future = createFutureWithMetadata(null, strandName, true, methodType.getReturnType(), metadata,
+                null);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, future.strand, args);
+        Thread.startVirtualThread(() -> {
+            try {
+                strandHolder.get().strand = future.strand;
+                Object result = ((ObjectValue) object).call(future.strand, methodName, argsWithDefaultValues);
+                future.completableFuture.complete(result);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
+            }
+        }).setName(future.strand.name);
+        return future;
+    }
+
+    private FutureValue startIsolatedFP(FPValue fp, StrandMetadata metadata, Object... args) {
+        BFunctionType functionType = (BFunctionType) fp.getType();
+        FutureValue future = createFutureWithMetadata(null, fp.getName(), true, functionType.getReturnType(),
+                metadata, null);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(future.strand, args, functionType);
+        Object[] argsWithStrand = getArgsWithStrand(future.strand, argsWithDefaultValues);
+        Thread.startVirtualThread(() -> {
+            try {
+                strandHolder.get().strand = future.strand;
+                Object result = fp.function.apply(argsWithStrand);
+                future.completableFuture.complete(result);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
+            }
+        }).setName(future.strand.name);
+        return future;
+    }
+
+
+
+    private FutureValue startNonIsolatedFunction(Module module, String functionName, StrandMetadata metadata,
+                                                 Object... args) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
+        FunctionType functionType = valueCreator.getFunctionType(functionName);
+        FutureValue future =
+                createFutureWithMetadata(null, functionName, false, functionType.getReturnType(), metadata, null);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(valueCreator, functionType, future.strand, args);
+        Thread.startVirtualThread(() -> {
+            try {
+                future.strand.resume();
+                strandHolder.get().strand = future.strand;
+                Object result = valueCreator.call(future.strand, functionName, argsWithDefaultValues);
+                future.completableFuture.complete(result);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
+            } finally {
+               future.strand.done();
+            }
+        }).setName(future.strand.name);
+        return future;
+    }
+
+    private FutureValue startNonIsolatedMethod(BObject object, String methodName, StrandMetadata metadata,
+                                              Object... args) {
+        String strandName = getStrandName(object, methodName);
+        ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(object.getOriginalType());
+        MethodType methodType = getObjectMethodType(methodName, objectType);
+        FutureValue future = createFutureWithMetadata(null, strandName, false, methodType.getReturnType(), metadata,
+                null);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(objectType, methodType, future.strand, args);
+        Thread.startVirtualThread(() -> {
+            try {
+                future.strand.resume();
+                strandHolder.get().strand = future.strand;
+                Object result = ((ObjectValue) object).call(future.strand, methodName, argsWithDefaultValues);
+                future.completableFuture.complete(result);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
+            } finally {
+               future.strand.done();
+            }
+        }).setName(future.strand.name);
+        return future;
+    }
+
+    private FutureValue startNonIsolatedFP(FPValue fp, StrandMetadata metadata, Object... args) {
+        BFunctionType functionType = (BFunctionType) fp.getType();
+        String strandName = getStrandName("$anon", fp.getName());
+        FutureValue future = createFutureWithMetadata(null, strandName, true, functionType.getReturnType(), metadata,
+                null);
+        Object[] argsWithDefaultValues = getArgsWithDefaultValues(future.strand, args, functionType);
+        Object[] argsWithStrand = getArgsWithStrand(future.strand, argsWithDefaultValues);
+        Thread.startVirtualThread(() -> {
+            try {
+                future.strand.resume();
+                strandHolder.get().strand = future.strand;
+                Object result = fp.function.apply(argsWithStrand);
+                future.completableFuture.complete(result);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
+            } finally {
+               future.strand.done();
+            }
+        }).setName(future.strand.name);
+        return future;
+    }
+
+    private Object[] getArgsWithDefaultValues(Strand parentStrand, Object[] args, FunctionType functionType) {
+        Module module = functionType.getPackage();
+        if (module == null) {
+            return args;
         }
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
+        return getArgsWithDefaultValues(valueCreator, functionType, parentStrand, args);
+    }
+
+    /*
+        Only use for tests
+    */
+    public FutureValue startNonIsolatedWorker(Function<Object[], Object> function, Strand parentStrand, Type returnType,
+                                              String strandName, StrandMetadata metadata, Object[] args) {
+        FutureValue future = createFutureWithMetadata(parentStrand, strandName, false, returnType, metadata, null);
+        Object[] argsWithStrand = getArgsWithStrand(future.strand, args);
+        Thread.startVirtualThread(() -> {
+            try {
+                future.strand.resume();
+                strandHolder.get().strand = future.strand;
+                Object result = function.apply(argsWithStrand);
+                future.completableFuture.complete(result);
+            } catch (Throwable t) {
+                future.completableFuture.completeExceptionally(ErrorUtils.createErrorFromThrowable(t));
+            } finally {
+                future.strand.done();
+            }
+        }).setName(strandName);
+        return future;
+    }
+
+    private ValueCreatorAndFunctionType getGetValueCreatorAndFunctionType(Module module, String functionName) {
+
+        ValueCreator valueCreator;
+        FunctionType functionType;
+        try {
+            valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
+                    module.getName(), module.getMajorVersion(), false));
+            functionType = valueCreator.getFunctionType(functionName);
+        } catch (BError error) {
+            valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
+                    module.getName(), module.getMajorVersion(), true));
+            functionType = valueCreator.getFunctionType(functionName);
+        }
+        return new ValueCreatorAndFunctionType(valueCreator, functionType);
+    }
+
+    private record ValueCreatorAndFunctionType(ValueCreator valueCreator, FunctionType functionType) {
+
+    }
+
+    private Object[] getArgsWithDefaultValues(ObjectType objectType, MethodType methodType, Strand strand,
+                                              Object... args) {
+
+        Module module = objectType.getPackage();
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
+        return getArgsWithDefaultValues(valueCreator, methodType, strand, args);
+    }
+
+    private Object[] getArgsWithDefaultValues(ValueCreator valueCreator, FunctionType functionType, Strand strand,
+                                              Object... args) {
+        Parameter[] parameters = functionType.getParameters();
+        if (args.length == 0 && parameters.length == 0) {
+            return new Object[]{};
+        }
+        int length = functionType.getRestType() == null ? parameters.length : parameters.length + 1;
+        if (length < args.length) {
+            length = args.length;
+        }
+        Object[] argsWithDefaultValues = new Object[length];
+        System.arraycopy(args, 0, argsWithDefaultValues, 0, args.length);
+        for (int i = 0; i < parameters.length; i++) {
+            Parameter parameter = parameters[i];
+            if (parameter.isDefault && (args.length <= i || args[i] == BNever.getValue())) {
+                Object defaultValue = valueCreator.call(strand, parameter.defaultFunctionName, argsWithDefaultValues);
+                argsWithDefaultValues[i] = defaultValue;
+            }
+        }
+        return argsWithDefaultValues;
+    }
+
+    public MethodType getObjectMethodType(String methodName, ObjectType objectType) {
+        Map<String, MethodType> methodTypesMap = new HashMap<>();
+        if (objectType.getTag() == TypeTags.SERVICE_TAG) {
+            BServiceType serviceType = (BServiceType) objectType;
+            ResourceMethodType[] resourceMethods = serviceType.getResourceMethods();
+            for (ResourceMethodType resourceMethodType : resourceMethods) {
+                methodTypesMap.put(resourceMethodType.getName(), resourceMethodType);
+            }
+            RemoteMethodType[] remoteMethodTypes = serviceType.getRemoteMethods();
+            for (RemoteMethodType remoteMethodType : remoteMethodTypes) {
+                methodTypesMap.put(remoteMethodType.getName(), remoteMethodType);
+            }
+        }
+        MethodType[] objectTypeMethods = objectType.getMethods();
+        for (MethodType methodType : objectTypeMethods) {
+            methodTypesMap.put(methodType.getName(), methodType);
+        }
+        MethodType methodType = methodTypesMap.get(methodName);
+        if (methodType != null) {
+            return methodType;
+        }
+        throw ErrorCreator.createError(StringUtils.fromString("No such method: " + methodName));
+    }
+
+    public FutureValue createFutureWithMetadata(Strand parentStrand, String strandName, boolean isIsolated,
+                                                Type constraint,  StrandMetadata metadata,
+                                                WorkerChannelMap workerChannelMap) {
+        if (metadata != null) {
+            return createFuture(parentStrand, strandName, isIsolated, constraint, metadata.properties(),
+                    workerChannelMap);
+        }
+        return createFuture(parentStrand, strandName, isIsolated, constraint, null, workerChannelMap);
+    }
+    public FutureValue createFuture(Strand parentStrand, String strandName, boolean isIsolated, Type constraint,
+                                    Map<String, Object> properties, WorkerChannelMap workerChannelMap) {
+        return createFuture(constraint, createStrand(parentStrand, strandName, isIsolated, properties,
+                workerChannelMap));
+    }
+
+    private Strand createStrand(Strand parentStrand, String strandName, boolean isIsolated,
+                                Map<String, Object> properties, WorkerChannelMap workerChannelMap) {
+        return new Strand(this, strandName, parentStrand, isIsolated, properties, workerChannelMap,
+                parentStrand != null ? parentStrand.currentTrxContext : null);
+    }
+
+    private FutureValue createFuture(Type constraint, Strand newStrand) {
+        return new FutureValue(newStrand, constraint);
+    }
+
+    private static String getStrandName(String functionName, String strandName) {
+        if (strandName == null) {
+            strandName = functionName;
+        }
+        return strandName;
+    }
+
+    private static String getStrandName(BObject bObject, String methodName) {
+        return bObject.getOriginalType().getName() + ":" + methodName;
+    }
+
+    private static Object[] getArgsWithStrand(Strand parentStrand, Object[] args) {
+        Object[] argsWithStrand = new Object[args.length + 1];
+        System.arraycopy(args, 0, argsWithStrand, 1, args.length);
+        argsWithStrand[0] = parentStrand;
+        return argsWithStrand;
     }
 }
