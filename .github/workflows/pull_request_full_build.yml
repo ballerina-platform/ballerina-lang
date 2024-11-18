@@ -96,7 +96,7 @@ jobs:
       - name: Checkout non-default branch
         run: |
           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
-          cd $module_name && git fetch origin && git checkout -t origin/java21 && cd ..; \
+          cd $module_name && git fetch origin && git checkout -b origin/java21 && cd ..; \
           done
 
       - name: Update Lang Version in Module
