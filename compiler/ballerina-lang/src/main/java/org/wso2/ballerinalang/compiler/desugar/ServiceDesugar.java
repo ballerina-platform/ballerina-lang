@@ -154,8 +154,10 @@ public class ServiceDesugar {
 
         final Location pos = service.pos;
 
-        ASTBuilderUtil.defineVariable(service.serviceVariable, env.enclPkg.symbol, names);
-        env.enclPkg.globalVars.add(service.serviceVariable);
+        BLangSimpleVariable serviceVariable = service.serviceVariable;
+        ASTBuilderUtil.defineVariable(serviceVariable, env.enclPkg.symbol, names);
+        env.enclPkg.globalVars.add(serviceVariable);
+        env.enclPkg.topLevelNodes.add(serviceVariable);
 
         int count = 0;
         for (BLangExpression attachExpr : service.attachedExprs) {
@@ -172,6 +174,7 @@ public class ServiceDesugar {
                 ASTBuilderUtil.defineVariable(listenerVar, env.enclPkg.symbol, names);
                 listenerVar.symbol.flags |= Flags.LISTENER;
                 env.enclPkg.globalVars.add(listenerVar);
+                env.enclPkg.topLevelNodes.add(listenerVar);
                 listenerVarRef = ASTBuilderUtil.createVariableRef(pos, listenerVar.symbol);
             }
 
@@ -186,6 +189,7 @@ public class ServiceDesugar {
                         null);
                 ASTBuilderUtil.defineVariable(listenerWithoutErrors, env.enclPkg.symbol, names);
                 env.enclPkg.globalVars.add(listenerWithoutErrors);
+                env.enclPkg.topLevelNodes.add(listenerWithoutErrors);
                 BLangSimpleVarRef checkedRef = ASTBuilderUtil.createVariableRef(pos, listenerWithoutErrors.symbol);
                 listenerVarRef = checkedRef;
             }

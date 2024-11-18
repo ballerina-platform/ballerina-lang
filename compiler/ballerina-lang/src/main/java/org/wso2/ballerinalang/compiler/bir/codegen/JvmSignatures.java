@@ -471,8 +471,8 @@ public final class JvmSignatures {
     public static final String TO_STRING_RETURN = "()L" + STRING_VALUE + ";";
     public static final String TUPLE_SET_MEMBERS_METHOD = "(L" + LIST + ";L" + TYPE + ";)V";
     public static final String TWO_OBJECTS_ARGS = "(L" + OBJECT + ";L" + OBJECT + ";)V";
-    public static final String TYPE_DESC_CONSTRUCTOR = "(L" + TYPE + ";[L" + MAP_VALUE + ";)V";
-    public static final String TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS = "(L" + TYPE + ";[L" + MAP_VALUE + ";L" +
+    public static final String TYPE_DESC_CONSTRUCTOR = "(L" + TYPE + ";)V";
+    public static final String TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS = "(L" + TYPE + ";L" +
             MAP_VALUE + ";)V";
     public static final String TYPE_PARAMETER = "(L" + TYPE + ";)V";
     public static final String VALUE_OF_JSTRING = "(L" + OBJECT + ";)L" + STRING_VALUE + ";";

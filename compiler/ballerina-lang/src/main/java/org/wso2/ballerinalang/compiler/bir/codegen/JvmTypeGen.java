@@ -239,7 +239,11 @@ public class JvmTypeGen {
             }
             String name = typeDef.internalName.value;
             generateTypeField(cw, name);
-            generateTypedescField(cw, name);
+            // Exclude field generation for typedesc when generating fields for user defined types since
+            // those fields will be generated when visiting global variables
+            if (bTypeTag != TypeTags.RECORD && bTypeTag != TypeTags.TUPLE) {
+                generateTypedescField(cw, name);
+            }
         }
     }
 
@@ -847,7 +851,7 @@ public class JvmTypeGen {
     }
 
     public String getTypedescFieldName(String name) {
-        return "$typedesce$" + name;
+        return "$typedesc$" + name;
     }
 
     private void loadFutureType(MethodVisitor mv, BFutureType bType) {

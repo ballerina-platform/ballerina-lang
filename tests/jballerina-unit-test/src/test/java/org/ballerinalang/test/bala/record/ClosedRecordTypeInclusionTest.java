@@ -21,6 +21,7 @@ package org.ballerinalang.test.bala.record;
 
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.test.BAssertUtil;
@@ -120,7 +121,8 @@ public class ClosedRecordTypeInclusionTest {
         assertEquals(getType(foo2.get(StringUtils.fromString("rp"))).getTag(), TypeTags.OBJECT_TYPE_TAG);
         assertEquals(((BObject) foo2.get(StringUtils.fromString("rp"))).get(StringUtils.fromString("name")).toString(),
                 "John Doe");
-        assertEquals(getType(foo2.get(StringUtils.fromString("ra"))).getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(TypeUtils.getReferredType(getType(foo2.get(StringUtils.fromString("ra")))).getTag(),
+                TypeTags.RECORD_TYPE_TAG);
         assertEquals(foo2.get(StringUtils.fromString("ra")).toString(), "{\"city\":\"Colombo\",\"country\":\"Sri " +
                 "Lanka\"}");
         assertEquals(getType(foo2.get(StringUtils.fromString("crx"))).getTag(), TypeTags.XML_ELEMENT_TAG);
@@ -131,7 +133,8 @@ public class ClosedRecordTypeInclusionTest {
         assertEquals(getType(foo2.get(StringUtils.fromString("rp"))).getTag(), TypeTags.OBJECT_TYPE_TAG);
         assertEquals(((BObject) foo2.get(StringUtils.fromString("crp"))).get(StringUtils.fromString("name")).toString(),
                 "Jane Doe");
-        assertEquals(getType(foo2.get(StringUtils.fromString("cra"))).getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(TypeUtils.getReferredType(getType(foo2.get(StringUtils.fromString("cra")))).getTag(),
+                TypeTags.RECORD_TYPE_TAG);
         assertEquals(foo2.get(StringUtils.fromString("cra")).toString(), "{\"city\":\"Colombo\",\"country\":\"Sri " +
                 "Lanka\"}");
     }

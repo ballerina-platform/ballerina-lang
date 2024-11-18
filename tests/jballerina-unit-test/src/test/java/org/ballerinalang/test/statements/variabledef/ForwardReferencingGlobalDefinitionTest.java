@@ -131,6 +131,8 @@ public class ForwardReferencingGlobalDefinitionTest {
         BAssertUtil.validateError(cycle, i++,
                 "illegal cyclic reference '[modVarQueryLet1, queryRef, modVarQuery]'", 19, 1);
         BAssertUtil.validateError(cycle, i++, "illegal cyclic reference '[modVarQueryLet2, queryRef2]'", 20, 1);
+        BAssertUtil.validateError(cycle, i++,
+                "illegal cyclic reference '[recD, RecordTypeWithDefaultLetExpr, moduleCode]'", 26, 1);
 
         Assert.assertEquals(cycle.getDiagnostics().length, i);
     }

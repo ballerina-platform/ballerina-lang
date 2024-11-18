@@ -26,21 +26,17 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.CONST_LOAD;
 import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.FP_CALL;
 import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.TYPE_CAST;
+import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
 /**
  * Remove redundant default function calls for record value creation.
@@ -48,9 +44,6 @@ import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.TYPE_CAS
  * @since 2201.9.0
  */
 public class BIRRecordValueOptimizer extends BIRVisitor {
-
-    private final List<BIROperand> recordOperandList = new ArrayList<>();
-    private final Map<BIROperand, BRecordType> recordOperandTypeMap = new HashMap<>();
 
     private BIRNode.BIRBasicBlock lastBB = null;
     private BIRNode.BIRFunction currentFunction = null;
@@ -90,10 +83,9 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
     public void visit(BIRNode.BIRBasicBlock basicBlock) {
         List<BIRNonTerminator> instructions = basicBlock.instructions;
         for (BIRNonTerminator inst : instructions) {
-            if (Objects.requireNonNull(inst.kind) == InstructionKind.NEW_TYPEDESC) {
-                handleNewTypeDesc(inst);
-            } else if (inst.kind == InstructionKind.NEW_STRUCTURE) {
-                handleNewStructure((BIRNonTerminator.NewStructure) inst);
+            if (inst.kind == InstructionKind.NEW_STRUCTURE) {
+                valueCreated = true;
+                break;
             }
         }
         if (!fpRemoved) {
@@ -111,16 +103,8 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
 
     private void handleFPCall(BIRNode.BIRBasicBlock basicBlock) {
         BIRTerminator.FPCall fpCall = (BIRTerminator.FPCall) basicBlock.terminator;
-        BIROperand recOperand = recordOperandList.isEmpty() ? null :
-                recordOperandList.get(recordOperandList.size() - 1);
-        BRecordType recordType = recordOperandTypeMap.get(recOperand);
 
-        if (recordType == null || recordType.tsymbol == null) {
-            resetBasicBlock(basicBlock);
-            return;
-        }
-
-        if (!fpCall.fp.variableDcl.name.value.contains(recordType.tsymbol.name.value)) {
+        if (!fpCall.fp.variableDcl.name.value.contains(RECORD_DELIMITER)) {
             resetBasicBlock(basicBlock);
             return;
         }
@@ -140,19 +124,6 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
             fpRemoved = true;
         } else {
             resetBasicBlock(basicBlock);
-        }
-    }
-
-    private void handleNewStructure(BIRNonTerminator.NewStructure inst) {
-        recordOperandList.remove(inst.rhsOp);
-        valueCreated = true;
-    }
-
-    private void handleNewTypeDesc(BIRNonTerminator inst) {
-        BType referredType = Types.getReferredType(((BIRNonTerminator.NewTypeDesc) inst).type);
-        if (referredType.tag == TypeTags.RECORD) {
-            recordOperandList.add(inst.lhsOp);
-            recordOperandTypeMap.put(inst.lhsOp, (BRecordType) referredType);
         }
     }
 
@@ -196,8 +167,10 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
             return false;
         }
         return switch (firstBB.instructions.size()) {
-            case 1 -> firstBB.instructions.get(0).kind == CONST_LOAD;
-            case 2 -> firstBB.instructions.get(0).kind == CONST_LOAD && firstBB.instructions.get(1).kind == TYPE_CAST;
+            case 1 -> firstBB.instructions.get(0).kind == CONST_LOAD && firstBB.instructions.get(0).lhsOp.variableDcl
+                    .kind == VarKind.RETURN;
+            case 2 -> firstBB.instructions.get(0).kind == CONST_LOAD && firstBB.instructions.get(1).kind == TYPE_CAST
+                    && firstBB.instructions.get(1).lhsOp.variableDcl.kind == VarKind.RETURN;
             default -> false;
         };
     }

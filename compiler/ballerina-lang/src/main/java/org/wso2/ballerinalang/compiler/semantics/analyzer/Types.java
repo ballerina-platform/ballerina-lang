@@ -2845,6 +2845,10 @@ public class Types {
 
         @Override
         public Boolean visit(BTupleType t, BType s) {
+            if (t == s) {
+                return true;
+            }
+
             List<BType> tTupleTypes = t.getTupleTypes();
             if (((!tTupleTypes.isEmpty() && checkAllTupleMembersBelongNoType(tTupleTypes)) ||
                     (t.restType != null && t.restType.tag == TypeTags.NONE)) &&

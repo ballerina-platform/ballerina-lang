@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.RECORD_DEFAULT_FP_LOAD;
 
@@ -210,13 +211,6 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand rhsOp;
         public List<BIRMappingConstructorEntry> initialValues;
 
-        public NewStructure(Location pos, BIROperand lhsOp, BIROperand rhsOp) {
-            super(pos, InstructionKind.NEW_STRUCTURE);
-            this.lhsOp = lhsOp;
-            this.rhsOp = rhsOp;
-            this.initialValues = new ArrayList<>();
-        }
-
         public NewStructure(Location pos, BIROperand lhsOp, BIROperand rhsOp,
                             List<BIRMappingConstructorEntry> initialValues) {
             super(pos, InstructionKind.NEW_STRUCTURE);
@@ -324,6 +318,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      */
     public static class NewArray extends BIRNonTerminator {
         public BIROperand typedescOp;
+        public BIROperand elementTypedescOp;
         public BIROperand sizeOp;
         public BType type;
         public List<BIRListConstructorEntry> values;
@@ -350,19 +345,15 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
 
         @Override
         public BIROperand[] getRhsOperands() {
-            int i = 0;
-            BIROperand[] operands;
-            if (typedescOp != null) {
-                operands = new BIROperand[values.size() + 2];
-                operands[i++] = typedescOp;
-            } else {
-                operands = new BIROperand[values.size() + 1];
-            }
-            operands[i++] = sizeOp;
+            List<BIROperand> operands = new ArrayList<>();
+            Optional.ofNullable(typedescOp).ifPresent(operands::add);
+            Optional.ofNullable(elementTypedescOp).ifPresent(operands::add);
+            operands.add(sizeOp);
             for (BIRListConstructorEntry listValueEntry : values) {
-                operands[i++] = listValueEntry.exprOp;
+                operands.add(listValueEntry.exprOp);
             }
-            return operands;
+
+            return operands.toArray(new BIROperand[0]);
         }
 
         @Override
