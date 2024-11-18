@@ -87,7 +87,7 @@ rem ----- commandDebug ---------------------------------------------------------
 :commandDebug
 if "%DEBUG_PORT%"=="" goto noDebugPort
 if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --java.debug option. 1>&2
-set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%DEBUG_PORT%,quiet=y
+set JAVA_OPTS=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%DEBUG_PORT%,quiet=y
 goto runServer
 
 :noDebugPort

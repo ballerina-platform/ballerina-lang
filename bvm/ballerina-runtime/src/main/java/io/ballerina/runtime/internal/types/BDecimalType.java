@@ -25,6 +25,8 @@ import io.ballerina.runtime.api.types.DecimalType;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.DecimalType;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.math.BigDecimal;

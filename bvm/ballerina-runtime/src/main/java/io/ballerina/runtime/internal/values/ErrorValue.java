@@ -19,22 +19,24 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
+import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
-import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BTypeIdSet;
+import io.ballerina.runtime.internal.utils.CycleUtils;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -42,6 +44,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -49,9 +52,10 @@ import java.util.StringJoiner;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_MAP;
 import static io.ballerina.runtime.internal.TypeChecker.isEqual;
-import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
-import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
+import static io.ballerina.runtime.internal.utils.StringUtils.getExpressionStringVal;
+import static io.ballerina.runtime.internal.utils.StringUtils.getStringVal;
 
 /**
  * <p>
@@ -71,7 +75,7 @@ public class ErrorValue extends BError implements RefValue {
     private BTypedesc typedesc;
     private final BString message;
     private final BError cause;
-    private final Object details;
+    private final BMap<BString, Object> details;
 
     private static final String GENERATED_CLASS_TEXTS_REGEX = "\\$value\\$|\\$split\\$\\d|lambdas.\\$_generated\\d*";
     private static final String GENERATE_PKG_INIT = "___init_";
@@ -86,12 +90,17 @@ public class ErrorValue extends BError implements RefValue {
              message, null,  new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
-    public ErrorValue(BString message, Object details) {
+    public ErrorValue(BString message, BMap<BString, Object> details) {
         this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TypeChecker.getType(details)),
                 message, null, details);
     }
 
-    public ErrorValue(Type type, BString message, BError cause, Object details) {
+    public ErrorValue(BString message, BError cause) {
+        this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TYPE_MAP), message, cause,
+                null);
+    }
+
+    public ErrorValue(Type type, BString message, BError cause, BMap<BString, Object> details) {
         super(message);
         this.type = type;
         this.message = message;
@@ -99,7 +108,7 @@ public class ErrorValue extends BError implements RefValue {
         this.details = details;
     }
 
-    public ErrorValue(Type type, BString message, BError cause, Object details,
+    public ErrorValue(Type type, BString message, BError cause, BMap<BString, Object> details,
                       String typeIdName, Module typeIdPkg) {
         super(message);
         this.type = type;
@@ -114,11 +123,12 @@ public class ErrorValue extends BError implements RefValue {
     @Override
     public String stringValue(BLink parent) {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
+        BString errMessage = Objects.requireNonNullElse(message, StringUtils.fromString(""));
         if (isEmptyDetail()) {
-            return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent)
+            return "error" + getModuleNameToString() + "(" + ((StringValue) errMessage).informalStringValue(linkParent)
                     + getCauseToString(linkParent) + ")";
         }
-        return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent) +
+        return "error" + getModuleNameToString() + "(" + ((StringValue) errMessage).informalStringValue(linkParent) +
                 getCauseToString(linkParent) + getDetailsToString(linkParent) + ")";
     }
 
@@ -438,8 +448,8 @@ public class ErrorValue extends BError implements RefValue {
             // the stack frames which have compiler added method names
             return Optional.empty();
         }
-        return Optional.of(
-                new StackTraceElement(cleanupClassName(className), methodName, fileName, stackFrame.getLineNumber()));
+        return Optional.of(new StackTraceElement(cleanupClassName(className), methodName, fileName,
+                stackFrame.getLineNumber()));
     }
 
     private String cleanupClassName(String className) {

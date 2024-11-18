@@ -30,6 +30,8 @@ import java.util.function.Supplier;
 
 import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
+import io.ballerina.runtime.api.types.ByteType;
+import io.ballerina.runtime.api.types.TypeTags;
 
 /**
  * {@code BByteType} represents byte type in Ballerina.

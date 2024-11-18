@@ -19,13 +19,13 @@ package org.ballerinalang.langlib.error;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -140,11 +140,13 @@ public final class StackTrace {
         }
 
         @Override
+        @Deprecated
         public Object call(Strand strand, String funcName, Object... args) {
             throw ErrorCreator.createError(StringUtils.fromString("No such field or method: " + funcName));
         }
 
         @Override
+        @Deprecated
         public BFuture start(Strand strand, String funcName, Object... args) {
             throw ErrorCreator.createError(StringUtils.fromString("No such field or method: " + funcName));
         }
@@ -198,7 +200,7 @@ public final class StackTrace {
         }
 
         @Override
-        public BMap<BString, ? extends Object> getMapValue(BString fieldName) {
+        public BMap<BString, Object> getMapValue(BString fieldName) {
             return null;
         }
 

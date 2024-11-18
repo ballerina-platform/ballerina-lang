@@ -653,7 +653,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertEquals(packBuildLog.replace("\r", ""), getOutput("pack-tool-template.txt"));
         Assert.assertTrue(
                 packageDir.resolve("target").resolve("bala")
-                        .resolve("testuserorg-tool_sample-java17-0.1.0.bala").toFile().exists());
+                        .resolve("testuserorg-tool_sample-java21-0.1.0.bala").toFile().exists());
     }
 
     @Test(description = "Test new command with invalid project name", dataProvider = "invalidProjectNames")
@@ -742,7 +742,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertEquals(packBuildLog.replace("\r", ""), getOutput("pack-central-tool.txt"));
         Assert.assertTrue(
                 packageDir.resolve("target").resolve("bala")
-                        .resolve("testorg-sample_tool_template-java17-1.0.0.bala").toFile().exists());
+                        .resolve("testorg-sample_tool_template-java21-1.0.0.bala").toFile().exists());
     }
 
     @Test(description = "Test new command by pulling a central template with provided platform jars")

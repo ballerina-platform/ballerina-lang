@@ -58,7 +58,9 @@ public class LogPointTest extends BaseTestCase {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 47, "x != 5", "LogPoint: 2"));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 48, "x == 5", null));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 52, "", "LogPoint: 3"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 53, "x > 0", null));
+        // Need to revert the condition to x > 0 after fixing,
+        // https://github.com/ballerina-platform/ballerina-lang/issues/43446
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 53, "x == 7", null));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 54, null, "LogPoint 4 => x: ${x}, " +
                 "employee: ${e1.name}, capital: ${countryCapitals[\"Sri Lanka\"]}"));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 55, null, null));

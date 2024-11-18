@@ -19,6 +19,7 @@ package org.ballerinalang.test.expressions.stamp;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;

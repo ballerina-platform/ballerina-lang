@@ -27,6 +27,8 @@ import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.function.Supplier;
+import io.ballerina.runtime.api.types.BooleanType;
+import io.ballerina.runtime.api.types.TypeTags;
 
 /**
  * {@code BBooleanType} represents boolean type in Ballerina.

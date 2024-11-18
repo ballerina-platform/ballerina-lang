@@ -37,6 +37,8 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED8_MIN_VA
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED16_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
+import io.ballerina.runtime.api.types.IntegerType;
+import io.ballerina.runtime.api.types.TypeTags;
 
 /**
  * {@code BIntegerType} represents an integer which is a 32-bit signed number.

@@ -16,8 +16,8 @@
 
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.types.semtype.Context;
@@ -33,6 +33,8 @@ import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.types.TypeWithShape;
+import io.ballerina.runtime.internal.utils.IteratorUtils;
+import io.ballerina.runtime.internal.xml.BallerinaXmlSerializer;
 
 import java.io.OutputStream;
 import java.util.List;
@@ -41,7 +43,7 @@ import java.util.Optional;
 
 import javax.xml.namespace.QName;
 
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
 
 /**
  * {@code BXML} represents an XML in Ballerina. An XML could be one of:

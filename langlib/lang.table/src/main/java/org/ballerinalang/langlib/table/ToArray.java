@@ -33,13 +33,7 @@ import java.util.Collection;
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table",
-//        functionName = "toArray",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},
-//        isPublic = true
-//)
+
 public final class ToArray {
 
     private ToArray() {

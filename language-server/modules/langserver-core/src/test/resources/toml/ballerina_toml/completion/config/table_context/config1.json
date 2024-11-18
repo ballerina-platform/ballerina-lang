@@ -6,46 +6,25 @@
   "source": "source/project2/Ballerina.toml",
   "items": [
     {
-      "label": "platform.java17",
+      "label": "platform.java21",
       "kind": "Snippet",
       "detail": "Table",
       "sortText": "C",
-      "insertText": "[platform.java17]"
+      "insertText": "[platform.java21]"
     },
     {
-      "label": "platform.java17.dependency",
+      "label": "platform.java21.dependency",
       "kind": "Snippet",
       "detail": "Table Array",
       "sortText": "C",
-      "insertText": "[[platform.java17.dependency]]"
+      "insertText": "[[platform.java21.dependency]]"
     },
     {
-      "label": "platform.java17.repository",
+      "label": "platform.java21.repository",
       "kind": "Snippet",
       "detail": "Table Array",
       "sortText": "C",
-      "insertText": "[[platform.java17.repository]]"
-    },
-    {
-      "label": "platform.java11",
-      "kind": "Snippet",
-      "detail": "Table",
-      "sortText": "C",
-      "insertText": "[platform.java11]"
-    },
-    {
-      "label": "platform.java11.dependency",
-      "kind": "Snippet",
-      "detail": "Table Array",
-      "sortText": "C",
-      "insertText": "[[platform.java11.dependency]]"
-    },
-    {
-      "label": "platform.java11.repository",
-      "kind": "Snippet",
-      "detail": "Table Array",
-      "sortText": "C",
-      "insertText": "[[platform.java11.repository]]"
+      "insertText": "[[platform.java21.repository]]"
     },
     {
       "label": "license",
@@ -91,28 +70,32 @@
       "kind": "Snippet",
       "detail": "String",
       "sortText": "A",
-      "insertText": "distribution=\"${1:}\""
+      "insertText": "distribution=\"${1:}\"",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "visibility",
       "kind": "Snippet",
       "detail": "String",
       "sortText": "A",
-      "insertText": "visibility=\"${1:}\""
+      "insertText": "visibility=\"${1:}\"",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "icon",
       "kind": "Snippet",
       "detail": "String",
       "sortText": "A",
-      "insertText": "icon=\"${1:}\""
+      "insertText": "icon=\"${1:}\"",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "template",
       "kind": "Snippet",
       "detail": "Boolean",
       "sortText": "A",
-      "insertText": "template=${1:false}"
+      "insertText": "template=${1:false}",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "format",
@@ -120,6 +103,48 @@
       "detail": "Table",
       "sortText": "C",
       "insertText": "[format]"
+    },
+    {
+      "label": "platform.java11.dependency",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java11.dependency]]"
+    },
+    {
+      "label": "platform.java17.repository",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java17.repository]]"
+    },
+    {
+      "label": "platform.java11",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[platform.java11]"
+    },
+    {
+      "label": "platform.java17",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[platform.java17]"
+    },
+    {
+      "label": "platform.java11.repository",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java11.repository]]"
+    },
+    {
+      "label": "platform.java17.dependency",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java17.dependency]]"
     }
   ]
 }

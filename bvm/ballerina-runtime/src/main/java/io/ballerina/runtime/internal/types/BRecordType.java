@@ -35,11 +35,11 @@ import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability;
 import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
@@ -50,7 +50,6 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +78,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     private final DefinitionContainer<MappingDefinition> acceptedTypeDefn = new DefinitionContainer<>();
     private byte couldInhereTypeBeDifferentCache = 0;
 
-    private final Map<String, BFunctionPointer<Object, ?>> defaultValues = new LinkedHashMap<>();
+    private final Map<String, BFunctionPointer> defaultValues = new LinkedHashMap<>();
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -152,13 +151,12 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
             return (V) ValueCreator.createReadonlyRecordValue(this.pkg, typeName, new HashMap<>());
         }
         BMap<BString, Object> recordValue = ValueCreator.createRecordValue(this.pkg, typeName);
-        ValueUtils.populateDefaultValues(recordValue, this, new HashSet<>());
         if (defaultValues.isEmpty()) {
             return (V) recordValue;
         }
-        for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
+        for (Map.Entry<String, BFunctionPointer> field : defaultValues.entrySet()) {
             recordValue.put(StringUtils.fromString(field.getKey()),
-                    field.getValue().call(new Object[] {Scheduler.getStrand()}));
+                    field.getValue().call(Scheduler.getStrand().scheduler.runtime));
         }
         return (V) recordValue;
     }
@@ -236,11 +234,11 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         return typeFlags;
     }
 
-    public void setDefaultValue(String fieldName, BFunctionPointer<Object, ?> defaultValue) {
+    public void setDefaultValue(String fieldName, BFunctionPointer defaultValue) {
         defaultValues.put(fieldName, defaultValue);
     }
 
-    public Map<String, BFunctionPointer<Object, ?>> getDefaultValues() {
+    public Map<String, BFunctionPointer> getDefaultValues() {
         return defaultValues;
     }
 

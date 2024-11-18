@@ -835,13 +835,10 @@ public class BIRGen extends BLangNodeVisitor {
 
         PackageID pkgID = lambdaExpr.function.symbol.pkgID;
         PackageID boundMethodPkgId = getPackageIdForBoundMethod(lambdaExpr, funcName.value);
-        boolean isWorker = lambdaExpr.function.flagSet.contains(Flag.WORKER);
-
         List<BIROperand> closureMapOperands = getClosureMapOperands(lambdaExpr);
-        BIRNonTerminator.FPLoad fpLoad = new BIRNonTerminator.FPLoad(lambdaExpr.pos, pkgID,
-                boundMethodPkgId != null ? boundMethodPkgId : pkgID, funcName, lhsOp, params, closureMapOperands,
-                lambdaExpr.getBType(), lambdaExpr.function.symbol.strandName,
-                lambdaExpr.function.symbol.schedulerPolicy, isWorker);
+        BIRNonTerminator.FPLoad fpLoad = new BIRNonTerminator.FPLoad(lambdaExpr.pos, pkgID, funcName, lhsOp, params,
+                closureMapOperands, lambdaExpr.getBType(), lambdaExpr.function.symbol.strandName,
+                lambdaExpr.function.symbol.schedulerPolicy, boundMethodPkgId);
         setScopeAndEmit(fpLoad);
         BType targetType = getRecordTargetType(funcName.value);
         if (lambdaExpr.function.flagSet.contains(Flag.RECORD) && targetType != null &&
@@ -1398,10 +1395,17 @@ public class BIRGen extends BLangNodeVisitor {
             invocationExpr.expr.accept(this);
             fp = this.env.targetOperand;
         }
-
         // Create a temporary variable to store the return operation result.
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(invocationExpr.getBType(), this.env.nextLocalVarId(names),
-                                                       VarScope.FUNCTION, VarKind.TEMP);
+        BIRVariableDcl tempVarDcl;
+        if (invocationExpr.async && invocationExpr.parent instanceof BLangSimpleVariable simpleVar) {
+            tempVarDcl = new BIRVariableDcl(invocationExpr.pos, invocationExpr.getBType(),
+                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP, simpleVar.name.value);
+        } else {
+            tempVarDcl = new BIRVariableDcl(invocationExpr.getBType(), this.env.nextLocalVarId(names),
+                    VarScope.FUNCTION, VarKind.TEMP);
+        }
+
+
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
@@ -1415,8 +1419,13 @@ public class BIRGen extends BLangNodeVisitor {
         // TODO: make vCall a new instruction to avoid package id in vCall
         if (invocationExpr.functionPointerInvocation) {
             boolean workerDerivative = Symbols.isFlagOn(invocationExpr.symbol.flags, Flags.WORKER);
+            List<BIRAnnotationAttachment> annots =
+                    getBIRAnnotAttachmentsForASTAnnotAttachments(invocationExpr.annAttachments);
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
-                    fp, args, lhsOp, invocationExpr.async, thenBB, this.currentScope, workerDerivative);
+                    fp, args, lhsOp, invocationExpr.async, thenBB, this.currentScope, annots);
+            if (workerDerivative) {
+                this.env.enclFunc.hasWorkers = true;
+            }
         } else if (invocationExpr.async) {
             BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             List<BIRAnnotationAttachment> calleeAnnots = getBIRAnnotAttachments(bInvokableSymbol.getAnnotations());
@@ -2005,8 +2014,8 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, nextBB, this.currentScope);
         }
 
-        env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(trappedBlocks.get(0),
-                trappedBlocks.get(trappedBlocks.size() - 1), env.targetOperand, nextBB));
+        env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(trappedBlocks.getFirst(), trappedBlocks.getLast(),
+                env.targetOperand, nextBB));
 
         this.env.enclBB = nextBB;
     }
@@ -3005,10 +3014,9 @@ public class BIRGen extends BLangNodeVisitor {
                     VarScope.FUNCTION, VarKind.ARG, null);
             params.add(birVarDcl);
         }
-
-        setScopeAndEmit(
-                new BIRNonTerminator.FPLoad(fpVarRef.pos, funcSymbol.pkgID, funcName, lhsOp, params, new ArrayList<>(),
-                        funcSymbol.type, funcSymbol.strandName, funcSymbol.schedulerPolicy));
+        setScopeAndEmit(new BIRNonTerminator.FPLoad(fpVarRef.pos, funcSymbol.pkgID, funcName, lhsOp, params,
+                new ArrayList<>(), funcSymbol.type, funcSymbol.strandName, funcSymbol.schedulerPolicy,
+                funcSymbol.pkgID));
         this.env.targetOperand = lhsOp;
     }
 

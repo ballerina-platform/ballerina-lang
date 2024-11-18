@@ -104,7 +104,7 @@ public class GenDocsForBalaTest {
 
     @Test (enabled = false)
     public void generatingDocsForBalaWithAnnotationTest2() throws IOException {
-        Path balaPath = this.resourceDir.resolve("balas/ballerina-http-java17-2.4.0.bala");
+        Path balaPath = this.resourceDir.resolve("balas/ballerina-http-java21-2.4.0.bala");
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
         BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);

@@ -13,46 +13,25 @@
       "insertText": "[package]"
     },
     {
-      "label": "platform.java17",
+      "label": "platform.java21",
       "kind": "Snippet",
       "detail": "Table",
       "sortText": "C",
-      "insertText": "[platform.java17]"
+      "insertText": "[platform.java21]"
     },
     {
-      "label": "platform.java17.dependency",
+      "label": "platform.java21.dependency",
       "kind": "Snippet",
       "detail": "Table Array",
       "sortText": "C",
-      "insertText": "[[platform.java17.dependency]]"
+      "insertText": "[[platform.java21.dependency]]"
     },
     {
-      "label": "platform.java17.repository",
+      "label": "platform.java21.repository",
       "kind": "Snippet",
       "detail": "Table Array",
       "sortText": "C",
-      "insertText": "[[platform.java17.repository]]"
-    },
-    {
-      "label": "platform.java11",
-      "kind": "Snippet",
-      "detail": "Table",
-      "sortText": "C",
-      "insertText": "[platform.java11]"
-    },
-    {
-      "label": "platform.java11.dependency",
-      "kind": "Snippet",
-      "detail": "Table Array",
-      "sortText": "C",
-      "insertText": "[[platform.java11.dependency]]"
-    },
-    {
-      "label": "platform.java11.repository",
-      "kind": "Snippet",
-      "detail": "Table Array",
-      "sortText": "C",
-      "insertText": "[[platform.java11.repository]]"
+      "insertText": "[[platform.java21.repository]]"
     },
     {
       "label": "groupId",
@@ -101,12 +80,46 @@
       "insertText": "[format]"
     },
     {
-      "label": "graalvmCompatible",
+      "label": "platform.java11.dependency",
       "kind": "Snippet",
-      "detail": "Boolean",
-      "sortText": "A",
-      "insertText": "graalvmCompatible=${1:false}",
-      "insertTextFormat": "Snippet"
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java11.dependency]]"
+    },
+    {
+      "label": "platform.java17.repository",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java17.repository]]"
+    },
+    {
+      "label": "platform.java11",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[platform.java11]"
+    },
+    {
+      "label": "platform.java17",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[platform.java17]"
+    },
+    {
+      "label": "platform.java11.repository",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java11.repository]]"
+    },
+    {
+      "label": "platform.java17.dependency",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java17.dependency]]"
     }
   ]
 }

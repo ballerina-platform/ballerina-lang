@@ -18,13 +18,11 @@
 package org.ballerinalang.test.utils.interop;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.Future;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 
 import java.io.PrintStream;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Extern function sleep.
@@ -33,16 +31,22 @@ import java.util.concurrent.TimeUnit;
  */
 public final class Utils {
 
-    private static final int CORE_THREAD_POOL_SIZE = 1;
-
-    private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
-
     private Utils() {
     }
 
     public static void sleep(Environment env, long delayMillis) {
-        Future balFuture = env.markAsync();
-        EXECUTOR.schedule(() -> balFuture.complete(null), delayMillis, TimeUnit.MILLISECONDS);
+        env.yieldAndRun(() -> {
+            try {
+                Thread.sleep(delayMillis);
+                return null;
+            } catch (InterruptedException e) {
+                throw ErrorCreator.createError(e);
+            }
+        });
+    }
+
+    public static boolean isIsolated() {
+        return Scheduler.getStrand().isIsolated;
     }
 
     public static void print(Object... values) {
