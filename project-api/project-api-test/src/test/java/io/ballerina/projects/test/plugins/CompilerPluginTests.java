@@ -52,7 +52,6 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -66,7 +65,7 @@ import java.util.Optional;
  */
 public class CompilerPluginTests {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get(
+    private static final Path RESOURCE_DIRECTORY = Path.of(
             "src/test/resources/compiler_plugin_tests").toAbsolutePath();
     private static final PrintStream OUT = System.out;
     private static final String PLUGIN_OP_FILE_PATH = "./src/test/resources/compiler_plugin_tests/" +
@@ -183,7 +182,7 @@ public class CompilerPluginTests {
         Assert.assertEquals(diagnosticResult.errorCount(), 1);
         Assert.assertEquals(diagnosticResult.warningCount(), 2);
 
-        Path logFilePath = Paths.get("build/logs/diagnostics.log");
+        Path logFilePath = Path.of("build/logs/diagnostics.log");
         Assert.assertTrue(Files.exists(logFilePath));
         String logFileContent = Files.readString(logFilePath, Charset.defaultCharset());
         Assert.assertTrue(logFileContent.contains(diagnosticResult.warnings().stream().findFirst().get().toString()));
@@ -201,7 +200,7 @@ public class CompilerPluginTests {
         Assert.assertEquals(diagnosticResult.errorCount(), 1);
         Assert.assertEquals(diagnosticResult.warningCount(), 1);
 
-        Path logFilePath = Paths.get("build/logs/single-file/diagnostics.log");
+        Path logFilePath = Path.of("build/logs/single-file/diagnostics.log");
         Assert.assertTrue(Files.exists(logFilePath));
         String logFileContent = Files.readString(logFilePath, Charset.defaultCharset());
         Assert.assertTrue(logFileContent.contains(diagnosticResult.warnings().stream().findFirst().get().toString()));
@@ -351,7 +350,7 @@ public class CompilerPluginTests {
 
     @Test(description = "Test a combination of in-built and package provided compiler plugins")
     public void testCombinationOfCompilerPlugins() throws IOException {
-        Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
+        Path logFile = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
         Files.writeString(logFile, "");
         Package currentPackage = loadPackage("log_creator_combined_plugin");
         currentPackage.getCompilation();
@@ -483,7 +482,7 @@ public class CompilerPluginTests {
         Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
 
         PackageCompilation packageCompilation = newPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         CompileResult compileResult = new CompileResult(newPackage, jBallerinaBackend);
 
         try {
@@ -505,7 +504,7 @@ public class CompilerPluginTests {
         Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
 
         PackageCompilation packageCompilation = newPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         CompileResult compileResult = new CompileResult(newPackage, jBallerinaBackend);
 
         try {
@@ -666,7 +665,7 @@ public class CompilerPluginTests {
 
     private void releaseLock() {
         try {
-            Files.delete(Paths.get(PLUGIN_LOCK_FILE_PATH));
+            Files.delete(Path.of(PLUGIN_LOCK_FILE_PATH));
         } catch (IOException e) {
             throw new RuntimeException(
                     "Error while deleting the lock file: " + PLUGIN_LOCK_FILE_PATH + " " + e.getMessage());
@@ -675,7 +674,7 @@ public class CompilerPluginTests {
 
     @AfterSuite
     private void cleanup() throws IOException {
-        Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
+        Path logFile = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
         Files.delete(logFile);
     }
 }

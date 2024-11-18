@@ -76,7 +76,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -93,7 +92,6 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -128,7 +126,8 @@ import static io.ballerina.projects.util.ProjectConstants.WILD_CARD;
  *
  * @since 2.0.0
  */
-public class ProjectUtils {
+public final class ProjectUtils {
+
     private static final String USER_HOME = "user.home";
     private static final Pattern separatedIdentifierPattern = Pattern.compile("^[a-zA-Z0-9_.]*$");
     private static final Pattern onlyDotsPattern = Pattern.compile("^[.]+$");
@@ -136,6 +135,9 @@ public class ProjectUtils {
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
     private static final Pattern separatedIdentifierWithHyphenPattern = Pattern.compile("^[a-zA-Z0-9_.-]*$");
     private static String projectLoadingDiagnostic;
+
+    private ProjectUtils() {
+    }
 
     /**
      * Validates the org-name.
@@ -469,7 +471,7 @@ public class ProjectUtils {
         if (platform == null || platform.isEmpty()) {
             platform = "any";
         }
-        return Paths.get(org, pkgName, version, platform);
+        return Path.of(org, pkgName, version, platform);
     }
 
     public static String getJarFileName(Package pkg) {
@@ -501,7 +503,7 @@ public class ProjectUtils {
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
 
     public static Path getBalHomePath() {
-        return Paths.get(System.getProperty(BALLERINA_HOME));
+        return Path.of(System.getProperty(BALLERINA_HOME));
     }
 
     public static Path getBallerinaRTJarPath() {
@@ -674,10 +676,10 @@ public class ProjectUtils {
             if (userHomeDir == null || userHomeDir.isEmpty()) {
                 throw new BLangCompilerException("Error creating home repository: unable to get user home directory");
             }
-            homeRepoPath = Paths.get(userHomeDir, ProjectConstants.HOME_REPO_DEFAULT_DIRNAME);
+            homeRepoPath = Path.of(userHomeDir, ProjectConstants.HOME_REPO_DEFAULT_DIRNAME);
         } else {
             // User has specified the home repo path with env variable.
-            homeRepoPath = Paths.get(homeRepoDir);
+            homeRepoPath = Path.of(homeRepoDir);
         }
 
         homeRepoPath = homeRepoPath.toAbsolutePath();
@@ -1115,7 +1117,7 @@ public class ProjectUtils {
      * @return temporary target path
      */
     public static String getTemporaryTargetPath() {
-        return Paths.get(System.getProperty("java.io.tmpdir"))
+        return Path.of(System.getProperty("java.io.tmpdir"))
                 .resolve("ballerina-cache" + System.nanoTime()).toString();
     }
 
@@ -1247,7 +1249,7 @@ public class ProjectUtils {
     private static List<Path> filterPathStream(Stream<Path> pathStream, String combinedPattern) {
         return pathStream.filter(
                         FileSystems.getDefault().getPathMatcher("glob:" + combinedPattern)::matches)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static String getGlobFormatPattern(String pattern) {
@@ -1272,7 +1274,7 @@ public class ProjectUtils {
     }
 
     /**
-     * Return the path of a bala with the available platform directory (java17 or any).
+     * Return the path of a bala with the available platform directory (java21 or any).
      *
      * @param balaDirPath path to the bala directory
      * @param org org name of the bala

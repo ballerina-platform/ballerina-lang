@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
@@ -34,8 +34,9 @@ import java.util.Map;
  * </p>
  *  
  * @since 0.995.0
+ * @param <T> Type of the value returned by the iterator
  */
-public interface IteratorValue extends RefValue, BIterator {
+public interface IteratorValue<T> extends RefValue, BIterator<T> {
 
     BTypedesc TYPEDESC = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
 

@@ -30,7 +30,6 @@ import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link CollectClauseNode} context.
@@ -62,7 +61,7 @@ public class CollectClauseNodeContext extends AbstractCompletionProvider<Collect
                     .filter(symbol -> symbol.getName().isPresent() && !symbol.getName().get().contains("$"))
                     .filter(symbol -> completionItems
                             .addAll(populateBallerinaFunctionCompletionItems(symbol, context)))
-                    .collect(Collectors.toList());
+                    .toList();
         }
         this.sort(context, node, completionItems);
         return completionItems;

@@ -17,15 +17,16 @@
  */
 package io.ballerina.runtime.api.utils;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.StructureType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BIterator;
@@ -33,14 +34,13 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.internal.JsonGenerator;
-import io.ballerina.runtime.internal.JsonInternalUtils;
-import io.ballerina.runtime.internal.JsonParser;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.json.JsonGenerator;
+import io.ballerina.runtime.internal.json.JsonInternalUtils;
+import io.ballerina.runtime.internal.json.JsonParser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,7 +63,10 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.VALUE_LANG_LIB_C
  *
  * @since 2.0.0
  */
-public class JsonUtils {
+public final class JsonUtils {
+
+    private JsonUtils() {
+    }
 
     /**
      * Parses the contents in the given {@link InputStream} and returns a json.
@@ -152,7 +155,7 @@ public class JsonUtils {
      * @param bTable {@link BTable} to be converted to JSON
      * @return JSON representation of the provided bTable
      */
-    public static Object parse(BTable bTable) {
+    public static Object parse(BTable<?, ?> bTable) {
         return JsonInternalUtils.toJSON(bTable);
     }
 
@@ -239,7 +242,7 @@ public class JsonUtils {
             gen.serialize(json);
             gen.flush();
         } catch (IOException e) {
-            throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()), e);
         }
     }
 
@@ -256,7 +259,7 @@ public class JsonUtils {
             gen.serialize(json);
             gen.flush();
         } catch (IOException e) {
-            throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()), e);
         }
     }
 
@@ -272,7 +275,7 @@ public class JsonUtils {
             gen.serialize(json);
             gen.flush();
         } catch (IOException e) {
-            throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()), e);
         }
     }
 
@@ -338,10 +341,10 @@ public class JsonUtils {
                 newValue = convertArrayToJson((BArray) value, unresolvedValues);
                 break;
             case TypeTags.TABLE_TAG:
-                BTable bTable = (BTable) value;
+                BTable<?, ?> bTable = (BTable<?, ?>) value;
                 Type constrainedType = TypeUtils.getImpliedType(((TableType) sourceType).getConstrainedType());
                 if (constrainedType.getTag() == TypeTags.MAP_TAG) {
-                    newValue = convertMapConstrainedTableToJson((BTable) value, unresolvedValues);
+                    newValue = convertMapConstrainedTableToJson((BTable<?, ?>) value, unresolvedValues);
                 } else {
                     try {
                         newValue = JsonInternalUtils.toJSON(bTable);
@@ -361,12 +364,12 @@ public class JsonUtils {
         return newValue;
     }
 
-    private static Object convertMapConstrainedTableToJson(BTable value, List<TypeValuePair> unresolvedValues) {
+    private static Object convertMapConstrainedTableToJson(BTable<?, ?> value, List<TypeValuePair> unresolvedValues) {
         BArray membersArray = ValueCreator.createArrayValue(PredefinedTypes.TYPE_JSON_ARRAY);
-        BIterator itr = value.getIterator();
+        BIterator<?> itr = value.getIterator();
         while (itr.hasNext()) {
             BArray tupleValue = (BArray) itr.next();
-            BMap mapValue = ((BMap) tupleValue.get(0));
+            BMap<?, ?> mapValue = ((BMap<?, ?>) tupleValue.get(0));
             Object member = convertMapToJson(mapValue, unresolvedValues);
             membersArray.append(member);
         }
@@ -376,7 +379,7 @@ public class JsonUtils {
     private static Object convertMapToJson(BMap<?, ?> map, List<TypeValuePair> unresolvedValues) {
         BMap<BString, Object> newMap =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_JSON));
-        for (Map.Entry entry : map.entrySet()) {
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
             Object newValue = convertToJsonType(entry.getValue(), unresolvedValues);
             newMap.put(StringUtils.fromString(entry.getKey().toString()), newValue);
         }

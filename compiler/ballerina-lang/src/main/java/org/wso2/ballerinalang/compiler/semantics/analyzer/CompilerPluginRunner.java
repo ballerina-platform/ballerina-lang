@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
@@ -71,7 +71,6 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * Invoke {@link CompilerPlugin} plugins.
@@ -84,20 +83,20 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private static final CompilerContext.Key<CompilerPluginRunner> COMPILER_PLUGIN_RUNNER_KEY =
             new CompilerContext.Key<>();
 
-    private SymbolTable symTable;
-    private PackageCache packageCache;
-    private SymbolResolver symResolver;
-    private Names names;
+    private final SymbolTable symTable;
+    private final PackageCache packageCache;
+    private final SymbolResolver symResolver;
+    private final Names names;
     private final Types types;
-    private BLangDiagnosticLog dlog;
+    private final BLangDiagnosticLog dlog;
 
     private Location defaultPos;
-    private CompilerContext context;
-    private List<CompilerPlugin> pluginList;
-    private Map<DefinitionID, Set<CompilerPlugin>> processorMap;
-    private Map<CompilerPlugin, List<DefinitionID>> resourceTypeProcessorMap;
-    private Map<CompilerPlugin, BType> serviceListenerMap;
-    private List<CompilerPlugin> failedPlugins;
+    private final CompilerContext context;
+    private final List<CompilerPlugin> pluginList;
+    private final Map<DefinitionID, Set<CompilerPlugin>> processorMap;
+    private final Map<CompilerPlugin, List<DefinitionID>> resourceTypeProcessorMap;
+    private final Map<CompilerPlugin, BType> serviceListenerMap;
+    private final List<CompilerPlugin> failedPlugins;
 
 
     public static CompilerPluginRunner getInstance(CompilerContext context) {
@@ -400,7 +399,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         }
 
         List<DefinitionID> definitions = Arrays.stream(supportedTypes)
-                .map(type -> new DefinitionID(type.packageName(), type.name())).collect(Collectors.toList());
+                .map(type -> new DefinitionID(type.packageName(), type.name())).toList();
         resourceTypeProcessorMap.put(plugin, definitions);
         serviceListenerMap.put(plugin, listenerType);
     }

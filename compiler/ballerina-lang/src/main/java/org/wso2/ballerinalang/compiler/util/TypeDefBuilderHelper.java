@@ -79,9 +79,12 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createIdent
  *
  * @since 1.2.0
  */
-public class TypeDefBuilderHelper {
+public final class TypeDefBuilderHelper {
 
     public static final String INTERSECTED_ERROR_DETAIL = "$IntersectedErrorDetail$";
+
+    private TypeDefBuilderHelper() {
+    }
 
     public static BLangRecordTypeNode createRecordTypeNode(BRecordType recordType, PackageID packageID,
                                                            SymbolTable symTable, Location pos) {
@@ -327,7 +330,7 @@ public class TypeDefBuilderHelper {
                 invokableSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
                 invokableSymbol.restParam = tsymbol.restParam;
                 invokableSymbol.retType = tsymbol.returnType;
-                invokableSymbol.flags = tsymbol.flags;
+                invokableSymbol.flags = invokableSymbol.flags | tsymbol.flags;
             } else if (fieldType == symTable.semanticError) {
                 // Can only happen for records.
                 fieldSymbol = new BVarSymbol(origField.symbol.flags | flag | Flags.OPTIONAL,

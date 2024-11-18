@@ -465,8 +465,11 @@ function testXMLSequenceRefEquality() {
     xml x1 = xml `<b>b</b>`;
     xml x2 = x + x1;
     xml x3 = x + x1;
+    xml x4 = xml:concat(x);
+    xml x5 = xml:concat(x);
 
     test:assertTrue(x2 === x3);
+    test:assertTrue(x4 === x5);
 
     xml a1 = xml `<e1/>`;
     xml a2 = xml `<e2/>`;

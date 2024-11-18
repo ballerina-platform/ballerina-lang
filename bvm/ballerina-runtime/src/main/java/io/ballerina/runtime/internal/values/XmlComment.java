@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BLink;
 import org.apache.axiom.om.OMNode;
@@ -47,9 +47,9 @@ public class XmlComment extends XmlNonElementItem {
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<XmlComment> getIterator() {
         XmlComment that = this;
-        return new IteratorValue() {
+        return new IteratorValue<>() {
             boolean read = false;
             @Override
             public boolean hasNext() {
@@ -57,7 +57,7 @@ public class XmlComment extends XmlNonElementItem {
             }
 
             @Override
-            public Object next() {
+            public XmlComment next() {
                 if (!read) {
                     this.read = true;
                     return that;

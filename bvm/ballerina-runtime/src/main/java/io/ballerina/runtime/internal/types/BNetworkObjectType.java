@@ -52,11 +52,10 @@ public class BNetworkObjectType extends BObjectType implements NetworkObjectType
     public RemoteMethodType[] getRemoteMethods() {
         if (remoteMethods == null) {
             RemoteMethodType[] funcs = getRemoteMethods(getMethods());
-            synchronized (this) {
-                if (remoteMethods == null) {
-                    remoteMethods = funcs;
-                }
+            if (remoteMethods == null) {
+                remoteMethods = funcs;
             }
+
         }
         return remoteMethods;
     }

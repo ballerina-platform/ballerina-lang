@@ -56,7 +56,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 
@@ -129,7 +128,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                             && recFields.get(symbolName.get()).typeDescriptor().typeKind()
                             == typeDescriptor.get().typeKind();
                 }))
-                .collect(Collectors.toList());
+                .toList();
 
         return this.getCompletionItemList(visibleSymbols, ctx);
     }
@@ -204,7 +203,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                     .filter(this.getVariableFilter())
                     .filter(varSymbol -> varSymbol.getName().isPresent())
                     .filter(varSymbol -> !existingFields.contains(varSymbol.getName().get()))
-                    .collect(Collectors.toList());
+                    .toList();
             completionItems.addAll(this.getCompletionItemList(variables, context));
             //Spread field can only be used with in a mapping constructor and the fields should be empty
             if (existingFields.isEmpty() && evalNode.kind() == SyntaxKind.MAPPING_CONSTRUCTOR) {
@@ -251,7 +250,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                     // For nested maps, we have to treat specially
                     return resolvedType.get().typeKind() == TypeDescKind.MAP
                             && mapTypeSymbol.subtypeOf(resolvedType.get());
-                })).collect(Collectors.toList());
+                })).toList();
 
         return getSpreadFieldCompletionItemList(visibleSymbols, context);
     }
@@ -268,7 +267,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         Predicate<Symbol> symbolFilter = this.getVariableFilter().or(symbol -> (symbol.kind() == FUNCTION));
         List<Symbol> filteredSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
                 .filter(symbolFilter.and(symbol -> isSpreadable(symbol, validFields)))
-                .collect(Collectors.toList());
+                .toList();
         return this.getSpreadFieldCompletionItemList(filteredSymbols, context);
     }
 

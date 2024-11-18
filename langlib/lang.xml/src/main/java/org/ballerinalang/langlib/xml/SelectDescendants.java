@@ -30,16 +30,12 @@ import org.ballerinalang.langlib.xml.utils.XmlUtils;
  * 
  * @since 0.92
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "selectDescendants",
-//        args = {@Argument(name = "qname", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
-public class SelectDescendants {
+public final class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
+
+    private SelectDescendants() {
+    }
 
     public static BXml selectDescendants(Strand strand, BXml xml, BArray qnames) {
         try {

@@ -15,8 +15,10 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations {
     testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
@@ -38,12 +40,12 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tools-api')
     implementation project(':central-client')
-    implementation 'info.picocli:picocli'
-    implementation("org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}") {
+    implementation libs.picocli
+    implementation(libs.apache.commons.compress) {
         exclude group: 'commons-codec', module: 'commons-codec'
         exclude group: 'org.apache.commons', module: 'commons-lang3'
     }
-    implementation "com.google.code.gson:gson:${project.gsonVersion}"
+    implementation libs.gson
     implementation project(':docerina')
     implementation project(':testerina:testerina-core')
     implementation project(':testerina:testerina-runtime')
@@ -52,23 +54,19 @@ dependencies {
     implementation project(':toml-parser')
     implementation project(':identifier-util')
     testImplementation project(':ballerina-test-utils')
-    implementation 'org.ow2.asm:asm'
-    implementation "org.ow2.asm:asm-commons:${project.ow2AsmCommonsVersion}"
-    implementation "org.jacoco:org.jacoco.core:${project.jacocoVersion}"
-    implementation "org.jacoco:org.jacoco.report:${project.jacocoVersion}"
-    implementation group: 'org.jacoco', name: 'org.jacoco.core', version: "${project.jacocoVersion}"
-    implementation group: 'org.jacoco', name: 'org.jacoco.report', version: "${project.jacocoVersion}"
-    implementation group: 'org.ow2.asm', name: 'asm', version: "${project.ow2AsmVersion}"
-    implementation group: 'org.ow2.asm', name: 'asm-commons', version: "${project.ow2AsmCommonsVersion}"
-    implementation group: 'org.ow2.asm', name: 'asm-tree', version: "${project.ow2AsmTreeVersion}"
-    implementation 'commons-io:commons-io'
+    implementation libs.ow2.asm
+    implementation libs.ow2.asm.commons
+    implementation libs.ow2.asm.tree
+    implementation libs.jacoco.core
+    implementation libs.jacoco.report
+    implementation libs.commons.io
 
-    testImplementation "org.testng:testng:${project.testngVersion}"
-    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
-    testImplementation 'org.mockito:mockito-testng'
-    testImplementation 'commons-io:commons-io'
-    testImplementation "commons-codec:commons-codec:${project.commonsCodecVersion}"
-    testImplementation "org.jline:jline:${project.jlineVersion}"
+    testImplementation libs.testng
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.testng
+    testImplementation libs.commons.io
+    testImplementation libs.commons.codec
+    testImplementation libs.jline
 
     distributionBala project(path: ':ballerina-langlib:test', configuration: 'distributionBala')
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')

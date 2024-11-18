@@ -66,7 +66,7 @@ import static org.ballerinalang.langserver.commons.completion.LSCompletionItem.C
  *
  * @since 2.0.0
  */
-public class SortingUtil {
+public final class SortingUtil {
 
     private static final int RANK_UPPER_BOUNDARY = 64;
 
@@ -346,19 +346,11 @@ public class SortingUtil {
      * @return Type Symbol or Empty if type parameter is not present
      */
     public static Optional<TypeSymbol> getTypeParameterFromTypeSymbol(TypeSymbol typeSymbol) {
-        Optional<TypeSymbol> optionalTypeSymbol;
-        switch (typeSymbol.typeKind()) {
-            case TYPEDESC:
-                optionalTypeSymbol = ((TypeDescTypeSymbol) typeSymbol).typeParameter();
-                break;
-            case FUTURE:
-                optionalTypeSymbol = ((FutureTypeSymbol) typeSymbol).typeParameter();
-                break;
-            default:
-                optionalTypeSymbol = Optional.empty();
-                break;
-        }
-        return optionalTypeSymbol;
+        return switch (typeSymbol.typeKind()) {
+            case TYPEDESC -> ((TypeDescTypeSymbol) typeSymbol).typeParameter();
+            case FUTURE -> ((FutureTypeSymbol) typeSymbol).typeParameter();
+            default -> Optional.empty();
+        };
     }
 
     /**
@@ -590,17 +582,12 @@ public class SortingUtil {
                 break;
             case SNIPPET:
                 if (completionItemKind != null) {
-                    switch (completionItemKind) {
-                        case TypeParameter:
-                            rank = 14;
-                            break;
-                        case Snippet:
-                            rank = 16;
-                            break;
-                        case Keyword:
-                            rank = 17;
-                            break;
-                    }
+                    rank = switch (completionItemKind) {
+                        case TypeParameter -> 14;
+                        case Snippet -> 16;
+                        case Keyword -> 17;
+                        default -> rank;
+                    };
                 }
                 break;
             case OBJECT_FIELD:

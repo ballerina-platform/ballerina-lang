@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langlib.test;
 
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
@@ -259,6 +259,11 @@ public class LangLibValueTest {
     @Test
     public void testXMLToStringWithXMLTextContainingAngleBrackets() {
         BRunUtil.invoke(compileResult, "testXMLWithAngleBrackets");
+    }
+
+    @Test
+    public void testXMLSequenceWithOneTextElement() {
+        BRunUtil.invoke(compileResult, "testXMLSequenceWithOneTextElement");
     }
 
     @Test

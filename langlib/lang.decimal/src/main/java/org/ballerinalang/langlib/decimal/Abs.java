@@ -26,13 +26,11 @@ import io.ballerina.runtime.api.values.BDecimal;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.decimal", functionName = "abs",
-//        args = {@Argument(name = "n", type = TypeKind.DECIMAL)},
-//        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
-//        isPublic = true
-//)
 public class Abs {
+
+
+    private Abs() {
+    }
 
     public static BDecimal abs(BDecimal n) {
         return ValueCreator.createDecimalValue(n.value().abs());

@@ -12,7 +12,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
@@ -33,6 +32,7 @@ public class ProjectWatcherTest extends BaseCommandTest {
     private Thread watcherThread;
     private AtomicReference<ProjectWatcher> watcher;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -41,8 +41,8 @@ public class ProjectWatcherTest extends BaseCommandTest {
             this.watchTestResources = testResources.resolve("watchFlagResources");
             URI testResourcesURI = Objects.requireNonNull(
                     getClass().getClassLoader().getResource("test-resources")).toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI),
-                    new BuildCommandTest.Copy(Paths.get(testResourcesURI), testResources));
+            Files.walkFileTree(Path.of(testResourcesURI),
+                    new BuildCommandTest.Copy(Path.of(testResourcesURI), testResources));
             watcher = new AtomicReference<>();
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
@@ -302,6 +302,7 @@ public class ProjectWatcherTest extends BaseCommandTest {
         Assert.assertEquals(actualOutput, expectedOutput);
     }
 
+    @Override
     @AfterMethod
     public void afterMethod() {
         try {

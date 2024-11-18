@@ -23,14 +23,11 @@ package org.ballerinalang.langlib.floatingpoint;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.float", functionName = "abs",
-//        args = {@Argument(name = "n", type = TypeKind.FLOAT)},
-//        returnType = {@ReturnType(type = TypeKind.FLOAT)},
-//        isPublic = true
-//)
 public class Abs {
 
+
+    private Abs() {
+    }
     public static double abs(double n) {
         return Math.abs(n);
     }

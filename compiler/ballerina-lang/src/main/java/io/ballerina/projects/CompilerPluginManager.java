@@ -22,11 +22,9 @@ import io.ballerina.projects.internal.plugins.CompilerPlugins;
 import io.ballerina.projects.plugins.CompilerPlugin;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Responsible for loading and maintaining engaged compiler plugins.
@@ -170,8 +168,8 @@ class CompilerPluginManager {
         String pluginClassName = pluginDescriptor.plugin().getClassName();
         List<Path> jarLibraryPaths = pluginDescriptor.getCompilerPluginDependencies()
                 .stream()
-                .map(Paths::get)
-                .collect(Collectors.toList());
+                .map(Path::of)
+                .toList();
 
         CompilerPlugin compilerPlugin;
         try {
@@ -192,7 +190,7 @@ class CompilerPluginManager {
         return dependencyGraph.getDirectDependencies(rootPkgNode)
                 .stream()
                 .map(ResolvedPackageDependency::packageInstance)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static List<CompilerPluginContextIml> initializePlugins(List<CompilerPluginInfo> compilerPlugins,

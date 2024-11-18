@@ -128,7 +128,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRI
  *
  * @since 1.2.0
  */
-public class InteropMethodGen {
+public final class InteropMethodGen {
 
     static void genJFieldForInteropField(JFieldBIRFunction birFunc, ClassWriter classWriter, PackageID birModule,
                                          JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
@@ -175,7 +175,7 @@ public class InteropMethodGen {
 
         // Load receiver which is the 0th parameter in the birFunc
         if (!jField.isStatic()) {
-            BIRNode.BIRVariableDcl var = birFuncParams.get(0);
+            BIRNode.BIRVariableDcl var = birFuncParams.getFirst();
             int receiverLocalVarIndex = indexMap.addIfNotExists(var.name.value, var.type);
             mv.visitVarInsn(ALOAD, receiverLocalVarIndex);
             mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, "()Ljava/lang/Object;", false);
@@ -252,7 +252,7 @@ public class InteropMethodGen {
         Label retLabel = labelGen.getLabel("return_lable");
         mv.visitLabel(retLabel);
         mv.visitLineNumber(birFunc.pos.lineRange().endLine().line() + 1, retLabel);
-        termGen.genReturnTerm(returnVarRefIndex, birFunc, -1, 0);
+        termGen.genReturnTerm(returnVarRefIndex, birFunc, -1, -1, -1, -1);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, birFunc.name.value, birFunc.javaField.getDeclaringClassName());
         mv.visitEnd();
     }
@@ -377,9 +377,9 @@ public class InteropMethodGen {
         BIRBasicBlock thenBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, initMethodGen);
         BIRBasicBlock retBB = new BIRBasicBlock(getNextDesugarBBId(initMethodGen));
         thenBB.terminator = new BIRTerminator.GOTO(birFunc.pos, retBB);
+        BIROperand retRef = new BIROperand(birFunc.localVars.getFirst());
 
         if (JvmCodeGenUtil.getImpliedType(retType).tag != TypeTags.NIL) {
-            BIROperand retRef = new BIROperand(birFunc.localVars.get(0));
             if (JType.J_VOID != jMethodRetType) {
                 BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(jMethodRetType, new Name("$_ret_jobject_var_$"),
                         null, VarKind.LOCAL);
@@ -392,19 +392,17 @@ public class InteropMethodGen {
                 jToBCast.targetType = retType;
                 thenBB.instructions.add(jToBCast);
             }
-
-            BIRBasicBlock catchBB = new BIRBasicBlock(getNextDesugarBBId(initMethodGen));
-            JErrorEntry ee = new JErrorEntry(beginBB, thenBB, retRef, catchBB);
-            for (Class<?> exception : birFunc.jMethod.getExceptionTypes()) {
-                BIRTerminator.Return exceptionRet = new BIRTerminator.Return(birFunc.pos);
-                CatchIns catchIns = new CatchIns();
-                catchIns.errorClass = exception.getName().replace(".", "/");
-                catchIns.term = exceptionRet;
-                ee.catchIns.add(catchIns);
-            }
-
-            birFunc.errorTable.add(ee);
         }
+        BIRBasicBlock catchBB = new BIRBasicBlock(getNextDesugarBBId(initMethodGen));
+        JErrorEntry ee = new JErrorEntry(beginBB, thenBB, retRef, catchBB);
+        for (Class<?> exception : birFunc.jMethod.getExceptionTypes()) {
+            BIRTerminator.Return exceptionRet = new BIRTerminator.Return(birFunc.pos);
+            CatchIns catchIns = new CatchIns();
+            catchIns.errorClass = exception.getName().replace(".", "/");
+            catchIns.term = exceptionRet;
+            ee.catchIns.add(catchIns);
+        }
+        birFunc.errorTable.add(ee);
 
         // We may be able to use the same instruction rather than two, check later
         if (jMethod.kind == JMethodKind.CONSTRUCTOR) {

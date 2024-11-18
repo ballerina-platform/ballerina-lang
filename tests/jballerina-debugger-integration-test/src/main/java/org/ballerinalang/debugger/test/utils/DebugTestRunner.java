@@ -262,7 +262,7 @@ public class DebugTestRunner {
             throws BallerinaTestException {
         testBreakpoints.add(breakpoint);
         List<BallerinaTestDebugPoint> breakpointsToBeSent = new ArrayList<>();
-        for (org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint bp : testBreakpoints) {
+        for (BallerinaTestDebugPoint bp : testBreakpoints) {
             if (bp.getSource().getPath().equals(breakpoint.getSource().getPath())) {
                 breakpointsToBeSent.add(bp);
             }
@@ -310,7 +310,7 @@ public class DebugTestRunner {
     public void removeBreakPoint(BallerinaTestDebugPoint breakpoint) throws BallerinaTestException {
         testBreakpoints.remove(breakpoint);
         List<BallerinaTestDebugPoint> breakpointsToBeSent = new ArrayList<>();
-        for (org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint bp : testBreakpoints) {
+        for (BallerinaTestDebugPoint bp : testBreakpoints) {
             if (bp.getSource().getPath().equals(breakpoint.getSource().getPath())) {
                 breakpointsToBeSent.add(bp);
             }
@@ -520,25 +520,26 @@ public class DebugTestRunner {
      */
     public Map<String, Variable> fetchVariables(StoppedEventArguments args, VariableScope scope)
             throws BallerinaTestException {
-        Map<String, Variable> variables = new HashMap<>();
         if (!hitListener.getConnector().isConnected()) {
-            return variables;
+            throw new BallerinaTestException("Debug server is not connected.");
         }
-        StackTraceArguments stackTraceArgs = new StackTraceArguments();
+        StackTraceArguments traceArgs = new StackTraceArguments();
         VariablesArguments variableArgs = new VariablesArguments();
         ScopesArguments scopeArgs = new ScopesArguments();
-        stackTraceArgs.setThreadId(args.getThreadId());
+        traceArgs.setThreadId(args.getThreadId());
 
         try {
-            StackTraceResponse stackResp = hitListener.getConnector().getRequestManager().stackTrace(stackTraceArgs);
+            StackTraceResponse stackResp = hitListener.getConnector().getRequestManager().stackTrace(traceArgs);
             StackFrame[] stackFrames = stackResp.getStackFrames();
             if (stackFrames.length == 0) {
-                return variables;
+                throw new BallerinaTestException("Stack frame response does not contain any frames");
             }
             scopeArgs.setFrameId(scope == VariableScope.LOCAL ? stackFrames[0].getId() : -stackFrames[0].getId());
             ScopesResponse scopesResp = hitListener.getConnector().getRequestManager().scopes(scopeArgs);
             variableArgs.setVariablesReference(scopesResp.getScopes()[0].getVariablesReference());
             VariablesResponse variableResp = hitListener.getConnector().getRequestManager().variables(variableArgs);
+
+            Map<String, Variable> variables = new HashMap<>();
             Arrays.stream(variableResp.getVariables()).forEach(variable -> variables.put(variable.getName(), variable));
             return variables;
         } catch (Exception e) {

@@ -37,6 +37,7 @@ public class RecursiveDebugTest extends BaseTestCase {
 
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "recursive-tests";
@@ -62,12 +63,12 @@ public class RecursiveDebugTest extends BaseTestCase {
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 26));
 
-        // tries STEP_OVER request on the recursive function call line, which should results in a debug hit on the
-        // user configured breakpoint (since STEP_OVER request should honor any breakpoints which get reached during
-        // the program execution, before reaching to the next line of the same method).
+        // tries STEP_OVER request on the recursive function call line, which should not results in a debug hit on the
+        // user configured breakpoint (since STEP requests should not depend on any breakpoints which get reached
+        // during the program execution, before reaching to the next line of the same method).
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 26));
 
         // Todo - enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/34847
         // since now the breakpoint is removed, STEP_OVER request should result in a debug hit on next immediate
@@ -78,6 +79,7 @@ public class RecursiveDebugTest extends BaseTestCase {
         // Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(36));
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

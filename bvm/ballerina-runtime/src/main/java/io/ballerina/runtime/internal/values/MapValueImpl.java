@@ -17,11 +17,11 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -34,20 +34,20 @@ import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
-import io.ballerina.runtime.internal.CycleUtils;
-import io.ballerina.runtime.internal.IteratorUtils;
-import io.ballerina.runtime.internal.JsonGenerator;
-import io.ballerina.runtime.internal.JsonInternalUtils;
-import io.ballerina.runtime.internal.MapUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.json.JsonGenerator;
+import io.ballerina.runtime.internal.json.JsonInternalUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.utils.CycleUtils;
+import io.ballerina.runtime.internal.utils.IteratorUtils;
+import io.ballerina.runtime.internal.utils.MapUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -66,15 +66,15 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
-import static io.ballerina.runtime.internal.JsonInternalUtils.mergeJson;
 import static io.ballerina.runtime.internal.TypeChecker.isEqual;
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.INVALID_READONLY_VALUE_UPDATE;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
-import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
-import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
+import static io.ballerina.runtime.internal.json.JsonInternalUtils.mergeJson;
+import static io.ballerina.runtime.internal.utils.StringUtils.getExpressionStringVal;
+import static io.ballerina.runtime.internal.utils.StringUtils.getStringVal;
+import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.values.ReadOnlyUtils.handleInvalidUpdate;
 
 /**
@@ -130,8 +130,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public Long getIntValue(BString key) {
         Object value = get(key);
-        if (value instanceof Integer) { // field is an int subtype
-            return ((Integer) value).longValue();
+        if (value instanceof Integer i) { // field is an int subtype
+            return i.longValue();
         }
         return (Long) value;
     }
@@ -221,7 +221,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         // The type should be a record or map for filling read.
         if (this.referredType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             BRecordType recordType = (BRecordType) this.referredType;
-            Map fields = recordType.getFields();
+            Map<?, ?> fields = recordType.getFields();
             if (fields.containsKey(key.toString())) {
                 expectedType = ((BField) fields.get(key.toString())).getFieldType();
             } else {
@@ -248,7 +248,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public Object merge(BMap v2, boolean checkMergeability) {
+    public Object merge(BMap<?, ?> v2, boolean checkMergeability) {
         if (checkMergeability) {
             BError errorIfUnmergeable = JsonInternalUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
             if (errorIfUnmergeable != null) {
@@ -293,18 +293,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             return putValue(key, value);
         }
 
-        String errMessage = "";
-        switch (getImpliedType(getType()).getTag()) {
-            case TypeTags.RECORD_TYPE_TAG:
-                errMessage = "Invalid update of record field: ";
-                break;
-            case TypeTags.MAP_TAG:
-                errMessage = "Invalid map insertion: ";
-                break;
-        }
+        String errMessage = switch (getImpliedType(getType()).getTag()) {
+            case TypeTags.RECORD_TYPE_TAG -> "Invalid update of record field: ";
+            case TypeTags.MAP_TAG -> "Invalid map insertion: ";
+            default -> "";
+        };
         throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                       StringUtils
-                                                .fromString(errMessage).concat(ErrorHelper.getErrorMessage(
+                                       StringUtils.fromString(errMessage).concat(ErrorHelper.getErrorMessage(
                                                   INVALID_READONLY_VALUE_UPDATE)));
     }
 
@@ -318,7 +313,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     protected void populateInitialValues(BMapInitialValueEntry[] initialValues) {
-        Map<String, BFunctionPointer<Object, ?>> defaultValues = new HashMap<>();
+        Map<String, BFunctionPointer> defaultValues = new HashMap<>();
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             defaultValues.putAll(((BRecordType) type).getDefaultValues());
         }
@@ -342,10 +337,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             }
         }
 
-        for (Map.Entry<String, BFunctionPointer<Object, ?>> entry : defaultValues.entrySet()) {
+        for (Map.Entry<String, BFunctionPointer> entry : defaultValues.entrySet()) {
             String key = entry.getKey();
-            BFunctionPointer<Object, ?> value = entry.getValue();
-            populateInitialValue((K) new BmpStringValue(key), (V) value.call(new Object[]{Scheduler.getStrand()}));
+            populateInitialValue((K) new BmpStringValue(key),
+                    (V) entry.getValue().call(Scheduler.getStrand().scheduler.runtime, new Object[]{}));
         }
     }
 
@@ -590,8 +585,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         this.referredType = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.referredType);
 
         this.values().forEach(val -> {
-            if (val instanceof BRefValue) {
-                ((BRefValue) val).freezeDirect();
+            if (val instanceof BRefValue bRefValue) {
+                bRefValue.freezeDirect();
             }
         });
         this.typedesc = null;
@@ -610,7 +605,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<Object> getIterator() {
         return new MapIterator<>(new LinkedHashSet<>(this.entrySet()).iterator());
     }
 
@@ -622,7 +617,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      *
      * @since 0.995.0
      */
-    static class MapIterator<K, V> implements IteratorValue {
+    static class MapIterator<K, V> implements IteratorValue<Object> {
 
         Iterator<Map.Entry<K, V>> iterator;
 

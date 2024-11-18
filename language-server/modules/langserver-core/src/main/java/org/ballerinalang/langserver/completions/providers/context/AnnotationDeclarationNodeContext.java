@@ -43,7 +43,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link AnnotationDeclarationNode} context.
@@ -72,7 +71,7 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
             } else {
                 List<Symbol> filteredSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
                         .filter(predicate)
-                        .collect(Collectors.toList());
+                        .toList();
                 completionItemList.addAll(this.getCompletionItemList(filteredSymbols, context));
                 completionItemList.addAll(this.getModuleCompletionItems(context));
                 completionItemList.add(new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()));
@@ -135,7 +134,7 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
         return rawType.typeKind() == TypeDescKind.MAP || rawType.typeKind() == TypeDescKind.RECORD;
     }
 
-    private List<LSCompletionItem> getAnnotationAttachmentPoints(BallerinaCompletionContext context,
+    private List<SnippetCompletionItem> getAnnotationAttachmentPoints(BallerinaCompletionContext context,
                                                                  AnnotationDeclarationNode node) {
         AttachmentPointContext attachmentPointContext = getAttachmentPointContext(context, node);
         List<Snippet> itemSnippets = new ArrayList<>();
@@ -166,7 +165,7 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
 
         return itemSnippets.stream()
                 .map(snippet -> new SnippetCompletionItem(context, snippet.get()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<Snippet> anyAttachmentPoints() {

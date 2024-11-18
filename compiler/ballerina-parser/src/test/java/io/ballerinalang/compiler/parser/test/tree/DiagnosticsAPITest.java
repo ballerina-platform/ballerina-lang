@@ -32,7 +32,7 @@ import io.ballerina.tools.text.TextDocuments;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,7 +116,8 @@ public class DiagnosticsAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertFalse(lineRangeList.isEmpty());
     }
 
+    @Override
     protected SyntaxTree parseFile(String sourceFileName) {
-        return super.parseFile(Paths.get("diagnostics").resolve(sourceFileName));
+        return super.parseFile(Path.of("diagnostics", sourceFileName));
     }
 }

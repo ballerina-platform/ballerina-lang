@@ -26,7 +26,11 @@ import io.ballerina.runtime.api.utils.StringUtils;
  *
  * @since 1.3.0
  */
-public class AssertFalse {
+public final class AssertFalse {
+
+    private AssertFalse() {
+    }
+
     public static void assertFalse(boolean value) {
         if (value) {
             throw ErrorCreator.createError(StringUtils.fromString("{ballerina/lang.test}AssertionError"),

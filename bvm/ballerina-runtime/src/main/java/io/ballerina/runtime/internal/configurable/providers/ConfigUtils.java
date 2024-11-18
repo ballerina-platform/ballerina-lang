@@ -16,8 +16,8 @@
 
 package io.ballerina.runtime.internal.configurable.providers;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -40,7 +40,7 @@ import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_UNION_VALUE
 /*
  * Util class that contain methods that are common for env vars, cli configuration.
  */
-public class ConfigUtils {
+public final class ConfigUtils {
 
     private ConfigUtils() {
     }

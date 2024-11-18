@@ -25,13 +25,10 @@ import io.ballerina.runtime.api.values.BString;
  * Extern function to check existence of key.
  * ballerina.model.map:hasKey(string)
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map", functionName = "hasKey",
-//        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-//        isPublic = true
-//)
 public class HasKey {
+
+    private HasKey() {
+    }
 
     @Deprecated
     public static boolean hasKey(BMap<?, ?> m, BString k) {

@@ -45,7 +45,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.identifier.Utils.escapeSpecialCharacters;
@@ -200,10 +199,10 @@ public final class ConverterUtils {
         List<TypeDescriptorNode> extractedTypeNames = new ArrayList<>();
         for (TypeDescriptorNode typeDescNode : typeDescNodes) {
             TypeDescriptorNode extractedTypeDescNode = extractParenthesisedTypeDescNode(typeDescNode);
-            if (extractedTypeDescNode instanceof UnionTypeDescriptorNode) {
+            if (extractedTypeDescNode instanceof UnionTypeDescriptorNode unionTypeDescriptorNode) {
                 List<TypeDescriptorNode> childTypeDescNodes =
-                        List.of(((UnionTypeDescriptorNode) extractedTypeDescNode).leftTypeDesc(),
-                                ((UnionTypeDescriptorNode) extractedTypeDescNode).rightTypeDesc());
+                        List.of(unionTypeDescriptorNode.leftTypeDesc(),
+                                unionTypeDescriptorNode.rightTypeDesc());
                 addIfNotExist(extractedTypeNames, extractTypeDescriptorNodes(childTypeDescNodes));
             } else {
                 addIfNotExist(extractedTypeNames, List.of(extractedTypeDescNode));
@@ -219,12 +218,11 @@ public final class ConverterUtils {
      * @return {@link List<TypeDescriptorNode>} The sorted TypeDescriptorNode list.
      */
     public static List<TypeDescriptorNode> sortTypeDescriptorNodes(List<TypeDescriptorNode> typeDescriptorNodes) {
-        List<TypeDescriptorNode> nonArrayNodes = typeDescriptorNodes.stream()
-                .filter(node -> !(node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
-        List<TypeDescriptorNode> arrayNodes = typeDescriptorNodes.stream()
-                .filter(node -> (node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
-        nonArrayNodes.sort(Comparator.comparing(TypeDescriptorNode::toSourceCode));
-        arrayNodes.sort((node1, node2) -> {
+        Stream<TypeDescriptorNode> nonArrayNodes = typeDescriptorNodes.stream()
+                .filter(node -> !(node instanceof ArrayTypeDescriptorNode))
+                .sorted(Comparator.comparing(TypeDescriptorNode::toSourceCode));
+        Stream<TypeDescriptorNode> arrayNodes = typeDescriptorNodes.stream()
+                .filter(node -> (node instanceof ArrayTypeDescriptorNode)).sorted((node1, node2) -> {
             ArrayTypeDescriptorNode arrayNode1 = (ArrayTypeDescriptorNode) node1;
             ArrayTypeDescriptorNode arrayNode2 = (ArrayTypeDescriptorNode) node2;
             return getNumberOfDimensions(arrayNode1).equals(getNumberOfDimensions(arrayNode2)) ?
@@ -232,7 +230,7 @@ public final class ConverterUtils {
                             .compareTo((arrayNode2).memberTypeDesc().toSourceCode()) :
                     getNumberOfDimensions(arrayNode1) - getNumberOfDimensions(arrayNode2);
         });
-        return Stream.concat(nonArrayNodes.stream(), arrayNodes.stream()).collect(Collectors.toList());
+        return Stream.concat(nonArrayNodes, arrayNodes).toList();
     }
 
     /**
@@ -282,15 +280,15 @@ public final class ConverterUtils {
      */
     public static Integer getNumberOfDimensions(ArrayTypeDescriptorNode arrayNode) {
         int totalDimensions = arrayNode.dimensions().size();
-        if (arrayNode.memberTypeDesc() instanceof ArrayTypeDescriptorNode) {
-            totalDimensions += getNumberOfDimensions((ArrayTypeDescriptorNode) arrayNode.memberTypeDesc());
+        if (arrayNode.memberTypeDesc() instanceof ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+            totalDimensions += getNumberOfDimensions(arrayTypeDescriptorNode);
         }
         return totalDimensions;
     }
 
     private static TypeDescriptorNode extractParenthesisedTypeDescNode(TypeDescriptorNode typeDescNode) {
-        if (typeDescNode instanceof ParenthesisedTypeDescriptorNode) {
-            return extractParenthesisedTypeDescNode(((ParenthesisedTypeDescriptorNode) typeDescNode).typedesc());
+        if (typeDescNode instanceof ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode) {
+            return extractParenthesisedTypeDescNode(parenthesisedTypeDescriptorNode.typedesc());
         } else {
             return typeDescNode;
         }

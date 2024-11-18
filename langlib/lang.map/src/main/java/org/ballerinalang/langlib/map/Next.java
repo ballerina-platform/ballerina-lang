@@ -31,18 +31,14 @@ import io.ballerina.runtime.api.values.BObject;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map", functionName = "next",
-//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "MapIterator",
-//        structPackage = "ballerina/lang.map"),
-//        returnType = {@ReturnType(type = TypeKind.RECORD)},
-//        isPublic = true
-//)
-public class Next {
-    //TODO: refactor hard coded values
+public final class Next {
+
+    private Next() {
+    }
+
     public static Object next(BObject m) {
-        BIterator mapIterator = (BIterator) m.getNativeData("&iterator&");
-        BMap bMap = (BMap) m.get(StringUtils.fromString("m"));
+        BIterator<?> mapIterator = (BIterator<?>) m.getNativeData("&iterator&");
+        BMap<?, ?> bMap = (BMap<?, ?>) m.get(StringUtils.fromString("m"));
         if (mapIterator == null) {
             mapIterator = bMap.getIterator();
             m.addNativeData("&iterator&", mapIterator);

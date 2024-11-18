@@ -26,14 +26,10 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "getChildren",
-//        args = {@Argument(name = "BXML", type = TypeKind.XML)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
-public class GetChildren {
+public final class GetChildren {
+
+    private GetChildren() {
+    }
 
     public static BXml getChildren(BXml xmlVal) {
         if (!IsElement.isElement(xmlVal)) {

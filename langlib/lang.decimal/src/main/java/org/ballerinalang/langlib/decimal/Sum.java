@@ -26,19 +26,16 @@ import java.math.BigDecimal;
 /**
  * Native implementation of lang.decimal:sum(decimal...).
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.decimal", functionName = "sum",
-//        args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
-//        isPublic = true
-//)
 public class Sum {
+
+
+    private Sum() {
+    }
 
     public static BDecimal sum(BDecimal[] ns) {
         BDecimal sum = ValueCreator.createDecimalValue(BigDecimal.ZERO);
-        int size = ns.length;
-        for (int i = 0; i < size; i++) {
-            sum = sum.add(ns[i]);
+        for (BDecimal n : ns) {
+            sum = sum.add(n);
         }
         return sum;
     }

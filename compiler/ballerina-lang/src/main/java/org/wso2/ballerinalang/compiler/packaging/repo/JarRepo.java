@@ -7,7 +7,6 @@ import org.wso2.ballerinalang.compiler.packaging.converters.ZipConverter;
 
 import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Calculate path pattens within meta-inf dir of jars (or exploded jars).
@@ -17,7 +16,7 @@ public class JarRepo implements Repo<Path> {
     private final ZipConverter converter;
 
     public JarRepo(URI jarLocation) {
-        this.converter = new ZipConverter(Paths.get(jarLocation));
+        this.converter = new ZipConverter(Path.of(jarLocation));
     }
 
     @Override

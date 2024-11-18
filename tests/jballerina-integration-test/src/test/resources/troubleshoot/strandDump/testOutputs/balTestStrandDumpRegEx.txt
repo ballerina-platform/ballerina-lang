@@ -1,53 +1,66 @@
 Ballerina Strand Dump \[\d*/\d*/\d* \d*:\d*:\d*\]
-===========================================
+===============================================================
 
-Total strand group count \t:\t3
-Total strand count       \t:\t8
-Active strand group count\t:\t1
-Active strand count      \t:\t8
+Total Strand count       \t\t\t:\t7
 
-group \d* \[QUEUED\]: \[8\]
-\tstrand \d* "main" \[testOrg.testPackageWithModules.0:main\] \[BLOCKED\]:
-\t\tat\tballerina.lang.function.\d*.\d*.\d*:call\(function.bal:\d*\)
-\t\t  \tballerina.test.\d*.\d*.\d*:executeTestFunction\(serialExecuter.bal:\d*\)
-\t\t  \tballerina.test.\d*.\d*.\d*:executeNonDataDrivenTest\(serialExecuter.bal:\d*\)
-\t\t  \tballerina.test.\d*.\d*.\d*:executeTest\(serialExecuter.bal:\d*\)
-\t\t  \tballerina.test.\d*.\d*.\d*:executeTests\(execute.bal:\d*\)
-\t\t  \tballerina.test.\d*.\d*.\d*:startSuite\(execute.bal:\d*\)
-\t\t  \ttestOrg.testPackageWithModules.0.1.0:__execute__\(tests/test_execute-generated_1.bal:\d*\)
-\t\t  \t\$moduleExecute
+Total Isolated Worker count       \t\t:\t0
 
-\tstrand \d* \[ballerina.lang.function.\d*.\d*.\d*:call\]\[\d*\] \[WAITING\]:
-\t\tat\ttestOrg.testPackageWithModules.0.1.0:bar\(main.bal:52\)
-\t\t  \ttestOrg.testPackageWithModules.0.1.0:foo\(main.bal:37\)
-\t\t  \ttestOrg.testPackageWithModules.0.1.0:foobar\(main.bal:33\)
-\t\t  \ttestOrg.testPackageWithModules.0.1.0:testStrandDump\(tests/main_test.bal:35\)
+Total Non Isolated Worker count       \t\t:\t7
 
-\tstrand \d* "w11" \[testOrg.testPackageWithModules.0:testStrandDump\]\[\d*\] \[WAITING\]:
-\t\tat\ttestOrg.testPackageWithModules.anotherutils.0.1.0:func3\(anotherutils.bal:46\)
-\t\t  \ttestOrg.testPackageWithModules.anotherutils.0.1.0:func2\(anotherutils.bal:29\)
-\t\t  \ttestOrg.testPackageWithModules.anotherutils.0.1.0:func1\(anotherutils.bal:25\)
-\t\t  \ttestOrg.testPackageWithModules.anotherutils.0.1.0:entryfunc\(anotherutils.bal:21\)
-\t\t  \ttestOrg.testPackageWithModules.0.1.0:\$lambda\$_10\(tests/main_test.bal:26\)
+================================================================
 
-\tstrand \d* "w22" \[testOrg.testPackageWithModules.0:testStrandDump\]\[\d*\] \[BLOCKED\]:
-\t\tat\tballerina.lang.runtime.\d*.\d*.\d*:sleep\(runtime.bal:\d*\)
-\t\t  \ttestOrg.testPackageWithModules.0.1.0:\$lambda\$_11\(tests/main_test.bal:31\)
+Isolated Workers:
 
-\tstrand \d* "w1" \[testOrg.testPackageWithModules.0:bar\]\[\d*\] \[BLOCKED\]:
-\t\tat\tballerina.lang.runtime.\d*.\d*.\d*:sleep\(runtime.bal:\d*\)
-\t\t  \ttestOrg.testPackageWithModules.0.1.0:sleep_and_wait_nested\(main.bal:61\)
-\t\t  \ttestOrg.testPackageWithModules.0.1.0:sleep_and_wait\(main.bal:56\)
-\t\t  \ttestOrg.testPackageWithModules.0.1.0:\$lambda\$_0\(main.bal:42\)
+Non Isolated Workers:
 
-\tstrand \d* "w2" \[testOrg.testPackageWithModules.0:bar\]\[\d*\] \[BLOCKED ON WORKER MESSAGE RECEIVE\]:
-\t\tat\ttestOrg.testPackageWithModules.0.1.0:\$lambda\$_1\(main.bal:48\)
+\tStrand #\d* \"\w*\" :
+\t\tat       testOrg.testPackageWithModules.0.main.bar\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.main.foo\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.main.foobar\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules\$test.0.tests.main_test.testStrandDump\(tests/main_test.bal:\d*\)
+\t\t         testOrg.testPackageWithModules\$test.0.lambdas.\$_generated1tests.test_execute-generated_1.testStrandDump\$lambda0\$\(tests/test_execute-generated_1.bal:\d*\)
+\t\t         ballerina.lang&0046function.0.function.call\(function.bal:\d*\)
+\t\t         ballerina.test.0.serialExecuter.executeTestFunction\(serialExecuter.bal:\d*\)
+\t\t         ballerina.test.0.serialExecuter.executeNonDataDrivenTest\(serialExecuter.bal:\d*\)
+\t\t         ballerina.test.0.serialExecuter.executeTest\(serialExecuter.bal:\d*\)
+\t\t         ballerina.test.0.execute.executeTests\(execute.bal:\d*\)
+\t\t         ballerina.test.0.execute.startSuite\(execute.bal:\d*\)
+\t\t         testOrg.testPackageWithModules\$test.0.tests.test_execute-generated_1.__execute__\(tests/test_execute-generated_1.bal:\d*\)
+\t\t         testOrg.testPackageWithModules\$test.0.\$_init.\$moduleExecute\(testPackageWithModules\)
+\t\t         testOrg.testPackageWithModules\$test.0.\$_init.\$lambda\$\$moduleExecute\$\(testPackageWithModules\)
 
-\tstrand \d* "w1" \[testOrg.testPackageWithModules.anotherutils.0:func3\]\[\d*\] \[BLOCKED\]:
-\t\tat\tballerina.lang.runtime.\d*.\d*.\d*:sleep\(runtime.bal:\d*\)
-\t\t  \ttestOrg.testPackageWithModules.anotherutils.0.1.0:sleep_and_wait_nested\(anotherutils.bal:55\)
-\t\t  \ttestOrg.testPackageWithModules.anotherutils.0.1.0:sleep_and_wait\(anotherutils.bal:50\)
-\t\t  \ttestOrg.testPackageWithModules.anotherutils.0.1.0:\$lambda\$_0\(anotherutils.bal:34\)
+\tStrand #\d* \"\w*\" :
+\t\tat       ballerina.lang&0046runtime.0.runtime.sleep\(runtime.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.main.sleep_and_wait_nested\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.main.sleep_and_wait\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.main.\$lambda\$_0\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.\$lambda\$_0\$lambda3\$\(main.bal:\d*\)
 
-\tstrand \d* "w2" \[testOrg.testPackageWithModules.anotherutils.0:func3\]\[\d*\] \[BLOCKED ON WORKER MESSAGE RECEIVE\]:
-\t\tat\ttestOrg.testPackageWithModules.anotherutils.0.1.0:\$lambda\$_1\(anotherutils.bal:42\)
+\tStrand #\d* \"\w*\" :
+\t\tat       testOrg.testPackageWithModules.0.main.\$lambda\$_1\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.\$lambda\$_1\$lambda4\$\(main.bal:\d*\)
+
+\tStrand #\d* \"\w*\" :
+\t\tat       ballerina.lang&0046runtime.0.runtime.sleep\(runtime.bal:\d*\)
+\t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.sleep_and_wait_nested\(anotherutils.bal:\d*\)
+\t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.sleep_and_wait\(anotherutils.bal:\d*\)
+\t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.\$lambda\$_0\(anotherutils.bal:\d*\)
+\t\t         testOrg.testPackageWithModules&0046anotherutils.0.lambdas.\$_generated1anotherutils.\$lambda\$_0\$lambda0\$\(anotherutils.bal:\d*\)
+
+\tStrand #\d* \"\w*\" :
+\t\tat       testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.\$lambda\$_1\(anotherutils.bal:\d*\)
+\t\t         testOrg.testPackageWithModules&0046anotherutils.0.lambdas.\$_generated1anotherutils.\$lambda\$_1\$lambda1\$\(anotherutils.bal:\d*\)
+
+\tStrand #\d* \"\w*\" :
+\t\tat       testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.func3\(anotherutils.bal:\d*\)
+\t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.func2\(anotherutils.bal:\d*\)
+\t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.func1\(anotherutils.bal:\d*\)
+\t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.entryfunc\(anotherutils.bal:\d*\)
+\t\t         testOrg.testPackageWithModules\$test.0.tests.main_test.\$lambda\$_10\(tests/main_test.bal:\d*\)
+\t\t         testOrg.testPackageWithModules\$test.0.lambdas.\$_generated2tests.main_test.\$lambda\$_10\$lambda0\$\(tests/main_test.bal:\d*\)
+
+\tStrand #\d* \"\w*\" :
+\t\tat       ballerina.lang&0046runtime.0.runtime.sleep\(runtime.bal:\d*\)
+\t\t         testOrg.testPackageWithModules\$test.0.tests.main_test.\$lambda\$_11\(tests/main_test.bal:\d*\)
+\t\t         testOrg.testPackageWithModules\$test.0.lambdas.\$_generated2tests.main_test.\$lambda\$_11\$lambda1\$\(tests/main_test.bal:\d*\)
+

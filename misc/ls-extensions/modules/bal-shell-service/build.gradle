@@ -16,8 +16,10 @@
  *  under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations {
     compile.transitive = false
@@ -31,13 +33,13 @@ dependencies {
     compileOnly project(':language-server:language-server-commons')
     compileOnly project(':ballerina-shell:shell-core')
     compileOnly project(':ballerina-shell:shell-cli')
-    compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.9'
+    compileOnly libs.eclipse.lsp4j
+    implementation libs.jackson.databind
 
-    testImplementation 'org.testng:testng'
-    testImplementation 'com.google.code.gson:gson:2.10.1'
+    testImplementation libs.testng
+    testImplementation libs.gson
     testImplementation project(':language-server:language-server-core')
-    testImplementation (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
+    testImplementation libs.eclipse.lsp4j
 }
 
 test {

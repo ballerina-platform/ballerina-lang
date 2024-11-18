@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -57,11 +56,11 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
     private JsonObject resultObj;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException, IOException {
+    public void setup() throws IOException {
         balClient = new BMainInstance(balServer);
-        FileUtils.copyFolder(Paths.get("build").resolve("compiler-plugin-jars"),
+        FileUtils.copyFolder(Path.of("build/compiler-plugin-jars"),
                 projectBasedTestsPath.resolve("compiler-plugin-jars"));
-        repoBalaPath = Paths.get(balServer.getServerHome()).resolve("repo");
+        repoBalaPath = Path.of(balServer.getServerHome(), "repo");
     }
 
     @DataProvider(name = "provideCoverageData")
@@ -122,7 +121,7 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
                 .resolve(compilerPluginName).toString();
         balClient.runMain("pack", new String[]{}, null, null, new LogLeecher[]{}, compilerPluginBalaPath);
         Path balaPath = projectBasedTestsPath.resolve(compilerPluginBalaPath).resolve("target").resolve("bala")
-                .resolve("samjs-" + compilerPluginName + "-java17-0.1.0.bala");
+                .resolve("samjs-" + compilerPluginName + "-java21-0.1.0.bala");
         BCompileUtil.copyBalaToExtractedDist(balaPath, "samjs", compilerPluginName, "0.1.0", repoBalaPath);
     }
 

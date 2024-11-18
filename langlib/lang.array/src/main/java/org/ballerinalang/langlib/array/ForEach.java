@@ -18,43 +18,30 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import org.ballerinalang.langlib.array.utils.GetFunction;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessFunction;
-import static org.ballerinalang.langlib.array.utils.Constants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:forEach(Type[]).
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "forEach",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
-//        isPublic = true
-//)
 public class ForEach {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
-                                                                      ARRAY_VERSION, "forEach");
+    private ForEach() {
+    }
 
-    public static void forEach(BArray arr, BFunctionPointer<Object, Object> func) {
+    public static void forEach(Environment env, BArray arr, BFunctionPointer func) {
         int size = arr.size();
         Type arrType = arr.getType();
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
-        AtomicInteger index = new AtomicInteger(-1);
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{getFn.get(arr, index.incrementAndGet()), true}, result -> {
-                }, () -> null, Scheduler.getStrand().scheduler);
+        for (int i = 0; i < size; i++) {
+            func.call(env.getRuntime(), getFn.get(arr, i));
+        }
     }
 }

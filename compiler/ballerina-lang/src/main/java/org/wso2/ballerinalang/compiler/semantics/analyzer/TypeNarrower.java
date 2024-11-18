@@ -69,10 +69,10 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 public class TypeNarrower extends BLangNodeVisitor {
 
     private SymbolEnv env;
-    private SymbolTable symTable;
-    private Types types;
-    private SymbolEnter symbolEnter;
-    private TypeChecker typeChecker;
+    private final SymbolTable symTable;
+    private final Types types;
+    private final SymbolEnter symbolEnter;
+    private final TypeChecker typeChecker;
     private static final CompilerContext.Key<TypeNarrower> TYPE_NARROWER_KEY = new CompilerContext.Key<>();
 
     private TypeNarrower(CompilerContext context) {

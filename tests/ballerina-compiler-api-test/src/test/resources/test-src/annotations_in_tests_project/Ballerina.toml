@@ -1,0 +1,7 @@
+[package]
+org = "testorg"
+name = "annotations_in_tests_project"
+version = "0.1.0"
+
+[build-options]
+observabilityIncluded = true

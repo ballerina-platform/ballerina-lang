@@ -55,7 +55,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -72,7 +71,6 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
-import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
@@ -217,10 +215,10 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     public EmitResult emit(OutputType outputType, Path filePath) {
-        Path generatedArtifact = null;
+        Path generatedArtifact;
 
         if (diagnosticResult.hasErrors()) {
-            return new EmitResult(false, new DefaultDiagnosticResult(new ArrayList<>()), generatedArtifact);
+            return new EmitResult(false, new DefaultDiagnosticResult(new ArrayList<>()), null);
         }
 
         List<Diagnostic> emitResultDiagnostics = new ArrayList<>();
@@ -290,7 +288,7 @@ public class JBallerinaBackend extends CompilerBackend {
         return getPlatformLibraries(packageId)
                 .stream()
                 .filter(platformLibrary -> platformLibrary.scope() == scope)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<PlatformLibrary> getPlatformLibraries(PackageId packageId) {
@@ -318,7 +316,7 @@ public class JBallerinaBackend extends CompilerBackend {
                     if (Objects.equals(dependencyScope, PlatformLibraryScope.PROVIDED)
                             && !Objects.equals(packageId, this.packageContext().packageId())) {
                         dependencyFilePath = getPlatformLibPathFromProvided(platform, groupId, artifactId, version);
-                        Path jarPath = Paths.get(dependencyFilePath);
+                        Path jarPath = Path.of(dependencyFilePath);
                         if (!jarPath.isAbsolute()) {
                             jarPath = this.packageContext().project().sourceRoot().resolve(jarPath);
                         }
@@ -329,7 +327,7 @@ public class JBallerinaBackend extends CompilerBackend {
                     dependency.put(JarLibrary.KEY_PATH, dependencyFilePath);
                 }
                 // If the path is relative we will convert to absolute relative to Ballerina.toml file
-                Path jarPath = Paths.get(dependencyFilePath);
+                Path jarPath = Path.of(dependencyFilePath);
                 if (!jarPath.isAbsolute()) {
                     jarPath = pkg.project().sourceRoot().resolve(jarPath);
                 }
@@ -376,9 +374,6 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         boolean isRemoteMgtEnabled = moduleContext.project().buildOptions().compilationOptions().remoteManagement();
         CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, isRemoteMgtEnabled);
-        if (compiledJarFile == null) {
-            throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
-        }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
             ByteArrayOutputStream byteStream = compiledJarFile.toByteArrayStream();
@@ -700,7 +695,7 @@ public class JBallerinaBackend extends CompilerBackend {
         nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
                 + (OS.contains("win") ? "native-image.cmd" : "native-image");
 
-        File commandExecutable = Paths.get(nativeImageCommand).toFile();
+        File commandExecutable = Path.of(nativeImageCommand).toFile();
         if (!commandExecutable.exists()) {
             throw new ProjectException("cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME/bin " +
                     "directory. Install it using: gu install native-image");
@@ -715,14 +710,13 @@ public class JBallerinaBackend extends CompilerBackend {
             nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
             nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
                     executableFilePath.toString(),
-                    "-H:Name=" + nativeImageName,
+                    "-o " + executableFilePath.getParent() + "/" + nativeImageName,
                     "--no-fallback"));
         } else {
             nativeImageName = project.currentPackage().packageName().toString();
             nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
                     executableFilePath.toString(),
-                    "-H:Name=" + nativeImageName,
-                    "-H:Path=" + executableFilePath.getParent(),
+                    "-o " + executableFilePath.getParent() + "/" + nativeImageName,
                     "--no-fallback"));
         }
 

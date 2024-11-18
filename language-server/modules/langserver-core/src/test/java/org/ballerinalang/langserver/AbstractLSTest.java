@@ -112,7 +112,7 @@ public abstract class AbstractLSTest {
     }
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         this.languageServer = new BallerinaLanguageServer();
         if (this.loadMockedPackages()) {
             setUp();

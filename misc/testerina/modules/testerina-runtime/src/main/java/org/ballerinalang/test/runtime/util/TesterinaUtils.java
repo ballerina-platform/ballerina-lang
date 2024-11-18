@@ -18,7 +18,7 @@
 package org.ballerinalang.test.runtime.util;
 
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
@@ -38,6 +38,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
@@ -52,7 +53,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTERINA_M
 /**
  * Utility methods.
  */
-public class TesterinaUtils {
+public final class TesterinaUtils {
 
     private static final PrintStream errStream = System.err;
 
@@ -64,6 +65,9 @@ public class TesterinaUtils {
     private static final String START_FUNCTION_SUFFIX = ".<start>";
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
 
+    private TesterinaUtils() {
+    }
+
     /**
      * Cleans up any remaining testerina metadata.
      *
@@ -72,7 +76,9 @@ public class TesterinaUtils {
     public static void cleanUpDir(Path path) {
         try {
             if (Files.exists(path)) {
-                Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+                try (Stream<Path> paths = Files.walk(path)) {
+                    paths.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+                }
             }
         } catch (IOException e) {
             errStream.println("Error occurred while deleting the dir : " + path + " with error : "
@@ -127,9 +133,9 @@ public class TesterinaUtils {
     private static void startSuite(Class<?> initClazz, String[] args) {
         // Call test module main
         Object response = runTestModuleMain(initClazz, args, String[].class);
-        if (response instanceof Throwable) {
+        if (response instanceof Throwable throwable) {
             throw new BallerinaTestException("dependant module execution for test suite failed due to " +
-                    RuntimeUtils.formatErrorMessage((Throwable) response), (Throwable) response);
+                    RuntimeUtils.formatErrorMessage(throwable), throwable);
         }
     }
 
@@ -325,8 +331,7 @@ public class TesterinaUtils {
         }
     }
 
-    public static List<org.ballerinalang.test.runtime.entity.Test> getSingleExecutionTestsOld(
-            List<org.ballerinalang.test.runtime.entity.Test> currentTests, List<String> functions) {
+    public static List<Test> getSingleExecutionTestsOld(List<Test> currentTests, List<String> functions) {
         return Collections.emptyList();
     }
 
@@ -386,7 +391,7 @@ public class TesterinaUtils {
 
     public static String decodeIdentifier(String encodedIdentifier) {
         if (encodedIdentifier == null) {
-            return encodedIdentifier;
+            return null;
         }
         StringBuilder sb = new StringBuilder();
         int index = 0;

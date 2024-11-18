@@ -92,10 +92,10 @@ public class TestCustomRetryInterceptor {
 
     @Test(description = "Return successful response before retry maximum is reached.", dependsOnMethods = "testRetries")
     public void testRetries2() throws IOException {
-        String expectedOutputPrefix =  "* Retrying request to http://localhost:57803/ " +
+        String expectedOutputPrefix =  "* Retrying request to http://localhost:57804/ " +
                 "due to 502 response code. Retry attempt: ";
         mockWebServer = new MockWebServer();
-        mockWebServer.start(PORT);
+        mockWebServer.start(PORT + 1);
         mockWebServer.enqueue(new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_GATEWAY));
         mockWebServer.enqueue(new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_GATEWAY));
         mockWebServer.enqueue(new MockResponse().setResponseCode(HttpURLConnection.HTTP_OK));

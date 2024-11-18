@@ -23,7 +23,7 @@ package org.ballerinalang.test.runtime.util;
  *
  * @since 0.970.0
  */
-public class TesterinaConstants {
+public final class TesterinaConstants {
 
     public static final String DOT_REPLACER = "&0046";
     public static final String BALLERINA_SOURCE_ROOT = "ballerina.source.root";
@@ -57,7 +57,7 @@ public class TesterinaConstants {
     public static final String TESTABLE = "testable";
     public static final String MODIFIED = "mod";
     public static final String CACHE_DIR = "cache";
-    public static final String JAVA_17_DIR = "java17";
+    public static final String JAVA_PLATFORM_DIR = "java21";
     public static final String ANON_ORG = "$anon";
     public static final String WILDCARD = "*";
 
@@ -111,7 +111,7 @@ public class TesterinaConstants {
      *
      * @since 2201.9.0
      */
-    public static class RunTimeArgs {
+    public static final class RunTimeArgs {
         public static final int IS_FAT_JAR_EXECUTION = 0;
         public static final int TEST_SUITE_JSON_PATH = 1;
         public static final int TARGET_DIR = 2;
@@ -124,5 +124,8 @@ public class TesterinaConstants {
         public static final int IS_RERUN_TEST_EXECUTION = 9;
         public static final int LIST_GROUPS = 10;
         public static final int IS_PARALLEL_EXECUTION = 11;
+
+        private RunTimeArgs() {
+        }
     }
 }

@@ -46,14 +46,13 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlItem;
 import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.api.values.BXmlSequence;
-import io.ballerina.runtime.internal.DecimalValueKind;
-import io.ballerina.runtime.internal.JsonDataSource;
-import io.ballerina.runtime.internal.ValueUtils;
-import io.ballerina.runtime.internal.XmlFactory;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.json.JsonDataSource;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.ValueUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.DecimalValueKind;
 import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
@@ -67,6 +66,7 @@ import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.XmlItem;
 import io.ballerina.runtime.internal.values.XmlQName;
 import io.ballerina.runtime.internal.values.XmlSequence;
+import io.ballerina.runtime.internal.xml.XmlFactory;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -82,7 +82,7 @@ import javax.xml.namespace.QName;
  *
  * @since 1.1.0
  */
-public class ValueCreator {
+public final class ValueCreator {
 
     /**
      * Creates a new array with given array type.
@@ -759,6 +759,17 @@ public class ValueCreator {
     }
 
     /**
+     * Create a runtime map value with given initial values and given type.
+     *
+     * @param recordType record type
+     * @param keyValues  initial map values to be populated
+     * @return map value
+     */
+    public static BMap<BString, Object> createMapValue(RecordType recordType, BMapInitialValueEntry[] keyValues) {
+        return new MapValueImpl<>(recordType, keyValues);
+    }
+
+    /**
      * Create a runtime map value with given initial values and given map type.
      *
      * @param mapType   map type
@@ -786,7 +797,7 @@ public class ValueCreator {
      * @param mappingValue mapping value
      * @return             spread field entry
      */
-    public static BMapInitialValueEntry createSpreadFieldEntry(BMap mappingValue) {
+    public static BMapInitialValueEntry createSpreadFieldEntry(BMap<?, ?> mappingValue) {
         return new MappingInitialValueEntry.SpreadFieldEntry(mappingValue);
     }
 
@@ -957,8 +968,8 @@ public class ValueCreator {
      * @param tableType table type
      * @return          table value for given type
      */
-    public static BTable createTableValue(TableType tableType) {
-        return new TableValueImpl(tableType);
+    public static BTable<?, ?> createTableValue(TableType tableType) {
+        return new TableValueImpl<>(tableType);
     }
 
     /**
@@ -969,8 +980,8 @@ public class ValueCreator {
      * @param fieldNames table field names
      * @return           table value for given type
      */
-    public static BTable createTableValue(TableType tableType, BArray data, BArray fieldNames) {
-        return new TableValueImpl(tableType, (ArrayValue) data, (ArrayValue) fieldNames);
+    public static BTable<?, ?> createTableValue(TableType tableType, BArray data, BArray fieldNames) {
+        return new TableValueImpl<>(tableType, (ArrayValue) data, (ArrayValue) fieldNames);
     }
 
     private ValueCreator() {

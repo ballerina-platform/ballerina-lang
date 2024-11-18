@@ -41,10 +41,10 @@ import java.io.PrintStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Optional;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -56,18 +56,21 @@ import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
  *
  * @since 2.0.0
  */
-public class BuildLangLib {
+public final class BuildLangLib {
 
     static Path projectDir;
     static Path distCache;
     static boolean skipBootstrap = false;
 
+    private BuildLangLib() {
+    }
+
 
     public static void main(String[] args) throws IOException {
         PrintStream out = System.out;
         try {
-            projectDir = Paths.get(args[0]);
-            distCache = Paths.get(args[1]);
+            projectDir = Path.of(args[0]);
+            distCache = Path.of(args[1]);
             String pkgName = args[2];
             // Following is to compile stdlib Modules
             if (args.length >= 4 && args[3].equals("true")) {
@@ -91,7 +94,7 @@ public class BuildLangLib {
             Project project = BuildProject.load(environmentBuilder, projectDir, defaultOptions);
             Package pkg = project.currentPackage();
             PackageCompilation packageCompilation = pkg.getCompilation();
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
             if (jBallerinaBackend.diagnosticResult().hasErrors()) {
                 out.println("Error building Ballerina package: " + pkg.packageName());
                 jBallerinaBackend.diagnosticResult().diagnostics().forEach(d -> out.println(d.toString()));
@@ -109,16 +112,19 @@ public class BuildLangLib {
             Files.createDirectories(balaPath);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
 
-            Path balaFilePath = Files.list(balaPath).findAny().orElseThrow();
+            Path balaFilePath;
+            try (Stream<Path> paths = Files.list(balaPath)) {
+                balaFilePath = paths.findAny().orElseThrow();
+            }
             ProjectUtils.extractBala(balaFilePath, balaPath);
             Files.delete(balaFilePath);
 
 
             // Create zip file
             Path zipFilePath = targetPath.resolve(pkgDesc.name().value() + ".zip");
-            try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(zipFilePath))) {
-                Files.walk(pkgTargetPath)
-                        .filter(path -> !Files.isDirectory(path))
+            try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(zipFilePath));
+                 Stream<Path> paths = Files.walk(pkgTargetPath)) {
+                paths.filter(path -> !Files.isDirectory(path))
                         .forEach(path -> {
                             ZipEntry zipEntry = new ZipEntry(pkgTargetPath.relativize(path).toString());
                             try {
@@ -150,8 +156,7 @@ public class BuildLangLib {
                     .toString(), true);
 
         } catch (Exception e) {
-            out.println("Unknown error building : " + projectDir.toString());
-            e.printStackTrace();
+            out.println("Unknown error building : " + projectDir.toString() + " due to " + e);
             throw e;
         }
     }

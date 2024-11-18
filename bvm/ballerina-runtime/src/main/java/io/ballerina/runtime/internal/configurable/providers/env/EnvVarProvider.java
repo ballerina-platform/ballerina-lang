@@ -17,10 +17,10 @@
 package io.ballerina.runtime.internal.configurable.providers.env;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.TypeConverter;
@@ -333,7 +333,7 @@ public class EnvVarProvider implements ConfigProvider {
         return new EnvVar(key, value);
     }
 
-    public class EnvVar {
+    public static class EnvVar {
 
         public String key;
         public String value;

@@ -32,7 +32,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SpreadCompletionItem;
 import org.ballerinalang.langserver.completions.builder.SpreadCompletionItemBuilder;
@@ -45,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ListConstructorExpressionNode} context.
@@ -59,8 +57,8 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ListConstructorExpressionNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context,
+                                                 ListConstructorExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
@@ -79,7 +77,7 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
         return completionItems;
     }
 
-    private List<LSCompletionItem> spreadOperatorCompletions(BallerinaCompletionContext context) {
+    private List<SpreadCompletionItem> spreadOperatorCompletions(BallerinaCompletionContext context) {
         Optional<SemanticModel> semanticModel = context.currentSemanticModel();
         Optional<Document> document = context.currentDocument();
         if (semanticModel.isEmpty() || document.isEmpty()) {
@@ -124,7 +122,7 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
                     CompletionItem completionItem =
                             SpreadCompletionItemBuilder.build(symbol, typeName, context);
                     return new SpreadCompletionItem(context, completionItem, symbol);
-                }).collect(Collectors.toList());
+                }).toList();
     }
 
     @Override

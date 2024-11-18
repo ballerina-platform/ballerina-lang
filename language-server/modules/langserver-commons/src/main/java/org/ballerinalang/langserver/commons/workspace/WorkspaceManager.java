@@ -137,7 +137,7 @@ public interface WorkspaceManager {
      * Returns syntax tree from the path provided.
      *
      * @param filePath file path of the document
-     * @return {@link io.ballerina.compiler.syntax.tree.SyntaxTree}
+     * @return {@link SyntaxTree}
      */
     Optional<SyntaxTree> syntaxTree(Path filePath);
 
@@ -146,7 +146,7 @@ public interface WorkspaceManager {
      *
      * @param filePath      file path of the document
      * @param cancelChecker Cancel checker for the operation which calls this method
-     * @return {@link io.ballerina.compiler.syntax.tree.SyntaxTree}
+     * @return {@link SyntaxTree}
      */
     Optional<SyntaxTree> syntaxTree(Path filePath, CancelChecker cancelChecker);
 
@@ -208,9 +208,8 @@ public interface WorkspaceManager {
      *
      * @param filePath {@link Path} of the document
      * @param params   {@link DidCloseTextDocumentParams}
-     * @throws WorkspaceDocumentException project not found
      */
-    void didClose(Path filePath, DidCloseTextDocumentParams params) throws WorkspaceDocumentException;
+    void didClose(Path filePath, DidCloseTextDocumentParams params);
 
     /**
      * The file change notification is sent from the client to the server to signal changes to watched files.

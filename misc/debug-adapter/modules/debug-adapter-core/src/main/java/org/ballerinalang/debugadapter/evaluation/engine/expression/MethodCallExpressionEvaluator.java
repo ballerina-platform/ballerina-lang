@@ -84,10 +84,10 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         this.syntaxNode = methodCallExpressionNode;
         this.objectExpressionEvaluator = expression;
         this.argEvaluators = argEvaluators;
-        if (syntaxNode instanceof MethodCallExpressionNode) {
-            this.methodName = ((MethodCallExpressionNode) syntaxNode).methodName().toSourceCode().trim();
-        } else if (syntaxNode instanceof RemoteMethodCallActionNode) {
-            this.methodName = ((RemoteMethodCallActionNode) syntaxNode).methodName().toSourceCode().trim();
+        if (syntaxNode instanceof MethodCallExpressionNode methodCallExpr) {
+            this.methodName = methodCallExpr.methodName().toSourceCode().trim();
+        } else if (syntaxNode instanceof RemoteMethodCallActionNode remoteMethodCallActionNode) {
+            this.methodName = remoteMethodCallActionNode.methodName().toSourceCode().trim();
         } else {
             methodName = UNKNOWN_VALUE;
         }

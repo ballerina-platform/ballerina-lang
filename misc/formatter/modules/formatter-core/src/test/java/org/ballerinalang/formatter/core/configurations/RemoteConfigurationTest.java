@@ -21,7 +21,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of additive expressions.
@@ -30,6 +30,7 @@ import java.nio.file.Paths;
  */
 public class RemoteConfigurationTest extends FormatterTest {
 
+    @Override
     @Test(dataProvider = "test-file-provider")
     public void test(String source, String sourcePath) throws IOException {
         try {
@@ -54,6 +55,6 @@ public class RemoteConfigurationTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("configurations", "remote").toString();
+        return Path.of("configurations", "remote").toString();
     }
 }

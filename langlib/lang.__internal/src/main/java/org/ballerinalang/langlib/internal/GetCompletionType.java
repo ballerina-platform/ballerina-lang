@@ -18,11 +18,11 @@
 
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BTypedesc;
 
@@ -31,7 +31,10 @@ import io.ballerina.runtime.api.values.BTypedesc;
  *
  * @since 2.0.0
  */
-public class GetCompletionType {
+public final class GetCompletionType {
+
+    private GetCompletionType() {
+    }
 
     public static BTypedesc getCompletionType(BTypedesc td) {
         Type type = TypeUtils.getImpliedType(td.getDescribingType());

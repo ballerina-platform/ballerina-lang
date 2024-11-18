@@ -132,9 +132,10 @@ public abstract class AbstractObjectValue implements ObjectValue {
         return (boolean) get(fieldName);
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public BMap getMapValue(BString fieldName) {
-        return (MapValueImpl) get(fieldName);
+        return (MapValueImpl<?, ?>) get(fieldName);
     }
 
     @Override

@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,7 +45,7 @@ import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
  */
 public class BallerinaTomlTests {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources");
     private static final Path BAL_TOML_REPO = RESOURCE_DIRECTORY.resolve("ballerina-toml");
 
     @Test
@@ -60,7 +59,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.org().value(), "foo");
         Assert.assertEquals(descriptor.version().value().toString(), "0.1.0");
 
-        PackageManifest.Platform platform = packageManifest.platform("java17");
+        PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_21.code());
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
         Assert.assertTrue(platform.graalvmCompatible());
@@ -113,7 +112,8 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.org().value(), "ballerina");
         Assert.assertEquals(descriptor.version().value().toString(), "1.0.0");
 
-        List<Map<String, Object>> platformDependencies = packageManifest.platform("java17").dependencies();
+        List<Map<String, Object>> platformDependencies = packageManifest.platform(JvmTarget.JAVA_21.code())
+                .dependencies();
         Assert.assertEquals(platformDependencies.size(), 0);
     }
 
@@ -122,7 +122,7 @@ public class BallerinaTomlTests {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("platfoms-with-scope.toml"));
         Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
-        PackageManifest.Platform platform = packageManifest.platform("java17");
+        PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_21.code());
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 3);
         for (Map<String, Object> library : platformDependencies) {
@@ -262,8 +262,8 @@ public class BallerinaTomlTests {
         Assert.assertEquals(iterator.next().message(), assertMessage2);
     }
 
-    @Test(description = "Platform libs should be given as [[platform.java17.dependency]], " +
-            "Here checking error when it given as [platform.java17.dependency]")
+    @Test(description = "Platform libs should be given as [[platform.java21.dependency]], " +
+            "Here checking error when it given as [platform.java21.dependency]")
     public void testBallerinaTomlWithPlatformLibsGivenAsTable() throws IOException {
         PackageManifest packageManifest =
                 getPackageManifest(BAL_TOML_REPO.resolve("platform-libs-as-table.toml"));
@@ -473,7 +473,7 @@ public class BallerinaTomlTests {
         DiagnosticResult diagnostics = packageManifest.diagnostics();
         Assert.assertTrue(diagnostics.hasErrors());
         Assert.assertEquals(diagnostics.errors().iterator().next().message(),
-                            "incompatible type for key 'java17': expected 'OBJECT', found 'ARRAY'");
+                            "incompatible type for key 'java21': expected 'OBJECT', found 'ARRAY'");
     }
 
     @Test(description = "Test Ballerina.toml having invalid types for entries in package and build options")
@@ -546,7 +546,8 @@ public class BallerinaTomlTests {
         Assert.assertEquals(frequency.longValue(), 225);
 
         // other entry table array
-        List<Map<String, Object>> userContacts = (ArrayList) packageManifest.getValue("userContact");
+        ArrayList<Map<String, Object>> userContacts =
+                (ArrayList<Map<String, Object>>) packageManifest.getValue("userContact");
         Assert.assertEquals(userContacts.size(), 2);
         Map<String, Object> firstContact = userContacts.get(0);
         Assert.assertEquals(firstContact.get("name"), "hevayo");

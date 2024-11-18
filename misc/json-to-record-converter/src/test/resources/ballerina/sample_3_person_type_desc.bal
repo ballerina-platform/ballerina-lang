@@ -1,21 +1,25 @@
-type Person record {
+type Person record {|
     string firstName;
     string lastName;
     string gender;
     int age;
-    record {
+    record {|
         (int|string) streetAddress;
         string city;
         string state;
-    } address;
-    anydata phoneNumber;
-    record {
+        json...;
+    |} address;
+    json phoneNumber;
+    record {|
         string firstName;
         string lastName;
-        record {
+        record {|
             (int|string) streetAddress;
             string city;
             string state;
-        } address;
-    } friend;
-};
+            json...;
+        |} address;
+        json...;
+    |} friend;
+    json...;
+|};

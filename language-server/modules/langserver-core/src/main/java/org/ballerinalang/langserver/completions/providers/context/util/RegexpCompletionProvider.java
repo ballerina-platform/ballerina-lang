@@ -44,13 +44,16 @@ import java.util.List;
  *
  * @since 2201.5.0
  */
-public class RegexpCompletionProvider {
+public final class RegexpCompletionProvider {
 
     private static final List<String> WORD_SEPARATOR_ARRAY = Arrays.asList("`", "~", "!", "@", "#", "$", "%", "^", "&",
             "*", "(", ")", "-", "=", "+", "[", "{", "]", "}", "\\", "|", ";", ":", "'", "\"", ",", ".", "<", ">", "/",
             "?");
 
     private static final HashSet<String> RE_FLAGS = new HashSet<>(Arrays.asList("i", "m", "s", "x"));
+
+    private RegexpCompletionProvider() {
+    }
 
     public static List<LSCompletionItem> getRegexCompletions(NonTerminalNode nodeAtCursor,
                                                              BallerinaCompletionContext ctx) {
@@ -160,14 +163,14 @@ public class RegexpCompletionProvider {
             completionItems.add(new SnippetCompletionItem(ctx,
                     new SnippetBlock(",", snippet + ",", snippet + ",",
                             ItemResolverConstants.VALUE_TYPE, SnippetBlock.Kind.VALUE)));
-            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, resolvedWord);
+            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, null);
             return completionItems;
         }
 
         if (isReQuantifier(nodeAtCursor)) {
             completionItems.add(new SnippetCompletionItem(ctx, new SnippetBlock("?", "?", "?",
                     ItemResolverConstants.VALUE_TYPE, SnippetBlock.Kind.VALUE)));
-            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, resolvedWord);
+            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, null);
             return completionItems;
         }
 
@@ -175,7 +178,7 @@ public class RegexpCompletionProvider {
                 && nodeAtCursor.textRange().endOffset() == ctx.getCursorPositionInTree()) {
             completionItems.add(new SnippetCompletionItem(ctx, new SnippetBlock("?", "?", "?",
                     ItemResolverConstants.VALUE_TYPE, SnippetBlock.Kind.VALUE)));
-            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, resolvedWord);
+            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, null);
             return completionItems;
         }
 
@@ -211,7 +214,7 @@ public class RegexpCompletionProvider {
                     Snippet.DEF_SQUARE_BRACKET.get()));
             completionItems.add(new SnippetCompletionItem(ctx,
                     RegexpCompletionProvider.RegexSnippet.DEF_ASSERTION_START.get()));
-            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, resolvedWord);
+            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, null);
             return completionItems;
         }
 

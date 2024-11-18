@@ -35,9 +35,9 @@ public class RuntimeDiagnostic extends Diagnostic {
 
     private final DiagnosticInfo diagnosticInfo;
 
-    private Object[] args;
+    private final Object[] args;
 
-    private RuntimeDiagnosticLocation location;
+    private final RuntimeDiagnosticLocation location;
 
     public RuntimeDiagnostic(DiagnosticInfo diagnosticInfo, String location, Object[] args) {
         this.diagnosticInfo = diagnosticInfo;

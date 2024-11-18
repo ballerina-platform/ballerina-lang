@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.utils.JsonUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.JsonParser;
+import io.ballerina.runtime.internal.json.JsonParser;
 
 import java.io.StringReader;
 
@@ -32,7 +32,10 @@ import java.io.StringReader;
  * All numbers in the JSON will be represented as float values.
  */
 
-public class FromJsonFloatString {
+public final class FromJsonFloatString {
+
+    private FromJsonFloatString() {
+    }
 
     public static Object fromJsonFloatString(BString value) {
 

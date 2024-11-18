@@ -20,8 +20,8 @@ package org.ballerinalang.langlib.floatingpoint;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.ErrorUtils;
-import io.ballerina.runtime.internal.FloatUtils;
+import io.ballerina.runtime.internal.utils.ErrorUtils;
+import io.ballerina.runtime.internal.utils.FloatUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -32,7 +32,10 @@ import java.text.DecimalFormat;
  *
  * @since 2201.1.0
  */
-public class ToExpString {
+public final class ToExpString {
+
+    private ToExpString() {
+    }
 
     public static BString toExpString(double x, Object fractionDigits) {
         // If `x` is NaN or infinite, the result will be the same as `value:toString`.

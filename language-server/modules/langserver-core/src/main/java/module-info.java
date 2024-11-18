@@ -11,6 +11,7 @@ module io.ballerina.language.server.core {
     uses org.ballerinalang.langserver.eventsync.EventPublisher;
     uses org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
     uses org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
+    uses org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider;
     exports org.ballerinalang.langserver;
     exports org.ballerinalang.langserver.references;
     exports org.ballerinalang.langserver.common.utils;
@@ -21,7 +22,7 @@ module io.ballerina.language.server.core {
     exports org.ballerinalang.langserver.extensions.ballerina.packages;
     exports org.ballerinalang.langserver.config;
     exports org.ballerinalang.langserver.telemetry;
-    exports org.ballerinalang.langserver.util to io.ballerina.language.server.simulator;
+    exports org.ballerinalang.langserver.util;
     exports org.ballerinalang.langserver.codeaction to io.ballerina.datamapper;
     requires io.ballerina.diagram.util;
     requires io.ballerina.formatter.core;

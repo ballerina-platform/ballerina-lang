@@ -33,8 +33,8 @@ import java.util.Objects;
  */
 public class BLangDiagnosticLocation implements Location {
 
-    private String filePath;
-    private int startLine, endLine, startColumn, endColumn, startOffset, length;
+    private final String filePath;
+    private final int startLine, endLine, startColumn, endColumn, startOffset, length;
 
     @Deprecated
     public BLangDiagnosticLocation(String filePath, int startLine, int endLine, int startColumn, int endColumn) {
@@ -65,8 +65,7 @@ public class BLangDiagnosticLocation implements Location {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BLangDiagnosticLocation) {
-            BLangDiagnosticLocation location = (BLangDiagnosticLocation) obj;
+        if (obj instanceof BLangDiagnosticLocation location) {
             return lineRange().equals(location.lineRange()) && textRange().equals(location.textRange());
         }
 

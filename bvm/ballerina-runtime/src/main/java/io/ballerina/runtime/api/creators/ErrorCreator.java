@@ -18,8 +18,8 @@
 package io.ballerina.runtime.api.creators;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
@@ -27,7 +27,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BErrorType;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
@@ -38,9 +38,12 @@ import io.ballerina.runtime.internal.values.ValueCreator;
  *
  * @since 2.0.0
  */
-public class ErrorCreator {
+public final class ErrorCreator {
 
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
+
+    private ErrorCreator() {
+    }
 
     /**
      * Create an error with given reason.
@@ -79,7 +82,7 @@ public class ErrorCreator {
         } else {
             initialValues = new MappingInitialValueEntry[0];
         }
-        MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
+        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
         return createError(message, detailMap);
     }
 
@@ -127,7 +130,7 @@ public class ErrorCreator {
         } else {
             initialValues = new MappingInitialValueEntry[0];
         }
-        MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
+        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
         return createError(type, message, null, detailMap);
     }
 
@@ -138,8 +141,8 @@ public class ErrorCreator {
      * @return new error
      */
     public static BError createError(Throwable error) {
-        if (error instanceof BError) {
-            return (BError) error;
+        if (error instanceof BError bError) {
+            return bError;
         }
         BError bError = createError(StringUtils.fromString(error.toString()));
         bError.setStackTrace(error.getStackTrace());
@@ -220,7 +223,7 @@ public class ErrorCreator {
     @Deprecated
     public static BError createDistinctError(String typeIdName, Module typeIdPkg, BString message,
                                              BError cause) {
-        MapValueImpl<Object, Object> details = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
+        MapValueImpl<BString, Object> details = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
         return new ErrorValue(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(),
                                              TypeChecker.getType(details)), message, cause, details,
                               typeIdName, typeIdPkg);

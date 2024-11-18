@@ -56,7 +56,6 @@ import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -67,7 +66,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Common utils that are reused within test suits.
  */
-public class TestUtil {
+public final class TestUtil {
 
     private static final String CODE_ACTION = "textDocument/codeAction";
 
@@ -91,7 +90,7 @@ public class TestUtil {
                                                CodeActionContext context) {
         TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
         CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
-        CompletableFuture result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
+        CompletableFuture<?> result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
         return getResponseString(result);
     }
 
@@ -177,12 +176,12 @@ public class TestUtil {
 
     public static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier();
-        identifier.setUri(Paths.get(filePath).toUri().toString());
+        identifier.setUri(Path.of(filePath).toUri().toString());
 
         return identifier;
     }
 
-    public static String getResponseString(CompletableFuture completableFuture) {
+    public static String getResponseString(CompletableFuture<?> completableFuture) {
         ResponseMessage jsonrpcResponse = new ResponseMessage();
         try {
             jsonrpcResponse.setId("324");

@@ -1,6 +1,7 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.util.BuildToolUtils;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
@@ -19,7 +20,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
@@ -42,9 +42,10 @@ public class PackCommandTest extends BaseCommandTest {
     private static final String VALID_PROJECT = "validApplicationProject";
     private Path testResources;
 
-    private static final Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
+    private static final Path logFile = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
             .toAbsolutePath();
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -52,12 +53,12 @@ public class PackCommandTest extends BaseCommandTest {
             this.testResources = super.tmpDir.resolve("build-test-resources");
             URI testResourcesURI = Objects.requireNonNull(getClass().getClassLoader().getResource("test-resources"))
                     .toURI();
-            Path testResourcesPath = Paths.get(testResourcesURI);
+            Path testResourcesPath = Path.of(testResourcesURI);
             Files.walkFileTree(testResourcesPath,
                     new BuildCommandTest.Copy(testResourcesPath, this.testResources));
 
             // Copy the compiler plugin jars to the test resources directory
-            Path compilerPluginJarsPath = Paths.get("build", "compiler-plugin-jars");
+            Path compilerPluginJarsPath = Path.of("build", "compiler-plugin-jars");
             Files.walkFileTree(compilerPluginJarsPath,
                     new BuildCommandTest.Copy(compilerPluginJarsPath,
                             this.testResources.resolve("compiler-plugin-jars")));
@@ -84,14 +85,14 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java17")
+                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
     @Test(description = "Pack a ballerina project with the engagement of all type of compiler plugins",
             dataProvider = "optimizeDependencyCompilation")
     public void testRunBalProjectWithAllCompilerPlugins(Boolean optimizeDependencyCompilation) throws IOException {
-        Path compilerPluginPath = Paths.get("./src/test/resources/test-resources/compiler-plugins");
+        Path compilerPluginPath = Path.of("./src/test/resources/test-resources/compiler-plugins");
         BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_analyzer_im")
                 .toAbsolutePath().toString());
         BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_generator_im")
@@ -169,7 +170,7 @@ public class PackCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("build-project-with-platform-libs.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-java17-0.1.0.bala")
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-java21-0.1.0.bala")
                 .toFile().exists());
     }
 
@@ -185,17 +186,17 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("build-project-with-platform-libs.txt"));
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
-        Assert.assertTrue(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala")
+        Assert.assertTrue(balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala")
                 .toFile().exists());
 
         Path balaDestPath = balaDirPath.resolve("extracted");
-        ProjectUtils.extractBala(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala"), balaDestPath);
-        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java17").resolve("one-1.0.0.jar")
+        ProjectUtils.extractBala(balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala"), balaDestPath);
+        Assert.assertTrue(balaDestPath.resolve("platform").resolve(JvmTarget.JAVA_21.code()).resolve("one-1.0.0.jar")
                 .toFile().exists());
     }
 
-    @Test(description = "Pack a package with java11 and java17 platform libs")
-    public void testPackageWithJava11andJava17PlatformLibs() throws IOException {
+    @Test(description = "Pack a package with multiple java platform libs")
+    public void testPackageWithMultipleJavaPlatformLibs() throws IOException {
         Path projectPath = this.testResources.resolve("projectWithJava11and17PlatformLibs");
         System.setProperty(USER_DIR, projectPath.toString());
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
@@ -206,14 +207,14 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("build-project-with-platform-libs.txt"));
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
-        Assert.assertTrue(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala")
+        Assert.assertTrue(balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala")
                 .toFile().exists());
 
         Path balaDestPath = balaDirPath.resolve("extracted");
-        ProjectUtils.extractBala(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala"), balaDestPath);
-        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java17").resolve("one-1.0.0.jar")
+        ProjectUtils.extractBala(balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala"), balaDestPath);
+        Assert.assertTrue(balaDestPath.resolve("platform").resolve(JvmTarget.JAVA_21.code()).resolve("one-1.0.0.jar")
                 .toFile().exists());
-        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java17").resolve("two-2.0.0.jar")
+        Assert.assertTrue(balaDestPath.resolve("platform").resolve(JvmTarget.JAVA_21.code()).resolve("two-2.0.0.jar")
                 .toFile().exists());
     }
 
@@ -296,7 +297,7 @@ public class PackCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("build-project-wo-root-pkg-in-deps-toml.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-java17-0.1.0.bala")
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-java21-0.1.0.bala")
                 .toFile().exists());
 
         assertTomlFilesEquals(projectPath.resolve(DEPENDENCIES_TOML),
@@ -314,14 +315,14 @@ public class PackCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bala")
-                .resolve("wso2-emptyProjWithCompilerPlugin-java17-0.1.0.bala").toFile().exists());
+                .resolve("wso2-emptyProjWithCompilerPlugin-java21-0.1.0.bala").toFile().exists());
         Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("compile-empty-project-with-compiler-plugin.txt"));
     }
 
     @Test(description = "Pack an empty package with compiler plugin")
     public void testPackEmptyProjectWithBuildTools() throws IOException {
-        Path testDistCacheDirectory = Paths.get("build").toAbsolutePath().resolve(DIST_CACHE_DIRECTORY);
+        Path testDistCacheDirectory = Path.of("build").toAbsolutePath().resolve(DIST_CACHE_DIRECTORY);
         BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
                 .resolve("ballerina-generate-file").toString(), testDistCacheDirectory);
         Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
@@ -351,7 +352,7 @@ public class PackCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bala")
-                .resolve("wso2-emptyProjWithTool-java17-0.1.0.bala").toFile().exists());
+                .resolve("wso2-emptyProjWithTool-java21-0.1.0.bala").toFile().exists());
         Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("compile-empty-project-with-tool.txt"));
     }
@@ -555,7 +556,7 @@ public class PackCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs.txt"));
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
-        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
         Path balaDestPath = balaDirPath.resolve("extracted");
         ProjectUtils.extractBala(balaFilePath, balaDestPath);
         String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
@@ -573,7 +574,7 @@ public class PackCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs-graal1.txt"));
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
-        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
         Path balaDestPath = balaDirPath.resolve("extracted");
         ProjectUtils.extractBala(balaFilePath, balaDestPath);
         String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
@@ -591,7 +592,7 @@ public class PackCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs-graal2.txt"));
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
-        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
         Path balaDestPath = balaDirPath.resolve("extracted");
         ProjectUtils.extractBala(balaFilePath, balaDestPath);
         String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
@@ -610,7 +611,7 @@ public class PackCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs-graal3.txt"));
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
-        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
         Path balaDestPath = balaDirPath.resolve("extracted");
         ProjectUtils.extractBala(balaFilePath, balaDestPath);
         String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
@@ -628,7 +629,7 @@ public class PackCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs-graal4.txt"));
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
-        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
         Path balaDestPath = balaDirPath.resolve("extracted");
         ProjectUtils.extractBala(balaFilePath, balaDestPath);
         String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
@@ -647,7 +648,7 @@ public class PackCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs-graal5.txt"));
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
-        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
         Path balaDestPath = balaDirPath.resolve("extracted");
         ProjectUtils.extractBala(balaFilePath, balaDestPath);
         String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
@@ -666,7 +667,7 @@ public class PackCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs-graal6.txt"));
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
-        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
         Path balaDestPath = balaDirPath.resolve("extracted");
         ProjectUtils.extractBala(balaFilePath, balaDestPath);
         String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
@@ -685,7 +686,7 @@ public class PackCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs-graal7.txt"));
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
-        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
         Path balaDestPath = balaDirPath.resolve("extracted");
         ProjectUtils.extractBala(balaFilePath, balaDestPath);
         String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));

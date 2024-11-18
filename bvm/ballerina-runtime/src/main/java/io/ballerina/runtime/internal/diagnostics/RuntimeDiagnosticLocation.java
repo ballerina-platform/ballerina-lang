@@ -28,7 +28,7 @@ import io.ballerina.tools.text.TextRange;
  */
 public class RuntimeDiagnosticLocation implements Location {
 
-    private String location;
+    private final String location;
 
     public RuntimeDiagnosticLocation(String location) {
         this.location = location;

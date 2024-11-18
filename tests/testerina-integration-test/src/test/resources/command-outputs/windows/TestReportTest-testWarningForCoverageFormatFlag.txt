@@ -18,6 +18,13 @@ Running Tests
 				callableName: assertTrue moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 61
 				callableName: testMain moduleName: testerina_report.foo$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 24
 				callableName: testMain$lambda0$ moduleName: testerina_report.foo$test.0.tests.test_execute-generated_*****lineNumber: 4
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: testerina_report.foo$test.0.tests.test_execute-generated_*****lineNumber: 10
 			
 
 
@@ -43,6 +50,16 @@ Running Tests
 
 
 		2 passing
+		0 failing
+		0 skipped
+
+		Test execution time :*****s
+
+	foo.annot
+		[pass] testFunc
+
+
+		1 passing
 		0 failing
 		0 skipped
 

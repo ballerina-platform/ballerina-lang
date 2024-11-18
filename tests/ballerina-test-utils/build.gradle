@@ -14,9 +14,11 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply plugin: 'com.github.johnrengelman.shadow'
+
+plugins {
+    id 'javaProject'
+    id 'com.github.johnrengelman.shadow'
+}
 
 dependencies {
     implementation project(':ballerina-tools-api')
@@ -25,12 +27,12 @@ dependencies {
     implementation project(':ballerina-cli')
     implementation project(':identifier-util')
 
-    implementation 'org.javassist:javassist'
-    implementation 'io.netty:netty-codec-http'
-    implementation 'org.apache.commons:commons-lang3'
-    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
-    implementation 'org.testng:testng'
-    implementation 'org.apache.ws.commons.axiom:axiom-c14n'
+    implementation libs.javassist
+    implementation libs.netty.codec.http
+    implementation libs.apache.commons.lang3
+    implementation libs.wso2.transport.http
+    implementation libs.testng
+    implementation libs.apache.commons.axiom.c14n
 }
 
 configurations {
@@ -59,14 +61,14 @@ shadowJar {
     configurations = [project.configurations.runtimeClasspath]
     dependencies {
         exclude(dependency('org.slf4j:slf4j-api'))
-        exclude(dependency('org.apache.commons:commons-lang3'))
-        exclude(dependency('org.wso2.transport.http:org.wso2.transport.http.netty'))
+        exclude(dependency(libs.apache.commons.lang3.get()))
+        exclude(dependency(libs.wso2.transport.http.get()))
         exclude(dependency('org.ops4j.pax.logging:pax-logging-api'))
         exclude(dependency('org.wso2.eclipse.osgi:org.eclipse.osgi'))
         exclude(dependency('org.wso2.eclipse.osgi:org.eclipse.osgi.services'))
         exclude(dependency('org.slf4j:slf4j-log4j12'))
         exclude(dependency('org.slf4j:slf4j-simple'))
-        exclude(dependency('org.slf4j:slf4j-jdk14'))
+        exclude(dependency(libs.slf4j.jdk14.get()))
         exclude(dependency('io.netty:netty-handler'))
         exclude(dependency('io.netty:netty-handler-proxy'))
         exclude(dependency('io.netty:netty-codec-socks'))
@@ -78,7 +80,7 @@ shadowJar {
         exclude(dependency('org.bouncycastle:bcprov-jdk18on'))
         exclude(dependency('org.bouncycastle:bcpkix-jdk18on'))
         exclude(dependency('io.netty:netty-tcnative-boringssl-static'))
-        exclude(dependency('org.testng:testng'))
+        exclude(dependency(libs.testng.get()))
         exclude(dependency('com.beust:jcommander'))
         exclude(dependency('io.netty:netty-transport-native-unix-common'))
         exclude(project(':ballerina-lang'))

@@ -17,11 +17,11 @@
  */
 package io.ballerina.runtime.internal.types;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -128,8 +128,7 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BArrayType) {
-            BArrayType other = (BArrayType) obj;
+        if (obj instanceof BArrayType other) {
             if (other.state == ArrayState.CLOSED && this.size != other.size) {
                 return false;
             }

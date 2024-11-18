@@ -59,15 +59,14 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
@@ -90,7 +89,10 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
  *
  * @since 2.3.0
  */
-public class TestUtils {
+public final class TestUtils {
+
+    private TestUtils() {
+    }
 
     public static void generateCoverage(Project project, TestReport testReport, JBallerinaBackend jBallerinaBackend,
                                         String includesInCoverage, String coverageReportFormat,
@@ -106,11 +108,11 @@ public class TestUtils {
 
         Map<String, ModuleCoverage> moduleCoverageMap = initializeCoverageMap(project);
         // Following lists will hold the coverage information needed for the coverage XML file generation.
-        List<ISourceFileCoverage> packageSourceCoverageList = new ArrayList();
-        List<IClassCoverage> packageNativeClassCoverageList = new ArrayList();
-        List<IClassCoverage> packageBalClassCoverageList = new ArrayList();
-        List<ExecutionData> packageExecData = new ArrayList();
-        List<SessionInfo> packageSessionInfo = new ArrayList();
+        List<ISourceFileCoverage> packageSourceCoverageList = new ArrayList<>();
+        List<IClassCoverage> packageNativeClassCoverageList = new ArrayList<>();
+        List<IClassCoverage> packageBalClassCoverageList = new ArrayList<>();
+        List<ExecutionData> packageExecData = new ArrayList<>();
+        List<SessionInfo> packageSessionInfo = new ArrayList<>();
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             CoverageReport coverageReport = new CoverageReport(module, moduleCoverageMap,
@@ -120,9 +122,9 @@ public class TestUtils {
                     coverageModules.get(module.moduleName().toString()), exclusionClassList);
         }
         // Traverse coverage map and add module wise coverage to test report
-        for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
-            String moduleName = (String) mapElement.getKey();
-            ModuleCoverage moduleCoverage = (ModuleCoverage) mapElement.getValue();
+        for (Map.Entry<String, ModuleCoverage> mapElement : moduleCoverageMap.entrySet()) {
+            String moduleName = mapElement.getKey();
+            ModuleCoverage moduleCoverage = mapElement.getValue();
             testReport.addCoverage(moduleName, moduleCoverage);
         }
         if (CodeCoverageUtils.isRequestedReportFormat(coverageReportFormat,
@@ -209,7 +211,7 @@ public class TestUtils {
                     try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
                         writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
                         out.println("\tView the test report at: " +
-                                FILE_PROTOCOL + Paths.get(htmlFile.getPath()).toAbsolutePath().normalize());
+                                FILE_PROTOCOL + Path.of(htmlFile.getPath()).toAbsolutePath().normalize());
                     }
                 }
             } else {
@@ -228,7 +230,7 @@ public class TestUtils {
      * @return path of the report tools template
      */
     public static Path getReportToolsPath() {
-        return Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_LIB).
+        return Path.of(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_LIB).
                 resolve(TesterinaConstants.TOOLS_DIR_NAME).resolve(TesterinaConstants.COVERAGE_DIR).
                 resolve(REPORT_ZIP_NAME);
     }
@@ -334,7 +336,7 @@ public class TestUtils {
      * @return                  Path to the json file
      */
     public static Path getJsonFilePath(Path testsCachePath) {
-        return Paths.get(testsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
+        return Path.of(testsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
     }
 
     public static String getJsonFilePathInFatJar(String separator) {
@@ -344,7 +346,7 @@ public class TestUtils {
     }
 
     public static void clearFailedTestsJson(Path targetPath) {
-        Path rerunTestJsonPath = Paths.get(targetPath.toString(), RERUN_TEST_JSON_FILE);
+        Path rerunTestJsonPath = Path.of(targetPath.toString(), RERUN_TEST_JSON_FILE);
         if (Files.exists(rerunTestJsonPath)) {
             try {
                 Files.delete(rerunTestJsonPath);
@@ -366,7 +368,7 @@ public class TestUtils {
      * @return jacoco agent jar path
      */
     public static String getJacocoAgentJarPath() {
-        return Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+        return Path.of(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
                 .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
     }
 
@@ -479,11 +481,10 @@ public class TestUtils {
      */
     public static String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
+        Set<Path> jars = new HashSet<>(getModuleJarPaths(jBallerinaBackend, currentPackage));
 
-        List<Path> dependencies = getTestDependencyPaths(currentPackage, jarResolver);
-
-        List<Path> jarList = getModuleJarPaths(jBallerinaBackend, currentPackage);
-        dependencies.removeAll(jarList);
+        List<Path> dependencies = getTestDependencyPaths(currentPackage, jarResolver)
+                .stream().filter(dependency -> !jars.contains(dependency)).toList();
 
         StringJoiner classPath = joinClassPaths(dependencies);
         return classPath.toString();
@@ -519,7 +520,7 @@ public class TestUtils {
                 }
             }
         }
-        return dependencies.stream().distinct().collect(Collectors.toList());
+        return dependencies.stream().distinct().toList();
     }
 
     /**
@@ -546,7 +547,7 @@ public class TestUtils {
             }
         }
 
-        return moduleJarPaths.stream().distinct().collect(Collectors.toList());
+        return moduleJarPaths.stream().distinct().toList();
     }
 
     private static PlatformLibrary getCodeGeneratedTestLibrary(JBallerinaBackend jBallerinaBackend,

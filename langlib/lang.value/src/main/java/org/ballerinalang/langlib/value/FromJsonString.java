@@ -22,14 +22,17 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.JsonParser;
+import io.ballerina.runtime.internal.json.JsonParser;
 
 /**
  * Parse a string in JSON format and return the value that it represents.
  *
  * @since 1.0
  */
-public class FromJsonString {
+public final class FromJsonString {
+
+    private FromJsonString() {
+    }
 
     public static Object fromJsonString(BString value) {
 

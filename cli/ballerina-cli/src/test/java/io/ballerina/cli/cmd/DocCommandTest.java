@@ -27,7 +27,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
@@ -40,6 +39,7 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 public class DocCommandTest extends BaseCommandTest {
     private Path testResources;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -47,7 +47,7 @@ public class DocCommandTest extends BaseCommandTest {
             this.testResources = super.tmpDir.resolve("build-test-resources");
             URI testResourcesURI = Objects.requireNonNull(
                     getClass().getClassLoader().getResource("test-resources")).toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI), new BuildCommandTest.Copy(Paths.get(testResourcesURI),
+            Files.walkFileTree(Path.of(testResourcesURI), new BuildCommandTest.Copy(Path.of(testResourcesURI),
                     this.testResources));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
@@ -55,17 +55,23 @@ public class DocCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Test doc command on a ballerina project.")
-    public void testDocCommand() throws IOException {
+    public void testDocCommand() {
         Path projectPath = this.testResources.resolve("doc_project");
         System.setProperty("user.dir", projectPath.toString());
+        Path destinationPath = projectPath.resolve("target")
+                .resolve("apidocs").resolve("foo").resolve("winery").resolve("0.1.0");
         DocCommand docCommand = new DocCommand(this.printStream, this.printStream, false);
         docCommand.execute();
 
-        Assert.assertTrue(Files.exists(this.testResources.resolve("doc_project").resolve("target")
-                .resolve("apidocs").resolve("foo").resolve("winery").resolve("0.1.0").resolve("index.html")));
+        Assert.assertTrue(Files.exists(destinationPath.resolve("api-docs.js")));
+        Assert.assertTrue(Files.exists(destinationPath.resolve("api-docs.json")));
 
-        Files.delete(this.testResources.resolve("doc_project").resolve("target")
-                .resolve("apidocs").resolve("foo").resolve("winery").resolve("0.1.0").resolve("index.html"));
+        /* Verify if all the UI components are present. */
+        Assert.assertTrue(Files.exists(destinationPath.resolve("bundle.js")));
+        Assert.assertTrue(Files.exists(destinationPath.resolve("favicon.ico")));
+        Assert.assertTrue(Files.exists(destinationPath.resolve("globals.css")));
+        Assert.assertTrue(Files.exists(destinationPath.resolve("index.html")));
+        Assert.assertTrue(Files.exists(destinationPath.resolve("vercel.svg")));
     }
 
     @Test(description = "Test doc command on a ballerina project with custom target dir.")

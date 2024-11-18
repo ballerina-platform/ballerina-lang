@@ -19,21 +19,17 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.xml.XmlFactory;
 
 /**
  * Create XML comment value from string.
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "createComment",
-//        args = {@Argument(name = "string", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
-public class CreateComment {
+public final class CreateComment {
+
+    private CreateComment() {
+    }
 
     public static BXml createComment(BString string) {
         return XmlFactory.createXMLComment(string);

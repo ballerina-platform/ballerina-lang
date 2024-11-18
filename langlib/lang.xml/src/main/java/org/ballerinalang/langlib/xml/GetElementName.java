@@ -27,15 +27,12 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  * 
  * @since 0.88
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "getElementName",
-//        returnType = {@ReturnType(type = TypeKind.STRING)},
-//        isPublic = true
-//)
 public class GetElementName {
 
     private static final String OPERATION = "get element name in xml";
+
+    private GetElementName() {
+    }
 
     public static String getElementName(Strand strand, BXml xml) {
         try {

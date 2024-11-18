@@ -17,13 +17,11 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,7 +96,7 @@ public class PackCommand implements BLauncherCmd {
     private Boolean optimizeDependencyCompilation;
 
     public PackCommand() {
-        this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;
@@ -246,11 +244,7 @@ public class PackCommand implements BLauncherCmd {
         }
 
         // Validate Settings.toml file
-        try {
-            RepoUtils.readSettings();
-        } catch (SettingsTomlException e) {
-            this.outStream.println("warning: " + e.getMessage());
-        }
+        RepoUtils.readSettings();
 
         // Check package files are modified after last build
         boolean isPackageModified = isProjectUpdated(project);

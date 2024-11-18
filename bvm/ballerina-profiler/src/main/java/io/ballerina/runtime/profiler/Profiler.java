@@ -35,13 +35,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -78,15 +76,15 @@ public class Profiler {
 
     private void addShutdownHookAndCleanup() {
         // Add a shutdown hook to stop the profiler and parse the output when the program is closed.
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+        Runtime.getRuntime().addShutdownHook(Thread.ofVirtual().unstarted(() -> {
             try {
                 long profilerTotalTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS) -
                         profilerStartTime;
-                Files.deleteIfExists(Paths.get(Constants.TEMP_JAR_FILE_NAME));
+                Files.deleteIfExists(Path.of(Constants.TEMP_JAR_FILE_NAME));
                 OUT_STREAM.printf("%s[6/6] Generating output...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
                 JsonParser jsonParser = new JsonParser();
                 HttpServer httpServer = new HttpServer();
-                String cpuFilePath = Paths.get(currentDir, CPU_PRE_JSON).toString();
+                String cpuFilePath = Path.of(currentDir, CPU_PRE_JSON).toString();
                 jsonParser.initializeCPUParser(cpuFilePath);
                 deleteFileIfExists(cpuFilePath);
                 OUT_STREAM.printf("      Execution time: %d seconds %n", profilerTotalTime / 1000);
@@ -105,7 +103,7 @@ public class Profiler {
             return;
         }
         try {
-            Files.delete(Paths.get(filePath));
+            Files.delete(Path.of(filePath));
         } catch (IOException e) {
             throw new ProfilerException("Failed to delete file: " + filePath + "%n", e);
         }
@@ -174,7 +172,7 @@ public class Profiler {
     private void extractProfiler() throws ProfilerException {
         OUT_STREAM.printf("%s[1/6] Initializing...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
         try {
-            Path profilerRuntimePath = Paths.get("io/ballerina/runtime/profiler/runtime");
+            Path profilerRuntimePath = Path.of("io/ballerina/runtime/profiler/runtime");
             new ProcessBuilder("jar", "xvf", "Profiler.jar", profilerRuntimePath.toString()).start().waitFor();
         } catch (IOException | InterruptedException exception) {
             throw new ProfilerException(exception);
@@ -184,8 +182,8 @@ public class Profiler {
     private void createTempJar() {
         try {
             OUT_STREAM.printf("%s[2/6] Copying executable...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
-            Path sourcePath = Paths.get(balJarName);
-            Path destinationPath = Paths.get(Constants.TEMP_JAR_FILE_NAME);
+            Path sourcePath = Path.of(balJarName);
+            Path destinationPath = Path.of(Constants.TEMP_JAR_FILE_NAME);
             Files.copy(sourcePath, destinationPath);
         } catch (IOException e) {
             throw new ProfilerException("Error occurred while copying the file: " + balJarName, e);
@@ -236,13 +234,13 @@ public class Profiler {
             final File userDirectory = new File(System.getProperty("user.dir")); // Get the user directory
             listAllFiles(userDirectory); // List all files in the user directory and its subdirectories
             // Get a list of the directories containing instrumented files
-            List<String> changedDirectories = instrumentedFiles.stream().distinct().collect(Collectors.toList());
+            List<String> changedDirectories = instrumentedFiles.stream().distinct().toList();
             loadDirectories(changedDirectories);
         } finally {
             for (String instrumentedFilePath : instrumentedPaths) {
                 FileUtils.deleteDirectory(new File(instrumentedFilePath));
             }
-            Path filePath = Paths.get("io/ballerina/runtime/profiler/runtime");
+            Path filePath = Path.of("io/ballerina/runtime/profiler/runtime");
             FileUtils.deleteDirectory(new File(filePath.toString()));
             profilerMethodWrapper.invokeMethods(profilerDebugArg);
         }
@@ -259,7 +257,7 @@ public class Profiler {
     }
 
     private void listAllFiles(final File userDirectory) {
-        String absolutePath = Paths.get(Constants.TEMP_JAR_FILE_NAME).toFile().getAbsolutePath();
+        String absolutePath = Path.of(Constants.TEMP_JAR_FILE_NAME).toFile().getAbsolutePath();
         analyseInstrumentedDirectories(userDirectory, absolutePath.replaceAll(Constants.TEMP_JAR_FILE_NAME, ""));
     }
 

@@ -17,13 +17,13 @@
 */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -34,13 +34,13 @@ import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
-import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.ValueConverter;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.utils.CycleUtils;
+import io.ballerina.runtime.internal.utils.ValueConverter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -54,12 +54,12 @@ import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
-import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
-import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
+import static io.ballerina.runtime.internal.utils.StringUtils.getExpressionStringVal;
+import static io.ballerina.runtime.internal.utils.StringUtils.getStringVal;
+import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
 
 /**
  * <p>
@@ -185,57 +185,63 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public Object reverse() {
-        switch (elementType.getTag()) {
-            case TypeTags.INT_TAG:
-            case TypeTags.SIGNED32_INT_TAG:
-            case TypeTags.SIGNED16_INT_TAG:
-            case TypeTags.SIGNED8_INT_TAG:
-            case TypeTags.UNSIGNED32_INT_TAG:
-            case TypeTags.UNSIGNED16_INT_TAG:
-            case TypeTags.UNSIGNED8_INT_TAG:
+        return switch (elementType.getTag()) {
+            case TypeTags.INT_TAG,
+                 TypeTags.SIGNED32_INT_TAG,
+                 TypeTags.SIGNED16_INT_TAG,
+                 TypeTags.SIGNED8_INT_TAG,
+                 TypeTags.UNSIGNED32_INT_TAG,
+                 TypeTags.UNSIGNED16_INT_TAG,
+                 TypeTags.UNSIGNED8_INT_TAG -> {
                 for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
                     long temp = intValues[j];
                     intValues[j] = intValues[i];
                     intValues[i] = temp;
                 }
-                return intValues;
-            case TypeTags.STRING_TAG:
-            case TypeTags.CHAR_STRING_TAG:
+                yield intValues;
+            }
+            case TypeTags.STRING_TAG,
+                 TypeTags.CHAR_STRING_TAG -> {
                 for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
                     BString temp = bStringValues[j];
                     bStringValues[j] = bStringValues[i];
                     bStringValues[i] = temp;
                 }
-                return bStringValues;
-            case TypeTags.FLOAT_TAG:
+                yield bStringValues;
+            }
+            case TypeTags.FLOAT_TAG -> {
                 for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
                     double temp = floatValues[j];
                     floatValues[j] = floatValues[i];
                     floatValues[i] = temp;
                 }
-                return floatValues;
-            case TypeTags.BOOLEAN_TAG:
+                yield floatValues;
+            }
+            case TypeTags.BOOLEAN_TAG -> {
                 for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
                     boolean temp = booleanValues[j];
                     booleanValues[j] = booleanValues[i];
                     booleanValues[i] = temp;
                 }
-                return booleanValues;
-            case TypeTags.BYTE_TAG:
+                yield booleanValues;
+            }
+            case TypeTags.BYTE_TAG -> {
                 for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
                     byte temp = byteValues[j];
                     byteValues[j] = byteValues[i];
                     byteValues[i] = temp;
                 }
-                return byteValues;
-            default:
+                yield byteValues;
+            }
+            default -> {
                 for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
                     Object temp = refValues[j];
                     refValues[j] = refValues[i];
                     refValues[i] = temp;
                 }
-                return refValues;
-        }
+                yield refValues;
+            }
+        };
     }
 
     public ArrayValueImpl(ArrayType type, long size) {
@@ -306,27 +312,21 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     public Object get(long index) {
         rangeCheckForGet(index, size);
-        switch (this.elementReferredType.getTag()) {
-            case TypeTags.INT_TAG:
-            case TypeTags.SIGNED32_INT_TAG:
-            case TypeTags.SIGNED16_INT_TAG:
-            case TypeTags.SIGNED8_INT_TAG:
-            case TypeTags.UNSIGNED32_INT_TAG:
-            case TypeTags.UNSIGNED16_INT_TAG:
-            case TypeTags.UNSIGNED8_INT_TAG:
-                return intValues[(int) index];
-            case TypeTags.BOOLEAN_TAG:
-                return booleanValues[(int) index];
-            case TypeTags.BYTE_TAG:
-                return Byte.toUnsignedInt(byteValues[(int) index]);
-            case TypeTags.FLOAT_TAG:
-                return floatValues[(int) index];
-            case TypeTags.STRING_TAG:
-            case TypeTags.CHAR_STRING_TAG:
-                    return bStringValues[(int) index];
-            default:
-                return refValues[(int) index];
-        }
+        return switch (this.elementReferredType.getTag()) {
+            case TypeTags.INT_TAG,
+                 TypeTags.SIGNED32_INT_TAG,
+                 TypeTags.SIGNED16_INT_TAG,
+                 TypeTags.SIGNED8_INT_TAG,
+                 TypeTags.UNSIGNED32_INT_TAG,
+                 TypeTags.UNSIGNED16_INT_TAG,
+                 TypeTags.UNSIGNED8_INT_TAG -> intValues[(int) index];
+            case TypeTags.BOOLEAN_TAG -> booleanValues[(int) index];
+            case TypeTags.BYTE_TAG -> Byte.toUnsignedInt(byteValues[(int) index]);
+            case TypeTags.FLOAT_TAG -> floatValues[(int) index];
+            case TypeTags.STRING_TAG,
+                 TypeTags.CHAR_STRING_TAG -> bStringValues[(int) index];
+            default -> refValues[(int) index];
+        };
     }
 
     public Object getRefValue(int index) {
@@ -906,8 +906,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 valueArray = new ArrayValueImpl(values, arrayType);
                 IntStream.range(0, this.size).forEach(i -> {
                     Object value = this.refValues[i];
-                    if (value instanceof BRefValue) {
-                        values[i] = ((BRefValue) value).copy(refs);
+                    if (value instanceof BRefValue refValue) {
+                        values[i] = refValue.copy(refs);
                     } else {
                         values[i] = value;
                     }
@@ -1076,8 +1076,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (this.elementType == null || this.elementReferredType.getTag() > TypeTags.BOOLEAN_TAG) {
             for (int i = 0; i < this.size; i++) {
                 Object value = this.getRefValue(i);
-                if (value instanceof BRefValue) {
-                    ((BRefValue) value).freezeDirect();
+                if (value instanceof BRefValue refValue) {
+                    refValue.freezeDirect();
                 }
             }
         }
@@ -1088,7 +1088,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * {@inheritDoc}
      */
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<Object> getIterator() {
         return new ArrayIterator(this);
     }
 
@@ -1339,51 +1339,39 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private Object getArrayFromType(int typeTag) {
-        switch (typeTag) {
-            case TypeTags.INT_TAG:
-            case TypeTags.SIGNED32_INT_TAG:
-            case TypeTags.SIGNED16_INT_TAG:
-            case TypeTags.SIGNED8_INT_TAG:
-            case TypeTags.UNSIGNED32_INT_TAG:
-            case TypeTags.UNSIGNED16_INT_TAG:
-            case TypeTags.UNSIGNED8_INT_TAG:
-                return intValues;
-            case TypeTags.BOOLEAN_TAG:
-                return booleanValues;
-            case TypeTags.BYTE_TAG:
-                return byteValues;
-            case TypeTags.FLOAT_TAG:
-                return floatValues;
-            case TypeTags.STRING_TAG:
-            case TypeTags.CHAR_STRING_TAG:
-                return bStringValues;
-            default:
-                return refValues;
-        }
+        return switch (typeTag) {
+            case TypeTags.INT_TAG,
+                 TypeTags.SIGNED32_INT_TAG,
+                 TypeTags.SIGNED16_INT_TAG,
+                 TypeTags.SIGNED8_INT_TAG,
+                 TypeTags.UNSIGNED32_INT_TAG,
+                 TypeTags.UNSIGNED16_INT_TAG,
+                 TypeTags.UNSIGNED8_INT_TAG -> intValues;
+            case TypeTags.BOOLEAN_TAG -> booleanValues;
+            case TypeTags.BYTE_TAG -> byteValues;
+            case TypeTags.FLOAT_TAG -> floatValues;
+            case TypeTags.STRING_TAG,
+                 TypeTags.CHAR_STRING_TAG -> bStringValues;
+            default -> refValues;
+        };
     }
 
     private int getCurrentArrayLength() {
-        switch (elementType.getTag()) {
-            case TypeTags.INT_TAG:
-            case TypeTags.SIGNED32_INT_TAG:
-            case TypeTags.SIGNED16_INT_TAG:
-            case TypeTags.SIGNED8_INT_TAG:
-            case TypeTags.UNSIGNED32_INT_TAG:
-            case TypeTags.UNSIGNED16_INT_TAG:
-            case TypeTags.UNSIGNED8_INT_TAG:
-                return intValues.length;
-            case TypeTags.BOOLEAN_TAG:
-                return booleanValues.length;
-            case TypeTags.BYTE_TAG:
-                return byteValues.length;
-            case TypeTags.FLOAT_TAG:
-                return floatValues.length;
-            case TypeTags.STRING_TAG:
-            case TypeTags.CHAR_STRING_TAG:
-                return bStringValues.length;
-            default:
-                return refValues.length;
-        }
+        return switch (elementType.getTag()) {
+            case TypeTags.INT_TAG,
+                 TypeTags.SIGNED32_INT_TAG,
+                 TypeTags.SIGNED16_INT_TAG,
+                 TypeTags.SIGNED8_INT_TAG,
+                 TypeTags.UNSIGNED32_INT_TAG,
+                 TypeTags.UNSIGNED16_INT_TAG,
+                 TypeTags.UNSIGNED8_INT_TAG -> intValues.length;
+            case TypeTags.BOOLEAN_TAG -> booleanValues.length;
+            case TypeTags.BYTE_TAG -> byteValues.length;
+            case TypeTags.FLOAT_TAG -> floatValues.length;
+            case TypeTags.STRING_TAG,
+                 TypeTags.CHAR_STRING_TAG -> bStringValues.length;
+            default -> refValues.length;
+        };
     }
 
     @Override

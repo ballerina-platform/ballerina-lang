@@ -146,7 +146,7 @@ public class Module {
         return this.moduleMd;
     }
 
-    private static class DocumentIterable implements Iterable {
+    private static class DocumentIterable implements Iterable<Document> {
         private final Collection<Document> documentList;
 
         public DocumentIterable(Collection<Document> documentList) {
@@ -159,7 +159,7 @@ public class Module {
         }
 
         @Override
-        public Spliterator spliterator() {
+        public Spliterator<Document> spliterator() {
             return this.documentList.spliterator();
         }
     }
@@ -168,14 +168,14 @@ public class Module {
      * Inner class that handles module modifications.
      */
     public static class Modifier {
-        private ModuleId moduleId;
-        private ModuleDescriptor moduleDescriptor;
+        private final ModuleId moduleId;
+        private final ModuleDescriptor moduleDescriptor;
         private Map<DocumentId, DocumentContext> srcDocContextMap;
         private Map<DocumentId, DocumentContext> testDocContextMap;
-        private boolean isDefaultModule;
+        private final boolean isDefaultModule;
         private final List<ModuleDescriptor> dependencies;
-        private Package packageInstance;
-        private Project project;
+        private final Package packageInstance;
+        private final Project project;
         private MdDocumentContext moduleMdContext;
 
         private Modifier(Module oldModule) {

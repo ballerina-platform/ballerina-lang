@@ -32,6 +32,7 @@ import java.util.List;
 @Test
 public class CyclicUnionRefsTest extends FindAllReferencesTest {
 
+    @Override
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         Location defLocation = location(16, 5, 16);

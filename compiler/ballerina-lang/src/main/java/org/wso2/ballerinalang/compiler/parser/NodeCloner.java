@@ -98,6 +98,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -171,6 +172,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -1146,9 +1150,9 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangSimpleVarRef clone;
 
-        if (source instanceof BLangRecordVarNameField) {
+        if (source instanceof BLangRecordVarNameField recordVarNameField) {
             BLangRecordVarNameField clonedVarNameField = new BLangRecordVarNameField();
-            clonedVarNameField.readonly = ((BLangRecordVarNameField) source).readonly;
+            clonedVarNameField.readonly = recordVarNameField.readonly;
             clone = clonedVarNameField;
         } else {
             clone = new BLangSimpleVarRef();
@@ -1171,13 +1175,13 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess source) {
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess source) {
 
-        BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess clone =
-                new BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess();
+        BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess clone =
+                new BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess();
 
         source.cloneRef = clone;
-        clone.nsPrefix = source.nsPrefix;
+        clone.prefix = source.prefix;
         clone.field = source.field;
         clone.fieldKind = source.fieldKind;
         cloneBLangAccessExpression(source, clone);
@@ -2024,11 +2028,6 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordLiteral.BLangChannelLiteral channelLiteral) {
-        // Ignore
-    }
-
-    @Override
     public void visit(BLangInvocation.BFunctionPointerInvocation bFunctionPointerInvocation) {
         // Ignore
     }
@@ -2311,6 +2310,21 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangXMLIndexedStepExtend source) {
+        source.cloneRef = new BLangXMLIndexedStepExtend(source.pos, clone(source.indexExpr));
+    }
+
+    @Override
+    public void visit(BLangXMLFilterStepExtend source) {
+        source.cloneRef = new BLangXMLFilterStepExtend(source.pos, cloneList(source.filters));
+    }
+
+    @Override
+    public void visit(BLangXMLMethodCallStepExtend source) {
+        source.cloneRef = new BLangXMLMethodCallStepExtend(source.pos, clone(source.invocation));
+    }
+
+    @Override
     public void visit(BLangXMLElementAccess source) {
         BLangXMLElementAccess clone = new BLangXMLElementAccess(
                 source.pos,
@@ -2325,8 +2339,16 @@ public class NodeCloner extends BLangNodeVisitor {
                 source.pos,
                 clone(source.expr),
                 cloneList(source.filters),
-                source.navAccessType,
-                clone(source.childIndex));
+                source.navAccessType);
+        source.cloneRef = clone;
+    }
+
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess source) {
+        BLangExtendedXMLNavigationAccess clone = new BLangExtendedXMLNavigationAccess(
+                source.pos,
+                clone(source.stepExpr),
+                cloneList(source.extensions));
         source.cloneRef = clone;
     }
 

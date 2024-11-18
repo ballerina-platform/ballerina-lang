@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
@@ -32,16 +32,12 @@ import io.ballerina.runtime.api.values.BTable;
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table",
-//        functionName = "keys",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},
-//        isPublic = true
-//)
-public class GetKeys {
+public final class GetKeys {
 
-    public static BArray keys(BTable tbl) {
+    private GetKeys() {
+    }
+
+    public static BArray keys(BTable<?, ?> tbl) {
         Type tableKeyType = tbl.getKeyType();
         Object[] keys = tbl.getKeys();
         switch (tableKeyType.getTag()) {

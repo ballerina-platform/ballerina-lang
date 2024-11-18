@@ -46,7 +46,10 @@ import java.util.stream.Collectors;
  *
  * @since 2201.1.1
  */
-public class NameUtil {
+public final class NameUtil {
+
+    private NameUtil() {
+    }
 
     /**
      * Generates a random name.
@@ -344,7 +347,7 @@ public class NameUtil {
             // Remove '_' underscores
             while (newName.contains("_")) {
                 String[] parts = newName.split("_");
-                List<String> restParts = Arrays.stream(parts, 1, parts.length).collect(Collectors.toList());
+                List<String> restParts = Arrays.stream(parts, 1, parts.length).toList();
                 newName = parts[0] + StringUtils.capitalize(String.join("", restParts));
             }
             // If empty, revert to original name

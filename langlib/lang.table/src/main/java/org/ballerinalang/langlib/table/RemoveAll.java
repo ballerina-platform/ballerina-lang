@@ -31,9 +31,12 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
  *
  * @since 1.3.0
  */
-public class RemoveAll {
+public final class RemoveAll {
 
-    public static void removeAll(BTable tbl) {
+    private RemoveAll() {
+    }
+
+    public static void removeAll(BTable<?, ?> tbl) {
         try {
             tbl.clear();
         } catch (BError e) {
