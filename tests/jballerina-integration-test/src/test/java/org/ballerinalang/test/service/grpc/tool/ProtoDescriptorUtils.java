@@ -53,7 +53,7 @@ public class ProtoDescriptorUtils {
         File protocExeFile = new File(System.getProperty("java.io.tmpdir"), "protoc-" + OSDetector
                 .getDetectedClassifier() + ".exe");
         String protocExePath = protocExeFile.getAbsolutePath(); // if file already exists will do nothing
-        String protocVersion = "3.21.7";
+        String protocVersion = "3.25.5";
         if (!protocExeFile.exists()) {
             String protocDownloadurl = PROTOC_PLUGIN_EXE_URL_SUFFIX + protocVersion + "/protoc-" + protocVersion
                     + "-" + OSDetector.getDetectedClassifier() + PROTOC_PLUGIN_EXE_PREFIX;
