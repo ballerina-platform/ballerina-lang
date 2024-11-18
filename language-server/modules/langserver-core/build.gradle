@@ -146,7 +146,7 @@ dependencies {
     dependency 'com.h2database:h2:1.4.199'
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.8.1'
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.8.1'
-    dependency 'commons-io:commons-io:2.11.0'
+    dependency 'commons-io:commons-io:2.14.0'
     dependency 'io.swagger:swagger-core:2.0.0-rc0'
     dependency 'io.swagger:swagger-models:2.0.0-rc0'
     dependency 'io.swagger:swagger-parser:2.0.0-rc1'
