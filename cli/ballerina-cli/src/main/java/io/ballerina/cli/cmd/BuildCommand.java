@@ -298,6 +298,13 @@ public class BuildCommand implements BLauncherCmd {
                 .build();
 
         taskExecutor.executeTasks(project);
+        Path targetDirPath = project.sourceRoot().resolve("target");
+        String packageName = project.sourceRoot().getFileName().toString();
+        String jarFileName = packageName+".jar"; 
+    Path jarFilePath = targetDirPath.resolve("bin").resolve(jarFileName);
+        outStream.println("What's next?");
+        outStream.println("Execute java -jar " + jarFilePath.toString() + " to run the program");
+        
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
