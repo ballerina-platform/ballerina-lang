@@ -906,16 +906,16 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(currentPackage.cloudToml().isPresent());
         Assert.assertTrue(currentPackage.compilerPluginToml().isPresent());
         Assert.assertTrue(currentPackage.balToolToml().isPresent());
-        Assert.assertTrue(currentPackage.packageMd().isPresent());
+        Assert.assertTrue(currentPackage.readmeMd().isPresent());
         // Check module.md files
         Module defaultModule = currentPackage.getDefaultModule();
-        Assert.assertTrue(defaultModule.moduleMd().isPresent());
+        Assert.assertTrue(defaultModule.readmeMd().isPresent());
         Module services = currentPackage
                 .module(ModuleName.from(currentPackage.packageName(), "services"));
-        Assert.assertTrue(services.moduleMd().isPresent());
+        Assert.assertTrue(services.readmeMd().isPresent());
         Module storage = currentPackage
                 .module(ModuleName.from(currentPackage.packageName(), "storage"));
-        Assert.assertTrue(storage.moduleMd().isEmpty());
+        Assert.assertTrue(storage.readmeMd().isEmpty());
 
         // Test the content
         TomlTableNode ballerinaToml = currentPackage.ballerinaToml().get().tomlAstNode();
@@ -1119,14 +1119,14 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(balToolToml.entries().size(), 2);
 
         // Check if PackageMd is editable
-        project.currentPackage().packageMd().get().modify().withContent("#Modified").apply();
-        String packageMdContent = project.currentPackage().packageMd().get().content();
+        project.currentPackage().readmeMd().get().modify().withContent("#Modified").apply();
+        String packageMdContent = project.currentPackage().readmeMd().get().content();
         Assert.assertEquals(packageMdContent, "#Modified");
 
         // Check if ModuleMd is editable
-        project.currentPackage().getDefaultModule().moduleMd().get().modify().withContent("#Modified").apply();
-        String moduleMdContent = project.currentPackage().getDefaultModule().moduleMd().get().content();
-        Assert.assertEquals(packageMdContent, "#Modified");
+        project.currentPackage().getDefaultModule().readmeMd().get().modify().withContent("#Modified").apply();
+        String moduleMdContent = project.currentPackage().getDefaultModule().readmeMd().get().content();
+        Assert.assertEquals(moduleMdContent, "#Modified");
 
         // Check if ModuleMd is editable other than default module
         // todo enable following after resolving package name edit bug
@@ -1143,7 +1143,7 @@ public class TestBuildProject extends BaseTest {
         project.currentPackage().modify().removeBalToolToml().apply();
         project.currentPackage().getDefaultModule().modify().removeModuleMd().apply();
 
-        Assert.assertTrue(project.currentPackage().packageMd().isEmpty());
+        Assert.assertTrue(project.currentPackage().readmeMd().isEmpty());
         Assert.assertTrue(project.currentPackage().cloudToml().isEmpty());
         Assert.assertTrue(project.currentPackage().compilerPluginToml().isEmpty());
         Assert.assertTrue(project.currentPackage().balToolToml().isEmpty());
@@ -1908,8 +1908,8 @@ public class TestBuildProject extends BaseTest {
             Assert.assertEquals(project.currentPackage().module(moduleId).moduleMd().isPresent(),
                     duplicate.currentPackage().module(moduleId).moduleMd().isPresent());
             if (project.currentPackage().module(moduleId).moduleMd().isPresent()) {
-                Assert.assertEquals(project.currentPackage().module(moduleId).moduleMd().get().content(),
-                        duplicate.currentPackage().module(moduleId).moduleMd().get().content());
+                Assert.assertEquals(project.currentPackage().module(moduleId).readmeMd().get().content(),
+                        duplicate.currentPackage().module(moduleId).readmeMd().get().content());
             }
 
             Assert.assertTrue(project.currentPackage().module(moduleId).documentIds().containsAll(
