@@ -16,6 +16,7 @@
 
 import ballerina/lang.runtime;
 import ballerina/jballerina.java;
+import ballerina/test;
 
 int globalResult = 0;
 
@@ -90,12 +91,18 @@ function testAsyncNonNativeBasic8() returns int {
     return result;
 }
 
-function testAsyncNonNativeBasic9() returns int {
-    future<int> f1 = @strand{thread:"parent"} start subtract(5, 2);
-    future<int> f2 = @strand{thread:"parent"} start addNum(5, 2);
+function testAsyncNonNativeBasic9() {
+    future<int> f1 = @strand {thread: "parent"} start subtract(5, 2);
+    future<int> f2 = @strand {thread: "parent"} start addNum(5, 2);
     f1.cancel();
-    int result = checkpanic wait f1 | f2;
-    return result;
+    int|error result = trap wait f1 | f2;
+    if (result is error) {
+        error e = result;
+        test:assertEquals(e.message(), "{ballerina/lang.future}FutureAlreadyCancelled");
+        test:assertEquals(e.detail().toString(), "{}");
+    } else {
+        test:assertEquals(result, 7);
+    }
 }
 
 function testAsyncNonNativeBasic10() returns any {

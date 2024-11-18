@@ -30,13 +30,7 @@ import java.math.RoundingMode;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.decimal", functionName = "round",
-//        args = {@Argument(name = "x", type = TypeKind.DECIMAL)},
-//        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
-//        isPublic = true
-//)
-public final class Round {
+public class Round {
 
     private Round() {
     }

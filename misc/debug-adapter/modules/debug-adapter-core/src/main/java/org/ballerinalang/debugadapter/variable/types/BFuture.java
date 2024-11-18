@@ -17,14 +17,12 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Method;
-import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -68,9 +66,8 @@ public class BFuture extends NamedCompoundVariable {
                 // Invokes "getLocalizedMessage()" method of the panic object.
                 Optional<Method> method = VariableUtils.getMethod(panic.get(), METHOD_LOCALIZEDMESSAGE);
                 if (method.isPresent()) {
-                    Value stringValue = ((ObjectReference) panic.get()).invokeMethod(getContext().getOwningThread()
-                                    .getThreadReference(), method.get(), new ArrayList<>(),
-                            ObjectReference.INVOKE_SINGLE_THREADED);
+                    Value stringValue = VariableUtils.invokeRemoteVMMethod(context, panic.get(),
+                            METHOD_LOCALIZEDMESSAGE, null);
                     childVarMap.put(FIELD_PANIC, stringValue);
                 }
             }

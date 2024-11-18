@@ -64,7 +64,6 @@
     </test>
 
     <test name="jballerina-test">
-        <parameter name="enableJBallerinaTests" value="true"/>
         <packages>
             <package name="org.ballerinalang.test.jvm.*"/>
         </packages>

@@ -102,5 +102,11 @@ digraph central {
     subgraph "ballerina/http:1.4.0" {
         "ballerina/http:1.4.0" -> "ballerina/io:1.0.2"
     }
+
+    subgraph "samjs/qux.foo:1.0.2" {
+    }
+
+    subgraph "samjs/qux.foo:1.0.5" {
+    }
 }
 

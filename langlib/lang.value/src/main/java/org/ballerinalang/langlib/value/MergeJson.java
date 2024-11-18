@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.value;
 
-import io.ballerina.runtime.internal.JsonInternalUtils;
+import io.ballerina.runtime.internal.json.JsonInternalUtils;
 
 
 /**

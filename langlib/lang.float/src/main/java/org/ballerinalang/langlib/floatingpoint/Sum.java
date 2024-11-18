@@ -21,13 +21,8 @@ package org.ballerinalang.langlib.floatingpoint;
 /**
  * Native implementation of lang.float:sum(float...).
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.float", functionName = "sum",
-//        args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.FLOAT)},
-//        isPublic = true
-//)
-public final class Sum {
+public class Sum {
+
 
     private Sum() {
     }

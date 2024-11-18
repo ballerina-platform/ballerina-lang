@@ -46,7 +46,6 @@ public final class JvmConstants {
     public static final String ARRAY_VALUE = "io/ballerina/runtime/internal/values/ArrayValue";
     public static final String ABSTRACT_OBJECT_VALUE = "io/ballerina/runtime/internal/values/AbstractObjectValue";
     public static final String BREF_VALUE = "io/ballerina/runtime/api/values/BRefValue";
-    public static final String REF_VALUE = "io/ballerina/runtime/internal/values/RefValue";
     public static final String ERROR_VALUE = "io/ballerina/runtime/internal/values/ErrorValue";
     public static final String BERROR = "io/ballerina/runtime/api/values/BError";
     public static final String STRING_VALUE = "java/lang/String";
@@ -67,8 +66,7 @@ public final class JvmConstants {
     public static final String TYPEDESC_VALUE_IMPL = "io/ballerina/runtime/internal/values/TypedescValueImpl";
     public static final String TYPEDESC_VALUE = "io/ballerina/runtime/internal/values/TypedescValue";
     public static final String HANDLE_VALUE = "io/ballerina/runtime/internal/values/HandleValue";
-    public static final String LOCK_VALUE = "io/ballerina/runtime/internal/BLock";
-    public static final String LOCK_STORE = "io/ballerina/runtime/internal/BLockStore";
+    public static final String LOCK_STORE = "io/ballerina/runtime/internal/lock/BLockStore";
     public static final String FUNCTION_POINTER = "io/ballerina/runtime/internal/values/FPValue";
     public static final String ARRAY_VALUE_IMPL = "io/ballerina/runtime/internal/values/ArrayValueImpl";
     public static final String TABLE_VALUE_IMPL = "io/ballerina/runtime/internal/values/TableValueImpl";
@@ -104,7 +102,7 @@ public final class JvmConstants {
 
     // types related classes
     public static final String TYPE = "io/ballerina/runtime/api/types/Type";
-    public static final String PREDEFINED_TYPES = "io/ballerina/runtime/api/PredefinedTypes";
+    public static final String PREDEFINED_TYPES = "io/ballerina/runtime/api/types/PredefinedTypes";
 
     public static final String ARRAY_TYPE = "io/ballerina/runtime/api/types/ArrayType";
     public static final String XML_TYPE = "io/ballerina/runtime/api/types/XmlType";
@@ -163,7 +161,7 @@ public final class JvmConstants {
     public static final String TYPE_REF_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTypeReferenceType";
     public static final String TYPE_IMPL = "io/ballerina/runtime/internal/types/BType";
     public static final String MODULE = "io/ballerina/runtime/api/Module";
-    public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
+    public static final String CURRENT_MODULE_VAR_NAME = "$currentModule";
     public static final String B_STRING_VAR_PREFIX = "$bString";
     public static final String LARGE_STRING_VAR_PREFIX = "$stringChunk";
     public static final String GET_SURROGATE_ARRAY_METHOD_PREFIX = "getSurrogateArray";
@@ -172,6 +170,7 @@ public final class JvmConstants {
     public static final String TYPEREF_TYPE_VAR_PREFIX = "$typeRefType$";
     public static final String TUPLE_TYPE_VAR_PREFIX = "$tupleType";
     public static final String ARRAY_TYPE_VAR_PREFIX = "$arrayType";
+    public static final String FUNCTION_TYPE_VAR_PREFIX = "$functionType";
     public static final String MODULE_VAR_PREFIX = "$module";
 
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
@@ -181,41 +180,40 @@ public final class JvmConstants {
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
 
     // other jvm-specific classes
+    public static final String BAL_RUNTIME = "io/ballerina/runtime/internal/BalRuntime";
     public static final String TYPE_CHECKER = "io/ballerina/runtime/internal/TypeChecker";
     public static final String SCHEDULER = "io/ballerina/runtime/internal/scheduling/Scheduler";
-    public static final String JSON_UTILS = "io/ballerina/runtime/internal/JsonInternalUtils";
+    public static final String JSON_UTILS = "io/ballerina/runtime/internal/json/JsonInternalUtils";
     public static final String STRAND_CLASS = "io/ballerina/runtime/internal/scheduling/Strand";
-    public static final String STRAND_METADATA = "io/ballerina/runtime/api/async/StrandMetadata";
+    public static final String STRAND_METADATA = "io/ballerina/runtime/api/concurrent/StrandMetadata";
     public static final String BAL_ENV_CLASS = "io/ballerina/runtime/internal/BalEnvironment";
     public static final String BAL_ENV = "io/ballerina/runtime/api/Environment";
     public static final String TYPE_CONVERTER = "io/ballerina/runtime/internal/TypeConverter";
-    public static final String FUNCTION_FRAME = "io/ballerina/runtime/internal/scheduling/FunctionFrame";
     public static final String VALUE_CREATOR = "io/ballerina/runtime/internal/values/ValueCreator";
-    public static final String XML_FACTORY = "io/ballerina/runtime/internal/XmlFactory";
+    public static final String XML_FACTORY = "io/ballerina/runtime/internal/xml/XmlFactory";
     public static final String XML_SEQUENCE = "io/ballerina/runtime/internal/values/XmlSequence";
-    public static final String WD_CHANNELS = "io/ballerina/runtime/internal/scheduling/WDChannels";
-    public static final String WORKER_DATA_CHANNEL = "io/ballerina/runtime/internal/scheduling/WorkerDataChannel";
-    public static final String CHANNEL_DETAILS = "io/ballerina/runtime/internal/values/ChannelDetails";
+    public static final String ASYNC_UTILS = "io/ballerina/runtime/internal/scheduling/AsyncUtils";
     public static final String WORKER_UTILS = "io/ballerina/runtime/internal/scheduling/WorkerUtils";
-    public static final String MAP_UTILS = "io/ballerina/runtime/internal/MapUtils";
-    public static final String TABLE_UTILS = "io/ballerina/runtime/internal/TableUtils";
+    public static final String WORKER_CHANNEL_MAP = "io/ballerina/runtime/internal/scheduling/WorkerChannelMap";
+    public static final String MAP_UTILS = "io/ballerina/runtime/internal/utils/MapUtils";
+    public static final String TABLE_UTILS = "io/ballerina/runtime/internal/utils/TableUtils";
     public static final String STRING_UTILS = "io/ballerina/runtime/api/utils/StringUtils";
-    public static final String ERROR_UTILS = "io/ballerina/runtime/internal/ErrorUtils";
-    public static final String RUNTIME_UTILS = "io/ballerina/runtime/internal/util/RuntimeUtils";
-    public static final String LARGE_STRUCTURE_UTILS = "io/ballerina/runtime/internal/util/LargeStructureUtils";
+    public static final String ERROR_UTILS = "io/ballerina/runtime/internal/utils/ErrorUtils";
+    public static final String RUNTIME_UTILS = "io/ballerina/runtime/internal/utils/RuntimeUtils";
+    public static final String LARGE_STRUCTURE_UTILS = "io/ballerina/runtime/internal/utils/LargeStructureUtils";
     public static final String OPTION = "io/ballerina/runtime/internal/cli/Option";
     public static final String OPERAND = "io/ballerina/runtime/internal/cli/Operand";
     public static final String CLI_SPEC = "io/ballerina/runtime/internal/cli/CliSpec";
     public static final String LAUNCH_UTILS = "io/ballerina/runtime/internal/launch/LaunchUtils";
-    public static final String MATH_UTILS = "io/ballerina/runtime/internal/MathUtils";
+    public static final String MATH_UTILS = "io/ballerina/runtime/internal/utils/MathUtils";
     public static final String ERROR_REASONS = "io/ballerina/runtime/internal/errors/ErrorReasons";
     public static final String ERROR_CODES = "io/ballerina/runtime/internal/errors/ErrorCodes";
     public static final String ERROR_HELPER = "io/ballerina/runtime/internal/errors/ErrorHelper";
-    public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/internal/util/CompatibilityChecker";
+    public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/internal/utils/CompatibilityChecker";
     public static final String RUNTIME_REGISTRY_CLASS = "io/ballerina/runtime/internal/scheduling/RuntimeRegistry";
-    public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
+    public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/utils/ValueComparisonUtils";
     public static final String REG_EXP_FACTORY = "io/ballerina/runtime/internal/regexp/RegExpFactory";
-    public static final String REPOSITORY_IMPL = "io/ballerina/runtime/internal/RepositoryImpl";
+    public static final String REPOSITORY_IMPL = "io/ballerina/runtime/internal/repository/RepositoryImpl";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -223,7 +221,6 @@ public final class JvmConstants {
     public static final String LINKED_HASH_MAP = "java/util/LinkedHashMap";
     public static final String ARRAY_LIST = "java/util/ArrayList";
     public static final String LIST = "java/util/List";
-    public static final String STACK = "java/util/Stack";
     public static final String SET = "java/util/Set";
     public static final String LINKED_HASH_SET = "java/util/LinkedHashSet";
     public static final String STRING_BUILDER = "java/lang/StringBuilder";
@@ -238,11 +235,9 @@ public final class JvmConstants {
     public static final String HASH_MAP = "java/util/HashMap";
     public static final String PATH = "java/nio/file/Path";
     public static final String SYSTEM = "java/lang/System";
-    public static final String STRING_CONCAT_FACTORY = "java/lang/invoke/StringConcatFactory";
-    public static final String RECEIVE_FIELD = "io/ballerina/runtime/internal/scheduling/WDChannels$ReceiveField";
 
     // service objects, annotation processing related classes
-    public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
+    public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/utils/AnnotationUtils";
     public static final String ANNOTATION_MAP_NAME = "$annotation_data";
     public static final String ANNOTATIONS_FIELD = "$annotations";
     public static final String DEFAULTABLE_ARGS_ANOT_NAME = "DefaultableArgs";
@@ -254,12 +249,12 @@ public final class JvmConstants {
     public static final String TYPE_ANY_ARRAY = "TYPE_ANY_ARRAY";
 
     // error related constants
-    public static final String PANIC_FIELD = "panic";
     public static final String SET_DETAIL_TYPE_METHOD = "setDetailType";
     public static final String SET_TYPEID_SET_METHOD = "setTypeIdSet";
     public static final String TRAP_ERROR_METHOD = "trapError";
-    public static final String BLOCKED_ON_EXTERN_FIELD = "blockedOnExtern";
-    public static final String IS_BLOCKED_ON_EXTERN_FIELD = "isBlockedOnExtern";
+
+    // future related constants
+    public static final String GET = "get";
 
     // union and tuple related constants
     public static final String SET_MEMBERS_METHOD = "setMemberTypes";
@@ -272,12 +267,11 @@ public final class JvmConstants {
     // exception classes
     public static final String THROWABLE = "java/lang/Throwable";
     public static final String STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
-    public static final String HANDLE_THROWABLE_METHOD = "handleBErrorAndExit";
-    public static final String HANDLE_ALL_THROWABLE_METHOD = "handleAllRuntimeErrorsAndExit";
-    public static final String HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
     public static final String UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
-    public static final String HANDLE_STOP_PANIC_METHOD = "handleAllRuntimeErrors";
-    public static final String HANDLE_RETURNED_ERROR_METHOD_WITHOUT_EXIT = "handleRuntimeErrorReturns";
+    public static final String HANDLE_FUTURE_METHOD = "handleFuture";
+    public static final String HANDLE_FUTURE_AND_RETURN_IS_PANIC_METHOD = "handleFutureAndReturnIsPanic";
+    public static final String HANDLE_FUTURE_AND_EXIT_METHOD = "handleFutureAndExit";
+    public static final String HANDLE_THROWABLE_METHOD = "handleThrowable";
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
@@ -287,10 +281,10 @@ public final class JvmConstants {
     public static final String TUPLE_TYPE_CONSTANT_CLASS_NAME = "constants/$_tuple_type_constants";
     public static final String ARRAY_TYPE_CONSTANT_CLASS_NAME = "constants/$_array_type_constants";
     public static final String TYPEREF_TYPE_CONSTANT_CLASS_NAME = "constants/$_typeref_type_constants";
+    public static final String FUNCTION_TYPE_CONSTANT_CLASS_NAME = "constants/$_function_type_constants";
     public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "constants/$_string_constants";
     public static final String MODULE_SURROGATES_CLASS_NAME = "constants/$_surrogate_methods";
     public static final String MODULE_CONSTANT_CLASS_NAME = "constants/$_module_constants";
-    public static final String MODULE_STRAND_METADATA_CLASS_NAME = "constants/$_strand_metadata";
     public static final String CONSTANTS_CLASS_NAME = "constants/$_constants";
     public static final String MODULE_TYPES_CLASS_NAME = "types/$_types";
     public static final String MODULE_RECORD_TYPES_CLASS_NAME = "types/$_record_types";
@@ -299,6 +293,8 @@ public final class JvmConstants {
     public static final String MODULE_UNION_TYPES_CLASS_NAME = "types/$_union_types";
     public static final String MODULE_TUPLE_TYPES_CLASS_NAME = "types/$_tuple_types";
     public static final String MODULE_ANON_TYPES_CLASS_NAME = "types/$_anon_types";
+    public static final String MODULE_FUNCTION_TYPES_CLASS_NAME = "types/$_function_types";
+    public static final String B_FUNCTION_TYPE_INIT_METHOD_PREFIX = "$function_type_init";
     public static final String MODULE_RECORDS_CREATOR_CLASS_NAME = "creators/$_records";
     public static final String MODULE_OBJECTS_CREATOR_CLASS_NAME = "creators/$_objects";
     public static final String MODULE_FUNCTION_CALLS_CLASS_NAME = "creators/$_function_calls";
@@ -320,8 +316,8 @@ public final class JvmConstants {
     public static final String MODULE_INIT_METHOD_PREFIX = "$module_init";
     public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
-    public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
-    public static final String CURRENT_MODULE_STOP = "$currentModuleStop";
+    public static final String CURRENT_MODULE_INIT_METHOD = "$currentModuleInit";
+    public static final String CURRENT_MODULE_STOP_METHOD = "$currentModuleStop";
     public static final String MODULE_INIT_METHOD = "$moduleInit";
     public static final String MODULE_START_METHOD = "$moduleStart";
     public static final String MODULE_STOP_METHOD = "$moduleStop";
@@ -334,12 +330,11 @@ public final class JvmConstants {
     public static final String FILE_NAME_PERIOD_SEPERATOR = "$$$";
     public static final String VALUE_CLASS_PREFIX = "$value$";
     public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
-    public static final String FRAME_CLASS_PREFIX = "frames/$frame$";
     public static final String BALLERINA = "ballerina";
     public static final String ENCODED_DOT_CHARACTER = "&0046";
     public static final String ENCODED_JAVA_MODULE = "jballerina&0046java";
     public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, new Name(ENCODED_DOT_CHARACTER),
-                                                          DEFAULT_VERSION);
+            DEFAULT_VERSION);
     public static final String BUILT_IN_PACKAGE_NAME = "lang" + ENCODED_DOT_CHARACTER + "annotations";
     public static final String MODULE_START_ATTEMPTED = "$moduleStartAttempted";
     public static final String PARENT_MODULE_START_ATTEMPTED = "$parentModuleStartAttempted";
@@ -365,16 +360,23 @@ public final class JvmConstants {
     public static final String CREATE_TYPE_INSTANCES_METHOD = "$createTypeInstances";
     public static final String GLOBAL_LOCK_NAME = "lock";
     public static final String SERVICE_EP_AVAILABLE = "$serviceEPAvailable";
-    public static final String LOCK_STORE_VAR_NAME = "$LOCK_STORE";
+    public static final String BAL_RUNTIME_VAR_NAME = "$balRuntime";
+    public static final String LOCK_STORE_VAR_NAME = "$lockStore";
+    public static final String WORKER_CHANNEL_MAP_VAR_NAME = "$channelMap";
+    public static final String SEND_WORKER_CHANNEL_NAMES_VAR_NAME = "$sendWorkerChannelNames";
+    public static final String RECEIVE_WORKER_CHANNEL_NAMES_VAR_NAME = "$receiveWorkerChannelNames";
+    public static final String WORKER_CHANNEL_NAMES_MAP = "$channelNamesMap";
+    public static final String WORKER_CHANNELS_ADD_METHOD = "addWorkerChannels";
+    public static final String WORKER_CHANNELS_COMPLETE_METHOD = "completedWorkerChannels";
+    public static final String WORKER_CHANNELS_COMPLETE_WITH_PANIC_METHOD = "completeWorkerChannelsWithPanic";
     public static final String RECORD_INIT_WRAPPER_NAME = "$init";
-    public static final String RUNTIME_REGISTRY_VARIABLE = "$runtimeRegistry";
+    public static final String RUNTIME_REGISTRY_VARIABLE = "runtimeRegistry";
+    public static final String SCHEDULER_VARIABLE = "scheduler";
     public static final String CONFIGURE_INIT = "$configureInit";
     public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
     public static final String CONFIGURE_INIT_ATTEMPTED = "$configureInitAttempted";
     public static final String HANDLE_ANYDATA_VALUES = "handleAnydataValues";
-    public static final String MAKE_CONCAT_WITH_CONSTANTS = "makeConcatWithConstants";
-    public static final String START_OF_HEADING_WITH_SEMICOLON = ":\u0001";
     public static final String CREATE_INTEROP_ERROR_METHOD = "createInteropError";
     public static final String LAMBDA_PREFIX = "$lambda$";
     public static final String SPLIT_CLASS_SUFFIX = "$split$";
@@ -386,9 +388,8 @@ public final class JvmConstants {
     public static final String CLASS_FILE_SUFFIX = ".class";
 
     // scheduler related constants
-    public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
-    public static final String SCHEDULE_LOCAL_METHOD = "scheduleLocal";
-    public static final String SCHEDULER_START_METHOD = "start";
+    public static final String START_ISOLATED_WORKER = "startIsolatedWorker";
+    public static final String START_NON_ISOLATED_WORKER = "startNonIsolatedWorker";
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
     public static final String CREATE_ERROR_VALUE = "createErrorValue";
@@ -396,20 +397,20 @@ public final class JvmConstants {
     public static final String INSTANTIATE_FUNCTION = "instantiate";
 
     public static final String GET_ANON_TYPE_METHOD = "getAnonType";
+    public static final String GET_FUNCTION_TYPE_METHOD = "getFunctionType";
 
     // strand data related constants
     public static final String STRAND = "strand";
     public static final String STRAND_THREAD = "thread";
     public static final String STRAND_NAME = "name";
     public static final String STRAND_POLICY_NAME = "policy";
+    public static final String STRAND_WORKER_CHANNEL_MAP = "workerChannelMap";
     public static final String STRAND_VALUE_ANY = "any";
     public static final String STRAND_METADATA_VAR_PREFIX = "$strand_metadata$";
     public static final String MAIN_ARG_VAR_PREFIX = "%param";
-    public static final String GRACEFUL_EXIT_METHOD_NAME = "gracefulExit";
-    public static final String SET_LISTENER_FOUND_METHOD_NAME = "setListenerDeclarationFound";
+    public static final String WAIT_ON_LISTENERS_METHOD_NAME = "waitOnListeners";
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
-    public static final String YIELD_LOCATION = "yieldLocation";
-    public static final String YIELD_STATUS = "yieldStatus";
+    public static final String DEFAULT_STRAND_NAME = "anon";
 
     // transaction related constants
     public static final String TRANSACTION_CONTEXT_CLASS = "io/ballerina/runtime/transactions/TransactionLocalContext";
@@ -442,6 +443,7 @@ public final class JvmConstants {
     public static final int MAX_MEMBERS_PER_METHOD = 100;
     public static final int MAX_TYPES_PER_METHOD = 100;
     public static final int MAX_FIELDS_PER_SPLIT_METHOD = 500;
+    public static final int MAX_FUNCTION_TYPE_FIELDS_PER_SPLIT_METHOD = 140;
     public static final int MAX_MODULES_PER_METHOD = 100;
     public static final int MAX_CALLS_PER_CLIENT_METHOD = 100;
     public static final int MAX_CONSTANTS_PER_METHOD = 100;

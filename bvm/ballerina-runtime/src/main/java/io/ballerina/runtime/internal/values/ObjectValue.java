@@ -33,9 +33,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  */
 public interface ObjectValue extends BObject {
 
-    @Override
     Object call(Strand strand, String funcName, Object... args);
 
-    @Override
     BFuture start(Strand strand, String funcName, Object... args);
 }

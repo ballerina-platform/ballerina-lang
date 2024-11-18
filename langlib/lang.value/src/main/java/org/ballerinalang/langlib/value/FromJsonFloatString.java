@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.utils.JsonUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.JsonParser;
+import io.ballerina.runtime.internal.json.JsonParser;
 
 import java.io.StringReader;
 

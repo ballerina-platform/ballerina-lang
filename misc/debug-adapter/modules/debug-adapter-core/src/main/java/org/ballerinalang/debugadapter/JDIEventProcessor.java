@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
+import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ClassPrepareEvent;
@@ -25,6 +26,8 @@ import com.sun.jdi.event.Event;
 import com.sun.jdi.event.EventIterator;
 import com.sun.jdi.event.EventSet;
 import com.sun.jdi.event.StepEvent;
+import com.sun.jdi.event.ThreadDeathEvent;
+import com.sun.jdi.event.ThreadStartEvent;
 import com.sun.jdi.event.VMDeathEvent;
 import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.EventRequest;
@@ -44,7 +47,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static org.ballerinalang.debugadapter.BreakpointProcessor.DynamicBreakpointMode;
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
@@ -57,6 +59,7 @@ public class JDIEventProcessor {
     private final BreakpointProcessor breakpointProcessor;
     private boolean isRemoteVmAttached = false;
     private final List<EventRequest> stepRequests = new CopyOnWriteArrayList<>();
+    private static final List<ThreadReference> virtualThreads = new CopyOnWriteArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JDIEventProcessor.class);
 
     JDIEventProcessor(ExecutionContext context) {
@@ -72,10 +75,14 @@ public class JDIEventProcessor {
         return stepRequests;
     }
 
+    List<ThreadReference> getVirtualThreads() {
+        return virtualThreads;
+    }
+
     /**
      * Asynchronously listens and processes the incoming JDI events.
      */
-    void startListening() {
+    void listenAsync() {
         CompletableFuture.runAsync(() -> {
             isRemoteVmAttached = true;
             while (isRemoteVmAttached) {
@@ -101,7 +108,7 @@ public class JDIEventProcessor {
 
     private void processEvent(EventSet eventSet, Event event) {
         if (event instanceof ClassPrepareEvent evt) {
-            if (context.getLastInstruction() != DebugInstruction.STEP_OVER) {
+            if (context.getPrevInstruction() != DebugInstruction.STEP_OVER) {
                 breakpointProcessor.activateUserBreakPoints(evt.referenceType(), true);
             }
             eventSet.resume();
@@ -119,26 +126,35 @@ public class JDIEventProcessor {
                 || event instanceof VMDeathEvent
                 || event instanceof VMDisconnectedException) {
             isRemoteVmAttached = false;
+        } else if (event instanceof ThreadStartEvent threadStartEvent) {
+            ThreadReference thread = threadStartEvent.thread();
+            if (thread.isVirtual()) {
+                virtualThreads.add(thread);
+            }
+            eventSet.resume();
+        } else if (event instanceof ThreadDeathEvent threadDeathEvent) {
+            ThreadReference thread = threadDeathEvent.thread();
+            virtualThreads.remove(thread);
+            eventSet.resume();
         } else {
             eventSet.resume();
         }
     }
 
-    void enableBreakpoints(String qualifiedClassName, LinkedHashMap<Integer, BalBreakpoint> breakpoints) {
-        breakpointProcessor.addSourceBreakpoints(qualifiedClassName, breakpoints);
-
-        if (context.getDebuggeeVM() != null) {
-            // Setting breakpoints to a already running debug session.
-            context.getEventManager().deleteAllBreakpoints();
-            context.getDebuggeeVM().allClasses().forEach(referenceType ->
-                    breakpointProcessor.activateUserBreakPoints(referenceType, false));
+    void enableBreakpoints(String qClassName, LinkedHashMap<Integer, BalBreakpoint> breakpoints) {
+        breakpointProcessor.addSourceBreakpoints(qClassName, breakpoints);
+        if (context.getDebuggeeVM() == null) {
+            return;
         }
+
+        // Setting breakpoints to an already running debug session.
+        context.getEventManager().deleteAllBreakpoints();
+        context.getDebuggeeVM().classesByName(qClassName)
+                .forEach(ref -> breakpointProcessor.activateUserBreakPoints(ref, false));
     }
 
     void sendStepRequest(int threadId, int stepType) {
-        if (stepType == StepRequest.STEP_OVER) {
-            breakpointProcessor.activateDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT);
-        } else if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
+        if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
             createStepRequest(threadId, stepType);
         }
         context.getDebuggeeVM().resume();
