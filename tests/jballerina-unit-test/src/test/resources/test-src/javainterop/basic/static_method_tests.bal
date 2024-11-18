@@ -42,8 +42,11 @@ function testJavaNullPointerException() {
     if unionResult is error {
         test:assertEquals(unionResult.message(), "java.lang.NullPointerException");
         test:assertEquals(unionResult.stackTrace().toBalString(),
-        "[object callableName: throwNPE  fileName: static_method_tests.bal lineNumber: 190," +
-        "object callableName: $lambda$_0  fileName: static_method_tests.bal lineNumber: 53]");
+        "[object callableName: throwNPE  fileName: static_method_tests.bal lineNumber: 195," +
+        "object callableName: $lambda$_0  fileName: static_method_tests.bal lineNumber: 56," +
+        "object callableName: forEach moduleName: ballerina.lang.array.0 fileName: array.bal lineNumber: 115," +
+        "object callableName: callThrowNPEWithCallback  fileName: static_method_tests.bal lineNumber: 55," +
+        "object callableName: testJavaNullPointerException  fileName: static_method_tests.bal lineNumber: 40]");
     }
 }
 

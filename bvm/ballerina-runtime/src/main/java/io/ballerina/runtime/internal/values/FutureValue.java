@@ -17,17 +17,21 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.scheduling.AsyncUtils;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BFutureType;
-import io.ballerina.runtime.internal.util.StringUtils;
+import io.ballerina.runtime.internal.utils.StringUtils;
 
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * <p>
@@ -41,41 +45,36 @@ import java.util.StringJoiner;
  */
 public class FutureValue implements BFuture, RefValue {
 
-    private BTypedesc typedesc;
+     public Strand strand;
+     Type type;
+     public final CompletableFuture<Object> completableFuture;
+     private final BTypedesc typedesc;
+     private final AtomicBoolean waited;
 
-    public Strand strand;
+     public FutureValue(Strand strand, Type constraint) {
+         this.strand = strand;
+         this.type = new BFutureType(constraint);
+         this.typedesc = new TypedescValueImpl(this.type);
+         this.completableFuture = new CompletableFuture<>();
+         this.waited = new AtomicBoolean();
+     }
 
-    public Object result;
+     @Override
+     public String stringValue(BLink parent) {
+         StringJoiner sj = new StringJoiner(",", "{", "}");
+         boolean isDone =  completableFuture.isDone();
+         sj.add("isDone:" + completableFuture.isDone());
+         Object result = completableFuture.getNow(null);
+         if (isDone) {
+             if (result instanceof BError error) {
+                 sj.add("panic:" + error.getLocalizedMessage());
+             } else {
+                 sj.add("result:" + StringUtils.getStringVal(completableFuture.getNow(null), parent));
+             }
+         }
+         return "future " + sj;
+     }
 
-    public boolean isDone;
-
-    public Throwable panic;
-
-    public Callback callback;
-
-    private boolean waited;
-
-    Type type;
-
-    @Deprecated
-    public FutureValue(Strand strand, Callback callback, Type constraint) {
-        this.strand = strand;
-        this.callback = callback;
-        this.type = new BFutureType(constraint);
-    }
-
-    @Override
-    public String stringValue(BLink parent) {
-        StringJoiner sj = new StringJoiner(",", "{", "}");
-        sj.add("isDone:" + isDone);
-        if (isDone) {
-            sj.add("result:" + StringUtils.getStringVal(result, parent));
-        }
-        if (panic != null) {
-            sj.add("panic:" + panic.getLocalizedMessage());
-        }
-        return "future " + sj;
-    }
 
     @Override
     public String expressionStringValue(BLink parent) {
@@ -97,74 +96,48 @@ public class FutureValue implements BFuture, RefValue {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public BTypedesc getTypedesc() {
-        if (this.typedesc == null) {
-            this.typedesc = new TypedescValueImpl(this.type);
-        }
-        return typedesc;
-    }
+     @Override
+     public BTypedesc getTypedesc() {
+         return typedesc;
+     }
 
-    @Override
-    public void cancel() {
-        this.strand.cancel = true;
-    }
+     @Override
+     public void cancel() {
+         this.strand.cancelled = true;
+         if (this.strand.workerChannelMap != null) {
+             this.strand.workerChannelMap.cancel();
+         }
+     }
 
-    /**
-     * Returns the strand that the future is attached to.
-     * @return {@code Strand}
-     */
-    @Override
-    public Strand getStrand() {
-        return this.strand;
-    }
+     /**
+      * Returns the result value of the future.
+      * @return result value
+      */
+     @Override
+     public Object get() {
+         return AsyncUtils.handleWait(Scheduler.getStrand(), this.completableFuture);
+     }
 
-    /**
-     * Returns the result value of the future.
-     * @return result value
-     */
-    @Override
-    public Object getResult() {
-        return this.result;
-    }
-
-    /**
-     * Returns completion status of the {@code Strand} that the future is attached.
-     * @return true if future is completed
-     */
-    @Override
-    public boolean isDone() {
-        return this.isDone;
-    }
-
-    /**
-     * Returns {@code Throwable} if the attached strand panic.
-     * @return panic error or null if not panic occurred
-     */
-    @Override
-    public Throwable getPanic() {
-        return this.panic;
-    }
-
-    /**
-     * {@code CallableUnitCallback} listening on the completion of this future.
-     * @return registered {@code CallableUnitCallback}
-     */
-    @Override
-    public Callback getCallback() {
-        return this.callback;
-    }
+     /**
+      * Returns completion status of the {@code Strand} that the future is attached.
+      * @return true if future is completed
+      */
+     @Override
+     public boolean isDone() {
+         return completableFuture.isDone();
+     }
 
     @Override
     public String toString() {
         return stringValue(null);
     }
 
-    public boolean hasWaited() {
-        return waited;
-    }
+     @Override
+     public boolean isPanic() {
+         return completableFuture.isCompletedExceptionally();
+     }
 
-    public void setWaited(boolean waited) {
-        this.waited = waited;
-    }
-}
+     public boolean getAndSetWaited() {
+         return waited.getAndSet(true);
+     }
+ }

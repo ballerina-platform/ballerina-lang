@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 
@@ -30,13 +30,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "push",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "vals", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.ANY)},
-//        isPublic = true
-//)
-public final class Push {
+public class Push {
 
     private static final String FUNCTION_SIGNATURE = "push()";
 

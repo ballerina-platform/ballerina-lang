@@ -27,13 +27,7 @@ import io.ballerina.runtime.internal.values.ArrayValue;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "shift",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.ANY)},
-//        isPublic = true
-//)
-public final class Shift {
+public class Shift {
 
     private Shift() {
     }

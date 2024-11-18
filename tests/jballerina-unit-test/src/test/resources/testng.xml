@@ -22,7 +22,6 @@
 
 <suite name="ballerina-new-parser-test-suite" time-out="120000">
     <test name="jballerina-test">
-        <parameter name="enableJBallerinaTests" value="true"/>
         <packages>
             <package name="org.ballerinalang.test.access.*"/>
             <package name="org.ballerinalang.test.action.*"/>
@@ -38,7 +37,6 @@
             <package name="org.ballerinalang.test.enums.*"/>
             <package name="org.ballerinalang.test.error.*"/>
             <package name="org.ballerinalang.test.execution.*" />
-
             <package name="org.ballerinalang.test.expressions.access.*" />
             <package name="org.ballerinalang.test.expressions.async.*" />
             <package name="org.ballerinalang.test.expressions.binaryoperations.*" />
@@ -64,7 +62,6 @@
             <package name="org.ballerinalang.test.expressions.typeof.*" />
             <package name="org.ballerinalang.test.expressions.unaryoperations.*" />
             <package name="org.ballerinalang.test.expressions.varref.*" />
-
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.identifiers.*"/>
             <package name="org.ballerinalang.test.imports.*"/>
@@ -72,7 +69,6 @@
             <package name="org.ballerinalang.test.javainterop.*"/>
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.klass.*"/>
-            <!--            <package name="org.ballerinalang.test.loc.*"/>-->
             <package name="org.ballerinalang.test.lock.*"/>
             <package name="org.ballerinalang.test.main.function.*"/>
             <package name="org.ballerinalang.test.module.declarations.*"/>
@@ -83,16 +79,10 @@
             <package name="org.ballerinalang.test.observe.syntaxtree.*"/>
             <package name="org.ballerinalang.test.packaging.*" />
             <package name="org.ballerinalang.test.query.*"/>
-
-            <!--https://github.com/ballerina-platform/ballerina-lang/issues/30439-->
-            <!-- package name="org.ballerinalang.test.parser.*"/>-->
-
             <package name="org.ballerinalang.test.reachability.*"/>
             <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.runtime.api.*"/>
-
             <package name="org.ballerinalang.test.services.*"/>
-
             <package name="org.ballerinalang.test.statements.arrays.*"/>
             <package name="org.ballerinalang.test.statements.assign.*"/>
             <package name="org.ballerinalang.test.statements.block.*"/>
@@ -113,13 +103,11 @@
             <package name="org.ballerinalang.test.statements.variabledef.*"/>
             <package name="org.ballerinalang.test.statements.whilestatement.*"/>
             <package name="org.ballerinalang.test.statements.checkingstatement.*"/>
-
             <package name="org.ballerinalang.test.strand.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
             <package name="org.ballerinalang.test.testerina.*"/>
             <package name="org.ballerinalang.test.typedefs.*"/>
             <package name="org.ballerinalang.test.typechecker.*"/>
-
             <package name="org.ballerinalang.test.types.any.*"/>
             <package name="org.ballerinalang.test.types.anydata.*"/>
             <package name="org.ballerinalang.test.types.bytetype.*"/>
@@ -151,20 +139,15 @@
             <package name="org.ballerinalang.test.types.var.*"/>
             <package name="org.ballerinalang.test.types.xml.*" />
             <package name="org.ballerinalang.test.types.regexp.*" />
-
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.visibility"/>
         </packages>
-
         <classes>
             <class name="org.ballerinalang.test.expressions.TemplateExpressionTest"/>
-
             <class name="org.ballerinalang.test.parser.ResilientParserTest"/>
-
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
-
             <class name="org.ballerinalang.test.ParserTestRunner"/>
         </classes>
     </test>

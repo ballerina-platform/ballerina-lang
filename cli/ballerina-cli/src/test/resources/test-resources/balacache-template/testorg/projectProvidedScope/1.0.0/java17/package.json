@@ -8,7 +8,7 @@
   "ballerina_version": "2201.9.0-SNAPSHOT",
   "implementation_vendor": "WSO2",
   "language_spec_version": "2023R1",
-  "platform": "java17",
+  "platform": "java21",
   "platformDependencies": [
     {
       "artifactId": "project1",

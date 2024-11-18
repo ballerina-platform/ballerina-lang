@@ -238,9 +238,9 @@ public class TestCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target/bin/winery.jar").toFile().exists());
         Assert.assertEquals(md5BinJar, DigestUtils.md5Hex(
                 Files.newInputStream(projectPath.resolve("target/bin/winery.jar"))));
-        Assert.assertTrue(projectPath.resolve("target/cache/foo/winery/0.1.0/java17/foo-winery-0.1.0.jar")
+        Assert.assertTrue(projectPath.resolve("target/cache/foo/winery/0.1.0/java21/foo-winery-0.1.0.jar")
                 .toFile().exists());
-        Assert.assertTrue(projectPath.resolve("target/cache/foo/winery/0.1.0/java17/foo-winery-0.1.0-testable.jar")
+        Assert.assertTrue(projectPath.resolve("target/cache/foo/winery/0.1.0/java21/foo-winery-0.1.0-testable.jar")
                 .toFile().exists());
     }
 
@@ -366,7 +366,7 @@ public class TestCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true).replace("\r", "").strip();
 
         Assert.assertEquals(buildLog, getOutput("test-project-with-dump-graph.txt"));
-        Assert.assertTrue(projectPath.resolve("target/cache/foo/package_a/0.1.0/java17/foo-package_a-0.1.0.jar")
+        Assert.assertTrue(projectPath.resolve("target/cache/foo/package_a/0.1.0/java21/foo-package_a-0.1.0.jar")
                 .toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
@@ -392,9 +392,8 @@ public class TestCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true).replace("\r", "").replace("\\", "/").strip();
 
         Assert.assertEquals(buildLog, getOutput("test-project-with-dump-raw-graphs.txt"));
-        Assert.assertTrue(projectPath.resolve("target/cache/foo/package_a/0.1.0/java17/foo-package_a-0.1.0.jar")
+        Assert.assertTrue(projectPath.resolve("target/cache/foo/package_a/0.1.0/java21/foo-package_a-0.1.0.jar")
                 .toFile().exists());
-
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 

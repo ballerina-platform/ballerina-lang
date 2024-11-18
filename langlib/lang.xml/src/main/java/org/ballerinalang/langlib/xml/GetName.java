@@ -28,13 +28,6 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "getName",
-//        args = {@Argument(name = "BXML", type = TypeKind.XML)},
-//        returnType = {@ReturnType(type = TypeKind.STRING)},
-//        isPublic = true
-//)
 public final class GetName {
 
     private static final String OPERATION = "get element name in xml";

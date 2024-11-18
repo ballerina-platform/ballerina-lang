@@ -19,10 +19,9 @@
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.Future;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.Parameter;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BString;
@@ -37,46 +36,39 @@ public final class Environments {
     private Environments() {
     }
 
-    public static void callClientGetGreeting(Environment env, long p1, BString p2, boolean pn, BArray path, long t1,
+    public static long callClientGetGreeting(Environment env, long p1, BString p2, boolean pn, BArray path, long t1,
                                              BString t2, boolean tn) {
-        long returnVal = 1;
-        Future balFuture = env.markAsync();
         String functionName = env.getFunctionName();
         Parameter[] pathParameters = env.getFunctionPathParameters();
         Parameter[] expectedPathParams = {
                 new Parameter("p1", false, null, PredefinedTypes.TYPE_INT),
                 new Parameter("p2", false, null, PredefinedTypes.TYPE_STRING),
                 new Parameter("pn", false, null, PredefinedTypes.TYPE_BOOLEAN),
-                new Parameter("path", false, null,
-                        TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING))
+                new Parameter("path", false, null, TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING))
         };
         String expectedFunctionNamePrefix = "$get$greeting$";
-        assertFunctionNameAndPathParams(returnVal, balFuture, functionName, pathParameters, expectedPathParams,
-                expectedFunctionNamePrefix);
+        return assertFunctionNameAndPathParams(functionName, pathParameters, expectedPathParams,
+                expectedFunctionNamePrefix, 1);
     }
 
-    private static void assertFunctionNameAndPathParams(long returnVal, Future balFuture, String functionName,
+    private static long assertFunctionNameAndPathParams(String functionName,
                                                         Parameter[] pathParameters, Parameter[] expectedPathParams,
-                                                        String expectedFunctionNamePrefix) {
+                                                        String expectedFunctionNamePrefix, int expectedReturnVal) {
         if (functionName == null || !functionName.startsWith(expectedFunctionNamePrefix) || pathParameters == null
                 || pathParameters.length != expectedPathParams.length) {
-            balFuture.complete(-1);
-            return;
+            return -1;
         }
 
         for (int i = 0; i < expectedPathParams.length; i++) {
             if (!expectedPathParams[i].equals(pathParameters[i])) {
-                returnVal = -1;
-                break;
+                return -1;
             }
         }
-        balFuture.complete(returnVal);
+        return expectedReturnVal;
     }
 
-    public static void callClientPostGreeting(Environment env, long p1, BDecimal p2, float pn, long t1, BString t2,
+    public static long callClientPostGreeting(Environment env, long p1, BDecimal p2, float pn, long t1, BString t2,
                                               boolean tn) {
-        long returnVal = 2;
-        Future balFuture = env.markAsync();
         String functionName = env.getFunctionName();
         Parameter[] pathParameters = env.getFunctionPathParameters();
         Parameter[] expectedPathParams = {
@@ -85,7 +77,11 @@ public final class Environments {
                 new Parameter("pn", false, null, PredefinedTypes.TYPE_FLOAT),
         };
         String expectedFunctionNamePrefix = "$post$greeting$";
-        assertFunctionNameAndPathParams(returnVal, balFuture, functionName, pathParameters, expectedPathParams,
-                expectedFunctionNamePrefix);
+        return assertFunctionNameAndPathParams(functionName, pathParameters, expectedPathParams,
+                expectedFunctionNamePrefix, 2);
+    }
+
+    public static Environment getEnvironment(Environment env) {
+        return env;
     }
 }

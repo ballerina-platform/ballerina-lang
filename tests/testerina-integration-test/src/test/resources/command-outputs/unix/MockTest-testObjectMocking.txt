@@ -44,6 +44,13 @@ Running Tests with Coverage
 				callableName: withArguments moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 160
 				callableName: testDefaultIncompatibleArgs moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 56
 				callableName: testDefaultIncompatibleArgs$lambda3$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 7
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 23
 			
 
 		[fail] testDefaultInvalidMemberReturnValue:
@@ -53,6 +60,13 @@ Running Tests with Coverage
 				callableName: thenReturn moduleName: ballerina.test.0.MemberVariableStub fileName: mock.bal lineNumber: 373
 				callableName: testDefaultInvalidMemberReturnValue moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 74
 				callableName: testDefaultInvalidMemberReturnValue$lambda5$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 9
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 23
 			
 
 		[fail] testDefaultMockInvalidFieldName:
@@ -62,6 +76,13 @@ Running Tests with Coverage
 				callableName: getMember moduleName: ballerina.test.0.MockObject fileName: mock.bal lineNumber: 123
 				callableName: testDefaultMockInvalidFieldName moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 65
 				callableName: testDefaultMockInvalidFieldName$lambda4$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 8
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 23
 			
 
 		[fail] testDefaultMockInvalidReturnValue:
@@ -71,6 +92,13 @@ Running Tests with Coverage
 				callableName: thenReturn moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 176
 				callableName: testDefaultMockInvalidReturnValue moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 35
 				callableName: testDefaultMockInvalidReturnValue$lambda0$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 4
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 23
 			
 
 		[fail] testDefaultMockWrongAction:
@@ -80,6 +108,13 @@ Running Tests with Coverage
 				callableName: doNothing moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 208
 				callableName: testDefaultMockWrongAction moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 42
 				callableName: testDefaultMockWrongAction$lambda1$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 5
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 23
 			
 
 		[fail] testDefaultTooManyArgs:
@@ -89,6 +124,13 @@ Running Tests with Coverage
 				callableName: withArguments moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 160
 				callableName: testDefaultTooManyArgs moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 49
 				callableName: testDefaultTooManyArgs$lambda2$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 6
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 23
 			
 
 		[fail] testMockInvalidStream:
@@ -98,6 +140,13 @@ Running Tests with Coverage
 				callableName: thenReturn moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 176
 				callableName: testMockInvalidStream moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 81
 				callableName: testMockInvalidStream$lambda6$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 10
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 23
 			
 
 

@@ -23,8 +23,8 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.types.BStreamType;
+import io.ballerina.runtime.internal.utils.IteratorUtils;
 
 import java.util.Map;
 import java.util.UUID;

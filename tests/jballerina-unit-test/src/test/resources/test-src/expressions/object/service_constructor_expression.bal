@@ -37,14 +37,14 @@ function testServiceCtor() {
         }
     };
 
-    var remoteMethodRes = wait callMethod(x, "foo");
+    var remoteMethodRes = callMethod(x, "foo");
     assertEquality(remoteMethodRes, x.message + " from remote method");
 
-    var val = wait callMethod(x, "$get$bar");
+    var val = callMethod(x, "$get$bar");
     assertEquality(val, x.message);
 }
 
-public function callMethod(service object {} s, string name) returns future<any|error>  = @java:Method {
+public function callMethod(service object {} s, string name) returns any|error = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name:"callMethod"
 } external;
