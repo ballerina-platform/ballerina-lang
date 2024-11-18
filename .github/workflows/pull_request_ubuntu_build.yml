@@ -15,7 +15,7 @@ on:
       - native-build
       - revert-client-decl-master
       - query-grouping-aggregation
-      - nutcracker
+      - java21
 
 jobs:
   ubuntu_build:

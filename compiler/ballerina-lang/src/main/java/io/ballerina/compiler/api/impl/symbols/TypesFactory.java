@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
@@ -235,7 +236,7 @@ public class TypesFactory {
             case TYPEDESC:
                 return new BallerinaTypeDescTypeSymbol(this.context, (BTypedescType) bType);
             case NIL:
-                return new BallerinaNilTypeSymbol(this.context, bType);
+                return new BallerinaNilTypeSymbol(this.context, (BNilType) bType);
             case FINITE:
                 BFiniteType finiteType = (BFiniteType) bType;
                 Optional<Value> value = Core.singleShape(finiteType.semType());

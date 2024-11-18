@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
@@ -4307,7 +4308,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private static class BPubliclyExposedInferableTypeCollector extends TypeVisitor {
+    private static class BPubliclyExposedInferableTypeCollector implements TypeVisitor {
 
         Set<BType> unresolvedTypes;
         Set<BType> exposedTypes;
@@ -4406,7 +4407,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         @Override
-        public void visitNilType(BType bType) {
+        public void visit(BNilType bNilType) {
         }
 
         @Override
@@ -4477,6 +4478,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) bObjectType.tsymbol).attachedFuncs) {
                 visitType(attachedFunc.type);
             }
+        }
+
+        @Override
+        public void visit(BType bType) {
         }
 
         @Override

@@ -577,7 +577,7 @@ public class TypeResolver {
                 ((BUnionType) type).isCyclic = true;
                 break;
             case INTERSECTION:
-                updateIsCyclicFlag(((BIntersectionType) type).effectiveType);
+                updateIsCyclicFlag(((BIntersectionType) type).getEffectiveType());
                 break;
         }
     }

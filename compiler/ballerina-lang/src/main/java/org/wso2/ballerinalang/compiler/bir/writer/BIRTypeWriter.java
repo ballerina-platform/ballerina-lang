@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
@@ -116,7 +117,7 @@ import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.getBIRAn
  *
  * @since 0.995.0
  */
-public class BIRTypeWriter extends TypeVisitor {
+public class BIRTypeWriter implements TypeVisitor {
     private final ByteBuf buff;
 
     private final ConstantPool cp;
@@ -322,8 +323,8 @@ public class BIRTypeWriter extends TypeVisitor {
     }
 
     @Override
-    public void visitNilType(BType bType) {
-        // Nothing to do
+    public void visit(BNilType bNilType) {
+
     }
 
     @Override
@@ -454,6 +455,11 @@ public class BIRTypeWriter extends TypeVisitor {
     public void visit(BObjectType bObjectType) {
         writeObjectAndServiceTypes(bObjectType);
         writeTypeIds(bObjectType.typeIdSet);
+    }
+
+    @Override
+    public void visit(BType bType) {
+
     }
 
     private void writeObjectAndServiceTypes(BObjectType bObjectType) {

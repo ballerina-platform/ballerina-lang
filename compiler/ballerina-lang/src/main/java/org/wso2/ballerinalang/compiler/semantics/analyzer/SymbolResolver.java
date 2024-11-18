@@ -2058,7 +2058,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                         case TypeTags.UNSIGNED32_INT:
                             return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
                     }
-
+                    
                     switch (referredRhsType.tag) {
                         case TypeTags.UNSIGNED8_INT:
                         case TypeTags.BYTE:
@@ -2066,7 +2066,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                         case TypeTags.UNSIGNED32_INT:
                             return createBinaryOperator(opKind, lhsType, rhsType, rhsType);
                     }
-
+                    
                     if (referredLhsType.isNullable() || referredRhsType.isNullable()) {
                         BType intOptional =
                                 BUnionType.create(symTable.typeEnv(), null, symTable.intType, symTable.nilType);

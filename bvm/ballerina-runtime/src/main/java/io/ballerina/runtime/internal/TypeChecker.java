@@ -381,6 +381,18 @@ public final class TypeChecker {
     }
 
     /**
+     * Check if two decimal values are equal in value.
+     *
+     * @param lhsValue The value on the left hand side
+     * @param rhsValue The value of the right hand side
+     * @return True if values are equal, else false.
+     */
+    public static boolean checkDecimalEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
+        return isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
+               lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0;
+    }
+
+    /**
      * Check if two decimal values are exactly equal.
      *
      * @param lhsValue The value on the left-hand side
@@ -570,18 +582,6 @@ public final class TypeChecker {
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
         return isSubType(sourceType, targetType);
-    }
-
-    /**
-     * Check if two decimal values are equal in value.
-     *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value of the right hand side
-     * @return True if values are equal, else false.
-     */
-    public static boolean checkDecimalEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
-        return isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
-                lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0;
     }
 
     public static boolean isNumericType(Type type) {
@@ -786,10 +786,10 @@ public final class TypeChecker {
 
     static boolean isCharLiteralValue(Object object) {
         String value;
-        if (object instanceof BString) {
-            value = ((BString) object).getValue();
-        } else if (object instanceof String) {
-            value = (String) object;
+        if (object instanceof BString bString) {
+            value = bString.getValue();
+        } else if (object instanceof String s) {
+            value = s;
         } else {
             return false;
         }
@@ -918,8 +918,7 @@ public final class TypeChecker {
                                 DecimalValue.valueOf(((Number) valueSpaceItem).longValue())) && allowNumericConversion;
                     case TypeTags.FLOAT_TAG:
                         return checkDecimalEqual((DecimalValue) sourceValue,
-                                DecimalValue.valueOf(((Number) valueSpaceItem).doubleValue())) &&
-                                allowNumericConversion;
+                            DecimalValue.valueOf(((Number) valueSpaceItem).doubleValue())) && allowNumericConversion;
                     case TypeTags.DECIMAL_TAG:
                         return checkDecimalEqual((DecimalValue) sourceValue, (DecimalValue) valueSpaceItem);
                 }
