@@ -22,7 +22,9 @@ package io.ballerina.projects;
  * Represents the 'Module.md' file of a module.
  *
  * @since 2.0.0
+ * @deprecated use {@link ModuleReadmeMd} instead
  */
+@Deprecated (forRemoval = true, since = "2.11.0")
 public class ModuleMd {
 
     private final MdDocumentContext mdDocumentContext;

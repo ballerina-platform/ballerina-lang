@@ -1,7 +1,9 @@
 package io.ballerina.cli.cmd;
 
+import com.google.gson.Gson;
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.internal.bala.PackageJson;
 import io.ballerina.projects.util.BuildToolUtils;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
@@ -9,6 +11,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
@@ -20,14 +23,22 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.assertTomlFilesEquals;
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.replaceDependenciesTomlContent;
+import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
+import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
+import static io.ballerina.projects.util.ProjectConstants.MODULE_MD_FILE_NAME;
+import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
+import static io.ballerina.projects.util.ProjectConstants.PACKAGE_MD_FILE_NAME;
+import static io.ballerina.projects.util.ProjectConstants.README_MD_FILE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
@@ -69,6 +80,11 @@ public class PackCommandTest extends BaseCommandTest {
         Files.writeString(logFile, "");
     }
 
+    @AfterMethod
+    public void afterMethod() {
+        ProjectUtils.clearDiagnostics();
+    }
+
     @Test(description = "Pack a library package", dataProvider = "optimizeDependencyCompilation")
     public void testPackProject(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("validLibraryProject");
@@ -87,6 +103,16 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
+
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("foo-winery-any-0.1.0.bala");
+        Path extractedPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, extractedPath);
+        Assert.assertTrue(Files.exists(extractedPath.resolve(BALA_DOCS_DIR).resolve(README_MD_FILE_NAME)));
+
+        String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
+        PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
+        Assert.assertEquals(BALA_DOCS_DIR + "/" + README_MD_FILE_NAME, packageJson.getReadme());
     }
 
     @Test(description = "Pack a ballerina project with the engagement of all type of compiler plugins",
@@ -691,6 +717,386 @@ public class PackCommandTest extends BaseCommandTest {
         ProjectUtils.extractBala(balaFilePath, balaDestPath);
         String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
         Assert.assertTrue(packageJsonContent.contains("\"graalvmCompatible\": false"));
+    }
+
+    @Test (description = "Test a package that contains Package.md and Module.md for docs")
+    public void testOldPackageDocStructure() throws IOException {
+        Path projectPath = this.testResources.resolve("readme-test-projects")
+                .resolve("validLibraryProjectWithOldMds");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        String warning = """
+                        The default file for package documentation is changed to README.md. If you prefer to \
+                        use the Package.md, add the following line under the '[package]' section in your \
+                        Ballerina.toml file:
+                        \treadme = "Package.md"
+                        """;
+        Assert.assertTrue(buildLog.contains(warning));
+
+        // Verify the docs
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("foo-winery-any-0.1.0.bala");
+        Path extractedPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, extractedPath);
+        Assert.assertTrue(Files.exists(extractedPath.resolve(BALA_DOCS_DIR).resolve(PACKAGE_MD_FILE_NAME)));
+
+        // Verify the docs entry in package.json
+        String packageJsonContent = Files.readString(extractedPath.resolve("package.json"));
+        PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
+        Assert.assertEquals(BALA_DOCS_DIR + "/" + PACKAGE_MD_FILE_NAME, packageJson.getReadme());
+    }
+
+    @Test (description = "Add the readme entry to the package with old doc structure to resolve the warning",
+            dependsOnMethods = "testOldPackageDocStructure")
+    public void testConvertOldDocStructureToNew() throws IOException {
+        Path projectPath = this.testResources.resolve("readme-test-projects")
+                .resolve("validLibraryProjectWithOldMds");
+        Files.move(projectPath.resolve("With-readme-Ballerina.toml"),
+                projectPath.resolve(BALLERINA_TOML), StandardCopyOption.REPLACE_EXISTING);
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        String warning = """
+                        The default file for package documentation is changed to README.md. If you prefer to \
+                        use the Package.md, add the following line under the '[package]' section in your \
+                        Ballerina.toml file:
+                        \treadme = "Package.md"
+                        """;
+        Assert.assertFalse(buildLog.contains(warning));
+
+        // Verify the docs
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("foo-winery-any-0.1.0.bala");
+        Path extractedPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, extractedPath);
+        Assert.assertTrue(Files.exists(extractedPath.resolve(BALA_DOCS_DIR).resolve(PACKAGE_MD_FILE_NAME)));
+
+        // Verify the docs entry in package.json
+        String packageJsonContent = Files.readString(extractedPath.resolve("package.json"));
+        PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
+        Assert.assertEquals(BALA_DOCS_DIR + "/" + PACKAGE_MD_FILE_NAME, packageJson.getReadme());
+    }
+
+    @Test (description = "Package root contains README.md but the Ballerina.toml has Package.md")
+    public void testLibPackageWithWrongMd() throws IOException {
+        Path projectPath = this.testResources.resolve("readme-test-projects")
+                .resolve("libraryProjectWithWrongMd");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        try {
+            packCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("could not locate the readme file"));
+        }
+    }
+
+    @Test
+    public void testMultiModuleProjectWithOldDocStructure() throws IOException {
+        Path projectPath = this.testResources.resolve("readme-test-projects")
+                .resolve("validMultiModuleProjectWithPackageAndModuleMds");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        String warning = """
+                        The default file for package documentation is changed to README.md. If you prefer to \
+                        use the Package.md, add the following line under the '[package]' section in your \
+                        Ballerina.toml file:
+                        \treadme = "Package.md"
+                        """;
+        Assert.assertTrue(buildLog.contains(warning));
+
+        // Verify the docs
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("foo-winery-any-0.1.0.bala");
+        Path extractedPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, extractedPath);
+
+        String packageDocPath = BALA_DOCS_DIR + "/" + PACKAGE_MD_FILE_NAME;
+        String nonDefaultModuleDocPath = BALA_DOCS_DIR + "/" + MODULES_ROOT + "/winery.storage/" + MODULE_MD_FILE_NAME;
+        Assert.assertTrue(Files.exists(extractedPath.resolve(packageDocPath)));
+        Assert.assertTrue(Files.exists(extractedPath.resolve(nonDefaultModuleDocPath)));
+
+        // Verify the docs entry in package.json
+        String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
+        PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
+        Assert.assertEquals(packageJson.getModules().size(), 1);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(nonDefaultModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.storage".equals(module.name())).findFirst().get().readme());
+    }
+
+    @Test (description = "Add readme entries for all places in the package with the old doc structure" +
+            " to resolve the warning",
+            dependsOnMethods = "testMultiModuleProjectWithOldDocStructure")
+    public void testConvertMultiModuleOldDocStructureToNew() throws IOException {
+        Path projectPath = this.testResources.resolve("readme-test-projects")
+                .resolve("validMultiModuleProjectWithPackageAndModuleMds");
+        System.setProperty(USER_DIR, projectPath.toString());
+        Files.move(projectPath.resolve("With-readme-for-non-default-mod-Ballerina.toml"),
+                        projectPath.resolve(BALLERINA_TOML), StandardCopyOption.REPLACE_EXISTING);
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        String warning = """
+                        The default file for package documentation is changed to README.md. If you prefer to \
+                        use the Package.md, add the following line under the '[package]' section in your \
+                        Ballerina.toml file:
+                        \treadme = "Package.md"
+                        """;
+        Assert.assertFalse(buildLog.contains(warning));
+
+        // Verify the docs
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("foo-winery-any-0.1.0.bala");
+        Path extractedPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, extractedPath);
+
+        String packageDocPath = BALA_DOCS_DIR + "/" + PACKAGE_MD_FILE_NAME;
+        String nonDefaultModuleDocPath = BALA_DOCS_DIR + "/" + MODULES_ROOT + "/winery.storage/" + MODULE_MD_FILE_NAME;
+        Assert.assertTrue(Files.exists(extractedPath.resolve(packageDocPath)));
+        Assert.assertTrue(Files.exists(extractedPath.resolve(nonDefaultModuleDocPath)));
+
+        // Verify the docs entry in package.json
+        String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
+        PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
+        Assert.assertEquals(packageJson.getModules().size(), 1);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(nonDefaultModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.storage".equals(module.name())).findFirst().get().readme());
+    }
+
+    @Test
+    public void testMultiModuleProjectWithNewDefaultDocStructure() throws IOException {
+        Path projectPath = this.testResources.resolve("readme-test-projects")
+                .resolve("validMultiModuleProjectWithReadmeMds");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+
+        // Verify the docs
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("foo-winery-any-0.1.0.bala");
+        Path extractedPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, extractedPath);
+
+        String packageDocPath = BALA_DOCS_DIR + "/" + README_MD_FILE_NAME;
+        String nonDefaultModuleDocPath = BALA_DOCS_DIR + "/" + MODULES_ROOT + "/winery.storage/" + README_MD_FILE_NAME;
+        Assert.assertTrue(Files.exists(extractedPath.resolve(packageDocPath)));
+        Assert.assertTrue(Files.exists(extractedPath.resolve(nonDefaultModuleDocPath)));
+
+        // Verify the docs entry in package.json
+        String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
+        PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
+        Assert.assertEquals(packageJson.getModules().size(), 1);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(nonDefaultModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.storage".equals(module.name())).findFirst().get().readme());
+    }
+
+    @Test (description = "One non-default module does not contain a readme")
+    public void testMultiModuleProjectWithNewDefaultDocStructure2() throws IOException {
+        Path projectPath = this.testResources.resolve("readme-test-projects")
+                .resolve("validMultiModuleProjectWithReadmeMds2");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+
+        // Verify the docs
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("foo-winery-any-0.1.0.bala");
+        Path extractedPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, extractedPath);
+
+        String packageDocPath = BALA_DOCS_DIR + "/" + README_MD_FILE_NAME;
+        String storageModuleDocPath = BALA_DOCS_DIR + "/" + MODULES_ROOT + "/winery.storage/" + README_MD_FILE_NAME;
+        String commonModuleDocPath = BALA_DOCS_DIR + "/" + MODULES_ROOT + "/winery.common/" + README_MD_FILE_NAME;
+        Assert.assertTrue(Files.exists(extractedPath.resolve(packageDocPath)));
+        Assert.assertTrue(Files.exists(extractedPath.resolve(storageModuleDocPath)));
+        Assert.assertFalse(Files.exists(extractedPath.resolve(commonModuleDocPath)));
+
+        // Verify the docs entry in package.json
+        String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
+        PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
+        Assert.assertEquals(packageJson.getModules().size(), 2);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(storageModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.storage".equals(module.name())).findFirst().get().readme());
+    }
+
+    @Test (description = "One non-default module uses a custom MD. " +
+            "Other one and the package doc use the default README.md")
+    public void testMultiModuleProjectCustomReadmes() throws IOException {
+        Path projectPath = this.testResources.resolve("readme-test-projects")
+                .resolve("validMultiModuleProjectCustomModuleReadme");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+
+        // Verify the docs
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("foo-winery-any-0.1.0.bala");
+        Path extractedPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, extractedPath);
+
+        String packageDocPath = BALA_DOCS_DIR + "/" + README_MD_FILE_NAME;
+        String storageModuleDocPath = BALA_DOCS_DIR + "/" + MODULES_ROOT + "/winery.storage/" + MODULE_MD_FILE_NAME;
+        String commonModuleDocPath = BALA_DOCS_DIR + "/" + MODULES_ROOT + "/winery.common/" + README_MD_FILE_NAME;
+        Assert.assertTrue(Files.exists(extractedPath.resolve(packageDocPath)));
+        Assert.assertTrue(Files.exists(extractedPath.resolve(storageModuleDocPath)));
+        Assert.assertTrue(Files.exists(extractedPath.resolve(commonModuleDocPath)));
+
+        // Verify the docs entry in package.json
+        String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
+        PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
+        Assert.assertEquals(packageJson.getModules().size(), 2);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(storageModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.storage".equals(module.name())).findFirst().get().readme());
+        Assert.assertEquals(commonModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.common".equals(module.name())).findFirst().get().readme());
+    }
+
+    @Test (description = "One non-default module does not have a doc")
+    public void testMultiModuleProjectReadmeOptionality() throws IOException {
+        Path projectPath = this.testResources.resolve("readme-test-projects")
+                .resolve("validMultiModuleProjectOptionalModuleReadme");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+
+        // Verify the docs
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("foo-winery-any-0.1.0.bala");
+        Path extractedPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, extractedPath);
+
+        String packageDocPath = BALA_DOCS_DIR + "/" + README_MD_FILE_NAME;
+        String storageModuleDocPath = BALA_DOCS_DIR + "/" + MODULES_ROOT + "/winery.storage/" + MODULE_MD_FILE_NAME;
+        String commonModuleDocPath = BALA_DOCS_DIR + "/" + MODULES_ROOT + "/winery.common/";
+        Assert.assertTrue(Files.exists(extractedPath.resolve(packageDocPath)));
+        Assert.assertTrue(Files.exists(extractedPath.resolve(storageModuleDocPath)));
+        Assert.assertTrue(Files.notExists(extractedPath.resolve(commonModuleDocPath)));
+
+        // Verify the docs entry in package.json
+        String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
+        PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
+        Assert.assertEquals(packageJson.getModules().size(), 2);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(storageModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.storage".equals(module.name())).findFirst().get().readme());
+    }
+
+    @Test
+    public void testReadMeWithHierarchicalModuleName() throws IOException {
+        Path projectPath = this.testResources.resolve("readme-test-projects")
+                .resolve("validHierarchicalModuleProjectWithReadmeMds");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+
+        // Verify the docs
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("foo-winery-any-0.1.0.bala");
+        Path extractedPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, extractedPath);
+
+        String packageDocPath = BALA_DOCS_DIR + "/" + README_MD_FILE_NAME;
+        String storageModuleDocPath = BALA_DOCS_DIR + "/" + MODULES_ROOT + "/winery.bar.storage/" + README_MD_FILE_NAME;
+        String commonModuleDocPath = BALA_DOCS_DIR + "/" + MODULES_ROOT + "/winery.bar.common/";
+        Assert.assertTrue(Files.exists(extractedPath.resolve(packageDocPath)));
+        Assert.assertTrue(Files.exists(extractedPath.resolve(storageModuleDocPath)));
+        Assert.assertTrue(Files.notExists(extractedPath.resolve(commonModuleDocPath)));
+
+        // Verify the docs entry in package.json
+        String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
+        PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
+        Assert.assertEquals(packageJson.getModules().size(), 2);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(storageModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "winery.bar.storage".equals(module.name())).findFirst().get().readme());
+    }
+
+    @Test
+    public void testReadMeWithHierarchicalPackageName() throws IOException {
+        Path projectPath = this.testResources.resolve("readme-test-projects")
+                .resolve("validHierarchicalPackageWithReadmeMds");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+
+        // Verify the docs
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("foo-bar.winery-any-0.1.0.bala");
+        Path extractedPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, extractedPath);
+
+        String packageDocPath = BALA_DOCS_DIR + "/" + README_MD_FILE_NAME;
+        String storageModuleDocPath = BALA_DOCS_DIR + "/" + MODULES_ROOT + "/bar.winery.storage/" + README_MD_FILE_NAME;
+        String commonModuleDocPath = BALA_DOCS_DIR + "/" + MODULES_ROOT + "/bar.winery.common/";
+        Assert.assertTrue(Files.exists(extractedPath.resolve(packageDocPath)));
+        Assert.assertTrue(Files.exists(extractedPath.resolve(storageModuleDocPath)));
+        Assert.assertTrue(Files.notExists(extractedPath.resolve(commonModuleDocPath)));
+
+        // Verify the docs entry in package.json
+        String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
+        PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
+        Assert.assertEquals(packageJson.getModules().size(), 2);
+        Assert.assertEquals(packageDocPath, packageJson.getReadme());
+        Assert.assertEquals(storageModuleDocPath, packageJson.getModules().stream().filter(
+                module -> "bar.winery.storage".equals(module.name())).findFirst().get().readme());
+    }
+
+    @Test
+    public void testLibPackageWithNoDocMds() throws IOException {
+        Path projectPath = this.testResources.resolve("readme-test-projects")
+                .resolve("libraryProjectWithNoMd");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+
+        // Verify the docs
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("foo-winery-any-0.1.0.bala");
+        Path extractedPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, extractedPath);
+
+        String packageDocPath = BALA_DOCS_DIR + "/" + README_MD_FILE_NAME;
+        Assert.assertTrue(Files.notExists(extractedPath.resolve(packageDocPath)));
+
+        // Verify the docs entry in package.json
+        String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
+        PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
+        Assert.assertNull(packageJson.getModules());
     }
 
     @AfterClass

@@ -32,7 +32,7 @@ public class ModuleData {
     private final String moduleName;
     private final List<DocumentData> srcDocs;
     private final List<DocumentData> testSrcDocs;
-    private final DocumentData moduleMd;
+    private final DocumentData readmeMd;
 
     // TODO do we need to maintain resources and test resources
 
@@ -40,20 +40,20 @@ public class ModuleData {
                        String moduleName,
                        List<DocumentData> srcDocs,
                        List<DocumentData> testSrcDocs,
-                       DocumentData moduleMd) {
+                       DocumentData readmeMd) {
         this.moduleDirPath = moduleDirPath;
         this.moduleName = moduleName;
         this.srcDocs = srcDocs;
         this.testSrcDocs = testSrcDocs;
-        this.moduleMd = moduleMd;
+        this.readmeMd = readmeMd;
     }
 
     public static ModuleData from(Path path,
                                   String moduleName,
                                   List<DocumentData> srcDocuments,
                                   List<DocumentData> testSrcDocuments,
-                                  DocumentData moduleMd) {
-        return new ModuleData(path, moduleName, srcDocuments, testSrcDocuments, moduleMd);
+                                  DocumentData readmeMd) {
+        return new ModuleData(path, moduleName, srcDocuments, testSrcDocuments, readmeMd);
     }
 
     public Path moduleDirectoryPath() {
@@ -80,8 +80,19 @@ public class ModuleData {
         testSrcDocs.addAll(docs);
     }
 
+    /**
+     * Returns the ModuleMd document data.
+     *
+     * @return DocumentData optionally.
+     * @deprecated use {@link #readmeMd()} instead.
+     */
+    @Deprecated (forRemoval = true)
     public Optional<DocumentData> moduleMd() {
-        return Optional.ofNullable(this.moduleMd);
+        return Optional.ofNullable(this.readmeMd);
+    }
+
+    public Optional<DocumentData> readmeMd() {
+        return Optional.ofNullable(this.readmeMd);
     }
 
 }

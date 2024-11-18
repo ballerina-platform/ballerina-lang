@@ -81,6 +81,7 @@ public class NewCommandTest extends BaseCommandTest {
 
         Files.createDirectories(this.tmpDir.resolve("dir1"));
         Files.createDirectories(this.tmpDir.resolve("dir2/dir1"));
+        ProjectUtils.clearDiagnostics();
     }
 
     @AfterClass
@@ -574,7 +575,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"" +
                 "\n";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(packageName + ".bal")));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TEST_DIR_NAME)));
 
@@ -620,7 +621,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "[[dependency]]\n";
         Assert.assertTrue(toolTomlContent.contains(expectedToolTomlContent));
 
-        Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TOOL_DIR)));
 
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -698,7 +699,6 @@ public class NewCommandTest extends BaseCommandTest {
                 "org = \"testorg\"\n" +
                 "name = \"" + packageName + "\"\n" +
                 "version = \"1.0.0\"\n" +
-                "export = [\"sample_tool_template\"]\n" +
                 "distribution = \"2201.6.0-SNAPSHOT\"\n\n" +
                 "[build-options]\n" +
                 "observabilityIncluded = true\n";
@@ -713,7 +713,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "path = \"tool/libs/platform-io-1.3.0-java.jar\"\n";
         Assert.assertTrue(toolTomlContent.contains(expectedToolTomlContent));
 
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Path dependencyPath = packageDir.resolve(TOOL_DIR).resolve("libs")
                 .resolve("platform-io-1.3.0-java.jar");
         Assert.assertTrue(Files.exists(dependencyPath));
@@ -761,7 +761,6 @@ public class NewCommandTest extends BaseCommandTest {
                 org = "testorg"
                 name = "sample_provided_template"
                 version = "1.0.0"
-                export = ["sample_provided_template"]
                 distribution = "2201.9.0-SNAPSHOT"
 
                 [build-options]
@@ -799,7 +798,6 @@ public class NewCommandTest extends BaseCommandTest {
                 org = "admin"
                 name = "sample_pull_local"
                 version = "0.1.5"
-                export = ["sample_pull_local"]
                 distribution = "slbeta4"
 
                 [build-options]
@@ -808,7 +806,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertEquals(
                 readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
 
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEVCONTAINER)));
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -832,7 +830,6 @@ public class NewCommandTest extends BaseCommandTest {
                 org = "parkavik"
                 name = "sample_pull_WO_Module_Version"
                 version = "1.0.1"
-                export = ["sample_pull_WO_Module_Version"]
                 distribution = "slbeta4"
 
                 [build-options]
@@ -840,7 +837,7 @@ public class NewCommandTest extends BaseCommandTest {
                 """;
         Assert.assertEquals(
                 readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEVCONTAINER)));
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -864,7 +861,6 @@ public class NewCommandTest extends BaseCommandTest {
                 org = "parkavik"
                 name = "sample_pull"
                 version = "1.0.0"
-                export = ["sample_pull"]
                 distribution = "slbeta4"
 
                 [build-options]
@@ -872,7 +868,7 @@ public class NewCommandTest extends BaseCommandTest {
                 """;
         Assert.assertEquals(
                 readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("docs").resolve("icon.png")));
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
@@ -897,7 +893,6 @@ public class NewCommandTest extends BaseCommandTest {
                 "org = \"testorg\"\n" +
                 "name = \"" + packageName + "\"\n" +
                 "version = \"1.0.2\"\n" +
-                "export = [\"central_sample\"]\n" +
                 "distribution = \"2201.7.0-SNAPSHOT\"\n\n" +
                 "[build-options]\n" +
                 "observabilityIncluded = true\n";
@@ -906,7 +901,7 @@ public class NewCommandTest extends BaseCommandTest {
 
         String mainContent = readFileAsString(packageDir.resolve("main.bal"));
         Assert.assertTrue(mainContent.contains("import central_sample.mod1;"));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Assert.assertTrue(readOutput().contains("Created new package"));
 
 //        System.setProperty("user.dir", packageDir.toString());
@@ -932,8 +927,7 @@ public class NewCommandTest extends BaseCommandTest {
         newCommand.execute();
 
         Assert.assertTrue(Files.exists(packageDir));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("natives.bal")));
         Assert.assertTrue(Files.exists(packageDir.resolve("libs/protobuf-native-1.0.1.txt")));
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.timestamp")));
@@ -942,15 +936,13 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers/int.bal")));
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers/string.bal")));
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers/" +
-                ProjectConstants.MODULE_MD_FILE_NAME)));
+                ProjectConstants.README_MD_FILE_NAME)));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String expectedTomlContent = "[package]\n" +
                 "org = \"ballerina\"\n" +
                 "name = \"sample_multi_module\"\n" +
                 "version = \"1.0.1\"\n" +
-                "export = [\"sample_multi_module\",\"sample_multi_module.types.timestamp\"," +
-                "\"sample_multi_module.types.wrappers\"]\n" +
                 "distribution = \"slbeta4\"\n" +
                 "license = [\"Apache-2.0\"]\n" +
                 "authors = [\"Ballerina\"]\n" +
@@ -958,6 +950,13 @@ public class NewCommandTest extends BaseCommandTest {
                 "repository = \"https://github.com/ballerina-platform/module-ballerina-protobuf\"\n" +
                 "\n[build-options]\n" +
                 "observabilityIncluded = true\n" +
+                "\n" +
+                "[[package.modules]]\n" +
+                "name = \"sample_multi_module.types.timestamp\"\n" +
+                "export = true\n\n" +
+                "[[package.modules]]\n" +
+                "name = \"sample_multi_module.types.wrappers\"\n" +
+                "export = true\n" +
                 "\n[[platform.java11.dependency]]\n" +
                 "path = \"libs" + File.separator + "protobuf-native-1.0.1.jar\"";
         Assert.assertEquals(
@@ -998,7 +997,6 @@ public class NewCommandTest extends BaseCommandTest {
                 org = "admin"
                 name = "sample_pull_libs"
                 version = "0.1.0"
-                export = ["sample_pull_libs"]
                 distribution = "slbeta4"
                 """;
         String expectedTomlLibContent = """
@@ -1009,7 +1007,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(tomlContent.contains(expectedTomlPkgContent));
         Assert.assertTrue(tomlContent.contains(expectedTomlLibContent));
 
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
 
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
