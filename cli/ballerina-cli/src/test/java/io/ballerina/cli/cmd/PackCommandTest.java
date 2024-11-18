@@ -2,8 +2,8 @@ package io.ballerina.cli.cmd;
 
 import com.google.gson.Gson;
 import io.ballerina.cli.launcher.BLauncherException;
-import io.ballerina.projects.internal.bala.PackageJson;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.internal.bala.PackageJson;
 import io.ballerina.projects.util.BuildToolUtils;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
