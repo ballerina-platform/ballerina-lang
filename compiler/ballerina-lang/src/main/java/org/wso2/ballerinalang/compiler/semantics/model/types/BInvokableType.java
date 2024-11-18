@@ -55,7 +55,6 @@ public class BInvokableType extends BType implements InvokableType {
     public BInvokableType(Env env, List<BType> paramTypes, BType restType, BType retType, BTypeSymbol tsymbol) {
         super(TypeTags.INVOKABLE, tsymbol, Flags.READONLY);
         this.paramTypes = Collections.unmodifiableList(paramTypes);
-        assert restType == null || restType instanceof BArrayType || restType.tag == TypeTags.SEMANTIC_ERROR;
         this.restType = restType;
         this.retType = retType;
         this.env = env;

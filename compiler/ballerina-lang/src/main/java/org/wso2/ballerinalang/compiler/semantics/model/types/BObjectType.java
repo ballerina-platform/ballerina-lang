@@ -74,14 +74,12 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     public BObjectType(Env env, BTypeSymbol tSymbol) {
         super(TypeTags.OBJECT, tSymbol);
-        assert env != null;
         this.env = env;
         this.distinctIdSupplier = new DistinctIdSupplier(env);
     }
 
     public BObjectType(Env env, BTypeSymbol tSymbol, long flags) {
         super(TypeTags.OBJECT, tSymbol, flags);
-        assert env != null;
         this.env = env;
         this.distinctIdSupplier = new DistinctIdSupplier(env);
     }

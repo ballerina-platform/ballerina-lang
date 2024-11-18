@@ -38,14 +38,13 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.Optional;
 import java.util.StringJoiner;
 
-import static io.ballerina.types.Core.getComplexSubtypeData;
-import static io.ballerina.types.Core.singleShape;
-import static io.ballerina.types.SemTypes.isSubtypeSimple;
 import static io.ballerina.types.BasicTypeCode.BT_BOOLEAN;
 import static io.ballerina.types.BasicTypeCode.BT_DECIMAL;
 import static io.ballerina.types.BasicTypeCode.BT_FLOAT;
 import static io.ballerina.types.BasicTypeCode.BT_INT;
 import static io.ballerina.types.BasicTypeCode.BT_STRING;
+import static io.ballerina.types.Core.getComplexSubtypeData;
+import static io.ballerina.types.SemTypes.isSubtypeSimple;
 
 /**
  * {@code BFiniteType} represents the finite type in Ballerina.
@@ -59,22 +58,12 @@ public class BFiniteType extends BType implements ReferenceType {
         super(TypeTags.FINITE, tsymbol);
         this.addFlags(Flags.READONLY);
         this.valueSpace = valueSpace;
-        assert validValueSpace(valueSpace);
     }
 
     public static BFiniteType newSingletonBFiniteType(BTypeSymbol tsymbol, SemType singletonSemType) {
         return new BFiniteType(tsymbol, new SemNamedType[]{
                 new SemNamedType(singletonSemType, Optional.empty())
         });
-    }
-
-    private boolean validValueSpace(SemNamedType[] valueSpace) {
-        for (SemNamedType semNamedType : valueSpace) {
-            if (singleShape(semNamedType.semType()).isEmpty()) {
-                return false;
-            }
-        }
-        return true;
     }
 
     @Override
