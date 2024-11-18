@@ -59,7 +59,7 @@ public class BRecordType extends BStructureType implements RecordType {
 
     public BRecordType mutableType;
 
-    public final Env env;
+    private final Env env;
     private MappingDefinition md = null;
 
     public BRecordType(Env env, BTypeSymbol tSymbol) {

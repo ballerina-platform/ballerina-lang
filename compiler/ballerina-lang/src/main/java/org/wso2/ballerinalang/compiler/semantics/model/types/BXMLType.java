@@ -79,6 +79,10 @@ public class BXMLType extends BType implements SelectivelyImmutableReferenceType
 
     @Override
     public SemType semType() {
+        if (this.semType != null) {
+            return this.semType;
+        }
+
         SemType s;
         if (constraint == null) {
             s = PredefinedType.XML;
@@ -98,6 +102,7 @@ public class BXMLType extends BType implements SelectivelyImmutableReferenceType
         }
 
         boolean readonly = Symbols.isFlagOn(this.getFlags(), Flags.READONLY);
-        return readonly ? SemTypes.intersect(PredefinedType.VAL_READONLY, s) : s;
+        this.semType = readonly ? SemTypes.intersect(PredefinedType.VAL_READONLY, s) : s;
+        return this.semType;
     }
 }

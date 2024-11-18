@@ -2763,7 +2763,7 @@ public class Types {
         }
 
         if (tupleType.restType == null) {
-            return new BTupleType(tupleType.env, tupleMemberTypes);
+            return new BTupleType(typeEnv(), tupleMemberTypes);
         }
 
         BType restIntersectionType = getTypeIntersection(intersectionContext, tupleType.restType, eType, env,

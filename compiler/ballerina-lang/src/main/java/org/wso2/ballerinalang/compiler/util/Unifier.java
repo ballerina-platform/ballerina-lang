@@ -152,7 +152,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BMapType newMType = new BMapType(originalType.env, originalType.tag, newConstraint, null);
+        BMapType newMType = new BMapType(typeEnv, originalType.tag, newConstraint, null);
         setFlags(newMType, originalType.getFlags());
         return newMType;
     }
@@ -283,7 +283,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return expType != null ? expType : originalType;
         }
 
-        BTupleType type = new BTupleType(originalType.env, members);
+        BTupleType type = new BTupleType(typeEnv, members);
         type.restType = newRestType;
         setFlags(type, originalType.getFlags());
         return type;
@@ -312,7 +312,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BStreamType type = new BStreamType(originalType.env, originalType.tag, newConstraint, newError, null);
+        BStreamType type = new BStreamType(typeEnv, originalType.tag, newConstraint, newError, null);
         setFlags(type, originalType.getFlags());
         return type;
     }
@@ -411,7 +411,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             }
         }
 
-        BType type = new BInvokableType(originalType.env, paramTypes, newRestType, retType, null);
+        BType type = new BInvokableType(typeEnv, paramTypes, newRestType, retType, null);
         setFlags(type, originalType.getFlags());
         return type;
     }

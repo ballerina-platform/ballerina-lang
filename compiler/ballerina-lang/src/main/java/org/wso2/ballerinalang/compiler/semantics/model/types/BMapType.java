@@ -44,7 +44,7 @@ public class BMapType extends BType implements ConstrainedType, SelectivelyImmut
     public BType constraint;
     public BMapType mutableType;
 
-    public final Env env;
+    private final Env env;
     private MappingDefinition md = null;
 
     public BMapType(Env env, int tag, BType constraint, BTypeSymbol tsymbol) {

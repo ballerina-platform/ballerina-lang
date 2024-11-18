@@ -8125,7 +8125,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         if (Symbols.isFlagOn(fieldSymbol.type.getFlags(), Flags.ISOLATED) &&
                 !Symbols.isFlagOn(objectType.getFlags(), Flags.ISOLATED)) {
-            fieldSymbol = ASTBuilderUtil.duplicateInvokableSymbol((BInvokableSymbol) fieldSymbol);
+            fieldSymbol = ASTBuilderUtil.duplicateInvokableSymbol(typeEnv, (BInvokableSymbol) fieldSymbol);
 
             fieldSymbol.flags &= ~Flags.ISOLATED;
             fieldSymbol.type.setFlags(fieldSymbol.type.getFlags() & ~Flags.ISOLATED);

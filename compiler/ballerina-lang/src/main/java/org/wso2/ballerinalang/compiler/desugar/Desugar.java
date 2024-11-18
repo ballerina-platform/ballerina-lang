@@ -1380,7 +1380,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Duplicate the invokable symbol and the invokable type.
         funcNode.originalFuncSymbol = funcNode.symbol;
-        funcNode.symbol = ASTBuilderUtil.duplicateInvokableSymbol(funcNode.symbol);
+        funcNode.symbol = ASTBuilderUtil.duplicateInvokableSymbol(types.typeEnv(), funcNode.symbol);
         funcNode.requiredParams = rewrite(funcNode.requiredParams, funcEnv);
         funcNode.restParam = rewrite(funcNode.restParam, funcEnv);
 

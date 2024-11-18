@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.Env;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -266,7 +267,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // Update function parameters.
         for (BLangFunction function : pkgNode.functions) {
-            updateFunctionParams(function);
+            updateFunctionParams(types.typeEnv(), function);
         }
         result = pkgNode;
     }
@@ -644,11 +645,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
     /**
      * Update the function parameters with closure parameter maps passed.
      *
+     * @param typeEnv  type environment
      * @param funcNode function node
      */
-    private static void updateFunctionParams(BLangFunction funcNode) {
+    private static void updateFunctionParams(Env typeEnv, BLangFunction funcNode) {
         // Add closure params to the required param list if there are any.
-        BInvokableSymbol dupFuncSymbol = ASTBuilderUtil.duplicateInvokableSymbol(funcNode.symbol);
+        BInvokableSymbol dupFuncSymbol = ASTBuilderUtil.duplicateInvokableSymbol(typeEnv, funcNode.symbol);
         funcNode.symbol = dupFuncSymbol;
         BInvokableType dupFuncType = (BInvokableType) dupFuncSymbol.type;
 

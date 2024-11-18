@@ -51,7 +51,7 @@ public class BTupleType extends BType implements TupleType {
     public boolean isCyclic = false;
 
     public BTupleType mutableType;
-    public final Env env;
+    private final Env env;
     private ListDefinition ld = null;
 
     public BTupleType(Env env, List<BTupleMember> members) {

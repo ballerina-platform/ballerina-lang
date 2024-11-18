@@ -39,7 +39,7 @@ public class BStreamType extends BType implements StreamType {
     public BType constraint;
     public BType completionType;
 
-    public final Env env;
+    private final Env env;
     private StreamDefinition d = null;
 
     public BStreamType(Env env, int tag, BType constraint, BType completionType, BTypeSymbol tsymbol) {
