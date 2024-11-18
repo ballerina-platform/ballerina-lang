@@ -33,6 +33,7 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.model.BalToolDescriptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.util.FileUtils;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.TomlType;
@@ -51,26 +52,32 @@ import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.apache.commons.io.FilenameUtils;
 import org.ballerinalang.compiler.CompilerOptionName;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.projects.internal.ManifestUtils.ToolNodeValueType;
 import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToString;
 import static io.ballerina.projects.internal.ManifestUtils.getBooleanFromTomlTableNode;
 import static io.ballerina.projects.internal.ManifestUtils.getBuildToolTomlValueType;
 import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectUtils.defaultName;
 import static io.ballerina.projects.util.ProjectUtils.defaultOrg;
 import static io.ballerina.projects.util.ProjectUtils.defaultVersion;
@@ -121,6 +128,11 @@ public class ManifestBuilder {
     private static final String TARGETMODULE = "targetModule";
     private static final String OPTIONS = "options";
     private static final String TOOL = "tool";
+
+    private static final String DESCRIPTION = "description";
+    private static final String README = "readme";
+
+    private boolean isOldStructure;
 
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
@@ -196,6 +208,9 @@ public class ManifestBuilder {
         String visibility = "";
         boolean template = false;
         String icon = "";
+        String readme = null;
+        String description = "";
+        List<PackageManifest.Module> moduleEntries = new ArrayList<>();
 
         if (!tomlAstNode.entries().isEmpty()) {
             TopLevelNode topLevelPkgNode = tomlAstNode.entries().get(PACKAGE);
@@ -210,10 +225,27 @@ public class ManifestBuilder {
                 ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, DISTRIBUTION, "");
                 visibility = getStringValueFromTomlTableNode(pkgNode, VISIBILITY, "");
                 template = getBooleanFromTemplateNode(pkgNode, TEMPLATE);
-                icon = getStringValueFromTomlTableNode(pkgNode, ICON, "");
 
+                icon = getStringValueFromTomlTableNode(pkgNode, ICON, "");
                 // we ignore file types except png here, since file type error will be shown
                 validateIconPathForPng(icon, pkgNode);
+
+                String customReadmeVal = getStringValueFromTomlTableNode(pkgNode, README, null);
+                readme = validateAndGetReadmePath(pkgNode, customReadmeVal, packageDescriptor.name());
+                description = getStringValueFromTomlTableNode(pkgNode, DESCRIPTION, "");
+                moduleEntries = getModuleEntries(pkgNode, customReadmeVal, packageDescriptor.name());
+
+                if (!isOldStructure) {
+                    if (!exported.isEmpty()) {
+                        reportDiagnostic(pkgNode.entries().get(EXPORT),
+                                "'export' under [package] is deprecated. " +
+                                        "Add the exports using the 'export' field under '[[package.modules]]'",
+                                ProjectDiagnosticErrorCode.DEPRECATED_BALLERINA_TOML_ENTRY, DiagnosticSeverity.WARNING);
+                    }
+                    exported.add(packageDescriptor.name().toString()); // default module is always exported
+                    exported.addAll(moduleEntries.stream().filter(
+                            PackageManifest.Module::export).map(PackageManifest.Module::name).toList());
+                }
             }
         }
 
@@ -252,7 +284,183 @@ public class ManifestBuilder {
         }
         return PackageManifest.from(packageDescriptor, pluginDescriptor, balToolDescriptor, platforms,
                 localRepoDependencies, otherEntries, diagnostics(), license, authors, keywords, exported, includes,
-                repository, ballerinaVersion, visibility, template, icon, tools);
+                repository, ballerinaVersion, visibility, template, icon, tools, readme, description, moduleEntries);
+    }
+
+    private List<PackageManifest.Module> getModuleEntries(
+            TomlTableNode pkgNode, String customReadmeVal, PackageName packageName) {
+
+        TopLevelNode dependencyEntries = validateAndGetModuleNodes(pkgNode, packageName);
+
+        List<PackageManifest.Module> moduleList = new ArrayList<>();
+        Path modulesRoot = this.projectPath.resolve(ProjectConstants.MODULES_ROOT);
+        if (!Files.exists(modulesRoot)) {
+            return moduleList;
+        }
+        Map<String, Path> moduleDirs;
+        try (Stream<Path> stream = Files.walk(modulesRoot, 1)) {
+            moduleDirs = stream
+                    .filter(Files::isDirectory)
+                    .filter(path -> !path.equals(modulesRoot))
+                    .collect(Collectors.toMap(path -> Optional.of(path.getFileName()).get().toString(), path -> path));
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read the module README:", e);
+        }
+
+        if (customReadmeVal == null) {
+            if (Files.exists(this.projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME))) {
+                // old structure. Module READMEs are captured by <module-root>/Module.md file.
+                for (Map.Entry<String, Path> pathEntry : moduleDirs.entrySet()) {
+                    Path modReadmePath = pathEntry.getValue().resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+                    String modReadme = null;
+                    if (Files.exists(modReadmePath)) {
+                        modReadme = Paths.get(ProjectConstants.MODULES_ROOT).resolve(pathEntry.getKey())
+                                .resolve(ProjectConstants.MODULE_MD_FILE_NAME).toString();
+                    }
+                    PackageManifest.Module module = new PackageManifest.Module(
+                            packageName + DOT + Optional.of(pathEntry.getValue().getFileName()).get(), false,
+                            "", modReadme);
+                    moduleList.add(module);
+                }
+                return moduleList;
+            }
+        }
+
+        // new structure
+        if (dependencyEntries == null || dependencyEntries.kind() == TomlType.NONE) {
+            for (Map.Entry<String, Path> pathEntry : moduleDirs.entrySet()) {
+                Path modReadmePath = pathEntry.getValue().resolve(ProjectConstants.README_MD_FILE_NAME);
+                String modReadme = "";
+                if (Files.exists(modReadmePath)) {
+                    modReadme = Paths.get(ProjectConstants.MODULES_ROOT).resolve(pathEntry.getKey())
+                            .resolve(ProjectConstants.README_MD_FILE_NAME).toString();;
+                }
+                PackageManifest.Module module = new PackageManifest.Module(
+                        packageName + DOT + Optional.of(pathEntry.getValue().getFileName()).get(), false,
+                        "", modReadme);
+                moduleList.add(module);
+            }
+            return moduleList;
+        }
+        if (dependencyEntries.kind() == TomlType.TABLE_ARRAY) {
+            TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyEntries;
+            for (TomlTableNode modulesNode : dependencyTableArray.children()) {
+                String moduleName = getStringValueFromTomlTableNode(modulesNode, NAME, null);
+                if (moduleName == null) {
+                    continue;
+                }
+
+                boolean export = Boolean.TRUE.equals(getBooleanValueFromTomlTableNode(modulesNode, EXPORT));
+                String description = getStringValueFromTomlTableNode(modulesNode, DESCRIPTION, null);
+                String modReadme = getStringValueFromTomlTableNode(modulesNode, README, null);
+                if (modReadme == null) {
+                    Path defaultReadme = modulesRoot.resolve(moduleName).resolve(ProjectConstants.README_MD_FILE_NAME);
+                    if (Files.exists(defaultReadme)) {
+                        modReadme = defaultReadme.toString();
+                    }
+                } else {
+                    if (!Paths.get(modReadme).isAbsolute()) {
+                        modReadme = this.projectPath.resolve(modReadme).toString();
+                    }
+                }
+                PackageManifest.Module module = new PackageManifest.Module(moduleName, export,
+                        description, modReadme);
+                moduleList.add(module);
+                moduleDirs.remove(moduleName.split("[.]")[1]);
+            }
+            // If there are README.mds in other modules, add them
+            for (Map.Entry<String, Path> pathEntry : moduleDirs.entrySet()) {
+                Path modReadmePath = pathEntry.getValue().resolve(ProjectConstants.README_MD_FILE_NAME);
+                String modReadme = "";
+                if (Files.exists(modReadmePath)) {
+                    modReadme = modReadmePath.toString();
+                }
+                PackageManifest.Module module = new PackageManifest.Module(
+                        packageName + DOT + Optional.of(pathEntry.getValue().getFileName()).get(), false,
+                        "", modReadme);
+                moduleList.add(module);
+            }
+        }
+        return moduleList;
+    }
+
+    private TopLevelNode validateAndGetModuleNodes(TomlTableNode pkgNode, PackageName packageName) {
+        TopLevelNode dependencyEntries = pkgNode.entries().get("modules");
+        if (dependencyEntries != null && dependencyEntries.kind() == TomlType.TABLE_ARRAY) {
+            TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyEntries;
+            for (TomlTableNode modulesNode : dependencyTableArray.children()) {
+                String moduleName = getStringValueFromTomlTableNode(modulesNode, NAME, null);
+                if (moduleName == null) {
+                    continue;
+                }
+                if (moduleName.equals(packageName.toString())) {
+                    String warning = "module '" + moduleName + "' is not allowed\n";
+                    reportDiagnostic(modulesNode.entries().get(NAME), warning,
+                            ProjectDiagnosticErrorCode.INVALID_MODULE, DiagnosticSeverity.ERROR);
+                    continue;
+                }
+
+                try {
+                    if (Files.notExists(this.projectPath.resolve(ProjectConstants.MODULES_ROOT)
+                            .resolve(moduleName.split(packageName + DOT)[1]))) {
+                        String warning = "module '" + moduleName + "' not found";
+                        reportDiagnostic(modulesNode.entries().get(NAME), warning,
+                                ProjectDiagnosticErrorCode.INVALID_MODULE, DiagnosticSeverity.ERROR);
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    String warning = "module '" + moduleName + "' not found";
+                    reportDiagnostic(modulesNode.entries().get(NAME), warning,
+                            ProjectDiagnosticErrorCode.INVALID_MODULE, DiagnosticSeverity.ERROR);
+                }
+            }
+        }
+        return dependencyEntries;
+    }
+
+    private String validateAndGetReadmePath(TomlTableNode pkgNode, String readme, PackageName name) {
+        Path readmeMdPath;
+        if (readme == null) {
+            readmeMdPath = this.projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+            if (Files.exists(readmeMdPath)) {
+                String warning = """
+                        The default file for package documentation is changed to README.md. If you prefer to \
+                        use the Package.md, add the following line under the '[package]' section in your \
+                        Ballerina.toml file:
+                        \treadme = "Package.md"
+                        """;
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(ProjectDiagnosticErrorCode.
+                        DEPRECATED_DOC_FILE.diagnosticId(), warning, DiagnosticSeverity.WARNING);
+                PackageDiagnostic packageDiagnostic = new PackageDiagnostic(diagnosticInfo,
+                        name.toString());
+                ProjectUtils.addMiscellaneousProjectDiagnostics(packageDiagnostic);
+                isOldStructure = true;
+                return readmeMdPath.toString();
+            } else {
+                readmeMdPath = this.projectPath.resolve(ProjectConstants.README_MD_FILE_NAME);
+                if (Files.exists(readmeMdPath)) {
+                    return readmeMdPath.toString();
+                } else {
+                    return null;
+                }
+            }
+        }
+
+        readmeMdPath = Paths.get(readme);
+        if (!readmeMdPath.isAbsolute()) {
+            readmeMdPath = this.projectPath.resolve(readmeMdPath);
+        }
+        if (Files.notExists(readmeMdPath)) {
+            reportDiagnostic(pkgNode.entries().get(README),
+                    "could not locate the readme file '" + readmeMdPath + "'",
+                    ProjectDiagnosticErrorCode.INVALID_PATH, DiagnosticSeverity.ERROR);
+        }
+
+        if (!FilenameUtils.getExtension(readme).equals(ProjectConstants.README_EXTENSION)) {
+            reportDiagnostic(pkgNode.entries().get(README),
+                    "invalid 'readme' under [package]: 'readme' can only have '.md' files",
+                    ProjectDiagnosticErrorCode.INVALID_FILE_FORMAT, DiagnosticSeverity.ERROR);
+        }
+        return readmeMdPath.toString();
     }
 
     private List<PackageManifest.Tool> getTools() {
@@ -438,7 +646,7 @@ public class ManifestBuilder {
                     if (!FileUtils.isValidPng(iconPath)) {
                         reportDiagnostic(pkgNode.entries().get("icon"),
                                 "invalid 'icon' under [package]: 'icon' can only have 'png' images",
-                                ProjectDiagnosticErrorCode.INVALID_ICON, DiagnosticSeverity.ERROR);
+                                ProjectDiagnosticErrorCode.INVALID_FILE_FORMAT, DiagnosticSeverity.ERROR);
                     }
                 } catch (IOException e) {
                     // should not reach to this line
@@ -566,7 +774,7 @@ public class ManifestBuilder {
                         String artifactId = getStringValueFromPlatformEntry(platformEntryTable, ARTIFACT_ID);
                         String version = getStringValueFromPlatformEntry(platformEntryTable, VERSION);
                         String scope = getStringValueFromPlatformEntry(platformEntryTable, SCOPE);
-                        Boolean graalvmCompatibility = getBooleanValueFromPlatformEntry(platformEntryTable,
+                        Boolean graalvmCompatibility = getBooleanValueFromTomlTableNode(platformEntryTable,
                                 GRAALVM_COMPATIBLE);
                         if (PlatformLibraryScope.PROVIDED.getStringValue().equals(scope)
                                 && !providedPlatformDependencyIsValid(artifactId, groupId, version)) {
@@ -843,7 +1051,7 @@ public class ManifestBuilder {
         return getStringFromTomlTableNode(topLevelNode);
     }
 
-    private Boolean getBooleanValueFromPlatformEntry(TomlTableNode pkgNode, String key) {
+    private Boolean getBooleanValueFromTomlTableNode(TomlTableNode pkgNode, String key) {
         TopLevelNode topLevelNode = pkgNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
             return null;
