@@ -194,8 +194,8 @@ public class LargeMethodOptimizer {
         SplitFuncEnv splitFuncEnv = new SplitFuncEnv(getTempVarsForArraySplit(), fromAttachedFunction);
 
         // add large arg restore instructions
-        int instIndex = skipLargeArgRestoreInstsAndGetIndex(bbs.get(0));
-        for (BIRNonTerminator ins : bbs.get(0).instructions.subList(0, instIndex)) {
+        int instIndex = skipLargeArgRestoreInstsAndGetIndex(bbs.getFirst());
+        for (BIRNonTerminator ins : bbs.getFirst().instructions.subList(0, instIndex)) {
             parentFuncEnv.parentFuncNewInsList.add(ins);
             parentFuncEnv.parentFuncLocalVarList.add(ins.lhsOp.variableDcl);
         }
@@ -268,8 +268,8 @@ public class LargeMethodOptimizer {
         SplitFuncEnv splitFuncEnv = new SplitFuncEnv(getTempVarsForArraySplit(), fromAttachedFunction);
 
         // add large arg restore and constant load array size operand instruction
-        int instIndex = skipLargeArgRestoreInstsAndGetIndex(bbs.get(0));
-        for (BIRNonTerminator ins : bbs.get(0).instructions.subList(0, instIndex + 1)) {
+        int instIndex = skipLargeArgRestoreInstsAndGetIndex(bbs.getFirst());
+        for (BIRNonTerminator ins : bbs.getFirst().instructions.subList(0, instIndex + 1)) {
             parentFuncEnv.parentFuncNewInsList.add(ins);
             parentFuncEnv.parentFuncLocalVarList.add(ins.lhsOp.variableDcl);
         }
@@ -933,7 +933,7 @@ public class LargeMethodOptimizer {
 
             splitFuncEnv.splitFuncLocalVarList = new LinkedHashSet<>(splitFuncLocalVarList);
             if (splitFuncEnv.splitFuncNewBBList.size() > 0) {
-                splitFuncEnv.splitFuncNewBBList.get(0).instructions.addAll(0, argRestoreInstructions);
+                splitFuncEnv.splitFuncNewBBList.getFirst().instructions.addAll(0, argRestoreInstructions);
             } else {
                 splitFuncEnv.splitFuncNewInsList.addAll(0, argRestoreInstructions);
             }
@@ -1450,11 +1450,11 @@ public class LargeMethodOptimizer {
 
                         // if the split will have all the available instructions already in the function -
                         // no need to make that split, avoids doing the same split repeatedly
-                        if ((bbNum == basicBlocks.size() - 2) && (!basicBlocks.get(0).instructions.isEmpty()) &&
+                        if ((bbNum == basicBlocks.size() - 2) && (!basicBlocks.getFirst().instructions.isEmpty()) &&
                                 fromSplitFunction) {
-                            List<BIRNonTerminator> firstBBIns = basicBlocks.get(0).instructions;
+                            List<BIRNonTerminator> firstBBIns = basicBlocks.getFirst().instructions;
                             BIRNonTerminator firstIns = firstBBIns.get(
-                                    skipLargeArgRestoreInstsAndGetIndex(basicBlocks.get(0)));
+                                    skipLargeArgRestoreInstsAndGetIndex(basicBlocks.getFirst()));
                             if (((startOfStructInst.stream().map(op -> op.variableDcl).toList().contains(
                                     firstIns.lhsOp.variableDcl)))) {
                                 continue;
