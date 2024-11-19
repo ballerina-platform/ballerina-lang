@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - master
+      - feature-codegen-optimizer
 
 jobs:
   build-lang:
