@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -228,16 +229,17 @@ public class CompileTask implements Task {
                 start = System.currentTimeMillis();
             }
 
-            String projectLoadingDiagnostic = ProjectUtils.getProjectLoadingDiagnostic();
-            if (projectLoadingDiagnostic != null && !projectLoadingDiagnostic.isEmpty()) {
-                out.println(projectLoadingDiagnostic);
-            }
+            Optional<Diagnostic> projectLoadingDiagnostic = ProjectUtils.getProjectLoadingDiagnostic().stream().filter(
+                    diagnostic -> diagnostic.diagnosticInfo().code().equals(
+                            ProjectDiagnosticErrorCode.DEPRECATED_RESOURCES_STRUCTURE.diagnosticId())).findAny();
+
+            projectLoadingDiagnostic.ifPresent(out::println);
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageCompilationDuration = System.currentTimeMillis() - start;
                 start = System.currentTimeMillis();
             }
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().codeGenDuration = System.currentTimeMillis() - start;
             }

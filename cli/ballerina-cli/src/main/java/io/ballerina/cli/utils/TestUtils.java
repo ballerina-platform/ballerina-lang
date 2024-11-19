@@ -486,7 +486,7 @@ public final class TestUtils {
 
         List<Path> dependencies = getTestDependencyPaths(currentPackage, jarResolver).stream()
                 .filter(Predicate.not(jars::contains))
-                .filter(Predicate.not(jarResolver.optimizedJarLibraryPaths::contains))
+                .filter(Predicate.not(jarResolver.getOptimizedJarLibraryPaths()::contains))
                 .toList();
 
         StringJoiner classPath = joinClassPaths(dependencies);

@@ -26,7 +26,7 @@ function init() {
 }
 
 public function stopHandlerFunc1() returns error? {
-    moduleB:incrementAndAssertInt(8);
+    moduleB:incrementAndAssertInt(9);
     moduleB:println("stopHandlerFunc1 in moduleA");
     runtime:onGracefulStop(stopHandlerFunc2);
 }

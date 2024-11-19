@@ -44,7 +44,7 @@ import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.V17;
+import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
@@ -78,7 +78,7 @@ public class JvmErrorCreatorGen {
                                     JarEntries jarEntries,
                                     List<BIRNode.BIRTypeDefinition> errorTypeDefList, SymbolTable symbolTable) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, errorsClass, null, OBJECT, null);
+        cw.visit(V21, ACC_PUBLIC + ACC_SUPER, errorsClass, null, OBJECT, null);
         generateCreateErrorMethods(cw, errorTypeDefList, errorsClass, symbolTable);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
@@ -126,9 +126,8 @@ public class JvmErrorCreatorGen {
         int i = 0;
         for (BIRNode.BIRTypeDefinition errorDefinition : errorTypeDefList) {
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_ERROR_VALUE + methodCount++,
-                        CREATE_ERROR
-                        , null, null);
+                mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_ERROR_VALUE + methodCount++, CREATE_ERROR, null,
+                        null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
                 int remainingCases = errorTypeDefList.size() - bTypesCount;
@@ -149,8 +148,7 @@ public class JvmErrorCreatorGen {
             mv.visitVarInsn(ALOAD, messageIndex);
             mv.visitVarInsn(ALOAD, causeIndex);
             mv.visitVarInsn(ALOAD, detailsIndex);
-            mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD,
-                    ERROR_INIT, false);
+            mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD, ERROR_INIT, false);
             mv.visitInsn(ARETURN);
             i += 1;
             bTypesCount++;

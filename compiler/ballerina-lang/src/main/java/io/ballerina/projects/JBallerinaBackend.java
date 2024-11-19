@@ -606,9 +606,6 @@ public class JBallerinaBackend extends CompilerBackend {
         CompiledJarFile compiledJarFile =
                 jvmCodeGenerator.generate(bLangPackage, bLangPackage.symbol.shouldGenerateDuplicateBIR,
                         isRemoteMgtEnabled);
-        if (compiledJarFile == null) {
-            throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
-        }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         if (bLangPackage.symbol.shouldGenerateDuplicateBIR) {
             jarFileName = getJarFileName(moduleContext) + "_OPTIMIZED" + JAR_FILE_NAME_SUFFIX;
@@ -650,10 +647,6 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
         CompiledJarFile originalJarFile = jvmCodeGenerator.generate(bLangPackage, false, isRemoteMgtEnabled);
-        if (originalJarFile == null) {
-            throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
-        }
-
         bLangPackage.symbol.bir = optimizableBirPkg;
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
@@ -1109,14 +1102,13 @@ public class JBallerinaBackend extends CompilerBackend {
             nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
             nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
                     executableFilePath.toString(),
-                    "-H:Name=" + nativeImageName,
+                    "-o " + executableFilePath.getParent() + "/" + nativeImageName,
                     "--no-fallback"));
         } else {
             nativeImageName = project.currentPackage().packageName().toString();
             nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
                     executableFilePath.toString(),
-                    "-H:Name=" + nativeImageName,
-                    "-H:Path=" + executableFilePath.getParent(),
+                    "-o " + executableFilePath.getParent() + "/" + nativeImageName,
                     "--no-fallback"));
         }
 

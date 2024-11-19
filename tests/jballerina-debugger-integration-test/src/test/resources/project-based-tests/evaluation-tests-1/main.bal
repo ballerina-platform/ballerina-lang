@@ -172,7 +172,7 @@ json jsonValue = {name: "John", age: 20};
 var '\ \/\:\@\[\`\{\~\u{03C0}_IL = "IL with global var";
 
 // configurable variables
-configurable int port = ?;
+configurable int port = 9090;
 
 // let expression helper declarations
 const globalVar = 2;

@@ -20,7 +20,7 @@ package org.ballerinalang.test.types.uniontypes;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.DecimalValueKind;
+import io.ballerina.runtime.internal.values.DecimalValueKind;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;

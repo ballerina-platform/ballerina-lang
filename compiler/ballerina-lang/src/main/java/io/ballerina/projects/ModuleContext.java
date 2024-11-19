@@ -76,7 +76,7 @@ class ModuleContext {
     private final boolean isDefaultModule;
     private final Map<DocumentId, DocumentContext> srcDocContextMap;
     private final Collection<DocumentId> testSrcDocIds;
-    private final MdDocumentContext moduleMdContext;
+    private final MdDocumentContext readmeMdContext;
     private final Map<DocumentId, DocumentContext> testDocContextMap;
     private final Project project;
     private final CompilationCache compilationCache;
@@ -97,7 +97,7 @@ class ModuleContext {
                   boolean isDefaultModule,
                   Map<DocumentId, DocumentContext> srcDocContextMap,
                   Map<DocumentId, DocumentContext> testDocContextMap,
-                  MdDocumentContext moduleMd,
+                  MdDocumentContext readmeMd,
                   List<ModuleDescriptor> moduleDescDependencies) {
         this.project = project;
         this.moduleId = moduleId;
@@ -107,7 +107,7 @@ class ModuleContext {
         this.srcDocIds = Collections.unmodifiableCollection(srcDocContextMap.keySet());
         this.testDocContextMap = testDocContextMap;
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
-        this.moduleMdContext = moduleMd;
+        this.readmeMdContext = readmeMd;
         this.moduleDescDependencies = Collections.unmodifiableList(moduleDescDependencies);
 
 
@@ -131,7 +131,7 @@ class ModuleContext {
 
         return new ModuleContext(project, moduleConfig.moduleId(), moduleConfig.moduleDescriptor(),
                 moduleConfig.isDefaultModule(), srcDocContextMap, testDocContextMap,
-                moduleConfig.moduleMd().map(c ->MdDocumentContext.from(c)).orElse(null),
+                moduleConfig.readmeMd().map(c ->MdDocumentContext.from(c)).orElse(null),
                 moduleConfig.dependencies());
     }
 
@@ -561,8 +561,13 @@ class ModuleContext {
         moduleContext.srcDocContextMap.values().forEach(DocumentContext::shrink);
     }
 
+    @Deprecated (forRemoval = true)
     Optional<MdDocumentContext> moduleMdContext() {
-        return Optional.ofNullable(this.moduleMdContext);
+        return Optional.ofNullable(this.readmeMdContext);
+    }
+
+    public Optional<MdDocumentContext> readmeMdContext() {
+        return Optional.ofNullable(readmeMdContext);
     }
 
     ModuleContext duplicate(Project project) {
@@ -578,7 +583,7 @@ class ModuleContext {
             testDocContextMap.put(documentId, documentContext.duplicate());
         }
         return new ModuleContext(project, this.moduleId, this.moduleDescriptor, this.isDefaultModule,
-                srcDocContextMap, testDocContextMap, this.moduleMdContext().orElse(null),
+                srcDocContextMap, testDocContextMap, this.readmeMdContext().orElse(null),
                 this.moduleDescDependencies);
     }
 

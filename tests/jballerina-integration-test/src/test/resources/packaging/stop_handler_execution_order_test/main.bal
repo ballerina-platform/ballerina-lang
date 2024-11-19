@@ -32,12 +32,12 @@ function init() {
 }
 
 public function stopHandlerFunc1() returns error? {
-    moduleB:incrementAndAssertInt(7);
+    moduleB:incrementAndAssertInt(8);
     moduleB:println("Stopped current module");
 }
 
 public function stopHandlerFunc2() returns error? {
-    moduleB:incrementAndAssertInt(6);
+    moduleB:incrementAndAssertInt(7);
     moduleB:println("StopHandlerFunc2 in current module");
 }
 
@@ -48,7 +48,7 @@ public function stopHandlerFunc3() returns error? {
 }
 
 public function stopHandlerFunc4() returns error? {
-    moduleB:incrementAndAssertInt(7);
+    moduleB:incrementAndAssertInt(6);
     moduleB:println("StopHandlerFunc4 in current module");
     runtime:onGracefulStop(stopHandlerFunc5);
 }

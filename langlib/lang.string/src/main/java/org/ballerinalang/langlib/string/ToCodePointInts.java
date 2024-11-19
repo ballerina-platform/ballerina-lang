@@ -27,13 +27,8 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.string", functionName = "toCodePointInts",
-//        args = {@Argument(name = "str", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-//        isPublic = true
-//)
-public final class ToCodePointInts {
+public class ToCodePointInts {
+
 
     private ToCodePointInts() {
     }

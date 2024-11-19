@@ -247,7 +247,7 @@ public final class BCompileUtil {
         if (packageCompilation.diagnosticResult().errorCount() > 0) {
             LOGGER.error("compilation failed with errors: " + currentPackage.project().sourceRoot());
         }
-        return JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        return JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
     }
 
     /**
