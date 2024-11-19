@@ -20,9 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
-import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -33,34 +31,26 @@ import static io.ballerina.types.PredefinedType.VAL_READONLY;
  * 
  * @since 1.3.0
  */
-public class BReadonlyType extends BBuiltInRefType {
+public class BReadonlyType extends BType {
 
     private boolean nullable = true;
 
-    public BReadonlyType(BTypeSymbol tsymbol) {
-        this(tsymbol, VAL_READONLY);
+    public BReadonlyType() {
+        this(VAL_READONLY);
     }
 
-    private BReadonlyType(BTypeSymbol tsymbol, SemType semType) {
-        super(TypeTags.READONLY, tsymbol, semType);
-        this.addFlags(Flags.READONLY);
+    public BReadonlyType(long flag) {
+        super(TypeTags.READONLY, null, flag | Flags.READONLY, VAL_READONLY);
     }
 
-    public BReadonlyType(BTypeSymbol tsymbol, Name name, long flag) {
-        super(TypeTags.READONLY, tsymbol, VAL_READONLY);
-        this.name = name;
-        this.setFlags(flag);
-        this.addFlags(Flags.READONLY);
+    private BReadonlyType(SemType semType) {
+        super(TypeTags.READONLY, null, Flags.READONLY, semType);
     }
 
-    public BReadonlyType(int tag, BTypeSymbol tsymbol, boolean nullable) {
-        super(tag, tsymbol);
-        this.nullable = nullable;
-        this.addFlags(Flags.READONLY);
-    }
-
-    public static BReadonlyType newNilLiftedBReadonlyType(BTypeSymbol tsymbol) {
-        return new BReadonlyType(tsymbol, Core.diff(VAL_READONLY, PredefinedType.NIL));
+    public static BReadonlyType newNilLiftedBReadonlyType() {
+        BReadonlyType result = new BReadonlyType(Core.diff(VAL_READONLY, PredefinedType.NIL));
+        result.nullable = false;
+        return result;
     }
 
     @Override

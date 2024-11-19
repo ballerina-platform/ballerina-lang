@@ -49,7 +49,7 @@ public class BInvokableType extends BType implements InvokableType {
     // TODO: make these final
     public BType restType;
     public BType retType;
-    public final Env env;
+    private final Env env;
     private FunctionDefinition defn;
 
     public BInvokableType(Env env, List<BType> paramTypes, BType restType, BType retType, BTypeSymbol tsymbol) {

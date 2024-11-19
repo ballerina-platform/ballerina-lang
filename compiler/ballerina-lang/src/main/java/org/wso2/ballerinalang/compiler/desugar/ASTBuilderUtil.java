@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.Env;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -844,7 +845,7 @@ public final class ASTBuilderUtil {
         return node;
     }
 
-    public static BInvokableSymbol duplicateInvokableSymbol(BInvokableSymbol invokableSymbol) {
+    public static BInvokableSymbol duplicateInvokableSymbol(Env typeEnv, BInvokableSymbol invokableSymbol) {
         BInvokableSymbol dupFuncSymbol =
                 Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name, invokableSymbol.originalName,
                                              invokableSymbol.pkgID, invokableSymbol.type, invokableSymbol.owner,
@@ -865,7 +866,7 @@ public final class ASTBuilderUtil {
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
         BInvokableType dupInvokableType =
-                new BInvokableType(invokableSymbol.getType().env, List.copyOf(prevFuncType.paramTypes),
+                new BInvokableType(typeEnv, List.copyOf(prevFuncType.paramTypes),
                         prevFuncType.restType, prevFuncType.retType, prevFuncType.tsymbol);
 
         if (Symbols.isFlagOn(invokableSymbol.flags, Flags.ISOLATED)) {
@@ -884,7 +885,8 @@ public final class ASTBuilderUtil {
         return dupFuncSymbol;
     }
 
-    public static BInvokableSymbol duplicateFunctionDeclarationSymbol(BInvokableSymbol invokableSymbol,
+    public static BInvokableSymbol duplicateFunctionDeclarationSymbol(Env typeEnv,
+                                                                      BInvokableSymbol invokableSymbol,
                                                                       BSymbol owner,
                                                                       Name newName,
                                                                       PackageID newPkgID,
@@ -914,7 +916,7 @@ public final class ASTBuilderUtil {
         dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
-        BType newFuncType = new BInvokableType(invokableSymbol.getType().env, List.copyOf(prevFuncType.paramTypes),
+        BType newFuncType = new BInvokableType(typeEnv, List.copyOf(prevFuncType.paramTypes),
                 prevFuncType.restType, prevFuncType.retType, prevFuncType.tsymbol);
         newFuncType.addFlags(prevFuncType.getFlags());
         dupFuncSymbol.type = newFuncType;

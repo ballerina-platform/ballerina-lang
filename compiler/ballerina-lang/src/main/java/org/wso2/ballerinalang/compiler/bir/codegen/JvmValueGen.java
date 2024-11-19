@@ -154,7 +154,7 @@ public class JvmValueGen {
         for (BIRNode.BIRFunction birFunc : attachedFuncs) {
             if (JvmCodeGenUtil.isExternFunc(birFunc)) {
                 if (birFunc instanceof JMethodBIRFunction jMethodBIRFunction) {
-                    desugarInteropFuncs(jMethodBIRFunction, initMethodGen);
+                    desugarInteropFuncs(env, jMethodBIRFunction, initMethodGen);
                     initMethodGen.resetIds();
                 } else if (!(birFunc instanceof JFieldBIRFunction)) {
                     initMethodGen.resetIds();

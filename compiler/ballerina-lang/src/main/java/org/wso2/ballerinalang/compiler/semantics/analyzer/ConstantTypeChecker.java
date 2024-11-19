@@ -53,7 +53,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -2201,11 +2200,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             BTupleType resultTupleType = new BTupleType(symTable.typeEnv(), tupleTypeSymbol, members);
             tupleTypeSymbol.type = resultTupleType;
             data.resultType = resultTupleType;
-        }
-
-        @Override
-        public void visit(BBuiltInRefType bBuiltInRefType) {
-
         }
 
         @Override

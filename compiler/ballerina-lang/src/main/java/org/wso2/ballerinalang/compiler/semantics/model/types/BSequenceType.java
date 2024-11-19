@@ -19,7 +19,12 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import io.ballerina.types.Env;
 import io.ballerina.types.SemType;
+import io.ballerina.types.definition.ListDefinition;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+
+import java.util.List;
+
+import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 
 /**
  * Represents type for sequence variable.
@@ -28,7 +33,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  */
 public class BSequenceType extends BType {
     public BType elementType;
-    public final Env env;
+    private final Env env;
 
     public BSequenceType(Env env, BType elementType) {
         super(TypeTags.SEQUENCE, null);
@@ -42,6 +47,11 @@ public class BSequenceType extends BType {
     }
 
     public SemType semType() {
-        return new BArrayType(env, elementType).semType();
+        if (this.semType != null) {
+            return this.semType;
+        }
+        ListDefinition ld = new ListDefinition();
+        this.semType = ld.defineListTypeWrapped(env, List.of(), 0, elementType.semType(), CELL_MUT_LIMITED);
+        return this.semType;
     }
 }

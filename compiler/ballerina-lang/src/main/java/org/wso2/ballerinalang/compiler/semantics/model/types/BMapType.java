@@ -23,6 +23,7 @@ import io.ballerina.types.SemType;
 import io.ballerina.types.definition.MappingDefinition;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -39,11 +40,11 @@ import static io.ballerina.types.PredefinedType.VAL;
 /**
  * @since 0.94
  */
-public class BMapType extends BBuiltInRefType implements ConstrainedType, SelectivelyImmutableReferenceType {
+public class BMapType extends BType implements ConstrainedType, SelectivelyImmutableReferenceType {
     public BType constraint;
     public BMapType mutableType;
 
-    public final Env env;
+    private final Env env;
     private MappingDefinition md = null;
 
     public BMapType(Env env, int tag, BType constraint, BTypeSymbol tsymbol) {
@@ -74,6 +75,11 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
+    }
+
+    @Override
+    public TypeKind getKind() {
+        return TypeKind.MAP;
     }
 
     @Override

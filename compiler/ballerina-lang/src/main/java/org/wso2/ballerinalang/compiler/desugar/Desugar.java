@@ -1380,7 +1380,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Duplicate the invokable symbol and the invokable type.
         funcNode.originalFuncSymbol = funcNode.symbol;
-        funcNode.symbol = ASTBuilderUtil.duplicateInvokableSymbol(funcNode.symbol);
+        funcNode.symbol = ASTBuilderUtil.duplicateInvokableSymbol(types.typeEnv(), funcNode.symbol);
         funcNode.requiredParams = rewrite(funcNode.requiredParams, funcEnv);
         funcNode.restParam = rewrite(funcNode.restParam, funcEnv);
 
@@ -7108,9 +7108,9 @@ public class Desugar extends BLangNodeVisitor {
 
         BInvokableSymbol invSym = (BInvokableSymbol) invocation.symbol;
         if (Symbols.isFlagOn(invSym.retType.getFlags(), Flags.PARAMETERIZED)) {
-            BType retType = unifier.build(invSym.retType);
+            BType retType = unifier.build(symTable.typeEnv(), invSym.retType);
             invocation.setBType(invocation.async ?
-                    new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, retType, null) : retType);
+                    new BFutureType(symTable.typeEnv(), retType, null) : retType);
         }
 
         if (invocation.expr == null) {

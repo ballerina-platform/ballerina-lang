@@ -113,6 +113,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
@@ -194,6 +195,8 @@ public class Types {
     private static final BigDecimal MIN_DECIMAL_MAGNITUDE =
             new BigDecimal("1.000000000000000000000000000000000e-6143", MathContext.DECIMAL128);
 
+    public static final String AND_READONLY_SUFFIX = " & readonly";
+
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
         if (types == null) {
@@ -216,16 +219,6 @@ public class Types {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
-    }
-
-    public List<BType> checkTypes(BLangExpression node,
-                                  List<BType> actualTypes,
-                                  List<BType> expTypes) {
-        List<BType> resTypes = new ArrayList<>();
-        for (int i = 0; i < actualTypes.size(); i++) {
-            resTypes.add(checkType(node, actualTypes.get(i), expTypes.size() > i ? expTypes.get(i) : symTable.noType));
-        }
-        return resTypes;
     }
 
     public BType checkType(BLangExpression node,
@@ -2770,7 +2763,7 @@ public class Types {
         }
 
         if (tupleType.restType == null) {
-            return new BTupleType(tupleType.env, tupleMemberTypes);
+            return new BTupleType(typeEnv(), tupleMemberTypes);
         }
 
         BType restIntersectionType = getTypeIntersection(intersectionContext, tupleType.restType, eType, env,
@@ -3213,16 +3206,16 @@ public class Types {
         if (liftNil) {
             switch (type.tag) {
                 case TypeTags.JSON:
-                    return new BJSONType((BJSONType) type, false);
+                    return BJSONType.newNilLiftedBJSONType((BJSONType) type);
                 case TypeTags.ANY:
-                    return BAnyType.newNilLiftedBAnyType(type.tsymbol);
+                    return BAnyType.newNilLiftedBAnyType();
                 case TypeTags.ANYDATA:
-                    return new BAnydataType((BAnydataType) type, false);
+                    return BAnydataType.newNilLiftedBAnydataType((BAnydataType) type);
                 case TypeTags.READONLY:
                     if (liftError) {
                         return symTable.anyAndReadonly;
                     }
-                    return BReadonlyType.newNilLiftedBReadonlyType(type.tsymbol);
+                    return BReadonlyType.newNilLiftedBReadonlyType();
             }
         }
 
@@ -3889,6 +3882,14 @@ public class Types {
         }
 
         return Optional.empty();
+    }
+
+    public static Name getImmutableTypeName(String origName) {
+        if (origName.isEmpty()) {
+            return Names.EMPTY;
+        }
+
+        return Names.fromString("(".concat(origName).concat(AND_READONLY_SUFFIX).concat(")"));
     }
 
     public static String getPackageIdString(PackageID packageID) {

@@ -122,7 +122,7 @@ public class SymbolTable {
     public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY, PredefinedType.STRING);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY, PredefinedType.BOOLEAN);
 
-    public final BType anyType = new BAnyType(null);
+    public final BType anyType = new BAnyType();
     public final BMapType mapType;
     public final BMapType mapStringType;
 
@@ -135,9 +135,9 @@ public class SymbolTable {
     public final BType tupleType;
     public final BType recordType;
     public final BType stringArrayType;
-    public final BType handleType = new BHandleType(TypeTags.HANDLE, null, PredefinedType.HANDLE);
+    public final BType handleType = new BHandleType();
     public final BTypedescType typeDesc;
-    public final BType readonlyType = new BReadonlyType(null);
+    public final BType readonlyType = new BReadonlyType();
     public final BType pathParamAllowedType;
     public final BIntersectionType anyAndReadonly;
     public BUnionType anyAndReadonlyOrError;
@@ -159,24 +159,21 @@ public class SymbolTable {
     public BObjectType iterableType;
 
     // builtin subtypes
-    public final BIntSubType signed32IntType = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32, SemTypes.SINT32);
-    public final BIntSubType signed16IntType = new BIntSubType(TypeTags.SIGNED16_INT, Names.SIGNED16, SemTypes.SINT16);
-    public final BIntSubType signed8IntType = new BIntSubType(TypeTags.SIGNED8_INT, Names.SIGNED8, SemTypes.SINT8);
-    public final BIntSubType unsigned32IntType = new BIntSubType(TypeTags.UNSIGNED32_INT, Names.UNSIGNED32,
-                                                                 SemTypes.UINT32);
-    public final BIntSubType unsigned16IntType = new BIntSubType(TypeTags.UNSIGNED16_INT, Names.UNSIGNED16,
-                                                                 SemTypes.UINT16);
-    public final BIntSubType unsigned8IntType = new BIntSubType(TypeTags.UNSIGNED8_INT, Names.UNSIGNED8,
-                                                                SemTypes.UINT8);
-    public final BStringSubType charStringType = new BStringSubType(TypeTags.CHAR_STRING, Names.CHAR, SemTypes.CHAR);
-    public final BXMLSubType xmlElementType = new BXMLSubType(TypeTags.XML_ELEMENT, Names.XML_ELEMENT,
-                                                              SemTypes.XML_ELEMENT);
-    public final BXMLSubType xmlPIType = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI, SemTypes.XML_PI);
-    public final BXMLSubType xmlCommentType = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT,
-                                                              SemTypes.XML_COMMENT);
-    public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY,
-                                                           SemTypes.XML_TEXT);
-    public final BRegexpType regExpType = new BRegexpType(TypeTags.REGEXP, Names.REGEXP_TYPE, PredefinedType.REGEXP);
+    public final BIntSubType signed32IntType = BIntSubType.SIGNED32;
+    public final BIntSubType signed16IntType = BIntSubType.SIGNED16;
+    public final BIntSubType signed8IntType = BIntSubType.SIGNED8;
+    public final BIntSubType unsigned32IntType = BIntSubType.UNSIGNED32;
+    public final BIntSubType unsigned16IntType = BIntSubType.UNSIGNED16;
+    public final BIntSubType unsigned8IntType = BIntSubType.UNSIGNED8;
+
+    public final BStringSubType charStringType = BStringSubType.CHAR;
+
+    public final BXMLSubType xmlElementType = BXMLSubType.XML_ELEMENT;
+    public final BXMLSubType xmlPIType = BXMLSubType.XML_PI;
+    public final BXMLSubType xmlCommentType = BXMLSubType.XML_COMMENT;
+    public final BXMLSubType xmlTextType = BXMLSubType.XML_TEXT;
+
+    public final BRegexpType regExpType = new BRegexpType();
     public final BType xmlNeverType = new BXMLType(neverType,  null);
 
     public final BType xmlType;
@@ -310,18 +307,14 @@ public class SymbolTable {
 
         xmlType = new BXMLType(BUnionType.create(types.typeEnv(), null, xmlElementType, xmlCommentType,
                 xmlPIType, xmlTextType), null);
-        futureType = new BFutureType(types.typeEnv(), TypeTags.FUTURE, nilType, null);
-        typeDesc = new BTypedescType(types.typeEnv(), this.anyType, null);
+        futureType = new BFutureType(types.typeEnv(), nilType, null, PredefinedType.FUTURE);
+        typeDesc = new BTypedescType(types.typeEnv(), this.anyType, null, PredefinedType.TYPEDESC);
         initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
         initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);
         initializeType(typeDesc, TypeKind.TYPEDESC.typeName(), BUILTIN);
 
         defineCyclicUnionBasedInternalTypes();
 
-        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
-                                                                Names.fromString("$anonType$TRUE"),
-                                                                rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
-                                                                this.builtinPos, VIRTUAL);
         BTypeSymbol trueFiniteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
                 Names.fromString("$anonType$TRUE"), rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
                 this.builtinPos, VIRTUAL);
@@ -1164,7 +1157,7 @@ public class SymbolTable {
 
         pureType = BUnionType.create(typeEnv(), null, anydataType, errorType);
         streamType = new BStreamType(typeEnv(), TypeTags.STREAM, pureType, nilType, null);
-        tableType = new BTableType(typeEnv(), TypeTags.TABLE, pureType, null);
+        tableType = new BTableType(typeEnv(), pureType, null);
 
         initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
         initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
@@ -1173,7 +1166,7 @@ public class SymbolTable {
     private void addCyclicArrayMapTableOfMapMembers(BUnionType unionType) {
         BArrayType arrayCloneableType = new BArrayType(typeEnv(), unionType);
         BMapType mapCloneableType = new BMapType(typeEnv(), TypeTags.MAP, unionType, null);
-        BType tableMapCloneableType = new BTableType(typeEnv(), TypeTags.TABLE, mapCloneableType, null);
+        BType tableMapCloneableType = new BTableType(typeEnv(), mapCloneableType, null);
         unionType.add(arrayCloneableType);
         unionType.add(mapCloneableType);
         unionType.add(tableMapCloneableType);
@@ -1190,7 +1183,7 @@ public class SymbolTable {
         jsonInternal.add(mapJsonTypeInternal);
         jsonInternal.isCyclic = true;
 
-        jsonType = new BJSONType(jsonInternal);
+        jsonType = new BJSONType(types.typeCtx(), jsonInternal);
         PackageID pkgID = rootPkgSymbol.pkgID;
         Optional<BIntersectionType> immutableType = Types.getImmutableType(this, pkgID, jsonInternal);
         if (immutableType.isPresent()) {
@@ -1209,7 +1202,7 @@ public class SymbolTable {
                 stringType, xmlType);
         addCyclicArrayMapTableOfMapMembers(anyDataInternal);
 
-        anydataType = new BAnydataType(anyDataInternal);
+        anydataType = new BAnydataType(types.typeCtx(), anyDataInternal);
         PackageID pkgID = rootPkgSymbol.pkgID;
         Optional<BIntersectionType> immutableType = Types.getImmutableType(this, pkgID, anyDataInternal);
         if (immutableType.isPresent()) {

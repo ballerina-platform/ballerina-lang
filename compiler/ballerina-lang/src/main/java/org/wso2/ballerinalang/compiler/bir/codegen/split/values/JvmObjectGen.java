@@ -126,7 +126,7 @@ public class JvmObjectGen {
             String methodSig;
 
             // use index access, since retType can be nil.
-            methodSig = JvmCodeGenUtil.getMethodDesc(paramTypes, retType);
+            methodSig = JvmCodeGenUtil.getMethodDesc(jvmCastGen.typeEnv(), paramTypes, retType);
 
             // load self
             mv.visitVarInsn(ALOAD, 0);

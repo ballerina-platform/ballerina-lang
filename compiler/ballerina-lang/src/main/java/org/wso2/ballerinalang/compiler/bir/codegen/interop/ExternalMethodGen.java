@@ -64,7 +64,7 @@ public final class ExternalMethodGen {
         }
     }
 
-    public static void injectDefaultParamInits(BIRPackage module, InitMethodGen initMethodGen) {
+    public static void injectDefaultParamInits(Env typeEnv, BIRPackage module, InitMethodGen initMethodGen) {
         // filter out functions.
         List<BIRFunction> functions = module.functions;
         if (!functions.isEmpty()) {
@@ -75,7 +75,7 @@ public final class ExternalMethodGen {
                 BIRFunction birFunc = functions.get(count);
                 count = count + 1;
                 if (birFunc instanceof JMethodBIRFunction jMethodBIRFunction) {
-                    desugarInteropFuncs(jMethodBIRFunction, initMethodGen);
+                    desugarInteropFuncs(typeEnv, jMethodBIRFunction, initMethodGen);
                     initMethodGen.resetIds();
                 } else if (!(birFunc instanceof JFieldBIRFunction)) {
                     initMethodGen.resetIds();
@@ -89,7 +89,7 @@ public final class ExternalMethodGen {
         if (isEntry) {
             addDefaultableBooleanVarsToSignature(env, birFunc);
         }
-        return getFunctionWrapper(birFunc, packageID, birModuleClassName);
+        return getFunctionWrapper(env, birFunc, packageID, birModuleClassName);
     }
 
     private ExternalMethodGen() {

@@ -131,7 +131,7 @@ public class LangLibFunctionBinder {
         }
 
         BInvokableType duplicate =
-                new BInvokableType(original.env, paramTypes, original.restType, original.retType, null);
+                new BInvokableType(types.typeEnv(), paramTypes, original.restType, original.retType, null);
         BInvokableTypeSymbol originalSym = (BInvokableTypeSymbol) original.tsymbol;
         BInvokableTypeSymbol duplicateTSym = new BInvokableTypeSymbol(original.tag, originalSym.flags,
                                                                       originalSym.pkgID, duplicate,

@@ -50,7 +50,7 @@ public class BArrayType extends BType implements ArrayType {
     public BArrayState state = BArrayState.OPEN;
 
     public BArrayType mutableType;
-    public final Env env;
+    private final Env env;
     private ListDefinition ld = null;
 
     public BArrayType(Env env, BType elementType) {

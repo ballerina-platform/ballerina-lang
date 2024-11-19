@@ -21,6 +21,7 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -33,7 +34,7 @@ import org.wso2.ballerinalang.util.Flags;
  *
  * @since 0.961.0
  */
-public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
+public class BXMLType extends BType implements SelectivelyImmutableReferenceType {
     public BType constraint;
     public BXMLType mutableType;
 
@@ -67,12 +68,21 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
     }
 
     @Override
+    public TypeKind getKind() {
+        return TypeKind.XML;
+    }
+
+    @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
     public SemType semType() {
+        if (this.semType != null) {
+            return this.semType;
+        }
+
         SemType s;
         if (constraint == null) {
             s = PredefinedType.XML;
@@ -92,6 +102,7 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
         }
 
         boolean readonly = Symbols.isFlagOn(this.getFlags(), Flags.READONLY);
-        return readonly ? SemTypes.intersect(PredefinedType.VAL_READONLY, s) : s;
+        this.semType = readonly ? SemTypes.intersect(PredefinedType.VAL_READONLY, s) : s;
+        return this.semType;
     }
 }

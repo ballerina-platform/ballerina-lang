@@ -22,6 +22,7 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.ConstrainedType;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -30,10 +31,10 @@ import org.wso2.ballerinalang.util.Flags;
 /**
  * @since 0.94
  */
-public class BTypedescType extends BBuiltInRefType implements ConstrainedType {
+public class BTypedescType extends BType implements ConstrainedType {
 
     public BType constraint;
-    public final Env env;
+    private final Env env;
 
     public BTypedescType(Env env, BType constraint, BTypeSymbol tsymbol) {
         super(TypeTags.TYPEDESC, tsymbol, Flags.READONLY);
@@ -41,21 +42,28 @@ public class BTypedescType extends BBuiltInRefType implements ConstrainedType {
         this.env = env;
     }
 
+    public BTypedescType(Env env, BType constraint, BTypeSymbol tsymbol, SemType semType) {
+        this(env, constraint, tsymbol);
+        this.semType = semType;
+    }
+
     @Override
     public BType getConstraint() {
-
         return constraint;
     }
 
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
-
         return visitor.visit(this, t);
     }
 
     @Override
-    public String toString() {
+    public TypeKind getKind() {
+        return TypeKind.TYPEDESC;
+    }
 
+    @Override
+    public String toString() {
         if (constraint.tag == TypeTags.ANY) {
             return super.toString();
         }
@@ -65,16 +73,20 @@ public class BTypedescType extends BBuiltInRefType implements ConstrainedType {
 
     @Override
     public void accept(TypeVisitor visitor) {
-
         visitor.visit(this);
     }
 
     @Override
     public SemType semType() {
-        if (constraint == null || constraint instanceof BNoType) {
-            return PredefinedType.TYPEDESC;
+        if (this.semType != null) {
+            return this.semType;
         }
 
-        return SemTypes.typedescContaining(env, constraint.semType());
+        if (constraint == null || constraint instanceof BNoType) {
+            this.semType = PredefinedType.TYPEDESC;
+        } else {
+            this.semType = SemTypes.typedescContaining(env, constraint.semType());
+        }
+        return this.semType;
     }
 }

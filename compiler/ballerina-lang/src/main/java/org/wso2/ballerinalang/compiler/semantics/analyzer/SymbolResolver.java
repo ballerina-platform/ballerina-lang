@@ -1046,7 +1046,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 continue;
             }
             BUnionType type = (BUnionType) Types.getImpliedType(entry.symbol.type);
-            symTable.anydataType = new BAnydataType(type);
+            symTable.anydataType = new BAnydataType(types.semTypeCtx, type);
             Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, PackageID.ANNOTATIONS, type);
             if (immutableType.isPresent()) {
                 Types.addImmutableType(symTable, PackageID.ANNOTATIONS, symTable.anydataType, immutableType.get());
@@ -1071,7 +1071,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 continue;
             }
             BUnionType type = (BUnionType) Types.getImpliedType(entry.symbol.type);
-            symTable.jsonType = new BJSONType(type);
+            symTable.jsonType = new BJSONType(types.semTypeCtx, type);
             Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, PackageID.ANNOTATIONS,
                                                                                type);
             if (immutableType.isPresent()) {
@@ -1404,7 +1404,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return symTable.noType;
         }
 
-        BTableType tableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, constraintType, null);
+        BTableType tableType = new BTableType(symTable.typeEnv(), constraintType, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
                 typeSymbol.name, typeSymbol.originalName, typeSymbol.pkgID,
@@ -1548,7 +1548,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         BType constrainedType;
         if (type.tag == TypeTags.FUTURE) {
-            constrainedType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, constraintType, null);
+            constrainedType = new BFutureType(symTable.typeEnv(), constraintType, null);
         } else if (type.tag == TypeTags.MAP) {
             constrainedType = new BMapType(symTable.typeEnv(), TypeTags.MAP, constraintType, null);
         } else if (type.tag == TypeTags.TYPEDESC) {

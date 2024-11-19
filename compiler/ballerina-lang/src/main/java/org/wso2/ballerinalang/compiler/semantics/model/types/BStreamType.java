@@ -24,6 +24,7 @@ import io.ballerina.types.SemType;
 import io.ballerina.types.definition.StreamDefinition;
 import org.ballerinalang.model.types.StreamType;
 import org.ballerinalang.model.types.Type;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -33,12 +34,12 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  *
  * @since 1.2.0
  */
-public class BStreamType extends BBuiltInRefType implements StreamType {
+public class BStreamType extends BType implements StreamType {
 
     public BType constraint;
     public BType completionType;
 
-    public final Env env;
+    private final Env env;
     private StreamDefinition d = null;
 
     public BStreamType(Env env, int tag, BType constraint, BType completionType, BTypeSymbol tsymbol) {
@@ -61,6 +62,11 @@ public class BStreamType extends BBuiltInRefType implements StreamType {
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
+    }
+
+    @Override
+    public TypeKind getKind() {
+        return TypeKind.STREAM;
     }
 
     @Override

@@ -17,6 +17,7 @@
 
 package org.wso2.ballerinalang.compiler.util;
 
+import io.ballerina.types.Env;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.TypeKind;
@@ -31,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -89,14 +89,16 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private SymbolEnv env;
     private Types types;
     private BLangDiagnosticLog dlog;
+    private Env typeEnv;
 
-    public BType build(BType originalType, BType expType, BLangInvocation invocation, Types types,
+    public BType build(Env typeEnv, BType originalType, BType expType, BLangInvocation invocation, Types types,
                        SymbolTable symbolTable, BLangDiagnosticLog dlog) {
         this.isInvocation = invocation != null;
         if (this.isInvocation) {
             this.invocation = invocation;
             createParamMap(invocation);
         }
+        this.typeEnv = typeEnv;
         this.types = types;
         this.symbolTable = symbolTable;
         this.dlog = dlog;
@@ -105,12 +107,13 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         return newType;
     }
 
-    public BType build(BType originalType) {
-        return build(originalType, null, null, null, null, null);
+    public BType build(Env typeEnv, BType originalType) {
+        return build(typeEnv, originalType, null, null, null, null, null);
     }
 
-    public void validate(BType returnType, BLangFunction function, SymbolTable symbolTable, SymbolEnv env, Types types,
-                         BLangDiagnosticLog dlog) {
+    public void validate(Env typeEnv, BType returnType, BLangFunction function, SymbolTable symbolTable, SymbolEnv env,
+                         Types types, BLangDiagnosticLog dlog) {
+        this.typeEnv = typeEnv;
         this.function = function;
         this.symbolTable = symbolTable;
         this.env = env;
@@ -122,11 +125,6 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BType originalType, BType expType) {
-        return originalType;
-    }
-
-    @Override
-    public BType visit(BBuiltInRefType originalType, BType expType) {
         return originalType;
     }
 
@@ -154,7 +152,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BMapType newMType = new BMapType(originalType.env, originalType.tag, newConstraint, null);
+        BMapType newMType = new BMapType(typeEnv, originalType.tag, newConstraint, null);
         setFlags(newMType, originalType.getFlags());
         return newMType;
     }
@@ -197,8 +195,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BArrayType newArrayType =
-                new BArrayType(originalType.env, newElemType, null, originalType.getSize(), originalType.state);
+        BArrayType newArrayType = new BArrayType(typeEnv, newElemType, null, originalType.getSize(),
+                                                originalType.state);
         setFlags(newArrayType, originalType.getFlags());
         return newArrayType;
     }
@@ -285,7 +283,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return expType != null ? expType : originalType;
         }
 
-        BTupleType type = new BTupleType(originalType.env, members);
+        BTupleType type = new BTupleType(typeEnv, members);
         type.restType = newRestType;
         setFlags(type, originalType.getFlags());
         return type;
@@ -314,7 +312,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BStreamType type = new BStreamType(originalType.env, originalType.tag, newConstraint, newError, null);
+        BStreamType type = new BStreamType(typeEnv, originalType.tag, newConstraint, newError, null);
         setFlags(type, originalType.getFlags());
         return type;
     }
@@ -341,7 +339,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BTableType newTableType = new BTableType(originalType.env, TypeTags.TABLE, newConstraint, null);
+        BTableType newTableType = new BTableType(typeEnv, newConstraint, null);
         newTableType.keyTypeConstraint = null;
         newTableType.fieldNameList = originalType.fieldNameList;
         newTableType.constraintPos = originalType.constraintPos;
@@ -413,7 +411,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             }
         }
 
-        BType type = new BInvokableType(originalType.env, paramTypes, newRestType, retType, null);
+        BType type = new BInvokableType(typeEnv, paramTypes, newRestType, retType, null);
         setFlags(type, originalType.getFlags());
         return type;
     }
@@ -512,8 +510,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BFutureType newFutureType = new BFutureType(originalType.env, originalType.tag, newConstraint, null,
-                                                    originalType.workerDerivative);
+        BFutureType newFutureType = new BFutureType(typeEnv, newConstraint, null, originalType.workerDerivative);
         setFlags(newFutureType, originalType.getFlags());
         return newFutureType;
     }
@@ -538,7 +535,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BTypedescType newTypedescType = new BTypedescType(originalType.env, newConstraint, null);
+        BTypedescType newTypedescType = new BTypedescType(typeEnv, newConstraint, null);
         setFlags(newTypedescType, originalType.getFlags());
         return newTypedescType;
     }
@@ -570,8 +567,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                         // Log an error only if the user has not explicitly passed an argument. If the passed
                         // argument is invalid, the type checker will log the error.
                         dlog.error(invocation.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_INFERRED_TYPEDESC_VALUE,
-                                   paramVarName, paramSymbolTypedescType, new BTypedescType(symbolTable.typeEnv(),
-                                        expType, null));
+                                   paramVarName, paramSymbolTypedescType, new BTypedescType(typeEnv, expType, null));
                         return symbolTable.semanticError;
                     }
                     BType type = paramValueTypes.get(paramVarName);
@@ -700,7 +696,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         BLangTypedescExpr typedescExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
         typedescExpr.pos = this.symbolTable.builtinPos;
         typedescExpr.resolvedType = expType;
-        typedescExpr.setBType(new BTypedescType(symbolTable.typeEnv(), expType, null));
+        typedescExpr.setBType(new BTypedescType(typeEnv, expType, null));
 
         BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) TreeBuilder.createNamedArgNode();
         BLangIdentifier identifierNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
@@ -1187,7 +1183,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return expectedTypesSet.iterator().next();
         }
 
-        return BUnionType.create(symbolTable.typeEnv(), null, expectedTypesSet);
+        return BUnionType.create(typeEnv, null, expectedTypesSet);
     }
 
     private boolean isSameTypeOrError(BType newType, BType originalType) {

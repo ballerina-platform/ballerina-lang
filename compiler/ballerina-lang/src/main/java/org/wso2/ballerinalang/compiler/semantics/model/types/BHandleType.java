@@ -17,10 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import io.ballerina.types.SemType;
+import io.ballerina.types.PredefinedType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 /**
@@ -30,10 +30,10 @@ import org.wso2.ballerinalang.util.Flags;
  *
  * @since 1.0.0
  */
-public class BHandleType extends BBuiltInRefType {
+public class BHandleType extends BType {
 
-    public BHandleType(int tag, BTypeSymbol tsymbol, SemType semType) {
-        super(tag, tsymbol, Flags.READONLY, semType);
+    public BHandleType() {
+        super(TypeTags.HANDLE, null, Flags.READONLY, PredefinedType.HANDLE);
     }
 
     @Override

@@ -96,6 +96,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -1396,7 +1397,7 @@ public class BIRPackageSymbolEnter {
                     bStreamType.setFlags(flags);
                     return bStreamType;
                 case TypeTags.TABLE:
-                    BTableType bTableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, null,
+                    BTableType bTableType = new BTableType(symTable.typeEnv(), null,
                             symTable.tableType.tsymbol, flags);
                     bTableType.constraint = readTypeFromCp();
 
@@ -1451,11 +1452,7 @@ public class BIRPackageSymbolEnter {
                     return setTSymbolForInvokableType(bInvokableType, bInvokableType.retType);
                 // All the above types are branded types
                 case TypeTags.ANY:
-                    BType anyNominalType = typeParamAnalyzer.getNominalType(symTable.anyType, name, flags);
-                    return isImmutable(flags) ? getEffectiveImmutableType(anyNominalType,
-                            symTable.anyType.tsymbol.pkgID,
-                            symTable.anyType.tsymbol.owner) :
-                            anyNominalType;
+                    return isImmutable(flags) ? BAnyType.newImmutableBAnyType() : new BAnyType(name, flags);
                 case TypeTags.HANDLE:
                     return symTable.handleType;
                 case TypeTags.READONLY:
@@ -1632,8 +1629,7 @@ public class BIRPackageSymbolEnter {
 
                     return bTupleType;
                 case TypeTags.FUTURE:
-                    BFutureType bFutureType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, null,
-                            symTable.futureType.tsymbol);
+                    BFutureType bFutureType = new BFutureType(symTable.typeEnv(), null, symTable.futureType.tsymbol);
                     bFutureType.constraint = readTypeFromCp();
                     bFutureType.setFlags(flags);
                     return bFutureType;

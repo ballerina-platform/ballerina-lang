@@ -23,8 +23,8 @@ import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -35,50 +35,36 @@ import static io.ballerina.types.PredefinedType.VAL_READONLY;
 /**
  * @since 0.94
  */
-public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
+public class BAnyType extends BType implements SelectivelyImmutableReferenceType {
 
     private boolean nullable = true;
-    private boolean isNilLifted = false;
 
-    public BAnyType(BTypeSymbol tsymbol) {
-        this(tsymbol, ANY);
+    public BAnyType() {
+        this(ANY);
     }
 
-    public BAnyType(int tag, BTypeSymbol tsymbol, boolean nullable) {
-        super(tag, tsymbol, ANY);
-        this.nullable = nullable;
+    public BAnyType(Name name, long flag) {
+        this(name, flag, Symbols.isFlagOn(flag, Flags.READONLY) ? Core.intersect(ANY, VAL_READONLY) : ANY);
     }
 
-    public BAnyType(int tag, BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
-        super(tag, tsymbol, flags, ANY);
-        this.name = name;
-        this.nullable = nullable;
-    }
-
-    public BAnyType(int tag, BTypeSymbol tsymbol, Name name, long flags, SemType semType) {
-        super(tag, tsymbol, flags, ANY);
-        this.name = name;
-        this.semType = semType;
-    }
-
-    private BAnyType(BTypeSymbol tsymbol, SemType semType) {
-        super(TypeTags.ANY, tsymbol, semType);
-    }
-
-    public BAnyType(BTypeSymbol tsymbol, Name name, long flag) {
-        this(tsymbol, name, flag, ANY);
-    }
-
-    public BAnyType(BTypeSymbol tsymbol, Name name, long flags, SemType semType) {
-        super(TypeTags.ANY, tsymbol, semType);
+    private BAnyType(Name name, long flags, SemType semType) {
+        super(TypeTags.ANY, null, semType);
         this.name = name;
         this.setFlags(flags);
     }
 
-    public static BAnyType newNilLiftedBAnyType(BTypeSymbol tsymbol) {
-        BAnyType result = new BAnyType(tsymbol, Core.diff(ANY, PredefinedType.NIL));
-        result.isNilLifted = true;
+    private BAnyType(SemType semType) {
+        super(TypeTags.ANY, null, semType);
+    }
+
+    public static BAnyType newNilLiftedBAnyType() {
+        BAnyType result = new BAnyType(Core.diff(ANY, PredefinedType.NIL));
+        result.nullable = false;
         return result;
+    }
+
+    public static BAnyType newImmutableBAnyType() {
+        return new BAnyType(Types.getImmutableTypeName(TypeKind.ANY.typeName()), Flags.READONLY);
     }
 
     @Override
@@ -105,18 +91,5 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     public String toString() {
         return !Symbols.isFlagOn(getFlags(), Flags.READONLY) ? getKind().typeName() :
                 getKind().typeName().concat(" & readonly");
-    }
-
-    @Override
-    public SemType semType() {
-        SemType semType = ANY;
-        if (Symbols.isFlagOn(getFlags(), Flags.READONLY)) {
-            semType = Core.intersect(semType, VAL_READONLY);
-        }
-
-        if (isNilLifted) {
-            semType = Core.diff(semType, PredefinedType.NIL);
-        }
-        return semType;
     }
 }

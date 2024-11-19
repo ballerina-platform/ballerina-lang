@@ -278,9 +278,9 @@ public class TypeParamAnalyzer {
                  TypeTags.DECIMAL,
                  TypeTags.STRING,
                  TypeTags.BOOLEAN -> new BType(tag, null, name, flags);
-            case TypeTags.ANY -> new BAnyType(null, name, flags);
+            case TypeTags.ANY -> new BAnyType(name, flags);
             case TypeTags.ANYDATA -> createAnydataType((BUnionType) referredType, name, flags);
-            case TypeTags.READONLY -> new BReadonlyType(null, name, flags);
+            case TypeTags.READONLY -> new BReadonlyType(flags);
             // For others, we will use TSymbol.
             default -> type;
         };
@@ -298,11 +298,11 @@ public class TypeParamAnalyzer {
             case TypeTags.BOOLEAN:
                 return new BType(type.tag, null, name, flags);
             case TypeTags.ANY:
-                return new BAnyType(null, name, flags);
+                return new BAnyType(name, flags);
             case TypeTags.ANYDATA:
                 return createAnydataType((BUnionType) type, name, flags);
             case TypeTags.READONLY:
-                return new BReadonlyType(null, name, flags);
+                return new BReadonlyType(flags);
             case TypeTags.UNION:
                 if (types.isCloneableType((BUnionType) refType)) {
                     BUnionType cloneableType =
@@ -325,7 +325,7 @@ public class TypeParamAnalyzer {
     }
 
     private BAnydataType createAnydataType(BUnionType unionType, Name name, long flags) {
-        BAnydataType anydataType = new BAnydataType(unionType);
+        BAnydataType anydataType = new BAnydataType(types.typeCtx(), unionType);
         Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, PackageID.ANNOTATIONS,
                 unionType);
         immutableType.ifPresent(bIntersectionType ->
@@ -338,7 +338,7 @@ public class TypeParamAnalyzer {
     private void addCyclicArrayMapTableOfMapMembers(BUnionType unionType) {
         BArrayType arrayCloneableType = new BArrayType(symTable.typeEnv(), unionType);
         BMapType mapCloneableType = new BMapType(symTable.typeEnv(), TypeTags.MAP, unionType, null);
-        BType tableMapCloneableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, mapCloneableType, null);
+        BType tableMapCloneableType = new BTableType(symTable.typeEnv(), mapCloneableType, null);
         unionType.add(arrayCloneableType);
         unionType.add(mapCloneableType);
         unionType.add(tableMapCloneableType);
@@ -848,7 +848,7 @@ public class TypeParamAnalyzer {
                     return expTableType;
                 }
 
-                BTableType tableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, tableConstraint,
+                BTableType tableType = new BTableType(symTable.typeEnv(), tableConstraint,
                         symTable.tableType.tsymbol);
                 if (expTableKeyTypeConstraint != null) {
                     tableType.keyTypeConstraint = keyTypeConstraint;
@@ -1032,7 +1032,7 @@ public class TypeParamAnalyzer {
             return expType;
         }
 
-        BInvokableType invokableType = new BInvokableType(expType.env, paramTypes, restType,
+        BInvokableType invokableType = new BInvokableType(symTable.typeEnv(), paramTypes, restType,
                 matchingBoundType, invokableTypeSymbol);
 
         invokableTypeSymbol.returnType = invokableType.retType;

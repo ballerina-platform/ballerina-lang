@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
+import io.ballerina.types.Env;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -148,6 +149,7 @@ public class JvmPackageGen {
     private final BLangDiagnosticLog dlog;
     private final Types types;
     private final boolean isRemoteMgtEnabled;
+    private final Env typeEnv;
 
     JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog, Types types,
                   boolean isRemoteMgtEnabled) {
@@ -162,6 +164,7 @@ public class JvmPackageGen {
         initMethodGen = new InitMethodGen(symbolTable);
         configMethodGen = new ConfigMethodGen();
         JvmInstructionGen.anyType = symbolTable.anyType;
+        this.typeEnv = symbolTable.typeEnv();
     }
 
     private static String getBvmAlias(String orgName, String moduleName) {
@@ -314,20 +317,21 @@ public class JvmPackageGen {
         mv.visitFieldInsn(PUTSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
     }
 
-    public static BIRFunctionWrapper getFunctionWrapper(BIRFunction currentFunc, PackageID packageID,
+    public static BIRFunctionWrapper getFunctionWrapper(Env typeEnv, BIRFunction currentFunc, PackageID packageID,
                                                         String moduleClass) {
         BInvokableType functionTypeDesc = currentFunc.type;
         BIRVariableDcl receiver = currentFunc.receiver;
 
         BType retType = functionTypeDesc.retType;
         if (isExternFunc(currentFunc) && Symbols.isFlagOn(retType.getFlags(), Flags.PARAMETERIZED)) {
-            retType = unifier.build(retType);
+            retType = unifier.build(typeEnv, retType);
         }
         String jvmMethodDescription;
         if (receiver == null) {
-            jvmMethodDescription = JvmCodeGenUtil.getMethodDesc(functionTypeDesc.paramTypes, retType);
+            jvmMethodDescription = JvmCodeGenUtil.getMethodDesc(typeEnv, functionTypeDesc.paramTypes, retType);
         } else {
-            jvmMethodDescription = JvmCodeGenUtil.getMethodDesc(functionTypeDesc.paramTypes, retType, receiver.type);
+            jvmMethodDescription = JvmCodeGenUtil.getMethodDesc(typeEnv, functionTypeDesc.paramTypes, retType,
+                                                                receiver.type);
         }
         return new BIRFunctionWrapper(packageID, currentFunc, moduleClass, jvmMethodDescription);
     }
@@ -487,11 +491,11 @@ public class JvmPackageGen {
 
     private void linkModuleFunction(PackageID packageID, String initClass, String funcName) {
         BInvokableType funcType =
-                new BInvokableType(symbolTable.typeEnv(), Collections.emptyList(), null, symbolTable.nilType, null);
+                new BInvokableType(typeEnv, Collections.emptyList(), null, symbolTable.nilType, null);
         BIRFunction moduleStopFunction = new BIRFunction(null, new Name(funcName), 0, funcType, new Name(""), 0,
                                                         VIRTUAL);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(packageID) + funcName,
-                           getFunctionWrapper(moduleStopFunction, packageID, initClass));
+                           getFunctionWrapper(typeEnv, moduleStopFunction, packageID, initClass));
     }
 
     private void linkModuleFunctions(BIRPackage birPackage, String initClass, boolean isEntry,
@@ -513,20 +517,20 @@ public class JvmPackageGen {
         PackageID packageID = birPackage.packageID;
         jvmClassMap.put(initClass, klass);
         String pkgName = JvmCodeGenUtil.getPackageName(packageID);
-        birFunctionMap.put(pkgName + functionName, getFunctionWrapper(initFunc, packageID, initClass));
+        birFunctionMap.put(pkgName + functionName, getFunctionWrapper(typeEnv, initFunc, packageID, initClass));
         count += 1;
 
         // Add start function
         BIRFunction startFunc = functions.get(1);
         functionName = Utils.encodeFunctionIdentifier(startFunc.name.value);
-        birFunctionMap.put(pkgName + functionName, getFunctionWrapper(startFunc, packageID, initClass));
+        birFunctionMap.put(pkgName + functionName, getFunctionWrapper(typeEnv, startFunc, packageID, initClass));
         klass.functions.add(1, startFunc);
         count += 1;
 
         // Add stop function
         BIRFunction stopFunc = functions.get(2);
         functionName = Utils.encodeFunctionIdentifier(stopFunc.name.value);
-        birFunctionMap.put(pkgName + functionName, getFunctionWrapper(stopFunc, packageID, initClass));
+        birFunctionMap.put(pkgName + functionName, getFunctionWrapper(typeEnv, stopFunc, packageID, initClass));
         klass.functions.add(2, stopFunc);
         count += 1;
         int genMethodsCount = 0;
@@ -585,13 +589,13 @@ public class JvmPackageGen {
                                                      BIRFunction birFunc, String birModuleClassName) {
         BIRFunctionWrapper birFuncWrapperOrError;
         if (isExternFunc(birFunc) && isEntry) {
-            birFuncWrapperOrError = createExternalFunctionWrapper(symbolTable.typeEnv(), true, birFunc, packageID,
+            birFuncWrapperOrError = createExternalFunctionWrapper(typeEnv, true, birFunc, packageID,
                     birModuleClassName);
         } else {
             if (isEntry && birFunc.receiver == null) {
-                addDefaultableBooleanVarsToSignature(symbolTable.typeEnv(), birFunc);
+                addDefaultableBooleanVarsToSignature(typeEnv, birFunc);
             }
-            birFuncWrapperOrError = getFunctionWrapper(birFunc, packageID, birModuleClassName);
+            birFuncWrapperOrError = getFunctionWrapper(typeEnv, birFunc, packageID, birModuleClassName);
         }
         return birFuncWrapperOrError;
     }
@@ -686,8 +690,8 @@ public class JvmPackageGen {
         // use a ByteArrayOutputStream to store class byte values
         final JarEntries jarEntries = compiledJarFile.jarEntries;
         // desugar parameter initialization
-        injectDefaultParamInits(module, initMethodGen);
-        injectDefaultParamInitsToAttachedFuncs(symbolTable.typeEnv(), module, initMethodGen);
+        injectDefaultParamInits(typeEnv, module, initMethodGen);
+        injectDefaultParamInitsToAttachedFuncs(typeEnv, module, initMethodGen);
 
         BIRFunction mainFunc = getMainFunction(module);
         BIRFunction testExecuteFunc = getTestExecuteFunction(module);
@@ -718,7 +722,7 @@ public class JvmPackageGen {
 
         removeSourceAnnotationTypeDefs(module.typeDefs);
         // desugar the record init function
-        rewriteRecordInits(symbolTable.typeEnv(), module.typeDefs);
+        rewriteRecordInits(typeEnv, module.typeDefs);
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);

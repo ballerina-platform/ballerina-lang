@@ -456,7 +456,7 @@ public class LambdaGen {
         StringBuilder desc = new StringBuilder(INITIAL_METHOD_DESC);
         appendClosureMaps(closureMapsCount, desc);
         appendParamTypes(paramTypes, desc);
-        desc.append(JvmCodeGenUtil.generateReturnType(retType));
+        desc.append(JvmCodeGenUtil.generateReturnType(retType, jvmCastGen.typeEnv()));
         return desc.toString();
     }
 

@@ -43,7 +43,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -105,7 +104,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos,
                 symTable.rootPkgSymbol.origin);
 
-        BTableType tableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, rowBType, tableSymbol);
+        BTableType tableType = new BTableType(symTable.typeEnv(), rowBType, tableSymbol);
         tableSymbol.type = tableType;
         if (!keyTypes.isEmpty()) {
             tableType.keyTypeConstraint = getKeyConstraintBType(keyTypes, rowType);

@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import io.ballerina.types.Context;
 import io.ballerina.types.Core;
-import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -30,38 +30,40 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.LinkedHashSet;
 
-import static io.ballerina.types.PredefinedType.VAL_READONLY;
-
 /**
  * @since 0.94
  */
 public class BJSONType extends BUnionType {
-    private boolean nullable;
+    private boolean nullable = true;
     private static final int INITIAL_CAPACITY = 8;
+    private final Context typeCtx;
 
-    public BJSONType(BJSONType type, boolean nullable) {
+    public BJSONType(Context typeCtx, BUnionType type) {
         super(type.env, type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), Symbols.isFlagOn(type.getFlags(),
                 Flags.READONLY));
         mergeUnionType(type);
         this.tag = TypeTags.JSON;
         this.isCyclic = true;
-        this.nullable = nullable;
+        this.typeCtx = typeCtx;
     }
 
-    public BJSONType(BUnionType type) {
-        super(type.env, type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY),
-                Symbols.isFlagOn(type.getFlags(), Flags.READONLY));
-        mergeUnionType(type);
-        this.tag = TypeTags.JSON;
-        this.nullable = true;
-    }
-
-    public BJSONType(Env env, BTypeSymbol typeSymbol, boolean nullable, long flags) {
-        super(env, typeSymbol, new LinkedHashSet<>(INITIAL_CAPACITY), Symbols.isFlagOn(flags, Flags.READONLY));
+    private BJSONType(Context typeCtx, BTypeSymbol typeSymbol, boolean nullable, long flags) {
+        super(typeCtx.env, typeSymbol, new LinkedHashSet<>(INITIAL_CAPACITY), Symbols.isFlagOn(flags, Flags.READONLY));
         this.setFlags(flags);
         this.tag = TypeTags.JSON;
         this.isCyclic = true;
         this.nullable = nullable;
+        this.typeCtx = typeCtx;
+    }
+
+    public static BJSONType newNilLiftedBJSONType(BJSONType type) {
+        BJSONType result = new BJSONType(type.typeCtx, type);
+        result.nullable = false;
+        return result;
+    }
+
+    public static BJSONType newImmutableBJSONType(BJSONType type, BTypeSymbol typeSymbol, boolean nullable) {
+        return new BJSONType(type.typeCtx, typeSymbol, nullable, type.getFlags() | Flags.READONLY);
     }
 
     @Override
@@ -92,10 +94,14 @@ public class BJSONType extends BUnionType {
 
     @Override
     public SemType semType() {
-        SemType s = Core.createJson(Context.from(env));
+        SemType json = Core.createJson(typeCtx);
+        // TODO: refer to https://github.com/ballerina-platform/ballerina-lang/issues/43343#issuecomment-2485247172
+//        if (!nullable) {
+//            json = Core.diff(json, PredefinedType.NIL);
+//        }
         if (Symbols.isFlagOn(getFlags(), Flags.READONLY)) {
-            return Core.intersect(s, VAL_READONLY);
+            json = Core.intersect(json, PredefinedType.VAL_READONLY);
         }
-        return s;
+        return json;
     }
 }

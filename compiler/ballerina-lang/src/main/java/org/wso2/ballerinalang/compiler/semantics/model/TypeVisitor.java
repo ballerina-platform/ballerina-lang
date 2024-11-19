@@ -22,7 +22,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -58,8 +57,6 @@ public abstract class TypeVisitor {
     public abstract void visit(BAnnotationType bAnnotationType);
 
     public abstract void visit(BArrayType bArrayType);
-
-    public abstract void visit(BBuiltInRefType bBuiltInRefType);
 
     public abstract void visit(BAnyType bAnyType);
 
