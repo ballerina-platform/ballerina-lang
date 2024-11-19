@@ -325,7 +325,7 @@ public class TypeParamAnalyzer {
     }
 
     private BAnydataType createAnydataType(BUnionType unionType, Name name, long flags) {
-        BAnydataType anydataType = new BAnydataType(unionType);
+        BAnydataType anydataType = new BAnydataType(types.typeCtx(), unionType);
         Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, PackageID.ANNOTATIONS,
                 unionType);
         immutableType.ifPresent(bIntersectionType ->

@@ -1202,7 +1202,7 @@ public class SymbolTable {
                 stringType, xmlType);
         addCyclicArrayMapTableOfMapMembers(anyDataInternal);
 
-        anydataType = new BAnydataType(anyDataInternal);
+        anydataType = new BAnydataType(types.typeCtx(), anyDataInternal);
         PackageID pkgID = rootPkgSymbol.pkgID;
         Optional<BIntersectionType> immutableType = Types.getImmutableType(this, pkgID, anyDataInternal);
         if (immutableType.isPresent()) {

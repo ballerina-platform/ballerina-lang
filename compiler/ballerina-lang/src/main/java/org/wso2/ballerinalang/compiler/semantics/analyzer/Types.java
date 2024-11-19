@@ -3210,7 +3210,7 @@ public class Types {
                 case TypeTags.ANY:
                     return BAnyType.newNilLiftedBAnyType();
                 case TypeTags.ANYDATA:
-                    return new BAnydataType((BAnydataType) type, false);
+                    return BAnydataType.newNilLiftedBAnydataType((BAnydataType) type);
                 case TypeTags.READONLY:
                     if (liftError) {
                         return symTable.anyAndReadonly;

@@ -1046,7 +1046,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 continue;
             }
             BUnionType type = (BUnionType) Types.getImpliedType(entry.symbol.type);
-            symTable.anydataType = new BAnydataType(type);
+            symTable.anydataType = new BAnydataType(types.semTypeCtx, type);
             Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, PackageID.ANNOTATIONS, type);
             if (immutableType.isPresent()) {
                 Types.addImmutableType(symTable, PackageID.ANNOTATIONS, symTable.anydataType, immutableType.get());

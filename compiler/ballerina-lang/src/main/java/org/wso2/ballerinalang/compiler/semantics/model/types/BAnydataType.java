@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import io.ballerina.types.Context;
 import io.ballerina.types.Core;
-import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
@@ -31,8 +31,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.LinkedHashSet;
 
-import static io.ballerina.types.PredefinedType.VAL_READONLY;
-
 /**
  * {@code BAnydataType} represents the data types in Ballerina.
  * 
@@ -41,17 +39,19 @@ import static io.ballerina.types.PredefinedType.VAL_READONLY;
 public class BAnydataType extends BUnionType {
     private boolean nullable;
     private static final int INITIAL_CAPACITY = 10;
+    private final Context typeCtx;
 
-    public BAnydataType(Env env, BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
-        super(env, tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), false);
+    private BAnydataType(Context typeCtx, BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
+        super(typeCtx.env, tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), false);
         this.tag = TypeTags.ANYDATA;
         this.setFlags(flags);
         this.name = name;
         this.isCyclic = true;
         this.nullable = nullable;
+        this.typeCtx = typeCtx;
     }
 
-    public BAnydataType(BUnionType type) {
+    public BAnydataType(Context typeCtx, BUnionType type) {
         super(type.env, type.tsymbol, new LinkedHashSet<>(type.memberTypes.size()),
                 Symbols.isFlagOn(type.getFlags(), Flags.READONLY));
         this.tag = TypeTags.ANYDATA;
@@ -60,16 +60,18 @@ public class BAnydataType extends BUnionType {
         this.setFlags(type.getFlags());
         this.nullable = type.isNullable();
         mergeUnionType(type);
+        this.typeCtx = typeCtx;
     }
 
-    public BAnydataType(BAnydataType type, boolean nullable) {
-        super(type.env, type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY),
-                Symbols.isFlagOn(type.getFlags(), Flags.READONLY));
-        this.setFlags(type.getFlags());
-        this.tag = TypeTags.ANYDATA;
-        this.isCyclic = true;
-        this.nullable = nullable;
-        mergeUnionType(type);
+    public static BAnydataType newNilLiftedBAnydataType(BAnydataType type) {
+        BAnydataType result = new BAnydataType(type.typeCtx, type);
+        result.nullable = false;
+        return result;
+    }
+
+    public static BAnydataType newImmutableBAnydataType(BAnydataType type, BTypeSymbol typeSymbol,  Name name,
+                                                     boolean nullable) {
+        return new BAnydataType(type.typeCtx, typeSymbol, name, type.getFlags() | Flags.READONLY, nullable);
     }
 
     @Override
@@ -100,10 +102,13 @@ public class BAnydataType extends BUnionType {
 
     @Override
     public SemType semType() {
-        SemType s = Core.createAnydata(Context.from(env));
-        if (Symbols.isFlagOn(getFlags(), Flags.READONLY)) {
-            return Core.intersect(s, VAL_READONLY);
+        SemType anydata = Core.createAnydata(typeCtx);
+        if (!nullable) {
+            anydata = Core.diff(anydata, PredefinedType.NIL);
         }
-        return s;
+        if (Symbols.isFlagOn(getFlags(), Flags.READONLY)) {
+            anydata = Core.intersect(anydata, PredefinedType.VAL_READONLY);
+        }
+        return anydata;
     }
 }

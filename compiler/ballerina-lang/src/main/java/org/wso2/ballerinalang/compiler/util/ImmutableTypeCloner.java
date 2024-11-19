@@ -750,16 +750,14 @@ public final class ImmutableTypeCloner {
         BTypeSymbol immutableAnydataTSymbol = getReadonlyTSymbol(type.tsymbol, env, pkgId, owner);
 
         if (immutableAnydataTSymbol != null) {
-            BAnydataType immutableAnydataType =
-                    new BAnydataType(type.env, immutableAnydataTSymbol,
-                                     immutableAnydataTSymbol.name, type.getFlags() | Flags.READONLY,
+            BAnydataType immutableAnydataType = BAnydataType.newImmutableBAnydataType(type, immutableAnydataTSymbol,
+                                     immutableAnydataTSymbol.name,
                                      type.isNullable());
             immutableAnydataTSymbol.type = immutableAnydataType;
             return immutableAnydataType;
         }
-        return new BAnydataType(type.env, null,
-                                 Types.getImmutableTypeName(TypeKind.ANYDATA.typeName()),
-                                 type.getFlags() | Flags.READONLY, type.isNullable());
+        return BAnydataType.newImmutableBAnydataType(type, null,
+                                 Types.getImmutableTypeName(TypeKind.ANYDATA.typeName()), type.isNullable());
     }
 
     private static BJSONType defineImmutableJsonType(SymbolEnv env, PackageID pkgId, BSymbol owner, Names names,
