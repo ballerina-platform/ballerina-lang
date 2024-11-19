@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import io.ballerina.types.Core;
 import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
@@ -53,10 +52,7 @@ public class BUnionType extends BType implements UnionType {
 
     protected LinkedHashSet<BType> memberTypes;
 
-    private LinkedHashSet<SemType> memberSemTypes;
-
     public boolean isCyclic = false;
-
 
     private LinkedHashSet<BType> originalMemberTypes;
     private static final String INT_CLONEABLE = "__Cloneable";
@@ -480,37 +476,6 @@ public class BUnionType extends BType implements UnionType {
         return false;
     }
 
-    public void populateMemberSemTypes(boolean ignoreTypeIds) {
-        LinkedHashSet<SemType> memberSemTypes = new LinkedHashSet<>();
-
-        for (BType memberType : this.memberTypes) {
-            populateMemberSemTypes(memberType, memberSemTypes, ignoreTypeIds);
-        }
-
-        this.memberSemTypes = memberSemTypes;
-        this.resetSemType();
-    }
-
-    private void populateMemberSemTypes(BType memberType, LinkedHashSet<SemType> memberSemTypes,
-                                        boolean ignoreTypeIds) {
-        memberType = getReferredType(memberType);
-        if (memberType == null) { // TODO: handle cyclic types via BIR
-            return;
-        }
-
-        if (memberType.tag == TypeTags.UNION) {
-            BUnionType bUnionType = (BUnionType) memberType;
-            bUnionType.populateMemberSemTypes(ignoreTypeIds);
-            memberSemTypes.addAll(bUnionType.memberSemTypes);
-            return;
-        }
-
-        SemType s = memberType.semType();
-        if (!Core.isNever(s)) {
-            memberSemTypes.add(s);
-        }
-    }
-
     /**
      * When the type is mutated we need to reset resolved semType.
      */
@@ -521,16 +486,15 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public SemType semType() {
         if (this.semType == null) {
-            populateMemberSemTypes(false);
-            this.semType = computeResultantUnion(memberSemTypes);
+            this.semType = computeSemTypeFromMemberTypes();
         }
         return this.semType;
     }
 
-    private SemType computeResultantUnion(LinkedHashSet<SemType> memberSemTypes) {
+    private SemType computeSemTypeFromMemberTypes() {
         SemType t = PredefinedType.NEVER;
-        for (SemType s : memberSemTypes) {
-            t = SemTypes.union(t, s);
+        for (BType ty : this.memberTypes) {
+            t = SemTypes.union(t, ty.semType());
         }
         return t;
     }
