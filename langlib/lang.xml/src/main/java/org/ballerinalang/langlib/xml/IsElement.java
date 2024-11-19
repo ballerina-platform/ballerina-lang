@@ -24,13 +24,6 @@ import io.ballerina.runtime.api.values.BXml;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "isElement",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
-//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-//        isPublic = true
-//)
 public final class IsElement {
 
     private IsElement() {

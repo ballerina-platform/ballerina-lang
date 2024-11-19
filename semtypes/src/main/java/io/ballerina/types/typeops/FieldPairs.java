@@ -31,7 +31,6 @@ public class FieldPairs implements Iterable<FieldPair> {
 
     MappingAtomicType m1;
     MappingAtomicType m2;
-    public MappingPairIterator itr;
 
     public FieldPairs(MappingAtomicType m1, MappingAtomicType m2) {
         this.m1 = m1;
@@ -40,7 +39,6 @@ public class FieldPairs implements Iterable<FieldPair> {
 
     @Override
     public Iterator<FieldPair> iterator() {
-        itr = new MappingPairIterator(m1, m2);
-        return itr;
+        return new MappingPairIterator(m1, m2);
     }
 }

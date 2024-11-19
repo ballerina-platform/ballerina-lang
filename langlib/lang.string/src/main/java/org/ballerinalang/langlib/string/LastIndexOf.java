@@ -32,14 +32,6 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 1.2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.string",
-//        functionName = "lastIndexOf",
-//        args = {@Argument(name = "s", type = TypeKind.STRING),
-//                @Argument(name = "substring", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.UNION)},
-//        isPublic = true
-//)
 public final class LastIndexOf {
 
     private LastIndexOf() {

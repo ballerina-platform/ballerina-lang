@@ -88,4 +88,16 @@
             </Method>
         </Class>
     </Match>
+    <Match>
+        <Or>
+            <Package name="io.ballerina.types"/>
+            <Package name="io.ballerina.types.definition"/>
+            <Package name="io.ballerina.types.subtypedata"/>
+        </Or>
+        <Bug pattern="AA_ASSERTION_OF_ARGUMENTS"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.types.CellSemType"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
 </FindBugsFilter>

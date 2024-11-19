@@ -32,12 +32,6 @@ import java.util.List;
  * 
  * @since 0.88
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "elements",
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
 public final class Elements {
 
     private static final String OPERATION = "get elements from xml";

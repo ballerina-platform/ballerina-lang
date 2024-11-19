@@ -86,7 +86,7 @@ public class DecimalSubtype extends EnumerableSubtype implements ProperSubtypeDa
 
     public static SubtypeData createDecimalSubtype(boolean allowed, EnumerableDecimal[] values) {
         if (values.length == 0) {
-            return new AllOrNothingSubtype(!allowed);
+            return allowed ? AllOrNothingSubtype.createNothing() : AllOrNothingSubtype.createAll();
         }
         return new DecimalSubtype(allowed, values);
     }

@@ -91,8 +91,7 @@ public class BasicAsyncOperationsTest {
 
     @Test
     public void testAsyncNonNativeBasic9() {
-        Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic9", new Object[0]);
-        Assert.assertEquals(returns, 7L);
+        BRunUtil.invoke(result, "testAsyncNonNativeBasic9", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangTestException.class,

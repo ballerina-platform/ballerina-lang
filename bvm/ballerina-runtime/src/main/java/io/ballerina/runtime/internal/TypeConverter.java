@@ -17,16 +17,16 @@
  */
 package io.ballerina.runtime.internal;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -52,6 +52,7 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.utils.ErrorUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -67,9 +68,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned16;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned32;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned8;
@@ -100,11 +101,11 @@ public final class TypeConverter {
     private static final String POSITIVE_INFINITY = "Infinity";
     private static final String NEGATIVE_INFINITY = "-Infinity";
 
-    static final byte MAX_CONVERSION_ERROR_COUNT = 20;
-    static final byte MAX_DISPLAYED_SOURCE_VALUE_LENGTH = 20;
-    static final String ERROR_MESSAGE_UNION_START = "{";
-    static final String ERROR_MESSAGE_UNION_END = "}";
-    static final String ERROR_MESSAGE_UNION_SEPARATOR = "or";
+    public static final byte MAX_CONVERSION_ERROR_COUNT = 20;
+    public static final byte MAX_DISPLAYED_SOURCE_VALUE_LENGTH = 20;
+    public static final String ERROR_MESSAGE_UNION_START = "{";
+    public static final String ERROR_MESSAGE_UNION_END = "}";
+    public static final String ERROR_MESSAGE_UNION_SEPARATOR = "or";
 
     public static Object convertValues(Type targetType, Object inputValue) {
         Type inputType = TypeChecker.getType(inputValue);
@@ -1236,7 +1237,7 @@ public final class TypeConverter {
     private TypeConverter() {
     }
 
-    static List<Type> getXmlTargetTypes(Type targetType) {
+    public static List<Type> getXmlTargetTypes(Type targetType) {
         List<Type> xmlTargetTypes = new ArrayList<>();
         return switch (targetType.getTag()) {
             case TypeTags.XML_TAG, TypeTags.XML_PI_TAG, TypeTags.XML_COMMENT_TAG, TypeTags.XML_ELEMENT_TAG,

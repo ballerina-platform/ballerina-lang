@@ -47,4 +47,16 @@ public class JDIUtils {
         EventRequestManager eventManager = context.getEventManager();
         eventManager.breakpointRequests().forEach(EventRequest::enable);
     }
+
+    /**
+     * Sleep for the given number of milliseconds.
+     *
+     * @param millis number of milliseconds to sleep
+     */
+    public static void sleepMillis(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ignored) {
+        }
+    }
 }

@@ -212,24 +212,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public BIROperand fp;
         public List<BIROperand> args;
         public boolean isAsync;
-        public boolean workerDerivative;
-
-        public FPCall(Location pos,
-                      InstructionKind kind,
-                      BIROperand fp,
-                      List<BIROperand> args,
-                      BIROperand lhsOp,
-                      boolean isAsync,
-                      BIRBasicBlock thenBB,
-                      BirScope scope) {
-            super(pos, kind);
-            this.fp = fp;
-            this.lhsOp = lhsOp;
-            this.args = args;
-            this.isAsync = isAsync;
-            this.thenBB = thenBB;
-            this.scope = scope;
-        }
+        public List<BIRAnnotationAttachment> annotAttachments;
 
         public FPCall(Location pos,
                       InstructionKind kind,
@@ -239,9 +222,15 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                       boolean isAsync,
                       BIRBasicBlock thenBB,
                       BirScope scope,
-                      boolean workerDerivative) {
-            this(pos, kind, fp, args, lhsOp, isAsync, thenBB, scope);
-            this.workerDerivative = workerDerivative;
+                      List<BIRAnnotationAttachment> annAttachments) {
+            super(pos, kind);
+            this.fp = fp;
+            this.lhsOp = lhsOp;
+            this.args = args;
+            this.isAsync = isAsync;
+            this.thenBB = thenBB;
+            this.scope = scope;
+            this.annotAttachments = annAttachments;
         }
 
         @Override

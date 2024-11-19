@@ -18,15 +18,15 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -62,8 +62,10 @@ import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
+import io.ballerina.runtime.internal.utils.ErrorUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.DecimalValueKind;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.MapValue;
@@ -94,23 +96,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANY;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BOOLEAN;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BYTE;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_DECIMAL;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_FLOAT;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_SIGNED_16;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_SIGNED_32;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_SIGNED_8;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_16;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_32;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_8;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_JSON;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_JSON;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MIN_VALUE;
@@ -124,12 +109,29 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED8_MIN_VA
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED16_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_ANY;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_ANYDATA;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_BOOLEAN;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_BYTE;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_DECIMAL;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_FLOAT;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT_SIGNED_16;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT_SIGNED_32;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT_SIGNED_8;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT_UNSIGNED_16;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT_UNSIGNED_32;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT_UNSIGNED_8;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_JSON;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_NULL;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_READONLY_JSON;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.api.utils.TypeUtils.isValueType;
-import static io.ballerina.runtime.internal.CloneUtils.getErrorMessage;
 import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_END;
 import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_SEPARATOR;
 import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_START;
+import static io.ballerina.runtime.internal.utils.CloneUtils.getErrorMessage;
 
 /**
  * Responsible for performing runtime type checking.
@@ -2453,7 +2455,7 @@ public final class TypeChecker {
         return true;
     }
 
-    static boolean isByteLiteral(long longValue) {
+    public static boolean isByteLiteral(long longValue) {
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }
 

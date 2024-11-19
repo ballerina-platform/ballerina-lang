@@ -46,14 +46,13 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlItem;
 import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.api.values.BXmlSequence;
-import io.ballerina.runtime.internal.DecimalValueKind;
-import io.ballerina.runtime.internal.JsonDataSource;
-import io.ballerina.runtime.internal.ValueUtils;
-import io.ballerina.runtime.internal.XmlFactory;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.json.JsonDataSource;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.ValueUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.DecimalValueKind;
 import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
@@ -67,6 +66,7 @@ import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.XmlItem;
 import io.ballerina.runtime.internal.values.XmlQName;
 import io.ballerina.runtime.internal.values.XmlSequence;
+import io.ballerina.runtime.internal.xml.XmlFactory;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -320,8 +320,8 @@ public final class ValueCreator {
      * @param type     {@code FunctionType} of the function pointer
      * @return         function pointer
      */
-    public static BFunctionPointer<?, ?> createFPValue(Function<Object[], ?> function, FunctionType type) {
-        return new FPValue<>(function, type, null, false);
+    public static BFunctionPointer createFPValue(Function function, FunctionType type) {
+        return new FPValue(function, type, null, false);
     }
 
     /**
@@ -332,9 +332,8 @@ public final class ValueCreator {
      * @param strandName name for newly creating strand which is used to run the function pointer
      * @return           function pointer
      */
-    public static BFunctionPointer<?, ?> createFPValue(Function<Object[], ?> function,
-                                                       FunctionType type, String strandName) {
-        return new FPValue<>(function, type, strandName, false);
+    public static BFunctionPointer createFPValue(Function function, FunctionType type, String strandName) {
+        return new FPValue(function, type, strandName, false);
     }
 
     // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
@@ -757,6 +756,17 @@ public final class ValueCreator {
     @Deprecated
     public static BMap<BString, Object> createMapValue(Type mapType, BMapInitialValueEntry[] keyValues) {
         return new MapValueImpl<>(mapType, keyValues);
+    }
+
+    /**
+     * Create a runtime map value with given initial values and given type.
+     *
+     * @param recordType record type
+     * @param keyValues  initial map values to be populated
+     * @return map value
+     */
+    public static BMap<BString, Object> createMapValue(RecordType recordType, BMapInitialValueEntry[] keyValues) {
+        return new MapValueImpl<>(recordType, keyValues);
     }
 
     /**

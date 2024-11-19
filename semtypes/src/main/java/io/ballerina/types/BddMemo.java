@@ -24,7 +24,7 @@ package io.ballerina.types;
  */
 public class BddMemo {
 
-    public MemoStatus isEmpty;
+    protected MemoStatus isEmpty;
 
     public BddMemo() {
         this.isEmpty = MemoStatus.NULL;

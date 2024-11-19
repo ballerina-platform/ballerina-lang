@@ -36,13 +36,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.FAILED_TO_DECODE
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.string", functionName = "fromBytes",
-//        args = {@Argument(name = "bytes", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.UNION)},
-//        isPublic = true
-//)
-public final class FromBytes {
+public class FromBytes {
 
     private FromBytes() {
     }

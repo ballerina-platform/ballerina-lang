@@ -18,10 +18,9 @@
 package io.ballerina.runtime.transactions;
 
 import com.atomikos.icatch.jta.UserTransactionManager;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BString;
@@ -29,7 +28,7 @@ import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,12 +58,9 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.transactions.TransactionConstants.DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
 import static io.ballerina.runtime.transactions.TransactionConstants.DEFAULT_TRX_CLEANUP_TIMEOUT;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
-import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
-import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
 import static javax.transaction.xa.XAResource.TMFAIL;
 import static javax.transaction.xa.XAResource.TMNOFLAGS;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
@@ -78,13 +74,6 @@ public class TransactionResourceManager {
 
     private static TransactionResourceManager transactionResourceManager = null;
     private static UserTransactionManager userTransactionManager = null;
-
-    private static final StrandMetadata COMMIT_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
-            TRANSACTION_PACKAGE_NAME,
-            TRANSACTION_PACKAGE_VERSION, "onCommit");
-    private static final StrandMetadata ROLLBACK_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
-            TRANSACTION_PACKAGE_NAME,
-            TRANSACTION_PACKAGE_VERSION, "onRollback");
     private static final String ATOMIKOS_LOG_BASE_PROPERTY = "com.atomikos.icatch.log_base_dir";
     private static final String ATOMIKOS_LOG_NAME_PROPERTY = "com.atomikos.icatch.log_base_name";
     private static final String ATOMIKOS_REGISTERED_PROPERTY = "com.atomikos.icatch.registered";
@@ -96,8 +85,8 @@ public class TransactionResourceManager {
     private Map<String, Transaction> trxRegistry;
     private Map<String, Xid> xidRegistry;
 
-    private final Map<String, List<BFunctionPointer<?, ?>>> committedFuncRegistry = new HashMap<>();
-    private final Map<String, List<BFunctionPointer<?, ?>>> abortedFuncRegistry = new HashMap<>();
+    private final Map<String, List<BFunctionPointer>> committedFuncRegistry = new HashMap<>();;
+    private final Map<String, List<BFunctionPointer>> abortedFuncRegistry = new HashMap<>();;
 
     private final Set<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
     private final Set<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
@@ -254,7 +243,7 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param fpValue   the function pointer for the committed function
      */
-    public void registerCommittedFunction(String transactionBlockId, BFunctionPointer<?, ?> fpValue) {
+    public void registerCommittedFunction(String transactionBlockId, BFunctionPointer fpValue) {
         if (fpValue != null) {
             committedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new ArrayList<>()).add(fpValue);
         }
@@ -266,7 +255,7 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param fpValue   the function pointer for the aborted function
      */
-    public void registerAbortedFunction(String transactionBlockId, BFunctionPointer<?, ?> fpValue) {
+    public void registerAbortedFunction(String transactionBlockId, BFunctionPointer fpValue) {
         if (fpValue != null) {
             abortedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new ArrayList<>()).add(fpValue);
         }
@@ -527,7 +516,7 @@ public class TransactionResourceManager {
      * @return Array of rollback handlers
      */
     public BArray getRegisteredRollbackHandlerList() {
-        List<BFunctionPointer<?, ?>> abortFunctions =
+        List<BFunctionPointer> abortFunctions =
                 abortedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
         if (abortFunctions != null && !abortFunctions.isEmpty()) {
             Collections.reverse(abortFunctions);
@@ -543,7 +532,7 @@ public class TransactionResourceManager {
      * @return Array of commit handlers
      */
     public BArray getRegisteredCommitHandlerList() {
-        List<BFunctionPointer<?, ?>> commitFunctions =
+        List<BFunctionPointer> commitFunctions =
                 committedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
         if (commitFunctions != null && !commitFunctions.isEmpty()) {
             Collections.reverse(commitFunctions);
