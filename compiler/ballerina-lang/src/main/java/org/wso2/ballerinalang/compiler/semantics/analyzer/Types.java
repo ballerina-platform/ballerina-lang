@@ -3206,7 +3206,7 @@ public class Types {
         if (liftNil) {
             switch (type.tag) {
                 case TypeTags.JSON:
-                    return new BJSONType((BJSONType) type, false);
+                    return BJSONType.newNilLiftedBJSONType((BJSONType) type);
                 case TypeTags.ANY:
                     return BAnyType.newNilLiftedBAnyType();
                 case TypeTags.ANYDATA:

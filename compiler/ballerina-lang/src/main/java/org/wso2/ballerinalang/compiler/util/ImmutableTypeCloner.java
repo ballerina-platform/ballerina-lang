@@ -765,9 +765,7 @@ public final class ImmutableTypeCloner {
     private static BJSONType defineImmutableJsonType(SymbolEnv env, PackageID pkgId, BSymbol owner, Names names,
                                                      BJSONType type) {
         BTypeSymbol immutableJsonTSymbol = getReadonlyTSymbol(type.tsymbol, env, pkgId, owner);
-        BJSONType immutableJsonType = new BJSONType(type.env, immutableJsonTSymbol,
-                                                    type.isNullable(),
-                                                    type.getFlags() | Flags.READONLY);
+        BJSONType immutableJsonType = BJSONType.newImmutableBJSONType(type, immutableJsonTSymbol, type.isNullable());
         if (immutableJsonTSymbol != null) {
             immutableJsonTSymbol.type = immutableJsonType;
         }

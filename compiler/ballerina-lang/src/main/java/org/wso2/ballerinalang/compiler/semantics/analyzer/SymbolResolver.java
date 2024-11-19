@@ -1071,7 +1071,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 continue;
             }
             BUnionType type = (BUnionType) Types.getImpliedType(entry.symbol.type);
-            symTable.jsonType = new BJSONType(type);
+            symTable.jsonType = new BJSONType(types.semTypeCtx, type);
             Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, PackageID.ANNOTATIONS,
                                                                                type);
             if (immutableType.isPresent()) {

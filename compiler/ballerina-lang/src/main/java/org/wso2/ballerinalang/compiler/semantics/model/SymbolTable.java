@@ -1183,7 +1183,7 @@ public class SymbolTable {
         jsonInternal.add(mapJsonTypeInternal);
         jsonInternal.isCyclic = true;
 
-        jsonType = new BJSONType(jsonInternal);
+        jsonType = new BJSONType(types.typeCtx(), jsonInternal);
         PackageID pkgID = rootPkgSymbol.pkgID;
         Optional<BIntersectionType> immutableType = Types.getImmutableType(this, pkgID, jsonInternal);
         if (immutableType.isPresent()) {
