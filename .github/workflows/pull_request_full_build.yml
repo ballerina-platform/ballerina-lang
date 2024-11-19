@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - java21
+      - feature-codegen-optimizer
 
 jobs:
   build-lang:

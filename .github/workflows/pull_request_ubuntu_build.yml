@@ -16,6 +16,7 @@ on:
       - revert-client-decl-master
       - query-grouping-aggregation
       - java21
+      - feature-codegen-optimizer
 
 jobs:
   ubuntu_build:
