@@ -2441,7 +2441,7 @@ public class BIRGen extends BLangNodeVisitor {
         Scope.ScopeEntry scopeEntry =
                 packageSymbol.scope.lookup(new Name(TYPEDESC + typeSymbol.name.value));
         BSymbol symbol = scopeEntry.symbol;
-        return symbol != null? getVarRef(createPackageVarRef(symbol)) : null;
+        return symbol != null ? getVarRef(createPackageVarRef(symbol)) : null;
     }
 
     private BLangPackageVarRef createPackageVarRef(BSymbol symbol) {
