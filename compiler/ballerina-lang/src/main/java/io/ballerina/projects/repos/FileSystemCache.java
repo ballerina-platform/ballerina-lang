@@ -98,10 +98,22 @@ public class FileSystemCache extends CompilationCache {
     public Optional<Path> getPlatformSpecificLibrary(CompilerBackend compilerBackend, String libraryName,
                                                      boolean isOptimizedLibrary) {
         String libraryFileName = libraryName + compilerBackend.libraryFileExtension();
-        Path targetPlatformCacheDirPath = isOptimizedLibrary ? getOptimizedTargetPlatformCacheDirPath(compilerBackend) :
-                getTargetPlatformCacheDirPath(compilerBackend);
-        Path jarFilePath = targetPlatformCacheDirPath.resolve(libraryFileName);
-        return Files.exists(jarFilePath) ? Optional.of(jarFilePath) : Optional.empty();
+        Path optimizedJarFilePath = getOptimizedTargetPlatformCacheDirPath(compilerBackend).resolve(libraryFileName);
+        if (isOptimizedLibrary) {
+            return Optional.of(optimizedJarFilePath);
+        }
+
+        Path jarFilePath = getTargetPlatformCacheDirPath(compilerBackend).resolve(libraryFileName);
+        // getPlatformSpecificLibrary gets invoked from TestUtils class and there is no proper way to check whether a
+        // given module is `optimized`, `unoptimized` or `duplicated optimized`. Maybe we can lift the logic to
+        // JarResolver somehow.
+        // TODO Find a cleaner way to handle JarPaths for bal test with dead code elimination.
+        if (Files.exists(jarFilePath)) {
+            return Optional.of(jarFilePath);
+        } else if (Files.exists(optimizedJarFilePath)) {
+            return Optional.of(optimizedJarFilePath);
+        }
+        return Optional.empty();
     }
 
     @Override

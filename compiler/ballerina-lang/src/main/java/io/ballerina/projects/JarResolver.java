@@ -161,12 +161,20 @@ public class JarResolver {
             }
             ModuleContext moduleContext = packageContext.moduleContext(moduleId);
             PackageID pkgID = moduleContext.descriptor().moduleCompilationId();
+            // DuplicatePkgs are pkgs which are imported by both testable and build projects.
+            // We need a different category for those to avoid false positive test passes.
+            boolean isDuplicatePkg = JvmCodeGenUtil.duplicatePkgsMap.containsKey(pkgID.orgName +
+                    pkgID.getNameComps().toString());
 
             // TODO: extract this condition out
             if (packageContext.project().buildOptions().eliminateDeadCode() &&
                     !this.rootPackageContext.project().buildOptions().skipTests() &&
                     this.jBalBackend.getOptimizedPackageIDs().contains(pkgID)) {
-                addOptimizedLibraryPaths(packageContext, scope, libraryPaths, moduleContext, pkgID);
+                addOptimizedLibraryPaths(packageContext, scope, libraryPaths, moduleContext, isDuplicatePkg);
+                if (!isDuplicatePkg) {
+                    // If the pkg is not an duplicate pkg, we only need the optimized thin JAR.
+                    continue;
+                }
             }
 
             PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
@@ -177,14 +185,12 @@ public class JarResolver {
 
     private void addOptimizedLibraryPaths(PackageContext packageContext, PlatformLibraryScope scope,
                                           Set<JarLibrary> libraryPaths, ModuleContext moduleContext,
-                                          PackageID pkgID) {
+                                          boolean isDuplicatePkg) {
         PlatformLibrary generatedOptimizedLibrary = jBalBackend.codeGeneratedOptimizedLibrary(
                 packageContext.packageId(), moduleContext.moduleName());
         Path optimizedJarLibraryPath = generatedOptimizedLibrary.path().toAbsolutePath();
 
-        if (JvmCodeGenUtil.duplicatePkgsMap.containsKey(pkgID.orgName + pkgID.getNameComps().toString())) {
-            // Package is an optimized duplicated pkg.
-            // This means the package is a common dependency of both testable and build projects.
+        if (isDuplicatePkg) {
             optimizedJarLibraryPath =
                     Path.of(optimizedJarLibraryPath.toString().replace(ProjectConstants.BLANG_COMPILED_JAR_EXT,
                             ProjectConstants.BYTECODE_OPTIMIZED_JAR_SUFFIX));
