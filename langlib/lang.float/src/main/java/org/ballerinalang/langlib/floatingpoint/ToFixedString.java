@@ -20,8 +20,8 @@ package org.ballerinalang.langlib.floatingpoint;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.ErrorUtils;
-import io.ballerina.runtime.internal.FloatUtils;
+import io.ballerina.runtime.internal.utils.ErrorUtils;
+import io.ballerina.runtime.internal.utils.FloatUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

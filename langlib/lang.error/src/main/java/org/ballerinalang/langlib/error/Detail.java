@@ -25,12 +25,8 @@ import io.ballerina.runtime.api.values.BMap;
  *
  * @since 0.990.4
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.error",
-//        functionName = "detail",
-//        args = {@Argument(name = "value", type = TypeKind.ERROR)},
-//        returnType = {@ReturnType(type = TypeKind.ANYDATA)})
-public final class Detail {
+public class Detail {
+
 
     private Detail() {
     }

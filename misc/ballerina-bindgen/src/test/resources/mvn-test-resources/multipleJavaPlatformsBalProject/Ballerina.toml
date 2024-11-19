@@ -3,7 +3,7 @@ org= "bindgen"
 name= "test"
 version= "0.1.0"
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 modules = ["balModule1"]
 path = "./log4j/log4j/1.2.17/log4j-1.2.17.jar"
 

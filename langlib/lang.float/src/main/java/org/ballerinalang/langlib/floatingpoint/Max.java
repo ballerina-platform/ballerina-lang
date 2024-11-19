@@ -23,13 +23,7 @@ package org.ballerinalang.langlib.floatingpoint;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.float", functionName = "max",
-//        args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.FLOAT)},
-//        isPublic = true
-//)
-public final class Max {
+public class Max {
 
     private Max() {
     }

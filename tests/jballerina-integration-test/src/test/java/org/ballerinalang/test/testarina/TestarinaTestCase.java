@@ -33,7 +33,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 
 /**
- * Testarina integration tests.
+ * TestartIna integration tests.
  *
  * @since 1.0.0
  */

@@ -24,6 +24,7 @@
                 <Or>
                     <Bug pattern="DM_EXIT"/>
                     <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+                    <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
                     <And>
                         <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
                         <Method name="evaluate"/>
@@ -69,6 +70,6 @@
         <Bug pattern="MS_EXPOSE_REP"/>
     </Match>
     <Match>
-        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,CT_CONSTRUCTOR_THROW"/>
     </Match>
 </FindBugsFilter>

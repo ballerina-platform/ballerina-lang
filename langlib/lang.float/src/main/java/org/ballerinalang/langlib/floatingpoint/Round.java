@@ -26,13 +26,8 @@ import java.math.RoundingMode;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.float", functionName = "round",
-//        args = {@Argument(name = "x", type = TypeKind.FLOAT)},
-//        returnType = {@ReturnType(type = TypeKind.FLOAT)},
-//        isPublic = true
-//)
-public final class Round {
+public class Round {
+
 
     private Round() {
     }

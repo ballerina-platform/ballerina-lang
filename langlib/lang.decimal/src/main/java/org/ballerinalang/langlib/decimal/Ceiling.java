@@ -28,17 +28,11 @@ import java.math.RoundingMode;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.decimal", functionName = "ceiling",
-//        args = {@Argument(name = "x", type = TypeKind.DECIMAL)},
-//        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
-//        isPublic = true
-//)
-public final class Ceiling {
+public class Ceiling {
+
 
     private Ceiling() {
     }
-
     public static BDecimal ceiling(BDecimal x) {
         return ValueCreator.createDecimalValue(x.value().setScale(0, RoundingMode.CEILING));
     }

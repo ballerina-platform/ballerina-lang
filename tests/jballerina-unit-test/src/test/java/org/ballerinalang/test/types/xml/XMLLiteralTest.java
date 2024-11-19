@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlItem;
 import io.ballerina.runtime.api.values.BXmlSequence;
-import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.xml.XmlFactory;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -365,7 +365,6 @@ public class XMLLiteralTest {
     public void testTextWithValidMultiTypeExpressions() {
         Object returns = BRunUtil.invoke(result, "testTextWithValidMultiTypeExpressions");
         Assert.assertTrue(returns instanceof BXmlSequence);
-
         Assert.assertEquals(returns.toString(), "hello 11 world. How 1.35 are you true?");
     }
 
@@ -373,7 +372,6 @@ public class XMLLiteralTest {
     public void testArithmaticExpreesionInXMLTemplate() {
         Object returns = BRunUtil.invoke(result, "testArithmaticExpreesionInXMLTemplate");
         Assert.assertTrue(returns instanceof BXmlItem);
-
         Assert.assertEquals(returns.toString(), "<foo id=\"hello 5\">hello</foo>");
     }
 
@@ -381,7 +379,6 @@ public class XMLLiteralTest {
     public void testFunctionCallInXMLTemplate() {
         Object returns = BRunUtil.invoke(result, "testFunctionCallInXMLTemplate");
         Assert.assertTrue(returns instanceof BXmlItem);
-
         Assert.assertEquals(returns.toString(), "<foo>&lt;-->returned from a function</foo>");
     }
 

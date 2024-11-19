@@ -20,7 +20,7 @@ package io.ballerina.cli.launcher;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.util.BalToolsUtil;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import picocli.CommandLine;
 

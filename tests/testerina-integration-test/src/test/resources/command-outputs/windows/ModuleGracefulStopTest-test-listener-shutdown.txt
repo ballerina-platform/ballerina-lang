@@ -27,6 +27,13 @@ Calling start for default module listener
 				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 				callableName: main_negative_test1 moduleName: wso2.moduleGracefulStopTest$test.0.tests.test_main fileName: tests/test_main.bal lineNumber: 32
 				callableName: main_negative_test1$lambda2$ moduleName: wso2.moduleGracefulStopTest$test.0.tests.test_execute-generated_*****lineNumber: 6
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: wso2.moduleGracefulStopTest$test.0.tests.test_execute-generated_*****lineNumber: 11
 			
 
 		[fail] main_negative_test2:
@@ -39,6 +46,13 @@ Calling start for default module listener
 				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 				callableName: main_negative_test2 moduleName: wso2.moduleGracefulStopTest$test.0.tests.test_main fileName: tests/test_main.bal lineNumber: 37
 				callableName: main_negative_test2$lambda3$ moduleName: wso2.moduleGracefulStopTest$test.0.tests.test_execute-generated_*****lineNumber: 7
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: wso2.moduleGracefulStopTest$test.0.tests.test_execute-generated_*****lineNumber: 11
 			
 
 
@@ -68,6 +82,13 @@ Calling start for moduleA listener
 				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 				callableName: negative_test1 moduleName: wso2.moduleGracefulStopTest.moduleA$test.0.tests.test_moduleA fileName: tests/test_moduleA.bal lineNumber: 26
 				callableName: negative_test1$lambda1$ moduleName: wso2.moduleGracefulStopTest.moduleA$test.0.tests.test_execute-generated_*****lineNumber: 5
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: wso2.moduleGracefulStopTest.moduleA$test.0.tests.test_execute-generated_*****lineNumber: 9
 			
 
 

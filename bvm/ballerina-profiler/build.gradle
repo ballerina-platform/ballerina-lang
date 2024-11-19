@@ -27,7 +27,6 @@ configurations {
 dependencies {
     implementation libs.ow2.asm
     implementation libs.ow2.asm.commons
-    implementation libs.gson
     implementation libs.commons.io
     implementation project(':identifier-util')
     implementation project(':ballerina-runtime')

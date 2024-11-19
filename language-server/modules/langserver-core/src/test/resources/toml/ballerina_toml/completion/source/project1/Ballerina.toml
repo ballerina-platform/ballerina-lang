@@ -3,7 +3,7 @@
 [build-options]
 observabilityIncluded = false
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 path = "/usr/libs/"
 
 

@@ -31,14 +31,6 @@ import java.util.List;
  *
  * @since 1.2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "get",
-//        args = {@Argument(name = "BXML", type = TypeKind.XML),
-//                @Argument(name = "i", type = TypeKind.INT)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
 public final class Get {
 
     public static final int LENGTH_OF_ONE = 1;

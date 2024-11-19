@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -27,8 +28,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.ValueComparisonUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.utils.ValueComparisonUtils;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_TYPE_TO_SORT;
@@ -45,16 +45,16 @@ public final class Sort {
     private Sort() {
     }
 
-    public static BArray sort(BArray arr, Object direction, Object func) {
+    public static BArray sort(Environment env, BArray arr, Object direction, Object func) {
         checkIsArrayOnlyOperation(TypeUtils.getImpliedType(arr.getType()), "sort()");
-        BFunctionPointer<Object, Object> function = (BFunctionPointer<Object, Object>) func;
+        BFunctionPointer function = (BFunctionPointer) func;
 
         Object[][] sortArr = new Object[arr.size()][2];
         Object[][] sortArrClone = new Object[arr.size()][2];
 
         if (function != null) {
             for (int i = 0; i < arr.size(); i++) {
-                sortArr[i][0] = function.call(new Object[]{Scheduler.getStrand(), arr.get(i), true});
+                sortArr[i][0] = function.call(env.getRuntime(), arr.get(i));
                 sortArr[i][1] = arr.get(i);
             }
         } else {

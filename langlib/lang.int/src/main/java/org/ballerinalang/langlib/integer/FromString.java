@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.integer;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
@@ -34,13 +34,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.int", functionName = "fromString",
-//        args = {@Argument(name = "s", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.UNION)},
-//        isPublic = true
-//)
-public final class FromString {
+public class FromString {
 
     private static final BString ERROR_REASON = getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER);
 

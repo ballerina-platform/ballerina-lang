@@ -74,11 +74,6 @@ dependencies {
     testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
 
-    launchListenerTestUtils project(':test-launch-listener-01')
-    launchListenerTestUtils project(':test-launch-listener-02')
-    launchListenerTestUtils project(':test-launch-listener-03')
-    launchListenerTestUtils project(':test-launch-listener-04')
-
     testLibs 'org.hsqldb:hsqldb:2.7.1'
 
     distributionBala project(path: ':ballerina-io-internal', configuration: 'distributionBala')
@@ -92,7 +87,6 @@ tasks.register('createBre', Copy) {
 test {
     // make sure ballerina zip is built before test run
     dependsOn ':jballerina-tools:build'
-    systemProperty 'enableJBallerinaTests', 'true'
 
     maxParallelForks = 1
     systemProperty 'basedir', "$buildDir"
@@ -124,12 +118,5 @@ tasks.register('copyToLib', Copy) {
 }
 
 test.dependsOn(copyToLib)
-
-tasks.register('createLaunchListenerUtilsLib', Copy) {
-    from configurations.launchListenerTestUtils
-    into "${buildDir}/launch-listener/libs"
-}
-
-tasks.test.dependsOn(createLaunchListenerUtilsLib)
 tasks.compileTestJava.dependsOn(":ballerina-io-internal:copyInteropImports")
 generateMetadataFileForMavenJavaPublication.dependsOn(copyToLib)

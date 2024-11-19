@@ -18,13 +18,8 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.Future;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.async.Callback;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.values.ObjectValue;
-import org.testng.Assert;
 
 /**
  * This class is used for Java interoperability tests.
@@ -40,33 +35,17 @@ public final class Accumulator {
     private Accumulator() {
     }
 
-    public static void accumulate(Environment env, ObjectValue intFunction, long from, long to) {
+    public static long accumulate(Environment env, ObjectValue intFunction, long from, long to) {
         Runtime runtime = env.getRuntime();
-        Future future = env.markAsync();
-        Assert.assertTrue(from <= to);
-        accumulateI(intFunction, from, to, runtime, future, new long[1]);
+        return accumulateI(intFunction, from, to, runtime, new long[1]);
     }
 
-    private static void accumulateI(ObjectValue intFunction, long i, long to, Runtime runtime, Future future,
-                                    long[] relay) {
-
-        runtime.invokeMethodAsyncConcurrently(intFunction, "invoke", null, null, new Callback() {
-            @Override
-            public void notifySuccess(Object result) {
-                relay[0] += (long) result;
-                if (i == to) {
-                    future.complete(relay[0]);
-                } else {
-                    accumulateI(intFunction, i + 1, to, runtime, future, relay);
-                }
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                Assert.assertNull(error);
-                Assert.fail();
-            }
-        }, null, PredefinedTypes.TYPE_NULL, i, true);
+    private static long accumulateI(ObjectValue intFunction, long i, long to, Runtime runtime, long[] relay) {
+        relay[0] += (long) runtime.callMethod(intFunction, "invoke", null, i);
+        if (i == to) {
+            return relay[0];
+        } else {
+            return accumulateI(intFunction, i + 1, to, runtime, relay);
+        }
     }
-
 }

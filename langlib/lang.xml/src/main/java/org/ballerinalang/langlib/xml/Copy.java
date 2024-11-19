@@ -28,12 +28,6 @@ import java.util.HashMap;
 /**
  * Make a deep copy of an XML.
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "copy",
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
 public final class Copy {
 
     private static final String OPERATION = "copy xml";

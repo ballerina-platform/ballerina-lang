@@ -27,7 +27,7 @@ public class AgentManager {
 
     private static final String BALLERINA_AGENT_PORT_START_VALUE = "ballerina.agent.port.start.value";
 
-    private static final String DEFAULT_AGENT_PORT_START = "7000";
+    private static final String DEFAULT_AGENT_PORT_START = "7100";
 
     private static AgentManager agentManager;
 

@@ -28,13 +28,6 @@ import org.jetbrains.annotations.Nullable;
  * 
  * @since 0.88
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "select",
-//        args = {@Argument(name = "qname", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
 public final class Select {
 
     private static final String OPERATION = "select elements from xml";

@@ -25,12 +25,7 @@ import io.ballerina.runtime.api.values.BMap;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map", functionName = "length",
-//        args = {@Argument(name = "m", type = TypeKind.MAP)},
-//        isPublic = true
-//)
-public final class Length {
+public class Length {
 
     private Length() {
     }

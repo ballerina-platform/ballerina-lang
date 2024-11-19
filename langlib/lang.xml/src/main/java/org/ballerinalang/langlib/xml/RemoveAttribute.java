@@ -27,13 +27,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  * 
  * @since 0.95
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "removeAttribute",
-//        args = {@Argument(name = "qname", type = TypeKind.STRING)},
-//        isPublic = true
-//)
-public final class RemoveAttribute {
+public class RemoveAttribute {
 
     private static final String OPERATION = "remove attribute";
 

@@ -17,6 +17,10 @@
     </Match>
     <Match>
         <Class name="org.ballerinalang.docgen.generator.model.Type"/>
-        <Bug pattern="DCN_NULLPOINTER_EXCEPTION"/>
+        <Bug pattern="DCN_NULLPOINTER_EXCEPTION,PA_PUBLIC_PRIMITIVE_ATTRIBUTE"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.docgen.generator.model.ApiDocsJson"/>
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>
 </FindBugsFilter>

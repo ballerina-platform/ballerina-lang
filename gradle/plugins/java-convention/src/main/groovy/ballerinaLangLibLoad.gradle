@@ -117,7 +117,6 @@ tasks.register('loadDistributionCache') {
 test {
     dependsOn loadDistributionCache
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "enableJBallerinaTests", "true"
     systemProperty "ballerina.home", "$buildDir"
 
     afterSuite { suite, result ->

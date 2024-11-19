@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.runtime;
 import ballerina/jballerina.java;
 
 function init() {
@@ -21,13 +22,14 @@ function init() {
     worker w1 {
         print("executing worker 'w1'");
         while true {
-            
+
         }
     }
 }
 
 public function main() {
     print("main function invoked for 'current' module");
+    runtime:sleep(1000);
 }
 
 function print(string value) {

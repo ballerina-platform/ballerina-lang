@@ -106,9 +106,9 @@ service class TestService {
 
 public function testClosureWithinResource() {
     TestService t = new;
-    string str = <string> (checkpanic (wait callMethodWithParams(t, "$get$closureTest1", ["foobar"])));
-    TLift[] tLifts = <TLift[]> (checkpanic (wait callMethodWithParams(t, "$get$closureTest2", ["OPEN"])));
-    Lift[] lifts = <Lift[]> (checkpanic (wait callMethodWithParams(t, "$get$closureTest3", [true])));
+    string str = <string> (checkpanic (callMethodWithParams(t, "$get$closureTest1", ["foobar"])));
+    TLift[] tLifts = <TLift[]> (checkpanic (callMethodWithParams(t, "$get$closureTest2", ["OPEN"])));
+    Lift[] lifts = <Lift[]> (checkpanic (callMethodWithParams(t, "$get$closureTest3", [true])));
     assertEquality(str, "foobar");
     assertEquality(tLifts.length(), 1);
     assertEquality(tLifts[0]["name"], "Lift1");
@@ -118,7 +118,7 @@ public function testClosureWithinResource() {
 }
 
 public function callMethodWithParams(service object {} s, string name, (any|error)[] ar)
-    returns future<any|error>  = @java:Method {
+    returns any|error  = @java:Method {
         'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
         name:"callMethodWithParams"
     } external;

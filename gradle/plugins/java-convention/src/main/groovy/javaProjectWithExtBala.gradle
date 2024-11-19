@@ -68,7 +68,6 @@ test {
     inputs.files(configurations.balaTestImplementation);
 
     systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
-    systemProperty "enableJBallerinaTests", "true"
 
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "LANG_REPO_BUILD", "true"

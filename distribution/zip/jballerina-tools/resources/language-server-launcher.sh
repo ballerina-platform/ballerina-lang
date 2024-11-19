@@ -137,7 +137,7 @@ if [ -z "$JAVA_HOME" ]; then
 fi
 
 if [ $DEBUG_MODE = true ]; then
-  JAVA_DEBUG="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$DEBUG_PORT,quiet=y"
+  JAVA_DEBUG="-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$DEBUG_PORT,quiet=y"
 else
   JAVA_DEBUG=""
 fi

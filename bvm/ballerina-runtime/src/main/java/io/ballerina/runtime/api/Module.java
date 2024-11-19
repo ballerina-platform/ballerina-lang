@@ -64,11 +64,6 @@ public class Module {
         return name;
     }
 
-    @Deprecated
-    public String getVersion() {
-        return majorVersion;
-    }
-
     public String getMajorVersion() {
         return majorVersion;
     }

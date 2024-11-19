@@ -187,4 +187,4 @@ EXAMPLES
            $ bal test -Cval1=add -Cval2=10 -Cval3=5
 
        Test the package with additional GraalVM native image options.
-           $ bal test --graalvm --graalvm-build-options="--static -H:Name=hello-world"
+           $ bal test --graalvm --graalvm-build-options="--static --enable-monitoring"

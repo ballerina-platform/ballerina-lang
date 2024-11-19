@@ -26,13 +26,7 @@ import io.ballerina.runtime.api.values.BIterator;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "iterator",
-//        args = {@Argument(name = "m", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.OBJECT)},
-//        isPublic = true
-//)
-public final class GetIterator {
+public class GetIterator {
 
     private GetIterator() {
     }

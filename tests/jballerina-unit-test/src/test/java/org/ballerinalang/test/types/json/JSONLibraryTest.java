@@ -24,8 +24,8 @@ import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.JsonGenerator;
-import io.ballerina.runtime.internal.JsonParser;
+import io.ballerina.runtime.internal.json.JsonGenerator;
+import io.ballerina.runtime.internal.json.JsonParser;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

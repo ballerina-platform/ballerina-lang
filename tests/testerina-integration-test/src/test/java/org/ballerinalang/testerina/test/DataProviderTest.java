@@ -215,9 +215,9 @@ public class DataProviderTest extends BaseTestCase {
                 "testDividingValuesWithBeforeFailing,testExecutionOfBeforeFailing", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-//        String firstString = "tests.test_execute-generated_";
-//        String endString = "lineNumber";
-//        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("DataProviderTest-testValidDataProviderWithBeforeFailing.txt", output);
     }
 
@@ -227,6 +227,9 @@ public class DataProviderTest extends BaseTestCase {
                 "testDividingValuesWithAfterFailing,testExecutionOfAfterFailing", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("DataProviderTest-testValidDataProviderWithAfterFailing.txt", output);
     }
 

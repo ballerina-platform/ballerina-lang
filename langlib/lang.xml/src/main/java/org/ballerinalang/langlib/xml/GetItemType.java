@@ -29,13 +29,7 @@ import org.jetbrains.annotations.Nullable;
  * 
  * @since 0.88
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "getItemType",
-//        returnType = {@ReturnType(type = TypeKind.STRING)},
-//        isPublic = true
-//)
-public final class GetItemType {
+public class GetItemType {
 
     private static final String OPERATION = "get xml item type";
 

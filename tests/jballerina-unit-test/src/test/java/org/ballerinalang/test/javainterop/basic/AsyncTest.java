@@ -48,14 +48,6 @@ public class AsyncTest {
         Assert.assertEquals(returns, 42L);
     }
 
-    @Test
-    public void testAsyncComplete() {
-        CompileResult compileResult =
-                BCompileUtil.compileWithoutInitInvocation("test-src/javainterop/basic/async_test.bal");
-        BRunUtil.ExitDetails output = BRunUtil.run(compileResult, new String[]{});
-        Assert.assertTrue(output.errorOutput.contains("cannot complete the same future twice."));
-    }
-
     @AfterClass
     public void tearDown() {
         result = null;

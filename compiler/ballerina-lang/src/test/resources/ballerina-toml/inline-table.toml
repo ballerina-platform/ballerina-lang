@@ -7,7 +7,7 @@ authors= ["jo", "pramodya"]
 keywords= ["toml", "ballerina"]
 repository= "https://github.com/ballerina-platform/ballerina-lang"
 
-[platform.java17]
+[platform.java21]
 dependency = [
     {path = "/user/sameera/libs/toml4j.jar", artifactId = "toml4j", version = "0.7.2", groupId = "com.moandjiezana.toml"},
     {path = "path/to/swagger.txt", artifactId = "swagger", version = "0.7.2", groupId = "swagger.io"}

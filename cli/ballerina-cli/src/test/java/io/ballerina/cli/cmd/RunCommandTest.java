@@ -285,7 +285,7 @@ public class RunCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
         Assert.assertTrue(Files.exists(customTargetDir.resolve("cache/wso2/foo/0.1.0")));
         Assert.assertTrue(Files.exists(customTargetDir.resolve("cache/wso2/foo/0.1.0")));
-        if (!(Files.exists(customTargetDir.resolve("cache/wso2/foo/0.1.0/java17/wso2-foo-0.1.0.jar")) ||
+        if (!(Files.exists(customTargetDir.resolve("cache/wso2/foo/0.1.0/java21/wso2-foo-0.1.0.jar")) ||
                 Files.exists(customTargetDir.resolve("cache/wso2/foo/0.1.0/any/wso2-foo-0.1.0.jar")))) {
             Assert.fail("Run command with custom target dir failed");
         }
@@ -367,7 +367,7 @@ public class RunCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true).replaceAll("\r", "").strip();
 
         Assert.assertEquals(buildLog, getOutput("run-project-with-dump-graph.txt"));
-        Assert.assertTrue(projectPath.resolve("target/cache/foo/package_a/0.1.0/java17/foo-package_a-0.1.0.jar")
+        Assert.assertTrue(projectPath.resolve("target/cache/foo/package_a/0.1.0/java21/foo-package_a-0.1.0.jar")
                 .toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
@@ -390,9 +390,8 @@ public class RunCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true).replaceAll("\r", "").strip();
 
         Assert.assertEquals(buildLog, getOutput("run-project-with-dump-raw-graphs.txt"));
-        Assert.assertTrue(projectPath.resolve("target/cache/foo/package_a/0.1.0/java17/foo-package_a-0.1.0.jar")
+        Assert.assertTrue(projectPath.resolve("target/cache/foo/package_a/0.1.0/java21/foo-package_a-0.1.0.jar")
                 .toFile().exists());
-
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 

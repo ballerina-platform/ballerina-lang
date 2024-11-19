@@ -17,12 +17,12 @@
 
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -258,7 +258,7 @@ public final class TypeReference {
         return true;
     }
 
-    public static Boolean validateBFunctionPointer(BFunctionPointer<?, ?> value) {
+    public static Boolean validateBFunctionPointer(BFunctionPointer value) {
         if (value.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw  ErrorCreator.createError(StringUtils.fromString("Function Pointer getType API provided a non " +
                     "type reference type."));

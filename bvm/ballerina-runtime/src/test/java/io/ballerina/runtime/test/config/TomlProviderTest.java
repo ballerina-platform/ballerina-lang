@@ -19,13 +19,13 @@
 package io.ballerina.runtime.test.config;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -53,12 +53,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BYTE;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_DECIMAL;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_FLOAT;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_ANYDATA;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_BYTE;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_DECIMAL;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_FLOAT;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 import static io.ballerina.runtime.test.TestUtils.getIntersectionType;

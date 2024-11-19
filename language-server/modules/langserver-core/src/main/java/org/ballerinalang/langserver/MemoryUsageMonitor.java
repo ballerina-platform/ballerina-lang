@@ -52,7 +52,7 @@ public class MemoryUsageMonitor {
     }
 
     public void start(LanguageClient client) {
-        Thread usageMonitor = new Thread(() -> {
+        Thread.startVirtualThread(() -> {
             while (true) {
                 try {
                     MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
@@ -73,7 +73,5 @@ public class MemoryUsageMonitor {
                 }
             }
         });
-        usageMonitor.setDaemon(true);
-        usageMonitor.start();
     }
 }

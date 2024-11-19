@@ -1,4 +1,4 @@
-Hold functions for mock fucntion testing.
+Hold functions for mock function testing.
 
 # Package Overview
 Package for external module functions

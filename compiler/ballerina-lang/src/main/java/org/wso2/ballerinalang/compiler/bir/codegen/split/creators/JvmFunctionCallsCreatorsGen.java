@@ -46,7 +46,7 @@ import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.L2I;
-import static org.objectweb.asm.Opcodes.V17;
+import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALL_FUNCTION;
@@ -75,7 +75,7 @@ public class JvmFunctionCallsCreatorsGen {
                                            JarEntries jarEntries, JvmCastGen jvmCastGen,
                                            List<BIRNode.BIRFunction> sortedFunctions) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, functionCallsClass, null, OBJECT, null);
+        cw.visit(V21, ACC_PUBLIC + ACC_SUPER, functionCallsClass, null, OBJECT, null);
         createAndSplitFunctionCallMethod(cw, module.packageID, sortedFunctions, jvmPackageGen, jvmCastGen);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);

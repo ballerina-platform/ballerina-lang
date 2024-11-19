@@ -20,7 +20,6 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -28,11 +27,11 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -40,7 +39,6 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -59,7 +57,7 @@ public class BRecordType extends BStructureType implements RecordType {
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
 
-    private final Map<String, BFunctionPointer<Object, ?>> defaultValues = new LinkedHashMap<>();
+    private final Map<String, BFunctionPointer> defaultValues = new LinkedHashMap<>();
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -130,13 +128,12 @@ public class BRecordType extends BStructureType implements RecordType {
             return (V) ValueCreator.createReadonlyRecordValue(this.pkg, typeName, new HashMap<>());
         }
         BMap<BString, Object> recordValue = ValueCreator.createRecordValue(this.pkg, typeName);
-        ValueUtils.populateDefaultValues(recordValue, this, new HashSet<>());
         if (defaultValues.isEmpty()) {
             return (V) recordValue;
         }
-        for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
+        for (Map.Entry<String, BFunctionPointer> field : defaultValues.entrySet()) {
             recordValue.put(StringUtils.fromString(field.getKey()),
-                    field.getValue().call(new Object[] {Scheduler.getStrand()}));
+                    field.getValue().call(Scheduler.getStrand().scheduler.runtime));
         }
         return (V) recordValue;
     }
@@ -214,11 +211,11 @@ public class BRecordType extends BStructureType implements RecordType {
         return typeFlags;
     }
 
-    public void setDefaultValue(String fieldName, BFunctionPointer<Object, ?> defaultValue) {
+    public void setDefaultValue(String fieldName, BFunctionPointer defaultValue) {
         defaultValues.put(fieldName, defaultValue);
     }
 
-    public Map<String, BFunctionPointer<Object, ?>> getDefaultValues() {
+    public Map<String, BFunctionPointer> getDefaultValues() {
         return defaultValues;
     }
 

@@ -18,13 +18,8 @@
 package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.scheduling.WorkerDataChannel;
-import io.ballerina.runtime.internal.values.ChannelDetails;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
 
 /**
  * Native implementation of lang.internal:WorkerChannels.
@@ -42,24 +37,11 @@ public final class WorkerChannels {
      * @param channelIds channel IDs of the channels to be closed
      */
     public static void autoClose(BString[] channelIds) {
-        Strand currentStrand = Scheduler.getStrand();
-        Strand channelHoldingStrand = Objects.requireNonNullElse(currentStrand.parent, currentStrand);
-        for (BString channelId : channelIds) {
-            String channelName = getMatchingChannelName(channelId.getValue(), currentStrand);
-            WorkerDataChannel workerDataChannel = channelHoldingStrand.wdChannels.getWorkerDataChannel(channelName);
-            workerDataChannel.autoClose();
-        }
+
     }
 
     @Nullable
     private static String getMatchingChannelName(String channelId, Strand currentStrand) {
-        String channelName = null;
-        for (ChannelDetails channelDetail : currentStrand.channelDetails) {
-            if (channelDetail.name.contains(channelId)) {
-                channelName = channelDetail.name;
-                break;
-            }
-        }
-        return channelName;
+        return null;
     }
 }

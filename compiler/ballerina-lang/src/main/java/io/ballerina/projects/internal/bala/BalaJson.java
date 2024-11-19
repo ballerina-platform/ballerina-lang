@@ -24,7 +24,7 @@ package io.ballerina.projects.internal.bala;
  * @since 2.0.0
  */
 public class BalaJson {
-    private String bala_version = "2.0.0";
+    private String bala_version = "3.0.0";
     private String built_by = "WSO2";
 
     public String getBala_version() {

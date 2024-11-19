@@ -19,7 +19,7 @@ package org.ballerinalang.test.expressions.binaryoperations;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.JsonParser;
+import io.ballerina.runtime.internal.json.JsonParser;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;

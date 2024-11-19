@@ -44,6 +44,11 @@
         <Class name="io.ballerina.compiler.internal.parser.utils.ConditionalExprResolver" />
     </Match>
     <Match>
+        <Class name="io.ballerina.compiler.internal.parser.AbstractParserErrorHandler" />
+        <Method name="recover" />
+        <Bug pattern="AA_ASSERTION_OF_ARGUMENTS" />
+    </Match>
+    <Match>
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2" />
     </Match>
 </FindBugsFilter>

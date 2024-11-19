@@ -19,8 +19,8 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ByteType;
+import io.ballerina.runtime.api.types.TypeTags;
 
 /**
  * {@code BByteType} represents byte type in Ballerina.

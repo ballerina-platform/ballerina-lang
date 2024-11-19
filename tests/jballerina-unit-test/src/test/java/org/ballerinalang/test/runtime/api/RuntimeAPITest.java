@@ -17,12 +17,13 @@
  */
 package org.ballerinalang.test.runtime.api;
 
+import io.ballerina.projects.Package;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.BalRuntime;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -64,12 +65,19 @@ public class RuntimeAPITest {
     @Test
     public void testRecordNoStrandDefaultValue() {
         CompileResult strandResult = BCompileUtil.compile("test-src/runtime/api/no_strand");
-        final Scheduler scheduler = new Scheduler(false);
+        Package currentPackage = strandResult.project().currentPackage();
+        final BalRuntime runtime = strandResult.getRuntime();
         AtomicReference<Throwable> exceptionRef = new AtomicReference<>();
-        Thread thread1 = new Thread(() -> BRunUtil.runOnSchedule(strandResult, "main", scheduler));
-        Thread thread2 = new Thread(() -> {
+        Thread thread1 = Thread.ofVirtual().unstarted(() -> {
             try {
-                Thread.sleep(1000);
+                BRunUtil.invoke(strandResult, "main");
+            } catch (Throwable e) {
+                exceptionRef.set(e);
+            }
+        });
+        Thread thread2 = Thread.ofVirtual().unstarted(() -> {
+            try {
+                Thread.sleep(2000);
                 BMap<BString, Object> recordValue = ValueCreator.createRecordValue(new Module("testorg",
                         "no_strand", "1"), "MutualSslHandshake");
                 Assert.assertEquals(recordValue.getType().getName(), "MutualSslHandshake");
@@ -79,7 +87,7 @@ public class RuntimeAPITest {
             } catch (Throwable e) {
                 exceptionRef.set(e);
             } finally {
-                scheduler.poison();
+                runtime.gracefulExit();
             }
         });
         try {

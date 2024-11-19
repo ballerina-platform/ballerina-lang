@@ -45,7 +45,7 @@ public class PackageConfig {
     private final Path packagePath;
     private final DependencyGraph<PackageDescriptor> packageDescDependencyGraph;
     private final Collection<ModuleConfig> otherModules;
-    private final DocumentConfig packageMd;
+    private final DocumentConfig readmeMd;
     private final boolean disableSyntaxTree;
     private final List<ResourceConfig> resources;
     private final List<ResourceConfig> testResources;
@@ -61,7 +61,7 @@ public class PackageConfig {
                           DocumentConfig balToolToml,
                           Collection<ModuleConfig> moduleConfigs,
                           DependencyGraph<PackageDescriptor> packageDescDependencyGraph,
-                          DocumentConfig packageMd,
+                          DocumentConfig readmeMd,
                           boolean disableSyntaxTree,
                           List<ResourceConfig> resources,
                           List<ResourceConfig> testResources) {
@@ -76,7 +76,7 @@ public class PackageConfig {
         this.balToolToml = balToolToml;
         this.otherModules = moduleConfigs;
         this.packageDescDependencyGraph = packageDescDependencyGraph;
-        this.packageMd = packageMd;
+        this.readmeMd = readmeMd;
         this.disableSyntaxTree = disableSyntaxTree;
         this.resources = resources;
         this.testResources = testResources;
@@ -125,13 +125,13 @@ public class PackageConfig {
                                      DependencyManifest dependencyManifest, @Nullable DocumentConfig ballerinaToml,
                                      @Nullable DocumentConfig dependenciesToml, @Nullable DocumentConfig cloudToml,
                                      @Nullable DocumentConfig compilerPluginToml, @Nullable DocumentConfig balToolToml,
-                                     @Nullable DocumentConfig packageMd, List<ModuleConfig> moduleConfigs,
+                                     @Nullable DocumentConfig readmeMd, List<ModuleConfig> moduleConfigs,
                                      DependencyGraph<PackageDescriptor> packageDependencyGraph,
                                      boolean disableSyntaxTree, List<ResourceConfig> resources,
                                      List<ResourceConfig> testResources) {
         return new PackageConfig(packageId, path, packageManifest, dependencyManifest, ballerinaToml,
                 dependenciesToml, cloudToml, compilerPluginToml, balToolToml, moduleConfigs,
-                packageDependencyGraph, packageMd, disableSyntaxTree, resources,
+                packageDependencyGraph, readmeMd, disableSyntaxTree, resources,
                 testResources);
     }
 
@@ -198,8 +198,19 @@ public class PackageConfig {
         return otherModules;
     }
 
+    /**
+     * Returns the PackageMd document config.
+     *
+     * @return DocumentConfig optionally.
+     * @deprecated use {@link #readmeMd()} instead.
+     */
+    @Deprecated (forRemoval = true)
     public Optional<DocumentConfig> packageMd() {
-        return Optional.ofNullable(packageMd);
+        return Optional.ofNullable(readmeMd);
+    }
+
+    public Optional<DocumentConfig> readmeMd() {
+        return Optional.ofNullable(readmeMd);
     }
 
     public Optional<DocumentConfig> dependenciesToml() {

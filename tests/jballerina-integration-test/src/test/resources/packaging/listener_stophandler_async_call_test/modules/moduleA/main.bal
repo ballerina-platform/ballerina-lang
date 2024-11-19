@@ -93,7 +93,6 @@ public function main() {
     runtime:registerListener(dynListener1);
     runtime:registerListener(dynListener2);
     runtime:sleep(2);
-    runtime:deregisterListener(dynListener1);
     runtime:deregisterListener(dynListener2);
 }
 

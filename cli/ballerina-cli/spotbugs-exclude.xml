@@ -98,4 +98,8 @@
     <Match>
         <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.CommandUtil" />
+        <Bug pattern="UUF_UNUSED_FIELD" />
+    </Match>
 </FindBugsFilter>

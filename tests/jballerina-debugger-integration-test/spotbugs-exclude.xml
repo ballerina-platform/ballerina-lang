@@ -37,6 +37,6 @@
 
     </Match>
     <Match>
-        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,PA_PUBLIC_MUTABLE_OBJECT_ATTRIBUTE"/>
     </Match>
 </FindBugsFilter>

@@ -567,9 +567,9 @@ function checkClosuresWithServiceObjectConstrExpr(int b1) returns int {
         }
     };
 
-    var val = wait callMethod(obj1, "$get$foo");
+    var val = callMethod(obj1, "$get$foo");
     if val is int {
-        var val2 = wait callMethod(obj1, "bar");
+        var val2 = callMethod(obj1, "bar");
         if (val2 is int) {
             return val + val2;
         }
@@ -738,7 +738,7 @@ function testClosuresWithObjectConstrExprInEqaulityExpr() {
     assertValueEquality(120, checkClosuresWithObjectConstrExprInEqaulityExpr(10));
 }
 
-public function callMethod(service object {} s, string name) returns future<any|error>  = @java:Method {
+public function callMethod(service object {} s, string name) returns any|error  = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name:"callMethod"
 } external;

@@ -104,7 +104,7 @@ public class RefTypeNegativeTests {
     public static void acceptReadOnlyValue(long r) {
     }
 
-    public static BFuture returnReadOnlyValue(FPValue<?, ?> f) {
-        return new FutureValue(null, null, null); // OK since not used anywhere.
+    public static BFuture returnReadOnlyValue(FPValue f) {
+        return new FutureValue(null, null); // OK since not used anywhere.
     }
 }

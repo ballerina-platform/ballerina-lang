@@ -85,10 +85,10 @@ function testServiceObjectValue() {
     assertEquality(true, l.initialized);
     assertEquality(true, l.started);
 
-    var x = wait callMethod(serviceVal, "$get$bar");
+    var x = callMethod(serviceVal, "$get$bar");
     assertEquality(x, "bar");
 
-    var y = wait callMethod(serviceVal, "$put$bar");
+    var y = callMethod(serviceVal, "$put$bar");
     assertEquality(y, "put-bar");
 
     string[]? paramNames = getParamNames(serviceVal, "$get$foo$bar");
@@ -98,7 +98,7 @@ function testServiceObjectValue() {
 }
 
 
-public function callMethod(service object {} s, string name) returns future<any|error>  = @java:Method {
+public function callMethod(service object {} s, string name) returns any|error = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name:"callMethod"
 } external;

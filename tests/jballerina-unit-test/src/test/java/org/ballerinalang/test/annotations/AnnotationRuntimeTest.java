@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.annotations;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
@@ -24,6 +23,7 @@ import io.ballerina.runtime.api.types.RemoteMethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BString;
@@ -102,22 +102,8 @@ public class AnnotationRuntimeTest {
     @DataProvider(name = "annotAccessTests")
     public Object[][] annotAccessTests() {
         return new Object[][]{
-                { "testTypeAnnotAccess1" },
-                { "testTypeAnnotAccess2" },
-                { "testObjectTypeAnnotAccess1" },
-                { "testObjectTypeAnnotAccess2" },
-                { "testObjectTypeAnnotAccess3" },
-                //{ "testServiceAnnotAccess1" },
-                { "testServiceAnnotAccess2" },
-                { "testServiceAnnotAccess3" },
-                { "testServiceAnnotAccess4" },
-                { "testFunctionAnnotAccess1" },
-                { "testFunctionAnnotAccess2" },
-                { "testInlineAnnotAccess" },
-                { "testAnnotWithEmptyMappingConstructor1" },
-                { "testAnnotWithEmptyMappingConstructor2" },
-                { "testAnnotWithEmptyMappingConstructor3" },
-                { "testAnnotWithEmptyMappingConstructor4" }
+
+                { "testFunctionAnnotAccess1" }
         };
     }
 

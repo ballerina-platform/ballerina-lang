@@ -1,0 +1,10 @@
+[package]
+org = "foo"
+name = "winery"
+version = "0.1.0"
+readme = "Package.md"
+description = "Add the sample package description here"
+
+[[package.modules]]
+name = "winery.storage"
+readme = "modules/storage/Module.md"

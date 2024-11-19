@@ -28,4 +28,8 @@
         <Class name="io.ballerina.converters.JsonToRecordConverterService"/>
         <Bug pattern="DCN_NULLPOINTER_EXCEPTION"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.converters.JsonToRecordConverter"/>
+        <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
+    </Match>
 </FindBugsFilter>

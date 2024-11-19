@@ -214,12 +214,12 @@ public class CompilerPluginTests {
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 3, "Unexpected number of compilation diagnostics");
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
-        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(8:1,8:65)] "
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(7:1,7:65)] "
                 + "could not locate dependency path '../libs/ballerina-runtime-api-2.0.0-beta.2-SNAPSHOT.jar'");
-        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(5:11,5:16)] "
-                + "exported module 'abc' is not a module of the package");
-        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(5:18,5:23)] "
-                + "exported module 'xyz' is not a module of the package");
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(16:1,16:13)] " +
+                "module 'abc' not found");
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(20:1,20:13)] " +
+                "module 'xyz' not found");
     }
 
     @Test(description = "Test `package-toml-semantic-analyzer` compiler plugin by checking valid export "
@@ -482,7 +482,7 @@ public class CompilerPluginTests {
         Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
 
         PackageCompilation packageCompilation = newPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         CompileResult compileResult = new CompileResult(newPackage, jBallerinaBackend);
 
         try {
@@ -504,7 +504,7 @@ public class CompilerPluginTests {
         Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
 
         PackageCompilation packageCompilation = newPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         CompileResult compileResult = new CompileResult(newPackage, jBallerinaBackend);
 
         try {

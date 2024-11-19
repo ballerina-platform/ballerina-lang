@@ -26,7 +26,6 @@
     </listeners>
 
     <test name="lang-lib-test">
-        <parameter name="enableJBallerinaTests" value="true" />
 
         <classes>
             <class name="org.ballerinalang.langlib.test.TypeParamTest" />

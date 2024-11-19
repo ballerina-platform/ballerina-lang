@@ -95,7 +95,7 @@ function reset() = @java:Method {
     name: "reset"
 } external;
 
-public function callMethod(service object {} s, string name) returns future<any|error>  = @java:Method {
+public function callMethod(service object {} s, string name) returns any|error = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name:"callMethod"
 } external;
@@ -208,8 +208,8 @@ function testServiceDecl() {
 
     // Test service within a service
     service object {} inner = <service object {}>
-        (checkpanic(wait callMethod(<service object {}> getService(), "$get$foo")));
-    string str = <string> (checkpanic (wait callMethod(inner, "$get$foo")));
+        (checkpanic(callMethod(<service object {}> getService(), "$get$foo")));
+    string str = <string> (checkpanic (callMethod(inner, "$get$foo")));
     assertEquality(str, "foo/foo");
 
     reset();

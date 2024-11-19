@@ -19,6 +19,7 @@
 package io.ballerina.projects.internal.bala;
 
 import com.google.gson.JsonArray;
+import io.ballerina.projects.PackageManifest;
 
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class PackageJson {
     private List<String> authors; //?
     private String source_repository; //?
     private List<String> keywords; //?
+    @Deprecated
     private List<String> export; //?
     private List<String> include;
     private String visibility;
@@ -48,7 +50,7 @@ public class PackageJson {
 
     // Dependencies
     private List<Dependency> dependencies; //?
-    private String platform; // target of the bala ie. java17, any etc.
+    private String platform; // target of the bala ie. java21, any etc.
     private JsonArray platformDependencies; // platform dependencies
 
     private Boolean graalvmCompatible; // GraalVM compatibility property for package
@@ -56,6 +58,11 @@ public class PackageJson {
     // Templating support
     private boolean template; //?
     private String template_version; //?
+
+    // Docs
+    private String readme;
+    private String description;
+    private List<PackageManifest.Module> modules;
 
     public PackageJson(String organization, String name, String version) {
         this.organization = organization;
@@ -119,6 +126,7 @@ public class PackageJson {
         this.keywords = keywords;
     }
 
+    @Deprecated (forRemoval = true, since = "2.11.0")
     public List<String> getExport() {
         return export;
     }
@@ -220,5 +228,29 @@ public class PackageJson {
 
     public void setTemplateVersion(String template_version) {
         this.template_version = template_version;
+    }
+
+    public List<PackageManifest.Module> getModules() {
+        return modules;
+    }
+
+    public void setModules(List<PackageManifest.Module> modules) {
+        this.modules = modules;
+    }
+
+    public String getReadme() {
+        return readme;
+    }
+
+    public void setReadme(String readme) {
+        this.readme = readme;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

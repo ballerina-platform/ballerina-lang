@@ -19,12 +19,13 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,6 +49,12 @@ public abstract class ValueCreator {
 
     private static final Map<String, ValueCreator> runtimeValueCreators = new HashMap<>();
 
+    public final BalRuntime runtime;
+
+    protected ValueCreator(BalRuntime runtime) {
+        this.runtime = runtime;
+    }
+
     public static void addValueCreator(String orgName, String moduleName, String moduleVersion, boolean isTestPkg,
                                        ValueCreator valueCreator) {
         String key = getLookupKey(orgName, moduleName, moduleVersion, isTestPkg);
@@ -58,6 +65,10 @@ public abstract class ValueCreator {
         }
 
         runtimeValueCreators.put(key, valueCreator);
+    }
+
+    public static String getLookupKey(Module module) {
+        return getLookupKey(module.getOrg(), module.getName(), module.getMajorVersion(), module.isTestPkg());
     }
 
     public static String getLookupKey(Module module, boolean isTestPkg) {
@@ -93,6 +104,11 @@ public abstract class ValueCreator {
         return runtimeValueCreators.get(key);
     }
 
+    public static void removeValueCreator(Module rootModule) {
+        String key = getLookupKey(rootModule, false);
+        runtimeValueCreators.remove(key);
+    }
+
     public Object call(Strand strand, String funcName, Object... args) throws BError {
         throw new ErrorValue(StringUtils.fromString("No such method: " + funcName));
     }
@@ -103,13 +119,13 @@ public abstract class ValueCreator {
 
     public abstract MapValue<BString, Object> createRecordValue(String recordTypeName) throws BError;
 
-    public abstract BObject createObjectValue(
-            String objectTypeName, @Nullable Scheduler scheduler, @Nullable Strand parent,
-            @Nullable Map<String, Object> properties, Object[] args) throws BError;
+    public abstract BObject createObjectValue(String objectTypeName, @Nullable Strand parent, Object[] args) throws BError;
 
     public abstract BError createErrorValue(String errorTypeName, BString message, BError cause, Object details)
             throws BError;
 
     public abstract Type getAnonType(int typeHash, String typeShape) throws BError;
+
+    public abstract FunctionType getFunctionType(String functionName) throws BError;
 
 }

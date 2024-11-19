@@ -22,9 +22,9 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
-import io.ballerina.runtime.internal.XmlFactory;
-import io.ballerina.runtime.internal.XmlValidator;
 import io.ballerina.runtime.internal.values.TableValueImpl;
+import io.ballerina.runtime.internal.xml.XmlFactory;
+import io.ballerina.runtime.internal.xml.XmlValidator;
 
 import java.io.InputStream;
 import java.io.Reader;

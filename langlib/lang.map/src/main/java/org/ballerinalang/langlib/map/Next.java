@@ -32,20 +32,12 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map", functionName = "next",
-//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "MapIterator",
-//        structPackage = "ballerina/lang.map"),
-//        returnType = {@ReturnType(type = TypeKind.RECORD)},
-//        isPublic = true
-//)
 public final class Next {
 
     private Next() {
     }
 
-    //TODO: refactor hard coded values
-    @Nullable
+	@Nullable
     public static Object next(BObject m) {
         BIterator<?> mapIterator = (BIterator<?>) m.getNativeData("&iterator&");
         BMap<?, ?> bMap = (BMap<?, ?>) m.get(StringUtils.fromString("m"));

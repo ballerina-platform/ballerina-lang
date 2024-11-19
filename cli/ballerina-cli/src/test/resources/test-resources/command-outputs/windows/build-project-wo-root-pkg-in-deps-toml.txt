@@ -4,4 +4,4 @@ WARNING [Dependencies.toml:(6:1,15:2)] Detected corrupted Dependencies.toml file
 WARNING [main.bal:(6:4,6:58)] unused variable 'isSuccess'
 
 Creating bala
-	target\bala\foo-winery-java17-0.1.0.bala
+	target\bala\foo-winery-java21-0.1.0.bala

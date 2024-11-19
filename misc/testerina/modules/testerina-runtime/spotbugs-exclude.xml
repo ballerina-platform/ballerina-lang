@@ -32,4 +32,7 @@
     <Match>
         <Class name="org.ballerinalang.test.runtime.util.JacocoInstrumentUtils"/>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.test.runtime.CustomSystemClassLoader"/>
+    </Match>
 </FindBugsFilter>

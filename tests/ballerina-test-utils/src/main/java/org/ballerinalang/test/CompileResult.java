@@ -27,6 +27,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
+import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -48,6 +49,7 @@ public class CompileResult {
     private final JBallerinaBackend jBallerinaBackend;
     private final DiagnosticResult diagnosticResult;
     private final Diagnostic[] diagnostics;
+    private final BalRuntime runtime;
 
     public CompileResult(Package pkg, JBallerinaBackend jBallerinaBackend) {
         this.pkg = pkg;
@@ -55,6 +57,8 @@ public class CompileResult {
         this.jBallerinaBackend = jBallerinaBackend;
         this.diagnosticResult = jBallerinaBackend.diagnosticResult();
         this.diagnostics = diagnosticResult.diagnostics().toArray(new Diagnostic[0]);
+        this.runtime = new BalRuntime(new io.ballerina.runtime.api.Module(pkg.packageOrg().value(),
+                pkg.packageName().value(), pkg.packageVersion().toString()));
     }
 
     Path projectSourceRoot() {
@@ -120,5 +124,9 @@ public class CompileResult {
 
     public Collection<JarLibrary> getJarPathRequiredForExecution() {
         return jBallerinaBackend.jarResolver().getJarFilePathsRequiredForExecution();
+    }
+
+    public BalRuntime getRuntime() {
+        return runtime;
     }
 }

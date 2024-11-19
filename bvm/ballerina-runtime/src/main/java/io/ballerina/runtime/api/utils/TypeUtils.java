@@ -17,33 +17,33 @@
  */
 package io.ballerina.runtime.api.utils;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANY;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BOOLEAN;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BYTE;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_DECIMAL;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ERROR;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_FLOAT;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_FUTURE;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_JSON;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NEVER;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STREAM;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_TYPEDESC;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_XML;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_XML_ATTRIBUTES;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_ANY;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_ANYDATA;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_BOOLEAN;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_BYTE;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_DECIMAL;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_ERROR;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_FLOAT;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_FUTURE;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_JSON;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_MAP;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_NEVER;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_NULL;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_STREAM;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_STRING;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_TYPEDESC;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_XML;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_XML_ATTRIBUTES;
 
 /**
  * This class contains various methods to manipulate {@link Type}s in Ballerina.

@@ -18,8 +18,8 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.FloatType;
+import io.ballerina.runtime.api.types.TypeTags;
 
 /**
  * {@code BFloatType} represents a integer which is a 32-bit floating-point number according to the

@@ -28,13 +28,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  * 
  * @since 0.982.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "removeChildren",
-//        args = {@Argument(name = "qname", type = TypeKind.STRING)},
-//        isPublic = true
-//)
-public final class RemoveChildren {
+public class RemoveChildren {
 
     private static final String OPERATION = "remove children from xml element";
 

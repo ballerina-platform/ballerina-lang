@@ -18,63 +18,44 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import org.ballerinalang.langlib.array.utils.GetFunction;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
-import static org.ballerinalang.langlib.array.utils.Constants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:map(Type[]).
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "map",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
-//        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-//        isPublic = true
-//)
 public final class Map {
-
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
-                                                                      ARRAY_VERSION, "map");
 
     private Map() {
     }
 
-    public static BArray map(BArray arr, BFunctionPointer<Object[], Object> func) {
+    public static BArray map(Environment env, BArray arr, BFunctionPointer func) {
         Type elemType = ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType();
-        Type retArrType = TypeCreator.createArrayType(elemType);
-        BArray retArr = ValueCreator.createArrayValue((ArrayType) retArrType);
-        int size = arr.size();
-        GetFunction getFn;
-
+        ArrayType retArrType = TypeCreator.createArrayType(elemType);
+        BArray retArr = ValueCreator.createArrayValue(retArrType);
         Type arrType = TypeUtils.getImpliedType(arr.getType());
-        getFn = switch (arrType.getTag()) {
+        int size = arr.size();
+        GetFunction getFn = switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG -> BArray::get;
             case TypeTags.TUPLE_TAG -> BArray::getRefValue;
             default -> throw createOpNotSupportedError(arrType, "map()");
         };
-        AtomicInteger index = new AtomicInteger(-1);
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{getFn.get(arr, index.incrementAndGet()), true},
-                result -> retArr.add(index.get(), result), () -> retArr, Scheduler.getStrand().scheduler);
+        for (int i = 0; i < size; i++) {
+            retArr.add(i, func.call(env.getRuntime(), getFn.get(arr, i)));
+        }
         return retArr;
     }
 }

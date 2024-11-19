@@ -19,16 +19,16 @@ package org.ballerinalang.nativeimpl.jvm.servicetests;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.Parameter;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.RemoteMethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -42,7 +42,6 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Optional;
 
 /**
@@ -56,43 +55,36 @@ public final class ServiceValue {
     private static BObject listener;
     private static boolean started;
     private static String[] names;
-    private static MapValue<?, ?> annotationMap; // captured at attach method
+    private static MapValue<?,  ?> annotationMap; // captured at attach method
 
     private ServiceValue() {
     }
 
-    public static BFuture callMethod(Environment env, BObject l, BString name) {
-
-        return env.getRuntime().invokeMethodAsyncConcurrently(l, name.getValue(), null, null, null, new HashMap<>(),
-                                                              PredefinedTypes.TYPE_ANY);
+    public static Object callMethod(Environment env, BObject l, BString name) {
+        return env.getRuntime().callMethod(l, name.getValue(), null);
     }
 
-    public static BFuture callMethodWithParams(Environment env, BObject l, BString name, ArrayValue arrayValue) {
-        Object[] args = new Object[arrayValue.size() * 2 ];
-        for (int i = 0, j = 0; i < arrayValue.size(); i += 1, j += 2) {
-            args[j] = arrayValue.get(i);
-            args[j + 1] = true;
+    public static Object callMethodWithParams(Environment env, BObject l, BString name, ArrayValue arrayValue) {
+        Object[] args = new Object[arrayValue.size()];
+        for (int i = 0; i < arrayValue.size(); i++) {
+            args[i] = arrayValue.get(i);
         }
-        BFuture k = env.getRuntime().invokeMethodAsyncConcurrently(l, name.getValue(), null, null, null,
-                                                                   new HashMap<>(),
-                                                                   PredefinedTypes.TYPE_ANY, args);
-
-        return k;
+        return env.getRuntime().callMethod(l, name.getValue(), null, args);
     }
 
     public static BArray getParamNames(BObject o, BString methodName) {
-        ObjectType type = o.getType();
+        ObjectType type = (ObjectType) o.getOriginalType();
         if (!(type instanceof ServiceType)) {
             return null;
         }
 
         for (ResourceMethodType attachedFunction : ((ServiceType) type).getResourceMethods()) {
             if (attachedFunction.getName().equals(methodName.getValue())) {
-                String[] paramNames = attachedFunction.getParamNames();
+                Parameter[] parameters = attachedFunction.getParameters();
                 BArray arrayValue = ValueCreator.createArrayValue(
-                        TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, paramNames.length));
-                for (int i = 0; i < paramNames.length; i++) {
-                    String paramName = paramNames[i];
+                        TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, parameters.length));
+                for (int i = 0; i < parameters.length; i++) {
+                    String paramName = parameters[i].name;
                     arrayValue.add(i, StringUtils.fromString(paramName));
                 }
                 return arrayValue;

@@ -15,13 +15,13 @@ include = [
     "**/*-module-include-dir",
     ]
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 artifactId = "ldap"
 version = "1.0.0"
 path = "./libs/ballerina-io-1.0.0-java.txt"
 groupId = "ballerina"
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 artifactId = "ldap"
 version = "1.0.0"
 path = "./libs/ballerina-io-1.2.0-java.txt"

@@ -94,7 +94,7 @@ public final class BuildLangLib {
             Project project = BuildProject.load(environmentBuilder, projectDir, defaultOptions);
             Package pkg = project.currentPackage();
             PackageCompilation packageCompilation = pkg.getCompilation();
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
             if (jBallerinaBackend.diagnosticResult().hasErrors()) {
                 out.println("Error building Ballerina package: " + pkg.packageName());
                 jBallerinaBackend.diagnosticResult().diagnostics().forEach(d -> out.println(d.toString()));
@@ -156,8 +156,7 @@ public final class BuildLangLib {
                     .toString(), true);
 
         } catch (Exception e) {
-            out.println("Unknown error building : " + projectDir.toString());
-            e.printStackTrace();
+            out.println("Unknown error building : " + projectDir.toString() + " due to " + e);
             throw e;
         }
     }

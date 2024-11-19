@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
@@ -37,13 +37,6 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.getFieldType;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map",
-//        functionName = "entries",
-//        args = {@Argument(name = "m", type = TypeKind.MAP)},
-//        returnType = {@ReturnType(type = TypeKind.MAP)},
-//        isPublic = true
-//)
 public final class Entries {
 
     private Entries() {

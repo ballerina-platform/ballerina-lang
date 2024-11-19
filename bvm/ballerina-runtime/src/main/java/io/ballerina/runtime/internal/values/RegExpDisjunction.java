@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.StringJoiner;
 
-import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
+import static io.ballerina.runtime.internal.utils.StringUtils.getStringVal;
 
 /**
  * <p>

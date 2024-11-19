@@ -15,10 +15,34 @@
 // under the License.
 
 import ballerina/test;
-import ballerina/http;
+listener Listener lis = new;
 
-service /hello on new http:Listener(9090) {
+service /hello on lis {
     @test:Config {}
     resource function get .() returns error? {
+    }
+}
+
+
+class Listener {
+
+    public function init() {
+    }
+
+    public function attach(service object {} s, string|string[]? name = ()) returns error? {
+    }
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+        return ();
+    }
+
+    public function immediateStop() returns error? {
+        return ();
     }
 }

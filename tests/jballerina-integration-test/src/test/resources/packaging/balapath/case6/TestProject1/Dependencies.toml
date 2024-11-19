@@ -1,4 +1,0 @@
-[[dependency]]
-org = "bar"
-name = "Z"
-path = "../TestProject2/target/balo/Z-2020r2-any-0.1.0.balo"

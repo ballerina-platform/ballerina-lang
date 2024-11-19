@@ -23,13 +23,7 @@ package org.ballerinalang.langlib.floatingpoint;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.float", functionName = "exp",
-//        args = {@Argument(name = "x", type = TypeKind.FLOAT)},
-//        returnType = {@ReturnType(type = TypeKind.FLOAT)},
-//        isPublic = true
-//)
-public final class Exp {
+public class Exp {
 
     private Exp() {
     }

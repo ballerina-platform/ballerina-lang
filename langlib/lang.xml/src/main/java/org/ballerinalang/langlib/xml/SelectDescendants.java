@@ -31,13 +31,6 @@ import org.jetbrains.annotations.Nullable;
  * 
  * @since 0.92
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "selectDescendants",
-//        args = {@Argument(name = "qname", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
 public final class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";

@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * Tests order of execution of listener methods.
  */
 public class ModuleExecutionFlowTests extends BaseTest {
-    public static final int TIMEOUT = 10000;
+    public static final int TIMEOUT = 1000;
 
     @Test
     public void testModuleExecutionOrder() throws BallerinaTestException {
@@ -51,7 +51,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
         Path projectPath = Path.of("src", "test", "resources", "packaging", "proj2");
         BServerInstance serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
-                                   null, null);
+                null, null);
         LogLeecher errLeecherA = new LogLeecher("Stopped module A", LogLeecher.LeecherType.ERROR);
         serverInstance.addErrorLogLeecher(errLeecherA);
         serverInstance.shutdownServer();
@@ -62,7 +62,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
     private void runAndAssert(Path projectPath) throws BallerinaTestException {
         BServerInstance serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
-                                   null, null);
+                null, null);
         LogLeecher errLeecherA = new LogLeecher("Stopped module A", LogLeecher.LeecherType.ERROR);
         LogLeecher errLeecherB = new LogLeecher("Stopped module B", LogLeecher.LeecherType.ERROR);
         LogLeecher errLeecherC = new LogLeecher("Stopped module C", LogLeecher.LeecherType.ERROR);
@@ -81,7 +81,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
         Path projectPath = Path.of("src", "test", "resources", "packaging", "module_invocation_project");
         BServerInstance serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(projectPath.toAbsolutePath().toString(), "module_invocation_project", null, null,
-                                   null);
+                null);
         LogLeecher errLeecherCurrent = new LogLeecher("Stopped module current", LogLeecher.LeecherType.ERROR);
         LogLeecher errLeecherDep1 = new LogLeecher("Stopped module second dependent", LogLeecher.LeecherType.ERROR);
         LogLeecher errLeecherDep2 = new LogLeecher("Stopped module first dependent", LogLeecher.LeecherType.ERROR);
@@ -122,7 +122,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
     private void runAssertDynamicListener(Path projectPath) throws BallerinaTestException {
         BServerInstance serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
-                                   null, null);
+                null, null);
         LogLeecher errLeecherA = new LogLeecher("Stopped module A", LogLeecher.LeecherType.ERROR);
         serverInstance.addErrorLogLeecher(errLeecherA);
         serverInstance.shutdownServer();

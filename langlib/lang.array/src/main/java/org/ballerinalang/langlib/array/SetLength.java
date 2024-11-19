@@ -25,12 +25,7 @@ import io.ballerina.runtime.api.values.BArray;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "setLength",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "i", type = TypeKind.INT)},
-//        isPublic = true
-//)
-public final class SetLength {
+public class SetLength {
 
     public static void setLength(BArray arr, long i) {
         arr.setLength(i);
