@@ -23,8 +23,6 @@ import io.ballerina.runtime.api.types.NeverType;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
 
-import java.util.List;
-
 /**
  * {@code BNeverType} represents the type of a {@code Never}.
  *

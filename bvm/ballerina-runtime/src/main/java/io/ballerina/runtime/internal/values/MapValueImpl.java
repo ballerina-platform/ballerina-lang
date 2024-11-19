@@ -19,11 +19,10 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
-import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
@@ -49,11 +48,11 @@ import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.types.TypeWithShape;
+import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.utils.CycleUtils;
 import io.ballerina.runtime.internal.utils.IteratorUtils;
 import io.ballerina.runtime.internal.utils.MapUtils;
-import io.ballerina.runtime.internal.types.TypeWithShape;
-import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

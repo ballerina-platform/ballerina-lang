@@ -30,8 +30,8 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
-import io.ballerina.runtime.internal.utils.ErrorUtils;
 import io.ballerina.runtime.internal.types.BDecimalType;
+import io.ballerina.runtime.internal.utils.ErrorUtils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
