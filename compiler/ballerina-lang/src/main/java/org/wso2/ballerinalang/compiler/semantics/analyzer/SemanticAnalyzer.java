@@ -52,10 +52,36 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
+
+private BLangAnnotationAttachment getEntityAnnotation(BLangRecordTypeNode recordNode) {
+    for (BLangAnnotationAttachment annotation : recordNode.annAttachments) {
+        if ("Entity".equals(annotation.annotationName.getValue()) &&
+            "subgraph".equals(annotation.pkgAlias.getValue())) {
+            return annotation;
+        }
+    }
+    return null; // No @subgraph:Entity annotation found
+}
+
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+
+private List<String> getKeyFieldsFromAnnotation(BLangAnnotationAttachment entityAnnotation) {
+    List<String> keyFields = new ArrayList<>();
+    if (entityAnnotation.expr != null && entityAnnotation.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) entityAnnotation.expr;
+        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : recordLiteral.keyValuePairs) {
+            if ("key".equals(keyValue.key.toString())) {
+                String keyField = keyValue.value.toString();
+                keyFields.add(keyField.replace("\"", "")); // Remove quotes
+            }
+        }
+    }
+    return keyFields;
+}
+
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -121,6 +147,22 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
+
+public void visit(BLangRecordTypeNode recordNode, AnalyzerData data) {
+    BLangAnnotationAttachment entityAnnotation = getEntityAnnotation(recordNode);
+    if (entityAnnotation != null) {
+        List<String> keyFields = getKeyFieldsFromAnnotation(entityAnnotation);
+        for (BLangSimpleVariable field : recordNode.fields) {
+            String fieldName = field.name.value;
+            if (!keyFields.contains(fieldName)) {
+                dlog.error(field.pos, DiagnosticErrorCode.INVALID_FIELD_IN_ENTITY,
+                    "Invalid field '" + fieldName + "': Only key fields are allowed in stub entities annotated with @subgraph:Entity.");
+            }
+        }
+    }
+    super.visit(recordNode, data);
+}
+
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
