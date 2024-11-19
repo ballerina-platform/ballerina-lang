@@ -17,12 +17,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
-import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
-import io.ballerina.compiler.internal.parser.tree.STToken;
-import io.ballerina.tools.diagnostics.Diagnostic;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**

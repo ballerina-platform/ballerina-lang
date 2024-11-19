@@ -50,6 +50,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -70,24 +71,43 @@ import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 public class BallerinaTriggerService implements ExtendedLanguageServerService {
     private LanguageClient languageClient;
     private final Map<String, InBuiltTrigger> inBuiltTriggers;
+    private static final Type MAP_TYPE = MapTypeToken.TYPE;
+
 
     // Represents the in-built trigger basic information
     public record InBuiltTrigger(String name, String orgName, String packageName, List<String> keywords) {
+        public InBuiltTrigger(String name, String orgName, String packageName, List<String> keywords) {
+            this.name = name;
+            this.orgName = orgName;
+            this.packageName = packageName;
+            // Make a defensive copy of the list to ensure immutability
+            this.keywords = keywords == null ? List.of() : new ArrayList<>(keywords);
+        }
+
+        @Override
+        public List<String> keywords() {
+            // Return an unmodifiable or defensive copy, as needed
+            return List.copyOf(keywords);
+        }
     }
 
     public BallerinaTriggerService() {
         InputStream propertiesStream = getClass().getClassLoader()
                 .getResourceAsStream("inbuilt-triggers/properties.json");
-        Type mapType = new TypeToken<Map<String, InBuiltTrigger>>() {}.getType();
         Map<String, InBuiltTrigger> triggers = Map.of();
         if (propertiesStream != null) {
             try (JsonReader reader = new JsonReader(new InputStreamReader(propertiesStream, StandardCharsets.UTF_8))) {
-                triggers = new Gson().fromJson(reader, mapType);
+                triggers = new Gson().fromJson(reader, MAP_TYPE);
             } catch (IOException e) {
                 // Ignore
             }
         }
         this.inBuiltTriggers = triggers;
+    }
+
+    // Static inner class to hold the type token
+    private static class MapTypeToken {
+        private static final Type TYPE = new TypeToken<Map<String, InBuiltTrigger>>() { }.getType();
     }
 
     @Override
@@ -230,7 +250,8 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
                 .noneMatch(inBuiltTrigger -> inBuiltTrigger.name().equals(triggerName))) {
             return Optional.empty();
         }
-        InputStream resourceStream = getClass().getClassLoader().getResourceAsStream(String.format("inbuilt-triggers/%s.json", triggerName));
+        InputStream resourceStream = getClass().getClassLoader().getResourceAsStream(
+                String.format("inbuilt-triggers/%s.json", triggerName));
         if (resourceStream == null) {
             String msg = String.format("Trigger info file not found for the trigger: %s", triggerName);
             this.languageClient.logMessage(new MessageParams(MessageType.Error, msg));
