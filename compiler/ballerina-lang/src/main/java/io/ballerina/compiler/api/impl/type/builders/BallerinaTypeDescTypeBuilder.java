@@ -62,8 +62,7 @@ public class BallerinaTypeDescTypeBuilder implements TypeBuilder.TYPEDESC {
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos,
                 SymbolOrigin.COMPILED_SOURCE);
 
-        BTypedescType typedescType = new BTypedescType(symTable.typeEnv(), getBType(typeParam));
-        typedescType.tsymbol = typedescSymbol;
+        BTypedescType typedescType = new BTypedescType(symTable.typeEnv(), getBType(typeParam), typedescSymbol);
         typedescSymbol.type = typedescType;
         TypeDescTypeSymbol typeDescTypeSymbol = (TypeDescTypeSymbol) typesFactory.getTypeDescriptor(typedescType);
         this.typeParam = null;

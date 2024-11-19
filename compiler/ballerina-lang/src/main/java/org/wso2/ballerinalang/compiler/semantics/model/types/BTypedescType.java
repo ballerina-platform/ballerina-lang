@@ -24,6 +24,7 @@ import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -35,15 +36,15 @@ public class BTypedescType extends BType implements ConstrainedType {
     public BType constraint;
     private final Env env;
 
-    public BTypedescType(Env env, BType constraint, SemType semType) {
-        this(env, constraint);
-        this.semType = semType;
-    }
-
-    public BTypedescType(Env env, BType constraint) {
-        super(TypeTags.TYPEDESC, null, Flags.READONLY);
+    public BTypedescType(Env env, BType constraint, BTypeSymbol tsymbol) {
+        super(TypeTags.TYPEDESC, tsymbol, Flags.READONLY);
         this.constraint = constraint;
         this.env = env;
+    }
+
+    public BTypedescType(Env env, BType constraint, BTypeSymbol tsymbol, SemType semType) {
+        this(env, constraint, tsymbol);
+        this.semType = semType;
     }
 
     @Override

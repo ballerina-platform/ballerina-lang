@@ -873,7 +873,7 @@ public class TypeParamAnalyzer {
                     return expType;
                 }
 
-                return new BTypedescType(symTable.typeEnv(), matchingBoundType);
+                return new BTypedescType(symTable.typeEnv(), matchingBoundType, symTable.typeDesc.tsymbol);
             case TypeTags.INTERSECTION:
                 return getMatchingReadonlyIntersectionBoundType((BIntersectionType) expType, env, resolvedTypes);
             case TypeTags.TYPEREFDESC:

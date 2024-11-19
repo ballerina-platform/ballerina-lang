@@ -307,8 +307,8 @@ public class SymbolTable {
 
         xmlType = new BXMLType(BUnionType.create(types.typeEnv(), null, xmlElementType, xmlCommentType,
                 xmlPIType, xmlTextType), null);
-        futureType = new BFutureType(types.typeEnv(), nilType, PredefinedType.FUTURE);
-        typeDesc = new BTypedescType(types.typeEnv(), this.anyType, PredefinedType.TYPEDESC);
+        futureType = new BFutureType(types.typeEnv(), nilType, null, PredefinedType.FUTURE);
+        typeDesc = new BTypedescType(types.typeEnv(), this.anyType, null, PredefinedType.TYPEDESC);
         initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
         initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);
         initializeType(typeDesc, TypeKind.TYPEDESC.typeName(), BUILTIN);

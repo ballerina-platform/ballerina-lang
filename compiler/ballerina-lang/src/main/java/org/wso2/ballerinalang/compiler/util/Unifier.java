@@ -510,7 +510,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BFutureType newFutureType = new BFutureType(typeEnv, newConstraint, originalType.workerDerivative);
+        BFutureType newFutureType = new BFutureType(typeEnv, newConstraint, null, originalType.workerDerivative);
         setFlags(newFutureType, originalType.getFlags());
         return newFutureType;
     }
@@ -535,7 +535,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BTypedescType newTypedescType = new BTypedescType(typeEnv, newConstraint);
+        BTypedescType newTypedescType = new BTypedescType(typeEnv, newConstraint, null);
         setFlags(newTypedescType, originalType.getFlags());
         return newTypedescType;
     }
@@ -567,7 +567,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                         // Log an error only if the user has not explicitly passed an argument. If the passed
                         // argument is invalid, the type checker will log the error.
                         dlog.error(invocation.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_INFERRED_TYPEDESC_VALUE,
-                                   paramVarName, paramSymbolTypedescType, new BTypedescType(typeEnv, expType));
+                                   paramVarName, paramSymbolTypedescType, new BTypedescType(typeEnv, expType, null));
                         return symbolTable.semanticError;
                     }
                     BType type = paramValueTypes.get(paramVarName);
@@ -696,7 +696,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         BLangTypedescExpr typedescExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
         typedescExpr.pos = this.symbolTable.builtinPos;
         typedescExpr.resolvedType = expType;
-        typedescExpr.setBType(new BTypedescType(typeEnv, expType));
+        typedescExpr.setBType(new BTypedescType(typeEnv, expType, null));
 
         BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) TreeBuilder.createNamedArgNode();
         BLangIdentifier identifierNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();

@@ -23,6 +23,7 @@ import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
@@ -36,19 +37,19 @@ public class BFutureType extends BType implements ConstrainedType {
     public boolean workerDerivative;
     private final Env env;
 
-    public BFutureType(Env env, BType constraint) {
-        super(TypeTags.FUTURE, null);
+    public BFutureType(Env env, BType constraint, BTypeSymbol tsymbol) {
+        super(TypeTags.FUTURE, tsymbol);
         this.constraint = constraint;
         this.env = env;
     }
 
-    public BFutureType(Env env, BType constraint, boolean workerDerivative) {
-        this(env, constraint);
+    public BFutureType(Env env, BType constraint, BTypeSymbol tsymbol, boolean workerDerivative) {
+        this(env, constraint, tsymbol);
         this.workerDerivative = workerDerivative;
     }
 
-    public BFutureType(Env env, BType constraint, SemType semType) {
-        this(env, constraint);
+    public BFutureType(Env env, BType constraint, BTypeSymbol tsymbol, SemType semType) {
+        this(env, constraint, tsymbol);
         this.semType = semType;
     }
 
