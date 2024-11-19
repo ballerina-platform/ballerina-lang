@@ -18,7 +18,7 @@
 package io.ballerina.semtype.port.test;
 
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.internal.ValueComparisonUtils;
+import io.ballerina.runtime.internal.utils.ValueComparisonUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.types.Context;

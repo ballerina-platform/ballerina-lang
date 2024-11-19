@@ -85,7 +85,7 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
 
     public static SubtypeData createFloatSubtype(boolean allowed, EnumerableFloat[] values) {
         if (values.length == 0) {
-            return new AllOrNothingSubtype(!allowed);
+            return allowed ? AllOrNothingSubtype.createNothing() : AllOrNothingSubtype.createAll();
         }
         return new FloatSubtype(allowed, values);
     }

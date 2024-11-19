@@ -31,7 +31,7 @@ public class AllOrNothingSubtype implements SubtypeData {
     private static final AllOrNothingSubtype all = new AllOrNothingSubtype(true);
     private static final AllOrNothingSubtype nothing = new AllOrNothingSubtype(false);
 
-    AllOrNothingSubtype(boolean isAll) {
+    private AllOrNothingSubtype(boolean isAll) {
         this.isAll = isAll;
     }
 
