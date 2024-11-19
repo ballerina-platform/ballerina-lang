@@ -108,10 +108,12 @@ public class FileSystemCache extends CompilationCache {
         // given module is `optimized`, `unoptimized` or `duplicated optimized`. Maybe we can lift the logic to
         // JarResolver somehow.
         // TODO Find a cleaner way to handle JarPaths for bal test with dead code elimination.
-        if (!Files.exists(jarFilePath) && Files.exists(optimizedJarFilePath)) {
+        if (Files.exists(jarFilePath)) {
+            return Optional.of(jarFilePath);
+        } else if (Files.exists(optimizedJarFilePath)) {
             return Optional.of(optimizedJarFilePath);
         }
-        return Files.exists(jarFilePath) ? Optional.of(jarFilePath) : Optional.empty();
+        return Optional.empty();
     }
 
     @Override
