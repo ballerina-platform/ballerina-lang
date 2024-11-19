@@ -2409,10 +2409,6 @@ public class BIRGen extends BLangNodeVisitor {
         return new BIRNonTerminator.NewStructure(pos, toVarRef, typeDesc, fields);
     }
 
-    public String getTypedescFieldName(String name) {
-        return "$typedesc$" + name;
-    }
-
     private BIRVariableDcl getTypedescVariable(BType type, Location pos) {
         Supplier<BIRVariableDcl>[] checks = new Supplier[] {
                 () -> findInPackageScope(type),
@@ -2437,17 +2433,15 @@ public class BIRGen extends BLangNodeVisitor {
 
     private BIRVariableDcl findInPackageScope(BType type) {
         BTypeSymbol typeSymbol = type.tsymbol;
-        if (typeSymbol != null && typeSymbol.owner.tag == SymTag.PACKAGE &&
-                !isInSameModule(typeSymbol, env.enclPkg.packageID)) {
-            BPackageSymbol packageSymbol = (BPackageSymbol) typeSymbol.owner;
-            Scope.ScopeEntry scopeEntry =
-                    packageSymbol.scope.lookup(new Name(getTypedescFieldName(typeSymbol.name.value)));
-            BSymbol symbol = scopeEntry.symbol;
-            if (symbol != null) {
-                return getVarRef(createPackageVarRef(symbol));
-            }
+        if (typeSymbol == null || typeSymbol.owner.tag != SymTag.PACKAGE ||
+                isInSameModule(typeSymbol, env.enclPkg.packageID)) {
+            return null;
         }
-        return null;
+        BPackageSymbol packageSymbol = (BPackageSymbol) typeSymbol.owner;
+        Scope.ScopeEntry scopeEntry =
+                packageSymbol.scope.lookup(new Name(TYPEDESC + typeSymbol.name.value));
+        BSymbol symbol = scopeEntry.symbol;
+        return symbol != null? getVarRef(createPackageVarRef(symbol)) : null;
     }
 
     private BLangPackageVarRef createPackageVarRef(BSymbol symbol) {

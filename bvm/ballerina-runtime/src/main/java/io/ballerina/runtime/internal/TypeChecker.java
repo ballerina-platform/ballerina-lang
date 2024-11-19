@@ -551,11 +551,6 @@ public final class TypeChecker {
         if (!(describingType instanceof BAnnotatableType annotatableType)) {
             return null;
         }
-        MapValue annotations =  ((TypedescValueImpl) typedescValue).annotations;
-        if (annotations != null) {
-            // ATM only field annotations will reach here
-            return annotations.get(annotTag);
-        }
         return annotatableType.getAnnotation(annotTag);
     }
 
