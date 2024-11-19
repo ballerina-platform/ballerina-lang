@@ -47,7 +47,6 @@ public class BTupleType extends BType implements TupleType {
     private List<BTupleMember> members;
     private List<BType> memberTypes;
     public BType restType;
-    public Boolean isAnyData = null;
     public boolean resolvingToString = false;
     public boolean isCyclic = false;
 

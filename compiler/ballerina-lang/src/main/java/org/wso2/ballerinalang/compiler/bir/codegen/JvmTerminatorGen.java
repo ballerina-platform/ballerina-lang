@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
-import io.ballerina.types.PredefinedType;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
@@ -41,7 +40,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;

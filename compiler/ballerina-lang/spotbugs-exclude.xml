@@ -500,4 +500,11 @@
         <Method name="performCodeGen"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE" />
     </Match>
+    <Match>
+        <Bug pattern="AA_ASSERTION_OF_ARGUMENTS">
+            <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType"/>
+            <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType"/>
+            <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType"/>
+        </Bug>
+    </Match>
 </FindBugsFilter>
