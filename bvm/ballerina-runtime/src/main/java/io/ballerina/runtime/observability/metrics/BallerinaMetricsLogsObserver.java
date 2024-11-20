@@ -16,7 +16,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.ballerina.runtime.observability.ObservabilityConstants.*;
+import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
+import static io.ballerina.runtime.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
 
 public class BallerinaMetricsLogsObserver implements BallerinaObserver {
     private static final String ORG_NAME = "ballerinax";
