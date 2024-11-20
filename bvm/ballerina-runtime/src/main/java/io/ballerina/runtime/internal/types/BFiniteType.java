@@ -18,9 +18,9 @@
 
 package io.ballerina.runtime.internal.types;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.FiniteType;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.RefValue;
 

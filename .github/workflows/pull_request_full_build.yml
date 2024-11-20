@@ -18,11 +18,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17.0.7'
+          java-version: '21.0.3'
 
       - name: Checkout To Lang Branch
         run: |
@@ -65,11 +65,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17.0.7'
+          java-version: '21.0.3'
 
       - name: Setup NodeJs
         uses: actions/setup-node@v4
@@ -91,12 +91,6 @@ jobs:
           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); \
           do git clone https://github.com/ballerina-platform/${module_name}.git; \
           done
-
-#      - name: Checkout non-default branch
-#        run: |
-#          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
-#          cd $module_name && git fetch origin && git checkout -t origin/java_17_migration && cd ..; \
-#          done
 
       - name: Update Lang Version in Module
         run: |
@@ -132,11 +126,11 @@ jobs:
         with:
           repository: 'ballerina-platform/ballerina-distribution'
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17.0.7'
+          java-version: '21.0.3'
 
       - name: Download Ballerina Lang Artifacts
         uses: actions/download-artifact@v4

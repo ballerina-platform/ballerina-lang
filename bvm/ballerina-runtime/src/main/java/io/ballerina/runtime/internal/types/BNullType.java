@@ -18,8 +18,8 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.NullType;
+import io.ballerina.runtime.api.types.TypeTags;
 
 /**
  * {@code BNullType} represents the type of a {@code NullLiteral}.

@@ -17,10 +17,11 @@
  */
 package org.ballerinalang.test.javainterop;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -31,7 +32,6 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.FPValue;
@@ -450,12 +450,12 @@ public class RefTypeWithBValueAPITests {
         return x;
     }
 
-    public static int useFunctionPointer(BFunctionPointer<Object, Long> fp) {
-        return ((Long) fp.call(new Object[]{Scheduler.getStrand(), 3, 4})).intValue();
+    public static int useFunctionPointer(Environment env, io.ballerina.runtime.api.values.BFunctionPointer fp) {
+        return ((Long) fp.call(env.getRuntime(), new Object[]{3, 4})).intValue();
     }
 
-    public static BFunctionPointer<?, ?> getFunctionPointer(Object fp) {
-        return (FPValue<?, ?>) fp;
+    public static BFunctionPointer getFunctionPointer(Object fp) {
+        return (FPValue) fp;
     }
 
     public static BString useTypeDesc(BTypedesc type) {
@@ -467,7 +467,7 @@ public class RefTypeWithBValueAPITests {
     }
 
     public static Object useFuture(BFuture future) {
-        return future.getResult();
+        return future.get();
     }
 
     public static BFuture getFuture(Object a) {

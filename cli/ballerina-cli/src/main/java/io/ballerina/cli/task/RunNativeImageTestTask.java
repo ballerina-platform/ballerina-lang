@@ -161,7 +161,7 @@ public class RunNativeImageTestTask implements Task {
         boolean hasTests = false;
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
         TestProcessor testProcessor = new TestProcessor(jarResolver);
         List<String> updatedSingleExecTests;
@@ -361,14 +361,15 @@ public class RunNativeImageTestTask implements Task {
 
 
         // set name and path
-        nativeArgs.add("-H:Name=" + NativeUtils.addQuotationMarkToString(packageName));
-        nativeArgs.add("-H:Path=" + NativeUtils.convertWinPathToUnixFormat(NativeUtils
-                .addQuotationMarkToString(nativeTargetPath.toString())));
+        nativeArgs.add("-o " + NativeUtils.convertWinPathToUnixFormat(NativeUtils
+                .addQuotationMarkToString(nativeTargetPath.toString() + "/" + packageName)));
 
         // native-image configs
+        nativeArgs.add("-H:+UnlockExperimentalVMOptions");        
         nativeArgs.add("-H:ReflectionConfigurationFiles=" + NativeUtils
                 .convertWinPathToUnixFormat(NativeUtils.addQuotationMarkToString(
                 nativeConfigPath.resolve("reflect-config.json").toString())));
+        nativeArgs.add("-H:-UnlockExperimentalVMOptions");        
         nativeArgs.add("--no-fallback");
 
 

@@ -18,8 +18,8 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.IntegerType;
+import io.ballerina.runtime.api.types.TypeTags;
 
 /**
  * {@code BIntegerType} represents an integer which is a 32-bit signed number.

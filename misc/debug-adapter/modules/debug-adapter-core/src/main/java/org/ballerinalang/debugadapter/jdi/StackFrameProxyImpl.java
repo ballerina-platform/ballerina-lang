@@ -141,10 +141,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
             } catch (IncompatibleThreadStateException e) {
                 error = e;
                 clearCaches();
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException ignored) {
-                }
+                JDIUtils.sleepMillis(10);
             } catch (IndexOutOfBoundsException e) {
                 throw new JdiProxyException(e.getMessage(), e);
             } catch (ObjectCollectedException ignored) {
@@ -286,14 +283,8 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
         Exception error = null;
         for (int attempt = 0; attempt < RETRY_COUNT; attempt++) {
             try {
-                Map<LocalVariable, Value> values = getAllValues();
-                LocalVariable variable = localVariable.getVariable();
-                if (values.containsKey(variable)) {
-                    return values.get(variable);
-                } else { // try direct get
-                    return getStackFrame().getValue(variable);
-                }
-            } catch (InvalidStackFrameException e) {
+                return getStackFrame().getValue(localVariable.getVariable());
+            } catch (InvalidStackFrameException | IllegalArgumentException e) {
                 error = e;
                 clearCaches();
             } catch (InconsistentDebugInfoException ignored) {
@@ -313,11 +304,13 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
                     throw e;
                 }
             }
+           JDIUtils.sleepMillis(1);
         }
         throw new JdiProxyException(error.getMessage(), error);
     }
 
-    private Map<LocalVariable, Value> getAllValues() throws JdiProxyException {
+    @SuppressWarnings("unused")
+    public Map<LocalVariable, Value> getAllValues() throws JdiProxyException {
         checkValid();
         if (myAllValues == null) {
             try {
@@ -345,6 +338,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
         return myAllValues;
     }
 
+    @SuppressWarnings("unused")
     public void setValue(LocalVariableProxyImpl localVariable, Value value)
             throws JdiProxyException, ClassNotLoadedException, InvalidTypeException {
         InvalidStackFrameException error = null;

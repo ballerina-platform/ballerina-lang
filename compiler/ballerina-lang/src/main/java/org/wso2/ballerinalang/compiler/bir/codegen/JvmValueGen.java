@@ -68,7 +68,7 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
-import static org.objectweb.asm.Opcodes.V17;
+import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIONS_FIELD;
@@ -77,7 +77,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INSTANTIATE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_METHOD_COUNT_PER_BALLERINA_OBJECT;
@@ -93,7 +92,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_IMPL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNSUPPORTED_OPERATION_EXCEPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CLASS_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CAST_B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
@@ -201,8 +199,7 @@ public class JvmValueGen {
                         asyncDataCollector, jarEntries);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
-                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef,
-                        asyncDataCollector, jvmTypeGen);
+                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, jvmTypeGen);
                 jarEntries.put(className + CLASS_FILE_SUFFIX, bytes);
                 String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.value);
                 bytes = this.createRecordTypeDescClass(recordType, typedescClass, optionalTypeDef, jvmTypeGen);
@@ -221,7 +218,7 @@ public class JvmValueGen {
         } else {
             cw.visitSource(className, null);
         }
-        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, className, null, TYPEDESC_VALUE_IMPL, new String[]{TYPEDESC_VALUE});
+        cw.visit(V21, ACC_PUBLIC + ACC_SUPER, className, null, TYPEDESC_VALUE_IMPL, new String[]{TYPEDESC_VALUE});
 
         FieldVisitor fv = cw.visitField(0, ANNOTATIONS_FIELD, GET_MAP_VALUE, null, null);
         fv.visitEnd();
@@ -297,7 +294,7 @@ public class JvmValueGen {
     }
 
     private byte[] createRecordValueClass(BRecordType recordType, String className, BIRNode.BIRTypeDefinition typeDef,
-                                          AsyncDataCollector asyncDataCollector, JvmTypeGen jvmTypeGen) {
+                                          JvmTypeGen jvmTypeGen) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (typeDef.pos != null) {
             cw.visitSource(typeDef.pos.lineRange().fileName(), null);
@@ -305,7 +302,7 @@ public class JvmValueGen {
             cw.visitSource(className, null);
         }
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen, types);
-        cw.visit(V17, ACC_PUBLIC + ACC_SUPER + ACC_FINAL, className, RECORD_VALUE_CLASS, MAP_VALUE_IMPL,
+        cw.visit(V21, ACC_PUBLIC + ACC_SUPER + ACC_FINAL, className, RECORD_VALUE_CLASS, MAP_VALUE_IMPL,
                 new String[]{MAP_VALUE});
 
         Map<String, BField> fields = recordType.fields;
@@ -462,7 +459,7 @@ public class JvmValueGen {
         SymbolTable symbolTable = jvmPackageGen.symbolTable;
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
-        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
+        cw.visit(V21, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
 
         Map<String, BField> fields = objectType.fields;
         this.createObjectFields(cw, fields);
@@ -476,7 +473,7 @@ public class JvmValueGen {
                     jvmConstantsGen, asyncDataCollector);
         }
 
-        this.createObjectInit(cw, fields, className);
+        this.createObjectInit(cw);
         jvmObjectGen.createAndSplitCallMethod(cw, attachedFuncs, className, jvmCastGen);
         jvmObjectGen.createAndSplitGetMethod(cw, fields, className, jvmCastGen);
         jvmObjectGen.createAndSplitSetMethod(cw, fields, className, jvmCastGen);
@@ -492,10 +489,6 @@ public class JvmValueGen {
             }
             FieldVisitor fvb = cw.visitField(0, field.name.value, getTypeDesc(field.type), null, null);
             fvb.visitEnd();
-            String lockClass = "L" + LOCK_VALUE + ";";
-            FieldVisitor fv = cw.visitField(ACC_PUBLIC, computeLockNameFromString(field.name.value),
-                    lockClass, null, null);
-            fv.visitEnd();
         }
     }
 
@@ -519,7 +512,7 @@ public class JvmValueGen {
         ClassWriter splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
         splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);
         String splitClassName = moduleClassName + SPLIT_CLASS_SUFFIX + splitClassNum;
-        splitCW.visit(V17, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
+        splitCW.visit(V21, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
         JvmCodeGenUtil.generateDefaultConstructor(splitCW, OBJECT);
         int methodCountPerSplitClass = 0;
 
@@ -542,7 +535,7 @@ public class JvmValueGen {
                 splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
                 splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);
                 splitClassName = moduleClassName + SPLIT_CLASS_SUFFIX + splitClassNum;
-                splitCW.visit(V17, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
+                splitCW.visit(V21, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
                 JvmCodeGenUtil.generateDefaultConstructor(splitCW, OBJECT);
                 methodCountPerSplitClass = 0;
             }
@@ -554,7 +547,7 @@ public class JvmValueGen {
         }
     }
 
-    private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createObjectInit(ClassWriter cw) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, OBJECT_TYPE_IMPL_INIT, null,
                 null);
@@ -566,22 +559,6 @@ public class JvmValueGen {
         mv.visitVarInsn(ALOAD, 1);
         // invoke super(type);
         mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, JVM_INIT_METHOD, OBJECT_TYPE_IMPL_INIT, false);
-
-        String lockClass = "L" + LOCK_VALUE + ";";
-        for (BField field : fields.values()) {
-            if (field == null) {
-                continue;
-            }
-
-            Label fLabel = new Label();
-            mv.visitLabel(fLabel);
-            mv.visitVarInsn(ALOAD, 0);
-            mv.visitTypeInsn(NEW, LOCK_VALUE);
-            mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
-            mv.visitFieldInsn(PUTFIELD, className, computeLockNameFromString(field.name.value), lockClass);
-        }
-
         mv.visitInsn(RETURN);
         mv.visitMaxs(5, 5);
         mv.visitEnd();

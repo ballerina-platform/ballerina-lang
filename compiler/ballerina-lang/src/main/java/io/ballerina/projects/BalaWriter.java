@@ -49,6 +49,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -105,7 +106,7 @@ public abstract class BalaWriter {
                                       this.packageContext.packageName().value(),
                                       this.packageContext.packageVersion().value().toString(),
                                       this.target);
-        // Create the archive over write if exists
+        // Create the archive overwrite if exists
         try (ZipOutputStream balaOutputStream = new ZipOutputStream(
                 new FileOutputStream(String.valueOf(balaPath.resolve(balaName))))) {
             // Now lets put stuff in
@@ -129,8 +130,7 @@ public abstract class BalaWriter {
 
         addBalaJson(balaOutputStream);
         addPackageDoc(balaOutputStream,
-                      this.packageContext.project().sourceRoot(),
-                      this.packageContext.packageName().toString());
+                      this.packageContext.packageManifest());
         addPackageSource(balaOutputStream);
         addResources(balaOutputStream);
         addIncludes(balaOutputStream);
@@ -167,6 +167,7 @@ public abstract class BalaWriter {
         packageJson.setInclude(packageManifest.includes());
         packageJson.setVisibility(packageManifest.visibility());
         packageJson.setTemplate(packageManifest.template());
+        packageJson.setDescription(packageManifest.description());
 
         packageJson.setPlatform(target);
         packageJson.setBallerinaVersion(BALLERINA_SHORT_VERSION);
@@ -183,6 +184,9 @@ public abstract class BalaWriter {
         // Set graalvmCompatibility property in package.json
         setGraalVMCompatibilityProperty(packageJson, packageManifest);
 
+        setReadme(packageManifest, packageJson);
+        setModules(packageJson, packageManifest);
+
         // Remove fields with empty values from `package.json`
         Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new JsonCollectionsAdaptor())
                 .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
@@ -193,6 +197,33 @@ public abstract class BalaWriter {
         } catch (IOException e) {
             throw new ProjectException("Failed to write 'package.json' file: " + e.getMessage(), e);
         }
+    }
+
+    private void setReadme(PackageManifest packageManifest, PackageJson packageJson) {
+        if (packageManifest.readme() != null) { // Null check is required for ballerinai packages
+            packageJson.setReadme(BALA_DOCS_DIR + UNIX_FILE_SEPARATOR +
+                    Paths.get(packageManifest.readme()).getFileName());
+        }
+    }
+
+    private void setModules(PackageJson packageJson, PackageManifest packageManifest) {
+        List<PackageManifest.Module> modules = new ArrayList<>();
+        String packageDocPathPrefix = BALA_DOCS_DIR + UNIX_FILE_SEPARATOR;
+
+        List<PackageManifest.Module> moduleList = packageManifest.modules();
+        for (PackageManifest.Module module : moduleList) {
+            String moduleDoc = null;
+            if (module.readme() != null && !module.readme().isEmpty()) {
+                moduleDoc = packageDocPathPrefix + MODULES_ROOT + UNIX_FILE_SEPARATOR + module.name() +
+                        UNIX_FILE_SEPARATOR + Paths.get(module.readme()).getFileName();
+            }
+            modules.add(new PackageManifest.Module(
+                    module.name(),
+                    module.export(),
+                    module.description(),
+                    moduleDoc));
+        }
+        packageJson.setModules(modules);
     }
 
     private void setGraalVMCompatibilityProperty(PackageJson packageJson, PackageManifest packageManifest) {
@@ -253,20 +284,19 @@ public abstract class BalaWriter {
 
     // TODO when iterating and adding source files should create source files from Package sources
 
-    private void addPackageDoc(ZipOutputStream balaOutputStream, Path packageSourceDir, String pkgName)
+    private void addPackageDoc(ZipOutputStream balaOutputStream, PackageManifest packageManifest)
             throws IOException {
-        final String packageMdFileName = "Package.md";
-        final String moduleMdFileName = "Module.md";
 
-        Path packageMd = packageSourceDir.resolve(packageMdFileName);
+        if (packageManifest.readme() == null) {
+            return;
+        }
+        Path sourceRoot = this.packageContext.project().sourceRoot;
+        Path pkgReadme = Paths.get(packageManifest.readme());
         Path docsDirInBala = Path.of(BALA_DOCS_DIR);
 
-        // If `Package.md` exists, create the docs directory & add `Package.md`
-        if (packageMd.toFile().exists()) {
-            Path packageMdInBala = docsDirInBala.resolve(packageMdFileName);
-            putZipEntry(balaOutputStream, packageMdInBala,
-                    new FileInputStream(String.valueOf(packageMd)));
-        }
+        Path packageMdInBala = docsDirInBala.resolve(pkgReadme.getFileName());
+        putZipEntry(balaOutputStream, packageMdInBala,
+                new FileInputStream(pkgReadme.toString()));
 
         // If `icon` mentioned in the Ballerina.toml, add it to docs directory
         String icon = this.packageContext.packageManifest().icon();
@@ -276,35 +306,16 @@ public abstract class BalaWriter {
             putZipEntry(balaOutputStream, iconInBala, new FileInputStream(String.valueOf(iconPath)));
         }
 
-        // If `Module.md` of default module exists, create `docs/modules` directory & add `Module.md`
-        Path defaultModuleMd = packageSourceDir.resolve(moduleMdFileName);
         Path modulesDirInBalaDocs = docsDirInBala.resolve(MODULES_ROOT);
 
-        if (defaultModuleMd.toFile().exists()) {
-            Path defaultModuleMdInBalaDocs = modulesDirInBalaDocs.resolve(pkgName).resolve(moduleMdFileName);
-            putZipEntry(balaOutputStream, defaultModuleMdInBalaDocs,
-                    new FileInputStream(String.valueOf(defaultModuleMd)));
-        }
-
-        // Add other module docs
-        File modulesSourceDir = new File(String.valueOf(packageSourceDir.resolve(MODULES_ROOT)));
-        File[] directoryListing = modulesSourceDir.listFiles();
-
-        if (directoryListing != null) {
-            for (File moduleDir : directoryListing) {
-                if (moduleDir.isDirectory()) {
-                    // Get `Module.md` path
-                    Path otherModuleMd = packageSourceDir.resolve(MODULES_ROOT).resolve(moduleDir.getName())
-                            .resolve(moduleMdFileName);
-                    // Create `package.module` folder, if `Module.md` path exists
-                    if (otherModuleMd.toFile().exists()) {
-                        Path otherModuleMdInBalaDocs = modulesDirInBalaDocs.resolve(pkgName + "." + moduleDir.getName())
-                                .resolve(moduleMdFileName);
-                        putZipEntry(balaOutputStream, otherModuleMdInBalaDocs,
-                                new FileInputStream(String.valueOf(otherModuleMd)));
-                    }
-                }
+        for (PackageManifest.Module module : packageManifest.modules()) {
+            if (module.readme() == null || module.readme().isEmpty()) {
+                continue;
             }
+            Path otherReadmeMdInBalaDocs = modulesDirInBalaDocs.resolve(module.name())
+                    .resolve(Paths.get(module.readme()).getFileName());
+            putZipEntry(balaOutputStream, otherReadmeMdInBalaDocs,
+                    new FileInputStream(sourceRoot.resolve(module.readme()).toString()));
         }
     }
 

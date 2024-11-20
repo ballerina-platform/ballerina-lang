@@ -2,7 +2,14 @@
 org = "winery"
 name = "too"
 version = "0.1.0"
-export = ["too.abc", "too.xyz"]
 
 [build-options]
 observabilityIncluded = false
+
+[[package.modules]]
+name = "too.abc"
+export = true
+
+[[package.modules]]
+name = "too.xyz"
+export = true

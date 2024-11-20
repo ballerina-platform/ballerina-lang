@@ -56,7 +56,7 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
  *
  * @since 2201.10.0
  */
-public class ProjectWatcher {
+public final class ProjectWatcher {
     private final WatchService fileWatcher;
     private final Map<WatchKey, Path> watchKeys;
     private final RunCommand runCommand;

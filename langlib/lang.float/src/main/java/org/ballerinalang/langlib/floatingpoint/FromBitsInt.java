@@ -23,13 +23,8 @@ package org.ballerinalang.langlib.floatingpoint;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.float", functionName = "fromBitsInt",
-//        args = {@Argument(name = "x", type = TypeKind.INT)},
-//        returnType = {@ReturnType(type = TypeKind.FLOAT)},
-//        isPublic = true
-//)
-public final class FromBitsInt {
+public class FromBitsInt {
+
 
     private FromBitsInt() {
     }

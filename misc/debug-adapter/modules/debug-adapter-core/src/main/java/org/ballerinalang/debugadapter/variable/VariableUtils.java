@@ -23,6 +23,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.jdi.JDIUtils;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 
 import java.util.AbstractMap;
@@ -212,10 +213,7 @@ public final class VariableUtils {
                     return ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
                             .getThreadReference(), method, arguments, ObjectReference.INVOKE_SINGLE_THREADED);
                 } catch (Exception e) {
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException ignored) {
-                    }
+                    JDIUtils.sleepMillis(10);
                 }
             }
             throw new DebugVariableException("Failed to invoke remote VM method as the invocation thread is busy");

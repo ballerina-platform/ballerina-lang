@@ -26,13 +26,8 @@ import io.ballerina.runtime.internal.values.ArrayValue;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "remove",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "i", type = TypeKind.INT)},
-//        returnType = {@ReturnType(type = TypeKind.ANY)},
-//        isPublic = true
-//)
-public final class Remove {
+public class Remove {
+
 
     private Remove() {
     }

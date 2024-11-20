@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.xml.XmlFactory;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

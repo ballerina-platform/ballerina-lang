@@ -22,7 +22,7 @@ import io.ballerina.cli.cmd.RunCommand;
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.cli.launcher.RuntimePanicException;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 
 import java.io.PrintStream;

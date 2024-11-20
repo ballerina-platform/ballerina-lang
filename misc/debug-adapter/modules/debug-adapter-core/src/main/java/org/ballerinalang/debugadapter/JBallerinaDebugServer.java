@@ -22,7 +22,6 @@ import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
-import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -42,6 +41,7 @@ import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.DebugExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.jdi.JDIUtils;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
@@ -123,7 +123,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
@@ -590,11 +589,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             // attach to target VM
             while (context.getDebuggeeVM() == null && tryCounter < 10) {
                 try {
-                    TimeUnit.SECONDS.sleep(3);
+                    JDIUtils.sleepMillis(3000);
                     attachToRemoteVM("", clientConfigHolder.getDebuggePort());
                 } catch (IOException ignored) {
                     tryCounter++;
-                } catch (IllegalConnectorArgumentsException | ClientConfigurationException | InterruptedException e) {
+                } catch (IllegalConnectorArgumentsException | ClientConfigurationException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -680,10 +679,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
         // Exits from the debug server VM.
         new java.lang.Thread(() -> {
-            try {
-                java.lang.Thread.sleep(500);
-            } catch (InterruptedException ignored) {
-            }
+            JDIUtils.sleepMillis(500);
             System.exit(0);
         }).start();
     }
@@ -769,7 +765,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     /**
      * Returns a map of all currently running threads in the remote VM, against their unique ID.
      * <p>
-     * Thread objects that have not yet been started (see {@link java.lang.Thread#start Thread.start()})
+     * Thread objects that have not yet been started (see {@link java.lang.Thread#start()})
      * and thread objects that have completed their execution are not included in the returned list.
      */
     Map<Integer, ThreadReferenceProxyImpl> getAllThreads() {
@@ -782,6 +778,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         // Filter thread references which are suspended, whose thread status is running, and which represents an active
         // ballerina strand.
         for (ThreadReference threadReference : threadReferences) {
+            threadsMap.put((int) threadReference.uniqueID(), new ThreadReferenceProxyImpl(context.getDebuggeeVM(),
+                    threadReference));
+        }
+        for (ThreadReference threadReference: eventProcessor.getVirtualThreads()) {
             threadsMap.put((int) threadReference.uniqueID(), new ThreadReferenceProxyImpl(context.getDebuggeeVM(),
                     threadReference));
         }
@@ -925,8 +925,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         VirtualMachine attachedVm = executionManager.attach(hostName, portName);
         context.setDebuggeeVM(new VirtualMachineProxyImpl(attachedVm));
         EventRequestManager erm = context.getEventManager();
-        ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
-        classPrepareRequest.enable();
+        erm.createClassPrepareRequest().enable();
+        erm.createThreadStartRequest().enable();
+        erm.createThreadDeathRequest().enable();
         eventProcessor.listenAsync();
     }
 
