@@ -36,6 +36,7 @@ import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.extensions.AbstractExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
+import org.ballerinalang.langserver.util.ApiSpecGenerator;
 import org.ballerinalang.langserver.util.LSClientUtil;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.CodeActionOptions;
@@ -63,12 +64,14 @@ import org.eclipse.lsp4j.TextDocumentRegistrationOptions;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.WatchKind;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
+import org.eclipse.lsp4j.jsonrpc.json.JsonRpcMethod;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.NotebookDocumentService;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -120,14 +123,14 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         if (params.getCapabilities().getExperimental() != null) {
             experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
                     new TypeToken<>() {
-            });
+                    });
         }
 
         Map<String, Object> initializationOptions = null;
         if (params.getInitializationOptions() != null) {
             initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(),
                     new TypeToken<>() {
-            });
+                    });
         }
 
         TextDocumentClientCapabilities textDocClientCapabilities = params.getCapabilities().getTextDocument();
@@ -216,7 +219,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         startListeningFileChanges();
 
         LSClientCapabilities lsClientCapabilities = this.serverContext.get(LSClientCapabilities.class);
-        
+
         if (lsClientCapabilities.getInitializationOptions().isEnableLightWeightMode()) {
             return;
         }
@@ -260,8 +263,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     }
 
     /**
-     * "bala" URI scheme is used to make stdlib and langlib files readonly at the editor.
-     * "expr" URI scheme is used to make expression editor based use-cases
+     * "bala" URI scheme is used to make stdlib and langlib files readonly at the editor. "expr" URI scheme is used to
+     * make expression editor based use-cases
      */
     private void registerTextSynchronizationForCustomUriSchemes() {
         LanguageClient client = serverContext.get(ExtendedLanguageClient.class);
@@ -454,6 +457,15 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             return true;
         }
         return initOptions.get(LS_ENABLE_SEMANTIC_HIGHLIGHTING).getAsBoolean();
+    }
+
+    public void generateApiSpec() {
+        Map<String, JsonRpcMethod> jsonRpcMethodMap = supportedMethods();
+        for (JsonRpcMethod method : jsonRpcMethodMap.values()) {
+            JsonObject stringObjectMap = ApiSpecGenerator.convertJsonRpcMethod(method);
+            String gson = new Gson().toJson(stringObjectMap);
+            int i = 12;
+        }
     }
 
     private List<String> getCompletionTriggerCharacters() {
