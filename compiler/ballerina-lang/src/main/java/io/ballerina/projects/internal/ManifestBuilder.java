@@ -250,7 +250,7 @@ public class ManifestBuilder {
                         }
                         String name = moduleEntry.name();
                         if (!exported.contains(name)) {
-                        exported.add(name);
+                            exported.add(name);
                         }
                     }
                 }
