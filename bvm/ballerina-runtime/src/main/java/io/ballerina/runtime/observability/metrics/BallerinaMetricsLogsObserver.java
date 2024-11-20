@@ -77,7 +77,8 @@ public class BallerinaMetricsLogsObserver implements BallerinaObserver {
 
             Optional<String> protocolValue = Optional.empty();
             if (tags.stream().anyMatch(tag -> tag.getKey().equals("protocol"))) {
-                protocolValue = tags.stream().filter(tag -> tag.getKey().equals("protocol")).map(Tag::getValue).findFirst();
+                protocolValue = tags.stream().filter(tag -> tag.getKey().equals("protocol")).map(Tag::getValue)
+                        .findFirst();
             }
             String protocol = protocolValue.orElse("http");
 

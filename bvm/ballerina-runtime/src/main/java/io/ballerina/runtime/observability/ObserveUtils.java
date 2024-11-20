@@ -19,7 +19,6 @@ package io.ballerina.runtime.observability;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -91,8 +90,8 @@ public final class ObserveUtils {
                 , false);
         VariableKey tracingProviderKey = new VariableKey(observeModule, "tracingProvider",
                 PredefinedTypes.TYPE_STRING, false);
-        VariableKey metricsLogsEnabledKey = new VariableKey(observeModule, "metricsLogsEnabled", PredefinedTypes.TYPE_BOOLEAN
-                , false);
+        VariableKey metricsLogsEnabledKey = new VariableKey(observeModule, "metricsLogsEnabled",
+                PredefinedTypes.TYPE_BOOLEAN, false);
         VariableKey metricsLogsProviderKey = new VariableKey(observeModule, "metricsLogsProvider",
                 PredefinedTypes.TYPE_STRING, false);
 
