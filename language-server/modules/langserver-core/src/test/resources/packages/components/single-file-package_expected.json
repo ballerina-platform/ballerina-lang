@@ -1,8 +1,8 @@
 {
   "result": [
     {
-      "filePath": "file:///",
       "name": ".",
+      "filePath": "file:///",
       "modules": [
         {
           "functions": [
@@ -18,21 +18,21 @@
           "services": [
             {
               "name": "/hey ",
+              "filePath": "main.bal",
+              "startLine": 48,
+              "startColumn": 0,
+              "endLine": 53,
+              "endColumn": 1,
               "resources": [
                 {
-                  "name": "get",
+                  "name": "get-satyHello",
                   "filePath": "main.bal",
                   "startLine": 50,
                   "startColumn": 4,
                   "endLine": 52,
                   "endColumn": 5
                 }
-              ],
-              "filePath": "main.bal",
-              "startLine": 48,
-              "startColumn": 0,
-              "endLine": 53,
-              "endColumn": 1
+              ]
             }
           ],
           "records": [
@@ -58,6 +58,11 @@
           "classes": [
             {
               "name": "Person",
+              "filePath": "main.bal",
+              "startLine": 25,
+              "startColumn": 0,
+              "endLine": 31,
+              "endColumn": 1,
               "functions": [
                 {
                   "name": "init",
@@ -67,12 +72,7 @@
                   "endLine": 30,
                   "endColumn": 5
                 }
-              ],
-              "filePath": "main.bal",
-              "startLine": 25,
-              "startColumn": 0,
-              "endLine": 31,
-              "endColumn": 1
+              ]
             }
           ],
           "types": [
@@ -103,7 +103,8 @@
               "endColumn": 30
             }
           ],
-          "enums": [
+          "enums": [],
+          "listeners": [
             {
               "name": "Color",
               "filePath": "main.bal",
@@ -113,7 +114,6 @@
               "endColumn": 1
             }
           ],
-          "listeners": [],
           "moduleVariables": [
             {
               "name": "modLevelVariable ",
@@ -130,6 +130,26 @@
               "startColumn": 0,
               "endLine": 23,
               "endColumn": 41
+            }
+          ],
+          "configurableVariables": [
+            {
+              "name": "enableRemote ",
+              "filePath": "main.bal",
+              "startLine": 23,
+              "startColumn": 0,
+              "endLine": 23,
+              "endColumn": 41
+            }
+          ],
+          "automations": [
+            {
+              "name": "main",
+              "filePath": "main.bal",
+              "startLine": 44,
+              "startColumn": 0,
+              "endLine": 46,
+              "endColumn": 1
             }
           ]
         }
