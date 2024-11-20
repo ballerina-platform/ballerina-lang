@@ -7,10 +7,10 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.observability.BallerinaObserver;
+import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
 
 import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -19,6 +19,7 @@ import java.util.Set;
 import static io.ballerina.runtime.observability.ObservabilityConstants.*;
 
 public class BallerinaMetricsLogsObserver implements BallerinaObserver {
+    private static final String ORG_NAME = "ballerinax";
     private static final String PROPERTY_START_TIME = "_observation_start_time_";
     private static final PrintStream consoleError = System.err;
 
@@ -87,8 +88,6 @@ public class BallerinaMetricsLogsObserver implements BallerinaObserver {
                     StringUtils.fromString(String.valueOf(duration / 1E9)));
 
             printMetricLog(logAttributes);
-//            BString tempMessage = StringUtils.fromString("response_time_seconds: " + duration / 1E9);
-//            printLog(tempMessage);
         } catch (RuntimeException e) {
             handleError("multiple metrics", tags, e);
         }
@@ -101,12 +100,8 @@ public class BallerinaMetricsLogsObserver implements BallerinaObserver {
     }
 
     private static void printMetricLog(BMap<BString, Object> logAttributes) {
-        Module metricsLogsModule = new Module("ballerinax", "metrics.logs", "1");
+        // TODO: Remove version when the API is finalized, and add the configured org name.
+        Module metricsLogsModule = new Module(ORG_NAME, ObserveUtils.getMetricsLogsProvider().getValue(), "1");
         environment.getRuntime().callFunction(metricsLogsModule, "printMetricsLog", null, logAttributes);
-    }
-
-    private static void printLog(BString message) {
-        Module metricsLogsModule = new Module("ballerinax", "metrics.logs", "1");
-        environment.getRuntime().callFunction(metricsLogsModule, "printLog", null, message);
     }
 }
