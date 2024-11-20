@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - master
-      - java21
 
 jobs:
   build-lang:
@@ -138,10 +137,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21.0.3'
-
-      - name: Checkout non-default branch
-        run: |
-          git fetch origin && git checkout -t origin/java21
 
       - name: Download Ballerina Lang Artifacts
         uses: actions/download-artifact@v4
