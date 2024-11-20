@@ -28,21 +28,28 @@ type SampleErrorData record {|
 type SampleError error<SampleErrorData>;
 
 public function main() {
-    // simple binding pattern
+    // 1. simple binding pattern
     var profession = "Software Engineer";
 
-    // list binding pattern
+    // 2. list binding pattern
     [int, [string, string]] [id, [firstName, _]] = getDetails();
 
-    // mapping binding pattern
+    // 3. mapping binding pattern
     string givenName;
     string surname;
     {fname: givenName, lname: surname} = getPerson();
 
-    // error binding pattern
+    // 4. error binding pattern
     var error(_, cause, code = code, reason = reason) = getSampleError();
 
-    // binding patterns inside a match statement
+    // 5. binding patterns inside a foreach statement
+    string names = "";
+    [string, int][] personInfoList = getPersonInfo();
+    foreach [string, int] [name, age] in personInfoList {
+        names += " " + name;
+    }
+
+    // 6. binding patterns inside a match statement
     matchCommand(["Remove", "*", true]);
 }
 
@@ -85,4 +92,8 @@ function matchCommand(any commands) {
             string name = "unknown";
         }
     }
+}
+
+function getPersonInfo() returns [string, int][] {
+    return [["John", 30]];
 }

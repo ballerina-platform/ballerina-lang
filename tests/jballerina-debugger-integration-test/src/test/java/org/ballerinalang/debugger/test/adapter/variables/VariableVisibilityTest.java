@@ -49,13 +49,14 @@ public class VariableVisibilityTest extends BaseTestCase {
     @Override
     @BeforeClass
     public void setup() {
-        String testProjectName = "variable-tests";
-        String testModuleFileName = "main.bal";
-        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
     @Test(description = "Variable visibility test at the beginning(first line) of the main() method")
     public void initialVariableVisibilityTest() throws BallerinaTestException {
+        String testProjectName = "variable-tests";
+        String testModuleFileName = "main.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
+
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 123));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         debugHitInfo = debugTestRunner.waitForDebugHit(25000);
@@ -71,6 +72,10 @@ public class VariableVisibilityTest extends BaseTestCase {
 
     @Test(description = "Variable visibility test in the middle of the main() method for a new variable")
     public void newVariableVisibilityTest() throws BallerinaTestException {
+        String testProjectName = "variable-tests";
+        String testModuleFileName = "main.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
+
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 245));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 316));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
@@ -106,6 +111,10 @@ public class VariableVisibilityTest extends BaseTestCase {
 
     @Test(description = "Variable visibility test in control flows")
     public void controlFlowVariableVisibilityTest() throws BallerinaTestException {
+        String testProjectName = "variable-tests";
+        String testModuleFileName = "main.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
+
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 266));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 270));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 277));
@@ -178,6 +187,10 @@ public class VariableVisibilityTest extends BaseTestCase {
 
     @Test(description = "Variable visibility test for global variables")
     public void globalVariableVisibilityTest() throws BallerinaTestException {
+        String testProjectName = "variable-tests";
+        String testModuleFileName = "main.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
+
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 352));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 327));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
@@ -216,6 +229,10 @@ public class VariableVisibilityTest extends BaseTestCase {
 
     @Test(description = "Variable visibility test for local variables at the last line of main() method")
     public void localVariableVisibilityTest() throws BallerinaTestException {
+        String testProjectName = "variable-tests";
+        String testModuleFileName = "main.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
+
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 327));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 360));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
@@ -340,6 +357,10 @@ public class VariableVisibilityTest extends BaseTestCase {
     @Test(enabled = false, description = "Child variable visibility test for local variables at the last line of main" +
             "() method")
     public void localVariableChildrenVisibilityTest() throws BallerinaTestException {
+        String testProjectName = "variable-tests";
+        String testModuleFileName = "main.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
+
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 327));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         debugHitInfo = debugTestRunner.waitForDebugHit(25000);
@@ -553,15 +574,16 @@ public class VariableVisibilityTest extends BaseTestCase {
 
     @Test(description = "Binding pattern variables related visibility test")
     public void bindingPatternVariableVisibilityTest() throws BallerinaTestException {
-
-        String testProjectName = "binding-pattern-tests";
+        String testProjectName = "variable-tests-2";
         String testModuleFileName = "main.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
 
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 35));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 40));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 43));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 73));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 46));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 49));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 80));
 
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
@@ -570,33 +592,42 @@ public class VariableVisibilityTest extends BaseTestCase {
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
         debugTestRunner.assertVariable(localVariables, "profession", "\"Software Engineer\"", "string");
 
+        // list binding pattern variables
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         // TODO: enable after fixing runtime issue https://github.com/ballerina-platform/ballerina-lang/issues/43623
-
-//        // list binding pattern variables
-//        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
-//        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
 //        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
 //        debugTestRunner.assertVariable(localVariables, "id", "1234", "int");
 //        debugTestRunner.assertVariable(localVariables, "firstName", "\"John Doe\"", "string");
-//
-//        // mapping binding pattern variables
-//        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
-//        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+
+        // mapping binding pattern variables
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        // TODO: enable after fixing runtime issue https://github.com/ballerina-platform/ballerina-lang/issues/43623
 //        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
 //        debugTestRunner.assertVariable(localVariables, "givenName", "\"Anne\"", "string");
 //        debugTestRunner.assertVariable(localVariables, "surName", "\"Frank\"", "string");
-//
-//        // error binding pattern variables
-//        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
-//        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+
+        // error binding pattern variables
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        // TODO: enable after fixing runtime issue https://github.com/ballerina-platform/ballerina-lang/issues/43623
 //        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
 //        debugTestRunner.assertVariable(localVariables, "cause", "\"Database Error\"", "error");
 //        debugTestRunner.assertVariable(localVariables, "code", "20", "int");
 //        debugTestRunner.assertVariable(localVariables, "reason", "\"deadlock condition\"", "string");
-//
-//        // list binding patterns inside match statement
-//        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
-//        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+
+        // list binding pattern inside foreach statement
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
+        debugTestRunner.assertVariable(localVariables, "name", "\"John\"", "string");
+        debugTestRunner.assertVariable(localVariables, "age", "30", "int");
+
+        // list binding patterns inside match statement
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        // TODO: enable after fixing runtime issue https://github.com/ballerina-platform/ballerina-lang/issues/43623
 //        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
 //        debugTestRunner.assertVariable(localVariables, "remove", "Remove", "string");
 //        debugTestRunner.assertVariable(localVariables, "all", "*", "string");
