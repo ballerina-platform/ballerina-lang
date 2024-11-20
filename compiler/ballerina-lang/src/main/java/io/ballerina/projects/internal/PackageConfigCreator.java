@@ -35,6 +35,7 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.model.PackageJson;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
@@ -116,7 +117,8 @@ public final class PackageConfigCreator {
         ProjectFiles.validateBalaProjectPath(balaPath);
         PackageManifest packageManifest = BalaFiles.createPackageManifest(balaPath);
         DependencyManifest dependencyManifest = BalaFiles.createDependencyManifest(balaPath);
-        PackageData packageData = BalaFiles.loadPackageData(balaPath, packageManifest);
+        PackageJson packageJson = BalaFiles.readPackageJson(balaPath);
+        PackageData packageData = BalaFiles.loadPackageData(balaPath, packageJson);
         BalaFiles.DependencyGraphResult packageDependencyGraph = BalaFiles
                 .createPackageDependencyGraph(balaPath);
 
@@ -163,8 +165,7 @@ public final class PackageConfigCreator {
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig balToolToml = packageData.balToolToml()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
-        DocumentConfig packageMd = packageData.packageMd()
-                .map(data -> createDocumentConfig(data, null)).orElse(null);
+
         List<ResourceConfig> resources = new ArrayList<>();
         List<ResourceConfig> testResources = new ArrayList<>();
         if (!packageData.resources().isEmpty()) {
@@ -173,9 +174,12 @@ public final class PackageConfigCreator {
         if (!packageData.testResources().isEmpty()) {
             testResources = getResourceConfigs(packageData.testResources(), packageData.packagePath());
         }
+        DocumentConfig readmeMd = packageData.readmeMd()
+                .map(data -> createDocumentConfig(data, null)).orElse(null);
+
         return PackageConfig
                 .from(packageId, packageData.packagePath(), packageManifest, dependencyManifest, ballerinaToml,
-                        dependenciesToml, cloudToml, compilerPluginToml, balToolToml, packageMd, moduleConfigs,
+                        dependenciesToml, cloudToml, compilerPluginToml, balToolToml, readmeMd, moduleConfigs,
                         packageDependencyGraph, disableSyntaxTree, resources, testResources);
     }
     public static PackageConfig createPackageConfig(PackageData packageData,
@@ -228,10 +232,10 @@ public final class PackageConfigCreator {
         List<DocumentConfig> srcDocs = getDocumentConfigs(moduleId, moduleData.sourceDocs());
         List<DocumentConfig> testSrcDocs = getDocumentConfigs(moduleId, moduleData.testSourceDocs());
 
-        DocumentConfig moduleMd = moduleData.moduleMd()
+        DocumentConfig readmeMd = moduleData.readmeMd()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
 
-        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies);
+        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, readmeMd, dependencies);
     }
 
     private static List<ResourceConfig> getResourceConfigs(List<Path> resources, Path packagePath) {

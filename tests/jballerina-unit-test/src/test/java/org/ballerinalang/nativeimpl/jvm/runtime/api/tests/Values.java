@@ -18,17 +18,15 @@
 
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
-import io.ballerina.runtime.api.Artifact;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.Node;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.Repository;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.repository.Artifact;
+import io.ballerina.runtime.api.repository.Node;
+import io.ballerina.runtime.api.repository.Repository;
 import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
@@ -37,6 +35,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.RemoteMethodType;
@@ -45,6 +44,7 @@ import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -185,7 +185,7 @@ public final class Values {
         return StringUtils.fromString("");
     }
 
-    public static BString getParamTypesString(BFunctionPointer<?, ?> func) {
+    public static BString getParamTypesString(BFunctionPointer func) {
         BFunctionType funcType = (BFunctionType) func.getType();
         StringBuilder sb = new StringBuilder();
         for (Type type : funcType.getParameterTypes()) {
@@ -400,7 +400,7 @@ public final class Values {
         return value;
     }
 
-    public static Object validateFunctionParameterExtern(BFunctionPointer<?, ?> fpValue) {
+    public static Object validateFunctionParameterExtern(BFunctionPointer fpValue) {
         return validateFunctionType((FunctionType) fpValue.getType());
     }
 
@@ -477,7 +477,7 @@ public final class Values {
         return TypeChecker.checkIsType(((BMap<?, ?>) annotation).get(annotKey), constraint.getDescribingType());
     }
 
-    public static BString getParameterName(BFunctionPointer<?, ?> fpValue) {
+    public static BString getParameterName(BFunctionPointer fpValue) {
         Parameter parameter = ((BFunctionType) fpValue.getType()).getParameters()[0];
         return StringUtils.fromString(parameter.name);
     }

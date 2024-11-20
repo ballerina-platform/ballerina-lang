@@ -23,6 +23,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.jdi.JDIUtils;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 
 import java.util.AbstractMap;
@@ -174,19 +175,50 @@ public final class VariableUtils {
      */
     public static String getStringValue(SuspendedContext context, Value jvmObject) {
         try {
+            Value result = invokeRemoteVMMethod(context, jvmObject, METHOD_STR_VALUE, Collections.singletonList(null));
+            return getStringFrom(result);
+        } catch (DebugVariableException e) {
+            return UNKNOWN_VALUE;
+        }
+    }
+
+    public static Value invokeRemoteVMMethod(SuspendedContext context, Value jvmObject, String methodName,
+                                             List<Value> arguments) throws DebugVariableException {
+        if (!(jvmObject instanceof ObjectReference)) {
+            throw new DebugVariableException("Failed to invoke remote VM method.");
+        }
+        Optional<Method> method = VariableUtils.getMethod(jvmObject, methodName);
+        if (method.isEmpty()) {
+            throw new DebugVariableException("Failed to invoke remote VM method.");
+        }
+
+        return invokeRemoteVMMethod(context, jvmObject, method.get(), arguments);
+    }
+
+    public static Value invokeRemoteVMMethod(SuspendedContext context, Value jvmObject, Method method,
+                                             List<Value> arguments) throws DebugVariableException {
+        try {
             if (!(jvmObject instanceof ObjectReference)) {
-                return UNKNOWN_VALUE;
+                throw new DebugVariableException("Failed to invoke remote VM method.");
             }
-            Optional<Method> method = VariableUtils.getMethod(jvmObject, METHOD_STR_VALUE);
-            if (method.isPresent()) {
-                Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
-                                .getThreadReference(), method.get(), Collections.singletonList(null),
-                        ObjectReference.INVOKE_SINGLE_THREADED);
-                return VariableUtils.getStringFrom(stringValue);
+
+            if (arguments == null) {
+                arguments = Collections.emptyList();
             }
-            return UNKNOWN_VALUE;
-        } catch (Exception ignored) {
-            return UNKNOWN_VALUE;
+            // Since the remote VM's active thread will be accessed from multiple debugger threads, there's a chance
+            // for 'IncompatibleThreadStateException's. Therefore debugger might need to retry few times until the
+            // thread gets released. (current wait time => ~1000ms)
+            for (int attempt = 0; attempt < 100; attempt++) {
+                try {
+                    return ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
+                            .getThreadReference(), method, arguments, ObjectReference.INVOKE_SINGLE_THREADED);
+                } catch (Exception e) {
+                    JDIUtils.sleepMillis(10);
+                }
+            }
+            throw new DebugVariableException("Failed to invoke remote VM method as the invocation thread is busy");
+        } catch (Exception e) {
+            throw new DebugVariableException("Failed to invoke remote VM method due to an internal error");
         }
     }
 

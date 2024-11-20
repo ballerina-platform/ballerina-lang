@@ -1,4 +1,0 @@
-[[dependency]]
-org = "wso2"
-name = "utils"
-path = "../TestProject1/target/balo/utils-2020r2-java17-0.1.0.balo"

@@ -18,7 +18,6 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -223,23 +222,18 @@ public class InstanceMethods {
         return StringUtils.fromString("resource method input: " + i);
     }
 
-    public void getStringWithBalEnv(Environment env) {
-        Future balFuture = env.markAsync();
-        BString output = StringUtils.fromString("Hello World!");
-        balFuture.complete(output);
+    public BString getStringWithBalEnv(Environment env) {
+        return StringUtils.fromString("Hello World!");
     }
 
-    public void getIntWithBalEnv(Environment env) {
-        Future balFuture = env.markAsync();
-        long output = 7;
-        balFuture.complete(output);
+    public long getIntWithBalEnv(Environment env) {
+        return 7;
     }
 
-    public void getMapValueWithBalEnv(Environment env) {
-        Future balFuture = env.markAsync();
+    public BMap<BString, Object> getMapValueWithBalEnv(Environment env) {
         BMap<BString, Object> mapValue = ValueCreator.createMapValue();
         mapValue.put(StringUtils.fromString("a"), 10);
         mapValue.put(StringUtils.fromString("b"), 12.5);
-        balFuture.complete(mapValue);
+        return mapValue;
     }
 }

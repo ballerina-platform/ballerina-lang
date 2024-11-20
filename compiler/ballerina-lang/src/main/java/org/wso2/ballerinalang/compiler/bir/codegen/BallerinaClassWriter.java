@@ -65,10 +65,9 @@ public class BallerinaClassWriter extends ClassWriter {
             return OBJECT_CLASS;
         }
 
-        class1 = class1.getSuperclass();
-        while (!class1.isAssignableFrom(class2)) {
+        do {
             class1 = class1.getSuperclass();
-        }
+        } while (!class1.isAssignableFrom(class2));
 
         return class1.getName().replace('.', '/');
     }

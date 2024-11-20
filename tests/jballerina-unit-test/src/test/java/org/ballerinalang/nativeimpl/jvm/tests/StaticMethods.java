@@ -19,17 +19,16 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -72,6 +71,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -520,35 +521,51 @@ public final class StaticMethods {
         return value.getBooleanValue(key);
     }
 
-    public static void addTwoNumbersSlowAsyncVoidSig(Environment env, long a, long b) {
-        Future balFuture = env.markAsync();
-        new Thread(() -> {
+    public static long addTwoNumbersSlowAsyncVoidSig(Environment env, long a, long b) {
+        CompletableFuture<Long> cf = new CompletableFuture<>();
+        Thread.startVirtualThread(() -> {
             sleep();
-            balFuture.complete(a + b);
-        }).start();
+            cf.complete(a + b);
+        });
+        try {
+            return cf.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static void addTwoNumbersFastAsyncVoidSig(Environment env, long a, long b) {
-        Future balFuture = env.markAsync();
-        balFuture.complete(a + b);
+    public static long addTwoNumbersFastAsyncVoidSig(Environment env, long a, long b) {
+        CompletableFuture<Long> cf = new CompletableFuture<>();
+        cf.complete(a + b);
+        try {
+            return cf.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
     public static long addTwoNumbersSlowAsync(Environment env, long a, long b) {
-        Future balFuture = env.markAsync();
-        new Thread(() -> {
+        CompletableFuture<Long> cf = new CompletableFuture<>();
+        Thread.startVirtualThread(() -> {
             sleep();
-            balFuture.complete(a + b);
-        }).start();
-
-        return -38263;
+            cf.complete(a + b);
+        });
+        try {
+            return cf.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static long addTwoNumbersFastAsync(Environment env, long a, long b) {
-        Future balFuture = env.markAsync();
-        balFuture.complete(a + b);
-
-        return -282619;
+        CompletableFuture<Long> cf = new CompletableFuture<>();
+        cf.complete(a + b);
+        try {
+            return cf.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static Object returnNullString(boolean nullVal) {
@@ -629,7 +646,7 @@ public final class StaticMethods {
         return e;
     }
 
-    public static FPValue<?, ?> getFunctionPointerAsReadOnly(FPValue<?, ?> func) {
+    public static FPValue getFunctionPointerAsReadOnly(FPValue func) {
         return func;
     }
 
@@ -779,26 +796,21 @@ public final class StaticMethods {
         return StringUtils.fromString("getResourceTwo");
     }
 
-    public static void getStringWithBalEnv(Environment env) {
-        Future balFuture = env.markAsync();
-        BString output = StringUtils.fromString("Hello World!");
-        balFuture.complete(output);
+    public static BString getStringWithBalEnv(Environment env) {
+        return StringUtils.fromString("Hello World!");
     }
 
-    public static void getIntWithBalEnv(Environment env) {
-        Future balFuture = env.markAsync();
-        long output = 7;
-        balFuture.complete(output);
+    public static Object getIntWithBalEnv(Environment env) {
+        return 7;
     }
 
-    public static void getMapValueWithBalEnv(Environment env, BString name, long age,
+    public static BMap<BString, Object> getMapValueWithBalEnv(Environment env, BString name, long age,
                                              MapValue<BString, Object> results) {
-        Future balFuture = env.markAsync();
         BMap<BString, Object> output = ValueCreator.createMapValue();
         output.put(StringUtils.fromString("name"), name);
         output.put(StringUtils.fromString("age"), age);
         output.put(StringUtils.fromString("results"), results);
-        balFuture.complete(output);
+        return output;
     }
 
     public static BString testOverloadedMethods(Environment env, BArray arr, BString str) {

@@ -30,14 +30,7 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
  * 
  * @since 0.88
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "strip",
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
-public final class Strip {
-
+public class Strip {
     private static final String OPERATION = "strip xml";
 
     private Strip() {
