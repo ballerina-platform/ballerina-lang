@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.util.ProjectConstants;
+import org.ballerinalang.langserver.apispec.ApiSpecGenerator;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -36,7 +37,6 @@ import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.extensions.AbstractExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
-import org.ballerinalang.langserver.util.ApiSpecGenerator;
 import org.ballerinalang.langserver.util.LSClientUtil;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.CodeActionOptions;
@@ -71,7 +71,6 @@ import org.eclipse.lsp4j.services.NotebookDocumentService;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -412,6 +411,16 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     }
 
     /**
+     * Generates the API specification for the supported JSON-RPC methods.
+     *
+     * @return a list of JSON objects representing the API specification.
+     */
+    public List<JsonObject> generateApiSpec() {
+        Map<String, JsonRpcMethod> jsonRpcMethodMap = supportedMethods();
+        return jsonRpcMethodMap.values().stream().map(ApiSpecGenerator::generate).toList();
+    }
+
+    /**
      * Register a configuration listener to handle enabling/disabling semantic highlighting dynamically.
      */
     private void registerSemanticTokensConfigListener() {
@@ -457,15 +466,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             return true;
         }
         return initOptions.get(LS_ENABLE_SEMANTIC_HIGHLIGHTING).getAsBoolean();
-    }
-
-    public void generateApiSpec() {
-        Map<String, JsonRpcMethod> jsonRpcMethodMap = supportedMethods();
-        for (JsonRpcMethod method : jsonRpcMethodMap.values()) {
-            JsonObject stringObjectMap = ApiSpecGenerator.convertJsonRpcMethod(method);
-            String gson = new Gson().toJson(stringObjectMap);
-            int i = 12;
-        }
     }
 
     private List<String> getCompletionTriggerCharacters() {
