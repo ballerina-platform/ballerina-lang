@@ -19,9 +19,6 @@ package org.ballerinalang.langserver;
 
 import com.google.gson.Gson;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageRepository;
@@ -30,7 +27,6 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
-import org.ballerinalang.langserver.extensions.ballerina.connector.CentralPackageListResult;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -93,15 +89,11 @@ public abstract class AbstractLSTest {
 
     private static void mockCentralPackages() {
         try {
-            FileReader fileReader = new FileReader(FileUtils.RES_DIR.resolve("central/centralPackages.json").toFile());
-            List<org.ballerinalang.central.client.model.Package> packages =
-                    GSON.fromJson(fileReader, CentralPackageListResult.class).getPackages();
-            packages.forEach(packageInfo -> {
-                PackageOrg packageOrg = PackageOrg.from(packageInfo.getOrganization());
-                PackageName packageName = PackageName.from(packageInfo.getName());
-                PackageVersion packageVersion = PackageVersion.from(packageInfo.getVersion());
-                CENTRAL_PACKAGES.add(new LSPackageLoader.ModuleInfo(packageOrg, packageName, packageVersion, null));
-            });
+            FileReader fileReader = new FileReader(FileUtils.RES_DIR.resolve("central/centralPackages.json")
+                    .toFile());
+            List<LSPackageLoader.ModuleInfo> packages = GSON.fromJson(fileReader,
+                    CentralPackageDescriptorLoader.CentralPackageGraphQLResponse.class).data().packages().packages();
+            CENTRAL_PACKAGES.addAll(packages);
         } catch (Exception e) {
             //ignore
         }
