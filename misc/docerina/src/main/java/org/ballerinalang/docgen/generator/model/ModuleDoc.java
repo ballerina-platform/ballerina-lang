@@ -45,10 +45,14 @@ public class ModuleDoc {
      * @param semanticModel the semantic model
      * @param isDefault whether this is the default module (not a sub-module)
      */
-    public ModuleDoc(String moduleMd, List<Path> resources, Map<String, SyntaxTree> syntaxTreeMap,
+    public ModuleDoc(String moduleMd, String summary, List<Path> resources, Map<String, SyntaxTree> syntaxTreeMap,
                      SemanticModel semanticModel, boolean isDefault) {
         this.description = moduleMd;
-        this.summary = BallerinaDocUtils.getSummary(moduleMd);
+        if (summary == null || summary.isEmpty()) {
+            this.summary = BallerinaDocUtils.getSummary(moduleMd);;
+        } else {
+            this.summary = summary;
+        }
         this.resources = resources;
         this.syntaxTreeMap = syntaxTreeMap;
         this.semanticModel = semanticModel;

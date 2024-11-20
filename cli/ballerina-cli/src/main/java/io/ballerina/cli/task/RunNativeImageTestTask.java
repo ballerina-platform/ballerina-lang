@@ -365,9 +365,11 @@ public class RunNativeImageTestTask implements Task {
                 .addQuotationMarkToString(nativeTargetPath.toString() + "/" + packageName)));
 
         // native-image configs
+        nativeArgs.add("-H:+UnlockExperimentalVMOptions");        
         nativeArgs.add("-H:ReflectionConfigurationFiles=" + NativeUtils
                 .convertWinPathToUnixFormat(NativeUtils.addQuotationMarkToString(
                 nativeConfigPath.resolve("reflect-config.json").toString())));
+        nativeArgs.add("-H:-UnlockExperimentalVMOptions");        
         nativeArgs.add("--no-fallback");
 
 
