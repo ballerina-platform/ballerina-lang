@@ -429,7 +429,7 @@
     </Match>
     <Match>
         <Class name="io.ballerina.projects.internal.ManifestBuilder"/>
-        <Method name="getBooleanValueFromPlatformEntry"/>
+        <Method name="getBooleanValueFromTomlTableNode"/>
         <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
     </Match>
     <Match>

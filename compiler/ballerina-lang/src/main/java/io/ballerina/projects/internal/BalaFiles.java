@@ -89,49 +89,60 @@ public final class BalaFiles {
     private BalaFiles() {
     }
 
-    static PackageData loadPackageData(Path balaPath, PackageManifest packageManifest) {
+    static PackageData loadPackageData(Path balaPath, PackageJson packageJson) {
         if (balaPath.toFile().isDirectory()) {
-            return loadPackageDataFromBalaDir(balaPath, packageManifest);
+            return loadPackageDataFromBalaDir(balaPath, packageJson);
         } else {
-            return loadPackageDataFromBalaFile(balaPath, packageManifest);
+            return loadPackageDataFromBalaFile(balaPath, packageJson);
         }
     }
 
-    private static PackageData loadPackageDataFromBalaDir(Path balaPath, PackageManifest packageManifest) {
+    private static PackageData loadPackageDataFromBalaDir(Path balaPath, PackageJson packageJson) {
         // Load default module
-        String pkgName = packageManifest.name().toString();
-        ModuleData defaultModule = loadModule(pkgName, pkgName, balaPath);
-        DocumentData packageMd = loadDocument(balaPath.resolve(BALA_DOCS_DIR)
-                .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
+        String pkgName = packageJson.getName();
+        ModuleData defaultModule = loadModule(pkgName, pkgName, balaPath, packageJson);
         // load other modules
-        List<ModuleData> otherModules = loadOtherModules(pkgName, balaPath);
+        List<ModuleData> otherModules = loadOtherModules(pkgName, balaPath, packageJson);
         List<Path> resources = loadResources(balaPath);
         if (resources.isEmpty()) {
             // get resources from default module path - to support balas before 2201.10.0
             resources = loadResources(balaPath.resolve(MODULES_ROOT).resolve(pkgName));
         }
+        DocumentData readmeMd;
+        if (packageJson.getReadme() == null) {
+            readmeMd = loadDocument(balaPath.resolve(BALA_DOCS_DIR).resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
+        } else {
+            readmeMd = loadDocument(balaPath.resolve(packageJson.getReadme()));
+        }
+
         return PackageData.from(balaPath, defaultModule, otherModules, null, null,
-                null, null, null, packageMd, resources, Collections.emptyList());
+                null, null, null, readmeMd, resources, Collections.emptyList());
     }
 
-    private static PackageData loadPackageDataFromBalaFile(Path balaPath, PackageManifest packageManifest) {
+    private static PackageData loadPackageDataFromBalaFile(Path balaPath, PackageJson packageJson) {
         URI zipURI = getZipURI(balaPath);
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             // Load default module
-            String pkgName = packageManifest.name().toString();
+            String pkgName = packageJson.getName();
             Path packageRoot = zipFileSystem.getPath("/");
-            ModuleData defaultModule = loadModule(pkgName, pkgName, packageRoot);
-            DocumentData packageMd = loadDocument(zipFileSystem.getPath(BALA_DOCS_DIR)
-                    .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
+            ModuleData defaultModule = loadModule(pkgName, pkgName, packageRoot, packageJson);
             // load other modules
-            List<ModuleData> otherModules = loadOtherModules(pkgName, packageRoot);
+            List<ModuleData> otherModules = loadOtherModules(pkgName, packageRoot, packageJson);
             List<Path> resources = loadResources(packageRoot);
             if (resources.isEmpty()) {
                 // get resources from default module path - to support bala files before 2201.10.0
                 resources = loadResources(packageRoot.resolve(MODULES_ROOT).resolve(pkgName));
             }
+
+            DocumentData readmeMd;
+            if (packageJson.getReadme() == null) {
+                readmeMd = loadDocument(packageRoot.resolve(BALA_DOCS_DIR)
+                        .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
+            } else {
+                readmeMd = loadDocument(packageRoot.resolve(packageJson.getReadme()));
+            }
             return PackageData.from(balaPath, defaultModule, otherModules, null, null,
-                    null, null, null, packageMd, resources, Collections.emptyList());
+                    null, null, null, readmeMd, resources, Collections.emptyList());
         } catch (IOException e) {
             throw new ProjectException("Failed to read bala file:" + balaPath);
         }
@@ -163,7 +174,8 @@ public final class BalaFiles {
         }
     }
 
-    private static ModuleData loadModule(String pkgName, String fullModuleName, Path packagePath) {
+    private static ModuleData loadModule(String pkgName, String fullModuleName, Path packagePath,
+                                         PackageJson packageJson) {
         Path modulePath = packagePath.resolve(MODULES_ROOT).resolve(fullModuleName);
         Path moduleDocPath = packagePath.resolve(BALA_DOCS_DIR).resolve(MODULES_ROOT).resolve(fullModuleName);
         // check module path exists
@@ -189,12 +201,22 @@ public final class BalaFiles {
 
         List<DocumentData> srcDocs = loadDocuments(modulePath);
         List<DocumentData> testSrcDocs = Collections.emptyList();
-        DocumentData moduleMd = loadDocument(moduleDocPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
+        DocumentData readmeMd = null;
+        if (packageJson.getReadme() == null) {
+            // v2 bala structure
+            readmeMd = loadDocument(moduleDocPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
+        } else if (packageJson.getModules() != null) {
+            Optional<PackageManifest.Module> module = packageJson.getModules().stream().filter(mod ->
+                    fullModuleName.equals(mod.name())).findAny();
+            if (module.isPresent() && module.get().readme() != null && !module.get().readme().isEmpty()) {
+                readmeMd = loadDocument(packagePath.resolve(module.get().readme()));
+            }
+        }
 
-        return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs, moduleMd);
+        return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs, readmeMd);
     }
 
-    private static List<ModuleData> loadOtherModules(String pkgName, Path packagePath) {
+    private static List<ModuleData> loadOtherModules(String pkgName, Path packagePath, PackageJson packageJson) {
         Path modulesDirPath = packagePath.resolve(MODULES_ROOT);
         try (Stream<Path> pathStream = Files.walk(modulesDirPath, 1)) {
             return pathStream
@@ -203,7 +225,7 @@ public final class BalaFiles {
                             && !path.getFileName().toString().equals(pkgName))
                     .filter(Files::isDirectory)
                     .map(modulePath -> modulePath.getFileName().toString())
-                    .map(fullModuleName -> loadModule(pkgName, fullModuleName, packagePath))
+                    .map(fullModuleName -> loadModule(pkgName, fullModuleName, packagePath, packageJson))
                     .toList();
         } catch (IOException e) {
             throw new ProjectException("Failed to read modules from directory: " + modulesDirPath, e);
@@ -487,12 +509,24 @@ public final class BalaFiles {
         CompilerPluginDescriptor compilerPluginDescriptor = compilerPluginJson
                 .map(CompilerPluginDescriptor::from).orElse(null);
         BalToolDescriptor balToolDescriptor = balToolJson.map(BalToolDescriptor::from).orElse(null);
+        List<String> exports = new ArrayList<>();
+        if (packageJson.getExport() == null) {
+            // new bala structure
+            exports.add(packageJson.getName()); // default module is always exported
+            if (packageJson.getModules() != null) {
+                exports.addAll(packageJson.getModules().stream().filter(
+                        PackageManifest.Module::export).map(PackageManifest.Module::name).toList());
+            }
+        } else {
+            exports = packageJson.getExport();
+        }
         return PackageManifest
                 .from(pkgDesc, compilerPluginDescriptor, balToolDescriptor, platforms, dependencies,
                         packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
-                        packageJson.getExport(), packageJson.getInclude(), packageJson.getSourceRepository(),
+                        exports, packageJson.getInclude(), packageJson.getSourceRepository(),
                         packageJson.getBallerinaVersion(), packageJson.getVisibility(),
-                        packageJson.getTemplate());
+                        packageJson.getTemplate(), packageJson.getReadme(), packageJson.getDescription(),
+                        packageJson.getModules());
     }
 
     private static Map<String, PackageManifest.Platform> getPlatforms(PackageJson packageJson) {
