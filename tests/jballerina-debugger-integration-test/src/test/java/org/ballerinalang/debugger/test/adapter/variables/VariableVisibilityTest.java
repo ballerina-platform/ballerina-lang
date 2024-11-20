@@ -551,17 +551,17 @@ public class VariableVisibilityTest extends BaseTestCase {
         }
     }
 
-    @Test(description = "Binding pattern variables related visibility test", enabled = false)
+    @Test(description = "Binding pattern variables related visibility test")
     public void bindingPatternVariableVisibilityTest() throws BallerinaTestException {
 
         String testProjectName = "binding-pattern-tests";
         String testModuleFileName = "main.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
 
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 36));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 41));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 44));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 74));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 35));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 40));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 43));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 73));
 
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
@@ -572,35 +572,35 @@ public class VariableVisibilityTest extends BaseTestCase {
 
         // TODO: enable after fixing runtime issue https://github.com/ballerina-platform/ballerina-lang/issues/43623
 
-        //  // list binding pattern variables
-        //  debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
-        //  debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        //  localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        //  debugTestRunner.assertVariable(localVariables, "id", "1234", "int");
-        //  debugTestRunner.assertVariable(localVariables, "firstName", "\"John Doe\"", "string");
-        //
-        //  // mapping binding pattern variables
-        //  debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
-        //  debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        //  localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        //  debugTestRunner.assertVariable(localVariables, "givenName", "\"Anne\"", "string");
-        //  debugTestRunner.assertVariable(localVariables, "surName", "\"Frank\"", "string");
-        //
-        //  // error binding pattern variables
-        //  debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
-        //  debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        //  localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        //  debugTestRunner.assertVariable(localVariables, "cause", "\"Database Error\"", "error");
-        //  debugTestRunner.assertVariable(localVariables, "code", "20", "int");
-        //  debugTestRunner.assertVariable(localVariables, "reason", "\"deadlock condition\"", "string");
-        //
-        //  // list binding patterns inside match statement
-        //  debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
-        //  debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        //  localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        //  debugTestRunner.assertVariable(localVariables, "remove", "Remove", "string");
-        //  debugTestRunner.assertVariable(localVariables, "all", "*", "string");
-        //  debugTestRunner.assertVariable(localVariables, "isDir", "true", "boolean");
+//        // list binding pattern variables
+//        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+//        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+//        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
+//        debugTestRunner.assertVariable(localVariables, "id", "1234", "int");
+//        debugTestRunner.assertVariable(localVariables, "firstName", "\"John Doe\"", "string");
+//
+//        // mapping binding pattern variables
+//        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+//        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+//        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
+//        debugTestRunner.assertVariable(localVariables, "givenName", "\"Anne\"", "string");
+//        debugTestRunner.assertVariable(localVariables, "surName", "\"Frank\"", "string");
+//
+//        // error binding pattern variables
+//        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+//        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+//        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
+//        debugTestRunner.assertVariable(localVariables, "cause", "\"Database Error\"", "error");
+//        debugTestRunner.assertVariable(localVariables, "code", "20", "int");
+//        debugTestRunner.assertVariable(localVariables, "reason", "\"deadlock condition\"", "string");
+//
+//        // list binding patterns inside match statement
+//        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+//        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+//        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
+//        debugTestRunner.assertVariable(localVariables, "remove", "Remove", "string");
+//        debugTestRunner.assertVariable(localVariables, "all", "*", "string");
+//        debugTestRunner.assertVariable(localVariables, "isDir", "true", "boolean");
     }
 
     @Override

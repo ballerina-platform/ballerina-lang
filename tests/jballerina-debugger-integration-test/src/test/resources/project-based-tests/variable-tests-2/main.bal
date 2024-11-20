@@ -28,7 +28,6 @@ type SampleErrorData record {|
 type SampleError error<SampleErrorData>;
 
 public function main() {
-
     // simple binding pattern
     var profession = "Software Engineer";
 
