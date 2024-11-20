@@ -23,6 +23,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -48,7 +49,7 @@ public class TestCustomRetryInterceptor {
     private ByteArrayOutputStream console;
 
     @BeforeClass
-    public void setUp() {
+    public void setUp() throws CentralClientException {
         this.console = new ByteArrayOutputStream();
         PrintStream outStream = new PrintStream(this.console);
         CentralAPIClient centralAPIClient = new CentralAPIClient("https://localhost:9090/registry",
