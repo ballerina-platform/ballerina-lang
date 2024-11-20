@@ -221,10 +221,11 @@ function testListMatchPatternWithRestPattern12() {
     assertEquals(false, a5[2]);
 }
 
-class FooObj {
+class FooObjLMP {
     public string s;
     public float f;
     public byte b;
+
     function init(string s, float f, byte b) {
         self.s = s;
         self.f = f;
@@ -232,9 +233,10 @@ class FooObj {
     }
 }
 
-class BarObj {
+class BarObjLMP {
     public boolean b;
     public int i;
+
     function init(boolean b, int i) {
         self.b = b;
         self.i = i;
@@ -242,36 +244,51 @@ class BarObj {
 }
 
 function testListMatchPatternWithRestPattern13() {
-    FooObj fooObj1 = new ("Fooo", 3.7, 23);
-    BarObj barObj1 = new (true, 56);
-    FooObj fooObj2 = new ("Foo2", 10.2, 30);
-    BarObj barObj2 = new (false, 56);
-    BarObj barObj3 = new (true, 58);
+    FooObjLMP fooObj1 = new ("Fooo", 3.7, 23);
+    BarObjLMP barObj1 = new (true, 56);
+    FooObjLMP fooObj2 = new ("Foo2", 10.2, 30);
+    BarObjLMP barObj2 = new (false, 56);
+    BarObjLMP barObj3 = new (true, 58);
     string matched = "Not Matched";
 
-    [[string, [error, map<string>, int, (FooObj|BarObj)...], Bar, (byte|float)...], string, boolean...] t2 =
-                [["Ballerina", [error("Error", detail1= 12, detail2= true),
-                {firstName: "John", lastName: "Damon"}, 12, fooObj1, barObj1], {id: 34, flag: true}, 10.5, 20],
-                "A", true, false];
+    [[string, [error, map<string>, int, (FooObjLMP|BarObjLMP)...], Bar, (byte|float)...], string, boolean...] t2 =
+                [
+        [
+            "Ballerina",
+            [
+                error("Error", detail1 = 12, detail2 = true),
+                {firstName: "John", lastName: "Damon"},
+                12,
+                fooObj1,
+                barObj1
+            ],
+            {id: 34, flag: true},
+            10.5,
+            20
+        ],
+        "A",
+        true,
+        false
+    ];
 
     string a1;
     error a2;
-    [map<string>, int, (FooObj|BarObj)...] a3;
+    [map<string>, int, (FooObjLMP|BarObjLMP)...] a3;
     [Bar, (byte|float)...] a4;
     [string, boolean...] a5;
     map<string> a6;
-    [int, (FooObj|BarObj)...] a7;
+    [int, (FooObjLMP|BarObjLMP)...] a7;
 
     string b1;
     error b2;
-    [map<string>, int, (FooObj|BarObj)...] b3;
+    [map<string>, int, (FooObjLMP|BarObjLMP)...] b3;
     [Bar, (byte|float)...] b4;
     [string, boolean...] b5;
     map<string> b6;
-    [int, (FooObj|BarObj)...] b7;
+    [int, (FooObjLMP|BarObjLMP)...] b7;
 
     match t2 {
-        [[var g1, [var g2, ... var g3], ...var g4], ...var g5] => {
+        [[var g1, [var g2, ...var g3], ...var g4], ...var g5] => {
             matched = "Matched1";
             a1 = g1;
             a2 = g2;
@@ -286,9 +303,24 @@ function testListMatchPatternWithRestPattern13() {
                 }
             }
 
-            [[g1, g2, ...g3], [...g5], ...g4] = [["Hello", error("Transaction Error"), [{primary: "Blue",
-                   secondary: "Green"}, 1000, barObj2, fooObj2, barObj3]], [["World", true, false, true, false]],
-                   [{id: 40, flag: true}, 0x5, 0x7, 20.25, 0x8]];
+            [[g1, g2, ...g3], [...g5], ...g4] = [
+                [
+                    "Hello",
+                    error("Transaction Error"),
+                    [
+                        {
+                            primary: "Blue",
+                            secondary: "Green"
+                        },
+                        1000,
+                        barObj2,
+                        fooObj2,
+                        barObj3
+                    ]
+                ],
+                [["World", true, false, true, false]],
+                [{id: 40, flag: true}, 0x5, 0x7, 20.25, 0x8]
+            ];
             b1 = g1;
             b2 = g2;
             b3 = g3;
@@ -323,16 +355,16 @@ function testListMatchPatternWithRestPattern13() {
     assertEquals("Blue", b3[0]["primary"]);
     assertEquals("Green", b3[0]["secondary"]);
     assertEquals(1000, b3[1]);
-    assertEquals(true, b3[2] is BarObj);
-    assertEquals(false, (<BarObj>b3[2]).b);
-    assertEquals(56, (<BarObj>b3[2]).i);
-    assertEquals(true, b3[3] is FooObj);
-    assertEquals("Foo2", (<FooObj>b3[3]).s);
-    assertEquals(10.2, (<FooObj>b3[3]).f);
-    assertEquals(30, (<FooObj>b3[3]).b);
-    assertEquals(true, b3[4] is BarObj);
-    assertEquals(true, (<BarObj>b3[4]).b);
-    assertEquals(58, (<BarObj>b3[4]).i);
+    assertEquals(true, b3[2] is BarObjLMP);
+    assertEquals(false, (<BarObjLMP>b3[2]).b);
+    assertEquals(56, (<BarObjLMP>b3[2]).i);
+    assertEquals(true, b3[3] is FooObjLMP);
+    assertEquals("Foo2", (<FooObjLMP>b3[3]).s);
+    assertEquals(10.2, (<FooObjLMP>b3[3]).f);
+    assertEquals(30, (<FooObjLMP>b3[3]).b);
+    assertEquals(true, b3[4] is BarObjLMP);
+    assertEquals(true, (<BarObjLMP>b3[4]).b);
+    assertEquals(58, (<BarObjLMP>b3[4]).i);
     assertEquals(5, b5.length());
     assertEquals("World", b5[0]);
     assertEquals(true, b5[1]);

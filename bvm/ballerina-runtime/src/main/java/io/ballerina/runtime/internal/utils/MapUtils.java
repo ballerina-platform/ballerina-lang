@@ -20,21 +20,21 @@ package io.ballerina.runtime.internal.utils;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
-import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.MapValue;
-
-import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
@@ -56,7 +56,7 @@ public final class MapUtils {
         updateMapValue(TypeUtils.getImpliedType(mapValue.getType()), mapValue, fieldName, value);
     }
 
-    public static void handleInherentTypeViolatingMapUpdate(Object value, BMapType mapType) {
+    public static void handleInherentTypeViolatingMapUpdate(Object value, MapType mapType) {
         if (TypeChecker.checkIsType(value, mapType.getConstrainedType())) {
             return;
         }
@@ -118,17 +118,7 @@ public final class MapUtils {
     }
 
     private static boolean containsNilType(Type type) {
-        type = TypeUtils.getImpliedType(type);
-        int tag = type.getTag();
-        if (tag == TypeTags.UNION_TAG) {
-            List<Type> memTypes = ((BUnionType) type).getMemberTypes();
-            for (Type memType : memTypes) {
-                if (containsNilType(memType)) {
-                    return true;
-                }
-            }
-        }
-        return tag == TypeTags.NULL_TAG;
+        return Core.containsBasicType(SemType.tryInto(type), Builder.getNilType());
     }
 
     public static BError createOpNotSupportedError(Type type, String op) {
@@ -152,7 +142,7 @@ public final class MapUtils {
 
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                handleInherentTypeViolatingMapUpdate(value, (BMapType) mapType);
+                handleInherentTypeViolatingMapUpdate(value, (MapType) mapType);
                 mapValue.put(fieldName, value);
                 return;
             case TypeTags.RECORD_TYPE_TAG:

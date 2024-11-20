@@ -21,10 +21,16 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
@@ -44,7 +50,7 @@ import java.util.regex.Pattern;
  *
  * @since 0.995.0
  */
-public class BUnionType extends BType implements UnionType, SelectivelyImmutableReferenceType {
+public class BUnionType extends BType implements UnionType, SelectivelyImmutableReferenceType, TypeWithAcceptedType {
 
     public boolean isCyclic = false;
     public static final String  PIPE = "|";
@@ -167,6 +173,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         }
         this.memberTypes = readonly ? getReadOnlyTypes(members) : Arrays.asList(members);
         setFlagsBasedOnMembers();
+        resetSemType();
     }
 
     public void setOriginalMemberTypes(Type[] originalMemberTypes) {
@@ -182,6 +189,9 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     private void setMemberTypes(List<Type> members, List<Type> originalMembers) {
+        if (memberTypes != null) {
+            resetSemType();
+        }
         if (members == null) {
             return;
         }
@@ -193,7 +203,6 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         this.memberTypes = readonly ? getReadOnlyTypes(members, new HashSet<>(members.size())) : members;
         this.resolvingReadonly = false;
         setFlagsBasedOnMembers();
-
         setOriginalMemberTypes(originalMembers);
     }
 
@@ -231,12 +240,14 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     private void addMember(Type type) {
+        resetSemType();
         this.memberTypes.add(type);
         setFlagsBasedOnMembers();
         this.originalMemberTypes.add(type);
     }
 
     public void addMembers(Type... types) {
+        resetSemType();
         this.memberTypes.addAll(Arrays.asList(types));
         setFlagsBasedOnMembers();
         this.originalMemberTypes.addAll(Arrays.asList(types));
@@ -446,7 +457,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
                     this.addMember(newArrayType);
                     continue;
                 }
-            } else if (member instanceof BMapType mapType) {
+            } else if (member instanceof MapType mapType) {
                 if (mapType.getConstrainedType() == unionType) {
                     BMapType newMapType = new BMapType(this, this.readonly);
                     this.addMember(newMapType);
@@ -457,7 +468,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
                     BTableType newTableType = new BTableType(this, tableType.isReadOnly());
                     this.addMember(newTableType);
                     continue;
-                } else if (tableType.getConstrainedType() instanceof BMapType mapType) {
+                } else if (tableType.getConstrainedType() instanceof MapType mapType) {
                     if (mapType.getConstrainedType() == unionType) {
                         BMapType newMapType = new BMapType(this);
                         BTableType newTableType = new BTableType(newMapType,
@@ -539,5 +550,23 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     @Override
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    @Override
+    public SemType createSemType() {
+        return memberTypes.stream().map(SemType::tryInto).reduce(Builder.getNeverType(), Core::union);
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return memberTypes.stream()
+                .filter(each -> each instanceof MayBeDependentType)
+                .anyMatch(type -> ((MayBeDependentType) type).isDependentlyTyped(visited));
+    }
+
+    @Override
+    public Optional<SemType> acceptedTypeOf(Context cx) {
+        return Optional.of(memberTypes.stream().map(each -> ShapeAnalyzer.acceptedTypeOf(cx, each).orElseThrow())
+                .reduce(Builder.getNeverType(), Core::union));
     }
 }

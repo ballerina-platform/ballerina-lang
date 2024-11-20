@@ -20,12 +20,17 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.json.JsonGenerator;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.types.TypeWithShape;
+import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.utils.IteratorUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -33,6 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
@@ -51,9 +57,10 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  * 
  * @since 1.1.0
  */
-public abstract class AbstractArrayValue implements ArrayValue {
+public abstract class AbstractArrayValue implements ArrayValue, RecursiveValue<ListDefinition> {
 
     static final int SYSTEM_ARRAY_MAX = Integer.MAX_VALUE - 8;
+    private final ThreadLocal<ListDefinition> readonlyAttachedDefinition = new ThreadLocal<>();
 
     /**
      * The maximum size of arrays to allocate.
@@ -77,6 +84,9 @@ public abstract class AbstractArrayValue implements ArrayValue {
 
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        if (!(o instanceof ArrayValue arrayValue)) {
+            return false;
+        }
         ValuePair compValuePair = new ValuePair(this, o);
         for (ValuePair valuePair : visitedValues) {
             if (valuePair.equals(compValuePair)) {
@@ -85,7 +95,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
         }
         visitedValues.add(compValuePair);
 
-        ArrayValue arrayValue = (ArrayValue) o;
         if (arrayValue.size() != this.size()) {
             return false;
         }
@@ -302,5 +311,26 @@ public abstract class AbstractArrayValue implements ArrayValue {
         public boolean hasNext() {
             return cursor < length;
         }
+    }
+
+    @Override
+    public synchronized ListDefinition getReadonlyShapeDefinition() {
+        return readonlyAttachedDefinition.get();
+    }
+
+    @Override
+    public synchronized void setReadonlyShapeDefinition(ListDefinition definition) {
+        readonlyAttachedDefinition.set(definition);
+    }
+
+    @Override
+    public synchronized void resetReadonlyShapeDefinition() {
+        readonlyAttachedDefinition.remove();
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx) {
+        TypeWithShape typeWithShape = (TypeWithShape) getType();
+        return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
     }
 }

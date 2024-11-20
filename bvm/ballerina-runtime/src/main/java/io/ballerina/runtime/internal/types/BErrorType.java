@@ -24,20 +24,30 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.ErrorUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * {@code BErrorType} represents error type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BErrorType extends BAnnotatableType implements ErrorType {
+public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithShape {
 
-    public Type detailType = PredefinedTypes.TYPE_ERROR_DETAIL;
+    public Type detailType = PredefinedTypes.TYPE_DETAIL;
     public BTypeIdSet typeIdSet;
     private IntersectionType intersectionType = null;
+    private volatile DistinctIdSupplier distinctIdSupplier;
 
     public BErrorType(String typeName, Module pkg, Type detailType) {
         super(typeName, pkg, ErrorValue.class);
@@ -50,6 +60,9 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
 
     public void setTypeIdSet(BTypeIdSet typeIdSet) {
         this.typeIdSet = typeIdSet;
+        synchronized (this) {
+            this.distinctIdSupplier = null;
+        }
     }
 
     @Override
@@ -112,5 +125,77 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
     @Override
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    @Override
+    public SemType createSemType() {
+        SemType err;
+        if (detailType == null || isTopType()) {
+            err = Builder.getErrorType();
+        } else {
+            err = ErrorUtils.errorDetail(tryInto(getDetailType()));
+        }
+
+        initializeDistinctIdSupplierIfNeeded();
+        return distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct).reduce(err, Core::intersect);
+    }
+
+    private void initializeDistinctIdSupplierIfNeeded() {
+        if (distinctIdSupplier == null) {
+            synchronized (this) {
+                if (distinctIdSupplier == null) {
+                    distinctIdSupplier = new DistinctIdSupplier(TypeChecker.context().env, getTypeIdSet());
+                }
+            }
+        }
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return detailType instanceof MayBeDependentType mayBeDependentType &&
+                mayBeDependentType.isDependentlyTyped(visited);
+    }
+
+    private boolean isTopType() {
+        return detailType == PredefinedTypes.TYPE_DETAIL;
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        if (!couldInherentTypeBeDifferent()) {
+            return Optional.of(getSemType());
+        }
+        BError errorValue = (BError) object;
+        Object details = errorValue.getDetails();
+        if (!(details instanceof MapValueImpl<?, ?> errorDetails)) {
+            return Optional.empty();
+        }
+        initializeDistinctIdSupplierIfNeeded();
+        // Should we actually pass the readonly shape supplier here?
+        return BMapType.shapeOfInner(cx, shapeSupplier, errorDetails)
+                .map(ErrorUtils::errorDetail)
+                .map(err -> distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct)
+                        .reduce(err, Core::intersect));
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
+        BError errorValue = (BError) object;
+        Object details = errorValue.getDetails();
+        if (!(details instanceof MapValueImpl<?, ?> errorDetails)) {
+            return Optional.empty();
+        }
+        return BMapType.shapeOfInner(cx, shapeSupplierFn, errorDetails).map(ErrorUtils::errorDetail);
+    }
+
+    @Override
+    public Optional<SemType> acceptedTypeOf(Context cx) {
+        return Optional.of(getSemType());
+    }
+
+    @Override
+    public boolean couldInherentTypeBeDifferent() {
+        // TODO: consider properly handling this
+        return true;
     }
 }

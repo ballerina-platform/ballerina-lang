@@ -22,7 +22,13 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FutureType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.FutureUtils;
+
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * {@code BFutureType} represents a future value in Ballerina.
@@ -31,7 +37,7 @@ import io.ballerina.runtime.internal.TypeChecker;
  */
 public class BFutureType extends BType implements FutureType {
 
-    private Type constraint;
+    private final Type constraint;
 
     /**
      * Create a {@code {@link BFutureType}} which represents the future value.
@@ -41,6 +47,7 @@ public class BFutureType extends BType implements FutureType {
      */
     public BFutureType(String typeName, Module pkg) {
         super(typeName, pkg, Object.class);
+        constraint = null;
     }
 
     public BFutureType(Type constraint) {
@@ -81,8 +88,7 @@ public class BFutureType extends BType implements FutureType {
         if (constraint == other.constraint) {
             return true;
         }
-
-        return TypeChecker.checkIsType(constraint, other.constraint);
+        return Objects.equals(constraint, other.constraint);
     }
 
     @Override
@@ -92,5 +98,18 @@ public class BFutureType extends BType implements FutureType {
 
     private String getConstraintString() {
         return constraint != null ? "<" + constraint + ">" : "";
+    }
+
+    @Override
+    public SemType createSemType() {
+        if (constraint == null) {
+            return Builder.getFutureType();
+        }
+        return FutureUtils.futureContaining(TypeChecker.context().env, tryInto(constraint));
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return constraint instanceof MayBeDependentType constraintType && constraintType.isDependentlyTyped(visited);
     }
 }
