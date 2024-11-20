@@ -51,11 +51,19 @@ import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
 import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
 import org.ballerinalang.central.client.model.ToolSearchResult;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +72,9 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 import static java.net.HttpURLConnection.HTTP_BAD_GATEWAY;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
@@ -143,14 +154,15 @@ public class CentralAPIClient {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final MediaType JSON_CONTENT_TYPE = MediaType.parse("application/json");
 
-    // System property name for enabling central verbose
-    public static final String SYS_PROP_CENTRAL_VERBOSE_ENABLED = "CENTRAL_VERBOSE_ENABLED";
     private static final int DEFAULT_CONNECT_TIMEOUT = 60;
     private static final int DEFAULT_READ_TIMEOUT = 60;
     private static final int DEFAULT_WRITE_TIMEOUT = 60;
     private static final int DEFAULT_CALL_TIMEOUT = 0;
     private static final int MAX_RETRY = 1;
     public static final String CONNECTION_RESET = "Connection reset";
+    private static final String ENV_CENTRAL_VERBOSE_ENABLED = "CENTRAL_VERBOSE_ENABLED";
+    private static final String ENV_TRUSTSTORE_PATH = "BALLERINA_TRUSTSTORE_PATH";
+    private static final String ENV_TRUSTSTORE_PASSWORD = "BALLERINA_TRUSTSTORE_PASSWORD";
 
     private final String baseUrl;
     private final Proxy proxy;
@@ -164,13 +176,15 @@ public class CentralAPIClient {
     private final int writeTimeout;
     private final int callTimeout;
     private final int maxRetries;
+    private final String trustStorePath;
+    private final String trustStorePassword;
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken) {
         this.outStream = System.out;
         this.baseUrl = baseUrl;
         this.proxy = proxy;
         this.accessToken = accessToken;
-        this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
+        this.verboseEnabled = Boolean.parseBoolean(System.getenv(ENV_CENTRAL_VERBOSE_ENABLED));
         this.proxyUsername = "";
         this.proxyPassword = "";
         this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
@@ -178,6 +192,8 @@ public class CentralAPIClient {
         this.writeTimeout = DEFAULT_WRITE_TIMEOUT;
         this.callTimeout = DEFAULT_CALL_TIMEOUT;
         this.maxRetries = MAX_RETRY;
+        this.trustStorePath = System.getenv(ENV_TRUSTSTORE_PATH);
+        this.trustStorePassword = System.getenv(ENV_TRUSTSTORE_PASSWORD);
     }
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken, boolean verboseEnabled, int maxRetries,
@@ -194,6 +210,8 @@ public class CentralAPIClient {
         this.writeTimeout = DEFAULT_WRITE_TIMEOUT;
         this.callTimeout = DEFAULT_CALL_TIMEOUT;
         this.maxRetries = maxRetries;
+        this.trustStorePath = System.getenv(ENV_TRUSTSTORE_PATH);
+        this.trustStorePassword = System.getenv(ENV_TRUSTSTORE_PASSWORD);
     }
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String proxyUsername, String proxyPassword,
@@ -203,7 +221,7 @@ public class CentralAPIClient {
         this.baseUrl = baseUrl;
         this.proxy = proxy;
         this.accessToken = accessToken;
-        this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
+        this.verboseEnabled = Boolean.parseBoolean(System.getenv(ENV_CENTRAL_VERBOSE_ENABLED));
         this.proxyUsername = proxyUsername;
         this.proxyPassword = proxyPassword;
         this.connectTimeout = connectionTimeout;
@@ -211,6 +229,8 @@ public class CentralAPIClient {
         this.writeTimeout = writeTimeout;
         this.callTimeout = callTimeout;
         this.maxRetries = maxRetries;
+        this.trustStorePath = System.getenv(ENV_TRUSTSTORE_PATH);
+        this.trustStorePassword = System.getenv(ENV_TRUSTSTORE_PASSWORD);
     }
 
     /**
@@ -1579,8 +1599,8 @@ public class CentralAPIClient {
      *
      * @return the client
      */
-    protected OkHttpClient getClient() {
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+    protected OkHttpClient getClient() throws CentralClientException {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
                 .writeTimeout(writeTimeout, TimeUnit.SECONDS)
@@ -1588,8 +1608,30 @@ public class CentralAPIClient {
                 .followRedirects(false)
                 .retryOnConnectionFailure(true)
                 .proxy(this.proxy)
-                .addInterceptor(new CustomRetryInterceptor(this.maxRetries))
-                .build();
+                .addInterceptor(new CustomRetryInterceptor(this.maxRetries));
+        if (this.trustStorePath != null && this.trustStorePassword != null) {
+            try {
+                KeyStore truststore = KeyStore.getInstance(KeyStore.getDefaultType());
+                try (InputStream keys = new FileInputStream(trustStorePath)) {
+                    truststore.load(keys, trustStorePassword.toCharArray());
+                }
+                TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
+                        TrustManagerFactory.getDefaultAlgorithm());
+                trustManagerFactory.init(truststore);
+
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
+                SSLContext.setDefault(sslContext);
+
+                builder.sslSocketFactory(sslContext.getSocketFactory(),
+                        (X509TrustManager) trustManagerFactory.getTrustManagers()[0]);
+            } catch (CertificateException | KeyStoreException | IOException | NoSuchAlgorithmException |
+                     KeyManagementException e) {
+                throw new CentralClientException(e.getMessage());
+            }
+        }
+
+        OkHttpClient okHttpClient = builder.build();
 
         if ((!(this.proxyUsername).isEmpty() && !(this.proxyPassword).isEmpty())) {
             Authenticator proxyAuthenticator = (route, response) -> {
