@@ -128,7 +128,6 @@ public class ManifestBuilder {
     private static final String TARGETMODULE = "targetModule";
     private static final String OPTIONS = "options";
     private static final String TOOL = "tool";
-
     private static final String DESCRIPTION = "description";
     private static final String README = "readme";
 
@@ -235,16 +234,25 @@ public class ManifestBuilder {
                 description = getStringValueFromTomlTableNode(pkgNode, DESCRIPTION, "");
                 moduleEntries = getModuleEntries(pkgNode, customReadmeVal, packageDescriptor.name());
 
+                if (!exported.isEmpty()) {
+                    reportDiagnostic(pkgNode.entries().get(EXPORT),
+                            "'export' under [package] is deprecated. " +
+                                    "Add the exports using the 'export' field under '[[package.modules]]'",
+                            ProjectDiagnosticErrorCode.DEPRECATED_BALLERINA_TOML_ENTRY, DiagnosticSeverity.WARNING);
+                }
                 if (!isOldStructure) {
-                    if (!exported.isEmpty()) {
-                        reportDiagnostic(pkgNode.entries().get(EXPORT),
-                                "'export' under [package] is deprecated. " +
-                                        "Add the exports using the 'export' field under '[[package.modules]]'",
-                                ProjectDiagnosticErrorCode.DEPRECATED_BALLERINA_TOML_ENTRY, DiagnosticSeverity.WARNING);
+                    if (!exported.contains(packageDescriptor.name().toString())) {
+                        exported.add(packageDescriptor.name().toString()); // default module is always exported
                     }
-                    exported.add(packageDescriptor.name().toString()); // default module is always exported
-                    exported.addAll(moduleEntries.stream().filter(
-                            PackageManifest.Module::export).map(PackageManifest.Module::name).toList());
+                    for (PackageManifest.Module moduleEntry : moduleEntries) {
+                        if (!moduleEntry.export()) {
+                            continue;
+                        }
+                        String name = moduleEntry.name();
+                        if (!exported.contains(name)) {
+                            exported.add(name);
+                        }
+                    }
                 }
             }
         }
@@ -346,7 +354,8 @@ public class ManifestBuilder {
             TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyEntries;
             for (TomlTableNode modulesNode : dependencyTableArray.children()) {
                 String moduleName = getStringValueFromTomlTableNode(modulesNode, NAME, null);
-                if (moduleName == null) {
+                if (moduleName == null
+                        || !moduleName.contains(DOT)) { // The invalid module name is already handled
                     continue;
                 }
 
