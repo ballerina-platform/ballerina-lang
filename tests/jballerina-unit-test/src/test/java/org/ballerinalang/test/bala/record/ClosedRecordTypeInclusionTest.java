@@ -111,6 +111,7 @@ public class ClosedRecordTypeInclusionTest {
     public void testRefTypes() {
         Object returns = BRunUtil.invoke(compileResult, "testRefTypes");
         BMap<?, ?> foo2 = (BMap<?, ?>) returns;
+        assertEquals(foo2.getType().getTag(), TypeTags.TYPE_REFERENCED_TYPE_TAG);
         assertEquals(foo2.get(StringUtils.fromString("s")).toString(), "qwerty");
         assertEquals(foo2.get(StringUtils.fromString("i")), 10L);
         assertEquals(getType(foo2.get(StringUtils.fromString("rj"))).getTag(), TypeTags.MAP_TAG);
