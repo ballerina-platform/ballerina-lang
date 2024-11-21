@@ -14,7 +14,14 @@ Running Tests
 				callableName: assertTrue moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 61
 				callableName: ttt moduleName: test_org.optimized_test_run_with_empty_build_pkg_test$test.0.tests.tests_test fileName: tests/tests_test.bal lineNumber: 6
 				callableName: ttt$lambda0$ moduleName: test_org.optimized_test_run_with_empty_build_pkg_test$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 4
-			
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: test_org.optimized_test_run_with_empty_build_pkg_test$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 8
+
 
 
 		0 passing
