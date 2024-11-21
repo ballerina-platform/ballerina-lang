@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
@@ -892,10 +893,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void createTypedescVariable(BType type, Location pos) {
+        BType finalType = type;
         if ((Types.getReferredType(type).tag != TypeTags.INTERSECTION && this.env.enclPkg.typeDefinitions.stream()
                 .anyMatch(typeDef ->
                         (Types.getReferredType(typeDef.typeNode.getBType()).tag == TypeTags.INTERSECTION) &&
-                                typeDef.symbol.name.value.equals(type.tsymbol.name.value)))) {
+                                typeDef.symbol.name.value.equals(finalType.tsymbol.name.value)))) {
             // This is a workaround for an issue where we create two type defs with same name for the below sample
             // type T1 [T1] & readonly;
             return;
@@ -905,6 +907,13 @@ public class Desugar extends BLangNodeVisitor {
         BType typedescType = new BTypedescType(type, symTable.typeDesc.tsymbol);
         BSymbol owner = this.env.scope.owner;
         BVarSymbol varSymbol  = new BVarSymbol(0, name, owner.pkgID, typedescType, owner, pos, VIRTUAL);
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            BType referredType = ((BTypeReferenceType) type).referredType;
+            int tag = referredType.tag;
+            if (tag == TypeTags.RECORD) {
+                type = referredType;
+            }
+        }
         BLangTypedescExpr typedescExpr = ASTBuilderUtil.createTypedescExpr(pos, typedescType, type);
         typedescList.add(createSimpleVariableDef(pos, name.value, typedescType, typedescExpr, varSymbol));
     }

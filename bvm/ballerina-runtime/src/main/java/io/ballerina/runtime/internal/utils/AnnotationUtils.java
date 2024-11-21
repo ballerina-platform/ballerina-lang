@@ -63,10 +63,6 @@ public final class AnnotationUtils {
 
         if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             Type impliedType = TypeUtils.getImpliedType(type);
-            if (impliedType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                processAnnotations(globalAnnotMap, impliedType);
-                return;
-            }
             if (isNonObjectType(impliedType.getTag())) {
                 return;
             }

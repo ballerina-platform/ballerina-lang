@@ -110,7 +110,6 @@ public class ClosedRecordTypeInclusionTest {
     public void testRefTypes() {
         Object returns = BRunUtil.invoke(compileResult, "testRefTypes");
         BMap<?, ?> foo2 = (BMap<?, ?>) returns;
-        assertEquals(foo2.getType().getTag(), TypeTags.TYPE_REFERENCED_TYPE_TAG);
         assertEquals(foo2.get(StringUtils.fromString("s")).toString(), "qwerty");
         assertEquals(foo2.get(StringUtils.fromString("i")), 10L);
         assertEquals(getType(foo2.get(StringUtils.fromString("rj"))).getTag(), TypeTags.MAP_TAG);
@@ -121,8 +120,7 @@ public class ClosedRecordTypeInclusionTest {
         assertEquals(getType(foo2.get(StringUtils.fromString("rp"))).getTag(), TypeTags.OBJECT_TYPE_TAG);
         assertEquals(((BObject) foo2.get(StringUtils.fromString("rp"))).get(StringUtils.fromString("name")).toString(),
                 "John Doe");
-        assertEquals(getType(foo2.get(StringUtils.fromString("ra"))).getTag(),
-                TypeTags.RECORD_TYPE_TAG);
+        assertEquals(getType(foo2.get(StringUtils.fromString("ra"))).getTag(), TypeTags.RECORD_TYPE_TAG);
         assertEquals(foo2.get(StringUtils.fromString("ra")).toString(), "{\"city\":\"Colombo\",\"country\":\"Sri " +
                 "Lanka\"}");
         assertEquals(getType(foo2.get(StringUtils.fromString("crx"))).getTag(), TypeTags.XML_ELEMENT_TAG);
