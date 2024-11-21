@@ -411,16 +411,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     }
 
     /**
-     * Generates the API specification for the supported JSON-RPC methods.
-     *
-     * @return a list of JSON objects representing the API specification.
-     */
-    public List<JsonObject> generateApiSpec() {
-        Map<String, JsonRpcMethod> jsonRpcMethodMap = supportedMethods();
-        return jsonRpcMethodMap.values().stream().map(ApiSpecGenerator::generate).toList();
-    }
-
-    /**
      * Register a configuration listener to handle enabling/disabling semantic highlighting dynamically.
      */
     private void registerSemanticTokensConfigListener() {
