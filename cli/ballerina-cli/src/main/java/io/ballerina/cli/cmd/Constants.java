@@ -53,6 +53,7 @@ public final class Constants {
     public static final String UPDATE_COMMAND = "update";
     public static final String PROFILE_COMMAND = "profile";
     public static final String START_LANG_SERVER_COMMAND = "start-language-server";
+    public static final String LANG_SERVER_SPEC = "language-server-spec";
     public static final String START_DEBUG_ADAPTER_COMMAND =  "start-debugger-adapter";
     public static final String HELP_COMMAND = "help";
     public static final String HOME_COMMAND = "home";

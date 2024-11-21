@@ -65,6 +65,7 @@ import static io.ballerina.cli.cmd.Constants.HELP_OPTION;
 import static io.ballerina.cli.cmd.Constants.HELP_SHORT_OPTION;
 import static io.ballerina.cli.cmd.Constants.HOME_COMMAND;
 import static io.ballerina.cli.cmd.Constants.INIT_COMMAND;
+import static io.ballerina.cli.cmd.Constants.LANG_SERVER_SPEC;
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
 import static io.ballerina.cli.cmd.Constants.OPENAPI_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
@@ -111,8 +112,8 @@ public final class BalToolsUtil {
             SHELL_COMMAND, VERSION_COMMAND, OPENAPI_COMMAND, GRAPHQL_COMMAND, ASYNCAPI_COMMAND, GRPC_COMMAND,
             PERSIST_COMMAND, PROFILE_COMMAND);
     private static final List<String> hiddenCommands = Arrays.asList(INIT_COMMAND, TOOL_COMMAND, DIST_COMMAND,
-            UPDATE_COMMAND, START_LANG_SERVER_COMMAND, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND, HOME_COMMAND,
-            GENCACHE_COMMAND);
+            UPDATE_COMMAND, START_LANG_SERVER_COMMAND, LANG_SERVER_SPEC, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND,
+            HOME_COMMAND, GENCACHE_COMMAND);
     // if a command is a built-in tool command, add it to this list
     private static final List<String> builtInToolCommands = List.of();
 
