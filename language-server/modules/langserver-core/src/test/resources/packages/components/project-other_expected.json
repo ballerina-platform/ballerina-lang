@@ -5,29 +5,6 @@
       "filePath": "file:///",
       "modules": [
         {
-          "functions": [
-            {
-              "name": "multiply",
-              "filePath": "main.bal",
-              "startLine": 0,
-              "startColumn": 0,
-              "endLine": 2,
-              "endColumn": 1
-            }
-          ],
-          "services": [],
-          "records": [],
-          "objects": [],
-          "classes": [],
-          "types": [],
-          "constants": [],
-          "enums": [],
-          "listeners": [],
-          "moduleVariables": [],
-          "configurableVariables": [],
-          "automations": []
-        },
-        {
           "functions": [],
           "services": [],
           "records": [
@@ -162,8 +139,7 @@
               "endColumn": 41
             }
           ],
-          "enums": [],
-          "listeners": [
+          "enums": [
             {
               "name": "Language",
               "filePath": "model.bal",
@@ -173,6 +149,7 @@
               "endColumn": 1
             }
           ],
+          "listeners": [],
           "moduleVariables": [
             {
               "name": "ESCAPES ",
@@ -194,6 +171,29 @@
           "configurableVariables": [],
           "automations": [],
           "name": "models"
+        },
+        {
+          "functions": [
+            {
+              "name": "multiply",
+              "filePath": "main.bal",
+              "startLine": 0,
+              "startColumn": 0,
+              "endLine": 2,
+              "endColumn": 1
+            }
+          ],
+          "services": [],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [],
+          "moduleVariables": [],
+          "configurableVariables": [],
+          "automations": []
         }
       ]
     }

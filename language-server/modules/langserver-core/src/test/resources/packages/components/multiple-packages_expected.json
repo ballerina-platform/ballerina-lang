@@ -5,38 +5,6 @@
       "filePath": "file:///",
       "modules": [
         {
-          "functions": [
-            {
-              "name": "main",
-              "filePath": "main.bal",
-              "startLine": 3,
-              "startColumn": 0,
-              "endLine": 6,
-              "endColumn": 1
-            }
-          ],
-          "services": [],
-          "records": [],
-          "objects": [],
-          "classes": [],
-          "types": [],
-          "constants": [],
-          "enums": [],
-          "listeners": [],
-          "moduleVariables": [],
-          "configurableVariables": [],
-          "automations": [
-            {
-              "name": "main",
-              "filePath": "main.bal",
-              "startLine": 3,
-              "startColumn": 0,
-              "endLine": 6,
-              "endColumn": 1
-            }
-          ]
-        },
-        {
           "functions": [],
           "services": [
             {
@@ -69,6 +37,38 @@
           "configurableVariables": [],
           "automations": [],
           "name": "services"
+        },
+        {
+          "functions": [
+            {
+              "name": "main",
+              "filePath": "main.bal",
+              "startLine": 3,
+              "startColumn": 0,
+              "endLine": 6,
+              "endColumn": 1
+            }
+          ],
+          "services": [],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [],
+          "moduleVariables": [],
+          "configurableVariables": [],
+          "automations": [
+            {
+              "name": "main",
+              "filePath": "main.bal",
+              "startLine": 3,
+              "startColumn": 0,
+              "endLine": 6,
+              "endColumn": 1
+            }
+          ]
         }
       ]
     },
@@ -103,30 +103,6 @@
         {
           "functions": [
             {
-              "name": "runServices",
-              "filePath": "svc.bal",
-              "startLine": 3,
-              "startColumn": 0,
-              "endLine": 6,
-              "endColumn": 1
-            }
-          ],
-          "services": [],
-          "records": [],
-          "objects": [],
-          "classes": [],
-          "types": [],
-          "constants": [],
-          "enums": [],
-          "listeners": [],
-          "moduleVariables": [],
-          "configurableVariables": [],
-          "automations": [],
-          "name": "services"
-        },
-        {
-          "functions": [
-            {
               "name": "main",
               "filePath": "main.bal",
               "startLine": 3,
@@ -155,6 +131,30 @@
               "endColumn": 1
             }
           ]
+        },
+        {
+          "functions": [
+            {
+              "name": "runServices",
+              "filePath": "svc.bal",
+              "startLine": 3,
+              "startColumn": 0,
+              "endLine": 6,
+              "endColumn": 1
+            }
+          ],
+          "services": [],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [],
+          "moduleVariables": [],
+          "configurableVariables": [],
+          "automations": [],
+          "name": "services"
         }
       ]
     },
@@ -162,6 +162,73 @@
       "name": "project_services",
       "filePath": "file:///",
       "modules": [
+        {
+          "functions": [],
+          "services": [
+            {
+              "name": "/ ",
+              "filePath": "main.bal",
+              "startLine": 3,
+              "startColumn": 0,
+              "endLine": 11,
+              "endColumn": 1,
+              "resources": [
+                {
+                  "name": "get-welcome",
+                  "filePath": "main.bal",
+                  "startLine": 8,
+                  "startColumn": 4,
+                  "endLine": 10,
+                  "endColumn": 5
+                }
+              ]
+            }
+          ],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [],
+          "moduleVariables": [],
+          "configurableVariables": [],
+          "automations": []
+        },
+        {
+          "functions": [],
+          "services": [
+            {
+              "name": "\"process\" ",
+              "filePath": "db.bal",
+              "startLine": 3,
+              "startColumn": 0,
+              "endLine": 8,
+              "endColumn": 1,
+              "resources": [
+                {
+                  "name": "post-connect",
+                  "filePath": "db.bal",
+                  "startLine": 5,
+                  "startColumn": 4,
+                  "endLine": 7,
+                  "endColumn": 5
+                }
+              ]
+            }
+          ],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [],
+          "moduleVariables": [],
+          "configurableVariables": [],
+          "automations": [],
+          "name": "db_service"
+        },
         {
           "functions": [],
           "services": [
@@ -204,73 +271,6 @@
           "configurableVariables": [],
           "automations": [],
           "name": "hello_service"
-        },
-        {
-          "functions": [],
-          "services": [
-            {
-              "name": "\"process\" ",
-              "filePath": "db.bal",
-              "startLine": 3,
-              "startColumn": 0,
-              "endLine": 8,
-              "endColumn": 1,
-              "resources": [
-                {
-                  "name": "post-connect",
-                  "filePath": "db.bal",
-                  "startLine": 5,
-                  "startColumn": 4,
-                  "endLine": 7,
-                  "endColumn": 5
-                }
-              ]
-            }
-          ],
-          "records": [],
-          "objects": [],
-          "classes": [],
-          "types": [],
-          "constants": [],
-          "enums": [],
-          "listeners": [],
-          "moduleVariables": [],
-          "configurableVariables": [],
-          "automations": [],
-          "name": "db_service"
-        },
-        {
-          "functions": [],
-          "services": [
-            {
-              "name": "/ ",
-              "filePath": "main.bal",
-              "startLine": 3,
-              "startColumn": 0,
-              "endLine": 11,
-              "endColumn": 1,
-              "resources": [
-                {
-                  "name": "get-welcome",
-                  "filePath": "main.bal",
-                  "startLine": 8,
-                  "startColumn": 4,
-                  "endLine": 10,
-                  "endColumn": 5
-                }
-              ]
-            }
-          ],
-          "records": [],
-          "objects": [],
-          "classes": [],
-          "types": [],
-          "constants": [],
-          "enums": [],
-          "listeners": [],
-          "moduleVariables": [],
-          "configurableVariables": [],
-          "automations": []
         }
       ]
     },
@@ -377,8 +377,7 @@
               "endColumn": 30
             }
           ],
-          "enums": [],
-          "listeners": [
+          "enums": [
             {
               "name": "Color",
               "filePath": "main.bal",
@@ -388,6 +387,7 @@
               "endColumn": 1
             }
           ],
+          "listeners": [],
           "moduleVariables": [
             {
               "name": "modLevelVariable ",
