@@ -16,9 +16,9 @@
 package org.ballerinalang.langserver;
 
 import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.Gson;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Module;
