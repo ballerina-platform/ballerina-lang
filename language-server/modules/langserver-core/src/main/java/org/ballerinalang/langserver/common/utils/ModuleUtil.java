@@ -228,8 +228,8 @@ public final class ModuleUtil {
      */
     public static Optional<ImportDeclarationNode> matchingImportedModule(CompletionContext context,
                                                                          LSPackageLoader.ModuleInfo module) {
-        String name = module.packageName().value();
-        String orgName = module.packageOrg().value();
+        String name = module.packageName();
+        String orgName = module.packageOrg();
         Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
         return currentDocImports.keySet().stream()
                 .filter(importPkg -> importPkg.orgName().isPresent()

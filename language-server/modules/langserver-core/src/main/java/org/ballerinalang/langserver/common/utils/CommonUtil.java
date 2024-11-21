@@ -427,11 +427,11 @@ public final class CommonUtil {
      */
     public static String getPackageLabel(LSPackageLoader.ModuleInfo module) {
         String orgName = "";
-        if (!module.packageOrg().value().isEmpty() && !module.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
-            orgName = module.packageOrg().value() + "/";
+        if (!module.packageOrg().isEmpty() && !module.packageOrg().equals(Names.ANON_ORG.getValue())) {
+            orgName = module.packageOrg() + "/";
         }
 
-        return orgName + module.packageName().value();
+        return orgName + module.packageName();
     }
 
     /**

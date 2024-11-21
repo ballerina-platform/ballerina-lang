@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - master
-      - java21
       - feature-codegen-optimizer
 
 jobs:
@@ -94,12 +93,6 @@ jobs:
           do git clone https://github.com/ballerina-platform/${module_name}.git; \
           done
 
-      - name: Checkout non-default branch
-        run: |
-          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
-          cd $module_name && git fetch origin && git checkout -t origin/java21 && cd ..; \
-          done
-
       - name: Update Lang Version in Module
         run: |
           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
@@ -139,10 +132,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21.0.3'
-
-      - name: Checkout non-default branch
-        run: |
-          git fetch origin && git checkout -t origin/java21
 
       - name: Download Ballerina Lang Artifacts
         uses: actions/download-artifact@v4
