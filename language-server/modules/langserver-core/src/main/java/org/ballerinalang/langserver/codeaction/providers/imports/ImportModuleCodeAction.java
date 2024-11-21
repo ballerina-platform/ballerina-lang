@@ -135,16 +135,16 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
         // Here we filter out the already imported packages
         moduleList.stream()
                 .filter(pkgEntry -> existingModules.stream()
-                        .noneMatch(moduleSymbol -> moduleSymbol.id().orgName().equals(pkgEntry.packageOrg().value()) &&
-                                moduleSymbol.id().moduleName().equals(pkgEntry.packageName().value()))
+                        .noneMatch(moduleSymbol -> moduleSymbol.id().orgName().equals(pkgEntry.packageOrg()) &&
+                                moduleSymbol.id().moduleName().equals(pkgEntry.packageName()))
                 )
                 .filter(pkgEntry -> {
-                    String pkgName = pkgEntry.packageName().value();
+                    String pkgName = pkgEntry.packageName();
                     return pkgName.endsWith("." + modulePrefix) || pkgName.equals(modulePrefix);
                 })
                 .forEach(pkgEntry -> {
-                    String orgName = pkgEntry.packageOrg().value();
-                    String pkgName = pkgEntry.packageName().value();
+                    String orgName = pkgEntry.packageOrg();
+                    String pkgName = pkgEntry.packageName();
                     String moduleName = ModuleUtil.escapeModuleName(pkgName);
                     Position insertPos = CommonUtil.getImportPosition(context);
                     String importText = orgName.isEmpty() ?

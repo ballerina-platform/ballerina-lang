@@ -315,9 +315,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     protected void populateInitialValues(BMapInitialValueEntry[] initialValues) {
         Map<String, BFunctionPointer> defaultValues = new HashMap<>();
-        Type impliedType = TypeUtils.getImpliedType(type);
-        if (impliedType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            defaultValues.putAll(((BRecordType) impliedType).getDefaultValues());
+        if (referredType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            defaultValues.putAll(((BRecordType) referredType).getDefaultValues());
         }
 
         for (BMapInitialValueEntry initialValue : initialValues) {
