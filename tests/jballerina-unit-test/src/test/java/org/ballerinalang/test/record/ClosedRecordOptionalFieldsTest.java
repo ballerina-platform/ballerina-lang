@@ -17,10 +17,8 @@
  */
 package org.ballerinalang.test.record;
 
-import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BAssertUtil;
@@ -135,14 +133,12 @@ public class ClosedRecordOptionalFieldsTest {
         BArray returns = (BArray) BRunUtil.invoke(compileResult, "testOptionalNonDefField4");
         Assert.assertEquals(returns.get(0).toString(), "{\"street\":\"Palm Grove\",\"city\":\"Colombo 3\"," +
                 "\"country\":\"LK\"}");
-        Type type = TypeUtils.getReferredType(getType(returns.get(0)));
-        Assert.assertEquals(type.getTag(), TypeTags.RECORD_TYPE_TAG);
-        Assert.assertEquals(type.getName(), "Address3");
+        Assert.assertEquals(getType(returns.get(0)).getTag(), TypeTags.RECORD_TYPE_TAG);
+        Assert.assertEquals(getType(returns.get(0)).getName(), "Address3");
         Assert.assertEquals(returns.get(1).toString(), "{\"street\":\"Palm Grove\",\"city\":\"Colombo 3\"," +
                 "\"country\":\"LK\"}");
-        type = TypeUtils.getReferredType(getType(returns.get(1)));
-        Assert.assertEquals(type.getTag(), TypeTags.RECORD_TYPE_TAG);
-        Assert.assertEquals(type.getName(), "Address3");
+        Assert.assertEquals(getType(returns.get(1)).getTag(), TypeTags.RECORD_TYPE_TAG);
+        Assert.assertEquals(getType(returns.get(1)).getName(), "Address3");
     }
 
     @Test(description = "Test defaultable user defined type as an optional field")

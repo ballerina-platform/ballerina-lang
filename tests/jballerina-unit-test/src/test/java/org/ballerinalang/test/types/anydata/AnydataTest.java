@@ -20,7 +20,6 @@ package org.ballerinalang.test.types.anydata;
 
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BXml;
@@ -183,7 +182,7 @@ public class AnydataTest {
     @Test(description = "Test anydata to record conversion")
     public void testAnydataToRecord() {
         BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToRecord");
-        assertEquals(TypeUtils.getReferredType(getType(returns.get(0))).getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(getType(returns.get(0)).getTag(), TypeTags.RECORD_TYPE_TAG);
         assertEquals(returns.get(0).toString(), "{\"a\":15}");
     }
 
