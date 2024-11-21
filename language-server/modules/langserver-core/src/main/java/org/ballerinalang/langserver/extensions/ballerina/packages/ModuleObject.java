@@ -92,7 +92,7 @@ public class ModuleObject {
     }
 
     private void addEnum(DataObject dataObject) {
-        this.listeners.add(dataObject);
+        this.enums.add(dataObject);
     }
 
     protected void addDataObject(MapperObject mapperObject) {

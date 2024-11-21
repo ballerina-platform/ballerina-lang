@@ -103,8 +103,7 @@
               "endColumn": 30
             }
           ],
-          "enums": [],
-          "listeners": [
+          "enums": [
             {
               "name": "Color",
               "filePath": "main.bal",
@@ -114,6 +113,7 @@
               "endColumn": 1
             }
           ],
+          "listeners": [],
           "moduleVariables": [
             {
               "name": "modLevelVariable ",
