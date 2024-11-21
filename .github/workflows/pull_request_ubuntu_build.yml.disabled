@@ -74,6 +74,12 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           files: ./.jacoco/reports/jacoco/report.xml
+      - name: Upload heap dump
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: heap-dump
+          path: ./**/java_pid*.hprof
 
   sonarcloud_scan:
     name: Build with sonarcloud scan on Ubuntu
