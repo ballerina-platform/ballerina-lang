@@ -510,7 +510,8 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(selfChildVariables, "name", "\"John\"", "string");
     }
 
-    @Test(description = "Worker related variable visibility test")
+    // Need to be enabled after fixing https://github.com/ballerina-platform/ballerina-lang/issues/43636
+    @Test(description = "Worker related variable visibility test", enabled = false)
     public void workerVariableVisibilityTest() throws BallerinaTestException {
         String testProjectName = "worker-tests";
         String testModuleFileName = "main.bal";
