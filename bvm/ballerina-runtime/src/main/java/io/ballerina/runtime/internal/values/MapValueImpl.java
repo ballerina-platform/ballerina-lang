@@ -313,7 +313,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     protected void populateInitialValues(BMapInitialValueEntry[] initialValues) {
-        Map<String, BFunctionPointer<Object, ?>> defaultValues = new HashMap<>();
+        Map<String, BFunctionPointer> defaultValues = new HashMap<>();
         if (referredType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             defaultValues.putAll(((BRecordType) referredType).getDefaultValues());
         }
@@ -346,9 +346,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public void populateInitialValue(K key, V value) {
-        if (
-          
-          .getTag() == TypeTags.MAP_TAG) {
+        if (referredType.getTag() == TypeTags.MAP_TAG) {
             MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) referredType);
             putValue(key, value);
         } else {
