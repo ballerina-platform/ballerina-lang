@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.util.ProjectConstants;
-import org.ballerinalang.langserver.apispec.ApiSpecGenerator;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -64,7 +63,6 @@ import org.eclipse.lsp4j.TextDocumentRegistrationOptions;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.WatchKind;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
-import org.eclipse.lsp4j.jsonrpc.json.JsonRpcMethod;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.NotebookDocumentService;
@@ -122,14 +120,14 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         if (params.getCapabilities().getExperimental() != null) {
             experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
                     new TypeToken<>() {
-                    });
+            });
         }
 
         Map<String, Object> initializationOptions = null;
         if (params.getInitializationOptions() != null) {
             initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(),
                     new TypeToken<>() {
-                    });
+            });
         }
 
         TextDocumentClientCapabilities textDocClientCapabilities = params.getCapabilities().getTextDocument();
@@ -218,7 +216,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         startListeningFileChanges();
 
         LSClientCapabilities lsClientCapabilities = this.serverContext.get(LSClientCapabilities.class);
-
+        
         if (lsClientCapabilities.getInitializationOptions().isEnableLightWeightMode()) {
             return;
         }
@@ -262,8 +260,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     }
 
     /**
-     * "bala" URI scheme is used to make stdlib and langlib files readonly at the editor. "expr" URI scheme is used to
-     * make expression editor based use-cases
+     * "bala" URI scheme is used to make stdlib and langlib files readonly at the editor.
+     * "expr" URI scheme is used to make expression editor based use-cases
      */
     private void registerTextSynchronizationForCustomUriSchemes() {
         LanguageClient client = serverContext.get(ExtendedLanguageClient.class);
