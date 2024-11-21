@@ -3,5 +3,4 @@ module io.ballerina.runtime.profiler {
     requires org.apache.commons.io;
     requires io.ballerina.runtime;
     requires io.ballerina.identifier;
-    requires com.google.gson;
 }

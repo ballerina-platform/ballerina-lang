@@ -285,12 +285,12 @@ class JMethodResolver {
     private JMethod resolve(JMethodRequest jMethodRequest, List<JMethod> jMethods) {
         boolean noConstraints = noConstraintsSpecified(jMethodRequest.paramTypeConstraints);
         if (jMethods.size() == 1 && noConstraints) {
-            return jMethods.get(0);
+            return jMethods.getFirst();
         } else if (noConstraints) {
             if (areAllMethodsOverridden(jMethods, jMethodRequest.declaringClass)) {
-                return jMethods.get(0);
+                return jMethods.getFirst();
             }
-            throwOverloadedMethodError(jMethodRequest, jMethods.get(0).getParamTypes().length);
+            throwOverloadedMethodError(jMethodRequest, jMethods.getFirst().getParamTypes().length);
         }
 
         JMethod jMethod = resolveExactMethod(jMethodRequest.declaringClass, jMethodRequest.methodName,
@@ -302,7 +302,7 @@ class JMethodResolver {
     }
 
     private boolean areAllMethodsOverridden(List<JMethod> jMethods, Class<?> clazz) {
-        if (jMethods.get(0).getKind() == JMethodKind.CONSTRUCTOR) {
+        if (jMethods.getFirst().getKind() == JMethodKind.CONSTRUCTOR) {
             return false;
         }
         for (int i = 0; i < jMethods.size(); i++) {
@@ -506,7 +506,7 @@ class JMethodResolver {
             return;
         }
         List<BType> paramTypes = new ArrayList<>(Arrays.asList(jMethodRequest.bParamTypes));
-        int initialPathParamIndex = paramTypes.indexOf(pathParamSymbols.get(0).type);
+        int initialPathParamIndex = paramTypes.indexOf(pathParamSymbols.getFirst().type);
         for (BVarSymbol param : pathParamSymbols) {
             paramTypes.remove(param.type);
         }
@@ -956,7 +956,7 @@ class JMethodResolver {
                                 "' found in class '" + jMethodRequest.declaringClass + "'");
             }
         } else {
-            return resolvedJMethods.get(0);
+            return resolvedJMethods.getFirst();
         }
     }
 

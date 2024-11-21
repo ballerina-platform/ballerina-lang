@@ -25,13 +25,7 @@ import io.ballerina.runtime.api.values.BDecimal;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.decimal", functionName = "min",
-//        args = {@Argument(name = "n", type = TypeKind.DECIMAL), @Argument(name = "ns", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
-//        isPublic = true
-//)
-public final class Min {
+public class Min {
 
     private Min() {
     }

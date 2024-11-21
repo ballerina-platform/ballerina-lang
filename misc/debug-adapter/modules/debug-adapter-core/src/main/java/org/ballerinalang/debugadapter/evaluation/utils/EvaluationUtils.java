@@ -97,7 +97,7 @@ public final class EvaluationUtils {
     public static final String B_VALUE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.ValueCreator";
     public static final String B_STRING_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.StringUtils";
     public static final String B_TYPE_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.TypeUtils";
-    public static final String B_XML_FACTORY_CLASS = RUNTIME_HELPER_PREFIX + "internal.XmlFactory";
+    public static final String B_XML_FACTORY_CLASS = RUNTIME_HELPER_PREFIX + "internal.xml.XmlFactory";
     public static final String B_DECIMAL_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.DecimalValue";
     public static final String B_XML_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BXml";
     public static final String B_XML_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.XmlValue";
@@ -256,8 +256,10 @@ public final class EvaluationUtils {
             Method forNameMethod = null;
             List<Method> methods = classType.methodsByName(FOR_NAME_METHOD);
             for (Method method : methods) {
-                if (method.argumentTypeNames().size() == 3) {
+                List<String> argumentTypeNames = method.argumentTypeNames();
+                if (argumentTypeNames.size() == 3 && argumentTypeNames.getFirst().equals(JAVA_STRING_CLASS)) {
                     forNameMethod = method;
+                    break;
                 }
             }
             if (forNameMethod == null) {

@@ -49,7 +49,8 @@ public class BMainInstance implements BMain {
     private static final Logger LOG = LoggerFactory.getLogger(BMainInstance.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private String agentArgs = "";
-    private final BalServer balServer;
+    private BalServer balServer;
+    public static final int TIMEOUT = 10000;
 
     private static class StreamGobbler extends Thread {
         private final InputStream inputStream;

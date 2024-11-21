@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.FunctionType;
@@ -27,45 +27,27 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
-import static org.ballerinalang.langlib.map.util.Constants.MAP_VERSION;
 
 /**
  * Native implementation of lang.map:map(map&lt;Type&gt;, function).
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map", functionName = "map",
-//        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION)},
-//        returnType = {@ReturnType(type = TypeKind.MAP)},
-//        isPublic = true
-//)
-public final class Map {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
-                                                                      MAP_VERSION, "map");
+public class Map {
 
     private Map() {
     }
 
-    public static BMap<BString, Object> map(BMap<?, ?> m, BFunctionPointer<Object[], Object> func) {
+    public static BMap<BString, Object> map(Environment env, BMap<BString, ?> m, BFunctionPointer func) {
         MapType newMapType = TypeCreator.createMapType(
                 ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType());
         BMap<BString, Object> newMap = ValueCreator.createMapValue(newMapType);
         int size = m.size();
-        AtomicInteger index = new AtomicInteger(-1);
-        Object[] keys = m.getKeys();
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{m.get(keys[index.incrementAndGet()]), true},
-                result -> newMap.put((BString) keys[index.get()], result),
-                () -> newMap, Scheduler.getStrand().scheduler);
+        BString[] keys = m.getKeys();
+        for (int i = 0; i < size; i++) {
+            newMap.put(keys[i], func.call(env.getRuntime(), m.get(keys[i])));
+        }
         return newMap;
     }
 }

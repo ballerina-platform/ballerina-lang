@@ -30,7 +30,7 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     // Error codes used in the ManifestBuilder
     MISSING_PKG_INFO_IN_BALLERINA_TOML("BCE5001", "missing.package.info"),
     INVALID_PATH("BCE5002", "error.invalid.path"),
-    INVALID_ICON("BCE5003", "error.invalid.icon"),
+    INVALID_FILE_FORMAT("BCE5003", "error.invalid.file.format"),
     INVALID_PROVIDED_DEPENDENCY("BCE5004", "invalid.provided.dependency"),
     INVALID_PROVIDED_SCOPE_IN_BUILD("BCE5005", "invalid.provided.scope"),
 
@@ -38,6 +38,9 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     OLD_DEPENDENCIES_TOML("BCE5101", "old.dependencies.toml"),
     LOCAL_PACKAGES_IN_DEPENDENCIES_TOML("BCE5102", "local.packages.in.dependencies.toml"),
     CORRUPTED_DEPENDENCIES_TOML("BCE5103", "corrupted.dependencies.toml"),
+    DEPRECATED_BALLERINA_TOML_ENTRY("BCE5104", "deprecated.ballerina.toml.entry"),
+    INVALID_MODULE("BCE5105", "invalid.module"),
+    DEPRECATED_DOC_FILE("BCE5106", "deprecated.doc.file"),
 
     // Error codes used during dependency resolution.
     INCOMPATIBLE_DEPENDENCY_VERSIONS("BCE5201", "incompatible.dependency.versions"),
@@ -63,7 +66,8 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     PROVIDED_PLATFORM_JAR_IN_EXECUTABLE("BCE5502", "provided.platform.jars"),
 
     // Error codes used in resources resolution
-    CONFLICTING_RESOURCE_FILE("BCE5601", "conflicting.resources.type")
+    CONFLICTING_RESOURCE_FILE("BCE5601", "conflicting.resources.type"),
+    DEPRECATED_RESOURCES_STRUCTURE("BCE5602", "deprecated.resources.structure"),
     ;
 
     private final String diagnosticId;

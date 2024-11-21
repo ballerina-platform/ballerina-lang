@@ -25,6 +25,8 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.exceptions.InvalidBalaException;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.File;
 import java.io.IOException;
@@ -201,13 +203,17 @@ public final class ProjectFiles {
                 parentPath.toFile().getName())) {
             List<Path> moduleResources = loadResources(moduleDirPath);
             if (!moduleResources.isEmpty()) {
-                String diagnosticMsg = "WARNING: module-level resources are not supported. Relocate the module-level " +
+                String warning = "WARNING: module-level resources are not supported. Relocate the module-level " +
                         "resources detected in '" + moduleDirPath.toFile().getName() + "' to the package " +
                         "resources path. Resource files:\n" +
                         moduleResources.stream()
                                 .map(Path::toString)
                                 .collect(Collectors.joining("\n")) + "\n";
-                ProjectUtils.addProjectLoadingDiagnostic(diagnosticMsg);
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(ProjectDiagnosticErrorCode.
+                        DEPRECATED_RESOURCES_STRUCTURE.diagnosticId(), warning, DiagnosticSeverity.WARNING);
+                PackageDiagnostic packageDiagnostic = new PackageDiagnostic(diagnosticInfo, "");
+
+                ProjectUtils.addMiscellaneousProjectDiagnostics(packageDiagnostic);
             }
         }
         // TODO Read Module.md file. Do we need to? Bala creator may need to package Module.md

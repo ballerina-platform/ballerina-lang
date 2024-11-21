@@ -134,7 +134,7 @@ public final class ProjectUtils {
     private static final Pattern onlyNonAlphanumericPattern = Pattern.compile("^[^a-zA-Z0-9]+$");
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
     private static final Pattern separatedIdentifierWithHyphenPattern = Pattern.compile("^[a-zA-Z0-9_.-]*$");
-    private static String projectLoadingDiagnostic;
+    private static final List<Diagnostic> projectLoadingDiagnostic = new ArrayList<>();
 
     private ProjectUtils() {
     }
@@ -1274,7 +1274,7 @@ public final class ProjectUtils {
     }
 
     /**
-     * Return the path of a bala with the available platform directory (java17 or any).
+     * Return the path of a bala with the available platform directory (java21 or any).
      *
      * @param balaDirPath path to the bala directory
      * @param org org name of the bala
@@ -1441,12 +1441,17 @@ public final class ProjectUtils {
 
     // TODO: Remove this with https://github.com/ballerina-platform/ballerina-lang/issues/43212
     //  once diagnostic support for project loading stage is added.
-    public static void addProjectLoadingDiagnostic(String diagnosticMessage) {
-        projectLoadingDiagnostic = diagnosticMessage;
+    public static void addMiscellaneousProjectDiagnostics(Diagnostic diagnosticMessage) {
+        projectLoadingDiagnostic.add(diagnosticMessage);
     }
 
-    public static String getProjectLoadingDiagnostic() {
+    public static List<Diagnostic> getProjectLoadingDiagnostic() {
         return projectLoadingDiagnostic;
+    }
+
+    // This is needed to clear the diagnostics when unit testing
+    public static void clearDiagnostics() {
+        projectLoadingDiagnostic.clear();
     }
 
     /**

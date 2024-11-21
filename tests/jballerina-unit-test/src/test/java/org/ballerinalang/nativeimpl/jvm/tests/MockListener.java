@@ -18,14 +18,9 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.async.Callback;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
  * A mock listener for testing services. It can be used to invoke a resource in the service.
@@ -33,7 +28,6 @@ import java.util.concurrent.CountDownLatch;
 public final class MockListener {
 
     private static BObject service;
-    private static BError err;
 
     private MockListener() {
     }
@@ -43,25 +37,11 @@ public final class MockListener {
         return null;
     }
 
-    public static Object invokeResource(Environment env, BString name) throws InterruptedException {
+    public static Object invokeResource(Environment env, BString name) {
         if (service != null) {
-            CountDownLatch latch = new CountDownLatch(1);
             Runtime runtime = env.getRuntime();
-            runtime.invokeMethodAsyncConcurrently(service, name.getValue(), null, null,
-                                                  new Callback() {
-                                                      @Override
-                                                      public void notifySuccess(Object result) {
-                                                          latch.countDown();
-                                                      }
-
-                                                      @Override
-                                                      public void notifyFailure(BError error) {
-                                                          err = error;
-                                                          latch.countDown();
-                                                      }
-                                                  }, null, PredefinedTypes.TYPE_NULL);
-            latch.await();
+            return runtime.callMethod(service, name.getValue(), null);
         }
-        return err;
+        return null;
     }
 }

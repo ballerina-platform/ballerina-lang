@@ -27,13 +27,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  * 
  * @since 0.88
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "isSingleton",
-//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-//        isPublic = true
-//)
-public final class IsSingleton {
+public class IsSingleton {
 
     private static final String OPERATION = "check xml is singleton";
 

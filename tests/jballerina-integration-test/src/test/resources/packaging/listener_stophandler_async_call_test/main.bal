@@ -66,6 +66,5 @@ public function main() {
     Listener dynamicListener = new Listener("dynamic listener of current module");
     runtime:registerListener(dynamicListener);
     runtime:sleep(2);
-    runtime:deregisterListener(dynamicListener);
     moduleA:main();
 }

@@ -27,13 +27,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  * 
  * @since 0.88
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "isEmpty",
-//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-//        isPublic = true
-//)
-public final class IsEmpty {
+public class IsEmpty {
 
     private static final String OPERATION = "check xml is empty";
 

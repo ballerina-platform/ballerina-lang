@@ -28,13 +28,6 @@ import java.util.StringJoiner;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.string", functionName = "join",
-//        args = {@Argument(name = "separator", type = TypeKind.STRING), @Argument(name = "strs", type = TypeKind
-//        .ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.STRING)},
-//        isPublic = true
-//)
 public final class Join {
 
     private Join() {

@@ -30,7 +30,6 @@ import java.util.List;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_SCHEDULER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.INVOKE_FUNCTION_ASYNC;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_LANG_CLASSLOADER;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
@@ -58,7 +57,6 @@ public class GeneratedStaticMethod extends GeneratedMethod {
             }
             List<String> argTypeList = new ArrayList<>();
             argTypeList.add(JAVA_LANG_CLASSLOADER);
-            argTypeList.add(B_SCHEDULER_CLASS);
             argTypeList.add(JAVA_STRING_CLASS);
             argTypeList.add(JAVA_STRING_CLASS);
             argTypeList.add(JAVA_OBJECT_ARRAY_CLASS);
@@ -67,7 +65,6 @@ public class GeneratedStaticMethod extends GeneratedMethod {
 
             List<Value> scheduleMethodArgs = new ArrayList<>();
             scheduleMethodArgs.add(context.getDebuggeeClassLoader());
-            scheduleMethodArgs.add(null);
             scheduleMethodArgs.add(EvaluationUtils.getAsJString(context, classRef.name()));
             scheduleMethodArgs.add(EvaluationUtils.getAsJString(context, methodRef.name()));
             scheduleMethodArgs.addAll(getMethodArgs(this));
