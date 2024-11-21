@@ -24,7 +24,9 @@
     },
     "unusedTypeDefNames": {
       "sourceTypeDefinitions": [],
-      "virtualTypeDefinitions": []
+      "virtualTypeDefinitions": [
+        "$anonType$_0"
+      ]
     },
     "usedNativeClassPaths": []
   }
