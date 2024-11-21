@@ -1,0 +1,62 @@
+{
+  "method": "ballerinaSymbol/type",
+  "parameters": [
+    {
+      "name": "param0",
+      "schema": {
+        "properties": {
+          "documentIdentifier": {
+            "properties": {
+              "uri": {
+                "type": "string",
+                "className": "java.lang.String"
+              }
+            },
+            "type": "object",
+            "className": "org.eclipse.lsp4j.TextDocumentIdentifier"
+          },
+          "position": {
+            "properties": {
+              "offset": {
+                "type": "integer",
+                "className": "int"
+              },
+              "line": {
+                "type": "integer",
+                "className": "int"
+              }
+            },
+            "type": "object",
+            "className": "io.ballerina.tools.text.LinePosition"
+          }
+        },
+        "type": "object",
+        "className": "org.ballerinalang.langserver.extensions.ballerina.symbol.ExpressionTypeRequest"
+      }
+    }
+  ],
+  "returnType": {
+    "properties": {
+      "documentIdentifier": {
+        "properties": {
+          "uri": {
+            "type": "string",
+            "className": "java.lang.String"
+          }
+        },
+        "type": "object",
+        "className": "org.eclipse.lsp4j.TextDocumentIdentifier"
+      },
+      "types": {
+        "item": {
+          "type": "string",
+          "className": "java.lang.String"
+        },
+        "type": "array",
+        "className": "java.util.List<java.lang.String>"
+      }
+    },
+    "type": "object",
+    "className": "org.ballerinalang.langserver.extensions.ballerina.symbol.ExpressionTypeResponse"
+  }
+}

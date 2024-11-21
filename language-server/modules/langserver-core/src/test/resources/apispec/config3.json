@@ -1,0 +1,203 @@
+{
+  "method": "ballerinaDocument/diagnostics",
+  "parameters": [
+    {
+      "name": "param0",
+      "schema": {
+        "properties": {
+          "documentIdentifier": {
+            "properties": {
+              "uri": {
+                "type": "string",
+                "className": "java.lang.String"
+              }
+            },
+            "type": "object",
+            "className": "org.eclipse.lsp4j.TextDocumentIdentifier"
+          }
+        },
+        "type": "object",
+        "className": "org.ballerinalang.langserver.extensions.ballerina.document.BallerinaProjectParams"
+      }
+    }
+  ],
+  "returnType": {
+    "item": {
+      "properties": {
+        "diagnostics": {
+          "item": {
+            "properties": {
+              "severity": {
+                "enumValues": [
+                  "Error",
+                  "Warning",
+                  "Information",
+                  "Hint"
+                ],
+                "type": "string",
+                "className": "org.eclipse.lsp4j.DiagnosticSeverity"
+              },
+              "code": {
+                "properties": {
+                  "left": {
+                    "type": "object",
+                    "className": "java.lang.Object"
+                  },
+                  "right": {
+                    "type": "object",
+                    "className": "java.lang.Object"
+                  }
+                },
+                "type": "object",
+                "className": "org.eclipse.lsp4j.jsonrpc.messages.Either"
+              },
+              "data": {
+                "properties": {},
+                "type": "object",
+                "className": "java.lang.Object"
+              },
+              "codeDescription": {
+                "properties": {
+                  "href": {
+                    "type": "string",
+                    "className": "java.lang.String"
+                  }
+                },
+                "type": "object",
+                "className": "org.eclipse.lsp4j.DiagnosticCodeDescription"
+              },
+              "range": {
+                "properties": {
+                  "start": {
+                    "properties": {
+                      "character": {
+                        "type": "integer",
+                        "className": "int"
+                      },
+                      "line": {
+                        "type": "integer",
+                        "className": "int"
+                      }
+                    },
+                    "type": "object",
+                    "className": "org.eclipse.lsp4j.Position"
+                  },
+                  "end": {
+                    "properties": {
+                      "character": {
+                        "type": "integer",
+                        "className": "int"
+                      },
+                      "line": {
+                        "type": "integer",
+                        "className": "int"
+                      }
+                    },
+                    "type": "object",
+                    "className": "org.eclipse.lsp4j.Position"
+                  }
+                },
+                "type": "object",
+                "className": "org.eclipse.lsp4j.Range"
+              },
+              "source": {
+                "type": "string",
+                "className": "java.lang.String"
+              },
+              "message": {
+                "type": "string",
+                "className": "java.lang.String"
+              },
+              "relatedInformation": {
+                "item": {
+                  "properties": {
+                    "location": {
+                      "properties": {
+                        "range": {
+                          "properties": {
+                            "start": {
+                              "properties": {
+                                "character": {
+                                  "type": "integer",
+                                  "className": "int"
+                                },
+                                "line": {
+                                  "type": "integer",
+                                  "className": "int"
+                                }
+                              },
+                              "type": "object",
+                              "className": "org.eclipse.lsp4j.Position"
+                            },
+                            "end": {
+                              "properties": {
+                                "character": {
+                                  "type": "integer",
+                                  "className": "int"
+                                },
+                                "line": {
+                                  "type": "integer",
+                                  "className": "int"
+                                }
+                              },
+                              "type": "object",
+                              "className": "org.eclipse.lsp4j.Position"
+                            }
+                          },
+                          "type": "object",
+                          "className": "org.eclipse.lsp4j.Range"
+                        },
+                        "uri": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        }
+                      },
+                      "type": "object",
+                      "className": "org.eclipse.lsp4j.Location"
+                    },
+                    "message": {
+                      "type": "string",
+                      "className": "java.lang.String"
+                    }
+                  },
+                  "type": "object",
+                  "className": "org.eclipse.lsp4j.DiagnosticRelatedInformation"
+                },
+                "type": "array",
+                "className": "java.util.List<org.eclipse.lsp4j.DiagnosticRelatedInformation>"
+              },
+              "tags": {
+                "item": {
+                  "enumValues": [
+                    "Unnecessary",
+                    "Deprecated"
+                  ],
+                  "type": "string",
+                  "className": "org.eclipse.lsp4j.DiagnosticTag"
+                },
+                "type": "array",
+                "className": "java.util.List<org.eclipse.lsp4j.DiagnosticTag>"
+              }
+            },
+            "type": "object",
+            "className": "org.eclipse.lsp4j.Diagnostic"
+          },
+          "type": "array",
+          "className": "java.util.List<org.eclipse.lsp4j.Diagnostic>"
+        },
+        "uri": {
+          "type": "string",
+          "className": "java.lang.String"
+        },
+        "version": {
+          "type": "number",
+          "className": "java.lang.Integer"
+        }
+      },
+      "type": "object",
+      "className": "org.eclipse.lsp4j.PublishDiagnosticsParams"
+    },
+    "type": "array",
+    "className": "java.util.List<org.eclipse.lsp4j.PublishDiagnosticsParams>"
+  }
+}

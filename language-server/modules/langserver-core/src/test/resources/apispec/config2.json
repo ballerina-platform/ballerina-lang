@@ -1,0 +1,36 @@
+{
+  "method": "ballerinaSymbol/endpoints",
+  "parameters": [],
+  "returnType": {
+    "properties": {
+      "endpoints": {
+        "item": {
+          "properties": {
+            "fileName": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "orgName": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "name": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "packageName": {
+              "type": "string",
+              "className": "java.lang.String"
+            }
+          },
+          "type": "object",
+          "className": "org.ballerinalang.langserver.extensions.ballerina.symbol.Endpoint"
+        },
+        "type": "array",
+        "className": "java.util.List<org.ballerinalang.langserver.extensions.ballerina.symbol.Endpoint>"
+      }
+    },
+    "type": "object",
+    "className": "org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaEndpointsResponse"
+  }
+}
