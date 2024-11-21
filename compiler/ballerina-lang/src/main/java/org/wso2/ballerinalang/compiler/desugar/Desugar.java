@@ -910,7 +910,7 @@ public class Desugar extends BLangNodeVisitor {
         if (type.tag == TypeTags.TYPEREFDESC) {
             BType referredType = ((BTypeReferenceType) type).referredType;
             int tag = referredType.tag;
-            if (tag == TypeTags.RECORD) {
+            if (tag == TypeTags.RECORD || tag == TypeTags.MAP) {
                 type = referredType;
             }
         }
