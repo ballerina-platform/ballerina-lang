@@ -221,8 +221,8 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         List<LSPackageLoader.ModuleInfo> moduleList =
                 LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
         moduleList.forEach(pkg -> {
-            String orgName = pkg.packageOrg().value();
-            String pkgName = pkg.packageName().value();
+            String orgName = pkg.packageOrg();
+            String pkgName = pkg.packageName();
             if (orgName.equals(Names.BALLERINA_INTERNAL_ORG.getValue())
                     || ModuleUtil.matchingImportedModule(ctx, pkg).isPresent()) {
                 // Avoid suggesting the ballerinai org name
@@ -232,7 +232,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                     .map(ModuleUtil::escapeModuleName)
                     .map(CommonUtil::escapeReservedKeyword)
                     .toList();
-            String label = pkg.packageOrg().value().isEmpty() ? String.join(".", pkgNameComps)
+            String label = pkg.packageOrg().isEmpty() ? String.join(".", pkgNameComps)
                     : CommonUtil.getPackageLabel(pkg);
             String insertText = orgName.isEmpty() ? "" : orgName + Names.ORG_NAME_SEPARATOR.getValue();
 
@@ -329,7 +329,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                     .collect(Collectors.joining("."));
 
             moduleList = LSPackageLoader.getInstance(serverContext).getCentralPackages();
-            moduleList.forEach(ballerinaPackage -> packageList.add(ballerinaPackage.packageName().value()));
+            moduleList.forEach(ballerinaPackage -> packageList.add(ballerinaPackage.packageName()));
             List<String> filteredPackageNames = getFilteredPackages(packageList, prefix, context);
             for (String filteredPackage : filteredPackageNames) {
                 LSCompletionItem completionItem = getImportCompletion(context, filteredPackage, filteredPackage);
@@ -340,9 +340,9 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         }
         moduleList = LSPackageLoader.getInstance(serverContext).getAllVisiblePackages(context);
         moduleList.forEach(ballerinaPackage -> {
-            String packageName = ballerinaPackage.packageName().value();
+            String packageName = ballerinaPackage.packageName();
             String insertText;
-            if (orgName.equals(ballerinaPackage.packageOrg().value()) && !addedPkgNames.contains(packageName)
+            if (orgName.equals(ballerinaPackage.packageOrg()) && !addedPkgNames.contains(packageName)
                     && ModuleUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
                 if (orgName.equals(Names.BALLERINA_ORG.value)
                         && packageName.startsWith(Names.LANG.getValue() + Names.DOT.getValue())) {

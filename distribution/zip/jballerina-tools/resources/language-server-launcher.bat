@@ -42,11 +42,11 @@ rem -------------------------- set BALLERINA_HOME -----------------------------
 rem TODO: Validate BALLERINA_HOME
 rem %~sdp0 is expanded pathname of the current script under NT with spaces in the path removed
 set BALLERINA_HOME=%~sdp0..\..\..\..
-if exist "%BALLERINA_HOME%\..\..\dependencies\jdk-17.0.7+7-jre" goto setJava
+if exist "%BALLERINA_HOME%\..\..\dependencies\jdk-21.0.5+11-jre" goto setJava
 goto checkJava
 
 :setJava
-set JAVA_HOME="%BALLERINA_HOME%\..\..\dependencies\jdk-17.0.7+7-jre"
+set JAVA_HOME="%BALLERINA_HOME%\..\..\dependencies\jdk-21.0.5+11-jre"
 goto checkJava
 
 :checkJava

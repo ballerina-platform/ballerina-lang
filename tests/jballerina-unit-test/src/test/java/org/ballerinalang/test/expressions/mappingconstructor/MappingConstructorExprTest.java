@@ -318,7 +318,8 @@ public class MappingConstructorExprTest {
                 { "testSpreadOpInGlobalMap" },
                 { "testMappingConstrExprAsSpreadExpr" },
                 { "testSpreadFieldWithRecordTypeHavingNeverField" },
-                { "testSpreadFieldWithRecordTypeHavingRestDescriptor" }
+                { "testSpreadFieldWithRecordTypeHavingRestDescriptor" },
+                { "testSpreadFieldWithRecordTypeReference" }
         };
     }
 
