@@ -107,7 +107,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NO_OF_DEPENDANT_MODULES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_SELF_INSTANCE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARENT_MODULE_START_ATTEMPTED;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARENT_MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECEIVE_WORKER_CHANNEL_NAMES_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SEND_WORKER_CHANNEL_NAMES_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
