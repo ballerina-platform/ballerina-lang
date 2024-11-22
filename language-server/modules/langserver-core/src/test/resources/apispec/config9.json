@@ -1,0 +1,186 @@
+{
+  "method": "textDocument/colorPresentation",
+  "parameters": [
+    {
+      "name": "param0",
+      "schema": {
+        "properties": {
+          "color": {
+            "properties": {
+              "red": {
+                "type": "number",
+                "className": "double"
+              },
+              "green": {
+                "type": "number",
+                "className": "double"
+              },
+              "blue": {
+                "type": "number",
+                "className": "double"
+              },
+              "alpha": {
+                "type": "number",
+                "className": "double"
+              }
+            },
+            "type": "object",
+            "className": "org.eclipse.lsp4j.Color"
+          },
+          "textDocument": {
+            "properties": {
+              "uri": {
+                "type": "string",
+                "className": "java.lang.String"
+              }
+            },
+            "type": "object",
+            "className": "org.eclipse.lsp4j.TextDocumentIdentifier"
+          },
+          "range": {
+            "properties": {
+              "start": {
+                "properties": {
+                  "character": {
+                    "type": "integer",
+                    "className": "int"
+                  },
+                  "line": {
+                    "type": "integer",
+                    "className": "int"
+                  }
+                },
+                "type": "object",
+                "className": "org.eclipse.lsp4j.Position"
+              },
+              "end": {
+                "properties": {
+                  "character": {
+                    "type": "integer",
+                    "className": "int"
+                  },
+                  "line": {
+                    "type": "integer",
+                    "className": "int"
+                  }
+                },
+                "type": "object",
+                "className": "org.eclipse.lsp4j.Position"
+              }
+            },
+            "type": "object",
+            "className": "org.eclipse.lsp4j.Range"
+          }
+        },
+        "type": "object",
+        "className": "org.eclipse.lsp4j.ColorPresentationParams"
+      }
+    }
+  ],
+  "returnType": {
+    "item": {
+      "properties": {
+        "textEdit": {
+          "properties": {
+            "newText": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "range": {
+              "properties": {
+                "start": {
+                  "properties": {
+                    "character": {
+                      "type": "integer",
+                      "className": "int"
+                    },
+                    "line": {
+                      "type": "integer",
+                      "className": "int"
+                    }
+                  },
+                  "type": "object",
+                  "className": "org.eclipse.lsp4j.Position"
+                },
+                "end": {
+                  "properties": {
+                    "character": {
+                      "type": "integer",
+                      "className": "int"
+                    },
+                    "line": {
+                      "type": "integer",
+                      "className": "int"
+                    }
+                  },
+                  "type": "object",
+                  "className": "org.eclipse.lsp4j.Position"
+                }
+              },
+              "type": "object",
+              "className": "org.eclipse.lsp4j.Range"
+            }
+          },
+          "type": "object",
+          "className": "org.eclipse.lsp4j.TextEdit"
+        },
+        "label": {
+          "type": "string",
+          "className": "java.lang.String"
+        },
+        "additionalTextEdits": {
+          "item": {
+            "properties": {
+              "newText": {
+                "type": "string",
+                "className": "java.lang.String"
+              },
+              "range": {
+                "properties": {
+                  "start": {
+                    "properties": {
+                      "character": {
+                        "type": "integer",
+                        "className": "int"
+                      },
+                      "line": {
+                        "type": "integer",
+                        "className": "int"
+                      }
+                    },
+                    "type": "object",
+                    "className": "org.eclipse.lsp4j.Position"
+                  },
+                  "end": {
+                    "properties": {
+                      "character": {
+                        "type": "integer",
+                        "className": "int"
+                      },
+                      "line": {
+                        "type": "integer",
+                        "className": "int"
+                      }
+                    },
+                    "type": "object",
+                    "className": "org.eclipse.lsp4j.Position"
+                  }
+                },
+                "type": "object",
+                "className": "org.eclipse.lsp4j.Range"
+              }
+            },
+            "type": "object",
+            "className": "org.eclipse.lsp4j.TextEdit"
+          },
+          "type": "array",
+          "className": "java.util.List<org.eclipse.lsp4j.TextEdit>"
+        }
+      },
+      "type": "object",
+      "className": "org.eclipse.lsp4j.ColorPresentation"
+    },
+    "type": "array",
+    "className": "java.util.List<org.eclipse.lsp4j.ColorPresentation>"
+  }
+}

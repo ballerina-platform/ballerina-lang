@@ -60,7 +60,7 @@ public class ApiSpecificationGeneratorTest {
         JsonObject actualMethod = ApiSpecGenerator.generate(method);
 
         if (!actualMethod.equals(expectedMethod)) {
-            updateConfig(config, actualMethod);
+//            updateConfig(config, actualMethod);
             Assert.fail("Failed test: " + config);
         }
     }

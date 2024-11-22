@@ -1,0 +1,66 @@
+{
+  "method": "textDocument/documentHighlight",
+  "parameters": [
+    {
+      "name": "param0",
+      "schema": {
+        "properties": {},
+        "type": "object",
+        "className": "org.eclipse.lsp4j.DocumentHighlightParams"
+      }
+    }
+  ],
+  "returnType": {
+    "item": {
+      "properties": {
+        "kind": {
+          "enumValues": [
+            "Text",
+            "Read",
+            "Write"
+          ],
+          "type": "string",
+          "className": "org.eclipse.lsp4j.DocumentHighlightKind"
+        },
+        "range": {
+          "properties": {
+            "start": {
+              "properties": {
+                "character": {
+                  "type": "integer",
+                  "className": "int"
+                },
+                "line": {
+                  "type": "integer",
+                  "className": "int"
+                }
+              },
+              "type": "object",
+              "className": "org.eclipse.lsp4j.Position"
+            },
+            "end": {
+              "properties": {
+                "character": {
+                  "type": "integer",
+                  "className": "int"
+                },
+                "line": {
+                  "type": "integer",
+                  "className": "int"
+                }
+              },
+              "type": "object",
+              "className": "org.eclipse.lsp4j.Position"
+            }
+          },
+          "type": "object",
+          "className": "org.eclipse.lsp4j.Range"
+        }
+      },
+      "type": "object",
+      "className": "org.eclipse.lsp4j.DocumentHighlight"
+    },
+    "type": "array",
+    "className": "java.util.List<? extends org.eclipse.lsp4j.DocumentHighlight>"
+  }
+}
