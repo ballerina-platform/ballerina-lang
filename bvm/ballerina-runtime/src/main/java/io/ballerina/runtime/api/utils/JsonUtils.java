@@ -17,15 +17,16 @@
  */
 package io.ballerina.runtime.api.utils;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.StructureType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BIterator;
@@ -33,14 +34,13 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.internal.JsonGenerator;
-import io.ballerina.runtime.internal.JsonInternalUtils;
-import io.ballerina.runtime.internal.JsonParser;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.json.JsonGenerator;
+import io.ballerina.runtime.internal.json.JsonInternalUtils;
+import io.ballerina.runtime.internal.json.JsonParser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -242,7 +242,7 @@ public final class JsonUtils {
             gen.serialize(json);
             gen.flush();
         } catch (IOException e) {
-            throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()), e);
         }
     }
 
@@ -259,7 +259,7 @@ public final class JsonUtils {
             gen.serialize(json);
             gen.flush();
         } catch (IOException e) {
-            throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()), e);
         }
     }
 
@@ -275,7 +275,7 @@ public final class JsonUtils {
             gen.serialize(json);
             gen.flush();
         } catch (IOException e) {
-            throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()), e);
         }
     }
 

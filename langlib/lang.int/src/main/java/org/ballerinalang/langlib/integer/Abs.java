@@ -31,13 +31,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.int", functionName = "abs",
-//        args = {@Argument(name = "n", type = TypeKind.INT)},
-//        returnType = {@ReturnType(type = TypeKind.INT)},
-//        isPublic = true
-//)
-public final class Abs {
+public class Abs {
 
     private Abs() {
     }

@@ -222,8 +222,8 @@ class JvmObservabilityGen {
             }
         }
         // Adding initializing instructions for all compile time known constants
-        BIRFunction initFunc = pkg.functions.get(0);
-        BIRBasicBlock constInitBB = initFunc.basicBlocks.get(0);
+        BIRFunction initFunc = pkg.functions.getFirst();
+        BIRBasicBlock constInitBB = initFunc.basicBlocks.getFirst();
         for (Map.Entry<Object, BIROperand> entry : compileTimeConstants.entrySet()) {
             BIROperand operand = entry.getValue();
             ConstantLoad constLoadIns = new ConstantLoad(COMPILE_TIME_CONST_POS, entry.getKey(),
@@ -427,7 +427,7 @@ class JvmObservabilityGen {
             asyncCallIns.calleePkg = currentPkgId;
             asyncCallIns.isVirtual = attachedTypeDef != null;
             if (attachedTypeDef != null) {
-                asyncCallIns.args.add(0, new BIROperand(new BIRVariableDcl(attachedTypeDef.type, selfArgName,
+                asyncCallIns.args.addFirst(new BIROperand(new BIRVariableDcl(attachedTypeDef.type, selfArgName,
                                                                            VarScope.FUNCTION, VarKind.SELF)));
             }
         }
@@ -456,7 +456,8 @@ class JvmObservabilityGen {
                                                boolean isRemote, boolean isMainEntryPoint, boolean isWorker) {
         // Injecting observe start call at the start of the function body
         {
-            BIRBasicBlock startBB = func.basicBlocks.get(0);    // Every non-abstract function should have function body
+            BIRBasicBlock startBB = func.basicBlocks.getFirst(); // Every non-abstract function should have function
+            // body
             BIRBasicBlock newStartBB = insertBasicBlock(func, 1);
             swapBasicBlockContent(func, startBB, newStartBB);
 
@@ -539,7 +540,7 @@ class JvmObservabilityGen {
         // Add error entry for the entire function
         {
             int initialBBCount = func.basicBlocks.size();
-            BIRBasicBlock startBB = func.basicBlocks.get(0);
+            BIRBasicBlock startBB = func.basicBlocks.getFirst();
             BIRBasicBlock endBB = func.basicBlocks.get(initialBBCount - 1);
             BIRBasicBlock observeEndBB = insertBasicBlock(func, initialBBCount);
             BIRBasicBlock rePanicBB = insertBasicBlock(func, initialBBCount + 1);
@@ -581,7 +582,7 @@ class JvmObservabilityGen {
                     String action;
                     if (callIns.isVirtual) {
                         // Every virtual call instruction has self as the first argument
-                        objectTypeOperand = callIns.args.get(0);
+                        objectTypeOperand = callIns.args.getFirst();
                         if (callIns.name.getValue().contains(".")) {
                             String[] split = callIns.name.getValue().split("\\.");
                             action = split[1];

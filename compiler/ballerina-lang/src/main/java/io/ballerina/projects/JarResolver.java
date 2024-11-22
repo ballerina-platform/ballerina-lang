@@ -70,7 +70,7 @@ public class JarResolver {
     private final List<PlatformLibrary> providedPlatformLibs;
 
     private ClassLoader classLoaderWithAllJars;
-    public Set<Path> optimizedJarLibraryPaths = new HashSet<>();
+    private Set<Path> optimizedJarLibraryPaths = new HashSet<>();
 
     JarResolver(JBallerinaBackend jBalBackend, PackageResolution pkgResolution) {
         this.jBalBackend = jBalBackend;
@@ -405,5 +405,9 @@ public class JarResolver {
             className = encodeNonFunctionIdentifier(orgName) + "." + className;
         }
         return className;
+    }
+
+    public Set<Path> getOptimizedJarLibraryPaths() {
+        return optimizedJarLibraryPaths;
     }
 }

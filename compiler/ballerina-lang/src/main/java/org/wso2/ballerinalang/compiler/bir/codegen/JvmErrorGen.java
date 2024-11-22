@@ -80,8 +80,8 @@ public class JvmErrorGen {
     }
 
     public void generateTryCatch(BIRNode.BIRFunction func, String funcName, BIRNode.BIRBasicBlock currentBB,
-                                 JvmTerminatorGen termGen, LabelGenerator labelGen, int invocationVarIndex,
-                                 int localVarOffset) {
+                                 JvmTerminatorGen termGen, LabelGenerator labelGen, int channelMapVarIndex,
+                                 int sendWorkerChannelNamesVar, int receiveWorkerChannelNamesVar, int localVarOffset) {
 
         BIRNode.BIRErrorEntry currentEE = findErrorEntry(func.errorTable, currentBB);
         if (currentEE == null) {
@@ -108,7 +108,8 @@ public class JvmErrorGen {
                 this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, CREATE_INTEROP_ERROR_METHOD,
                         CREATE_ERROR_FROM_THROWABLE, false);
                 jvmInstructionGen.generateVarStore(this.mv, retVarDcl, retIndex);
-                termGen.genReturnTerm(retIndex, func, invocationVarIndex, localVarOffset);
+                termGen.genReturnTerm(retIndex, func, channelMapVarIndex, sendWorkerChannelNamesVar,
+                        receiveWorkerChannelNamesVar, localVarOffset);
                 this.mv.visitJumpInsn(GOTO, jumpLabel);
             }
             if (!exeptionExist) {
@@ -120,13 +121,18 @@ public class JvmErrorGen {
                 this.mv.visitJumpInsn(GOTO, jumpLabel);
             }
             Label otherErrorLabel = new Label();
+            Label sOErrorlabel = new Label();
+            this.mv.visitTryCatchBlock(startLabel, endLabel, sOErrorlabel, STACK_OVERFLOW_ERROR);
             this.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, THROWABLE);
-
+            this.mv.visitLabel(sOErrorlabel);
+            this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, TRAP_ERROR_METHOD, CREATE_ERROR_FROM_THROWABLE,
+                    false);
+            this.mv.visitInsn(ATHROW);
+            this.mv.visitJumpInsn(GOTO, jumpLabel);
             this.mv.visitLabel(otherErrorLabel);
             this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, CREATE_INTEROP_ERROR_METHOD,
                     CREATE_ERROR_FROM_THROWABLE, false);
             this.mv.visitInsn(ATHROW);
-            this.mv.visitJumpInsn(GOTO, jumpLabel);
             this.mv.visitLabel(jumpLabel);
             return;
         }

@@ -79,7 +79,7 @@ public class TestBirAndJarCache {
         // 2) Issue a compilation and code generation
         Package currentPackage = project.currentPackage();
         PackageCompilation pkgCompilation = currentPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_21);
 
         int numOfModules = currentPackage.moduleIds().size();
         TestCompilationCache testCompilationCache = testCompCacheFactory.compilationCache();
@@ -116,7 +116,7 @@ public class TestBirAndJarCache {
         Assert.assertFalse(compilation.diagnosticResult().hasErrors(),
                 TestUtils.getDiagnosticsAsString(compilation.diagnosticResult()));
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
         Assert.assertEquals(jBallerinaBackend.diagnosticResult().errorCount(), 1,
                 TestUtils.getDiagnosticsAsString(jBallerinaBackend.diagnosticResult()));
         Path cacheDir = new Target(buildProject.targetDir()).cachesPath();

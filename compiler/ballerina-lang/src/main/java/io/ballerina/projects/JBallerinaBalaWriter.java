@@ -85,7 +85,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
         // -- Bala Root
         //   - libs
         //     - platform
-        //       - java17
+        //       - java21
         //         - java-library1.jar
         //         - java-library2.jar
         JsonArray newPlatformLibs = new JsonArray();
@@ -227,7 +227,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
     }
 
     /**
-     * Mark target platform as `java17` if one of the following condition fulfils.
+     * Mark target platform as `java21` if one of the following condition fulfils.
      * 1) Direct dependencies of imports in the package have any `ballerina/java` dependency.
      * 2) Package has defined any platform dependency.
      *

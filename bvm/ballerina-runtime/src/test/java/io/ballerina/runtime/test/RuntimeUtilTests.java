@@ -18,8 +18,8 @@
 
 package io.ballerina.runtime.test;
 
-import io.ballerina.runtime.internal.util.CompatibilityChecker;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.CompatibilityChecker;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
