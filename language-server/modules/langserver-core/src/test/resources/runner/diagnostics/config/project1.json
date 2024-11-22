@@ -1,0 +1,45 @@
+{
+  "sourceRoot": "project1",
+  "result": {
+    "errorDiagnosticMap": {
+      "project1/sample.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 8
+            },
+            "end": {
+              "line": 0,
+              "character": 17
+            }
+          },
+          "severity": "Error",
+          "code": {
+            "left": "BCE2066"
+          },
+          "message": "incompatible types: expected 'int', found 'string'"
+        }
+      ],
+      "project1/another.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 9
+            },
+            "end": {
+              "line": 5,
+              "character": 10
+            }
+          },
+          "severity": "Error",
+          "code": {
+            "left": "BCE2066"
+          },
+          "message": "incompatible types: expected 'string', found 'int'"
+        }
+      ]
+    }
+  }
+}

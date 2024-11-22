@@ -33,6 +33,7 @@ import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
@@ -359,6 +360,8 @@ public class Type {
                 typeName = typeName.substring(1, typeName.length() - 1);
             }
             type = new PrimitiveType(typeName);
+        } else if (symbol instanceof TypeDefinitionSymbol) {
+            type = fromSemanticSymbol(((TypeDefinitionSymbol) symbol).typeDescriptor());
         }
         return type;
     }

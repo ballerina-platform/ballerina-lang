@@ -32,6 +32,8 @@ public class ModuleObject {
     private final List<DataObject> enums = new ArrayList<>();
     private final List<DataObject> listeners = new ArrayList<>();
     private final List<DataObject> moduleVariables = new ArrayList<>();
+    private final List<DataObject> configurableVariables = new ArrayList<>();
+    private final List<DataObject> automations = new ArrayList<>();
 
     private String name;
 
@@ -47,64 +49,70 @@ public class ModuleObject {
         this.functions.add(dataObject);
     }
 
-    protected void addConstant(DataObject dataObject) {
+    private void addConstant(DataObject dataObject) {
         this.constants.add(dataObject);
     }
 
-    protected void addService(DataObject dataObject) {
+    private void addService(DataObject dataObject) {
         this.services.add(dataObject);
     }
 
-    protected void addRecord(DataObject dataObject) {
+    private void addRecord(DataObject dataObject) {
         this.records.add(dataObject);
     }
 
-    protected void addObject(DataObject dataObject) {
+    private void addObject(DataObject dataObject) {
         this.objects.add(dataObject);
     }
 
-    protected void addClass(DataObject dataObject) {
+    private void addClass(DataObject dataObject) {
         this.classes.add(dataObject);
     }
 
-    protected void addType(DataObject dataObject) {
+    private void addType(DataObject dataObject) {
         this.types.add(dataObject);
+    }
+
+    private void addAutomation(DataObject dataObject) {
+        this.automations.add(dataObject);
+        this.functions.add(dataObject); // The main function
+    }
+
+    private void addModuleVariable(DataObject dataObject) {
+        this.moduleVariables.add(dataObject);
+    }
+
+    private void addConfigurableVariable(DataObject dataObject) {
+        this.configurableVariables.add(dataObject);
+        this.moduleVariables.add(dataObject);   // Configurable variable is also a module variable
+    }
+
+    private void addListener(DataObject dataObject) {
+        this.listeners.add(dataObject);
+    }
+
+    private void addEnum(DataObject dataObject) {
+        this.enums.add(dataObject);
     }
 
     protected void addDataObject(MapperObject mapperObject) {
         switch (mapperObject.getKey()) {
-            case PackageServiceConstants.FUNCTIONS:
-                this.addFunction(mapperObject.getDataObject());
-                break;
-            case PackageServiceConstants.SERVICES:
-                this.addService(mapperObject.getDataObject());
-                break;
-            case PackageServiceConstants.CONSTANTS:
-                this.addConstant(mapperObject.getDataObject());
-                break;
-            case PackageServiceConstants.RECORDS:
-                this.addRecord(mapperObject.getDataObject());
-                break;
-            case PackageServiceConstants.OBJECTS:
-                this.addObject(mapperObject.getDataObject());
-                break;
-            case PackageServiceConstants.CLASSES:
-                this.addClass(mapperObject.getDataObject());
-                break;
-            case PackageServiceConstants.TYPES:
-                this.addType(mapperObject.getDataObject());
-                break;
-            case PackageServiceConstants.ENUMS:
-                this.enums.add(mapperObject.getDataObject());
-                break;
-            case PackageServiceConstants.LISTENERS:
-                this.listeners.add(mapperObject.getDataObject());
-                break;
-            case PackageServiceConstants.MODULE_LEVEL_VARIABLE:
-                this.moduleVariables.add(mapperObject.getDataObject());
-                break;
-            default:
-                break;
+            case PackageServiceConstants.FUNCTIONS -> this.addFunction(mapperObject.getDataObject());
+            case PackageServiceConstants.SERVICES -> this.addService(mapperObject.getDataObject());
+            case PackageServiceConstants.CONSTANTS -> this.addConstant(mapperObject.getDataObject());
+            case PackageServiceConstants.RECORDS -> this.addRecord(mapperObject.getDataObject());
+            case PackageServiceConstants.OBJECTS -> this.addObject(mapperObject.getDataObject());
+            case PackageServiceConstants.CLASSES -> this.addClass(mapperObject.getDataObject());
+            case PackageServiceConstants.TYPES -> this.addType(mapperObject.getDataObject());
+            case PackageServiceConstants.ENUMS -> this.addEnum(mapperObject.getDataObject());
+            case PackageServiceConstants.LISTENERS -> this.addListener(mapperObject.getDataObject());
+            case PackageServiceConstants.MODULE_LEVEL_VARIABLE ->
+                    this.addModuleVariable(mapperObject.getDataObject());
+            case PackageServiceConstants.CONFIGURABLE_VARIABLES ->
+                    this.addConfigurableVariable(mapperObject.getDataObject());
+            case PackageServiceConstants.AUTOMATIONS -> this.addAutomation(mapperObject.getDataObject());
+            default -> {
+            }
         }
     }
 }
