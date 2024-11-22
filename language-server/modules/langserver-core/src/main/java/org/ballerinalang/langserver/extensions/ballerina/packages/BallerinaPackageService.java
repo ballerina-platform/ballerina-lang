@@ -157,7 +157,7 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
      * @param project {@link Project}
      * @return {@link JsonObject} with package components
      */
-    private JsonObject getPackageComponents(Project project) {
+    public JsonObject getPackageComponents(Project project) {
         Package currentPackage = project.currentPackage();
         PackageObject packageObject = new PackageObject(currentPackage.packageName().value(),
                 project.sourceRoot().toUri().toString());
