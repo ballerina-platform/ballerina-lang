@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * Tests order of execution of listener methods.
  */
 public class ModuleExecutionFlowTests extends BaseTest {
-    public static final int TIMEOUT = 10000;
+    public static final int TIMEOUT = 1000;
 
     @Test
     public void testModuleExecutionOrder() throws BallerinaTestException {
